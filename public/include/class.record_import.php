@@ -150,6 +150,10 @@ abstract class RecordImport
         return $xpath;
     }
     
+    /**
+     * Compare titles longer than 10 chars
+     * @param string $authorativePid
+     */
     protected function fuzzyTitleMatch($authorativePid)
     {
         //Fuzzy title matching. Title must be at least 10 chars long and
@@ -176,8 +180,26 @@ abstract class RecordImport
         return $titleIsFuzzyMatched;
     }
     
+    /**
+     * Store stats in SQLite DB when running in test mode
+     * @param string $scopusId
+     * @param string $operation
+     * @param string $docType
+     * @param string $agType
+     * @return boolean
+     */
     protected function inTestSave($scopusId, $operation, $docType=null, $agType=null)
     {
+        /*
+         * CREATE TABLE [records] (
+         * [scopus_id] TEXT  PRIMARY KEY NOT NULL,
+         * [operation] VARCHAR(8) DEFAULT 'NULL' NULL,
+         * [count] INTEGER DEFAULT '0' NOT NULL,
+         * [doc_type] VARCHAR(10) DEFAULT 'NULL' NULL,
+         * [ag_type] VARCHAR(100) DEFAULT 'NULL' NULL,
+         * [title] TEXT DEFAULT 'NULL' NULL
+		 * )
+         */
         if(!is_file($this->_statsFile))
         {
             return false;
@@ -255,19 +277,20 @@ abstract class RecordImport
                 }
                 elseif($pidCount > 1)
                 {
-                    $this->_log->err("Multiple matches found for $id:". implode(", ", $pids));
+                    $histMsg = "ST01 - "
+                    . $this->_scopusId." matches more than one pid("
+                    . implode(',', $pids) . ") based on $retrieverName";
+                    
+                    $this->_log->err($histMsg);
                     
                     if(!$this->_inTest)
                     {
-                        $this->save(null, APP_SCOPUS_IMPORT_COLLECTION);
+                        $this->save($histMsg, APP_SCOPUS_IMPORT_COLLECTION);
                     }
                     else 
                     {
-                        /*file_put_contents($this->_statsFile, "ST01 - " 
-                        . $this->_scopusId." matches more than one pid(" 
-                        . implode(',', $pids) . ") based on $retrieverName\n\n", 
-                        FILE_APPEND);*/
-                        $this->inTestSave($this->_scopusId, 'ST01', $this->_scopusDocTypeCode, $this->_scopusAggregationType);
+                        $this->inTestSave($this->_scopusId, 'ST01', 
+                            $this->_scopusDocTypeCode, $this->_scopusAggregationType);
                     }
                     return false;
                 }
@@ -318,19 +341,18 @@ abstract class RecordImport
                     }
                     else
                     {
-                        $this->_log->err("Mismatch error. Scopus Id " . $this->$cit 
-                        . " matches but the following do not: " 
-                        . var_export($idMismatches, true));
+                        $histMsg = "ST02 - Mismatch error. Scopus Id "
+                        . $this->$cit . " matches but the following do not: "
+                        . var_export($idMismatches, true);
+                        
+                        $this->_log->err($histMsg);
                         
                         if(!$this->_inTest)
                         {
-                            $this->save(null, APP_SCOPUS_IMPORT_COLLECTION);
+                            $this->save($histMsg, APP_SCOPUS_IMPORT_COLLECTION);
                         }
                         else 
                         {
-                            /*file_put_contents($this->_statsFile, "ST02 - Mismatch error. Scopus Id " 
-                            . $this->$cit . " matches but the following do not: " 
-                            . var_export($idMismatches, true)."\n\n", FILE_APPEND);*/
                             $this->inTestSave($this->_scopusId, 'ST02', $this->_scopusDocTypeCode, $this->_scopusAggregationType);
                         }
                         return false;
@@ -362,20 +384,19 @@ abstract class RecordImport
                     }
                     else 
                     {
-                        $this->_log->err("Start page mismatch for '" . $this->_title 
-                                . "'. Local start page is: " . $localStartPage 
-                                . " . Downloaded start page is: " . $this->_startPage);
+                        $histMsg = "ST03 - Start page mismatch for '" . $this->_title
+                        . " - Scopus ID: " . $this->_scopusId
+                        . "'. Local start page is: " . $localStartPage
+                        . " . Downloaded start page is: " . $this->_startPage;
+                        
+                        $this->_log->err($histMsg);
                         
                         if(!$this->_inTest)
                         {
-                            $this->save(null, APP_SCOPUS_IMPORT_COLLECTION);
+                            $this->save($histMsg, APP_SCOPUS_IMPORT_COLLECTION);
                         }
                         else 
                         {
-                            /*file_put_contents($this->_statsFile, "ST03 - Start page mismatch for '" . $this->_title 
-                                . " - Scopus ID: " . $this->_scopusId
-                                . "'. Local start page is: " . $localStartPage 
-                                . " . Downloaded start page is: " . $this->_startPage . "\n\n", FILE_APPEND);*/
                             $this->inTestSave($this->_scopusId, 'ST03', $this->_scopusDocTypeCode, $this->_scopusAggregationType);
                         }
                         
@@ -392,20 +413,19 @@ abstract class RecordImport
                     }
                     else 
                     {
-                        $this->_log->err("End page mismatch for '" . $this->_title 
+                        $histMsg = "ST04 - End page mismatch for '" . $this->_title 
+                                . " - Scopus ID " . $this->_scopusId
                                 . "'. Local end page is: " . $localEndPage 
-                                . " . Downloaded end page is: " . $this->_endPage);
+                                . " . Downloaded end page is: " . $this->_endPage;
+                        
+                        $this->_log->err($histMsg);
                         
                         if(!$this->_inTest)
                         {
-                            $this->save(null, APP_SCOPUS_IMPORT_COLLECTION);
+                            $this->save($histMsg, APP_SCOPUS_IMPORT_COLLECTION);
                         }
                         else 
                         {
-                            /*file_put_contents($this->_statsFile, "ST04 - End page mismatch for '" . $this->_title 
-                                . " - Scopus ID " . $this->_scopusId
-                                . "'. Local end page is: " . $localEndPage 
-                                . " . Downloaded end page is: " . $this->_endPage, FILE_APPEND);*/
                             $this->inTestSave($this->_scopusId, 'ST04', $this->_scopusDocTypeCode, $this->_scopusAggregationType);
                         }
                         
@@ -423,20 +443,19 @@ abstract class RecordImport
                     else
                     {
                         
-                        $this->_log->err("Volume mismatch for '" . $this->_title
-                        . "'. Local end page is: " . $localVolume
-                        . " . Downloaded end page is: " . $this->_issueVolume);
+                        $histMsg = "ST05 - Volume mismatch for '" . $this->_title
+                                . " - Scopus ID " . $this->_scopusId
+                                . "'. Local end page is: " . $localVolume
+                                . " . Downloaded end page is: " . $this->_issueVolume;
+                        
+                        $this->_log->err($histMsg);
                         
                         if(!$this->_inTest)
                         {
-                            $this->save(null, APP_SCOPUS_IMPORT_COLLECTION);
+                            $this->save($histMsg, APP_SCOPUS_IMPORT_COLLECTION);
                         }
                         else 
                         {
-                            /*file_put_contents($this->_statsFile, "ST05 - Volume mismatch for '" . $this->_title
-                                . " - Scopus ID " . $this->_scopusId
-                                . "'. Local end page is: " . $localVolume
-                                . " . Downloaded end page is: " . $this->_issueVolume."\n\n", FILE_APPEND);*/
                             $this->inTestSave($this->_scopusId, 'ST05', $this->_scopusDocTypeCode, $this->_scopusAggregationType);
                         }
                         
@@ -447,20 +466,20 @@ abstract class RecordImport
             elseif($associations['_title']['status'] != 'UNMATCHED')
             {
                 $associations['_title']['status'] = 'UNCERTAIN';
-                $this->_log->err("Downloaded title: '" . $downloadedTitle 
+                
+                $histMsg = "ST06 - Scopus ID: " . $this->_scopusId 
+                        . " Downloaded title: '" . $downloadedTitle 
                         . "' FAILED TO MATCH the local title: '" . $localTitle 
-                        . "' with a match of only " . $percentageMatch . "%");
+                        . "' with a match of only " . $percentageMatch . "%";
+                
+                $this->_log->err($histMsg);
                 
                 if(!$this->_inTest)
                 {
-                    $this->save(null, APP_SCOPUS_IMPORT_COLLECTION);
+                    $this->save($histMsg, APP_SCOPUS_IMPORT_COLLECTION);
                 }
                 else 
                 {
-                    /*file_put_contents($this->_statsFile, "ST06 - Scopus ID: " . $this->_scopusId 
-                        . " Downloaded title: '" . $downloadedTitle 
-                        . "' FAILED TO MATCH the local title: '" . $localTitle 
-                        . "' with a match of only " . $percentageMatch . "%\n\n", FILE_APPEND);*/
                     $this->inTestSave($this->_scopusId, 'ST06', $this->_scopusDocTypeCode, $this->_scopusAggregationType);
                 }
             }
@@ -476,7 +495,7 @@ abstract class RecordImport
                 
                 if(!$this->_inTest)
                 {
-                    $this->save(null, APP_SCOPUS_IMPORT_COLLECTION);
+                    $this->save($fuzzyMatchState[0], APP_SCOPUS_IMPORT_COLLECTION);
                 }
                 else 
                 {
@@ -488,14 +507,15 @@ abstract class RecordImport
                 return 'POSSIBLE MATCH';
             }
             
+            $histMsg = "ST07 - No matches, saving a new PID for Scopus ID: " 
+                    . $this->_scopusId . "'" . $this->_title;
+            
             if(!$this->_inTest)
             {
-                $this->save(null, APP_SCOPUS_IMPORT_COLLECTION);
+                $this->save($histMsg, APP_SCOPUS_IMPORT_COLLECTION);
             }
             else 
             {
-                /*file_put_contents($this->_statsFile, "ST07 - No matches, saving a new PID for Scopus ID: " 
-                    . $this->_scopusId . "'" . $this->_title . "'\n\n", FILE_APPEND);*/
                 $this->inTestSave($this->_scopusId, 'ST07', $this->_scopusDocTypeCode, $this->_scopusAggregationType);
             }
             
@@ -504,9 +524,11 @@ abstract class RecordImport
         }
         else 
         {
-            $this->_log->err("Different ids in the same downloaded record are matching up with different pids for Scopus ID: " 
+            $histMsg = "ST08 - Different ids in the same downloaded record are matching up with different pids for Scopus ID: " 
                     . $this->_scopusId . " '" . $this->_title . "'."
-                    .var_export($associations,true));
+                    .var_export($associations,true);
+            
+            $this->_log->err($histMsg);
             
             if(!$this->_inTest)
             {
@@ -514,10 +536,6 @@ abstract class RecordImport
             }
             else 
             {
-                /*file_put_contents($this->_statsFile, "ST08 - Different ids in the same downloaded record are matching up with different pids for Scopus ID: " 
-                    . $this->_scopusId . " '" . $this->_title . "'."
-                    .var_export($associations,true)."\n\n", FILE_APPEND);*/
-                    
                 $this->inTestSave($this->_scopusId, 'ST08', $this->_scopusDocTypeCode, $this->_scopusAggregationType);
             }
             
@@ -528,6 +546,7 @@ abstract class RecordImport
         {
             if(!$this->_inTest)
             {
+                //ST09 - updating
                 $this->update($authorativePid);
             }
             else 

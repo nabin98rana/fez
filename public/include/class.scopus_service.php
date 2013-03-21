@@ -215,6 +215,16 @@ class ScopusService
     }
     
     /**
+     * Return the sequence number of the record at 
+     * which to start fetching the next record set.
+     * @return integer
+     */
+    public function getRecSetStart()
+    {
+        return $this->_recSetStart;
+    }
+    
+    /**
      * Return the starting record of the next recordset
      * to fetch from the <link> tag provided by the 
      * current record set.
@@ -260,6 +270,8 @@ class ScopusService
     /**
     * Download records from Scopus, perform
     * de-duping and enter into database.
+    * This method bypasses the queueing mechanism
+    * and performs deduping straight away.
     */
     public function downloadRecords()
     {

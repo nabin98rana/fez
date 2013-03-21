@@ -17,24 +17,19 @@ include_once(APP_INC_PATH . "class.wos_record.php");
 include_once(APP_INC_PATH . "class.org_structure.php");
 include_once(APP_INC_PATH . "class.matching_conferences.php");
 include_once(APP_INC_PATH . "class.mail.php");
-define("SIMILARITY_THRESHOLD", 80);
 
 class ScopusQueue extends Queue
 {
     protected $_bgp;
     protected $_bgp_details;
-    // Max number of pids to send to WoK in each service call
     protected $_batch_size;
     // If we've registered the commit shutdown function
     protected $_commit_shutdown_registered;
-    // Time to wait (in seconds) between successive WoK service calls
-    protected $_time_between_calls;
-    // Author queue table column prefix
-    protected $_dbap;
+    
+    protected $_service;
   
     /**
      * Returns the singleton queue instance.
-     *
      * @return instance of class Scopus
      */
     public static function get() 
@@ -50,6 +45,9 @@ class ScopusQueue extends Queue
             // Create a new instance
             $instance = new ScopusQueue();
             $instance->_use_locking = false;
+            $instance->_dbqp = 'spq_';
+            $instance->_dbtp = APP_TABLE_PREFIX . 'scopus_';
+            $instance->_service = new ScopusService(APP_SCOPUS_API_KEY);
             Zend_Registry::set('Scopus', $instance);
         }
         return $instance;
@@ -76,6 +74,36 @@ class ScopusQueue extends Queue
     {
         $this->_bgp = &$bgp;
     }
+    
+    /**
+     * Get a list of UQ Scopus IDs owned by UQ
+     * from the last 30 days and push them into 
+     * the queue table.
+     */
+    public function prepareQueue()
+    {
+        $xml = $this->_service->getNextRecordSet();
+        
+        while($this->_service->getRecSetStart())
+        {
+            $doc = new DOMDocument();
+            $doc->loadXML($xml);
+            $records = $doc->getElementsByTagName('identifier');
+            
+            foreach($records as $record)
+            {
+                $scopusId = $record->nodeValue;
+                $matches = array();
+                preg_match("/^SCOPUS_ID\:(\d+)$/", $scopusId, $matches);
+                $scopusIdExtracted = (array_key_exists(1, $matches)) ? $matches[1] : null;
+                
+                $this->add($scopusIdExtracted);
+            }
+            
+            $this->commit();
+            $xml = $this->_service->getNextRecordSet();
+        }
+    }
 
     /**
     * Processes the queue in the background.    
@@ -85,9 +113,32 @@ class ScopusQueue extends Queue
         $log = FezLog::get();
         
         $this->_bgp->setStatus("Scopus queue processing started");
-        $started = time();
+        $recCount = 0;
         
-        $service = new ScopusService(APP_SCOPUS_API_KEY);
-        $service->downloadRecords();
+        $nameSpaces = array(
+                            'prism' => "http://prismstandard.org/namespaces/basic/2.0/",
+                            'dc' => "http://purl.org/dc/elements/1.1/",
+                            'opensearch' => "http://a9.com/-/spec/opensearch/1.1/"
+        );
+        
+        do
+        {
+            $scopRec = $this->pop();
+            $scopusId = $scopRec[$this->_dbqp.'id'];
+            
+            if($scopRec)
+            {
+                $csr = new ScopusRecItem();
+                $csr->setInTest(true);
+                $rec = $this->_service->getRecordByScopusId($scopusId);
+                $csr->load($rec, $nameSpaces);
+                $csr->liken();
+                $recCount++;
+            }
+        }
+        while($scopRec);
+        $this->_bgp->setStatus("Scopus queue processing finished");
+        
+        return $recCount;
     }
 }
