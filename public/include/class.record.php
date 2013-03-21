@@ -3661,6 +3661,8 @@ class Record
       	'epage' => "AND PREG_REPLACE('/[^0-9]/', '', endp.rek_end_page) = PREG_REPLACE('/[^0-9]/', '', '" . $fields['_endPage'] . "') "
       );
       
+      $excludeCollections = "AND (rek_ismemberof NOT IN('".APP_SCOPUS_IMPORT_COLLECTION."', '".APP_TEMPORARY_DUPLICATES_COLLECTION."') OR rek_ismemberof IS NULL)";
+      
       $searchSets = array();
       $searchSets[1] = array('doi', 'spage', 'volume', 'issue', 'epage'); 
       $searchSets[2] = array('doi', 'spage', 'volume', 'issue'); 
@@ -3681,7 +3683,8 @@ class Record
       . "LEFT JOIN ".$dbtp."record_search_key_start_page startp ON sk.rek_pid = startp.rek_start_page_pid "
       . "LEFT JOIN ".$dbtp."record_search_key_end_page endp ON sk.rek_pid = endp.rek_end_page_pid "
       . "LEFT JOIN ".$dbtp."record_search_key_volume_number volume ON sk.rek_pid = volume.rek_volume_number_pid "
-      . "LEFT JOIN ".$dbtp."record_search_key_issue_number issue on sk.rek_pid = issue.rek_issue_number_pid ";
+      . "LEFT JOIN ".$dbtp."record_search_key_issue_number issue on sk.rek_pid = issue.rek_issue_number_pid "
+      . "LEFT JOIN ".$dbtp."record_search_key_ismemberof ON sk.rek_pid = rek_ismemberof_pid ";
       
       $ct = 0;
       
@@ -3698,7 +3701,7 @@ class Record
           
           try 
           {
-              $stmt = $db->query($sql);
+              $stmt = $db->query($sql.$excludeCollections);
               $res = $stmt->fetchAll();
               $state = (!empty($res)) ? $ssKey : $state;
           }
@@ -3716,7 +3719,7 @@ class Record
       {
           try
           {
-              $stmt = $db->query($sqlPre . $fuzzyTitle);
+              $stmt = $db->query($sqlPre . $fuzzyTitle . $excludeCollections);
               $res = $stmt->fetchAll();
               $state = (!empty($res)) ? 9 : $state;
           }
@@ -3744,7 +3747,7 @@ class Record
           
           try
           {
-              $stmt = $db->query($sql);
+              $stmt = $db->query($sql.$excludeCollections);
               $res = $stmt->fetchAll();
               $state = (!empty($res)) ? 10 : $state;
           }
@@ -3774,7 +3777,7 @@ class Record
             . "LEFT JOIN ".$dbtp."record_search_key_ismemberof "
             . "ON rek_doi_pid = rek_ismemberof_pid "
             . "WHERE rek_doi = ? "
-            . "AND (rek_ismemberof NOT IN('".APP_TEMPORARY_DUPLICATES_COLLECTION."') OR rek_ismemberof IS NULL)";
+            . "AND (rek_ismemberof NOT IN('".APP_SCOPUS_IMPORT_COLLECTION."', '".APP_TEMPORARY_DUPLICATES_COLLECTION."') OR rek_ismemberof IS NULL)";
 
       try
       {
@@ -3806,7 +3809,7 @@ class Record
       . "LEFT JOIN ".$dbtp."record_search_key_ismemberof "
       . "ON rek_pubmed_id_pid = rek_ismemberof_pid "
       . "WHERE rek_pubmed_id = ? "
-      . "AND (rek_ismemberof NOT IN('".APP_TEMPORARY_DUPLICATES_COLLECTION."') OR rek_ismemberof IS NULL)";
+      . "AND (rek_ismemberof NOT IN('".APP_SCOPUS_IMPORT_COLLECTION."', '".APP_TEMPORARY_DUPLICATES_COLLECTION."') OR rek_ismemberof IS NULL)";
 
       try
       {
@@ -3838,7 +3841,7 @@ class Record
       	    . "LEFT JOIN ".$dbtp."record_search_key_ismemberof "
             . "ON rek_pid = rek_ismemberof_pid "
             . "WHERE rek_title = ? "
-            . "AND (rek_ismemberof NOT IN('".APP_TEMPORARY_DUPLICATES_COLLECTION."') OR rek_ismemberof IS NULL)";
+            . "AND (rek_ismemberof NOT IN('".APP_SCOPUS_IMPORT_COLLECTION."', '".APP_TEMPORARY_DUPLICATES_COLLECTION."') OR rek_ismemberof IS NULL)";
 
       try
       {
@@ -3883,7 +3886,7 @@ class Record
                 ."LEFT JOIN ".$dbtp."record_search_key_ismemberof "
                 ."ON rek_scopus_id_pid = rek_ismemberof_pid "
                 ."WHERE rek_scopus_id = ? "
-                ."AND rek_ismemberof = '".APP_SCOPUS_IMPORT_COLLECTION."'";
+                ."AND rek_ismemberof IN ('".APP_SCOPUS_IMPORT_COLLECTION."', '".APP_TEMPORARY_DUPLICATES_COLLECTION."')";
           }
           else
           {
@@ -3891,7 +3894,7 @@ class Record
                 ."LEFT JOIN ".$dbtp."record_search_key_ismemberof "
                 ."ON rek_scopus_id_pid = rek_ismemberof_pid "
                 ."WHERE rek_scopus_id = ? "
-                ."AND (rek_ismemberof NOT IN('".APP_SCOPUS_IMPORT_COLLECTION."') OR rek_ismemberof IS NULL)";
+                ."AND (rek_ismemberof NOT IN('".APP_SCOPUS_IMPORT_COLLECTION."', '".APP_TEMPORARY_DUPLICATES_COLLECTION."') OR rek_ismemberof IS NULL)";
           }
 
           try
