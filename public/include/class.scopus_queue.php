@@ -129,7 +129,6 @@ class ScopusQueue extends Queue
             if($scopRec)
             {
                 $csr = new ScopusRecItem();
-                $csr->setInTest(true);
                 $rec = $this->_service->getRecordByScopusId($scopusId);
                 $csr->load($rec, $nameSpaces);
                 $csr->liken();
