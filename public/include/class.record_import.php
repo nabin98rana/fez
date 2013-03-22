@@ -63,6 +63,8 @@ abstract class RecordImport
      * @var array
      */
     protected $_namespaces = array();
+    
+    protected $_doctypeExceptions = array();
 
     /**
      * We will try to do a comparison on all these
@@ -215,6 +217,11 @@ abstract class RecordImport
      */
     public function liken()
     {
+        if(in_array($this->_scopusDocTypeCode, $this->_doctypeExceptions))
+        {
+            return false;
+        }
+        
         //If the Scopus ID matches soemthing that is already in the Scopus 
         //import collection, we need not go any further.
         if($this->_inTest)

@@ -596,4 +596,31 @@ class ScopusTest extends PHPUnit_Framework_TestCase
          $this->assertEquals("ST11 - Matched on fuzzy title, DOI, start page, end page, issue, volume. Scopus ID in the downloaded record was 2-s2.0-84859635595. Scopus ID in the local record was 2-s2.0-896587658765876. Pid matched: UQ:10048", $res[0]);
          $this->assertEquals("ST10 - Matched on fuzzy title, DOI, start page, end page, issue, volume. Scopus ID in the downloaded record was 2-s2.0-84859635595. Scopus ID in the local record was null. Pid matched: UQ:10023", $res[1]);
      }
+     
+     /**
+     * Scopus Id matches
+     * Title matches
+     * Start matches
+     * End is matches
+     * Volume matches
+     * Pubmed Id matches
+     * DOI matches
+     * Doc type is in press
+     *
+     * This should return false and do no updating
+     * or inserting because in press documents are 
+     * not allowed.
+     */
+     public function testSaveUpdateIsInPress()
+     {
+         $testPid = $this->loadTestData(APP_PATH.'../tests/application/Unit/scopus/sampleAbstractInPressDocTypeLocal.xml');
+     
+         $xml = file_get_contents(APP_PATH.'../tests/application/Unit/scopus/sampleAbstractInPressDocTypeDL.xml');
+         $likened = $this->saveUpdateAbstract($xml);
+          
+         $this->removeTestData($testPid);
+         $this->removeAllTestPIDs(array($testPid), $this->_scopusIDCurrent);
+     
+         $this->assertEquals(false, $likened);
+     }
 }
