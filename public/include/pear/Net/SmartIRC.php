@@ -1149,7 +1149,7 @@ class Net_SmartIRC_base
      */
     function listenFor($messagetype)
     {
-        $listenfor = &new Net_SmartIRC_listenfor();
+        $listenfor = new Net_SmartIRC_listenfor();
         $this->registerActionhandler($messagetype, '.*', $listenfor, 'handler');
         $this->listen();
         $result = $listenfor->result;
@@ -1184,7 +1184,7 @@ class Net_SmartIRC_base
         }
         
         $id = $this->_actionhandlerid++;
-        $newactionhandler = &new Net_SmartIRC_actionhandler();
+        $newactionhandler = new Net_SmartIRC_actionhandler();
         
         $newactionhandler->id = $id;
         $newactionhandler->type = $handlertype;
@@ -1286,7 +1286,7 @@ class Net_SmartIRC_base
     function registerTimehandler($interval, &$object, $methodname)
     {
         $id = $this->_timehandlerid++;
-        $newtimehandler = &new Net_SmartIRC_timehandler();
+        $newtimehandler = new Net_SmartIRC_timehandler();
         
         $newtimehandler->id = $id;
         $newtimehandler->interval = $interval;
@@ -1561,7 +1561,7 @@ class Net_SmartIRC_base
                 $this->log(SMARTIRC_DEBUG_IRCMESSAGES, 'DEBUG_IRCMESSAGES: received: "'.$rawline.'"', __FILE__, __LINE__);
                 
                 // building our data packet
-                $ircdata = &new Net_SmartIRC_data();
+                $ircdata = new Net_SmartIRC_data();
                 $ircdata->rawmessage = $rawline;
                 $lineex = explode(' ', $rawline);
                 $ircdata->rawmessageex = $lineex;
