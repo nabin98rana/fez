@@ -35,6 +35,8 @@ abstract class RecordImport
     protected $_wokDocTypeCode = null;
     protected $_scopusDocType = null;
     protected $_scopusDocTypeCode = null;
+    protected $_pubmedDocTypeCode = null;
+    protected $_embaseDocTypeCode = null;
     protected $_scopusAggregationType = null;
     //protected $_docTypeCode = null;
     protected $_languageCode = null;
@@ -54,8 +56,31 @@ abstract class RecordImport
     protected $_xdisTitle = null;
     protected $_xdisSubtype = null;
     
+    /**
+     * The PID of the collection to save
+     * newly inserted records into.
+     * @var string
+     */
+    protected $_insertCollection = null;
+    
+    /**
+     * The prefix used to name the primary ID and related fields.
+     * @var string
+     */
+    protected $_primaryIdPrefix = null;
+    
+    /**
+     * The path to the SQLite DB for logging purposes.
+     * Used on when $_inTest is true
+     * @var string
+     */
     protected $_statsFile = null;
     ///var/www/scopusimptest/scopusDownloaded.s3db
+    
+    /**
+     * Switch for setting the object to test mode.
+     * @var boolean
+     */
     protected $_inTest = false;
 
     /**
@@ -64,6 +89,11 @@ abstract class RecordImport
      */
     protected $_namespaces = array();
     
+    /**
+     * An array of doc type codes to exempt from insertion,
+     * update or any deduping
+     * @var array
+     */
     protected $_doctypeExceptions = array();
 
     /**
@@ -77,10 +107,24 @@ abstract class RecordImport
      */
     protected $_comparisonIdTypes = array('_doi');
 
-
+    /**
+     * Load data from an XML document into the object's fields
+     * @param string $recordData
+     * @param array $nameSpaces
+     */
     public abstract function load($recordData, $nameSpaces=null);
     
+    /**
+     * Map a log message to a second stage dedupe status code (ie ST10+)
+     * @param array $searchData
+     */
     public abstract function getFuzzySearchStatus(array $searchData);
+    
+    /**
+     * Check to see if a record already resides in a import collection
+     * based on a primary id
+     */
+    protected abstract function checkImportCollections();
     
     /**
      * Set the test state of the object.
@@ -183,18 +227,19 @@ abstract class RecordImport
     }
     
     /**
-     * Store stats in SQLite DB when running in test mode
+     * Store stats in SQLite DB when running in test mode.
+     * $this->_statsFile should be set to the path of the SQLite DB.
      * @param string $scopusId
      * @param string $operation
      * @param string $docType
      * @param string $agType
      * @return boolean
      */
-    protected function inTestSave($scopusId, $operation, $docType=null, $agType=null)
+    protected function inTestSave($contribId, $operation, $docType=null, $agType=null)
     {
         /*
          * CREATE TABLE [records] (
-         * [scopus_id] TEXT  PRIMARY KEY NOT NULL,
+         * [contrib_id] TEXT  PRIMARY KEY NOT NULL,
          * [operation] VARCHAR(8) DEFAULT 'NULL' NULL,
          * [count] INTEGER DEFAULT '0' NOT NULL,
          * [doc_type] VARCHAR(10) DEFAULT 'NULL' NULL,
@@ -207,8 +252,8 @@ abstract class RecordImport
             return false;
         }
         $db = new PDO('sqlite:'.$this->_statsFile);
-        $query = "INSERT OR IGNORE INTO records (scopus_id, operation, doc_type, ag_type) "
-        ."VALUES ('" . $scopusId . "', '" . $operation . "', '" . $docType . "', '" . $agType . "')";
+        $query = "INSERT OR IGNORE INTO records (contrib_id, operation, doc_type, ag_type) "
+        ."VALUES ('" . $contribId . "', '" . $operation . "', '" . $docType . "', '" . $agType . "')";
         $db->query($query);
     }
     
@@ -217,7 +262,16 @@ abstract class RecordImport
      */
     public function liken()
     {
-        if(in_array($this->_scopusDocTypeCode, $this->_doctypeExceptions))
+        //Order of ids in the _comparisonIdTypes matters.
+        //Eg for ScopusRecItem _scopusId should be first,
+        //for PubmedRecItem _pubmedId should be first, etc.
+        $primaryId = $this->_comparisonIdTypes[0];
+        
+        $docTypeCode = "_{$this->_primaryIdPrefix}DocTypeCode";
+        $aggregationType = "_{$this->_primaryIdPrefix}AggregationType";
+        
+        
+        if(in_array($this->$docTypeCode, $this->_doctypeExceptions))
         {
             return false;
         }
@@ -230,13 +284,13 @@ abstract class RecordImport
             {
                 $db = new PDO('sqlite:'.$this->_statsFile);
                 
-                $query = "SELECT * FROM records WHERE scopus_id = '" . $this->_scopusId . "' LIMIT 1";
+                $query = "SELECT * FROM records WHERE contrib_id = '" . $this->$primaryId . "' LIMIT 1";
                 $res = $db->query($query);
                 $rows = $res->fetchAll(PDO::FETCH_ASSOC);
                 
                 if(!empty($rows))
                 {
-                    $query = "UPDATE records SET count = count+1 WHERE scopus_id = '" . $this->_scopusId . "'";
+                    $query = "UPDATE records SET count = count+1 WHERE contrib_id = '" . $this->$primaryId . "'";
                     $db->query($query);
                     
                     return;
@@ -245,7 +299,8 @@ abstract class RecordImport
         }
         else
         {
-            $inImportColl = Record::getPIDsByScopusID($this->_scopusId, true);
+            //$inImportColl = Record::getPIDsByScopusID($this->_scopusId, true);
+            $inImportColl = $this->checkImportCollections();
             if(!empty($inImportColl))
             {
                 return;
@@ -285,19 +340,19 @@ abstract class RecordImport
                 elseif($pidCount > 1)
                 {
                     $histMsg = "ST01 - "
-                    . $this->_scopusId." matches more than one pid("
+                    . $this->$primaryId." matches more than one pid("
                     . implode(',', $pids) . ") based on $retrieverName";
                     
                     $this->_log->err($histMsg);
                     
                     if(!$this->_inTest)
                     {
-                        $this->save($histMsg, APP_SCOPUS_IMPORT_COLLECTION);
+                        $this->save($histMsg, $this->_insertCollection);
                     }
                     else 
                     {
-                        $this->inTestSave($this->_scopusId, 'ST01', 
-                            $this->_scopusDocTypeCode, $this->_scopusAggregationType);
+                        $this->inTestSave($this->$primaryId, 'ST01', 
+                            $this->$docTypeCode, $this->$aggregationType);
                     }
                     return false;
                 }
@@ -356,11 +411,11 @@ abstract class RecordImport
                         
                         if(!$this->_inTest)
                         {
-                            $this->save($histMsg, APP_SCOPUS_IMPORT_COLLECTION);
+                            $this->save($histMsg, $this->_insertCollection);
                         }
                         else 
                         {
-                            $this->inTestSave($this->_scopusId, 'ST02', $this->_scopusDocTypeCode, $this->_scopusAggregationType);
+                            $this->inTestSave($this->$primaryId, 'ST02', $this->$docTypeCode, $this->$aggregationType);
                         }
                         return false;
                     }
@@ -392,7 +447,7 @@ abstract class RecordImport
                     else 
                     {
                         $histMsg = "ST03 - Start page mismatch for '" . $this->_title
-                        . " - Scopus ID: " . $this->_scopusId
+                        . " - Scopus ID: " . $this->$primaryId
                         . "'. Local start page is: " . $localStartPage
                         . " . Downloaded start page is: " . $this->_startPage;
                         
@@ -400,11 +455,11 @@ abstract class RecordImport
                         
                         if(!$this->_inTest)
                         {
-                            $this->save($histMsg, APP_SCOPUS_IMPORT_COLLECTION);
+                            $this->save($histMsg, $this->_insertCollection);
                         }
                         else 
                         {
-                            $this->inTestSave($this->_scopusId, 'ST03', $this->_scopusDocTypeCode, $this->_scopusAggregationType);
+                            $this->inTestSave($this->$primaryId, 'ST03', $this->$docTypeCode, $this->$aggregationType);
                         }
                         
                         return false;
@@ -421,7 +476,7 @@ abstract class RecordImport
                     else 
                     {
                         $histMsg = "ST04 - End page mismatch for '" . $this->_title 
-                                . " - Scopus ID " . $this->_scopusId
+                                . " - Scopus ID " . $this->$primaryId
                                 . "'. Local end page is: " . $localEndPage 
                                 . " . Downloaded end page is: " . $this->_endPage;
                         
@@ -429,11 +484,11 @@ abstract class RecordImport
                         
                         if(!$this->_inTest)
                         {
-                            $this->save($histMsg, APP_SCOPUS_IMPORT_COLLECTION);
+                            $this->save($histMsg, $this->_insertCollection);
                         }
                         else 
                         {
-                            $this->inTestSave($this->_scopusId, 'ST04', $this->_scopusDocTypeCode, $this->_scopusAggregationType);
+                            $this->inTestSave($this->$primaryId, 'ST04', $this->$docTypeCode, $this->$aggregationType);
                         }
                         
                         return false;
@@ -451,7 +506,7 @@ abstract class RecordImport
                     {
                         
                         $histMsg = "ST05 - Volume mismatch for '" . $this->_title
-                                . " - Scopus ID " . $this->_scopusId
+                                . " - Scopus ID " . $this->$primaryId
                                 . "'. Local end page is: " . $localVolume
                                 . " . Downloaded end page is: " . $this->_issueVolume;
                         
@@ -459,11 +514,11 @@ abstract class RecordImport
                         
                         if(!$this->_inTest)
                         {
-                            $this->save($histMsg, APP_SCOPUS_IMPORT_COLLECTION);
+                            $this->save($histMsg, $this->_insertCollection);
                         }
                         else 
                         {
-                            $this->inTestSave($this->_scopusId, 'ST05', $this->_scopusDocTypeCode, $this->_scopusAggregationType);
+                            $this->inTestSave($this->$primaryId, 'ST05', $this->$docTypeCode, $this->$aggregationType);
                         }
                         
                         return false;
@@ -474,7 +529,7 @@ abstract class RecordImport
             {
                 $associations['_title']['status'] = 'UNCERTAIN';
                 
-                $histMsg = "ST06 - Scopus ID: " . $this->_scopusId 
+                $histMsg = "ST06 - Scopus ID: " . $this->$primaryId 
                         . " Downloaded title: '" . $downloadedTitle 
                         . "' FAILED TO MATCH the local title: '" . $localTitle 
                         . "' with a match of only " . $percentageMatch . "%";
@@ -483,11 +538,11 @@ abstract class RecordImport
                 
                 if(!$this->_inTest)
                 {
-                    $this->save($histMsg, APP_SCOPUS_IMPORT_COLLECTION);
+                    $this->save($histMsg, $this->_insertCollection);
                 }
                 else 
                 {
-                    $this->inTestSave($this->_scopusId, 'ST06', $this->_scopusDocTypeCode, $this->_scopusAggregationType);
+                    $this->inTestSave($this->$primaryId, 'ST06', $this->$docTypeCode, $this->$aggregationType);
                 }
             }
         }
@@ -502,28 +557,28 @@ abstract class RecordImport
                 
                 if(!$this->_inTest)
                 {
-                    $this->save($fuzzyMatchState[0], APP_SCOPUS_IMPORT_COLLECTION);
+                    $this->save($fuzzyMatchState[0], $this->_insertCollection);
                 }
                 else 
                 {
                     //ST10-2x status
                     $stCode = preg_replace("/(^ST\d{2})*./", "$1", $fuzzyMatchState[0]);
-                    $this->inTestSave($this->_scopusId, $stCode, $this->_scopusDocTypeCode, $this->_scopusAggregationType);
+                    $this->inTestSave($this->$primaryId, $stCode, $this->$docTypeCode, $this->$aggregationType);
                     return $fuzzyMatchState;
                 }
                 return 'POSSIBLE MATCH';
             }
             
             $histMsg = "ST07 - No matches, saving a new PID for Scopus ID: " 
-                    . $this->_scopusId . "'" . $this->_title;
+                    . $this->$primaryId . "'" . $this->_title;
             
             if(!$this->_inTest)
             {
-                $this->save($histMsg, APP_SCOPUS_IMPORT_COLLECTION);
+                $this->save($histMsg, $this->_insertCollection);
             }
             else 
             {
-                $this->inTestSave($this->_scopusId, 'ST07', $this->_scopusDocTypeCode, $this->_scopusAggregationType);
+                $this->inTestSave($this->$primaryId, 'ST07', $this->$docTypeCode, $this->$aggregationType);
             }
             
             return "SAVE";
@@ -532,18 +587,18 @@ abstract class RecordImport
         else 
         {
             $histMsg = "ST08 - Different ids in the same downloaded record are matching up with different pids for Scopus ID: " 
-                    . $this->_scopusId . " '" . $this->_title . "'."
+                    . $this->$primaryId . " '" . $this->_title . "'."
                     .var_export($associations,true);
             
             $this->_log->err($histMsg);
             
             if(!$this->_inTest)
             {
-                $this->save(null, APP_SCOPUS_IMPORT_COLLECTION);
+                $this->save(null, $this->_insertCollection);
             }
             else 
             {
-                $this->inTestSave($this->_scopusId, 'ST08', $this->_scopusDocTypeCode, $this->_scopusAggregationType);
+                $this->inTestSave($this->$primaryId, 'ST08', $this->$docTypeCode, $this->$aggregationType);
             }
             
             return false;
@@ -560,7 +615,7 @@ abstract class RecordImport
             {
                 /*file_put_contents($this->_statsFile, "ST09 - Updating: ".$authorativePid.". Scopus ID: " 
                     . $this->_scopusId . "\n\n", FILE_APPEND);*/
-                $this->inTestSave($this->_scopusId, 'ST09', $this->_scopusDocTypeCode, $this->_scopusAggregationType);
+                $this->inTestSave($this->$primaryId, 'ST09', $this->$docTypeCode, $this->$aggregationType);
             }
             return "UPDATE";
         }

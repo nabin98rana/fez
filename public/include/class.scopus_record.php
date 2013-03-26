@@ -68,6 +68,8 @@ class ScopusRecItem extends RecordImport
         $this->_log = FezLog::get();
         $this->_comparisonIdTypes = array('_scopusId', '_doi', '_pubmedId', '_title');
         $this->_doctypeExceptions = array('ip');
+        $this->_primaryIdPrefix = 'scopus';
+        $this->_insertCollection = APP_SCOPUS_IMPORT_COLLECTION;
         if($recordData)
         {
             $this->load($recordData);
@@ -167,6 +169,10 @@ class ScopusRecItem extends RecordImport
         }
     }
     
+    /**
+    * Map a log message to a second stage dedupe status code (ie ST10+)
+    * @param array $searchData
+    */
     public function getFuzzySearchStatus(array $searchData)
     {
         $statusMessages = array(
@@ -217,6 +223,20 @@ class ScopusRecItem extends RecordImport
         return $statuses;
     }
     
+    /**
+    * Check to see if a record already resides in a import collection
+    * based on Scopus ID
+    */
+    protected function checkImportCollections()
+    {
+        return Record::getPIDsByScopusID($this->_scopusId, true);
+    }
+    
+    /*
+     * Retrieve a value from a node list using xpath.
+     * @param string $query
+     * @param DOMXPath $xpath
+     */
     public function extract($query, $xpath)
     {
         $nodeList = $xpath->query($query);
