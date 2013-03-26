@@ -1420,7 +1420,7 @@ hr {
 
 .phantomVersionItem {color:#aaaaaa;}
 
-#viewInfoBox, #viewInfoBoxNoEdit {
+#viewInfoBoxUpper, #viewInfoBox, #viewInfoBoxNoEdit {
 	border: 1px solid #8e8e8e; 
 	padding: 10px;
 	line-height: 20px;
@@ -1971,7 +1971,7 @@ div.hr hr {
 #view-attachments {
 	background: white;
     width: 100%;
-    margin-top: 20px;
+    margin-top: 0px;
     margin-bottom: 20px;
 }
 
