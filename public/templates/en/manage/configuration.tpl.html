@@ -124,7 +124,7 @@ function restoreDefaultColours(el)
           <a href="#" onclick="javascript:showSubPage('sherpa');">SHERPA/RoMEO Settings</a><br />
 		</td>
 	    <td style="width: 200px; vertical-align: top;">
-		  <a href="#" onclick="javascript:showSubPage('webstats');">Web Statistics</a><br />
+		  <a href="#" onclick="javascript:showSubPage('webstats');">Web Statistics/Analytics</a><br />
 		  <a href="#" onclick="javascript:showSubPage('shib');">Shibboleth Settings</a><br />
 		  <a href="#" onclick="javascript:showSubPage('ldap');">LDAP Settings</a><br />
 		  <a href="#" onclick="javascript:showSubPage('eprints');">ePrints Settings</a><br />
@@ -479,28 +479,6 @@ function restoreDefaultColours(el)
 			  {include file="error_icon.tpl.html" field="app_user_group_cache_expiry"}
 			</td>
 		  </tr>
-		  <tr>
-		    <th>Google Analytics ID</th>
-			<td>
-			  <input type="radio" name="app_analytics_switch" value="ON" {if $config_settings.app_analytics_switch == "ON"}checked="checked"{/if}/> Enabled &nbsp;
-			  <input type="radio" name="app_analytics_switch" value="OFF" {if $config_settings.app_analytics_switch == "OFF"}checked="checked"{/if}/> Disabled  &nbsp; &nbsp;
-			  <input type="text" name="app_analytics_id" value="{$config_settings.app_analytics_id}" size="20" />
-			  Format: <strong><i>xxxxxx-x</i></strong><br />
-			  {include file="error_icon.tpl.html" field="app_analytics_id"}
-			</td>
-		  </tr>
-          <tr>
-            <th>Piwik Analytics</th>
-            <td>
-              <input type="radio" name="app_piwik_switch" value="ON" {if $config_settings.app_piwik_switch == "ON"}checked="checked"{/if}/> Enabled &nbsp;
-              <input type="radio" name="app_piwik_switch" value="OFF" {if $config_settings.app_piwik_switch == "OFF"}checked="checked"{/if}/> Disabled  &nbsp; &nbsp;
-              ID: <input type="text" name="app_piwik_id" value="{$config_settings.app_piwik_id}" size="3" />
-              Format: <strong><i>#</i></strong><br />
-              Location: <input type="text" name="app_piwik_location" value="{$config_settings.app_piwik_location}" size="40" />
-              <strong><i>Do not use http:// or https:// in the URL</i></strong><br />
-              {include file="error_icon.tpl.html" field="app_analytics_id"}
-            </td>
-          </tr>
 		  <tr>
 		    <th>Google Maps API Key</th>
 			<td>
@@ -1440,10 +1418,49 @@ function restoreDefaultColours(el)
 		  </tr>
 		 </tbody>
 		</table>
+        <table width="100%" class="admin-edit">
+            <thead>
+            <tr>
+                <th colspan="2">
+                    <h2>Analytics</h2>
+                </th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <th>Google Analytics ID</th>
+                <td>
+                    <input type="radio" name="app_analytics_switch" value="ON" {if $config_settings.app_analytics_switch == "ON"}checked="checked"{/if}/> Enabled &nbsp;
+                    <input type="radio" name="app_analytics_switch" value="OFF" {if $config_settings.app_analytics_switch == "OFF"}checked="checked"{/if}/> Disabled  &nbsp; &nbsp;
+                    <input type="text" name="app_analytics_id" value="{$config_settings.app_analytics_id}" size="20" />
+                    Format: <strong><i>xxxxxx-x</i></strong><br />
+                    {include file="error_icon.tpl.html" field="app_analytics_id"}
+                </td>
+            </tr>
+            <tr>
+                <th>Piwik Analytics</th>
+                <td>
+                    <input type="radio" name="app_piwik_switch" value="ON" {if $config_settings.app_piwik_switch == "ON"}checked="checked"{/if}/> Enabled &nbsp;
+                    <input type="radio" name="app_piwik_switch" value="OFF" {if $config_settings.app_piwik_switch == "OFF"}checked="checked"{/if}/> Disabled  &nbsp; &nbsp;
+                    ID: <input type="text" name="app_piwik_id" value="{$config_settings.app_piwik_id}" size="3" />
+                    Format: <strong><i>#</i></strong><br />
+                    Location: <input type="text" name="app_piwik_location" value="{$config_settings.app_piwik_location}" size="40" />
+                    <strong><i>Do not use http:// or https:// in the URL</i></strong><br />
+                    {include file="error_icon.tpl.html" field="app_piwik_id"}
+                </td>
+            </tr>
+            <tr>
+                <th>AddThis</th>
+                <td>
+                    <input type="radio" name="app_addthis_switch" value="ON" {if $config_settings.app_addthis_switch == "ON"}checked="checked"{/if}/> Enabled &nbsp;
+                    <input type="radio" name="app_addthis_switch" value="OFF" {if $config_settings.app_addthis_switch == "OFF"}checked="checked"{/if}/> Disabled  &nbsp; &nbsp;
+                    ID: <input type="text" name="app_addthis_id" value="{$config_settings.app_addthis_id}" size="19" />
+                    {include file="error_icon.tpl.html" field="app_addthis_id"}
+                </td>
+            </tr>
+           </tbody>
+          </table>
 		</div>
-
-
-
 		<div id="shib" style="display: none;">
 		<table width="100%" class="admin-edit">
 		 <thead>
