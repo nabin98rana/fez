@@ -690,6 +690,11 @@ if (!empty($pid) && $record->checkExists()) {
       Record::generateDerivationTree($pid, $derivations, $derivationTree);
       Record::wrapDerivationTree($derivationTree);
     }
+
+    if(APP_ADDTHIS_SWITCH == 'ON')
+    {
+      $tpl->assign("addthis", APP_ADDTHIS_ID);
+    }
     $tpl->assign("origami", APP_ORIGAMI_SWITCH);
     $tpl->assign("linkCount", $linkCount);
     $tpl->assign("links", $links);
@@ -706,7 +711,6 @@ if (!empty($pid) && $record->checkExists()) {
     $tpl->assign('title', $record->getTitle());
     $tpl->assign('fedora_bypass', APP_FEDORA_BYPASS == 'ON');
     $tpl->assign("streams", $streams);
-
     $tpl->assign("statsAbstract", Statistics::getStatsByAbstractView($pid));
     $tpl->assign("statsFiles", Statistics::getStatsByAllFileDownloads($pid));
 
@@ -769,9 +773,10 @@ if (!empty($pid) && $record->checkExists()) {
 
 // Get fields to be displayed on Spyglass hover.
 // @usage: view_inverse_metadata.tpl.html
-    $spyglassFields = RecordGeneral::getSpyglassHoverFields($xsd_display_fields, $details);
-    $tpl->assign('spyglassFields', $spyglassFields);
-
+    if ($isAdministrator || $isUPO) {
+        $spyglassFields = RecordGeneral::getSpyglassHoverFields($xsd_display_fields, $details);
+        $tpl->assign('spyglassFields', $spyglassFields);
+    }
     // display user comments, if any
     $uc = new UserComments($pid);
 

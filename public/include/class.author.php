@@ -2059,7 +2059,7 @@ class Author
 
         $stmt = "SELECT rek_author_pid, rek_author, autid.rek_author_id, rek_author_order, rek_author_xsdmf_id, rek_author_id_xsdmf_id " .
                 " FROM " . APP_TABLE_PREFIX . "record_search_key_author AS aut" .
-                " LEFT JOIN fez_record_search_key_author_id AS autid" .
+                " LEFT JOIN " . APP_TABLE_PREFIX . "record_search_key_author_id AS autid" .
                 " ON (rek_author_pid = rek_author_id_pid AND rek_author_order = rek_author_id_order) " .
                 " WHERE rek_author_pid = ? " .
                 " ORDER BY rek_author_order ASC";

@@ -226,7 +226,7 @@ class DigitalObject
         try {
             $result = $this->_db->fetchOne($stmt);
             if (empty($result)) {
-                $stmt = "SELECT rek_status FROM fez_record_search_key__shadow WHERE rek_pid = ".$this->_db->quote($pid)." ORDER BY rek_stamp DESC LIMIT 1";
+                $stmt = "SELECT rek_status FROM " . APP_TABLE_PREFIX . "record_search_key__shadow WHERE rek_pid = ".$this->_db->quote($pid)." ORDER BY rek_stamp DESC LIMIT 1";
                 try {
                     $result = $this->_db->fetchOne($stmt);
                 }
