@@ -408,11 +408,13 @@ function loadPreview(pid,datastreamID, alt, origami)
             </table>
             {/if}
             {if $sta_id != 2}
-            <tr><td class="error" style="background: {$heading_color}; text-align: center">
-            <b>NOTE: This record is not published.</b>
-            </td></tr>
-		{/if}
-		<br />
+              <table style = "width: 100%">
+                <tr><td class="error" style="background: {$heading_color}; text-align: center">
+                <b>NOTE: This record is not published.</b>
+                </td></tr>
+              </table>
+		    {/if}
+
 		{include file='view_metadata.tpl.html'}
 		</td>
 	</tr>
