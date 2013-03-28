@@ -101,7 +101,7 @@ function loadPreview(pid,datastreamID, alt, origami)
     {/if}
 {*--------------------------------------------------------------------------------------------------------------------*}
       {*Info box just for admins*}
-      {if $isEditor || $isAdministrator}
+      {if $isEditor || $isAdministrator || ($show_tombstone && $deleted)}
       <div id="{if $viewingPreviousVersion}viewInfoBoxNoEdit{else}viewInfoBoxUpper{/if}">
       <table id="viewInfoBoxTable">
 		<tr>
@@ -200,12 +200,15 @@ function loadPreview(pid,datastreamID, alt, origami)
 	</tr>
 {/if}
 
-</table>
-</div>
+
+{if $show_tombstone && !$deleted || !$show_tombstone}
+    </table>
+    </div>
+{/if}
 {/if}
 {*------------------------------------------------------------------------------------------------------------------*}
-      {if $show_tombstone && !$deleted || !$show_tombstone}
-      {* LK TMP *}
+{if $show_tombstone && !$deleted || !$show_tombstone}
+{* LK TMP *}
 {assign var="display_checksums" value="OFF"}
 
 <table style="width: 100%;">
