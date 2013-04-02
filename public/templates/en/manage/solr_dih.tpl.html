@@ -10,13 +10,13 @@
   <entity name="{$smarty.const.APP_TABLE_PREFIX}record_search_key_{$manyList[i].sek_title_db}" pk="rek_{$manyList[i].sek_title_db}_pid"
         query="select rek_{$manyList[i].sek_title_db} AS {$manyList[i].sek_title_solr}
           from {$smarty.const.APP_TABLE_PREFIX}record_search_key_{$manyList[i].sek_title_db} where
-          rek_{$manyList[i].sek_title_db}_pid = '${literal}{{/literal}{$smarty.const.APP_TABLE_PREFIX}record_search_key{literal}.rek_pid}{/literal}'"
+          rek_{$manyList[i].sek_title_db}_pid = '${literal}{{/literal}{$smarty.const.APP_TABLE_PREFIX}record_search_key{literal}.id}{/literal}'"
         />
 {/section}
-  <entity name="{$smarty.const.APP_TABLE_PREFIX}fulltext_cache" pk="ftc_pid"
-          query="select ftc_content AS content
+  <entity name="{$smarty.const.APP_TABLE_PREFIX}fulltext_cache" pk="ftc_id"
+          query="select group_concat(ftc_content) AS content
           from {$smarty.const.APP_TABLE_PREFIX}fulltext_cache where
-          ftc_pid = '${literal}{{/literal}{$smarty.const.APP_TABLE_PREFIX}record_search_key{literal}.rek_pid}{/literal}'"
+          ftc_pid = '${literal}{{/literal}{$smarty.const.APP_TABLE_PREFIX}record_search_key{literal}.id}{/literal}' group by ftc_pid"
     />
 </entity>
 </textarea>
