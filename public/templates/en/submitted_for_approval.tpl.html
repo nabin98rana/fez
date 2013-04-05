@@ -115,7 +115,7 @@ No items found
           {if ($list[i].rek_citation)}{$list[i].rek_citation|smarty:nodefaults}{else}{$list[i].rek_title}{/if}
         </a>
 
-         (Created: {$list[i].rek_created_date|date_format:"%c"}{if $list[i].rek_updated_date <> $list[i].rek_created_date} Last Updated: {$list[i].rek_updated_date|date_format:"%c"}{/if})
+         (Created: {$list[i].rek_created_date}{if $list[i].rek_updated_date <> $list[i].rek_created_date} Last Updated: {$list[i].rek_updated_date}{/if})
 
      </td>
      <td nowrap valign="middle" class="default">

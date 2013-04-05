@@ -110,7 +110,7 @@ No items found
         <td class="default">
             <a href="{$rel_url}view/{$list[i].rek_pid}"><img align="absmiddle" src="{$icon}" border="0"></a>
             <a href="{$rel_url}view/{$list[i].rek_pid}" class="title_link">{$list[i].rek_citation|smarty:nodefaults}</a>
-            <br />(Created: {$list[i].rek_created_date|date_format:"%c"}{if $list[i].rek_updated_date <> $list[i].rek_created_date} Last Updated: {$list[i].rek_updated_date|date_format:"%c"}{/if})
+            <br />(Created: {$list[i].rek_created_date}{if $list[i].rek_updated_date <> $list[i].rek_created_date} Last Updated: {$list[i].rek_updated_date}{/if})
 
        </td>
    <td nowrap valign="middle" class="default">
