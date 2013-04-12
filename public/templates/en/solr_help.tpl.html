@@ -1,13 +1,15 @@
 {include file="header.tpl.html" extra_title="Preferences"}
 {include file="navigation.tpl.html"}
 
+<a href='/faq'>Back to FAQ</a><br /><br />
         <h1>Simple Search</h1>
 Searching all fields is the default when using the front page or upper right search field.<BR />
 <BR />
 <h1>Advanced Search</h1>
 Select SEARCH in the navigation bar above for advanced search options.  <a href="/adv_search.php">(Link)</a><BR />
 <BR />
-<h1>Advance Search Box Search</h1>
+{if $isAdministrator || $isUPO}
+<h1>Expert Search Box Search</h1>
 From the search box you may also type advanced options using Solr style search terms.<BR />
 <BR />
 To search on a field place it in brackets<BR />
@@ -62,5 +64,6 @@ herdc_code	institutional_status	institutional_status</code><BR />
     roman_script_conference_name, total_pages, native_script_proceedings_title_, roman_script_proceedings_title, language_of_book_title, language_of_journal_name,
     language_of_proceedings_title, doi, author_count, embase_id, pubmed_id, collection_year, location, building_materials, architectural_features, interior_features<BR />
     </code>
+{/if}
 {include file="app_info.tpl.html"}
 {include file="footer.tpl.html"}

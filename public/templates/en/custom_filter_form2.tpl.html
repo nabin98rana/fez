@@ -39,6 +39,9 @@ function clearFilters(f) {
         $(checked[i]).attr("checked", false);
     }
 
+    //set advance search operator to default - AND
+    $("select[name='operator']").val("AND");
+
     {/literal}
 
     {section name="i" loop=$search_keys}
