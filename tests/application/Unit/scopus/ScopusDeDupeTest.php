@@ -336,14 +336,6 @@ class ScopusTest extends PHPUnit_Framework_TestCase
      }
      
      /**
-      * Check that a Scopus import collection has been set
-      */
-     public function testScopusImportCollectionSet()
-     {
-         $this->assertRegExp("/^UQ\:\d+/", APP_SCOPUS_IMPORT_COLLECTION);
-     }
-     
-     /**
       * Check to see that new PIDs are being saved to a collection
       */
      public function testSaveNewInScopusImportCollection()
@@ -352,7 +344,7 @@ class ScopusTest extends PHPUnit_Framework_TestCase
          if(!defined('APP_SCOPUS_IMPORT_COLLECTION'))
          {
              $db = DB_API::get();
-             $query = "SELECT rek_ismemberof FROM _fez_toxic4.fez_record_search_key_ismemberof where rek_ismemberof like 'UQ:%' LIMIT 5,1";
+             $query = "SELECT rek_ismemberof FROM fez_record_search_key_ismemberof where rek_ismemberof like 'UQ:%' LIMIT 5,1";
              $res = $db->fetchAll($query);
              define('APP_SCOPUS_IMPORT_COLLECTION', $res[0]['rek_ismemberof']);
          }
@@ -383,6 +375,14 @@ class ScopusTest extends PHPUnit_Framework_TestCase
          $this->assertEquals(false, empty($inTestCollection));
          $this->removeTestData($testDataPid);
          $this->removeAllTestPIDs($testDataPid, $csr->__get('_scopusId'));
+     }
+     
+     /**
+     * Check that a Scopus import collection has been set
+     */
+     public function testScopusImportCollectionSet()
+     {
+         $this->assertRegExp("/^UQ\:\d+/", APP_SCOPUS_IMPORT_COLLECTION);
      }
      
      /**
