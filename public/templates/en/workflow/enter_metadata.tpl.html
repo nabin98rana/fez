@@ -1189,7 +1189,7 @@
                 <td>
                     {assign var="temp_xsdmf_id" value=$xsd_display_fields[i].xsdmf_id}
                     {if $xsd_display_fields[i].xsdmf_date_type == 0}
-                        {html_select_date time="0000-00-00" reverse_years=true month_empty='' year_empty='' day_empty='' field_array="xsd_display_fields[$temp_xsdmf_id]"
+                        {html_select_date time="0000-00-00" reverse_years=true field_order='DMY' month_format='%m' month_empty='' year_empty='' day_empty='' field_array="xsd_display_fields[$temp_xsdmf_id]"
                             prefix="" start_year="$app_earliest_input_year" end_year="+3" all_extra='class="default"'
                             year_extra="id=xsd_display_fields[$temp_xsdmf_id][Year]" month_extra="id=xsd_display_fields[$temp_xsdmf_id][Month]" day_extra="id=xsd_display_fields[$temp_xsdmf_id][Day]"}
                         {literal}

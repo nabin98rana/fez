@@ -300,7 +300,7 @@ function clearFilters(f) {
                         {assign var="temp_sek_id" value=$search_keys[i].sek_id}
                         {assign var="custom" value=$options.$temp_sek_id}
 
-                        {html_select_date field_array="search_keys[$temp_sek_id][start]" prefix="" start_year="-100" end_year="+10" time=$last_key.start_date}
+                        {html_select_date field_order='DMY' field_array="search_keys[$temp_sek_id][start]" prefix="" start_year="-100" end_year="+10" time=$last_key.start_date}
 
                         {assign var="datepicker_input" value=datepicker[$temp_sek_id][start]}
                         <input type="hidden" name="{$datepicker_input}" value="" />
@@ -326,7 +326,7 @@ function clearFilters(f) {
 
                         <div id="tr_search_keys[{$temp_sek_id}]" class="end_date_wrapper">
                             <span>{$search_keys[i].sek_title}: <i>(End date)</i></span><br />
-                            {html_select_date field_array="search_keys[$temp_sek_id][end]" prefix="" start_year="-100" end_year="+10" time=$last_key.end_date}
+                            {html_select_date field_order='DMY' field_array="search_keys[$temp_sek_id][end]" prefix="" start_year="-100" end_year="+10" time=$last_key.end_date}
 
                             {assign var="datepicker_input" value=datepicker[$temp_sek_id][end]}
                             <input type="hidden" name="{$datepicker_input}" value="" />
