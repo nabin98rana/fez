@@ -18,8 +18,6 @@ var element{$search_keys[i].sek_id} = getPageElement('search_keys[{$search_keys[
 if (element{/literal}{$search_keys[i].sek_id}{literal} != null) {
     element{/literal}{$search_keys[i].sek_id}{literal}.value = '';
 }
-//set advance search operator to default - AND
-$("select[name='operator']").val("AND");
 {/literal}
 {elseif $search_keys[i].sek_html_input == 'date'}
     // now for the fields that are only available through the advanced search page
