@@ -424,8 +424,9 @@ function loadPreview(pid,datastreamID, alt, origami)
 	</tr>
 </table>
 {*---------------------------------------------------------------------------------------------------------*}
+    {if (!$isEditor && !$isAdministrator)}
       <br />
-      <div id="{if $viewingPreviousVersion}viewInfoBoxNoEdit{else}viewInfoBox{/if}">
+    <div id="{if $viewingPreviousVersion}viewInfoBoxNoEdit{else}viewInfoBox{/if}">
           <table id="viewInfoBoxTable">
               <tr>
                   <th>
@@ -527,6 +528,7 @@ function loadPreview(pid,datastreamID, alt, origami)
           </table>
       </div>
       {/if}
+    {/if}
       {*---------------------------------------------------------------------------------------------------------*}
 
 <!-- add link resolver button only for specific doc types; rft.genre will always exist for these doc types -->

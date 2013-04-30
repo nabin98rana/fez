@@ -146,6 +146,13 @@ if ($access_ok) {
         $wfstatus->setCreatedPid($res);
         $wfstatus->pid = $res;
     }
+
+    // Record the Internal Note, if we've been handed one.
+    if (isset($_POST['internal_notes']) && $isAdministrator) {
+        $note = trim($_POST['internal_notes']);
+        InternalNotes::recordNote($res, $note);
+    }
+
     $wfstatus->checkStateChange();
 	if ($canEdit === true) {
     	$tpl->assign("isEditor", 1);

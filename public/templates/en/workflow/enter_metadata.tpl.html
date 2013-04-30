@@ -1276,6 +1276,33 @@
         </script>
     {/if}
 {/section}
+
+{* Internal Notes *}
+{if $isAdministrator && $APP_INTERNAL_NOTES == 'ON'}
+<table cellpadding="2" cellspacing="0" style="background: white; width: 100%">
+    <tr>
+        <td class="default_white" style="background: {$heading_color}; height: 22px"><b>Internal Notes</b> &nbsp; (Administrators only - will not be publicly displayed)</td>
+    </tr>
+    <tr class="default">
+        <td>
+            <textarea style="width: 95%; height: 100px;" name="internal_notes"></textarea>
+        </td>
+    </tr>
+</table>
+
+{* Reason for Edit *}
+<table cellpadding="2" cellspacing="0" style="background: white; width: 100%">
+    <tr>
+        <td class="default_white" style="background: {$heading_color}; height: 22px"><b>Reason for creating record</b> &nbsp; (optional - will be added to object history)</td>
+    </tr>
+    <tr class="default">
+        <td>
+            <input type="text" name="edit_reason" style="width: 95%;" />
+        </td>
+    </tr>
+    <tr><td>&nbsp;</td></tr>
+</table>
+{/if}
 <tr>
     <td>
         <script type="text/javascript">init_textarea_validation();</script>
