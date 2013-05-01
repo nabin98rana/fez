@@ -438,7 +438,9 @@ class WokQueue extends Queue
                 $values = array(Controlled_Vocab::getID("Follow-up"));
                 $record->addSearchKeyValueList($search_keys, $values, true, " was added due to RID author ID matching");
                 $autDetails = Author::getDetails($author_id);
-                $subject = "ResearcherID Completed HERDC author change :: ".$pid." :: ".$autDetails['aut_org_username'];
+                $publishedDate = Record::getSearchKeyIndexValue($pid, "Date", true);
+                $publishedDate = strftime("%Y", strtotime($publishedDate));
+                $subject = "ResearcherID Completed HERDC author change :: ".$pid." :: ".$publishedDate." :: ".$autDetails['aut_org_username'];
                 $body = "Automatically assigned this pid ".$pid." to followup flag - followup because it is in the HERDC PRE-AUDIT COLLECTION ".APP_HERDC_TRIAL_COLLECTION." for successful author match for RID download of author ".
                     $autDetails['aut_display_name']." with username ".$autDetails['aut_org_username'];
                 $userEmail = "";

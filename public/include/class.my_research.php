@@ -378,6 +378,8 @@ class MyResearch
 
         // 1. Mark the publication claimed in the database
         $pid = @$_POST['pid'];
+        $publishedDate = Record::getSearchKeyIndexValue($pid, "Date", true);
+        $publishedDate = strftime("%Y", strtotime($publishedDate));
         $author = Auth::getActingUsername();
         $user = Auth::getUsername();
         $correction = @$_POST['correction'];
@@ -399,7 +401,7 @@ class MyResearch
             $sendEmail = false;
         }
 
-        $subject = "My Research :: Claimed Publication :: " . $jobID . " :: " . $pid . " :: " . $author;
+        $subject = "My Research :: Claimed Publication :: " . $jobID . " :: " . $pid . " :: " . $publishedDate . " :: " . $author;
 
         $body = "Record: http://" . APP_HOSTNAME . APP_RELATIVE_URL . "view/" . $pid . "\n\n";
         if ($author == $user) {
@@ -706,8 +708,10 @@ class MyResearch
         $authorName = $authorDetails['aut_display_name'];
         $userName = $userDetails['usr_full_name'];
         $userEmail = $userDetails['usr_email'];
+        $publishedDate = Record::getSearchKeyIndexValue($pid, "Date", true);
+        $publishedDate = strftime("%Y", strtotime($publishedDate));
 
-        $subject = "My Research :: Disowned Publication :: " . $jobID . " :: " . $pid . " :: " . $author;
+        $subject = "My Research :: Disowned Publication :: " . $jobID . " :: " . $pid . " :: " . $publishedDate . " :: " . $author;
 
         $body = "Record: http://" . APP_HOSTNAME . APP_RELATIVE_URL . "view/" . $pid . "\n\n";
         if ($author == $user) {
@@ -742,9 +746,11 @@ class MyResearch
         $authorName = $authorDetails['aut_display_name'];
         $userName = $userDetails['usr_full_name'];
         $userEmail = $userDetails['usr_email'];
+        $publishedDate = Record::getSearchKeyIndexValue($pid, "Date", true);
+        $publishedDate = strftime("%Y", strtotime($publishedDate));
 
 
-        $subject = "My Research :: Correction Required :: " . $jobID . " :: " . $pid . " :: " . $author;
+        $subject = "My Research :: Correction Required :: " . $jobID . " :: " . $pid . " :: " . $publishedDate . " :: " . $author;
         $body = "Record: http://" . APP_HOSTNAME . APP_RELATIVE_URL . "view/" . $pid . "\n\n";
         if ($author == $user) {
             $body .= $authorName . " (" . $authorID . ") has supplied the following correction information:\n\n";
@@ -777,9 +783,11 @@ class MyResearch
         $authorName = $authorDetails['aut_display_name'];
         $userName = $userDetails['usr_full_name'];
         $userEmail = $userDetails['usr_email'];
+        $publishedDate = Record::getSearchKeyIndexValue($pid, "Date", true);
+        $publishedDate = strftime("%Y", strtotime($publishedDate));
 
 
-        $subject = "My Research :: De-Duplication Required :: " . $jobID . " :: " . $pid . " :: " . $author;
+        $subject = "My Research :: De-Duplication Required :: " . $jobID . " :: " . $pid . " :: " . $publishedDate . " :: " . $author;
         $body = "Record: http://" . APP_HOSTNAME . APP_RELATIVE_URL . "view/" . $pid . "\n\n";
         if ($author == $user) {
             $body .= $authorName . " (" . $authorID . ") has supplied the following de-duplication information:\n\n";
