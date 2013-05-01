@@ -130,6 +130,22 @@ function isMyPubURL(u) {
 }
 
 
+function isORCID(u) {
+	var valid = (u.length == 19);
+	valid = valid && (u.charAt(4) == '-') && (u.charAt(9) == '-') && (u.charAt(14) == '-');
+    var total = 0;
+    for (var i = 0; i < 18; i++) {
+        if (u.charAt(i) != '-') {
+            digit = Number(u.charAt(i));
+            total = (total + digit) * 2;
+        }
+    }
+    remainder = total % 11;
+    result = (12 - remainder) % 11;
+    valid = valid && ((result == Number(u.charAt(18)) || (result == 10 && u.charAt(18) == 'X' )));
+    return valid;
+}
+
 function hasDeniedChars(s)
 {
     var denied_chars = new Array(" ", "\n", "\t", "\r", "%", "$", "#", "!", "~", "`", "^", "&", "*", "(", ")", "=", "+", "{", "}", "[", "]", ",", ";", ":", "'", "\"", "?", "<", ">", "/", "\\", "|");

@@ -23,6 +23,12 @@
                       selectField(f, 'mypubs_url');
                       return false;
                   }
+                  if (!isWhitespace(f.orcid_id.value) && !isORCID(f.orcid_id.value)) {
+                      alert('ORCID ID incorrect');
+                      selectField(f, 'orcid_id');
+                      return false;
+                  }
+
                   return true;
               }
 			    function resizePager(f)
