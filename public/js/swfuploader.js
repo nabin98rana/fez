@@ -55,7 +55,7 @@ function swfuploaderLoad(maxNumberFiles, baseUrl, postParams) {
 			upload_url: baseUrl+"uploader_upload_files.php",
 
 			// Flash file settings
-			file_size_limit : "500 MB",
+			file_size_limit : "1024 MB",
 			file_types : "*.*",			// or you could use something like: "*.doc;*.wpd;*.pdf",
 			file_types_description : "All Files",
 
