@@ -1896,8 +1896,9 @@ class Statistics
 		$log = FezLog::get();
 		$db = DB_API::get();
 
-		// add this ip to the Fez robots listing
-		$stmt = "insert into " . APP_TABLE_PREFIX . "statistics_robots (str_ip, str_hostname, str_date_added) values ('".$ip."', '".$hostname."', now())";
+        $date = date('Y-m-d H:i:s');
+        // add this ip to the Fez robots listing
+		$stmt = "insert into " . APP_TABLE_PREFIX . "statistics_robots (str_ip, str_hostname, str_date_added) values ('".$ip."', '".$hostname."', '".$date."')";
 
 		try {
 			$db->query($stmt);
@@ -2122,11 +2123,13 @@ class Statistics
 		return $newhistory;
 	}
 
-
-	function cleanupFalseHits(&$increments = array())
+    //Min_date overrides the minimum date which is normally the date of the last bad stat
+	function cleanupFalseHits(&$increments = array(), $min_date = NULL)
 	{
 		$seconds_limit = 10; // 10 seconds COUNTER draft 3 recommended limit
-		$min_date = Statistics::getMinBadDate();
+		if (empty($min_date)) {
+            $min_date = Statistics::getMinBadDate();
+        }
 		$stats_count = Statistics::cleanupFalseHitsCount($min_date);
 		$history = array();
 		$newhistory = array();
