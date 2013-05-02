@@ -114,7 +114,7 @@ function publicationsUpload($list, $id)
     // Validate against schema
     if (! $xml_request_data->schemaValidate(RID_UL_SERVICE_PUBLICATIONS_XSD)) {
       // Not valid
-      $log->err('XML request data does not validate against schema.');
+      $log->err('XML request data does not validate against schema (publicationsUpload).');
       print 'XML request data does not validate against schema.';
       return false;
     } else {

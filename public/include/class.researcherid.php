@@ -363,7 +363,7 @@ class ResearcherID
         // Validate against schema
         if (! @$xml_request_data->schemaValidate(RID_UL_SERVICE_PUBLICATIONS_XSD)) {
           // Not valid
-          $log->err('XML request data does not validate against schema.');
+          $log->err('XML request data does not validate against schema (rid upload).');
           return false;
         } else {
           $tpl = new Template_API();
