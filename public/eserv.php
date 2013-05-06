@@ -92,11 +92,13 @@ if (!empty($pid) && !empty($dsID)) {
         }
     } else {
         //Need to check if the datastream is deleted
-        $isDeleted = TRUE;
+        //if a book page the folder name it's in is the datastream name plus a .pdf
+        $dsIDTemp = !$bookpage ? $dsID : current(explode("/", $dsID)).'.pdf';
+        $isDeleted = TRUE ;
         $dsCheck = Fedora_API::callGetDatastreams($pid);
         foreach ($dsCheck as $pidDatastream)
         {
-            if ($pidDatastream[ID] == $dsID) {
+            if ($pidDatastream[ID] == $dsIDTemp) {
                 $isDeleted = FALSE;
             }
         }
