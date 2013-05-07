@@ -14,27 +14,31 @@
             e = e || event;
             var txtArea = /textarea/i.test((e.target || e.srcElement).tagName);
             return txtArea || (e.keyCode || e.which || e.charCode || 0) !== 13;
-		}		
+		}
+
+        // Prevent the backspace key from navigating back.
+        $(document).unbind('keydown').bind('keydown', function (event) {
+            var doPrevent = false;
+            if (event.keyCode === 8) {
+                var d = event.srcElement || event.target;
+                if ((d.tagName.toUpperCase() === 'INPUT' && (d.type.toUpperCase() === 'TEXT' || d.type.toUpperCase() === 'PASSWORD'))
+                        || d.tagName.toUpperCase() === 'TEXTAREA') {
+                    doPrevent = d.readOnly || d.disabled;
+                }
+                else {
+                    doPrevent = true;
+                }
+            }
+
+            if (doPrevent) {
+                event.preventDefault();
+            }
+        });
 
 		function disableWorkflowButtons(f)
 		{
-			//document.getElementById('wfl_buttons_1').style.visibility = "hidden";
-			//document.getElementById('wfl_buttons_2').style.visibility = "hidden";
             document.getElementById('wfl_buttons_1').style.display = "none";
 			document.getElementById('wfl_buttons_2').style.display = "none";
-
-			/*
-			{/literal}{section name="i" loop=$workflow_buttons}{literal}
-				var field_{/literal}{$workflow_buttons[i].wfs_id}{literal}_1 = getFormElementByID(f, 'workflow_button_{/literal}{$workflow_buttons[i].wfs_id}{literal}_1');
-				field_{/literal}{$workflow_buttons[i].wfs_id}{literal}_1.disabled = true;
-				var field_{/literal}{$workflow_buttons[i].wfs_id}{literal}_2 = getFormElementByID(f, 'workflow_button_{/literal}{$workflow_buttons[i].wfs_id}{literal}_2');
-				field_{/literal}{$workflow_buttons[i].wfs_id}{literal}_2.disabled = true;
-			{/literal}{/section}{literal}
-				var field_abandon_1 = getFormElementByID(f, 'workflow_abandon_1');
-				field_abandon_1.disabled = true;
-				var field_abandon_2 = getFormElementByID(f, 'workflow_abandon_2');
-				field_abandon_2.disabled = true;
-			*/
 			return true;
 		}
 
