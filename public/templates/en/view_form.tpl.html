@@ -88,6 +88,7 @@ function loadPreview(pid,datastreamID, alt, origami)
 	  	  </td>
         </tr>
 	  </table>
+
     {if $addthis && (!$isEditor || !$isAdministrator)}
         <!-- AddThis Button BEGIN -->
         <span class="addthis_toolbox addthis_default_style " >
@@ -95,10 +96,14 @@ function loadPreview(pid,datastreamID, alt, origami)
             <a class="addthis_button_tweet"></a>
             <a class="addthis_button_google_plusone" g:plusone:size="medium"></a>
             <a class="addthis_counter addthis_pill_style"></a>
+            {if $displayOrderForm}
+              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <a href="https://www.library.uq.edu.au/services-for/ordering-copies-uq-theses" target="_blank"><img src="/images/order_a_copy.png"</a>
+            {/if}
         </span>
         <script type="text/javascript" src="//s7.addthis.com/js/300/addthis_widget.js#pubid={$addthis}"></script>
         <!-- AddThis Button END -->
     {/if}
+
 {*--------------------------------------------------------------------------------------------------------------------*}
       {*Info box just for admins*}
       {if $isEditor || $isAdministrator || ($show_tombstone && $deleted)}
@@ -232,7 +237,7 @@ function loadPreview(pid,datastreamID, alt, origami)
 						<td>Description</td>
 						<td colspan="2">MIMEType</td>
 						<td>Size</td>
-						<td style="text-align: right">Downloads</td>
+                        {if $isUser}<td style="text-align: right">Downloads</td>{/if}
 					</tr>
 
                         {assign var="ds_show_onclick" value=""}
@@ -363,9 +368,11 @@ function loadPreview(pid,datastreamID, alt, origami)
                                     <td>
                                         {$datastreams[d].archival_size}
                                     </td>
-                                    <td style="text-align: right">
-                                        <!--fez:ds_{$datastreams[d].base64ID}-->{$datastreams[d].downloads}<!--/fez:ds_{$datastreams[d].base64ID}-->
-                                    </td>
+                                    {if $isUser}
+                                        <td style="text-align: right">
+                                            <!--fez:ds_{$datastreams[d].base64ID}-->{$datastreams[d].downloads}<!--/fez:ds_{$datastreams[d].base64ID}-->
+                                        </td>
+                                    {/if}
                                 </tr>
                             {/if}
                         {/section}

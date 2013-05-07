@@ -258,6 +258,7 @@ if (!empty($pid) && $record->checkExists()) {
     $citation_html = Citation::renderCitation($xdis_id, $details, $xsd_display_fields);
     $tpl->assign('citation', $citation_html);
 
+    $displayOrderForm = false;
     $parent_relationships = array();
     foreach ($parents as $parent) {
       $parent_rel = XSD_Relationship::getColListByXDIS($parent['rek_display_type']);
@@ -266,6 +267,9 @@ if (!empty($pid) && $record->checkExists()) {
         array_push($parent_relationships[$parent['rek_pid']], $prel);
       }
       array_push($parent_relationships[$parent['rek_pid']], $parent['rek_display_type']);
+      //Check if the order form should be displayed
+      $displayOrderForm =  $displayOrderForm || in_array($parent['rek_pid'], array('UQ:183974','UQ:130846','UQ:210175','UQ:155729'));
+
     }
     // Now generate the META Tag headers
     // lets add the dublin core schema
@@ -695,6 +699,7 @@ if (!empty($pid) && $record->checkExists()) {
     {
       $tpl->assign("addthis", APP_ADDTHIS_ID);
     }
+    $tpl->assign("displayOrderForm", $displayOrderForm);
     $tpl->assign("origami", APP_ORIGAMI_SWITCH);
     $tpl->assign("linkCount", $linkCount);
     $tpl->assign("links", $links);
