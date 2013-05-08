@@ -268,9 +268,10 @@ if (!empty($pid) && $record->checkExists()) {
       }
       array_push($parent_relationships[$parent['rek_pid']], $parent['rek_display_type']);
       //Check if the order form should be displayed
-      $displayOrderForm =  $displayOrderForm || in_array($parent['rek_pid'], array('UQ:183974','UQ:130846','UQ:210175','UQ:155729'));
+      $displayOrderForm =  $displayOrderForm || in_array($parent['rek_pid'], array('UQ:183974','UQ:130846','UQ:210175','UQ:155729', 'UQ:151710'));
 
     }
+    $displayOrderForm = (empty($username) && $displayOrderForm);
     // Now generate the META Tag headers
     // lets add the dublin core schema
     $meta_head = '<link rel="schema.DC" href="http://purl.org/DC/elements/1.0/" />' . "\n";
