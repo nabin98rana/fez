@@ -47,7 +47,7 @@ include_once(APP_INC_PATH . "class.journal.php");
 $tpl = new Template_API();
 $tpl->setTemplate("manage/index.tpl.html");
 
-Auth::checkAuthentication(APP_SESSION);
+Auth::checkAuthentication(APP_SESSION, $_SERVER['PHP_SELF']."?".$_SERVER['QUERY_STRING']);
 
 $tpl->assign("type", "matching");
 

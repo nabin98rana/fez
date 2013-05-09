@@ -45,7 +45,7 @@ include_once(APP_INC_PATH . "class.db_api.php");
 $tpl = new Template_API();
 $tpl->setTemplate("manage/xsd_tree_match.tpl.html");
 
-Auth::checkAuthentication(APP_SESSION);
+Auth::checkAuthentication(APP_SESSION, $_SERVER['PHP_SELF']."?".$_SERVER['QUERY_STRING']);
 $isUser = Auth::getUsername();
 $isAdministrator = User::isUserAdministrator($isUser);
 $isSuperAdministrator = User::isUserSuperAdministrator($isUser);

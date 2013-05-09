@@ -46,7 +46,7 @@ $tpl->assign("type", "rid_profile_uploads");
 $tpl->assign("active_nav", "admin");
 
 // Assign user priviledges
-Auth::checkAuthentication(APP_SESSION);
+Auth::checkAuthentication(APP_SESSION, $_SERVER['PHP_SELF']."?".$_SERVER['QUERY_STRING']);
 $isUser = Auth::getUsername();
 $isAdministrator = User::isUserAdministrator($isUser);
 $isSuperAdministrator = User::isUserSuperAdministrator($isUser);

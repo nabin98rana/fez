@@ -45,7 +45,7 @@ include_once(APP_INC_PATH . "class.status.php");
 include_once(APP_INC_PATH . "class.collection.php");
 include_once(APP_INC_PATH . "class.xsd_display.php");
 
-Auth::checkAuthentication(APP_SESSION);
+Auth::checkAuthentication(APP_SESSION, $_SERVER['PHP_SELF']."?".$_SERVER['QUERY_STRING']);
 
 $tpl = new Template_API();
 $tpl->assign("yui_autosuggest", '1');

@@ -41,7 +41,7 @@ include_once(APP_INC_PATH . "class.background_process_list.php");
 include_once(APP_INC_PATH . 'najax/najax.php');
 include_once(APP_INC_PATH . 'najax_objects/class.background_process_list.php');
 
-Auth::checkAuthentication(APP_SESSION);
+Auth::checkAuthentication(APP_SESSION, $_SERVER['PHP_SELF']."?".$_SERVER['QUERY_STRING']);
 
 $tpl = new Template_API();
 $tpl->assign("yui_autosuggest", '1');
