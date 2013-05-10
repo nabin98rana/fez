@@ -163,6 +163,16 @@ class RecordObject extends RecordGeneral
 			// to do with a form submission
 			$_POST = $params;
 		}
+
+        //location_widget won't work with array ie name="xsd_display_fields[1234]" so need to convert it( ie xsd_display_fields_location_widget_1234) back to the xsd_display_fields array
+        foreach ($_POST as $key => $value) {
+            if (strstr($key, 'xsd_display_fields_location_widget')) {
+                $pieces = explode('_', $key);
+                $_POST['xsd_display_fields'][$pieces['5']] = $value;
+                unset($_POST[$key]);
+            }
+        }
+
         $existingDatastreams = array();
 
         if (APP_FEDORA_BYPASS == 'ON') {

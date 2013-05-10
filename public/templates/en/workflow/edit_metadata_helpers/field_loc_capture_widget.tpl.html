@@ -1,0 +1,29 @@
+<tr id="tr_xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_0" {if $xsdmf.xsdmf_invisible == 1}style="display:none;"{/if}>
+    <td width="200" bgcolor="{$cell_color}" class="default" valign="top">
+	   <b><label for="xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_0">{$xsd_display_fields[i].xsdmf_title} {if $xsd_display_fields[i].xsdmf_required == 1} * {/if}</label></b>
+		{if $xsdmf.xsdmf_description != ""}
+		  <br /><i>{$xsdmf.xsdmf_description}</i>
+		{/if}
+	</td>
+	<td bgcolor="{$value_color}">
+        <br />
+        <script type="text/javascript">
+            mapInputFieldId = 'xsd_display_fields_location_widget_{$xsd_display_fields[i].xsdmf_id}';  // this will be the name of the form element containing the coordinates
+            {assign var="temp_xsdmf_id" value=$xsd_display_fields[i].xsdmf_id}
+            {assign var="latLon" value=$details[$temp_xsdmf_id]}
+            latLon = '{$latLon}';
+            mctServicePath = 'http://services.ands.org.au/api/resolver/';
+        </script>
+        <script type="text/javascript" src="http://services.ands.org.au/api/resolver/location_capture_widget.js"></script>
+
+	   {include file="error_icon.tpl.html" field="xsd_display_fields["|cat:$xsd_display_fields[i].xsdmf_id|cat:"]"}
+	   {if $xsd_display_fields[i].xsdmf_required == 1}
+        <script language="JavaScript">
+        <!--
+        xsd_display_fields[xsd_display_fields.length] = new Option('xsd_display_fields[{$xsd_display_fields[i].xsdmf_id}]{if $xsd_display_fields[i].xsdmf_multiple == 1}[]{/if}', '{$xsd_display_fields[i].xsdmf_title}');
+        required_xsd_display_fields[required_xsd_display_fields.length] = new Option('xsd_display_fields[{$xsd_display_fields[i].xsdmf_id}]{if $xsd_display_fields[i].xsdmf_multiple == 1}[]{/if}', 'whitespace');
+        //-->
+        </script>
+        {/if}
+    </td>
+</tr>

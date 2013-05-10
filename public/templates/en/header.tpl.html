@@ -198,7 +198,7 @@
     _gaq.push(['_setAccount', "UA-{$app_analytics_id}"]);
     _gaq.push(['_trackPageview']);
     _gaq.push(['_trackPageLoadTime']);
-    _gaq.push(['_setCustomVar',1,'User_Type','{if $isAdministrator}admin{elseif $isUser}user{else}guest{/if}']);
+    _gaq.push(['_setCustomVar',1,'User_Type','{if $isAdministrator}admin{elseif $isUser}user{else}visitor{/if}']);
       {literal}
       (function() {
           var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
