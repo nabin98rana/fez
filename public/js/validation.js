@@ -77,11 +77,11 @@ function isValidEmail(strEmail){
 	var validRegExp = /^[a-zA-Z][\w\.-]*[a-zA-Z0-9]@[a-zA-Z0-9][\w\.-]*[a-zA-Z0-9]\.[a-zA-Z][a-zA-Z\.]*[a-zA-Z]$/i;
 	strEmail = trim(strEmail);
    // search email text for regular exp matches
-    if (strEmail.search(validRegExp) == -1) 
+    if (strEmail.search(validRegExp) == -1)
    {
       return false;
-    } 
-    return true; 
+    }
+    return true;
 }
 
 function isEmail(s)
@@ -118,7 +118,7 @@ function isEmail(s)
 
 function isURL(s) {
      //var v = new RegExp();
-     //v.compile("^[A-Za-z]+://[A-Za-z0-9-_]+\\.[A-Za-z0-9-_%&\?\/.=]+$"); 
+     //v.compile("^[A-Za-z]+://[A-Za-z0-9-_]+\\.[A-Za-z0-9-_%&\?\/.=]+$");
 
 	var regexp = /(ftp|http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?/;
 	return regexp.test(s);
@@ -224,7 +224,7 @@ function hasOnlyOneChecked(f, field_name)
 			if (found == 1) {
 				multiple = 1;
 			}
-            found = 1;			
+            found = 1;
         }
     }
     if ((found == 0) || (multiple == 1)) {
@@ -262,17 +262,17 @@ function isNumeric(sText)
    var IsNumber=true;
    var Char;
 
- 
-   for (i = 0; i < sText.length && IsNumber == true; i++) 
-      { 
-      Char = sText.charAt(i); 
-      if (ValidChars.indexOf(Char) == -1) 
+
+   for (i = 0; i < sText.length && IsNumber == true; i++)
+      {
+      Char = sText.charAt(i);
+      if (ValidChars.indexOf(Char) == -1)
          {
          IsNumber = false;
          }
       }
    return IsNumber;
-   
+
 }
 
 function isInteger(sText)
@@ -388,7 +388,7 @@ function checkRequiredFieldsExt(f, required_fields, required_fields_titles)
 {
     for (var i = 0; i < required_fields.length; i++) {
 
-		var field = getFormElement(f, required_fields[i].text);		
+		var field = getFormElement(f, required_fields[i].text);
 		if (required_fields[i].value == 'combo') {
             if ((getSelectedOption(f, field.name) == '-1') || (getSelectedOption(f, field.name) == '') ) {
                 errors[errors.length] = new Option(getFieldTitle(required_fields_titles,required_fields[i].text), required_fields[i].text);
@@ -518,7 +518,7 @@ function checkRequiredFields(f, required_fields)
 /**
  * Check the existence of an input field that stores a flag of file upload completion.
  * This input is instantiated on swfuploader.js file.
- * 
+ *
  * @param f. Form object where we want to search the input field.
  * @param required_fields. An array containing the fieldname and the field's validation title.
  * @return Boolean. True when field exists and contain any value.
@@ -622,11 +622,11 @@ function selectField(f, field_name)
 			var newF = new Function('checkErrorCondition(\'' + f.name + '\', \'' + field_name + '\');');
 			if (f.elements[i].onchange) {
                             // don't muck around with existing onchange stuff because it
-                            // blows away the arguments to the oldF and thigns stop working 
+                            // blows away the arguments to the oldF and thigns stop working
 				//var oldF = (f.elements[i].onchange);
 				//f.elements[i].onchange = function () { oldF(); newF();};
 			} else {
-				f.elements[i].onchange = function () {newF();};				
+				f.elements[i].onchange = function () {newF();};
 			}
 			if (f.elements[i].select) {
                 f.elements[i].select();
@@ -668,14 +668,14 @@ function checkFormSubmission(f, callback_func)
             fields += '- ' + errors[i].text + "\n";
         }
         // show a big alert box with the missing information
-        alert("The following fields need to be filled out or corrected:\n\n" + fields + "\nPlease complete the form and try again.");
+        alert("The following fields need to be filled out or corrected:\n\n" + fields + "\nPlease complete these fields.");
         return false;
     } else {
         return true;
     }
 }
 
-function isValidSolrFilename(s) 
+function isValidSolrFilename(s)
 {
 	// check string length
 	if (s.length > 45) {
@@ -687,7 +687,7 @@ function isValidSolrFilename(s)
 	// check for only one file extension (only one period character)
 	// check that the file extension is only numbers and lowercase letters
 	var regexp = /^[a-zA-Z][a-zA-Z0-9_]*[\.][a-z0-9]+$/;
-	
+
 	return regexp.test(s);
 }
 //-->
