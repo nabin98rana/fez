@@ -51,6 +51,7 @@ include_once(APP_INC_PATH . "class.xsd_relationship.php");
 include_once(APP_INC_PATH . "class.workflow_status.php");
 include_once(APP_INC_PATH . "class.org_structure.php");
 include_once(APP_INC_PATH . "class.uploader.php");
+include_once(APP_INC_PATH . "class.my_research.php");
 
 // Temporary solution for SWFUpload not working on HTTPS environment
 if ( $_SERVER["SERVER_PORT"] == 443)  {
@@ -107,8 +108,16 @@ if (strtolower($_SERVER['HTTPS']) == 'on' || $_SERVER['SERVER_PORT'] == 443 || s
 	$tpl->assign('http_protocol', 'http');
 }
 
+$username = Auth::getUsername();
+$isUPO = User::isUserUPO($username);
+$isAdministrator = User::isUserAdministrator($username);
+$actingUser = Auth::getActingUsername();
+$actingUserArray = Author::getDetailsByUsername($actingUser);
+$actingUserArray['org_unit_description'] = MyResearch::getHRorgUnit($actingUser);
+$tpl->assign("acting_user", $actingUserArray);
+$tpl->assign("actual_user", $username);
+$tpl->assign("isUPO", $isUPO);
 
-$isAdministrator = User::isUserAdministrator(Auth::getUsername());
 //CK commented this out as it is not needed in a entermetadata form anymore
 //$tpl->assign("pid", $pid);
 if (empty($wfstatus->parent_pid)) {
