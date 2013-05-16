@@ -479,22 +479,22 @@ class Citation
 			} else {
 				if ($xsdmf['sek_title'] == "Title") {
 					if ($details['rek_object_type'] == 3) {
-						$value = '<a id="citation_title" title="Click to view '.$details['rek_display_type_lookup'].': '.htmlentities($value, ENT_COMPAT, 'UTF-8').'" href="' . APP_RELATIVE_URL . 'view/'.$details['rek_pid'].'">'.$value.'</a>';
+						$value = '<a class="citation_title" title="Click to view '.$details['rek_display_type_lookup'].': '.htmlentities($value, ENT_COMPAT, 'UTF-8').'" href="' . APP_RELATIVE_URL . 'view/'.$details['rek_pid'].'">'.$value.'</a>';
 					} elseif ($details['rek_object_type'] == 2) {
-						$value = '<a id="citation_collections" title="Click to list records in '.$details['rek_display_type_lookup'].' '.htmlentities($value, ENT_COMPAT, 'UTF-8').'" href="' . APP_RELATIVE_URL . 'collection/'.$details['rek_pid'].'">'.$value.'</a>';
+						$value = '<a class="citation_collections" title="Click to list records in '.$details['rek_display_type_lookup'].' '.htmlentities($value, ENT_COMPAT, 'UTF-8').'" href="' . APP_RELATIVE_URL . 'collection/'.$details['rek_pid'].'">'.$value.'</a>';
 					} elseif ($details['rek_object_type'] == 1) {
-						$value = '<a id="citation_community" title="Click to list collections in '.$details['rek_display_type_lookup'].' '.htmlentities($value, ENT_COMPAT, 'UTF-8').'" href="' . APP_RELATIVE_URL . 'community/'.$details['rek_pid'].'">'.$value.'</a>';
+						$value = '<a class="citation_community" title="Click to list collections in '.$details['rek_display_type_lookup'].' '.htmlentities($value, ENT_COMPAT, 'UTF-8').'" href="' . APP_RELATIVE_URL . 'community/'.$details['rek_pid'].'">'.$value.'</a>';
 					}
 				}
 				if ($xsdmf['sek_title'] == "Date") {
-                    $value = '<span id="citation_date">'.$value.'</span>';
+                    $value = '<span class="citation_date">'.$value.'</span>';
 				}
 			}
 		}
 
         if ($xsdmf['sek_title'] != 'Title'  && $xsdmf['sek_title'] != 'Author' && $xsdmf['sek_title'] != 'Date') {
-            $css_id = strtolower(str_replace(' ', '_',$xsdmf['sek_title']));
-            $value = '<span id="citation_'.$css_id.'">'.$value.'</span>';
+            $css_class = strtolower(str_replace(' ', '_',$xsdmf['sek_title']));
+            $value = '<span class="citation_'.$css_class.'">'.$value.'</span>';
         }
 
 		return $value;
@@ -521,11 +521,11 @@ class Citation
 			return '';
 		}
 		if ($details['rek_object_type'] == 3) {
-			$value = '<a id="citation_title title="Click to view '.$details['rek_display_type_lookup'].': '.htmlentities($value, ENT_COMPAT, 'UTF-8').'" href="' . APP_RELATIVE_URL . 'view/'.$details['rek_pid'].'">'.$value.'</a>';
+			$value = '<a class="citation_title" title="Click to view '.$details['rek_display_type_lookup'].': '.htmlentities($value, ENT_COMPAT, 'UTF-8').'" href="' . APP_RELATIVE_URL . 'view/'.$details['rek_pid'].'">'.$value.'</a>';
 		} elseif ($details['rek_object_type'] == 2) {
-			$value = '<a id="citation_collections title="Click to list records in '.$details['rek_display_type_lookup'].' '.htmlentities($value, ENT_COMPAT, 'UTF-8').'" href="' . APP_RELATIVE_URL . 'collection/'.$details['rek_pid'].'">'.$value.'</a>';
+			$value = '<a class="citation_collections" title="Click to list records in '.$details['rek_display_type_lookup'].' '.htmlentities($value, ENT_COMPAT, 'UTF-8').'" href="' . APP_RELATIVE_URL . 'collection/'.$details['rek_pid'].'">'.$value.'</a>';
 		} elseif ($details['rek_object_type'] == 1) {
-			$value = '<a id="citation_community" title="Click to list collections in '.$details['rek_display_type_lookup'].' '.htmlentities($value, ENT_COMPAT, 'UTF-8').'" href="' . APP_RELATIVE_URL . 'community/'.$details['rek_pid'].'">'.$value.'</a>';
+			$value = '<a class="citation_community" title="Click to list collections in '.$details['rek_display_type_lookup'].' '.htmlentities($value, ENT_COMPAT, 'UTF-8').'" href="' . APP_RELATIVE_URL . 'community/'.$details['rek_pid'].'">'.$value.'</a>';
 		}
 		return $value;
 	}
