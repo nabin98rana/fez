@@ -5,12 +5,20 @@ function toggleCorrections()
 {
 	if (document.getElementById('ok').checked) {
 		document.getElementById('correction').disabled = true;
+        document.getElementById('upload-area').disabled = true;
 		document.getElementById('correction').style.display = 'none';
 		document.getElementById('correction').value = '';
-	} else {
-		document.getElementById('correction').disabled = false;
-		document.getElementById('correction').style.display = 'block';
-		document.getElementById('correction').value = 'Please tell us what is wrong with the record.';
+	} else if (document.getElementById('nok').checked) {
+        document.getElementById('correction').disabled = false;
+        document.getElementById('upload-area').disabled = true;
+        document.getElementById('correction').style.display = 'block';
+        document.getElementById('correction').value = 'Please tell us what is wrong with the record.';
+    } else {
+        document.getElementById('correction').disabled = false;
+        document.getElementById('upload-area').disabled = false;
+        document.getElementById('upload-area').style.display = 'block';
+        document.getElementById('correction').style.display = 'block';
+        document.getElementById('correction').value = 'Please tell us any issues or additional information.';
 	}
 	
 	return;
@@ -23,10 +31,16 @@ function toggleCorrectionsText()
 	}
 }
 
+function toggleCorrectionsUploadText()
+{
+    if (document.getElementById('correction').value == 'Please tell us any issues or additional information.') {
+        document.getElementById('correction').value = '';
+    }
+}
 function submitForm()
 {
-	if (!document.getElementById('ok').checked && !document.getElementById('nok').checked) {
-		window.alert('You must select one of the two radio boxes.');
+	if (!document.getElementById('ok').checked && !document.getElementById('nok').checked && !document.getElementById('nokfu').checked) {
+		window.alert('You must select one of the three radio boxes.');
 		return false;
 	}
 	
@@ -34,7 +48,34 @@ function submitForm()
 		window.alert('You must tell us what is wrong with the record.');
 		return false;
 	}
-	
+
+    if (document.getElementById('nokfu').checked ) {
+        fileCheck = '';
+        for (index = 0; index < 10; ++index) {
+            $uploadFilename = document.getElementsByName('file[' + index + ']')[0].value;
+            if ($uploadFilename != '') {
+                fileUploadType = document.getElementsByName('filePermissions[]')[index].value;
+                if (fileUploadType == 0) {
+                    window.alert('You must tell us the records file type');
+                    return false;
+                }
+                //No need to check if HERDC since it's private
+                if (fileUploadType != 4) {
+                    $uploadFilename = $uploadFilename.replace(/^.*[\\\/]/, '');
+                    fileCheck = fileCheck + 'File:'+ $uploadFilename +'\n';
+                }
+            }
+        }
+
+        if (fileCheck != '') {
+            var fileCheck = 'The following files are being submitted as accessible by the public please confirm this is the case (Other files submitted will be admin access only) \n' + fileCheck;
+            conf = confirm(fileCheck);
+            if (conf == false) {
+                return false;
+            }
+        }
+    }
+
 	document.forms['claimForm'].submit();
 	return;
 }
@@ -50,7 +91,7 @@ function cancel()
 
 <h1>Claim Research</h1>
 
-<form action="my_research_possible.php" method="post" id="claimForm">
+<form action="my_research_possible.php" method="post" id="claimForm" enctype="multipart/form-data">
 
 {if $isUPO}
 	{include file="myresearch/acting.tpl.html"}
@@ -125,12 +166,17 @@ function cancel()
 
 <p>
 	<input type="radio" name="confirm" id="ok" value="ok" onclick="javascript:toggleCorrections();" /> This record is mine, and the citation is correct<br />
-	<input type="radio" name="confirm" id="nok" value="nok" onclick="javascript:toggleCorrections();" /> This record is mine, but the record requires a correction
+	<input type="radio" name="confirm" id="nok" value="nok" onclick="javascript:toggleCorrections();" /> This record is mine, but the record requires a correction<br />
+    <input type="radio" name="confirm" id="nokfu" value="nokfu" onclick="javascript:toggleCorrections();" /> This record is mine, but the record requires a correction and a file upload
 </p>
 
 <p>
-	<textarea id="correction" name="correction" rows="5" cols="70" disabled="disabled" style="display: none;" onfocus="javascript:toggleCorrectionsText();"></textarea>
+	<textarea id="correction" name="correction" rows="5" cols="70" disabled="disabled" style="display: none;" onfocus="javascript:toggleCorrectionsUploadText();"></textarea>
 </p>
+
+<div id = "upload-area" style="display: none;">
+    {include file="myresearch/upload_files.tpl.html"}
+</div>
 
 <p>
 	<input type="button" value="Claim publication" name="button" onclick="javascript:submitForm();" />

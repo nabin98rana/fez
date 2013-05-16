@@ -2618,3 +2618,12 @@ table.adminManageList{
     font-weight: bold;
 }
 /* End: Administration Author management CSS. */
+/* Sherpa romeo */
+.sherpa td        {font: 0.8em Arial, Helvetica, sans-serif; background: #f5f5f5; vertical-align: top;}
+.sherpa td.title  {font: 1.1em Arial, Helvetica, sans-serif;}
+.sherpa td.blank  {background: white;}
+.sherpa td.yellow {background: #FFFF99;}
+.sherpa td.blue   {background: #D3ECFA;}
+.sherpa td.green  {background: #D0F9D2;}
+.sherpa td.white  {background: #FFFFFF;}
+.sherpa td ul     {margin-bottom: 0;}

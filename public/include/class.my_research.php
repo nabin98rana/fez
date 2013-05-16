@@ -36,6 +36,7 @@ include_once(APP_INC_PATH . "class.author.php");
 include_once(APP_INC_PATH . "class.record.php");
 include_once(APP_INC_PATH . "class.eventum.php");
 include_once(APP_INC_PATH . "class.mail.php");
+include_once(APP_INC_PATH . "class.datastream.php");
 
 /**
  * MyResearch
@@ -96,6 +97,10 @@ class MyResearch
             } elseif ($action == 'claim') {
                 $recordDetails = Record::getDetailsLite(Misc::GETorPOST('claim-pid'));
                 $tpl->assign("pid", $recordDetails[0]['rek_pid']);
+                $tpl->assign('file_options', array(0 => 'Please chose file type', 1 => 'Accepted version (author final draft  post-refereeing)', 2  => 'Submitted version (author version pre-refereeing)',
+                    3 => 'Working/Technical Paper', 4 => 'HERDC evidence (not open access- admin only)', 5 => 'Other (any files not included in any of the above)'
+                ));
+                $tpl->assign('sherpa_romeo_link',SherpaRomeo::getJournalColourFromPidComment($recordDetails[0]['rek_pid']));
                 $tpl->assign("citation", $recordDetails[0]['rek_citation']);
                 $tpl->assign("herdc_message", MyResearch::herdcMessage($recordDetails[0]['rek_date']));
                 $tpl->assign("qindex_meta", Record::getQindexMeta($recordDetails[0]['rek_pid']));
@@ -114,6 +119,13 @@ class MyResearch
                 MyResearch::handleBulkDisown();
             } elseif ($action == 'correction') {
                 $recordDetails = Record::getDetailsLite(Misc::GETorPOST('pid'));
+                //---------------------------
+                $tpl->assign('file_options', array(0 => 'Please chose file type', 1 => 'Accepted version (author final draft  post-refereeing)', 2  => 'Submitted version (author version pre-refereeing)',
+                    3 => 'Working/Technical Paper', 4 => 'HERDC evidence (not open access- admin only)', 5 => 'Other (any files not included in any of the above)'
+                ));
+                $tpl->assign('sherpa_romeo_link',SherpaRomeo::getJournalColourFromPidComment($recordDetails[0]['rek_pid']));
+                $tpl->assign('header_include_flash_uploader_files', 1);
+                //---------------------------
                 $tpl->assign("pid", $recordDetails[0]['rek_pid']);
                 $tpl->assign("citation", $recordDetails[0]['rek_citation']);
                 $tpl->assign("qindex_meta", Record::getQindexMeta($recordDetails[0]['rek_pid']));
@@ -123,7 +135,9 @@ class MyResearch
                 MyResearch::claimedPubsDuplicate(Misc::GETorPOST('pid'));
             } elseif ($action == 'correction-add') {
                 MyResearch::claimedPubsCorrect(Misc::GETorPOST('pid'));
-            }
+            } elseif ($action == 'correction-add-files') {
+                MyResearch::claimedPubsCorrectFileUpload(Misc::GETorPOST('pid'));
+        }
         }
 
         if ($list) {
@@ -413,6 +427,11 @@ class MyResearch
 
         if ($correction != '') {
             $body .= "Additionally, the following correction information was supplied:\n\n" . $correction;
+        }
+
+        $listFiles = MyResearch::uploadFilesToPid($pid);
+        if (!empty($listFiles)) {
+            $body .= "\n\n And the following files were attached" . $listFiles;
         }
 
         // If this record is claimed and it is in the WoS import collection, strip it from there and put it into the provisional HERDC collection as long as it is in the last 6 years
@@ -763,6 +782,65 @@ class MyResearch
         Eventum::lodgeJob($subject, $body, $userEmail);
 
         return;
+    }
+
+    /**
+     * Fire relevant subroutines for correcting a claimed publication this uploads attached.
+     */
+    function claimedPubsCorrectFileUpload($pid)
+    {
+        $log = FezLog::get();
+        // 1. Mark the publication claimed in the database
+        $author = Auth::getActingUsername();
+        $user = Auth::getUsername();
+        $correction = @$_POST['correction'];
+        $jobID = MyResearch::markClaimedPubAsNeedingCorrection($pid, $author, $user, $correction);
+
+        // 2. Send an email to Eventum about it
+        $authorDetails = Author::getDetailsByUsername($author);
+        $userDetails = User::getDetails($user);
+        $authorID = $authorDetails['aut_id'];
+        $authorName = $authorDetails['aut_display_name'];
+        $userName = $userDetails['usr_full_name'];
+        $userEmail = $userDetails['usr_email'];
+        $publishedDate = Record::getSearchKeyIndexValue($pid, "Date", true);
+        $publishedDate = strftime("%Y", strtotime($publishedDate));
+        $listFiles = MyResearch::uploadFilesToPid($pid);
+
+        $subject = "My Research :: File Uploads :: " . $jobID . " :: " . $pid . " :: " . $publishedDate . " :: " . $author;
+        $body = "Record: http://" . APP_HOSTNAME . APP_RELATIVE_URL . "view/" . $pid . "\n\n";
+        if ($author == $user) {
+            $body .= $authorName . " (" . $authorID . ") has supplied the following correction information:\n\n";
+        } else {
+            $body .= "User " . $userName . ", acting on behalf of " . $authorName
+                . ", has supplied the following correction information:\n\n";
+        }
+        $body .= 'Notes: '.$correction;
+        $body .= "\n\nFiles uploaded: ". $listFiles;
+        Eventum::lodgeJob($subject, $body, $userEmail);
+
+        return;
+    }
+
+    //Save uploads to Pid
+    //Returns a string list of filenames
+    function uploadFilesToPid($pid) {
+        $log = FezLog::get();
+        $listFiles = '';
+        foreach($_FILES['file']['name'] as $key => $file) {
+            if (!empty($file)) {
+                if (move_uploaded_file($_FILES["file"]["tmp_name"][$key], "/tmp/" . $_FILES["file"]["name"][$key]) == false) {
+                    $log->err("File not renamed $file (file already there?)<br/>\n", __FILE__, __LINE__);
+                    return $listFiles.' Error on file uploads at '.date("Y-m-d H:i:s");
+                }
+                $listFiles .= $file .' ';
+
+                //If a HERDC file set permissions(4) to admin and upo only(10) ( else open access 9)
+                $fezACMLTemplateNum = ($_POST['filePermissions'][$key] == 4) ? 10 : 9;
+                Datastream::addDatastreamToPid($pid, $file, $fezACMLTemplateNum);
+            }
+        }
+        return $listFiles;
     }
 
     /**

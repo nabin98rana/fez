@@ -53,7 +53,6 @@ include_once(APP_INC_PATH . "class.workflow.php");
 include_once(APP_INC_PATH . "class.status.php");
 include_once(APP_INC_PATH . "class.fezacml.php");
 include_once(APP_INC_PATH . "class.fedora_api.php");
-include_once(APP_INC_PATH . "class.fezacml.php");
 include_once(APP_INC_PATH . "class.xsd_display.php");
 include_once(APP_INC_PATH . "class.doc_type_xsd.php");
 include_once(APP_INC_PATH . "class.xsd_html_match.php");

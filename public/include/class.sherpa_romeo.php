@@ -81,6 +81,11 @@ class SherpaRomeo
         return $res;
     }
 
+    function getJournalColourFromPidComment($pid)
+    {
+        return SherpaRomeo::convertSherpaRomeoToLink(SherpaRomeo::getJournalColourFromPid($pid));
+    }
+
     function getJournalColourFromNameComment($journalName)
     {
         return SherpaRomeo::convertSherpaRomeoToLink(SherpaRomeo::getJournalColourFromName($journalName));
@@ -218,7 +223,7 @@ class SherpaRomeo
     }
     /* This function will get all ISSN from the pids and fill the Sherpa Romeo table with data.
      * You will need a free API key to do more that 500 per day.
-     * $overwrite : Boolean wheather to overwrite data or not
+     * $overwrite : Boolean whether to overwrite data or not
      */
     function getDataFromSherpaRomeo($reloadAll=false) {
         $log = FezLog::get();

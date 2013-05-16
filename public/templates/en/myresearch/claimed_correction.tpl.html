@@ -21,6 +21,8 @@ function toggleCorrections()
 		document.getElementById('correction-area-fix').style.display = 'block';
         document.getElementById('duplication-area-fix').disabled = true;
         document.getElementById('duplication-area-fix').style.display = 'none';
+        document.getElementById('upload-area-fix').disabled = true;
+        document.getElementById('upload-area-fix').style.display = 'none';
         document.getElementById('action').value = 'correction-add';
 
     } else if (document.getElementById('rad-dupe').checked) {
@@ -28,13 +30,26 @@ function toggleCorrections()
         document.getElementById('correction-area-fix').style.display = 'none';
         document.getElementById('duplication-area-fix').disabled = false;
         document.getElementById('duplication-area-fix').style.display = 'block';
+        document.getElementById('upload-area-fix').disabled = true;
+        document.getElementById('upload-area-fix').style.display = 'none';
         document.getElementById('action').value = 'duplication-add';
 
-	} else {
+    } else if (document.getElementById('rad-upload').checked) {
+        document.getElementById('correction-area-fix').disabled = false;
+        document.getElementById('correction-area-fix').style.display = 'none';
+        document.getElementById('duplication-area-fix').disabled = false;
+        document.getElementById('duplication-area-fix').style.display = 'none';
+        document.getElementById('upload-area-fix').disabled = false;
+        document.getElementById('upload-area-fix').style.display = 'block';
+        document.getElementById('action').value = 'correction-add-files';
+
+    } else {
 		document.getElementById('correction-area-fix').disabled = true;
 		document.getElementById('correction-area-fix').style.display = 'none';
         document.getElementById('duplication-area-fix').disabled = true;
         document.getElementById('duplication-area-fix').style.display = 'none';
+        document.getElementById('upload-area-fix').disabled = true;
+        document.getElementById('upload-area-fix').style.display = 'none';
         document.getElementById('action').value = 'correction-add';
 	}
 	
@@ -46,6 +61,12 @@ function toggleCorrectionsText()
 	if (document.getElementById('correction').value == 'Please tell us what is wrong with the record. Be specific.') {
 		document.getElementById('correction').value = '';
 	}
+}
+function toggleCorrectionsUploadText()
+{
+    if (document.getElementById('correction_upload').value == 'Information about the files') {
+        document.getElementById('correction_upload').value = '';
+    }
 }
 function toggleDuplicationText()
 {
@@ -67,6 +88,33 @@ function submitForm()
         window.alert('You must tell us what is wrong with the record. Or what record you think this record duplicates.');
 		return false;
 	}
+    if(document.getElementById('rad-upload').checked) {
+        fileCheck = '';
+        for (index = 0; index < 10; ++index) {
+            $uploadFilename = document.getElementsByName('file[' + index + ']')[0].value;
+            if ($uploadFilename != '') {
+                fileUploadType = document.getElementsByName('filePermissions[]')[index].value;
+                if (fileUploadType == 0) {
+                    window.alert('You must tell us the records file type');
+                    return false;
+                }
+                //No need to check if HERDC since it's private
+                if (fileUploadType != 4) {
+                    $uploadFilename = $uploadFilename.replace(/^.*[\\\/]/, '');
+                    fileCheck = fileCheck + 'File:'+ $uploadFilename +'\n';
+                }
+            }
+        }
+
+        if (fileCheck != '') {
+            var fileCheck = 'The following files are being submitted as accessible by the public please confirm this is the case (Other files submitted will be admin access only) \n' + fileCheck;
+            conf = confirm(fileCheck);
+            if (conf == false) {
+                return false;
+            }
+        }
+    }
+
 	if (global_submitted < 2) {
 	    document.forms['correctForm'].submit();
     }
@@ -82,13 +130,13 @@ function cancel()
 </script>
 {/literal}
 
-<h1>Fix Record</h1>
+<h1>Fix Records / Upload files for open access and HERDC evidence </h1>
 
 {if $isUPO}
 	{include file="myresearch/acting.tpl.html"}
 {/if}
 
-<form action="my_research_claimed.php" method="post" id="correctForm">
+<form action="my_research_claimed.php" method="post" id="correctForm" enctype="multipart/form-data">
 
 <div id="research-solo-citation">
     {$citation|smarty:nodefaults}
@@ -137,7 +185,6 @@ function cancel()
 		</td>
 	</tr>
 </table>
-
 {if $wos_collection > 0}
 	<div id="research-missing-meta">
 		<b>PLEASE NOTE</b><br />
@@ -148,7 +195,8 @@ function cancel()
 <p>
 	<input type="radio" name="type" id="rad-not-mine" value="rad-not-mine" onclick="javascript:toggleCorrections(); notMine('{$pid}');" /> This is not my record<br />
     <input type="radio" name="type" id="rad-dupe" value="rad-dupe" onclick="javascript:toggleCorrections();" /> I am the author of this publication, but the record is a duplicate<br />
-	<input type="radio" name="type" id="rad-fix" value="rad-fix" onclick="javascript:toggleCorrections();" /> I would like to report a problem
+	<input type="radio" name="type" id="rad-fix" value="rad-fix" onclick="javascript:toggleCorrections();" /> I would like to report a problem<br />
+    <input type="radio" name="type" id="rad-upload" value="rad-upload" onclick="javascript:toggleCorrections();" /> I would like to upload Open Access or HERDC evidence files
 </p>
 
 <div id="correction-area-fix" style="display: none;">
@@ -165,7 +213,13 @@ function cancel()
 
         <input type="button" value="Submit duplication fix request" name="button" onclick="javascript:submitForm();" />
     </div>
-
+<div id = "upload-area-fix" style="display: none;">
+    <p>
+        <textarea id="correction_upload" name="correction" rows="5" cols="70" onfocus="javascript:toggleCorrectionsUploadText();">Information about the files</textarea>
+    </p>
+    {include file="myresearch/upload_files.tpl.html"}
+    <input type="button" value="Submit correction" name="button" onclick="javascript:submitForm();" />
+</div>
 <input type="button" value="Cancel" name="button" onclick="javascript:cancel();" />
 
 <p>
