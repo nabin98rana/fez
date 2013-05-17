@@ -12,14 +12,14 @@
 
 <tr id="tr_xsd_display_fields_{$xsdmf.xsdmf_id}_0" {if ($isEditor != 1 && $xsd_display_fields[i].xsdmf_show_simple_create == 0 && ($xsd_display_fields[i].xsdmf_required != 1 || $xsd_display_fields[i].selected_option != '')) || $xsd_display_fields[i].xsdmf_invisible == 1}style="display:none"{/if}>
     <th>
-        <b><label for="xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_0">{$xsdmf.xsdmf_title}</label>
+        <b><label for="xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_0">{$xsdmf.xsdmf_title}(s)</label>
           {if $xsdmf.xsdmf_required == 1} * {/if}</b>
       <label class="invisible" for="xsd_display_fields_helper_{$xsd_display_fields[i].xsdmf_id}_0">{$xsdmf.xsdmf_title} helper</label>
     </th>
     <td>
         <table>
             <tr>
-                <td style="width: 5%" class="default">Set {$xsdmf.xsdmf_title}</td>
+                <td style="width: 5%" class="default">{$xsdmf.xsdmf_title}</td>
                 <td align="left" class="default">Selectable Options</td>
             </tr>
             <tr>
