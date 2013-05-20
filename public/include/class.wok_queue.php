@@ -2,9 +2,9 @@
 /**
  * This class implements a persistent queue that tracks objects to be added
  * or removed from the WoK queue. It is implemented with the singleton
- * pattern and will only commit the results once when the request ends or when 
+ * pattern and will only commit the results once when the request ends or when
  * an explicit commit is called.
- * 
+ *
  * <p>Usage:</p>
  * <ul>
  * <li>WokQueue::get()->add(ut)
@@ -43,16 +43,16 @@ class WokQueue extends Queue
   protected $_time_between_calls;
   // Author queue table column prefix
   protected $_dbap;
-  
+
   /**
    * Returns the singleton queue instance.
    *
    * @return instance of class WoK
    */
-  public static function get() 
+  public static function get()
   {
     $log = FezLog::get();
-    
+
     try {
       $instance = Zend_Registry::get('Wok');
     }
@@ -79,19 +79,19 @@ class WokQueue extends Queue
    * the commit automatically on shutdown.
    *
    * @param String $ut The UT
-   * @param int    $aut_id The author ID if we know one exists on this record     
+   * @param int    $aut_id The author ID if we know one exists on this record
    */
-  public function add($ut, $aut_id = FALSE) 
+  public function add($ut, $aut_id = FALSE)
   {
     $log = FezLog::get();
     $db = DB_API::get();
-      
+
     // Check not in DB queue instead of just this thread
     $sql = "SELECT ".$this->_dbqp."key FROM ".$this->_dbtp."queue ".
-           "WHERE ".$this->_dbqp."id=?";    
+           "WHERE ".$this->_dbqp."id=?";
     try {
       $res = $db->fetchOne($sql, $ut, Zend_Db::FETCH_ASSOC);
-      if (!$res) {   
+      if (!$res) {
         parent::add($ut);
         if ($aut_id) {
           if (!is_numeric(strpos(APP_SQL_DBTYPE, "mysql"))) {
@@ -113,14 +113,14 @@ class WokQueue extends Queue
       return;
     }
   }
-  
+
   /**
-   * Overridden remove function: Removes a document from the queue, 
+   * Overridden remove function: Removes a document from the queue,
    * both in memory and in the DB.
    *
    * @param string $ut THe UT to remove from the queue
    */
-  public function remove($ut) 
+  public function remove($ut)
   {
     $log = FezLog::get();
     $db = DB_API::get();
@@ -139,25 +139,25 @@ class WokQueue extends Queue
       return false;
     }
   }
-  
+
   /**
    * Processes the queue.
    */
-  protected function process() 
+  protected function process()
   {
     $log = FezLog::get();
-        
+
     $bgp = new BackgroundProcess_Wok();
     // TODO: maybe take something other than admin
     $bgp->register(serialize(array()), APP_SYSTEM_USER_ID);
   }
-  
+
   /**
    * Links this instance to a corresponding background process started above
    *
    * @param BackgroundProcess_LinksAmr $bgp
    */
-  public function setBGP(&$bgp) 
+  public function setBGP(&$bgp)
   {
     $this->_bgp = &$bgp;
   }
@@ -199,28 +199,28 @@ class WokQueue extends Queue
 
 
   /**
-   * Processes the queue in the background. Retrieves an item using the pop() 
-   * function of the queue and calls the index or remove methods.   
+   * Processes the queue in the background. Retrieves an item using the pop()
+   * function of the queue and calls the index or remove methods.
    */
-  public function bgProcess() 
+  public function bgProcess()
   {
     $log = FezLog::get();
-    
+
     // Don't process the queue until we have reached the batch size
-    // This is so we at least attempt to play nicely with the 
+    // This is so we at least attempt to play nicely with the
     // Links AMR service.
     // Turn this off now.
 /*    if ($this->size() < $this->_batch_size) {
       return;
     } */
-    
+
     // Mark lock with pid
     if ($this->_use_locking) {
       if (!$this->updateLock()) {
         return false;
       }
     }
-    
+
     $this->_bgp->setStatus("WoK queue processing started");
     $started = time();
     $count_docs = 0;
@@ -231,7 +231,7 @@ class WokQueue extends Queue
 
       if (is_array($result)) {
         extract($result, EXTR_REFS);
-        
+
         $q_op = $this->_dbqp.'op';
         $q_ut = $this->_dbqp.'id';
 
@@ -244,7 +244,7 @@ class WokQueue extends Queue
         if ($count_docs % $this->_batch_size == 0) {
           // Batch process UTs
           $this->_bgp->setStatus("WoK queue sending now because count_docs ".$count_docs." mod ".$this->_batch_size." = 0, with: \n".print_r($uts,true));
-          $this->sendToWok($uts);          
+          $this->sendToWok($uts);
           $uts = array(); // reset
           // Sleep before next batch to avoid triggering the service throttling.
           sleep($this->_time_between_calls);
@@ -256,7 +256,7 @@ class WokQueue extends Queue
       unset($$q_op);
       unset($$q_ut);
     } while (!$empty);
-    
+
     if (count($uts) > 0) {
       // Process remainder of UTs
       $this->_bgp->setStatus("WoK queue sending remainder with: \n".print_r($uts,true));
@@ -264,7 +264,7 @@ class WokQueue extends Queue
       $uts = array(); // reset
       sleep($this->_time_between_calls); // same as above
     }
-    
+
     if ($this->_bgp) {
       $plural = $count_docs > 1 ? 's' : '';
       $this->_bgp->setStatus(
@@ -273,7 +273,7 @@ class WokQueue extends Queue
     }
     if ($this->_use_locking) {
       $this->releaseLock();
-    }    
+    }
     return $count_docs;
   }
 
@@ -428,12 +428,13 @@ class WokQueue extends Queue
         $record->setBGP($this->_bgp);
         foreach ($aut_ids as $author_id) {
           $matchResults = $record->matchAuthor($author_id, TRUE, TRUE); // TODO: enable this when required
-            // If this record is in the APP_HERDC_TRIAL_COLLECTION and it has been claimed by a new author,
+            // If this record is in the APP_HERDC_TRIAL_COLLECTION list and it has been claimed by a new author,
             // then change the eSpace followup flag to 'followup' and change the email to indicate this
           $isMemberOf = Record::getSearchKeyIndexValue($pid, "isMemberOf", false);
-          $herdc_trial_collection = trim(APP_HERDC_TRIAL_COLLECTION, "'");
-          if ($matchResults[1] == "Inserted") {
-              if (in_array($herdc_trial_collection, $isMemberOf)) {
+          $herdc_trial_collection = explode(',', preg_replace("/[' ]/", '', APP_HERDC_TRIAL_COLLECTION));
+
+            if ($matchResults[1] == "Inserted") {
+              if (count(array_intersect($herdc_trial_collection, $isMemberOf)) > 0) {
                 $search_keys = array("Follow up Flags");
                 $values = array(Controlled_Vocab::getID("Follow-up"));
                 $record->addSearchKeyValueList($search_keys, $values, true, " was added due to RID author ID matching");
@@ -453,9 +454,9 @@ class WokQueue extends Queue
       $this->deleteAutIds($ut);
     }
   }
-  
+
   /**
-   * Gets the author ids for this UT 
+   * Gets the author ids for this UT
    *
    * @return row (id, action) of front id
    * @return null, if queue is empty or if there is an error
@@ -465,10 +466,10 @@ class WokQueue extends Queue
   {
     $log = FezLog::get();
     $db = DB_API::get();
-    
-    $aut_ids = array();    
+
+    $aut_ids = array();
     $sql = "SELECT ".$this->_dbap."aut_id FROM ".$this->_dbtp."queue_aut WHERE ".$this->_dbap."id=?";
-    
+
     try {
       $res = $db->fetchAll($sql, $ut, Zend_Db::FETCH_ASSOC);
     }
@@ -480,7 +481,7 @@ class WokQueue extends Queue
     if (count($res) == 0) {
       return null;
     }
-    
+
     foreach ($res as $r) {
       $aut_ids[] = $r[$this->_dbap.'aut_id'];
     }

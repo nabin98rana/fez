@@ -464,10 +464,11 @@ class MyResearch
 
             }
         }
-        // If this record is in the APP_HERDC_TRIAL_COLLECTION and it has been claimed by a new author,
+        // If this record is in the APP_HERDC_TRIAL_COLLECTION list and it has been claimed by a new author,
         // then change the eSpace followup flag to 'followup' and change the email to indicate this
-        $herdc_trial_collection = trim(APP_HERDC_TRIAL_COLLECTION, "'");
-        if (in_array($herdc_trial_collection, $isMemberOf)) {
+        $herdc_trial_collection = explode(',', preg_replace("/[' ]/", '', APP_HERDC_TRIAL_COLLECTION));
+
+        if (count(array_intersect($herdc_trial_collection, $isMemberOf)) > 0) {
             $record = new RecordObject($pid);
             $search_keys = array("Follow up Flags");
             $values = array(Controlled_Vocab::getID("Follow-up"));
