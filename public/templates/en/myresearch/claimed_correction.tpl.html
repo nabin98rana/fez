@@ -95,6 +95,7 @@ function submitForm()
             if ($uploadFilename != '') {
                 fileUploadType = document.getElementsByName('filePermissions[]')[index].value;
                 if (fileUploadType == 0) {
+                    global_submitted--;
                     window.alert('You must tell us the records file type');
                     return false;
                 }
@@ -110,6 +111,7 @@ function submitForm()
             var fileCheck = 'The following files are being submitted as accessible by the public please confirm this is the case (Other files submitted will be admin access only) \n' + fileCheck;
             conf = confirm(fileCheck);
             if (conf == false) {
+                global_submitted--;
                 return false;
             }
         }
@@ -184,6 +186,12 @@ function cancel()
 			{/if}
 		</td>
 	</tr>
+    <tr>
+        <td><img src="{$rel_url}images/sherparomeo.png" title="Sherpa Romeo details" alt="Sherpa Romeo" /> Sherpa Romeo</td>
+        <td>
+            {if $sherpa_romeo_link}{$sherpa_romeo_link|smarty:nodefaults}{else}Unknown - <a href = 'http://www.sherpa.ac.uk/romeo/'>User Search</a>{/if}
+        </td>
+    </tr>
 </table>
 {if $wos_collection > 0}
 	<div id="research-missing-meta">
@@ -196,7 +204,9 @@ function cancel()
 	<input type="radio" name="type" id="rad-not-mine" value="rad-not-mine" onclick="javascript:toggleCorrections(); notMine('{$pid}');" /> This is not my record<br />
     <input type="radio" name="type" id="rad-dupe" value="rad-dupe" onclick="javascript:toggleCorrections();" /> I am the author of this publication, but the record is a duplicate<br />
 	<input type="radio" name="type" id="rad-fix" value="rad-fix" onclick="javascript:toggleCorrections();" /> I would like to report a problem<br />
+    {if $smarty.const.TAG_UPLOAD_FILES == 'ON'}
     <input type="radio" name="type" id="rad-upload" value="rad-upload" onclick="javascript:toggleCorrections();" /> I would like to upload Open Access or HERDC evidence files
+    {/if}
 </p>
 
 <div id="correction-area-fix" style="display: none;">
@@ -214,10 +224,10 @@ function cancel()
         <input type="button" value="Submit duplication fix request" name="button" onclick="javascript:submitForm();" />
     </div>
 <div id = "upload-area-fix" style="display: none;">
+    {include file="myresearch/upload_files.tpl.html"}
     <p>
         <textarea id="correction_upload" name="correction" rows="5" cols="70" onfocus="javascript:toggleCorrectionsUploadText();">Information about the files</textarea>
     </p>
-    {include file="myresearch/upload_files.tpl.html"}
     <input type="button" value="Submit correction" name="button" onclick="javascript:submitForm();" />
 </div>
 <input type="button" value="Cancel" name="button" onclick="javascript:cancel();" />
@@ -235,3 +245,7 @@ function cancel()
 		<input type="hidden" name="action" value="not-mine" />
 	</div>
 </form>
+        <script type="text/javascript">
+//$('input:radio[name="type"]').filter('[value="rad-upload"]').attr('checked', true);
+//toggleCorrections();
+        </script>

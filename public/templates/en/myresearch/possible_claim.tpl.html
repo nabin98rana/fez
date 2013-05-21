@@ -145,6 +145,12 @@ function cancel()
 			{/if}
 		</td>
 	</tr>
+    <tr>
+        <td><img src="{$rel_url}images/sherparomeo.png" title="Sherpa Romeo details" alt="Sherpa Romeo" /> Sherpa Romeo</td>
+        <td>
+            {if $sherpa_romeo_link}{$sherpa_romeo_link|smarty:nodefaults}{else}Unknown - <a href = 'http://www.sherpa.ac.uk/romeo/'>User Search</a>{/if}
+        </td>
+    </tr>
 </table>
 
 {if $wos_collection > 0}
@@ -167,16 +173,18 @@ function cancel()
 <p>
 	<input type="radio" name="confirm" id="ok" value="ok" onclick="javascript:toggleCorrections();" /> This record is mine, and the citation is correct<br />
 	<input type="radio" name="confirm" id="nok" value="nok" onclick="javascript:toggleCorrections();" /> This record is mine, but the record requires a correction<br />
-    <input type="radio" name="confirm" id="nokfu" value="nokfu" onclick="javascript:toggleCorrections();" /> This record is mine, but the record requires a correction and a file upload
-</p>
-
-<p>
-	<textarea id="correction" name="correction" rows="5" cols="70" disabled="disabled" style="display: none;" onfocus="javascript:toggleCorrectionsUploadText();"></textarea>
+    {if $smarty.const.TAG_UPLOAD_FILES == 'ON'}
+    <input type="radio" name="confirm" id="nokfu" value="nokfu" onclick="javascript:toggleCorrections();" /> This record is mine, and I wish to upload a file
+    {/if}
 </p>
 
 <div id = "upload-area" style="display: none;">
     {include file="myresearch/upload_files.tpl.html"}
 </div>
+
+    <p>
+        <textarea id="correction" name="correction" rows="5" cols="70" disabled="disabled" style="display: none;" onfocus="javascript:toggleCorrectionsUploadText();"></textarea>
+    </p>
 
 <p>
 	<input type="button" value="Claim publication" name="button" onclick="javascript:submitForm();" />
