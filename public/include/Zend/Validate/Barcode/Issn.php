@@ -107,7 +107,7 @@ class Zend_Validate_Barcode_Issn extends Zend_Validate_Barcode_AdapterAbstract
         }
 
         $check %= 11;
-        $check  = 11 - $check;
+        $check = ( $check === 0 ? 0 : (11 - $check) );
         if ($check == $checksum) {
             return true;
         } else if (($check == 10) && ($checksum == 'X')) {
