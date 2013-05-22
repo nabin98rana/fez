@@ -199,18 +199,16 @@ class Foxml
 								Misc::addPrefix($multiple_element,$xsdmf_details['xsdmf_value_prefix'])));
 							} else {
 								// Give a tag to each value, eg DC language - english & french need own language tags
-								// close the previous
+								// close the previous, open a new tag
 								if (!is_numeric(strpos($i, ":"))) {
+                                    $type = (!empty($xsdmf_details['xsdsel_indicator_value'])) ? ' type="'.$xsdmf_details['xsdsel_indicator_value'].'"' : '';
 									$attrib_value .= "\n".$tagIndent."</".$element_prefix.$i.">\n";
+                                    $attrib_value .= "\n".$tagIndent."<".$element_prefix.$i.$type.$full_attached_attribute;
 								} else {
 									$attrib_value .= "\n".$tagIndent."</".$i.">\n";
+                                    $attrib_value .= "\n".$tagIndent."<".$i.$full_attached_attribute;
 								}
-								//open a new tag
-								if (!is_numeric(strpos($i, ":"))) {
-									$attrib_value .= "\n".$tagIndent."<".$element_prefix.$i.$full_attached_attribute;
-								} else {
-									$attrib_value .= "\n".$tagIndent."<".$i.$full_attached_attribute;
-								}
+
 								//finish the new open tag
 								if ($xsdmf_details['xsdmf_valueintag'] == 1) {
 									$attrib_value .= ">\n";
