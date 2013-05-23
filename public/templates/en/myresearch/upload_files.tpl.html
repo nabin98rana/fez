@@ -1,0 +1,55 @@
+{literal}
+<script type="text/javascript">
+
+function uploadFile(n)
+{
+    // check if we have a valid filename
+    $uploadFilename = document.getElementsByName('file[0]')[0].value;
+    $uploadFilename = $uploadFilename.replace(/^.*[\\\/]/, '')
+    if (!isValidSolrFilename($uploadFilename)) {
+        var alertMsg = 'We could not queue the following file:\n'+$uploadFilename+'\n\n';
+        alertMsg = alertMsg+'Please rename your files to be:\n';
+        alertMsg = alertMsg+' - with only upper or lowercase alphanumeric characters or underscores (a-z, A-Z, _ and 0-9 only)\n';
+        alertMsg = alertMsg+' - with only numbers and lowercase characters in the file extension,\n';
+        alertMsg = alertMsg+' - under 45 characters,\n';
+        alertMsg = alertMsg+' - with only one file extension (one period (.) character) and \n';
+        alertMsg = alertMsg+' - starting with a letter. Eg "s12345678_phd_thesis.pdf"';
+        alert(alertMsg);
+        document.getElementsByName('file[0]')[0].value = '';
+        return false;
+    }
+    n = n + 1;
+    document.getElementById('file_upload_'+n).style.display = 'block';
+    return true;
+}
+
+function filePermissionsChange(descriptionNum) {
+    descriptionValue = document.getElementsByName('description[' + descriptionNum + ']')[0].value;
+    if (descriptionValue == '' || descriptionValue == {/literal} '{$file_options[0]}' || descriptionValue == '{$file_options[1]}'
+            || descriptionValue == '{$file_options[2]}' || descriptionValue == '{$file_options[3]}' || descriptionValue == '{$file_options[4]}' ) {literal} {
+
+        if (document.getElementsByName('filePermissions[]')[descriptionNum].selectedIndex != 0) {
+        document.getElementsByName('description[' + descriptionNum + ']')[0].value = document.getElementsByName('filePermissions[]')[descriptionNum].options[document.getElementsByName('filePermissions[]')[descriptionNum].selectedIndex].text;
+        }
+    }
+
+}
+
+</script>
+{/literal}
+
+<br />
+More information on <a href="https://www.library.uq.edu.au/open-access" target="_blank">Open Access mandates</a>  |   <a href="http://www.uq.edu.au/research/rid/?page=73071&s=18575b924725bbee274e10d194cf1995" target="_blank">HERDC evidence deposits</a><br />
+
+{section name=file_input start=0 loop=10 step=1}
+    {assign var='loop_num' value=$smarty.section.file_input.index}
+    <span {if $smarty.section.file_input.index != 0}style="display:none"{/if} id=file_upload_{$smarty.section.file_input.index}>
+        <select name="filePermissions[]" onchange="javascript:filePermissionsChange({$smarty.section.file_input.index});">
+    {html_options options=$file_options} *
+        </select>
+    <input type="file" name="file[{$smarty.section.file_input.index}]" onchange="javascript:uploadFile({$smarty.section.file_input.index});" size="300"/>
+    <input type="text" name="description[{$smarty.section.file_input.index}]" size="55" /><br>
+    </span>
+{/section}
+    <br />Note: Filenames should start with a letter, use only lower case alphanumeric characters and underscores (_) and be less than 45 characters e.g. smith_postprint.pdf.
+    <br /><br />
