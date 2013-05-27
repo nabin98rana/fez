@@ -102,13 +102,13 @@ function submitForm()
                 //No need to check if HERDC since it's private
                 if (fileUploadType != 4) {
                     $uploadFilename = $uploadFilename.replace(/^.*[\\\/]/, '');
-                    fileCheck = fileCheck + 'File:'+ $uploadFilename +'\n';
+                    fileCheck = fileCheck + 'File: '+ $uploadFilename +'\n';
                 }
             }
         }
 
         if (fileCheck != '') {
-            var fileCheck = 'The following files are being submitted as accessible by the public please confirm this is the case (Other files submitted will be admin access only) \n' + fileCheck;
+            var fileCheck = 'The following files are being submitted as accessible by the public please confirm this is the case.\n\nOther files submitted will be admin access only\n\n' + fileCheck;
             conf = confirm(fileCheck);
             if (conf == false) {
                 global_submitted--;
@@ -227,7 +227,7 @@ function cancel()
     <p>
         <textarea id="correction_upload" name="correction" rows="5" cols="70" onfocus="javascript:toggleCorrectionsUploadText();">Information about the files</textarea>
     </p>
-    <input type="button" value="Submit correction" name="button" onclick="javascript:submitForm();" />
+    <input type="button" value="Submit" name="button" onclick="javascript:submitForm();" />
 </div>
 <input type="button" value="Cancel" name="button" onclick="javascript:cancel();" />
 

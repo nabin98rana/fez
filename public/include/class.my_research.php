@@ -97,7 +97,7 @@ class MyResearch
             } elseif ($action == 'claim') {
                 $recordDetails = Record::getDetailsLite(Misc::GETorPOST('claim-pid'));
                 $tpl->assign("pid", $recordDetails[0]['rek_pid']);
-                $tpl->assign('file_options', array(0 => 'Please chose file type', 1 => 'Accepted version (author final draft  post-refereeing)', 2  => 'Submitted version (author version pre-refereeing)',
+                $tpl->assign('file_options', array(0 => 'Please choose file type', 1 => 'Accepted version (author final draft  post-refereeing)', 2  => 'Submitted version (author version pre-refereeing)',
                     3 => 'Working/Technical Paper', 4 => 'HERDC evidence (not open access- admin only)', 5 => 'Other (any files not included in any of the above)'
                 ));
                 $tpl->assign('sherpa_romeo_link',SherpaRomeo::getJournalColourFromPidComment($recordDetails[0]['rek_pid']));
@@ -120,7 +120,7 @@ class MyResearch
             } elseif ($action == 'correction') {
                 $recordDetails = Record::getDetailsLite(Misc::GETorPOST('pid'));
                 //---------------------------
-                $tpl->assign('file_options', array(0 => 'Please chose file type', 1 => 'Accepted version (author final draft  post-refereeing)', 2  => 'Submitted version (author version pre-refereeing)',
+                $tpl->assign('file_options', array(0 => 'Please choose file type', 1 => 'Accepted version (author final draft  post-refereeing)', 2  => 'Submitted version (author version pre-refereeing)',
                     3 => 'Working/Technical Paper', 4 => 'HERDC evidence (not open access- admin only)', 5 => 'Other (any files not included in any of the above)'
                 ));
                 $tpl->assign('sherpa_romeo_link',SherpaRomeo::getJournalColourFromPidComment($recordDetails[0]['rek_pid']));

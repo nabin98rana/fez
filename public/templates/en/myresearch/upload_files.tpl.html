@@ -25,13 +25,23 @@ function uploadFile(n)
 
 function filePermissionsChange(descriptionNum) {
     descriptionValue = document.getElementsByName('description[' + descriptionNum + ']')[0].value;
-    if (descriptionValue == '' || descriptionValue == {/literal} '{$file_options[0]}' || descriptionValue == '{$file_options[1]}'
-            || descriptionValue == '{$file_options[2]}' || descriptionValue == '{$file_options[3]}' || descriptionValue == '{$file_options[4]}' ) {literal} {
-
+    if (descriptionValue == '' || descriptionValue == 'Full text (open access)' || descriptionValue == 'Full text (administration only)') {
         if (document.getElementsByName('filePermissions[]')[descriptionNum].selectedIndex != 0) {
-        document.getElementsByName('description[' + descriptionNum + ']')[0].value = document.getElementsByName('filePermissions[]')[descriptionNum].options[document.getElementsByName('filePermissions[]')[descriptionNum].selectedIndex].text;
+            if (document.getElementsByName('filePermissions[]')[descriptionNum].selectedIndex == 4) {
+             document.getElementsByName('description[' + descriptionNum + ']')[0].value = 'Full text (administration only)';
+            } else {
+                document.getElementsByName('description[' + descriptionNum + ']')[0].value = 'Full text (open access)';
+            }
         }
     }
+
+    //if (descriptionValue == '' || descriptionValue == {/literal} '{$file_options[0]}' || descriptionValue == '{$file_options[1]}'
+    //        || descriptionValue == '{$file_options[2]}' || descriptionValue == '{$file_options[3]}' || descriptionValue == '{$file_options[4]}' ) {literal} {
+
+    //    if (document.getElementsByName('filePermissions[]')[descriptionNum].selectedIndex != 0) {
+    //    document.getElementsByName('description[' + descriptionNum + ']')[0].value = document.getElementsByName('filePermissions[]')[descriptionNum].options[document.getElementsByName('filePermissions[]')[descriptionNum].selectedIndex].text;
+    //    }
+    //}
 
 }
 
@@ -47,9 +57,9 @@ More information on <a href="https://www.library.uq.edu.au/open-access" target="
         <select name="filePermissions[]" onchange="javascript:filePermissionsChange({$smarty.section.file_input.index});">
     {html_options options=$file_options} *
         </select>
-    <input type="file" name="file[{$smarty.section.file_input.index}]" onchange="javascript:uploadFile({$smarty.section.file_input.index});" size="300"/>
+    <input type="file" name="file[{$smarty.section.file_input.index}]" onchange="javascript:uploadFile({$smarty.section.file_input.index});" />
     <input type="text" name="description[{$smarty.section.file_input.index}]" size="55" /><br>
     </span>
 {/section}
-    <br />Note: Filenames should start with a letter, use only lower case alphanumeric characters and underscores (_) and be less than 45 characters e.g. smith_postprint.pdf.
+    <br />Note: Filenames must start with a letter, use only lower case alphanumeric characters and underscores (_) and be less than 45 characters e.g. smith_postprint.pdf.
     <br /><br />
