@@ -192,7 +192,7 @@ function checkAll()
                             {if $list[i].rj_2010_rank} <strong>ERA 2010 Rank:</strong> {$list[i].rj_2010_rank} ({$list[i].rj_2010_title})<br />{/if}
                             {if $list[i].rek_refereed == '0'} <strong>Refereed:</strong> No<br /> {/if}
                             {if $list[i].rek_refereed == '1'} <strong>Refereed:</strong> Yes<br /> {/if}
-                            <strong>ISSN:</strong> {$list[i].rek_issn}<br />
+                            <strong>ISSN:</strong> {", "|implode:$list[i].rek_issn}<br />
                         {elseif $list[i].rek_display_type_lookup == "Conference Paper"}
                             {if $list[i].rc_2010_rank}<strong>ERA 2010 Rank:</strong> {$list[i].rc_2010_rank} ({$list[i].rc_2010_title})<br />{/if}
 							{if $list[i].rek_refereed == '0'} <strong>Refereed:</strong> No<br /> {/if}
