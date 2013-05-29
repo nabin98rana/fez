@@ -48,18 +48,24 @@ function filePermissionsChange(descriptionNum) {
 </script>
 {/literal}
 
-<br />
 More information on <a href="https://www.library.uq.edu.au/open-access" target="_blank">Open Access mandates</a>  |   <a href="http://www.uq.edu.au/research/rid/?page=73071&s=18575b924725bbee274e10d194cf1995" target="_blank">HERDC evidence deposits</a><br />
-
+<br /><br />
 {section name=file_input start=0 loop=10 step=1}
-    {assign var='loop_num' value=$smarty.section.file_input.index}
-    <span {if $smarty.section.file_input.index != 0}style="display:none"{/if} id=file_upload_{$smarty.section.file_input.index}>
-        <select name="filePermissions[]" onchange="javascript:filePermissionsChange({$smarty.section.file_input.index});">
-    {html_options options=$file_options} *
-        </select>
-    <input type="file" name="file[{$smarty.section.file_input.index}]" onchange="javascript:uploadFile({$smarty.section.file_input.index});" />
-    <input type="text" name="description[{$smarty.section.file_input.index}]" size="55" /><br>
-    </span>
+            {assign var='loop_num' value=$smarty.section.file_input.index}
+            <span {if $smarty.section.file_input.index != 0}style="display:none"{/if} id=file_upload_{$smarty.section.file_input.index}>
+<table>
+    <tr><th>Type of File</th><th>File to be uploaded</th><th>Description</th></tr>
+    <tr><td>
+                <select name="filePermissions[]" onchange="javascript:filePermissionsChange({$smarty.section.file_input.index});">
+            {html_options options=$file_options} *
+                </select>
+                </td><td>
+            <input type="file" name="file[{$smarty.section.file_input.index}]" onchange="javascript:uploadFile({$smarty.section.file_input.index});" />
+                 </td><td>
+            <input type="text" name="description[{$smarty.section.file_input.index}]" size="55" /><br>
+    </td></tr>
+</table>
+            </span>
 {/section}
     <br />Note: Filenames must start with a letter, use only lower case alphanumeric characters and underscores (_) and be less than 45 characters e.g. smith_postprint.pdf.
     <br /><br />

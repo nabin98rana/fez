@@ -794,7 +794,7 @@ class MyResearch
         // 1. Mark the publication claimed in the database
         $author = Auth::getActingUsername();
         $user = Auth::getUsername();
-        $correction = @$_POST['correction'];
+        $correction = @$_POST['correction_upload'];
         $jobID = MyResearch::markClaimedPubAsNeedingCorrection($pid, $author, $user, $correction);
 
         // 2. Send an email to Eventum about it
