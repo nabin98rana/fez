@@ -2527,10 +2527,8 @@ class Statistics
 			$limit = "where stl_dsid <> '' AND stl_dsid IS NOT NULL ";
 		}
 		if ($year != 'all' && is_numeric($year)) {
-			$year = $db->quote($year);
 			$limit .= " and year(date(stl_request_date)) = ".$db->quote($year);
 			if ($month != 'all' && is_numeric($month)) {
-				$month = $db->quote($month);
 				$limit .= " and month(date(stl_request_date)) = ".$db->quote($month);
 			}
 		} elseif ($range != 'all' && $range == '4w') {
@@ -2572,10 +2570,8 @@ class Statistics
 			$limit = "where stl_dsid <> '' AND stl_dsid IS NOT NULL ";
 		}
 		if ($year != 'all' && is_numeric($year)) {
-			$year = $db->quote($year);
 			$limit .= " and year(date(stl_request_date)) = ".$db->quote($year);
 			if ($month != 'all' && is_numeric($month)) {
-				$month = $db->quote($month);
 				$limit .= " and month(date(stl_request_date)) = ".$db->quote($month);
 			}
 		} elseif ($range != 'all' && $range == '4w') {
@@ -2620,10 +2616,8 @@ class Statistics
 			$limit = "where stl_dsid <> '' AND stl_dsid IS NOT NULL ";
 		}
 		if ($year != 'all' && is_numeric($year)) {
-			$year = $db->quote($year);
 			$limit .= " and YEAR(DATE(stl_request_date)) = ".$db->quote($year);
 			if ($month != 'all' && is_numeric($month)) {
-				$month = $db->quote($month);
 				$limit .= " and MONTH(DATE(stl_request_date)) = ".$db->quote($month);
 			}
 		} elseif ($range != 'all' && $range == '4w') {
