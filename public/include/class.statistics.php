@@ -1970,7 +1970,7 @@ class Statistics
 		$db = DB_API::get();
 
 		$stmt = "SELECT stl_pid, COUNT(*) as downloads
-                 FROM " . APP_TABLE_PREFIX . "statistics_all
+                 FROM " . APP_TABLE_PREFIX . "statistics_all USE INDEX (pid_dsid_date_counter)
                  WHERE stl_dsid <> '' AND stl_dsid IS NOT NULL AND stl_request_date > ".$db->quote(date('Y-m-d H:i:s',strtotime("-1 week")))."
 				 AND stl_counter_bad = FALSE
                  GROUP BY stl_pid
