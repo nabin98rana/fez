@@ -198,7 +198,7 @@ class Collection
    * Method used to get the XSD Display ID of a collection object
    * system.
    *
-   * Developer Note: Need to make this come from the admin interface and stored in the Fez database, 
+   * Developer Note: Need to make this come from the admin interface and stored in the Fez database,
    * rather than being hardset.
    *
    * @access  public
@@ -268,11 +268,11 @@ class Collection
   /**
    * Method used to add up all the
    *
-   * Developer Note: This is a recursive function to find the count of all the objects with the given 
+   * Developer Note: This is a recursive function to find the count of all the objects with the given
    * controlled vocabulary IDs
    *
    * @access  public
-   * @param   array $res The list of all the controlled vocabularies with they given counts. 
+   * @param   array $res The list of all the controlled vocabularies with they given counts.
    *                     Passed by reference recursively.
    * @param   array $tree_ids  The list of Controlled Vocabulary IDs in a CV tree to search against.
    * @param   integer $key The current controlled vocabulary key to search for.
@@ -302,7 +302,7 @@ class Collection
   {
     $db = DB_API::get();
     $log = FezLog::get();
-    
+
     // If the user is a Fez Administrator then don't check for security, give them everything
     $isAdministrator = Auth::isAdministrator();
     if ($isAdministrator === true) {
@@ -366,7 +366,7 @@ class Collection
           $authStmt .= " INNER JOIN ".$dbtp."auth_index2 ai
                         ON authi_role in (".$rolesStmt.") AND ai.authi_pid = ".$joinPrefix."
                         INNER JOIN ".$dbtp."auth_rule_group_users
-                        ON argu_usr_id=".$db->quote($usr_id, 'INTEGER')." AND ai.authi_arg_id=argu_arg_id ";					
+                        ON argu_usr_id=".$db->quote($usr_id, 'INTEGER')." AND ai.authi_arg_id=argu_arg_id ";
         }
       }
       //            $authStmt .= "
@@ -392,10 +392,10 @@ class Collection
     $dbtp =  APP_TABLE_PREFIX;
     $stmt = "SELECT distinct argr_arg_id
                FROM ".$dbtp."auth_rule_group_rules
-                 INNER JOIN ".$dbtp."auth_rules ON ar_rule='public_list' 
-                            AND ar_value='1' 
+                 INNER JOIN ".$dbtp."auth_rules ON ar_rule='public_list'
+                            AND ar_value='1'
                             AND argr_ar_id=ar_id ";
-      
+
     try {
       $res = $db->fetchCol($stmt);
     }
@@ -407,7 +407,7 @@ class Collection
   }
 
   /**
-   * Method used to get the list of records in browse view year (date). 
+   * Method used to get the list of records in browse view year (date).
    * This needed to be differently setup to browseListing for dates, authors etc.
    *
    * @access  public
@@ -452,9 +452,9 @@ class Collection
     }
     if (!empty($letter)) {
       $letter = addslashes($letter);
-      $letter_restrict = "WHERE (r3.rek_author LIKE " . $db->quote($letter.'%') . " OR r3.rek_author LIKE " . 
+      $letter_restrict = "WHERE (r3.rek_author LIKE " . $db->quote($letter.'%') . " OR r3.rek_author LIKE " .
                          $db->quote(strtolower($letter).'%') . ") and ";
-      $letter_restrict_id = "WHERE (a1.aut_lname LIKE " . $db->quote($letter.'%') . " OR a1.aut_lname LIKE " . 
+      $letter_restrict_id = "WHERE (a1.aut_lname LIKE " . $db->quote($letter.'%') . " OR a1.aut_lname LIKE " .
                             $db->quote(strtolower($letter).'%') . ") ";
     } else {
       $sql_where = " ";
@@ -472,7 +472,7 @@ class Collection
     	if (!is_numeric(strpos(APP_SQL_DBTYPE, "mysql"))) {
         $stmt .= " COUNT(*) AS record_count, " . $show_field_id2 . " || ', ' || " . $show_field_id1 . " AS ";
 			} else {
-        $stmt .= " COUNT(*) AS record_count, CONCAT(" . $show_field_id2 . ",', '," . $show_field_id1 . ") AS ";			
+        $stmt .= " COUNT(*) AS record_count, CONCAT(" . $show_field_id2 . ",', '," . $show_field_id1 . ") AS ";
 			}
 			$stmt .= $as_field.", a1.aut_id AS record_author_id ".$countStmt;
 
@@ -484,7 +484,7 @@ class Collection
     try {
       $res = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
       $total_rows = $db->fetchOne($countStmt);
-       
+
       $total_rows = $total_rows;
       foreach ($res as $key => $row) {
         if (trim($row[$as_field]) != "") {
@@ -496,13 +496,13 @@ class Collection
           $return[$key]['record_author_id'] = $row['record_author_id'];
         }
       }
-          
+
       if (($start + $max) < $total_rows) {
         $total_rows_limit = $start + $max;
       } else {
         $total_rows_limit = $total_rows;
       }
-      
+
       $total_pages = ceil($total_rows / $max);
       $last_page = $total_pages - 1;
       if (($current_row - 10) > 0) {
@@ -510,19 +510,19 @@ class Collection
       } else {
         $start_range = 0;
       }
-      
+
       if (($current_row + 10) >= $last_page) {
         $end_range = $last_page + 1;
       } else {
         $end_range = $current_row + 10;
       }
-      
+
       $printable_page = $current_row + 1;
     }
     catch(Exception $ex) {
       $log->err($ex);
       return '';
-    }		                        
+    }
          return array(
                 "list" => $return,
                 "info" => array(
@@ -544,7 +544,7 @@ class Collection
 
 
   /**
-   * Method used to get the list of records in browse view year (date). 
+   * Method used to get the list of records in browse view year (date).
    * This needed to be differently setup to browseListing for dates, authors etc.
    *
    * @access  public
@@ -557,7 +557,7 @@ class Collection
   {
     $log = FezLog::get();
     $db = DB_API::get();
-    
+
     if ($max == "ALL") {
       $max = 9999999;
     }
@@ -578,10 +578,10 @@ class Collection
     $authStmt = $authArray['authStmt'];
 
     if ($sekdet['sek_relationship'] == 1) {
-      $middleStmt .= " FROM " . APP_TABLE_PREFIX . "record_search_key AS r".$termCounter." ";			
+      $middleStmt .= " FROM " . APP_TABLE_PREFIX . "record_search_key AS r".$termCounter." ";
       $termCounter++;
       $middleStmt .= " INNER JOIN " . APP_TABLE_PREFIX . "record_search_key_".
-                     $sekdet['sek_title_db']." AS r".$termCounter." 
+                     $sekdet['sek_title_db']." AS r".$termCounter."
                      ON r1.rek_pid = r".$termCounter.".rek_".$sekdet['sek_title_db']."_pid";
       $tid = $termCounter;
     } else {
@@ -634,8 +634,8 @@ class Collection
     if ($show_field)
     if (!empty($letter)) {
       $letter = addslashes($letter);
-      $letter_restrict = "WHERE r".$tid.".rek_".$sekdet['sek_title_db']." LIKE " . 
-                         $db->quote($letter.'%') . " OR r".$tid.".rek_".$sekdet['sek_title_db']." LIKE " . 
+      $letter_restrict = "WHERE r".$tid.".rek_".$sekdet['sek_title_db']." LIKE " .
+                         $db->quote($letter.'%') . " OR r".$tid.".rek_".$sekdet['sek_title_db']." LIKE " .
                          $db->quote(strtolower($letter).'%') . " and r1.rek_status = 2";
     }
     $middleStmt .= $authStmt." ";
@@ -670,7 +670,7 @@ class Collection
     } else {
       $stmt .= $group_field;
     }
-    
+
     try {
       $stmt = $db->limit($stmt, $max, $start);
       $res = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
@@ -689,7 +689,7 @@ class Collection
         $return[$key]['record_count'] = $row['record_count'];
       }
     }
-    
+
     $total_pages = ceil($total_rows / $max);
     $last_page = $total_pages - 1;
     if (($current_row - 10) > 0) {
@@ -727,7 +727,7 @@ class Collection
                     "printable_page"=> $printable_page,
                     "page_rows"     =>  $max,
     )
-    );	
+    );
   }
 
   /**
@@ -745,27 +745,27 @@ class Collection
   {
     $log = FezLog::get();
     $db = DB_API::get();
-    
+
     $dbtp =  APP_TABLE_PREFIX;
     $extra_join = "";
     $limit = "";
     $count_sql = "SUM(r2.rek_file_downloads)";
-    if ($year != 'all' && is_numeric($year)) {			
+    if ($year != 'all' && is_numeric($year)) {
       $limit = " and year(date(stl_request_date)) = ".$db->quote($year);
       if ($month != 'all' && is_numeric($month)) {
         $limit .= " and month(date(stl_request_date)) = ".$db->quote($month, 'INTEGER');
       }
-      $extra_join = "INNER JOIN ".$dbtp."statistics_all ON stl_pid = r2.rek_pid AND stl_dsid <> '' 
+      $extra_join = "INNER JOIN ".$dbtp."statistics_all use index (pid_dsid_date_counter) ON stl_pid = r2.rek_pid AND stl_dsid <> ''
                      AND stl_counter_bad = FALSE";
       $count_sql = "COUNT(stl_pid)";
     } elseif ($range != 'all' && $range == '4w') {
 			if (!is_numeric(strpos(APP_SQL_DBTYPE, "mysql"))) { //eg if postgresql etc
 	      $limit .= " and date(stl_request_date) >= NOW() - INTERVAL '1 months'";
 			} else {
-      	$limit .= " and date(stl_request_date) >= NOW() - INTERVAL 1 MONTH";				
+      	$limit .= " and date(stl_request_date) >= NOW() - INTERVAL 1 MONTH";
 			}
 
-      $extra_join = "INNER JOIN ".$dbtp."statistics_all ON stl_pid = r2.rek_pid AND stl_dsid <> '' 
+      $extra_join = "INNER JOIN ".$dbtp."statistics_all use index (pid_dsid_date_counter) ON stl_pid = r2.rek_pid AND stl_dsid <> ''
                      AND stl_counter_bad = FALSE";
       $count_sql = "COUNT(stl_pid)";
     }
@@ -809,19 +809,19 @@ class Collection
       $group_field = $sekdet['sek_title_db'].", rek_pid";
       $extra = ", rek_pid";
     }
-    $bodyStmtPart1 = " FROM  ".$dbtp."record_search_key AS r2                       
+    $bodyStmtPart1 = " FROM  ".$dbtp."record_search_key AS r2
           ".$extra_join."
                     ".$authStmt."
           ".$memberOfStmt." ";
     $bodyStmt = $bodyStmtPart1." ".$limit." WHERE r2.rek_status=2 GROUP BY rek_pid, rek_citation, rek_".$group_field." ";
-    
+
     $innerStmt = "
                     SELECT ".APP_SQL_CACHE." rek_pid, rek_citation, rek_".$group_field.", ".$count_sql." AS sort_column
                     ".$bodyStmt."
           ORDER BY sort_column ".$sort_order."
                     LIMIT ".$db->quote($max, 'INTEGER')." OFFSET ".$db->quote($start, 'INTEGER')." ";
     $stmt = $innerStmt;
-        
+
     try {
       $res = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
     }
@@ -837,7 +837,7 @@ class Collection
     return array(
                 "list" => $res,
                 "info" => array()
-    );		
+    );
   }
 
   /**
@@ -855,9 +855,9 @@ class Collection
   {
     $log = FezLog::get();
     $db = DB_API::get();
-    
+
     $limit = "";
-    if ($year != 'all' && is_numeric($year)) {			
+    if ($year != 'all' && is_numeric($year)) {
       $limit = " and year(date(stl_request_date)) = ".$db->quote($year);
       if ($month != 'all' && is_numeric($month)) {
         $limit .= " and month(date(stl_request_date)) = ".$db->quote($month, 'INTEGER');
@@ -866,7 +866,7 @@ class Collection
 			if (!is_numeric(strpos(APP_SQL_DBTYPE, "mysql"))) { //eg if postgresql etc
 	      $limit .= " and date(stl_request_date) >= NOW() - INTERVAL '1 months'";
 			} else {
-      	$limit .= " and date(stl_request_date) >= NOW() - INTERVAL 1 MONTH";				
+      	$limit .= " and date(stl_request_date) >= NOW() - INTERVAL 1 MONTH";
 			}
     }
 
@@ -889,17 +889,17 @@ class Collection
     $sekdet = Search_Key::getDetailsByTitle($sort_by);
     $restrict_community = '';
 
-    $stmt = " SELECT ".APP_SQL_CACHE." r4.rek_author_id, a1.aut_display_name as record_author, 
+    $stmt = " SELECT ".APP_SQL_CACHE." r4.rek_author_id, a1.aut_display_name as record_author,
                   SUM(rek_file_downloads) as sort_column
-                  FROM ".$dbtp."record_search_key AS r2 
-                  INNER JOIN ".$dbtp."record_search_key_author_id AS r4 ON r4.rek_author_id_pid = r2.rek_pid					
+                  FROM ".$dbtp."record_search_key AS r2
+                  INNER JOIN ".$dbtp."record_search_key_author_id AS r4 ON r4.rek_author_id_pid = r2.rek_pid
                   INNER JOIN ".$dbtp."author a1 on a1.aut_id = r4.rek_author_id
-                  ".$limit." 
+                  ".$limit."
                   WHERE r2.rek_file_downloads > 0 AND r2.rek_status = 2
                   GROUP BY r4.rek_author_id, a1.aut_display_name
                   ORDER BY sort_column DESC
                   LIMIT ".$db->quote($max, 'INTEGER')." OFFSET ".$db->quote($start, 'INTEGER');
-    
+
     try {
       $res = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
     }
@@ -938,11 +938,11 @@ class Collection
     );
   }
 
-  function suggest($terms, $current_row = 0, $max = 10) 
+  function suggest($terms, $current_row = 0, $max = 10)
   {
     $log = FezLog::get();
     $db = DB_API::get();
-    
+
     if (APP_SOLR_SWITCH == "ON" ) {
       $index = new FulltextIndex_Solr(true);
       $sort_by = "";
@@ -971,7 +971,7 @@ class Collection
                 FROM " . APP_TABLE_PREFIX . "record_search_key AS r2 ".$authStmt."
                 WHERE (r2.rek_title like ".$db->quote('%'.$terms.'%').") and r2.rek_status = 2
                 LIMIT 20 OFFSET 0";
-    
+
     try {
       $res = $db->fetchPairs($stmt);
     }
@@ -1019,7 +1019,7 @@ class Collection
    * @param   integer $max The maximum number of records to return
    * @return  array The list of Fez objects matching the search criteria
    */
-  function searchListing($terms, $current_row = 0, $max = 25, $sort_by='Relevance') 
+  function searchListing($terms, $current_row = 0, $max = 25, $sort_by='Relevance')
   {
     $options = array();
     $options["searchKey0"] = $terms;
