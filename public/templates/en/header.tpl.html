@@ -3,6 +3,9 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+{if $smarty.const.APP_ADDTHIS_SWITCH == 'ON'}
+    <link rel="dns-prefetch" href="//s7.addthis.com">
+{/if}
 <title>{if $extra_title != ""}{$extra_title} - {elseif $list_heading != ""}{$list_heading} - {/if}{$application_title}</title>
 
 {*This is to find javascript errors and put them into a variable for testing *}
