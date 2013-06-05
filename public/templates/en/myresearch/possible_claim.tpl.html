@@ -60,7 +60,7 @@ function submitForm()
                     return false;
                 }
                 //No need to check if HERDC since it's private
-                if (fileUploadType != 4) {
+                if (fileUploadType != 5) {
                     $uploadFilename = $uploadFilename.replace(/^.*[\\\/]/, '');
                     fileCheck = fileCheck + 'File: '+ $uploadFilename +'\n';
                 }

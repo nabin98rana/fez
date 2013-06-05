@@ -45,7 +45,7 @@ include_once(APP_INC_PATH . "class.datastream.php");
 class MyResearch
 {
     private static $file_options = array(0 => 'Please choose file type', 1 => 'Accepted version (author final draft  post-refereeing)', 2  => 'Submitted version (author version pre-refereeing)',
-                    3 => 'Working/Technical Paper', 4 => 'HERDC evidence (not open access- admin only)', 5 => 'Other (any files not included in any of the above)'
+                    3 => 'Publishers Copy (Open Access)', 4 => 'Working/Technical Paper', 5 => 'HERDC evidence (not open access- admin only)', 6 => 'Other (any files not included in any of the above)'
                     );
     /**
      * Dispatch to the appropriate functionality for the requested page.
@@ -836,8 +836,8 @@ class MyResearch
                 }
                 $listFiles .= $file .' ';
 
-                //If a HERDC file set permissions(4) to admin and upo only(10) ( else open access 9)
-                $fezACMLTemplateNum = ($_POST['filePermissions'][$key] == 4) ? 10 : 9;
+                //If a HERDC file set permissions(5) to admin and upo only(10) ( else open access, which is inherit in this case)
+                $fezACMLTemplateNum = ($_POST['filePermissions'][$key] == 5) ? 10 : NULL;
                 Datastream::addDatastreamToPid($pid, $file, $fezACMLTemplateNum);
                 $filePermsNumber = $_POST['filePermissions'][$key];
                 $historyComment .= $file.' - "'.MyResearch::$file_options[$filePermsNumber].'"; ';
