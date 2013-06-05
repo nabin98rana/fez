@@ -660,14 +660,18 @@ class Statistics
 	function updateCountryRegionSummaryTable()
 	{
 		$log = FezLog::get();
-		$db = DB_API::get();
+    if (defined("APP_SQL_SLAVE_DBHOST")) {
+      $db = DB_API::get('db_slave');
+    } else {
+      $db = DB_API::get('db');
+    }
 
 		//		echo "Starting Country Region summary: " . date('H:i:s') . "\n";
 
 		$query = "SELECT stl_country_name, stl_country_code, stl_region, stl_city, sum(abstract) as abstract, sum(downloads) as downloads from ( ";
-		$query .= "SELECT stl_country_name, stl_country_code, stl_region, stl_city, sum(1) as abstract, 0 as downloads FROM " . APP_TABLE_PREFIX . "statistics_all WHERE (stl_dsid = '' OR stl_dsid IS NULL) AND stl_counter_bad = FALSE GROUP BY 4,3,2,1 ";
+		$query .= "SELECT stl_country_name, stl_country_code, stl_region, stl_city, sum(1) as abstract, 0 as downloads FROM " . APP_TABLE_PREFIX . "statistics_all use index (pid_ds_id_counter) WHERE (stl_dsid = '' OR stl_dsid IS NULL) AND stl_counter_bad = FALSE GROUP BY 4,3,2,1 ";
 		$query .= "UNION ";
-		$query .= "SELECT stl_country_name, stl_country_code, stl_region, stl_city, 0 as abstract, sum(1) as downloads FROM " . APP_TABLE_PREFIX . "statistics_all WHERE stl_dsid <> '' AND stl_dsid IS NOT NULL AND stl_counter_bad = FALSE GROUP BY 4,3,2,1) AS tblA ";
+		$query .= "SELECT stl_country_name, stl_country_code, stl_region, stl_city, 0 as abstract, sum(1) as downloads FROM " . APP_TABLE_PREFIX . "statistics_all use index (pid_ds_id_counter) WHERE stl_dsid <> '' AND stl_dsid IS NOT NULL AND stl_counter_bad = FALSE GROUP BY 4,3,2,1) AS tblA ";
 		$query .= "GROUP BY 1,2,3,4 ";
 
 		try {
@@ -677,6 +681,10 @@ class Statistics
 			$log->err($ex);
 			return -1;
 		}
+    // Set the db back to the master
+    if (defined("APP_SQL_SLAVE_DBHOST")) {
+      $db = DB_API::get('db');
+    }
 
 		$stmt = 'DELETE FROM ' . APP_TABLE_PREFIX . 'statistics_sum_countryregion';
 		try {
@@ -808,7 +816,11 @@ class Statistics
 	function updateYearMonthSummaryTable()
 	{
 		$log = FezLog::get();
-		$db = DB_API::get();
+    if (defined("APP_SQL_SLAVE_DBHOST")) {
+      $db = DB_API::get('db_slave');
+    } else {
+      $db = DB_API::get('db');
+    }
 
 		//		echo "Starting Year/Month Summary: " . date('H:i:s') . "\n";
 
@@ -822,6 +834,11 @@ class Statistics
 			$log->err($ex->getMessage());
 			return -1;
 		}
+
+    //Set db back to the master in case you used the slave in the above select
+    if (defined("APP_SQL_SLAVE_DBHOST")) {
+      $db = DB_API::get('db');
+    }
 
 		if (sizeof($result) == 0) {
 			return -1;
@@ -1967,7 +1984,11 @@ class Statistics
 	function getRecentPopularItems($limit)
 	{
 		$log = FezLog::get();
-		$db = DB_API::get();
+    if (defined("APP_SQL_SLAVE_DBHOST")) {
+      $db = DB_API::get('db_slave');
+    } else {
+      $db = DB_API::get('db');
+    }
 
 		$stmt = "SELECT stl_pid, COUNT(*) as downloads
                  FROM " . APP_TABLE_PREFIX . "statistics_all USE INDEX (pid_dsid_date_counter)
@@ -2013,7 +2034,11 @@ class Statistics
 	function cleanupFalseHitsBatch($limit, $offset, $min_date = false)
 	{
 		$log = FezLog::get();
-		$db = DB_API::get();
+    if (defined("APP_SQL_SLAVE_DBHOST")) {
+      $db = DB_API::get('db_slave');
+    } else {
+      $db = DB_API::get('db');
+    }
 
 		$stmt = "SELECT stl_id, stl_pid, stl_dsid, stl_ip, stl_request_date, stl_counter_bad
                  FROM " . APP_TABLE_PREFIX . "statistics_all ";
@@ -2039,7 +2064,11 @@ class Statistics
 	function cleanupFalseHitsCount($min_date = false)
 	{
 		$log = FezLog::get();
-		$db = DB_API::get();
+    if (defined("APP_SQL_SLAVE_DBHOST")) {
+      $db = DB_API::get('db_slave');
+    } else {
+      $db = DB_API::get('db');
+    }
 
 		$stmt = "SELECT count(*)
                  FROM " . APP_TABLE_PREFIX . "statistics_all";
@@ -2066,7 +2095,11 @@ class Statistics
 	function getMinBadDate()
 	{
 		$log = FezLog::get();
-		$db = DB_API::get();
+    if (defined("APP_SQL_SLAVE_DBHOST")) {
+      $db = DB_API::get('db_slave');
+    } else {
+      $db = DB_API::get('db');
+    }
 
 		$stmt = "SELECT MAX(stl_request_date)
                  FROM " . APP_TABLE_PREFIX . "statistics_all
@@ -2185,7 +2218,11 @@ class Statistics
 	function getEarliestUserView()
 	{
 		$log = FezLog::get();
-		$db = DB_API::get();
+    if (defined("APP_SQL_SLAVE_DBHOST")) {
+      $db = DB_API::get('db_slave');
+    } else {
+      $db = DB_API::get('db');
+    }
 
 		$stmt = "select MIN(stl_request_date) as first_logged
 			 	 from " . APP_TABLE_PREFIX . "statistics_all
@@ -2209,7 +2246,11 @@ class Statistics
 	function getStatsByDatastream($pid, $dsid)
 	{
 		$log = FezLog::get();
-		$db = DB_API::get();
+    if (defined("APP_SQL_SLAVE_DBHOST")) {
+      $db = DB_API::get('db_slave');
+    } else {
+      $db = DB_API::get('db');
+    }
 
 		if (is_numeric(strrpos($dsid, "."))) {
 			$web = "web_".substr($dsid, 0, strrpos($dsid, ".") + 1)."jpg";
@@ -2246,7 +2287,11 @@ class Statistics
 	function getStatsByAbstractView($pid, $year='all', $month='all', $range='all')
 	{
 		$log = FezLog::get();
-		$db = DB_API::get();
+    if (defined("APP_SQL_SLAVE_DBHOST")) {
+      $db = DB_API::get('db_slave');
+    } else {
+      $db = DB_API::get('db');
+    }
 
 		$limit = '';
 		if ($year != 'all' && is_numeric($year)) {
@@ -2287,7 +2332,11 @@ class Statistics
 	function getStatsByAllFileDownloads($pid, $year='all', $month='all', $range='all')
 	{
 		$log = FezLog::get();
-		$db = DB_API::get();
+    if (defined("APP_SQL_SLAVE_DBHOST")) {
+      $db = DB_API::get('db_slave');
+    } else {
+      $db = DB_API::get('db');
+    }
 
 		$limit = "";
 		if ($year != 'all' && is_numeric($year)) {
@@ -2326,7 +2375,11 @@ class Statistics
 	function getStatsByUserAbstractView($pid, $year='all', $month='all', $range='all')
 	{
 		$log = FezLog::get();
-		$db = DB_API::get();
+    if (defined("APP_SQL_SLAVE_DBHOST")) {
+      $db = DB_API::get('db_slave');
+    } else {
+      $db = DB_API::get('db');
+    }
 
 		if ($pid != 'all') {
 			$limit = "where stl_pid = ".$db->quote($pid)." and (stl_dsid = '' OR stl_dsid IS NULL)";
@@ -2375,7 +2428,11 @@ class Statistics
 	function getStatsByCountryAbstractView($pid, $year='all', $month='all', $range='all')
 	{
 		$log = FezLog::get();
-		$db = DB_API::get();
+    if (defined("APP_SQL_SLAVE_DBHOST")) {
+      $db = DB_API::get('db_slave');
+    } else {
+      $db = DB_API::get('db');
+    }
 
 		if ($pid != 'all') {
 			$limit = "where stl_pid = ".$db->quote($pid)." and (stl_dsid = '' OR stl_dsid IS NULL)";
@@ -2421,7 +2478,11 @@ class Statistics
 	function getStatsByCountrySpecificAbstractView($pid, $year='all', $month='all', $range='all',$country)
 	{
 		$log = FezLog::get();
-		$db = DB_API::get();
+    if (defined("APP_SQL_SLAVE_DBHOST")) {
+      $db = DB_API::get('db_slave');
+    } else {
+      $db = DB_API::get('db');
+    }
 
 		if ($pid != 'all') {
 			$limit = "where stl_pid = ".$db->quote($pid)." and (stl_dsid = '' OR stl_dsid IS NULL)";
@@ -2519,7 +2580,11 @@ class Statistics
 	function getStatsByCountryAllFileDownloads($pid, $year='all', $month='all', $range='all')
 	{
 		$log = FezLog::get();
-		$db = DB_API::get();
+    if (defined("APP_SQL_SLAVE_DBHOST")) {
+      $db = DB_API::get('db_slave');
+    } else {
+      $db = DB_API::get('db');
+    }
 
 		if ($pid != 'all') {
 			$limit = "where stl_pid = ".$db->quote($pid)." and stl_dsid <> '' AND stl_dsid IS NOT NULL";
@@ -2562,7 +2627,11 @@ class Statistics
 	function getStatsByUserDownloads($pid, $year='all', $month='all', $range='all')
 	{
 		$log = FezLog::get();
-		$db = DB_API::get();
+    if (defined("APP_SQL_SLAVE_DBHOST")) {
+      $db = DB_API::get('db_slave');
+    } else {
+      $db = DB_API::get('db');
+    }
 
 		if ($pid != 'all') {
 			$limit = "where stl_pid = ".$db->quote($pid)." and stl_dsid <> '' AND stl_dsid IS NOT NULL";
@@ -2608,7 +2677,11 @@ class Statistics
 	function getStatsByCountrySpecificAllFileDownloads($pid, $year='all', $month='all', $range='all', $country)
 	{
 		$log = FezLog::get();
-		$db = DB_API::get();
+    if (defined("APP_SQL_SLAVE_DBHOST")) {
+      $db = DB_API::get('db_slave');
+    } else {
+      $db = DB_API::get('db');
+    }
 
 		if ($pid != 'all') {
 			$limit = "where stl_pid = ".$db->quote($pid)." and stl_dsid <> '' AND stl_dsid IS NOT NULL";
@@ -2653,7 +2726,11 @@ class Statistics
 	function getStatsByObject($pid)
 	{
 		$log = FezLog::get();
-		$db = DB_API::get();
+    if (defined("APP_SQL_SLAVE_DBHOST")) {
+      $db = DB_API::get('db_slave');
+    } else {
+      $db = DB_API::get('db');
+    }
 
 		$stmt = "select count(*)
 			 	 from " . APP_TABLE_PREFIX . "statistics_all
@@ -2677,7 +2754,11 @@ class Statistics
 	function getStatsByAbstractViewHistory($pid)
 	{
 		$log = FezLog::get();
-		$db = DB_API::get();
+    if (defined("APP_SQL_SLAVE_DBHOST")) {
+		  $db = DB_API::get('db_slave');
+    } else {
+      $db = DB_API::get('db');
+    }
 
 		if ($pid != 'all') {
 			$limit = "where stl_pid = ".$db->quote($pid)." and (stl_dsid = '' OR stl_dsid IS NULL) ";
@@ -2709,7 +2790,11 @@ class Statistics
 	function getStatsByDownloadHistory($pid)
 	{
 		$log = FezLog::get();
-		$db = DB_API::get();
+    if (defined("APP_SQL_SLAVE_DBHOST")) {
+      $db = DB_API::get('db_slave');
+    } else {
+      $db = DB_API::get('db');
+    }
 
 		if ($pid != 'all') {
 			$limit = "where stl_pid = ".$db->quote($pid)." and (stl_dsid <> '' AND stl_dsid IS NOT NULL) ";

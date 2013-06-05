@@ -99,6 +99,7 @@ if (defined("APP_SQL_DBPORT")) {
   $params['port'] = APP_SQL_DBPORT;
 }
 
+
 try {
   $db = Zend_Db::factory(APP_SQL_DBTYPE, $params);
   $db->getConnection();
@@ -111,6 +112,31 @@ catch (Exception $ex) {
   exit;
 }
 Configuration::registerConf();
+
+if (defined("APP_SQL_SLAVE_DBHOST")) {
+  $slave_params = array(
+    'host' => APP_SQL_SLAVE_DBHOST,
+    'username' => APP_SQL_SLAVE_DBUSER,
+    'password' => APP_SQL_SLAVE_DBPASS,
+    'dbname' => APP_SQL_SLAVE_DBNAME,
+    'charset' => 'utf8',
+    'profiler' => array(
+      'enabled'     => APP_DB_USE_PROFILER,
+      'class'     => 'Zend_Db_Profiler_Firebug'
+    )
+  );
+
+  try {
+    $db_slave = Zend_Db::factory(APP_SQL_DBTYPE, $slave_params);
+    $db_slave->getConnection();
+    Zend_Registry::set('db_slave', $db_slave);
+  }
+  catch (Exception $ex) {
+    $error_type = "db_slave";
+  }
+
+}
+
 
 if (APP_LOGGING_ENABLED == "true") {
 

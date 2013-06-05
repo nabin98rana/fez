@@ -744,7 +744,11 @@ class Collection
   )
   {
     $log = FezLog::get();
-    $db = DB_API::get();
+    if (defined("APP_SQL_SLAVE_DBHOST")) {
+      $db = DB_API::get('db_slave');
+    } else {
+      $db = DB_API::get('db');
+    }
 
     $dbtp =  APP_TABLE_PREFIX;
     $extra_join = "";
@@ -854,7 +858,11 @@ class Collection
   )
   {
     $log = FezLog::get();
-    $db = DB_API::get();
+    if (defined("APP_SQL_SLAVE_DBHOST")) {
+      $db = DB_API::get('db_slave');
+    } else {
+      $db = DB_API::get('db');
+    }
 
     $limit = "";
     if ($year != 'all' && is_numeric($year)) {
