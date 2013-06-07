@@ -1249,7 +1249,7 @@ class DuplicatesReport {
 			$isbn1 = Record::getSearchKeyIndexValue($record1->pid, "ISBN", false);
 			$isbn2 = Record::getSearchKeyIndexValue($record2->pid, "ISBN", false);
 
-			if (trim($isbn1) == trim($isbn2) && strlen(trim($isbn1)) > 0) {
+			if (sort($isbn1) == sort($isbn2) && count($isbn1) > 0 ) {
 				return 1;
 			}
 		}
