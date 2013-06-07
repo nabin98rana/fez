@@ -53,8 +53,8 @@
 					{if $list[i].rek_ref_type == '25' && $list[i].rek_publisher != ''}
 						<publisher>{$list[i].rek_publisher|escape:"quotesxml"}</publisher>
 					{/if}						
-					{if $list[i].rek_ref_type == '25' && $list[i].rek_ref_type == '25' && $list[i].rek_isbn != ''}
-						<isbn>{$list[i].rek_isbn}</isbn>
+					{if $list[i].rek_ref_type == '25' && $list[i].rek_ref_type == '25' && $list[i].rek_isbn}
+						<isbn>{", "|implode:$list[i].rek_isbn}</isbn>
 					{/if}	
 					{if $list[i].rek_isi_loc != ''}
 						<accession-num>WOS:{$list[i].rek_isi_loc}</accession-num>

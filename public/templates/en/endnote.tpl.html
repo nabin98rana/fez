@@ -47,9 +47,9 @@
 {if ($list[i].rek_publisher)}
 %I {$list[i].rek_publisher}
 {/if}
-{if ($list[i].rek_isbn)}
-%@ {$list[i].rek_isbn}
-{/if}
+{foreach from=$list[i].rek_isbn item=isbn}
+%@ {$isbn}
+{/foreach}
 {if ($list[i].rek_place_of_publication)}
 %C {$list[i].rek_place_of_publication}
 {/if}
@@ -110,9 +110,9 @@
 {if ($list[i].rek_edition)}
 %7 {$list[i].rek_edition}
 {/if}
-{if ($list[i].rek_isbn)}
-%@ {$list[i].rek_isbn}
-{/if}
+{foreach from=$list[i].rek_isbn item=isbn}
+%@ {$isbn}
+{/foreach}
 {foreach from=$list[i].rek_link item=link}
 {if ($link|stristr:"doi")}
 %R {$smarty.const.APP_LINK_PREFIX|str_replace:"":$link|parse_url:5}
@@ -170,9 +170,9 @@
 {if ($list[i].rek_edition)}
 %7 {$list[i].rek_edition}
 {/if}
-{if ($list[i].rek_isbn)}
-%@ {$list[i].rek_isbn}
-{/if}
+{foreach from=$list[i].rek_isbn item=isbn}
+%@ {$isbn}
+{/foreach}
 {foreach from=$list[i].rek_link item=link}
 {if ($link|stristr:"doi")}
 %R {$smarty.const.APP_LINK_PREFIX|str_replace:"":$link|parse_url:5}
@@ -290,9 +290,9 @@
 {if ($list[i].rek_conference_location)}
 %C {$list[i].rek_conference_location}
 {/if}
-{if ($list[i].rek_isbn)}
-%@ {$list[i].rek_isbn}
-{/if}
+{foreach from=$list[i].rek_isbn item=isbn}
+%@ {$isbn}
+{/foreach}
 {if ($list[i].rek_date)}
 %D {$list[i].rek_date}
 {/if}
