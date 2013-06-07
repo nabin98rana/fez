@@ -499,6 +499,7 @@ if (!empty($pid) && $record->checkExists()) {
 //Error_Handler::logError($datastreams, __FILE__,__LINE__);
 
     $doi = Record::getSearchKeyIndexValue($pid, 'DOI');
+    $tpl->assign(altmetricDOI, $doi);
     //if fedora bypass is on need to get from mysql else it datastreams as down below
     if (APP_FEDORA_BYPASS == 'ON') {
       $links = Links::getLinks($pid);

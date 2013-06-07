@@ -282,6 +282,10 @@ class NAJAX_Server extends NAJAX_Observable
 						return false;
 					}
 
+                    //This is due to JS conflicts with other libraries
+                    if (NAJAX_Utilities::getType($requestBody['arguments']) != 's_array') {
+                        $requestBody['arguments'] = array();
+                    }
 					if (
 					(NAJAX_Utilities::getType($requestBody['source']) != 'object') ||
 					(NAJAX_Utilities::getType($requestBody['className']) != 'string') ||

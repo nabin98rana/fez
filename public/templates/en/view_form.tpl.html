@@ -89,9 +89,13 @@ function loadPreview(pid,datastreamID, alt, origami)
         </tr>
 	  </table>
 
-    {if $addthis && (!$isEditor || !$isAdministrator)}
+    {if $addthis && (!$isEditor && !$isAdministrator)}
         <!-- AddThis Button BEGIN -->
-        <span class="addthis_toolbox addthis_default_style " >
+    {if $altmetricDOI}
+    <script type='text/javascript' src='https://d1bxh8uas1mnw7.cloudfront.net/assets/embed.js'></script>
+    <span class='altmetric-embed' data-doi='{$altmetricDOI}' data-link-target='_blank' style="float:left; width:110px;"></span>
+    {/if}
+        <span class="addthis_toolbox addthis_default_style">
             <a class="addthis_button_facebook_like" fb:like:layout="button_count"></a>
             <a class="addthis_button_tweet"></a>
             <a class="addthis_button_google_plusone" g:plusone:size="medium"></a>
@@ -103,7 +107,6 @@ function loadPreview(pid,datastreamID, alt, origami)
         <script type="text/javascript" src="//s7.addthis.com/js/300/addthis_widget.js#pubid={$addthis}"></script>
         <!-- AddThis Button END -->
     {/if}
-
 {*--------------------------------------------------------------------------------------------------------------------*}
       {*Info box just for admins*}
       {if $isEditor || $isAdministrator || ($show_tombstone && $deleted)}
@@ -715,6 +718,15 @@ function loadPreview(pid,datastreamID, alt, origami)
                     {/if}
 					</td>
 				</tr>
+                  {if $altmetricDOI && ($isEditor || $isAdministrator)}
+                  <tr>
+                      <th style="vertical-align:text-top;">Altmetric details:</th>
+                  <td>
+                      <script type='text/javascript' src='https://d1bxh8uas1mnw7.cloudfront.net/assets/embed.js'></script>
+                      <span class='altmetric-embed' data-badge-type='1' data-doi='{$altmetricDOI}'></span>
+                  </td>
+                  </tr>
+                  {/if}
 {if $WEBSERVER_LOG_STATISTICS == 'ON'}
 				<tr>
 				  <th>Access Statistics:</th>
