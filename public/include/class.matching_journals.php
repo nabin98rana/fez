@@ -32,6 +32,7 @@
 include_once(APP_INC_PATH . "class.auth.php");
 include_once(APP_INC_PATH . "class.mail.php");
 include_once(APP_INC_PATH . "class.filecache.php");
+include_once(APP_INC_PATH . "class.fulltext_queue.php");
 define("TEST",   		 			false); // limit to 250 records only if TRUE
 define("TEST_WHERE",				""); // Adds this condition to the where statement for eg testing single pids
 define("SIMILARITY_THRESHOLD",		80);    // These similarity functions aren't currently invoked
@@ -1096,13 +1097,15 @@ echo "COUNT: ".count($candidateConferences);
 				$log->err($ex);
 				die('There was a problem with the query ' . $stmt);
 			}
-            if( APP_FILECACHE == "ON" ) {
-                $cache = new fileCache($match['pid'], 'pid='.$match['pid']);
-                $cache->poisonCache();
 
-            }
+      if ( APP_SOLR_INDEXER == "ON" ) {
+        FulltextQueue::singleton()->add($match['pid']);
+      }
 
-            //echo $stmt . "\n"; // This will tell us what's actually going to be run.
+      if( APP_FILECACHE == "ON" ) {
+        $cache = new fileCache($match['pid'], 'pid='.$match['pid']);
+        $cache->poisonCache();
+      }
 		}
 
 		echo "done.\n";

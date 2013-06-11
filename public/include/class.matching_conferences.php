@@ -31,6 +31,7 @@
 // +----------------------------------------------------------------------+
 
 include_once(APP_INC_PATH . "class.filecache.php");
+include_once(APP_INC_PATH . "class.fulltext_queue.php");
 
 define("TEST", false); // Limit to 50 records only if TRUE
 define("TEST_WHERE_MC",				""); // Adds this condition to the where statement for eg testing single pids
@@ -471,12 +472,14 @@ class RCL
 				$log->err($ex);
 				die('There was a problem with the query ' . $stmt);
 			}
+      if ( APP_SOLR_INDEXER == "ON" ) {
+        FulltextQueue::singleton()->add($match['pid']);
+      }
 
-            if( APP_FILECACHE == "ON" ) {
-                $cache = new fileCache($match['pid'], 'pid='.$match['pid']);
-                $cache->poisonCache();
-
-            }
+      if( APP_FILECACHE == "ON" ) {
+        $cache = new fileCache($match['pid'], 'pid='.$match['pid']);
+        $cache->poisonCache();
+      }
 		}
 
 		echo "done.\n";

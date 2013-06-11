@@ -507,13 +507,15 @@ class FulltextQueue
 			$log->debug("FulltextQueue::pop() Queue is empty.");
 			return false;
 		}
-
+    // get the 1-1 core table lookups
     Record::getExtendedPidInfo($res);
+    // get the era/herdc extra info
     if (APP_MY_RESEARCH_MODULE == 'ON') {
       $res = Record::getResearchDetailsbyPIDS($res, false);
     }
+    // get the internal notes
     InternalNotes::readNotes($res);
-    Record::identifyThumbnails($res);
+//    Record::identifyThumbnails($res);
 
 
     foreach ( $res as $rkey => $row ) {
