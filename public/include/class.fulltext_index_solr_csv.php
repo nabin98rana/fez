@@ -139,7 +139,7 @@ class FulltextIndex_Solr_CSV extends FulltextIndex
       $csv = array();
       $pids_arr = array();
       $csvHeader = 'id,' . implode(',', $singleColumnsHeader) . ',' . implode(',', $singleColumnsHeaderLookups) .
-        ',sherpa_colour_t,ain_detail_t,' . $authLister_t . ',' . $authCreator_t . ',' . $authEditor_t . ',' .
+        ',sherpa_colour_t,ain_detail_t,rj_2010_rank_t,rj_2010_title_t,rj_2012_rank_t,rj_2012_title_t,rc_2010_rank_t,rc_2010_title_t,herdc_code_description_t,' . $authLister_t . ',' . $authCreator_t . ',' . $authEditor_t . ',' .
         implode(',', $mtColumnsHeader) . ",content\n";
       // first add the single column data you already got from the core table
       foreach ($chunk as $row) {

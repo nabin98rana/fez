@@ -541,6 +541,42 @@ class FulltextQueue
 
       //Also add the internal notes
       $res[$rkey]['row'] .= ',"' .$row['ain_detail'] .'"';
+      // Add the ranked journal and conference codes
+      if (array_key_exists('rj_2010_rank', $row)) {
+        $res[$rkey]['row'] .= ',"' .$row['rj_2010_rank'] .'"';
+      } else {
+        $res[$rkey]['row'] .= ',""';
+      }
+      if (array_key_exists('rj_2010_title', $row)) {
+        $res[$rkey]['row'] .= ',"' .$row['rj_2010_title'] .'"';
+      } else {
+        $res[$rkey]['row'] .= ',""';
+      }
+      if (array_key_exists('rj_2012_rank', $row)) {
+        $res[$rkey]['row'] .= ',"' .$row['rj_2012_rank'] .'"';
+      } else {
+        $res[$rkey]['row'] .= ',""';
+      }
+      if (array_key_exists('rj_2012_title', $row)) {
+        $res[$rkey]['row'] .= ',"' .$row['rj_2012_title'] .'"';
+      } else {
+        $res[$rkey]['row'] .= ',""';
+      }
+      if (array_key_exists('rc_2010_rank', $row)) {
+        $res[$rkey]['row'] .= ',"' .$row['rc_2010_rank'] .'"';
+      } else {
+        $res[$rkey]['row'] .= ',""';
+      }
+      if (array_key_exists('rc_2010_title', $row)) {
+        $res[$rkey]['row'] .= ',"' .$row['rc_2010_title'] .'"';
+      } else {
+        $res[$rkey]['row'] .= ',""';
+      }
+      if (array_key_exists('herdc_code_description', $row)) {
+        $res[$rkey]['row'] .= ',"' .$row['herdc_code_description'] .'"';
+      } else {
+        $res[$rkey]['row'] .= ',""';
+      }
     }
 
 
