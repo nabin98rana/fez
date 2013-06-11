@@ -279,7 +279,11 @@
 
 
    <dynamicField name="*_i"  type="sint"    indexed="true"  stored="true"/>
+   <dynamicField name="*_i_lookup"  type="text"    indexed="true"  stored="true" />
+   <dynamicField name="*_i_lookup_exact"  type="string"    indexed="true"  stored="true" />
    <dynamicField name="*_mi"  type="integer"    indexed="true"  stored="true" multiValued="true" />
+   <dynamicField name="*_mi_lookup"  type="text"    indexed="true"  stored="true" multiValued="true" />
+   <dynamicField name="*_mi_lookup_exact"  type="string"    indexed="true"  stored="true" multiValued="true"/>
 
    <dynamicField name="*_s"  type="alphaOnlySort"  indexed="true"  stored="false"/>
    <dynamicField name="*_ms"  type="alphaOnlySort"  indexed="true"  stored="false" multiValued="true"/>

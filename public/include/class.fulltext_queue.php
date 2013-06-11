@@ -32,6 +32,7 @@
 include_once(dirname(dirname(__FILE__)).DIRECTORY_SEPARATOR."config.inc.php");
 include_once(APP_INC_PATH . "class.bgp_fulltext_index.php");
 include_once(APP_INC_PATH . "class.logger.php");
+include_once(APP_INC_PATH . "class.sherpa_romeo.php");
 
 class FulltextQueue
 {
@@ -474,7 +475,7 @@ class FulltextQueue
 
 
 		// MT 20100317 - modified order by clause from pid ASC to key DESC so that we have a last-in-first-out order on the queue
-		$stmt .= ") as row FROM ".APP_TABLE_PREFIX."fulltext_queue
+		$stmt .= ") as row, sk.* FROM ".APP_TABLE_PREFIX."fulltext_queue
 			             INNER JOIN ".APP_TABLE_PREFIX."record_search_key as sk ON rek_pid = ftq_pid
 		             WHERE ftq_op = '".FulltextQueue::ACTION_INSERT."'
 		             ORDER BY ftq_key DESC
@@ -507,17 +508,54 @@ class FulltextQueue
 			return false;
 		}
 
-		foreach ( $res as $row ) {
-            $pids[] = $row['rek_pid'];
+    Record::getExtendedPidInfo($res);
+    if (APP_MY_RESEARCH_MODULE == 'ON') {
+      $res = Record::getResearchDetailsbyPIDS($res, false);
+    }
+    InternalNotes::readNotes($res);
+    Record::identifyThumbnails($res);
+
+
+    foreach ( $res as $rkey => $row ) {
+      $pids[] = $row['rek_pid'];
 			$keys[] = $row['ftq_key'];
-		}
+      // Add a closing quote to the citation column
+      $res[$rkey]['row'] .= '"';
+      // Add the lookups
+      foreach ($singleColumns as $column) {
+        if ($column['type'] == FulltextIndex::FIELD_TYPE_INT && !empty($column['sek_lookup_function']) ) {
+          if( !empty($res[$rkey][$column['name']]) ) {
+            $res[$rkey]['row'] .= ',"' . $res[$rkey][$column['name'].'_lookup'] .'"';
+            // save it again for the exact too (fast because cached)
+            $res[$rkey]['row'] .= ',"' . $res[$rkey][$column['name'].'_lookup'] .'"';
+          } else {
+            $res[$rkey]['row'] .= ',""';
+            $res[$rkey]['row'] .= ',""';
+          }
+        }
+      }
+
+      //Also add sherpa romeo colour
+      $sherpa_details = SherpaRomeo::getJournalColourFromPid($row['pid']);
+      $res[$rkey]['row'] .= ',"' .$sherpa_details['colour'] .'"';
+
+      //Also add the internal notes
+      $res[$rkey]['row'] .= ',"' .$row['ain_detail'] .'"';
+    }
+
+
+
+
+
 
         //We will test if the amount of cached content is to large for solr to handle if so we will remove content
         //But we will always do at least one else the queue will get stuck
         if (APP_SOLR_INDEX_DATASTREAMS == 'ON') {
             $size = 0;
             foreach($res as $elementKey => $elementValue) {
-                $size += strlen(serialize(FulltextIndex_Solr_CSV::getCachedContent("'".$elementValue['rek_pid']."'")));
+                if (array_key_exists('rek_pid', $elementValue)) {
+                  $size += strlen(serialize(FulltextIndex_Solr_CSV::getCachedContent("'".$elementValue['rek_pid']."'")));
+                }
                 if (($size/1000000 > APP_SOLR_CSV_MAX_SIZE) && ($elementKey > 0)){
                     unset($res[$elementKey]);
                     unset($keys[$elementKey]);

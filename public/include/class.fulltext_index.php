@@ -931,7 +931,7 @@ abstract class FulltextIndex {
         $values = array($pid,$dsID,$is_text_usable);
         if(! empty($fulltext)) {
         	$stmt .= "(ftc_pid, ftc_dsid, ftc_is_text_usable, ftc_content) VALUES (?,?,?,?)";
-        	$values[] = $fulltext;
+        	$values[] = str_replace("\t", ' ', (str_replace("\n", ' ', (str_replace('"', '""', $fulltext)))));
         }
         else
 			$stmt .= "(ftc_pid, ftc_dsid, ftc_is_text_usable) VALUES (?,?,?)";
