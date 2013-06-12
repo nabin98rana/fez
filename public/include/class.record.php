@@ -2303,6 +2303,8 @@ class Record
     //		$citationCache = true;
     if (count($res) > 0) {
       if ($getSimple == false || empty($getSimple)) {
+        // temporarily jus set everything to citation cache true to test out getting lookups, reseasrc and notes from solr now
+        $citationCache = true;
         if ($citationCache == false) {
           if (is_numeric($usr_id)) {
             //This can be significently made faster by Record::getExtendedPidInfo($res, array('Display Type', 'HERDC Status', 'HERDC code', 'Institutional Status', 'Follow up Flags', 'Follow up Flags IMU'));
@@ -3648,35 +3650,35 @@ class Record
   function getPidsByFuzzyTitle(array $fields)
   {
       //array key presence check.
-      
+
       $log = FezLog::get();
       $db = DB_API::get();
       $dbtp =  APP_TABLE_PREFIX; // Database and table prefix
       $res = array();
       $state = 0;
-      
+
       $queryMap = array(
-      	'doi' => "AND PREG_REPLACE('/[^0-9]/', '', doi.rek_doi) = PREG_REPLACE('/[^0-9]/', '','" . $fields['_doi'] . "') ", 
-      	'spage' => "AND PREG_REPLACE('/[^0-9]/', '', startp.rek_start_page) = PREG_REPLACE('/[^0-9]/', '', '" . $fields['_startPage'] . "') ", 
-      	'volume' => "AND PREG_REPLACE('/[^0-9]/', '', volume.rek_volume_number) = PREG_REPLACE('/[^0-9]/', '', '" . $fields['_issueVolume'] . "') ", 
-      	'issue' => "AND PREG_REPLACE('/[^0-9]/', '', issue.rek_issue_number) = PREG_REPLACE('/[^0-9]/', '', '" . $fields['_issueNumber'] . "') ", 
+      	'doi' => "AND PREG_REPLACE('/[^0-9]/', '', doi.rek_doi) = PREG_REPLACE('/[^0-9]/', '','" . $fields['_doi'] . "') ",
+      	'spage' => "AND PREG_REPLACE('/[^0-9]/', '', startp.rek_start_page) = PREG_REPLACE('/[^0-9]/', '', '" . $fields['_startPage'] . "') ",
+      	'volume' => "AND PREG_REPLACE('/[^0-9]/', '', volume.rek_volume_number) = PREG_REPLACE('/[^0-9]/', '', '" . $fields['_issueVolume'] . "') ",
+      	'issue' => "AND PREG_REPLACE('/[^0-9]/', '', issue.rek_issue_number) = PREG_REPLACE('/[^0-9]/', '', '" . $fields['_issueNumber'] . "') ",
       	'epage' => "AND PREG_REPLACE('/[^0-9]/', '', endp.rek_end_page) = PREG_REPLACE('/[^0-9]/', '', '" . $fields['_endPage'] . "') "
       );
-      
+
       $excludeCollections = "AND (rek_ismemberof NOT IN('".APP_SCOPUS_IMPORT_COLLECTION."', '".APP_TEMPORARY_DUPLICATES_COLLECTION."') OR rek_ismemberof IS NULL)";
-      
+
       $searchSets = array();
-      $searchSets[1] = array('doi', 'spage', 'volume', 'issue', 'epage'); 
-      $searchSets[2] = array('doi', 'spage', 'volume', 'issue'); 
-      $searchSets[3] = array('spage', 'volume', 'issue', 'epage'); 
+      $searchSets[1] = array('doi', 'spage', 'volume', 'issue', 'epage');
+      $searchSets[2] = array('doi', 'spage', 'volume', 'issue');
+      $searchSets[3] = array('spage', 'volume', 'issue', 'epage');
       $searchSets[4] = array('doi', 'spage', 'volume');
       $searchSets[5] = array('doi', 'spage', 'issue');
-      $searchSets[6] = array('spage', 'volume', 'issue'); 
+      $searchSets[6] = array('spage', 'volume', 'issue');
       $searchSets[7] = array('doi', 'spage');
       $searchSets[8] = array('doi');
-      
+
       $fuzzyTitle = "WHERE PREG_REPLACE('/[^a-z]/', '', LOWER(rek_title)) = PREG_REPLACE('/[^a-z]/', '', LOWER('" . $fields['_title'] . "')) ";
-      
+
       $sqlPre = "SELECT rek_pid, rek_title, rek_doi, rek_scopus_id, rek_start_page, "
       . "rek_end_page, rek_volume_number, rek_issue_number "
       . "FROM ".$dbtp."record_search_key sk "
@@ -3687,21 +3689,21 @@ class Record
       . "LEFT JOIN ".$dbtp."record_search_key_volume_number volume ON sk.rek_pid = volume.rek_volume_number_pid "
       . "LEFT JOIN ".$dbtp."record_search_key_issue_number issue on sk.rek_pid = issue.rek_issue_number_pid "
       . "LEFT JOIN ".$dbtp."record_search_key_ismemberof ON sk.rek_pid = rek_ismemberof_pid ";
-      
+
       $ct = 0;
-      
+
       while(empty($res) && $ct < count($searchSets))
       {
-          $ssKey = $ct+1;          
+          $ssKey = $ct+1;
           $searchSet = $searchSets[$ssKey];
           $sql = $sqlPre . $fuzzyTitle;
-          
+
           foreach($searchSet as $andSearch)
           {
               $sql .= $queryMap[$andSearch];
           }
-          
-          try 
+
+          try
           {
               $stmt = $db->query($sql.$excludeCollections);
               $res = $stmt->fetchAll();
@@ -3712,10 +3714,10 @@ class Record
               $log->err($e->getMessage());
               return false;
           }
-          
+
           $ct++;
       }
-      
+
       //Try just the title
       if(empty($res))
       {
@@ -3731,22 +3733,22 @@ class Record
               return false;
           }
       }
-      
+
       //Add doi and IVP without the title search
       //The base query will need to be sans the title where clause
       if(empty($res))
       {
           $sql = $sqlPre;
           $conds = '';
-          
+
           foreach($searchSets[1] as $andSearch)
           {
               $conds .= $queryMap[$andSearch];
           }
-          
+
           $conds = preg_replace("/^AND\s/", " WHERE ", $conds);
           $sql .= $conds;
-          
+
           try
           {
               $stmt = $db->query($sql.$excludeCollections);
@@ -3759,10 +3761,10 @@ class Record
               return false;
           }
       }
-      
+
       return array('state' => $state, 'data' => $res);
   }
-  
+
   /**
    * Retrieve PIDs by DOI excluding any in the temporary duplicates collection
    * @param string $doi

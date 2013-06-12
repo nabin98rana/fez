@@ -602,6 +602,14 @@ class Search_Key
             return false;
         }
 
+        if (strpos($solrID, '_lookup')) {
+          return false;
+        }
+
+        if (in_array($solrID, array('sherpa_colour_t','ain_detail_t','rj_2010_rank_t','rj_2010_title_t','rj_2012_rank_t','rj_2012_title_t','rc_2010_rank_t','rc_2010_title_t','herdc_code_description_t'))) {
+          return false;
+        }
+
         $lastUnderscore = strrpos($solrID, '_');
 
         if (!$lastUnderscore) {
@@ -1398,6 +1406,9 @@ class Search_Key
             $res[$i]['sek_title_db'] = Search_Key::makeSQLTableName($res[$i]['sek_title']);
             $res[$i]['sek_title_solr'] = FulltextIndex_Solr::getFieldName($res[$i]['sek_title_db'], FulltextIndex::mapType($res[$i]['sek_data_type']), $res[$i]['sek_cardinality']);
             $return[$res[$i]['sek_title_db']] = $res[$i]['sek_title_solr'];
+            if (!empty($res[$i]['sek_lookup_function']) && $res[$i]['sek_data_type'] == 'int') {
+                $return[$res[$i]['sek_title_db'].'_lookup'] = $res[$i]['sek_title_solr'].'_lookup';
+            }
         }
         if (!$assoc) {
           $return = $res;
