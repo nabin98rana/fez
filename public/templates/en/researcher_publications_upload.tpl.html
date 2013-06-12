@@ -13,57 +13,57 @@
 	<publicationList>
 		<uploading-institution-name>{$org_name}</uploading-institution-name>
 		<researcher-publications>
-			<employeeID>{$aut_org_username}</employeeID>			
+			<employeeID>{$aut_org_username}</employeeID>
 			<records>
 			{section name="i" loop=$list}
 				<record>
 			        <ref-type>{$list[i].rek_ref_type}</ref-type>
-					<contributors>						
+					<contributors>
 						<authors>
 							{section name="j" loop=$list[i].rek_author}
-							<author>{$list[i].rek_author[j]}</author>	
+							<author>{$list[i].rek_author[j]}</author>
 							{/section}
 						</authors>
-					</contributors>			
+					</contributors>
 					<titles>
 						<title>{$list[i].rek_title|escape:"quotesxml"}</title>
 						{if $list[i].rek_secondary_title != ''}
 						<secondary-title>{$list[i].rek_secondary_title|escape:"quotesxml"}</secondary-title>
 						{/if}
-					</titles>					
+					</titles>
 					{if $list[i].rek_end_page != ''}
 					<pages start="{$list[i].rek_start_page}" end="{$list[i].rek_end_page}"/>
 					{/if}
 					{if $list[i].rek_volume_number != ''}
 						<volume>{$list[i].rek_volume_number}</volume>
 					{/if}
-					
+
 					{if ($list[i].rek_ref_type == '17' || $list[i].rek_ref_type == '13') && $list[i].rek_issue_number != ''}
 						<number>{$list[i].rek_issue_number}</number>
 					{/if}
 					{if $list[i].rek_date != ''}
 						<dates>
 							<year year="{$list[i].rek_date|date_format:"%Y"}" />
-						</dates>					
+						</dates>
 					{elseif $list[i].rek_date_year != ''}
 						<dates>
 							<year year="{$list[i].rek_date_year}" />
 						</dates>
-					{/if}					
+					{/if}
 					{if $list[i].rek_ref_type == '25' && $list[i].rek_publisher != ''}
 						<publisher>{$list[i].rek_publisher|escape:"quotesxml"}</publisher>
-					{/if}						
-					{if $list[i].rek_ref_type == '25' && $list[i].rek_ref_type == '25' && $list[i].rek_isbn}
+					{/if}
+					{if $list[i].rek_ref_type == '25' && $list[i].rek_ref_type == '25' && $list[i].rek_isbn && is_array($list[i].rek_isbn)}
 						<isbn>{", "|implode:$list[i].rek_isbn}</isbn>
-					{/if}	
+					{/if}
 					{if $list[i].rek_isi_loc != ''}
 						<accession-num>WOS:{$list[i].rek_isi_loc}</accession-num>
-					{/if}					
+					{/if}
 					{if $list[i].rek_electronic_resource_num != ''}
 						<electronic-resource-num>{$list[i].rek_electronic_resource_num}</electronic-resource-num>
 					{/if}
-					
-					{if $list[i].rek_related_urls != ''}					
+
+					{if $list[i].rek_related_urls != ''}
 					<urls>
 					    <related-urls>
 					    	  {section name="j" loop=$list[i].rek_related_url}
