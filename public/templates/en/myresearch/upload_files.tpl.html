@@ -4,7 +4,7 @@
 function uploadFile(n)
 {
     // check if we have a valid filename
-    $uploadFilename = document.getElementsByName('file[0]')[0].value;
+    $uploadFilename = document.getElementsByName('file['+n+']')[0].value;
     $uploadFilename = $uploadFilename.replace(/^.*[\\\/]/, '')
     if (!isValidSolrFilename($uploadFilename)) {
         var alertMsg = 'We could not queue the following file:\n'+$uploadFilename+'\n\n';
@@ -15,7 +15,7 @@ function uploadFile(n)
         alertMsg = alertMsg+' - with only one file extension (one period (.) character) and \n';
         alertMsg = alertMsg+' - starting with a letter. Eg "s12345678_phd_thesis.pdf"';
         alert(alertMsg);
-        document.getElementsByName('file[0]')[0].value = '';
+        document.getElementsByName('file['+n+']')[0].value = '';
         return false;
     }
     n = n + 1;

@@ -1,8 +1,40 @@
 {literal}
 <script type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=false&libraries=drawing"></script>
 <link rel="stylesheet" type="text/css" href="http://services.ands.org.au/api/resolver/location_capture_widget.css" />
+<script type="text/javascript" src="/js/mousetrap.min.js"></script>
 	<script type="text/javascript">
 		<!--
+        $(document).ready(function() {
+            //We will set up a global bind so shortcuts work in textboxes etc https://raw.github.com/ccampbell/mousetrap/master/plugins/global-bind/mousetrap-global-bind.min.js
+            Mousetrap = function(a) {
+                var d = {}, e = a.stopCallback;
+                a.stopCallback = function(b, c, a) {
+                    return d[a] ? !1 : e(b, c, a)
+                };
+                a.bindGlobal = function(b, c, e) {
+                    a.bind(b, c, e);
+                    if (b instanceof Array) for (c = 0; c < b.length; c++) d[b[c]] = !0;
+                    else d[b] = !0
+                };
+                return a
+            }(Mousetrap);
+
+            //Save shortcut key
+            Mousetrap.bindGlobal(['ctrl+s', 'command+s'], function(e) {
+                if (e.preventDefault) {
+                    e.preventDefault();
+                } else {
+                    // internet explorer
+                    e.returnValue = false;
+                }
+                document.getElementById('wfl_buttons_1').scrollIntoView();
+                $('#wfl_buttons_1 input[value="Publish"]').click();
+                // return false to prevent default browser behavior
+                // and stop event from bubbling
+                return false;
+            });
+        });
+        
 		function updateForm()
 		{
 			var features = 'width=420,height=200,top=30,left=30,resizable=yes,scrollbars=yes,toolbar=no,location=no,menubar=no,status=no';
