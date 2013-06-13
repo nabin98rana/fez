@@ -98,8 +98,14 @@ class FulltextIndex_Solr_CSV extends FulltextIndex
         }
 
         if ($fieldType == FulltextIndex::FIELD_TYPE_INT && !empty($sekDetails['sek_lookup_function'])) {
-          $mtColumnsHeader[] = $sekDetails["sek_title_db"] . "_mi_lookup";
-          $mtColumnsHeader[] = $sekDetails["sek_title_db"] . "_mi_lookup_exact";
+          // check the cardinality
+          if ($isMultiple) {
+            $mtColumnsHeader[] = $sekDetails["sek_title_db"] . "_mi_lookup";
+            $mtColumnsHeader[] = $sekDetails["sek_title_db"] . "_mi_lookup_exact";
+          } else {
+            $mtColumnsHeader[] = $sekDetails["sek_title_db"] . "_i_lookup";
+            $mtColumnsHeader[] = $sekDetails["sek_title_db"] . "_i_lookup_exact";
+          }
         }
 
 
