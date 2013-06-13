@@ -815,27 +815,36 @@ class RecordGeneral
 
 			}
 			if (!is_null($parentNode)) {
-			  // echo "found a $pre_xpath_query so going to add $xpath_query to it \n";
+			    // echo "found a $pre_xpath_query so going to add $xpath_query to it \n";
 
 				// If we have had to dig down then we have to build the foundations up
-			  $element = substr($xpath_query, (strrpos($xpath_query, "/") + 1));
+			    $element = substr($xpath_query, (strrpos($xpath_query, "/") + 1));
 
-				// echo "in recursion $recurseLevel adding $element \n";
+                // echo "in recursion $recurseLevel adding $element \n";
 
-		    $attributeStartPos = strpos($element, "[");
-		    $attributeEndPos = strpos($element, "]") + 1;
-		    $attribute = "";
-		    if (is_numeric($attributeStartPos) && is_numeric($attributeEndPos)) {
-		      $attribute = substr($element, $attributeStartPos, ($attributeEndPos - $attributeStartPos));
-		      $element = substr($element, 0, $attributeStartPos);
-		    }
-		    $attributeNameStartPos = strpos($attribute, "[@") + 2;
-		    $attributeNameEndPos = strpos($attribute, " =");
-		    $attributeValueStartPos = strpos($attribute, "= ") + 2;
-		    $attributeValueEndPos = strpos($attribute, "]");
-		    $attributeName = substr($attribute, $attributeNameStartPos, ($attributeNameEndPos - $attributeNameStartPos));
-		    $attributeValue = substr($attribute, $attributeValueStartPos, ($attributeValueEndPos - $attributeValueStartPos));
-		    $attributeValue = str_replace("'", "", $attributeValue);
+                $attributeStartPos = strpos($element, "[");
+                $attributeEndPos = strpos($element, "]") + 1;
+                $attribute = "";
+                if (is_numeric($attributeStartPos) && is_numeric($attributeEndPos)) {
+                  $attribute = substr($element, $attributeStartPos, ($attributeEndPos - $attributeStartPos));
+                  $element = substr($element, 0, $attributeStartPos);
+                }
+
+                // the instance where the attribute is set to [not(@type) or @type = ''] we make an expection
+                $noType = false;
+                if ($attribute == "[not(@type) or @type = '']") {
+                    $attributeName = '';
+                    $attributeValue='';
+                    $noType = true;
+                } else {
+                    $attributeNameStartPos = strpos($attribute, "[@") + 2;
+                    $attributeNameEndPos = strpos($attribute, " =");
+                    $attributeValueStartPos = strpos($attribute, "= ") + 2;
+                    $attributeValueEndPos = strpos($attribute, "]");
+                    $attributeName = substr($attribute, $attributeNameStartPos, ($attributeNameEndPos - $attributeNameStartPos));
+                    $attributeValue = substr($attribute, $attributeValueStartPos, ($attributeValueEndPos - $attributeValueStartPos));
+                    $attributeValue = str_replace("'", "", $attributeValue);
+                }
    				// echo "current parent node appending/setting is ".$parentNode->node_name() . "\n";
 		  	if (substr($element, 0, 1) == "@") {
 		        // echo "\n element: ".$element;
@@ -847,18 +856,19 @@ class RecordGeneral
 						$parentNode->nodeValue = $lookup_value;
 					}
 		    } else {
-					// if this is an ID on an attribute xpath like mods:subject/@ID then put the subject lookup value into the element (recurse level 2)
-					if ($recurseLevel == 2 && $lookup_value != "") {
-			      $newNode = $this->doc->createElement($element, $lookup_value);
-					} elseif ($recurseLevel == 1) {
-		      	$newNode = $this->doc->createElement($element, $value);
-					} else {
-			      $newNode = $this->doc->createElement($element);
-					}
-                if($attributeName)
-                {
+			    // if this is an ID on an attribute xpath like mods:subject/@ID then put the subject lookup value into the element (recurse level 2)
+		        if ($recurseLevel == 2 && $lookup_value != "") {
+			        $newNode = $this->doc->createElement($element, $lookup_value);
+				} elseif ($recurseLevel == 1) {
+		      	    $newNode = $this->doc->createElement($element, $value);
+				} else {
+			        $newNode = $this->doc->createElement($element);
+				}
+                if($attributeName) {
 		              $newNode->setAttribute($attributeName, $attributeValue);
 		              $parentNode->appendChild($newNode);
+                } elseif($noType) {
+                    $parentNode->appendChild($newNode);
                 }
 		    }
 				// echo "\n created this: ".$this->doc->saveXML();
