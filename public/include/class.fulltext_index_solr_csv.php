@@ -326,42 +326,42 @@ class FulltextIndex_Solr_CSV extends FulltextIndex
         $sVal = "";
         // add additional lookup fields (one lookup plus exact lookup) for integer search keys with non-empty sek_lookup_functions
         if ($mtColumn['type'] == FulltextIndex::FIELD_TYPE_INT && !empty($mtColumn['sek_lookup_function'])) {
-          if (is_array($resultSeks)) {
-            if (count($resultSeks) != 0) {
-              foreach ($resultSeks as $resultSek) {
+          //setup $lookupArr
+          $lookupArr = array();
+          foreach ($csv as $rek_pid => $rek_line) {
+            if (empty($tmpArr[$rek_pid])) {
+              $lookupArr[$rek_pid] = '';
+            } else {
+              $lookupArr[$rek_pid] = $tmpArr[$rek_pid];
+            }
+          }
+
+          if (is_array($lookupArr)) {
+            if (count($lookupArr) != 0) {
+              foreach ($lookupArr as $tmpPid => $tmpVal) {
                 $splitVals = array();
-                $splitVals = preg_split('/\t/', $resultSek['value']);
-                $csv[$rek_pid] .= ',"';
+                $splitVals = preg_split('/\t/', $tmpVal);
+                $csv[$tmpPid] .= ',"';
 
                 foreach ($splitVals as $sVal) {
                   if (!empty($sVal)) {
-                    $csv[$rek_pid] .= "\t" . Record::getLookup($sVal, $mtColumn['sek_lookup_function'], $cacheEval) . '';
+                    $csv[$tmpPid] .= "\t" . Record::getLookup($sVal, $mtColumn['sek_lookup_function'], $cacheEval) . '';
                   }
                 }
                 $sVal = "";
-                $csv[$rek_pid] .= '","';
+                $csv[$tmpPid] .= '","';
                 // save it again for the exact too (fast because cached)
                 foreach ($splitVals as $sVal) {
                   if (!empty($sVal)) {
-                    $csv[$rek_pid] .= "\t" . Record::getLookup($sVal, $mtColumn['sek_lookup_function'], $cacheEval) . '';
+                    $csv[$tmpPid] .= "\t" . Record::getLookup($sVal, $mtColumn['sek_lookup_function'], $cacheEval) . '';
                   }
                 }
 
-                $csv[$rek_pid] .= '"';
+                $csv[$tmpPid] .= '"';
               }
             } else {
-              $csv[$rek_pid] .= ',"",""';
+              $csv[$tmpPid] .= ',"",""';
             }
-          } else { //otherwise fill it in if no values found in the sql resultSek
-            $sVal = $resultSek['value'];
-            if (!empty($sVal)) {
-              $csv[$rek_pid] .= ',"' . Record::getLookup($sVal, $mtColumn['sek_lookup_function'], $cacheEval) . '"';
-              // save it again for the exact too (fast because cached)
-              $csv[$rek_pid] .= ',"' . Record::getLookup($sVal, $mtColumn['sek_lookup_function'], $cacheEval) . '"';
-            } else {
-              $csv[$rek_pid] .= ',"",""';
-            }
-
           }
         }
       }
