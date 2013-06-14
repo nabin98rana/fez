@@ -4537,6 +4537,14 @@ function getSearchKeyIndexValueShadow($pid, $searchKeyTitle, $getLookup=true, $s
         if (is_numeric(strpos($svalue, "_t"))) {
           $solr_titles[$skey."_exact"] = $skey."_t_exact";
         }
+        if (is_numeric(strpos($svalue, "_i_lookup"))) {
+          $solr_titles[$skey."_lookup"] = $skey."_i_lookup";
+          $solr_titles[$skey."_lookup_exact"] = $skey."_i_lookup_exact";
+        }
+        if (is_numeric(strpos($svalue, "_mi_lookup"))) {
+          $solr_titles[$skey."_lookup"] = $skey."_mi_lookup";
+          $solr_titles[$skey."_lookup_exact"] = $skey."_mi_lookup_exact";
+        }
       }
       foreach ($solr_titles as $skey => $svalue) {
         $escapedInput = str_replace($skey.":", $svalue.":", $escapedInput);

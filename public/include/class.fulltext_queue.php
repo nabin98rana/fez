@@ -525,7 +525,7 @@ class FulltextQueue
       $res[$rkey]['row'] .= '"';
       // Add the lookups
       foreach ($singleColumns as $column) {
-        if ($column['type'] == FulltextIndex::FIELD_TYPE_INT && !empty($column['sek_lookup_function']) ) {
+        if (!empty($column['sek_lookup_function']) ) {
           if( !empty($res[$rkey][$column['name']]) ) {
             $res[$rkey]['row'] .= ',"' . $res[$rkey][$column['name'].'_lookup'] .'"';
             // save it again for the exact too (fast because cached)

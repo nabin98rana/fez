@@ -1019,30 +1019,7 @@ class Search_Key
     }
 
 
-    function getFacetList()
-    {
-        $log = FezLog::get();
-        $db = DB_API::get();
-
-        $stmt = "SELECT *
-                 FROM " . APP_TABLE_PREFIX . "search_key
-				 WHERE sek_faceting = TRUE";
-        try {
-            $res = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
-        }
-        catch (Exception $ex) {
-            $log->err($ex);
-            return '';
-        }
-
-        if (empty($res)) {
-            return array();
-        }
-
-        return $res;
-    }
-
-    /**
+  /**
      * Method used to get the list of search keys available in the
      * system.
      *
@@ -1074,7 +1051,41 @@ class Search_Key
         }
     }
 
-    /**
+  function getFacetList($assoc = false)
+  {
+    $log = FezLog::get();
+    $db = DB_API::get();
+
+    $stmt = "SELECT *
+                 FROM " . APP_TABLE_PREFIX . "search_key
+				 WHERE sek_faceting = TRUE";
+    try {
+      $res = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
+    }
+    catch (Exception $ex) {
+      $log->err($ex);
+      return '';
+    }
+
+    $return = array();
+
+    for ($i = 0; $i < count($res); $i++) {
+      $res[$i]['sek_title_db'] = Search_Key::makeSQLTableName($res[$i]['sek_title']);
+      $res[$i]['sek_title_solr'] = FulltextIndex_Solr::getFieldName($res[$i]['sek_title_db'], FulltextIndex::mapType($res[$i]['sek_data_type']), $res[$i]['sek_cardinality']);
+      $return[$res[$i]['sek_title_db']] = $res[$i]['sek_title_solr'];
+      if (!empty($res[$i]['sek_lookup_function'])) {
+        $return[$res[$i]['sek_title_db'].'_lookup'] = $res[$i]['sek_title_solr'].'_lookup';
+      }
+    }
+
+    if (!$assoc) {
+      $return = $res;
+    }
+
+    return $return;
+  }
+
+  /**
      * Returns the list of functions that have derived functions associated with them
      *
      * @return array the search key details
@@ -1384,7 +1395,7 @@ class Search_Key
         return $res;
     }
 
-    function getSolrTitles($assoc = true)
+    function getSolrTitles($assoc = true, $lookups = true)
     {
         $log = FezLog::get();
         $db = DB_API::get();
@@ -1406,8 +1417,9 @@ class Search_Key
             $res[$i]['sek_title_db'] = Search_Key::makeSQLTableName($res[$i]['sek_title']);
             $res[$i]['sek_title_solr'] = FulltextIndex_Solr::getFieldName($res[$i]['sek_title_db'], FulltextIndex::mapType($res[$i]['sek_data_type']), $res[$i]['sek_cardinality']);
             $return[$res[$i]['sek_title_db']] = $res[$i]['sek_title_solr'];
-            if (!empty($res[$i]['sek_lookup_function']) && $res[$i]['sek_data_type'] == 'int') {
-                $return[$res[$i]['sek_title_db'].'_lookup'] = $res[$i]['sek_title_solr'].'_lookup';
+            if ($lookups && !empty($res[$i]['sek_lookup_function'])) {
+              $return[$res[$i]['sek_title_db'].'_lookup'] = $res[$i]['sek_title_solr'].'_lookup';
+              $res[$i][$res[$i]['sek_title_db'] . '_lookup'] = $res[$i]['sek_title_solr'].'_lookup';
             }
         }
         if (!$assoc) {

@@ -39,7 +39,8 @@ class FulltextIndex_Solr_CSV extends FulltextIndex
 
     $countDocs = 0;
 
-    $searchKeys = Search_Key::getList();
+    //$searchKeys = Search_Key::getList();
+    $searchKeys = Search_Key::getSolrTitles(false, false);
     $authLister_t = $this->getFieldName(FulltextIndex::FIELD_NAME_AUTHLISTER, FulltextIndex::FIELD_TYPE_TEXT, false);
     $authCreator_t = $this->getFieldName(FulltextIndex::FIELD_NAME_AUTHCREATOR, FulltextIndex::FIELD_TYPE_TEXT, false);
     $authEditor_t = $this->getFieldName(FulltextIndex::FIELD_NAME_AUTHEDITOR, FulltextIndex::FIELD_TYPE_TEXT, false);
@@ -97,15 +98,9 @@ class FulltextIndex_Solr_CSV extends FulltextIndex
           $mtColumnsHeader[] = "{$sekDetails['sek_title_db']}_mt_exact";
         }
 
-        if ($fieldType == FulltextIndex::FIELD_TYPE_INT && !empty($sekDetails['sek_lookup_function'])) {
-          // check the cardinality
-          if ($isMultiple) {
-            $mtColumnsHeader[] = $sekDetails["sek_title_db"] . "_mi_lookup";
-            $mtColumnsHeader[] = $sekDetails["sek_title_db"] . "_mi_lookup_exact";
-          } else {
-            $mtColumnsHeader[] = $sekDetails["sek_title_db"] . "_i_lookup";
-            $mtColumnsHeader[] = $sekDetails["sek_title_db"] . "_i_lookup_exact";
-          }
+        if (!empty($sekDetails['sek_lookup_function'])) {
+          $mtColumnsHeader[] = $sekDetails["sek_title_solr"] . "_lookup";
+          $mtColumnsHeader[] = $sekDetails["sek_title_solr"] . "_lookup_exact";
         }
 
 
@@ -121,9 +116,9 @@ class FulltextIndex_Solr_CSV extends FulltextIndex
           $singleColumnsHeader[] = $sekDetails["sek_title_db"] . "_year_t";
         }
 
-        if ($fieldType == FulltextIndex::FIELD_TYPE_INT && !empty($sekDetails['sek_lookup_function'])) {
-          $singleColumnsHeaderLookups[] = $sekDetails["sek_title_db"] . "_i_lookup";
-          $singleColumnsHeaderLookups[] = $sekDetails["sek_title_db"] . "_i_lookup_exact";
+        if (!empty($sekDetails['sek_lookup_function'])) {
+          $singleColumnsHeaderLookups[] = $sekDetails["sek_title_solr"] . "_lookup";
+          $singleColumnsHeaderLookups[] = $sekDetails["sek_title_solr"] . "_lookup_exact";
         }
 
       }
@@ -331,7 +326,7 @@ class FulltextIndex_Solr_CSV extends FulltextIndex
         } // close if check for date types
         $sVal = "";
         // add additional lookup fields (one lookup plus exact lookup) for integer search keys with non-empty sek_lookup_functions
-        if ($mtColumn['type'] == FulltextIndex::FIELD_TYPE_INT && !empty($mtColumn['sek_lookup_function'])) {
+        if (!empty($mtColumn['sek_lookup_function'])) {
           //setup $lookupArr
           $lookupArr = array();
           foreach ($csv as $rek_pid => $rek_line) {
@@ -352,6 +347,8 @@ class FulltextIndex_Solr_CSV extends FulltextIndex
                 foreach ($splitVals as $sVal) {
                   if (!empty($sVal)) {
                     $csv[$tmpPid] .= "\t" . Record::getLookup($sVal, $mtColumn['sek_lookup_function'], $cacheEval) . '';
+                  } elseif ($sVal == 0 && count($splitVals) > 1) {
+                    $csv[$tmpPid] .= "\t0";
                   }
                 }
                 $sVal = "";
@@ -360,6 +357,8 @@ class FulltextIndex_Solr_CSV extends FulltextIndex
                 foreach ($splitVals as $sVal) {
                   if (!empty($sVal)) {
                     $csv[$tmpPid] .= "\t" . Record::getLookup($sVal, $mtColumn['sek_lookup_function'], $cacheEval) . '';
+                  } elseif ($sVal == 0 && count($splitVals) > 1) {
+                    $csv[$tmpPid] .= "\t0";
                   }
                 }
 
