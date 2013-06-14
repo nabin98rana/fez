@@ -1270,8 +1270,16 @@ class Author
     // indexing in MySQL MyISAM
 
     if (is_numeric(strpos(APP_SQL_DBTYPE, "mysql"))) {
-      $stmt .= " , MATCH(aut_display_name) AGAINST (".$db->quote($term).") as Relevance ";
+        //For small names it becomes a pain since these are stop words, so if there are trying the second name and neither > 3 chars we need to use equals
+        if (strlen($term) < 8 && (strpos($term, ' ') !== FALSE)) {
+            $tempTerm = substr($term, 0, strpos($term, ' '));;
+            $tempTerm = str_replace(array(',', ' '),'',$tempTerm);
+            $stmt .= ' , aut_lname = "'.$tempTerm.'" AS Relevance';
+        } else {
+            $stmt .= " , MATCH(aut_display_name) AGAINST (".$db->quote($term).") as Relevance ";
+        }
     }
+
     $stmt .= " FROM ".$dbtp."author";
 
     if (is_numeric($term)) {
