@@ -1,0 +1,2 @@
+ALTER TABLE %TABLE_PREFIX%record_search_key_isbn DROP INDEX unique_constraint, ADD UNIQUE INDEX unique_constraint (rek_isbn_pid, rek_isbn, rek_isbn_order), ADD INDEX isbn (rek_isbn); 
+ALTER TABLE %TABLE_PREFIX%record_search_key_issn DROP INDEX unique_constraint, ADD UNIQUE INDEX unique_constraint (rek_issn_pid, rek_issn, rek_issn_order); 

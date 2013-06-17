@@ -299,7 +299,8 @@ class upgrade {
 	    $dbversion = $this->get_data_model_version();
 	    $sql_upgrades = $this->getUpdateSqlList('upgrade/sql_scripts', $dbversion);
 	    $success = true;
-	    
+        $error = null;
+
 	    if ($dbversion == 0) {
 	        if ($this->parse_mysql_dump("upgrade.sql", false, $error)) {
 	            $success = $success && true;
@@ -312,7 +313,6 @@ class upgrade {
 	    // go through the upgrades and execute any that are greater than the current version
 	 //   $sql_upgrade = $dbversion;
 	    foreach ($sql_upgrades as $sql_upgrade) {
-            $error = null;
 	        if ($this->parse_mysql_dump($path."/upgrade".$sql_upgrade.".sql", false, $error) || $skip) {
 	            $success = $success && $this->set_data_model_version($sql_upgrade);
 	            if ($skip) { $skip = 0; }
