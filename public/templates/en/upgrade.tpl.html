@@ -28,7 +28,7 @@ function validateForm(f)
 {if $result_good}
 <div class="sanity_result_passed">{$result}</div>
 {else}
-<div class="sanity_result_failed">{$result}</div>
+<div class="sanity_result_failed">{$result|smarty:nodefaults}</div>
 {/if}
 <br />
 {/if}

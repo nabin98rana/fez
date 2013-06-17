@@ -40,8 +40,9 @@ class upgrade {
 
 		return;
 	}
-	
-	function parse_mysql_dump($url, $ignoreerrors = false) {
+
+    //$ex - Send back the error so it can be displayed
+	function parse_mysql_dump($url, $ignoreerrors = false, &$error = null) {
 	    $log = FezLog::get();
 	    $db = DB_API::get();
 	
@@ -60,6 +61,7 @@ class upgrade {
 	                catch(Exception $ex) {
 	                    $log->notice(array('Message' => $ex->getMessage(), 'File' => __FILE__, 'Line' => __LINE__));
 	                    $log->err($ex);
+                        $error = $ex->getMessage();
 	                    return false;
 	                }
 	                $query = "";
@@ -299,7 +301,7 @@ class upgrade {
 	    $success = true;
 	    
 	    if ($dbversion == 0) {
-	        if ($this->parse_mysql_dump("upgrade.sql")) {
+	        if ($this->parse_mysql_dump("upgrade.sql", false, $error)) {
 	            $success = $success && true;
 	            $dbversion = $this->get_data_model_version();
 	        } else {
@@ -310,7 +312,8 @@ class upgrade {
 	    // go through the upgrades and execute any that are greater than the current version
 	 //   $sql_upgrade = $dbversion;
 	    foreach ($sql_upgrades as $sql_upgrade) {
-	        if ($this->parse_mysql_dump($path."/upgrade".$sql_upgrade.".sql") || $skip) {
+            $error = null;
+	        if ($this->parse_mysql_dump($path."/upgrade".$sql_upgrade.".sql", false, $error) || $skip) {
 	            $success = $success && $this->set_data_model_version($sql_upgrade);
 	            if ($skip) { $skip = 0; }
 	        } else {
@@ -323,7 +326,7 @@ class upgrade {
 	    if ($success != false) {
 	        return array($success, "Upgrade to database version $sql_upgrade succeeded.");
 	    } else {
-	        return array($success, "The upgrade failed (At upgrade '$failure_point') - check error log.");
+	        return array($success, "The upgrade failed (At upgrade '$failure_point') - check error log <br /><br />[".$error."]");
 	    }
 	}
 	
