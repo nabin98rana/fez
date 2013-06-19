@@ -1,98 +1,62 @@
-{section name="i" loop=$scopusMatches}
-    {if $smarty.section.i.first}
-        <span style="color:#fff;" id="ctScopus">{$num_scopus}</span>
-        <ol>
-    {/if}
-    
-        <li>
-        
-        <a href="javascript:void(null)" style="text-decoration:none;">{$scopusMatches[i]->title}</a><br />
-	    Author(s):
-	    {section name="j" loop=$scopusMatches[i]->authors}
-	        {$scopusMatches[i]->authors[j]}{if ! $smarty.section.j.last}, {/if}
-	    {/section}<br />
-	
-	    {if $scopusMatches[i]->sourceTitle != ''}
-	        Source:<b>{$scopusMatches[i]->sourceTitle}</b>
-	    {/if}
-	    {if $scopusMatches[i]->volume_number != ''}
-	        Volume:<b>{$scopusMatches[i]->volume_number}</b>
-	    {/if}
-	    {if $scopusMatches[i]->issue_number != ''}
-	        Issue:<b>{$scopusMatches[i]->issue_number}</b>
-	    {/if}
-	    {if $scopusMatches[i]->page_start != '' && $scopusMatches[i]->page_end != ''}
-	        Pages:<b>{$scopusMatches[i]->page_start}-{$scopusMatches[i]->page_end}</b>
-	    {/if}
-	    {if $scopusMatches[i]->dateIssued != ''}
-	        Published:<b>{$scopusMatches[i]->dateIssued}</b><br />
-	    {/if}
-	    {if $scopusMatches[i]->record_exists}
-	        Record already in repository (<a href="{$rel_url}view/{$scopusMatches[i]->pid}">View</a>)
-	    {else}
-	        <a href="javascript:add_scopus('{$scopusMatches[i]->scopusId}')" style="border:0">
-	            <img src="{$rel_url}images/add.gif" id="pub_add" height="16" width="33" alt="Add record" alt="Add record" style="border:0" /></a>
-	    {/if}
-        
-        </li>
-    
-    {if $smarty.section.i.last}
-        </ol>
-    {/if}
-{/section}
-
 {section name="i" loop=$matches}
-    {if $smarty.section.i.first}
-        <span style="color:#fff;" id="ctWos">{$num_wos}</span>
-        <ol>
-    {/if}
-    
-    <li>
-    <a href="javascript:void(null)" style="text-decoration:none;">{$matches[i]->title}</a><br />
-    Author(s):
-    {section name="j" loop=$matches[i]->authors}
-        {$matches[i]->authors[j]}{if ! $smarty.section.j.last}, {/if}
-    {/section}<br />
+	{if $smarty.section.i.first}
+	<table cellpadding="5" cellspacing="0" class="ext-lookup-results">
+		<tr><td colspan="2" valign="top"><h3 style="text-decoration:underline; color: #333333">Matching records found in ISI Web of Science<sup>&#174;</sup></h3>
 
-    {if $matches[i]->sourceTitle != ''}
-        Source:<b>{$matches[i]->sourceTitle}</b>
-    {/if}
-    {if $matches[i]->volume_number != ''}
-        Volume:<b>{$matches[i]->volume_number}</b>
-    {/if}
-    {if $matches[i]->issue_number != ''}
-        Issue:<b>{$matches[i]->issue_number}</b>
-    {/if}
-    {if $matches[i]->page_start != '' && $matches[i]->page_end != ''}
-        Pages:<b>{$matches[i]->page_start}-{$matches[i]->page_end}</b>
-    {/if}
-    {if $matches[i]->dateIssued != ''}
-        Published:<b>{$matches[i]->dateIssued}</b><br />
-    {/if}
-    {if $matches[i]->record_exists}
-        Record already in repository (<a href="{$rel_url}view/{$matches[i]->pid}">View</a>)
-    {else}
-        <a href="javascript:add_pub('{$matches[i]->isi_loc}')" style="border:0">
-            <img src="{$rel_url}images/add.gif" id="pub_add" height="16" width="33" alt="Add record" alt="Add record" style="border:0" /></a>
-    {/if}
-    </li>
-    
-    {if $smarty.section.i.last}
-        </ol>
-    {/if}
+		{if $found > $max_results}<p style="color: #333333">Found {$found} matching record{if $found > 1}s{/if}
+			- displaying first {$max_results}.</p>{/if}
+		</td></tr>
+	{/if}
+
+	<tr><td valign="top" style="color: #333333; font-weight:bold;">{math equation="index + 1" index=$smarty.section.i.index}.</td>
+	<td valign="top" style="color: #333333">
+    <a href="javascript:void(null)" style="text-decoration:none;">{$matches[i]->title}</a><br />
+	Author(s):
+	{section name="j" loop=$matches[i]->authors}
+		{$matches[i]->authors[j]}{if ! $smarty.section.j.last}, {/if}
+	{/section}<br />
+
+	{if $matches[i]->sourceTitle != ''}
+		Source:<b>{$matches[i]->sourceTitle}</b>
+	{/if}
+	{if $matches[i]->volume_number != ''}
+		Volume:<b>{$matches[i]->volume_number}</b>
+	{/if}
+	{if $matches[i]->issue_number != ''}
+		Issue:<b>{$matches[i]->issue_number}</b>
+	{/if}
+	{if $matches[i]->page_start != '' && $matches[i]->page_end != ''}
+		Pages:<b>{$matches[i]->page_start}-{$matches[i]->page_end}</b>
+	{/if}
+	{if $matches[i]->dateIssued != ''}
+		Published:<b>{$matches[i]->dateIssued}</b><br />
+	{/if}
+	{if $matches[i]->record_exists}
+		Record already in repository (<a href="{$rel_url}view/{$matches[i]->pid}">View</a>)
+	{else}
+		<a href="javascript:add_pub('{$matches[i]->isi_loc}')" style="border:0">
+			<img src="{$rel_url}images/add.gif" id="pub_add" height="16" width="33" alt="Add record" alt="Add record" style="border:0" /></a>
+	{/if}
+	</td></tr>
+
+	{if $smarty.section.i.last}
+	</table>
+	{/if}
 {/section}
 
 {section name="i" loop=$dupe_records}
-    {if $smarty.section.i.first}
-        <span style="color:#fff;" id="ctRepo">{$found}</span>
-        <ol>
-    {/if}
-        <li>
-        {$dupe_records[i][0].rek_citation|smarty:nodefaults} (Relevance: {$dupe_records[i][0].relevance})<br />
-        </li>
-    {if $smarty.section.i.last}
-        </ol>
-    {/if}
+	{if $smarty.section.i.first}
+	<table cellpadding="5" cellspacing="0" class="ext-lookup-results">
+		<tr><td colspan="2" valign="top"><h3 style="text-decoration:underline; color: #333333">Matching records found in repository</h3>
+		</td></tr>
+	{/if}
+
+	<tr><td valign="top" style="color: #333333; font-weight:bold;">{math equation="index + 1" index=$smarty.section.i.index}.</td>
+	<td valign="top" style="color: #333333">
+	{$dupe_records[i][0].rek_citation|smarty:nodefaults} (Relevance: {$dupe_records[i][0].relevance})<br />
+
+	</td></tr>
+	{if $smarty.section.i.last}
+	</table>
+	{/if}
 {/section}
-
-
