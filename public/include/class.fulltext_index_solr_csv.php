@@ -589,18 +589,69 @@ class FulltextIndex_Solr_CSV extends FulltextIndex
     if ($this->bgp) {
       $this->bgp->setStatus("Caching datastreams");
     }
+    $res = array();
+    if (defined("APP_SQL_CACHE_DBHOST")) {
+      $db_cache = DB_API::get('db_cache');
 
-    $stmt = "SELECT rek_file_attachment_name_pid as rek_pid
+      $stmt = "SELECT rek_file_attachment_name_pid as rek_pid, rek_file_attachment_name
+                FROM " . APP_TABLE_PREFIX . "record_search_key_file_attachment_name
+                WHERE rek_file_attachment_name_pid IN (" . $pids . ") AND
+                rek_file_attachment_name LIKE '%.pdf'";
+
+      try {
+        $potentials = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
+      } catch (Exception $ex) {
+        $log->err($ex);
+      }
+
+      if (count($potentials) > 0) {
+        $pdfPidsSet = array();
+
+        foreach ($potentials as $pt) {
+          $pdfPidsSet[] = $pt['rek_pid'];
+        }
+
+        $pdfPids = implode("','", $pdfPidsSet);
+
+        $stmt = "SELECT ftc_pid as rek_pid, ftc_dsid
+                FROM " . APP_TABLE_PREFIX . "fulltext_cache
+                WHERE ftc_pid IN ('" . $pdfPids . "')";
+        try {
+          $res = $db_cache->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
+        } catch (Exception $ex) {
+          $log->err($ex);
+        }
+        $missing = array();
+        $found = array();
+        foreach ($potentials as $pt) {
+          foreach ($res as $hit) {
+            if ($hit['rek_pid'] == $pt['rek_pid'] && $hit['ftc_dsid'] == $pt['rek_file_attachment_name']) {
+              $found[] = $hit['rek_pid'];
+            }
+          }
+        }
+        foreach ($potentials as $pt) {
+           if (!in_array($pt['rek_pid'], $found)) {
+            $missing[]['rek_pid'] = $pt['rek_pid'];
+           }
+        }
+        $res = $missing;
+      }
+    } else {
+      $stmt = "SELECT rek_file_attachment_name_pid as rek_pid
                 FROM " . APP_TABLE_PREFIX . "record_search_key_file_attachment_name
                 LEFT JOIN " . APP_TABLE_PREFIX . "fulltext_cache ON rek_file_attachment_name_pid = ftc_pid AND rek_file_attachment_name = ftc_dsid
                 WHERE ftc_dsid IS NULL AND rek_file_attachment_name_pid IN (" . $pids . ") AND
                       rek_file_attachment_name LIKE '%.pdf'";
 
-    try {
-      $res = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
-    } catch (Exception $ex) {
-      $log->err($ex);
+      try {
+        $res = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
+      } catch (Exception $ex) {
+        $log->err($ex);
+      }
+
     }
+
 
     foreach ($res as $pidData) {
       $record = new RecordObject($pidData['rek_pid']);

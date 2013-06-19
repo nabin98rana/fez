@@ -113,6 +113,7 @@ catch (Exception $ex) {
 }
 Configuration::registerConf();
 
+// if slave db config.inc.php consts are setup, use them for statistics reading to lessing the burden
 if (defined("APP_SQL_SLAVE_DBHOST")) {
   $slave_params = array(
     'host' => APP_SQL_SLAVE_DBHOST,
@@ -134,9 +135,31 @@ if (defined("APP_SQL_SLAVE_DBHOST")) {
   catch (Exception $ex) {
     $error_type = "db_slave";
   }
-
 }
 
+// if cache db config.inc.php consts are setup, use them for fez_fulltext_cache table read/write instead of the main db, to lessen load/spread storage
+if (defined("APP_SQL_CACHE_DBHOST")) {
+  $cache_params = array(
+    'host' => APP_SQL_CACHE_DBHOST,
+    'username' => APP_SQL_CACHE_DBUSER,
+    'password' => APP_SQL_CACHE_DBPASS,
+    'dbname' => APP_SQL_CACHE_DBNAME,
+    'charset' => 'utf8',
+    'profiler' => array(
+      'enabled'     => APP_DB_USE_PROFILER,
+      'class'     => 'Zend_Db_Profiler_Firebug'
+    )
+  );
+
+  try {
+    $db_cache = Zend_Db::factory(APP_SQL_CACHE_DBTYPE, $cache_params);
+    $db_cache->getConnection();
+    Zend_Registry::set('db_cache', $db_cache);
+  }
+  catch (Exception $ex) {
+    $error_type = "db_cache";
+  }
+}
 
 if (APP_LOGGING_ENABLED == "true") {
 

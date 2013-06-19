@@ -809,6 +809,9 @@ class Fedora_API {
             if($dsMeta['mimetype'] != 'text/xml' || $getraw)
             {
                 $return =  $dsr->getDSData($dsMeta['hash']);
+                if (!is_null($filehandle)) {
+                  fwrite($filehandle, $return);
+                }
             }
             else
             {
@@ -818,7 +821,6 @@ class Fedora_API {
                     'uri' => array($dsr->createPath($dsMeta['hash']) . $dsMeta['hash'])
                 );
             }
-
             return $return;
         }
     }

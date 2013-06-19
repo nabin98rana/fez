@@ -827,7 +827,13 @@ abstract class FulltextIndex {
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		$stmt = "SELECT ftc_pid as pid, ftc_dsid as dsid, ftc_content as content ".
+    if (defined("APP_SQL_CACHE_DBHOST")) {
+      $db = DB_API::get('db_cache');
+    } else {
+      $db = DB_API::get();
+    }
+
+      $stmt = "SELECT ftc_pid as pid, ftc_dsid as dsid, ftc_content as content ".
         		"FROM ".APP_TABLE_PREFIX.FulltextIndex::FULLTEXT_TABLE_NAME." ".
         		"WHERE ftc_pid=".$db->quote($pid)." ".
         		"AND ftc_dsid=".$db->quote($dsID)." " .
@@ -854,7 +860,11 @@ abstract class FulltextIndex {
 	protected function checkCachedContent($pid, $dsID)
 	{
 		$log = FezLog::get();
-		$db = DB_API::get();
+    if (defined("APP_SQL_CACHE_DBHOST")) {
+      $db = DB_API::get('db_cache');
+    } else {
+      $db = DB_API::get();
+    }
 
 		$stmt = "SELECT count(ftc_pid) as cnt ".
         		"FROM ".APP_TABLE_PREFIX.FulltextIndex::FULLTEXT_TABLE_NAME." ".
@@ -883,9 +893,14 @@ abstract class FulltextIndex {
 	protected function deleteFulltextCache($pid, $dsID='')
 	{
 		$log = FezLog::get();
-		$db = DB_API::get();
+    if (defined("APP_SQL_CACHE_DBHOST")) {
+      $db = DB_API::get('db_cache');
+    } else {
+      $db = DB_API::get();
+    }
 
-		$stmt = "DELETE FROM ".APP_TABLE_PREFIX.FulltextIndex::FULLTEXT_TABLE_NAME." ".
+
+    $stmt = "DELETE FROM ".APP_TABLE_PREFIX.FulltextIndex::FULLTEXT_TABLE_NAME." ".
 				"WHERE ".
 	        	"ftc_pid=".$db->quote($pid);
 
@@ -911,9 +926,14 @@ abstract class FulltextIndex {
 	protected function updateFulltextCache($pid, $dsID, &$fulltext, $is_text_usable = 1)
 	{
 		$log = FezLog::get();
-		$db = DB_API::get();
+    if (defined("APP_SQL_CACHE_DBHOST")) {
+      $db = DB_API::get('db_cache');
+    } else {
+      $db = DB_API::get();
+    }
 
-		//Logger::debug("FulltextIndex::indexPlaintext inserting fulltext for ($pid,$dsID) into database");
+
+    //Logger::debug("FulltextIndex::indexPlaintext inserting fulltext for ($pid,$dsID) into database");
 
 		// prepare ids
 
