@@ -685,7 +685,12 @@ class FulltextIndex_Solr_CSV extends FulltextIndex
   public function getCachedContent($pids)
   {
     $log = FezLog::get();
-    $db = DB_API::get();
+    if (defined("APP_SQL_CACHE_DBHOST")) {
+      $db = DB_API::get('db_cache');
+    } else {
+      $db = DB_API::get();
+    }
+
     $pids = str_replace('"', "'", $pids);
     // Remove newlines, page breaks and replace " with "" (which is how to escape for CSV files)
     //$stmt = "SELECT ftc_pid as pid, REPLACE(REPLACE(REPLACE(ftc_content, '\"','\"\"'), '\n', ' '), '\t', ' ') as content, ftc_dsid as dsid ".
