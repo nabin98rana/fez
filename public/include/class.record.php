@@ -1877,7 +1877,7 @@ class Record
       $log->err($ex);
       return false;
     }
-    return !empty($res['rek_pid']);
+    return !empty($res);
   }
 
 
