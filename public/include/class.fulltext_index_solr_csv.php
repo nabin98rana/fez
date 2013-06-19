@@ -444,7 +444,7 @@ class FulltextIndex_Solr_CSV extends FulltextIndex
 
       // Dont delete csv if there is an error
       if ($uploaded == true && is_file($tmpfname)) {
-//				unlink($tmpfname);
+				unlink($tmpfname);
       }
 
       $countDocs += count($chunk);
