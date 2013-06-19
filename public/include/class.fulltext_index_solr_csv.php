@@ -164,7 +164,9 @@ class FulltextIndex_Solr_CSV extends FulltextIndex
        * Cache any datastreams that have text
        * files
        */
-      $this->preCacheDatastreams($pids);
+      if (APP_SOLR_INDEX_DATASTREAMS == 'ON') {
+        $this->preCacheDatastreams($pids);
+      }
 
       /*
        * Add the authlister rules to the csv array
