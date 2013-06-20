@@ -136,7 +136,11 @@ class MyResearch
                 MyResearch::claimedPubsCorrect(Misc::GETorPOST('pid'));
             } elseif ($action == 'correction-add-files') {
                 MyResearch::claimedPubsCorrectFileUpload(Misc::GETorPOST('pid'));
-        }
+            }
+
+        } elseif ($type == "claimed_data") {
+
+
         }
 
         if ($list) {
@@ -257,6 +261,14 @@ class MyResearch
                 if (defined('APP_MY_RESEARCH_EXCLUDE_COLLECTIONS') && APP_MY_RESEARCH_EXCLUDE_COLLECTIONS != '') {
                   $filter["manualFilter"] = " !ismemberof_mt:('" . str_replace(':', '\:', implode("' OR '", explode(',', APP_MY_RESEARCH_EXCLUDE_COLLECTIONS))) . "')";
                 }
+            } elseif ($type == "claimed_data") {
+              $filter["searchKey" . Search_key::getID("Object Type")] = 3;
+              $filter["searchKey" . Search_key::getID("Display Type")] = XSD_Display::getXDIS_IDByTitle("Data Collection");
+              $filter["searchKey" . Search_Key::getID("Author ID")] = $author_id;
+              if (defined('APP_MY_RESEARCH_EXCLUDE_COLLECTIONS') && APP_MY_RESEARCH_EXCLUDE_COLLECTIONS != '') {
+                $filter["manualFilter"] = " !ismemberof_mt:('" . str_replace(':', '\:', implode("' OR '", explode(',', APP_MY_RESEARCH_EXCLUDE_COLLECTIONS))) . "')";
+              }
+
             } elseif ($type == "possible") {
                 $lastname = Author::getLastName($author_id);
                 $firstname = Author::getFirstname($author_id);

@@ -650,7 +650,16 @@ function restoreDefaultColours(el)
 			  {include file="error_icon.tpl.html" field="app_my_research_new_items_collection"}
 			</td>
   		  </tr>
-  		  <tr>
+      <tr>
+        <th>My Research: New Datasets Collection</th>
+        <td>
+          <input type="text" name="app_my_research_new_datasets_collection" value="{$config_settings.app_my_research_new_datasets_collection}" size="10" />
+          <br />Enter a PID (optional). New records added through the My Research Data module will be automatically added to this collection.
+          {include file="error_icon.tpl.html" field="app_my_research_new_datasets_collection"}
+        </td>
+      </tr>
+
+      <tr>
 		    <th>My Research: UPO Group Name</th>
 			<td>
 			  <input type="text" name="app_my_research_upo_group" value="{$config_settings.app_my_research_upo_group}" size="30" />

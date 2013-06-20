@@ -1,0 +1,316 @@
+{literal}
+<script type="text/javascript">
+<!--
+function notMine(pid)
+{
+	/*if (confirm('You are about to mark this record as not being authored by you. Proceed?')) {*/
+		document.getElementById('not-mine-pid').value = pid;
+		document.forms['notMine'].submit();
+	/*}*/
+
+    return;
+}
+
+function notMineBulk()
+{
+	frm = document.getElementById('claimedForm');
+	count = 0;
+	pids = [];
+	for (i = 0; i < frm.pid.length; i++) {
+		if (frm.pid[i].checked) {
+			pids.push(frm.pid[i].value);
+			count++;
+		}
+	}
+
+	if (count == 0) {
+		window.alert('No records were marked for authorship removal.');
+		return;
+	}
+
+	if (confirm('You are about to mark the ticked records as not being authored by you. Proceed?')) {
+		document.getElementById('bulk-not-mine-pids').value = pids;
+		document.forms['claimedForm'].submit();
+	}
+
+	return;
+}
+
+function correctionRequired(pid)
+{
+	document.getElementById('correction-pid').value = pid;
+	document.forms['correctMe'].submit();
+
+	return;
+}
+
+//-->
+</script>
+{/literal}
+
+<h1>My Research Data</h1>
+
+{include file="list_browse_type.tpl.html"}
+
+{if $isUPO}
+	{include file="myresearch/acting.tpl.html"}
+{/if}
+
+<form action="{$rel_url}my_research_data_claimed.php" method="post" id="claimedForm">
+	{include file="paging_control_header.tpl.html" hide_list_heading="true"}
+
+
+	{if ($facets || $terms)}
+    <div class="facet">
+    <div class="facetheader">
+    	<h2>Refine (10 facets)</h2>
+    </div>
+
+	{if $terms}
+		<div id="research-refine-filter"><b>Refine Filter:</b> {$terms} <a href="{$relurl}my_research_data_claimed.php?reset=1">(reset)</a></div>
+	{/if}
+
+    <ul>
+    {foreach from=$facets key=sek_id item=items}
+	{if $items.sek_alt_title == ""}
+	        <li><strong>{$items.sek_title}</strong></li>
+	{else}
+	        <li><strong>{$items.sek_alt_title}</strong></li>
+	{/if}
+        {foreach from=$items.values key=id item=valueData}
+        {if $valueData.num > 0}
+        {if $id != '0'}<li class='facetarrow'><a href="?{$url_wo_rows}&amp;search_keys[{$sek_id}]={$id}{if $acting_user.aut_org_username != ''}&amp;proxy={$acting_user.aut_org_username}{/if}">{$valueData.value}</a> ({$valueData.num})</li>{/if}
+        {/if}
+        {/foreach}
+        <li>&nbsp;</li>
+    {/foreach}
+	{if is_array($alternativeAuthorNamesList) && count($alternativeAuthorNamesList) > 1}
+		<li><strong>Names this author has published as</strong></li>
+		{foreach from=$alternativeAuthorNamesList item=authorLink}
+		<li class="facetarrow">{$authorLink}</li>
+		{/foreach}
+		<li>&nbsp;</li>
+	{/if}
+    </ul>
+
+    </div>
+    {/if}
+
+	{section name="i" loop=$list}
+
+		{assign var=pid value=$list[i].rek_pid}
+
+		{if $smarty.section.i.first}
+
+			<table id="research-record-listing">
+				<tr>
+			        <th>The publications listed below are currently attributed to you.
+						{if $is_editor}
+							<br /><br />This list does NOT include items that you edited. See the My Pubs page.
+						{/if}
+			        </th>
+          <!--
+                    <th style="text-align: center; padding: 2px;">
+        			{if $list_info.total_rows > 0}
+        				<img src="{$rel_url}images/journal_listed_16.png" title="ERA 2012 Journal Listed" alt="ERA 2012 Journal Listed" />
+        			{/if}
+                    <th style="text-align: center; padding: 2px;">
+        			{if $list_info.total_rows > 0}
+        				<img src="{$rel_url}images/journal_ranking_16.png" title="ERA 2010 Ranking" alt="ERA 2010 Ranked Journal List Ranking" />
+        			{/if}
+        			</th>
+        			<th style="text-align: center; padding: 2px;">
+        				{if $list_info.total_rows > 0}
+        					<img src="{$rel_url}images/conference_ranking_16.png" title="ERA 2010 Ranked Conference List Ranking" alt="ERA 2010 Ranked Conference List Ranking" />
+        				{/if}
+        			</th>
+					<th style="text-align: center; padding: 2px;">
+						{if $list_info.total_rows > 0}
+							<img src="{$rel_url}images/herdc_code_16.png" title="HERDC Code" alt="HERDC Code" />
+						{/if}
+					</th>
+			        <th style="text-align: center; padding: 2px;">
+			        	{if $list_info.total_rows > 0 && ($list_type !== 'collection_list' && $list_type !== 'community_list')}
+			        		<img src="{$rel_url}images/thomson_16.gif" title="Thomson Reuters Web of Science Citation Count" alt="Thomson Reuters Web of Science Citation Count" />
+			        	{/if}
+			        </th>
+			        <th style="text-align: center; padding: 2px;">
+			        	{if $list_info.total_rows > 0 && ($list_type !== 'collection_list' && $list_type !== 'community_list')}
+			        		<img src="{$rel_url}images/scopus_logo_small.gif" title="Scopus Citation Count" alt="Scopus Citation Count" />
+			        	{/if}
+			        </th>
+			        <th></th>
+			        -->
+			    </tr>
+		{/if}
+
+		<tr class="
+		{if $list[i].rek_status != '2'}unpublished-pub
+		{elseif $flagged_claimed[$pid].type == 'C'}claimed-correction-required
+		{elseif $flagged_possible[$pid].type == 'C' && $flagged_possible[$pid].correction != ''}claimed-correction-required
+		{elseif $flagged_claimed[$pid].type == 'U' && $flagged_claimed[$pid].correction != ''}claimed-duplication
+		{elseif $flagged_claimed[$pid].type == 'D'}claimed-not-my-pub{/if}">
+
+			<td style="width: 100%;">
+			{if $list[i].rek_status != 2} <b>(waiting on an administrator for approval to be published)</b> {/if}
+                {if $isAdministrator || $isUPO}
+				{if $list[i].rek_display_type_lookup == "Book" || $list[i].rek_display_type_lookup == "Book Chapter" || $list[i].rek_display_type_lookup == "Journal Article" || $list[i].rek_display_type_lookup == "Conference Paper"}
+				<a class="form_note" href="#">
+					<span class="form_note">
+						<strong>PID:</strong> {$list[i].rek_pid}<br />
+						<strong>Display Type:</strong> {$list[i].rek_display_type_lookup}<br />
+						{if $list[i].rek_subtype != ''}
+							<strong>Sub Type:</strong> {$list[i].rek_subtype}<br />
+						{elseif $list[i].rek_genre_type != ''}
+							<strong>Sub Type:</strong> {$list[i].rek_genre_type}<br />
+						{/if}
+						<strong>HERDC Status:</strong> {$list[i].rek_herdc_status_lookup}<br />
+						<strong>HERDC Code:</strong> {$list[i].rek_herdc_code_lookup}<br />
+						<strong>Institutional Status:</strong> {$list[i].rek_institutional_status_lookup}<br /><br />
+						<strong>eSpace Follow up Flag:</strong> {$list[i].rek_follow_up_flags_lookup}<br />
+						<strong>IMU Follow up Flag:</strong> {$list[i].rek_follow_up_flags_imu_lookup}<br /><br />
+						{if $list[i].rek_display_type_lookup == "Book" || $list[i].rek_display_type_lookup == "Book Chapter"}
+							<strong>Edition:</strong> {$list[i].rek_edition}<br />
+              <strong>ISBN:</strong> {if is_array($list[i].rek_isbn)}{", "|implode:$list[i].rek_isbn}{/if}<br />
+						{elseif $list[i].rek_display_type_lookup == "Journal Article"}
+							<strong>ERA 2012 Journal Listed :</strong> {if $list[i].rj_2012_title} Yes{else}No {/if}<br />
+							{if $list[i].rj_2010_rank} <strong>ERA 2010 Rank:</strong> {$list[i].rj_2010_rank} ({$list[i].rj_2010_title})<br />{/if}
+							{if $list[i].rek_refereed == '0'} <strong>Refereed:</strong> No<br /> {/if}
+							{if $list[i].rek_refereed == '1'} <strong>Refereed:</strong> Yes<br /> {/if}
+							<strong>ISSN:</strong> {if is_array($list[i].rek_issn)}{", "|implode:$list[i].rek_issn}{/if}<br />
+						{elseif $list[i].rek_display_type_lookup == "Conference Paper"}
+							{if $list[i].rc_2010_rank}<strong>ERA 2010 Rank:</strong> {$list[i].rc_2010_rank} ({$list[i].rc_2010_title})<br />{/if}
+							{if $list[i].rek_refereed == '0'} <strong>Refereed:</strong> No<br /> {/if}
+							{if $list[i].rek_refereed == '1'} <strong>Refereed:</strong> Yes<br /> {/if}
+						{/if}
+						<strong>Thomson ISI Loc:</strong> {$list[i].rek_isi_loc}<br />
+						<strong>Scopus ID:</strong> {$list[i].rek_scopus_id}<br />
+                        <strong>Total Pages:</strong> {$list[i].rek_total_pages}<br /><br /><br />
+						<strong>HERDC Notes:</strong> {$list[i].rek_herdc_notes|smarty:nodefaults}<br /><br />
+                        <strong>Internal Notes:</strong> {$list[i].rek_internal_notes}<br /><br />
+					</span>
+					<img src="{$rel_url}images/views_16.png" alt="" />
+				</a>
+				{/if}
+                {/if}
+				{if $list[i].rek_citation != ""}
+					{$list[i].rek_citation|smarty:nodefaults}
+				{else}
+					<a href="{$rel_url}view/{$list[i].rek_pid}" target="_blank">{$list[i].rek_title}</a>
+				{/if}
+				{if $list[i].rek_status != '2'} &nbsp; (not yet published by an Administrator) {/if}
+			</td>
+
+            <td style="vertical-align: middle; text-align: center; border-top:1px dashed #be87e9;">
+      			{if $list[i].rj_2012_title}<a href="#" title="{$list[i].rj_2012_title}">Y</a>{else}<a href="#" title="This publication is outside the ERA 2012 window (pre-2004) and/or not identified as being in a 2012 ERA Listed Journal.">-</a>{/if}
+      		</td>
+            <td style="vertical-align: middle; text-align: center; border-top:1px dashed #be87e9;">
+                {if $list[i].rj_2010_rank}<a href="#" title="{$list[i].rj_2010_title}">{$list[i].rj_2010_rank}</a>{else}<a href="#" title="This publication is outside the ERA 2010 window (pre-2003) and/or not identified as being in a 2010 ERA Ranked Journal.">-</a>{/if}
+            </td>
+            <td style="vertical-align: middle; text-align: center; border-top:1px dashed #be87e9;">
+                {if $list[i].rc_2010_rank}<a href="#" title="{$list[i].rc_2010_title}">{$list[i].rc_2010_rank}</a>{else}<a href="#" title="This is outside the ERA 2010 window (pre-2003) and/or not identified as being in a 2010 ERA Ranked Conference.">-</a>{/if}
+            </td>
+
+			<td style="vertical-align: middle; text-align: center;">
+				{if $list[i].rek_herdc_code_lookup}
+					<a href="#" title="{if $list[i].rek_herdc_status_lookup == 'Provisional Code'}PROVISIONAL {elseif $list[i].rek_herdc_status_lookup == 'Confirmed Code'}CONFIRMED {/if}{$list[i].rek_herdc_code_lookup}">{$list[i].rek_herdc_code_lookup}{if $list[i].rek_herdc_status_lookup == 'Provisional Code'}P{elseif $list[i].rek_herdc_status_lookup == 'Confirmed Code'}&#10003;{/if}</a>
+				{else}
+					-
+				{/if}
+			</td>
+
+			<td style="vertical-align: middle; text-align: center;">
+				{if $list[i].rek_thomson_citation_count != ""}
+					<a href="{$rel_url}rid_citation_count_history_{$list[i].rek_pid}" title="Cited {$list[i].rek_thomson_citation_count} times in Thomson Reuters Researcher ID">{$list[i].rek_thomson_citation_count}</a>
+				{elseif $list[i].rek_thomson_citation_count == 0}
+					{$list[i].rek_thomson_citation_count}
+				{/if}
+			</td>
+
+			<td style="vertical-align: middle; text-align: center;">
+				{if $list[i].rek_scopus_citation_count != ""}
+					<a href="{$rel_url}scopus_citation_count_history_{$list[i].rek_pid}" class="form_note"> <span class="form_note">Cited {$list[i].rek_scopus_citation_count} times in Scopus</span>{$list[i].rek_scopus_citation_count}</a>
+				{elseif $list[i].rek_scopus_citation_count == 0}
+					{$list[i].rek_scopus_citation_count}
+				{/if}
+			</td>
+
+			<td>
+				{if $flagged_claimed[$pid].type == 'D'}
+					<div class="research-record-note">
+						{if $flagged_claimed[$pid].user == $actual_user}
+							You have indicated that this record was not authored by you. A job has been logged with the {$app_name} team.
+						{else}
+							User <span style="font-weight: bold">{$flagged_claimed[$pid].user}</span> has indicated that this record was not authored by you. A job has already been logged with the {$app_name} team.
+						{/if}
+					</div>
+				{elseif $flagged_claimed[$pid].type == 'C'}
+					<div class="research-record-note">
+						{if $flagged_claimed[$pid].user == $actual_user}
+							You have indicated that this record may have data problems. A job has been logged with the {$app_name} team.
+						{else}
+							User <span style="font-weight: bold">{$flagged_claimed[$pid].user}</span> has indicated that this record may have data problems. A job has already been logged with the {$app_name} team.
+						{/if}
+					</div>
+                {elseif $flagged_claimed[$pid].type == 'U'}
+                    <div class="research-record-note">
+                        {if $flagged_claimed[$pid].user == $actual_user}
+                            You have indicated that this record may be a duplicate of another pre-existing record. A job has been logged with the {$app_name} team.
+                        {else}
+                            User <span style="font-weight: bold">{$flagged_claimed[$pid].user}</span> has indicated that this record may be a duplicate of another pre-existing record. A job has already been logged with the {$app_name} team.
+                        {/if}
+                    </div>
+				{elseif $flagged_possible[$pid].type == 'C' && $flagged_possible[$pid].correction != ''}
+					<div class="research-record-note">
+						{if $flagged_possible[$pid].user == $actual_user}
+							You have indicated that this record may have data problems. A job has been logged with the {$app_name} team.
+						{else}
+							User <span style="font-weight: bold">{$flagged_possible[$pid].user}</span> has indicated that this record may have data problems. A job has already been logged with the {$app_name} team.
+						{/if}
+					</div>
+				{/if}
+
+				{*if $flagged_claimed[$pid].type != 'D'}
+					<input type="button" class="claimed-not-my-pub" value="Not mine" onclick="javascript:notMine('{$list[i].rek_pid}');" /><br />
+				{/if*}
+
+				{*if $flagged_claimed[$pid].type != 'C'*}
+					<input type="button" class="claimed-correction-required" value="Fix{if $smarty.const.TAG_UPLOAD_FILES == 'ON'} / Upload a file{/if}" onclick="javascript:correctionRequired('{$list[i].rek_pid}');" />
+				{*/if*}
+			</td>
+
+		</tr>
+
+		{if $smarty.section.i.last}
+			</table>
+
+			<div>
+				<input type="hidden" id="bulk-not-mine-pids" name="bulk-not-mine-pids" value="" />
+				<input type="hidden" name="action" value="not-mine-bulk" />
+			</div>
+		{/if}
+
+	{sectionelse}
+		{if $author_id_message != ''}
+		<p>{$author_id_message|smarty:nodefaults}</p>
+		{else}
+		<p>We could not find any dataset collections that are currently attributed to you.</p>
+		{/if}
+	{/section}
+
+</form>
+       	&nbsp;
+	    {include file="paging_control.tpl.html" field="paginat0r"}
+<form action="{$rel_url}my_research_data_claimed.php" method="post" id="notMine">
+	<div>
+		<input type="hidden" id="not-mine-pid" name="pid" value="" />
+		<input type="hidden" name="action" value="not-mine" />
+	</div>
+</form>
+
+<form action="{$rel_url}my_research_data_claimed.php" method="post" id="correctMe">
+	<div>
+		<input type="hidden" id="correction-pid" name="pid" value="" />
+		<input type="hidden" name="action" value="correction" />
+	</div>
+</form>
