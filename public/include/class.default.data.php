@@ -281,6 +281,7 @@ class Default_Data
 		$defaultData['app_my_research_use_classic_groups']			= "";
 		$defaultData['app_eventum_send_emails']				= "OFF";
 		$defaultData['app_eventum_new_job_email_address']	= "";
+    $defaultData['app_eventum_new_dataset_job_email_address']	= "";
 		$defaultData['app_eventum_database_host']			= "";
 		$defaultData['app_eventum_database_name']			= "";
 		$defaultData['app_eventum_database_user']			= "";
@@ -306,7 +307,7 @@ class Default_Data
         $defaultData['ldap_staff_group']                   = "uqStaff";
         $defaultData['ldap_student_group']                 = "uqStudents";
         $defaultData['app_fedora_path_direct']             = "/fedora/data/";
-        $defaultData['app_fedora_sendfile_direct']         = "OFF"; 
+        $defaultData['app_fedora_sendfile_direct']         = "OFF";
         $defaultData['app_herdc_trial_collection']         = "";
         $defaultData['app_scopus_import_collection']       = "";
 		//$defaultData['app_portfolios_collection']           = "";

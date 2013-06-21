@@ -700,6 +700,14 @@ function restoreDefaultColours(el)
 			  {include file="error_icon.tpl.html" field="app_eventum_new_job_email_address"}
 			</td>
   		  </tr>
+      <tr>
+        <th>Eventum New Dataset Job Email Address</th>
+        <td>
+          <input type="text" name="app_eventum_new_dataset_job_email_address" value="{$config_settings.app_eventum_new_dataset_job_email_address}" size="30" />
+          <br />Emails about new dataset jobs will be sent to this email address.
+          {include file="error_icon.tpl.html" field="app_eventum_new_dataset_job_email_address"}
+        </td>
+      </tr>
   		  <tr>
 		    <th>Eventum database host</th>
 			<td>
