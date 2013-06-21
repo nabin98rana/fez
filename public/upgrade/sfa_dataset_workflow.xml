@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<workflows schema_version="1.0">
+  <workflow wfl_id="122" wfl_title="Submission of Dataset" wfl_version="1.0" wfl_description="Emails the depositor and the dataset team eventum list with custom email templates" wfl_roles="Creator" wfl_end_button_label="Save">
+    <WorkflowState wfs_id="830" wfs_title="Enter Dataset Metadata" wfs_description="" wfs_auto="0" wfs_wfb_id="13" wfs_start="1" wfs_end="0" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
+    <WorkflowState wfs_id="831" wfs_title="Submit for Approval" wfs_description="" wfs_auto="1" wfs_wfb_id="51" wfs_start="0" wfs_end="0" wfs_assigned_role_id="" wfs_transparent="1" wfs_roles=""/>
+    <WorkflowState wfs_id="832" wfs_title="Submit for Approval" wfs_description="" wfs_auto="0" wfs_wfb_id="103" wfs_start="0" wfs_end="1" wfs_assigned_role_id="" wfs_transparent="0" wfs_roles=""/>
+    <WorkflowStateLinks wfsl_id="1218" wfsl_from_id="830" wfsl_to_id="831"/>
+    <WorkflowStateLinks wfsl_id="1222" wfsl_from_id="831" wfsl_to_id="832"/>
+    <WorkflowTrigger wft_id="314" wft_pid="-1" wft_type_id="4" wft_xdis_id="371" wft_order="0" wft_mimetype="" wft_icon="images/folder_new.gif" wft_ret_id="3" wft_options="0"/>
+  </workflow>
+  <WorkflowBehaviour wfb_id="13" wfb_title="Enter Metadata" wfb_description="" wfb_version="1.0" wfb_script_name="enter_metadata.php" wfb_auto="0"/>
+  <WorkflowBehaviour wfb_id="103" wfb_title="Submit Dataset for Approval" wfb_description="Sends an email to the user and to the data team email address" wfb_version="1.0" wfb_script_name="sfa_dataset_confirm.php" wfb_auto="0"/>
+  <WorkflowBehaviour wfb_id="51" wfb_title="Submit for Approval" wfb_description="" wfb_version="1.0" wfb_script_name="submit_for_approval.php" wfb_auto="1"/>
+</workflows>

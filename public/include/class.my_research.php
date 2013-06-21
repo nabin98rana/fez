@@ -36,7 +36,9 @@ include_once(APP_INC_PATH . "class.author.php");
 include_once(APP_INC_PATH . "class.record.php");
 include_once(APP_INC_PATH . "class.eventum.php");
 include_once(APP_INC_PATH . "class.mail.php");
+include_once(APP_INC_PATH . "class.xsd_display.php");
 include_once(APP_INC_PATH . "class.datastream.php");
+include_once(APP_INC_PATH . "class.workflow_trigger.php");
 
 /**
  * MyResearch
@@ -47,6 +49,15 @@ class MyResearch
     private static $file_options = array(0 => 'Please choose file type', 1 => 'Accepted version (author final draft  post-refereeing)', 2  => 'Submitted version (author version pre-refereeing)',
                     3 => 'Publishers Copy (Open Access)', 4 => 'Working/Technical Paper', 5 => 'HERDC evidence (not open access- admin only)', 6 => 'Other (any files not included in any of the above)'
                     );
+
+
+    function addDatasetLink(&$tpl) {
+      $wft_id = WorkflowTrigger::getWorkflowTriggerIDByTitle("Submission of Dataset");
+      $dataset_xdis_id = XSD_Display::getXDIS_IDByTitle('Data Collection');
+      $add_dataset_url = APP_RELATIVE_URL . "workflow/new.php?xdis_id=".$dataset_xdis_id."&pid=".APP_MY_RESEARCH_NEW_DATASETS_COLLECTION.'&cat=select_workflow&wft_id='.$wft_id;
+      $tpl->assign("add_dataset_url", $add_dataset_url);
+    }
+
     /**
      * Dispatch to the appropriate functionality for the requested page.
      */
@@ -54,6 +65,7 @@ class MyResearch
     {
         $tpl = new Template_API();
         $tpl->setTemplate("myresearch/index.tpl.html");
+        MyResearch::addDatasetLink($tpl);
 
         $isUser = Auth::getUsername();
         $isAdministrator = User::isUserAdministrator($isUser);

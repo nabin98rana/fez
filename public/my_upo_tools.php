@@ -66,6 +66,9 @@ if ($isUPO && $action == 'change-user') {
 $tpl = new Template_API();
 $tpl->setTemplate("myresearch/index.tpl.html");
 
+MyResearch::addDatasetLink($tpl);
+
+
 Auth::checkAuthentication(APP_SESSION, $_SERVER['PHP_SELF']."?".$_SERVER['QUERY_STRING']);
 $username = Auth::getUsername();
 $actingUser = Auth::getActingUsername();

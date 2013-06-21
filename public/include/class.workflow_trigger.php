@@ -122,7 +122,7 @@ class WorkflowTrigger
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		$stmt = "DELETE FROM " . APP_TABLE_PREFIX . "workflow_trigger WHERE wft_wfl_id IN (".Misc::arrayToSQLBindStr($wfl_ids).")";
 		try {
 			$db->query($stmt, $wfl_ids);
@@ -141,7 +141,7 @@ class WorkflowTrigger
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		if (empty($params)) {
 			$params = &$_POST;
 		}
@@ -168,7 +168,7 @@ class WorkflowTrigger
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		$bind_params = array();
 		switch($action) {
 			case 'update':
@@ -236,13 +236,13 @@ class WorkflowTrigger
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		if (!is_numeric($wft_id)) {
 			return false;
 		}
 		$stmt = "SELECT wft_wfl_id FROM " . APP_TABLE_PREFIX . "workflow_trigger
 				 WHERE wft_id=".$db->quote($wft_id, 'INTEGER');
-		
+
 		try {
 			$res = $db->fetchOne($stmt);
 		}
@@ -266,10 +266,10 @@ class WorkflowTrigger
 		$pid = "$pid"; //cast to string
 		$stmt = "SELECT wft_id, wfl_title
                  FROM " . APP_TABLE_PREFIX . "workflow_trigger
-				 INNER JOIN " . APP_TABLE_PREFIX . "workflow on (wfl_id = wft_wfl_id) 
-				 WHERE wft_pid=".$db->quote($pid)." ".$wherestr." 
+				 INNER JOIN " . APP_TABLE_PREFIX . "workflow on (wfl_id = wft_wfl_id)
+				 WHERE wft_pid=".$db->quote($pid)." ".$wherestr."
                  ORDER BY wft_type_id, wft_xdis_id";
-		
+
 		try {
 			$res = $db->fetchPairs($stmt);
 		}
@@ -284,10 +284,10 @@ class WorkflowTrigger
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		$stmt = "SELECT * FROM " . APP_TABLE_PREFIX . "workflow_trigger
                 WHERE wft_wfl_id=".$db->quote($wfl_id, 'INTEGER')." ".$wherestr." ORDER BY wft_type_id, wft_xdis_id";
-		
+
 		try {
 			$res = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
 		}
@@ -308,7 +308,7 @@ class WorkflowTrigger
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		if (!Misc::isInt($trigger)) {
 			$trigger = WorkflowTrigger::getTriggerId($trigger);
 		}
@@ -325,7 +325,7 @@ class WorkflowTrigger
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		if (!Misc::isInt($trigger)) {
 			$trigger = WorkflowTrigger::getTriggerId($trigger);
 		}
@@ -346,7 +346,7 @@ class WorkflowTrigger
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		if (!Misc::isInt($trigger)) {
 			$trigger = WorkflowTrigger::getTriggerId($trigger);
 		}
@@ -372,7 +372,7 @@ class WorkflowTrigger
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		if (!Misc::isInt($trigger)) {
 			$trigger = WorkflowTrigger::getTriggerId($trigger);
 		}
@@ -425,7 +425,7 @@ class WorkflowTrigger
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		// these values may be overwritten by extract
 		$ret_id = 0;
 		$xdis_id = -1;
@@ -467,7 +467,7 @@ class WorkflowTrigger
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		$trigger = WorkflowTrigger::getTriggerId('Ingest');
 		if (!empty($mimetype)) {
 			$list = WorkflowTrigger::getList($pid, " AND wft_type_id=".$db->quote($trigger, 'INTEGER')."
@@ -488,6 +488,38 @@ class WorkflowTrigger
 		return @$list[0];
 	}
 
+  /**
+   * Method used to get the workflow trigger ID of workflow by its trigger title.
+   *
+   * @access  public
+   * @param   string $wfl_title The workflow trigger title
+   * @return  integer The workflow trigger
+   */
+  function getWorkflowTriggerIDByTitle($wft_title)
+  {
+    $log = FezLog::get();
+    $db = DB_API::get();
+
+    $stmt = "SELECT
+		            wft_id
+                FROM
+                    " . APP_TABLE_PREFIX . "workflow_trigger
+                INNER JOIN
+                    " . APP_TABLE_PREFIX . "workflow ON wfl_id = wft_wfl_id
+                WHERE
+                    wfl_title = " . $db->quote($wft_title);
+
+    try {
+      $res = $db->fetchOne($stmt);
+    }
+    catch(Exception $ex) {
+      $log->err($ex);
+      return '';
+    }
+
+    return $res;
+  }
+
 	/**
 	 * Get the trigger details
 	 * @param integer $wft_id trigger id
@@ -497,7 +529,7 @@ class WorkflowTrigger
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		$stmt = "SELECT * FROM " . APP_TABLE_PREFIX . "workflow_trigger
             WHERE wft_id=".$db->quote($wft_id, 'INTEGER');
 		try {

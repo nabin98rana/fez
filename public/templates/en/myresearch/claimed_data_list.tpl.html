@@ -201,39 +201,7 @@ function correctionRequired(pid)
 				{if $list[i].rek_status != '2'} &nbsp; (not yet published by an Administrator) {/if}
 			</td>
 
-            <td style="vertical-align: middle; text-align: center; border-top:1px dashed #be87e9;">
-      			{if $list[i].rj_2012_title}<a href="#" title="{$list[i].rj_2012_title}">Y</a>{else}<a href="#" title="This publication is outside the ERA 2012 window (pre-2004) and/or not identified as being in a 2012 ERA Listed Journal.">-</a>{/if}
-      		</td>
-            <td style="vertical-align: middle; text-align: center; border-top:1px dashed #be87e9;">
-                {if $list[i].rj_2010_rank}<a href="#" title="{$list[i].rj_2010_title}">{$list[i].rj_2010_rank}</a>{else}<a href="#" title="This publication is outside the ERA 2010 window (pre-2003) and/or not identified as being in a 2010 ERA Ranked Journal.">-</a>{/if}
-            </td>
-            <td style="vertical-align: middle; text-align: center; border-top:1px dashed #be87e9;">
-                {if $list[i].rc_2010_rank}<a href="#" title="{$list[i].rc_2010_title}">{$list[i].rc_2010_rank}</a>{else}<a href="#" title="This is outside the ERA 2010 window (pre-2003) and/or not identified as being in a 2010 ERA Ranked Conference.">-</a>{/if}
-            </td>
 
-			<td style="vertical-align: middle; text-align: center;">
-				{if $list[i].rek_herdc_code_lookup}
-					<a href="#" title="{if $list[i].rek_herdc_status_lookup == 'Provisional Code'}PROVISIONAL {elseif $list[i].rek_herdc_status_lookup == 'Confirmed Code'}CONFIRMED {/if}{$list[i].rek_herdc_code_lookup}">{$list[i].rek_herdc_code_lookup}{if $list[i].rek_herdc_status_lookup == 'Provisional Code'}P{elseif $list[i].rek_herdc_status_lookup == 'Confirmed Code'}&#10003;{/if}</a>
-				{else}
-					-
-				{/if}
-			</td>
-
-			<td style="vertical-align: middle; text-align: center;">
-				{if $list[i].rek_thomson_citation_count != ""}
-					<a href="{$rel_url}rid_citation_count_history_{$list[i].rek_pid}" title="Cited {$list[i].rek_thomson_citation_count} times in Thomson Reuters Researcher ID">{$list[i].rek_thomson_citation_count}</a>
-				{elseif $list[i].rek_thomson_citation_count == 0}
-					{$list[i].rek_thomson_citation_count}
-				{/if}
-			</td>
-
-			<td style="vertical-align: middle; text-align: center;">
-				{if $list[i].rek_scopus_citation_count != ""}
-					<a href="{$rel_url}scopus_citation_count_history_{$list[i].rek_pid}" class="form_note"> <span class="form_note">Cited {$list[i].rek_scopus_citation_count} times in Scopus</span>{$list[i].rek_scopus_citation_count}</a>
-				{elseif $list[i].rek_scopus_citation_count == 0}
-					{$list[i].rek_scopus_citation_count}
-				{/if}
-			</td>
 
 			<td>
 				{if $flagged_claimed[$pid].type == 'D'}
@@ -274,9 +242,9 @@ function correctionRequired(pid)
 					<input type="button" class="claimed-not-my-pub" value="Not mine" onclick="javascript:notMine('{$list[i].rek_pid}');" /><br />
 				{/if*}
 
-				{*if $flagged_claimed[$pid].type != 'C'*}
+				{*if $flagged_claimed[$pid].type != 'C'
 					<input type="button" class="claimed-correction-required" value="Fix{if $smarty.const.TAG_UPLOAD_FILES == 'ON'} / Upload a file{/if}" onclick="javascript:correctionRequired('{$list[i].rek_pid}');" />
-				{*/if*}
+				/if*}
 			</td>
 
 		</tr>

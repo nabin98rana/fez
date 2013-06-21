@@ -28,60 +28,72 @@
 // | Boston, MA 02111-1307, USA.                                          |
 // +----------------------------------------------------------------------+
 // | Authors: Christiaan Kortekaas <c.kortekaas@library.uq.edu.au>,       |
-// |          Lachlan Kuhn <l.kuhn@library.uq.edu.au>                     |
+// |          Lachlan Kuhn <l.kuhn@library.uq.edu.au>,                    |
+// |          Rhys Palmer <r.palmer@library.uq.edu.au>                    |
 // +----------------------------------------------------------------------+
-//
-//
-set_time_limit(0);
-include_once("config.inc.php");
+
+include_once(dirname(dirname(__FILE__)).DIRECTORY_SEPARATOR."config.inc.php");
 include_once(APP_INC_PATH . "class.template.php");
 include_once(APP_INC_PATH . "class.auth.php");
-include_once(APP_INC_PATH . "class.author.php");
-include_once(APP_INC_PATH . "class.user.php");
-include_once(APP_INC_PATH . "class.status.php");
-include_once(APP_INC_PATH . "class.misc.php");
-include_once(APP_INC_PATH . "class.workflow_trigger.php");
-include_once(APP_INC_PATH . "class.collection.php");
-include_once(APP_INC_PATH . "class.db_api.php");
-include_once(APP_INC_PATH . "class.pager.php");
-include_once(APP_INC_PATH . "class.my_research.php");
 
-if (APP_MY_RESEARCH_MODULE != 'ON') {
-	die('Sorry - this module is not enabled.');
-}
 
-$tpl = new Template_API();
-$tpl->setTemplate("myresearch/index.tpl.html");
-
+// Authentication check
 Auth::checkAuthentication(APP_SESSION, $_SERVER['PHP_SELF']."?".$_SERVER['QUERY_STRING']);
-$username = Auth::getUsername();
-$actingUser = Auth::getActingUsername();
-$author_id = Author::getIDByUsername($actingUser);
-$actingUserArray = Author::getDetailsByUsername($actingUser);
-$actingUserArray['org_unit_description'] = MyResearch::getHRorgUnit($actingUser);
 
-$tpl->assign("type", "add");
-MyResearch::addDatasetLink($tpl);
-
-$isUser = Auth::getUsername();
-$isAdministrator = User::isUserAdministrator($isUser);
-$isSuperAdministrator = User::isUserSuperAdministrator($isUser);
-$isUPO = User::isUserUPO($isUser);
-
-$tpl->assign("isUser", $isUser);
-$tpl->assign("isAdministrator", $isAdministrator);
-$tpl->assign("isSuperAdministrator", $isSuperAdministrator);
-$tpl->assign("isUPO", $isUPO);
-
-$tpl->assign("active_nav", "my_fez");
-$tpl->assign("childXDisplayOptions", Record::getSearchKeyIndexValue(APP_MY_RESEARCH_NEW_ITEMS_COLLECTION, "XSD Display Option"));
-$tpl->assign("acting_user", $actingUserArray);
-$tpl->assign("actual_user", $username);
-
-if (MyResearch::getHRorgUnit($username) == "" && !$isUPO) {
-	$tpl->assign("non_hr", true); // This will cause a bail-out in template land
+// Checks Workflow status
+$wfstatus = &WorkflowStatusStatic::getSession(); // restores WorkflowStatus object from the session
+$wfstatus->checkStateChange();
+if (empty($wfstatus)) {
+    echo "This workflow has finished and cannot be resumed";
+    exit;
 }
+
+// Get PID
+$pid = $wfstatus->pid;
+$record = new RecordObject($pid);
+$record->getObjectAdminMD();
+$title = $record->getTitle();
+$view_record_url = 'http://'.APP_HOSTNAME.APP_RELATIVE_URL."view/".$pid;
+// Email Settings
+$usrDetails = User::getDetailsByID($record->depositor);
+
+$tplEmail = new Template_API();
+$tplEmail->setTemplate('workflow/emails/sfa_dataset_confirm.tpl.txt');
+$tplEmail->assign('application_name', APP_NAME);
+$tplEmail->assign('title', $title);
+$tplEmail->assign('name', $usrDetails['usr_full_name']);
+$tplEmail->assign('view_record_url', $view_record_url);
+
+$email_txt = $tplEmail->getTemplateContents();
+
+//Mail the depositor
+$mail = new Mail_API;
+$mail->setTextBody(stripslashes($email_txt));
+$subject = '['.APP_NAME.'] - Your dataset submission has been completed';
+$from = APP_EMAIL_SYSTEM_FROM_ADDRESS;
+$to = $usrDetails['usr_email'];
+$mail->send($from, $to, $subject, false);
+
+//Mail the dataset team
+$mail->setTextBody(stripslashes($email_txt));
+$subject = '['.APP_NAME.'] - Dataset Submission: '.$usrDetails['usr_full_name'].' :: '.$pid.' :: '.$title;
+$from = $usrDetails['usr_email'];
+$to = APP_EVENTUM_NEW_DATASET_JOB_EMAIL_ADDRESS;
+$mail->send($from, $to, $subject, false);
+
+
+// Display Submission confirmation
+$tpl = new Template_API();
+$tpl->setTemplate("workflow/index.tpl.html");
+$tpl->assign("type", 'sfa_dataset_confirm');
+$tpl->assign('application_name', APP_NAME);
+$tpl->assign('record_title', $record_title);
+$tpl->assign('title', $record_title);
+$tpl->assign("display_data", $display_data);
+$tpl->assign('view_record_url', $view_record_url);
 
 $tpl->displayTemplate();
 
-?>
+// This is a special ending workflow state -> so end the workflow manually rather than goto the redirect screen (to prevent users clicking back the browser and causing all sorts of trouble)
+
+$wfstatus->theend(false);
