@@ -497,7 +497,10 @@ class FulltextIndex_Solr extends FulltextIndex
                       if (!empty($sval['sek_lookup_function'])) {
 //                        $solr_name_cut = preg_replace('/(.*)({_t_s|_mt|_t|_t_s|_dt|_ms|_s|_t_ws|_t_ft|_f|_mws|_ft|_mft|_mtl|_l|_mi|_i|_b|_mdt|_mt_exact}$)/', '$1', $solr_name);
                         // Try and get the lookup names from inside the facet returned values themselves
-                        $value_lookup = '';
+                        // DISABLED this lookup as results that have the same counts can have sorting differently between lookup
+                        // and the ID, so  you can't crossreference them.
+
+/*                        $value_lookup = '';
                         if (array_key_exists($solr_name, $lookupFacetsToUse)) {
                           $facetIndex2 = 0;
                           foreach ($facetData->$lookupFacetsToUse[$solr_name] as $value2 => $numInFacet2) {
@@ -507,12 +510,15 @@ class FulltextIndex_Solr extends FulltextIndex
                             $facetIndex2++;
                           }
                         }
+*/
+                        // DISABLED this lookup as results that have the same counts can have sorting differently between lookup
+                        // and the ID, so  you can't crossreference them.
                         // if couldn't find it in the solr array, get it manually. Don't lookup 0 value author id things.
-                        if ($value_lookup == '' && $value != '0') {
+//                        if ($value_lookup == '' && $value != '0') {
                           eval("\$valueFound = " . $sval["sek_lookup_function"] . "('" . $value . "');");
-                        } else {
-                          $valueFound = $value_lookup;
-                        }
+//                        } else {
+//                          $valueFound = $value_lookup;
+//                        }
                       } else {
                         $valueFound = $value;
                       }
