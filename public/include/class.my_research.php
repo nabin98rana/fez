@@ -46,9 +46,7 @@ include_once(APP_INC_PATH . "class.workflow_trigger.php");
  */
 class MyResearch
 {
-    private static $file_options = array(0 => 'Please choose file type', 1 => 'Accepted version (author final draft  post-refereeing)', 2  => 'Submitted version (author version pre-refereeing)',
-                    3 => 'Publishers Copy (Open Access)', 4 => 'Working/Technical Paper', 5 => 'HERDC evidence (not open access- admin only)', 6 => 'Other (any files not included in any of the above)'
-                    );
+    private static $_file_options = Datastream::file_options;
 
 
     function addDatasetLink(&$tpl) {
@@ -112,7 +110,7 @@ class MyResearch
             } elseif ($action == 'claim') {
                 $recordDetails = Record::getDetailsLite(Misc::GETorPOST('claim-pid'));
                 $tpl->assign("pid", $recordDetails[0]['rek_pid']);
-                $tpl->assign('file_options', MyResearch::$file_options);
+                $tpl->assign('file_options', MyResearch::$_file_options);
                 $tpl->assign('sherpa_romeo_link',SherpaRomeo::getJournalColourFromPidComment($recordDetails[0]['rek_pid']));
                 $tpl->assign("citation", $recordDetails[0]['rek_citation']);
                 $tpl->assign("herdc_message", MyResearch::herdcMessage($recordDetails[0]['rek_date']));
@@ -133,7 +131,7 @@ class MyResearch
             } elseif ($action == 'correction') {
                 $recordDetails = Record::getDetailsLite(Misc::GETorPOST('pid'));
                 //---------------------------
-                $tpl->assign('file_options', MyResearch::$file_options);
+                $tpl->assign('file_options', MyResearch::$_file_options);
                 $tpl->assign('sherpa_romeo_link',SherpaRomeo::getJournalColourFromPidComment($recordDetails[0]['rek_pid']));
                 $tpl->assign('header_include_flash_uploader_files', 1);
                 //---------------------------
@@ -864,7 +862,7 @@ class MyResearch
                 $fezACMLTemplateNum = ($_POST['filePermissions'][$key] == 5) ? 10 : NULL;
                 Datastream::addDatastreamToPid($pid, $file, $fezACMLTemplateNum);
                 $filePermsNumber = $_POST['filePermissions'][$key];
-                $historyComment .= $file.' - "'.MyResearch::$file_options[$filePermsNumber].'"; ';
+                $historyComment .= $file.' - "'.MyResearch::$_file_options[$filePermsNumber].'"; ';
             }
         }
         History::addHistory($pid, null, '', '', true, 'User File Uploads', $historyComment);

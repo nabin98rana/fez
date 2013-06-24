@@ -167,7 +167,28 @@ class XSD_HTML_Match
 
     }
 
+    function getXSDMFIDByTitleXDIS_ID($title, $xdis_id)
+    {
+        $log = FezLog::get();
+        $db = DB_API::get();
 
+        $stmt = "SELECT
+              xsdmf_id
+                     FROM
+                        " . APP_TABLE_PREFIX . "xsd_display_matchfields
+             WHERE xsdmf_xdis_id = " . $db->quote($xdis_id, 'INTEGER') . " AND xsdmf_title = " . $db->quote($title);
+
+        try {
+            $res = $db->fetchOne($stmt);
+        }
+        catch(Exception $ex) {
+            $log->err($ex);
+            return array();
+        }
+
+        return $res;
+
+    }
 		function getXPATHBySearchKeyTitleXDIS_ID($sek_title, $xdis_id)
 		{
 			$log = FezLog::get();

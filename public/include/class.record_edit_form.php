@@ -628,6 +628,8 @@ class RecordEditForm
                     $datastreams[$ds_key]['workflows'] = $datastream_workflows;
                     $datastreams[$ds_key]['FezACML'] = Auth::getAuthorisationGroups($pid, $ds['ID']);
                     $datastreams[$ds_key] = Auth::getAuthorisation($datastreams[$ds_key]);
+                    $datastreams[$ds_key]['classification'] = Datastream::getClassification($pid, $datastreams[$ds_key]['ID']);
+                    $datastreams[$ds_key]['embargoDate'] = Datastream::getEmbargoDate($pid, $datastreams[$ds_key]['ID']);
                     $fileCount++;
                 }
 
