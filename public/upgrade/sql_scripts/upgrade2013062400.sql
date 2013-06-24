@@ -1,0 +1,1 @@
+UPDATE %TABLE_PREFIX%xsd_display_matchfields SET xsdmf_invisible = '1' WHERE xsdmf_title = 'Description for File Upload'

@@ -162,7 +162,7 @@ function swfuploaderUploadFiles() {
 		// disable all cancel buttons in the uploader table
 		var table = dojo.byId('uploader_file_table');
 		var rows = table.rows;
-		for(i=1;i<rows.length;i++){ // ignore header row
+		for(i=1;i<rows.length;i=i+2){ // ignore header row
 			var cells = rows[i].getElementsByTagName('td');
 			// alert(cells.length);
 			cells[3].innerHTML = 'Uploading';
@@ -298,8 +298,11 @@ function swfuploaderAddDatatableEntry(entry) {
 	var tableBody = document.getElementById('uploader_file_details');
 	var rowCount = tableBody.rows.length;
 	var row = tableBody.insertRow(rowCount);
+    var row2 = tableBody.insertRow(rowCount+1);
 	row.id = 'uploaderRow-'+entry.id;
-	row.className = ((rowCount+1) % 2 == 0) ? 'even' : 'odd';
+    row2.id = 'uploaderRow-'+entry.id+'_';
+	row.className = ((rowCount+1) % 4 == 3) ? 'even' : 'odd';
+    row2.className = ((rowCount+1) % 4 == 3) ? 'even' : 'odd';
 
 	var progressbar = "<div style='height:5px;width:100px;background-color:#999;'></div>";
 	var formattedSize = size_format(entry.size);
@@ -310,19 +313,38 @@ function swfuploaderAddDatatableEntry(entry) {
 	var fileCell = row.insertCell(0);
 	fileCell.innerHTML = entry.name;
 
-	var sizeCell = row.insertCell(1);
+    var progressCell = row.insertCell(1);
+    progressCell.id = 'uploaderfilePermissionsNew-'+entry.id;
+
+    progressCell.innerHTML = '<select name="filePermissionsNew['+entry.id.slice(-1)+']" onchange="javascript:filePermissionsNewChange('+entry.id.slice(-1)+');"> \
+    <option label="Please choose file type" value="0">Please choose file type</option> \
+    <option label="Accepted version (author final draft  post-refereeing)" value="1">Accepted version (author final draft  post-refereeing)</option> \
+    <option label="Submitted version (author version pre-refereeing)" value="2">Submitted version (author version pre-refereeing)</option> \
+    <option label="Publishers Copy (Open Access)" value="3">Publishers Copy (Open Access)</option> \
+    <option label="Working/Technical Paper" value="4">Working/Technical Paper</option> \
+    <option label="HERDC evidence (not open access- admin only)" value="5">HERDC evidence (not open access- admin only)</option> \
+    <option label="Other (any files not included in any of the above)" value="6">Other (any files not included in any of the above)</option> \
+    </select>';
+
+	var sizeCell = row.insertCell(2);
 	sizeCell.className = 'uploader_file_size';
 	sizeCell.innerHTML = formattedSize;
 
-	var progressCell = row.insertCell(2);
+	var progressCell = row.insertCell(3);
 	progressCell.id = 'uploaderProgressBar-'+entry.id;
 	progressCell.innerHTML = progressbar;
 
-	var deleteCell = row.insertCell(3);
+	var deleteCell = row.insertCell(4);
 	deleteCell.id = 'uploaderCancelCell-'+entry.id;
 	deleteCell.className = 'uploaderDeleteLinkCell';
 	deleteCell.innerHTML = '<a href="javascript:uploaderRemoveFileUpload(\''+entry.id+'\');">Remove</a>';
-	
+
+    var sizeCell2 = row2.insertCell(0);
+    sizeCell2.innerHTML ='Embargo Date: <input type="text" id="datepicker'+entry.id+'" name="embargo_date['+entry.id.slice(-1)+']" />'
+    $( "#datepicker"+entry.id ).datepicker({dateFormat : 'dd-mm-yy'});
+    var sizeCell2 = row2.insertCell(1);
+    sizeCell2.colSpan = 4;
+    sizeCell2.innerHTML ='Description for File Upload '+entry.id+'<input type="text" size="60" name="description['+entry.id.slice(-1)+']"/>'
 }
 
 // ========================================================

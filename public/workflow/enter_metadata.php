@@ -52,6 +52,7 @@ include_once(APP_INC_PATH . "class.workflow_status.php");
 include_once(APP_INC_PATH . "class.org_structure.php");
 include_once(APP_INC_PATH . "class.uploader.php");
 include_once(APP_INC_PATH . "class.my_research.php");
+include_once(APP_INC_PATH . "class.datastream.php");
 
 // Temporary solution for SWFUpload not working on HTTPS environment
 if ( $_SERVER["SERVER_PORT"] == 443)  {
@@ -151,9 +152,33 @@ if ($access_ok) {
 
     // check for post action
     if (@$_POST["cat"] == "report") {
+
+        //Set file description variables and other stuff from the swf uploader section
+        $max = NULL;
+        if (!empty($_POST['embargo_date']) || !empty($_POST['description']) || !empty($_POST['filePermissionsNew']) ) {
+            //get maximum key in all three arrays
+            $max = max(max(array_keys($_POST['embargo_date'])), max(array_keys($_POST['description'])), max(array_keys($_POST['filePermissionsNew'])));
+            $xsdmf_id = XSD_HTML_Match::getXSDMFIDByTitleXDIS_ID('Description for File Upload', $xdis_id); //XSD_HTML_Match::getXSDMF_IDBySekIDXDIS_ID(Search_Key::getID(), $xdis_id); 6165;
+            for ($i = 0; $i<=$max; $i++) {
+                $_POST['xsd_display_fields'][$xsdmf_id][$i] = $_POST['description'][$i];
+            }
+        }
+
         $res = Record::insert();
         $wfstatus->setCreatedPid($res);
         $wfstatus->pid = $res;
+
+        if ($max !== NULL) {
+            for ($i = 0; $i<=$max; $i++) {
+                $fileXdis_id = $_POST['uploader_files_uploaded'];
+                $filename = $_FILES['xsd_display_fields']['name'][$fileXdis_id][$i];
+                Datastream::saveDatastreamSelectedPermissions($wfstatus->pid, $filename, $_POST['filePermissionsNew'][$i], $_POST['embargo_date'][$i]);
+               if ($_POST['filePermissionsNew'][$i] == 5) {
+                    Datastream::setfezACML($wfstatus->pid, $filename, 10);
+               }
+            }
+
+        }
     }
 
     // Record the Internal Note, if we've been handed one.
@@ -338,4 +363,4 @@ if(!$isAdmin) {
 
 $tpl->assign("isAdmin", $isAdmin);
 $tpl->displayTemplate();
-?>
+

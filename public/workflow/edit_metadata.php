@@ -51,6 +51,7 @@ include_once(APP_INC_PATH . "class.org_structure.php");
 include_once(APP_INC_PATH . "class.record_edit_form.php");
 include_once(APP_INC_PATH . "class.uploader.php");
 include_once(APP_INC_PATH . "class.internal_notes.php");
+include_once(APP_INC_PATH . "class.datastream.php");
 
 // Temporary solution for SWFUpload not working on HTTPS environment
 if ( $_SERVER["SERVER_PORT"] == 443)  {
@@ -99,6 +100,8 @@ $tpl = new Template_API();
 $tpl->setTemplate("workflow/index.tpl.html");
 $tpl->assign("type", "edit_metadata");
 $tpl->assign('jquery', true);
+$tpl->assign("jqueryUI", true);
+$tpl->assign('file_options', Datastream::$file_options);
 
 $link_self = $_SERVER['PHP_SELF'].'?'.http_build_query(array('id' => $wfstatus->id));
 $tpl->assign('link_self', $link_self);
@@ -159,6 +162,22 @@ if (isset($_POST['editedFilenames']) && is_array($_POST['editedFilenames'])) {
 	}
 }
 
+//Set file description variables and other stuff from the swf uploader section
+$max = NULL;
+if (!empty($_POST['embargo_date']) || !empty($_POST['description']) || !empty($_POST['filePermissionsNew']) ) {
+    //get maximum key in all three arrays
+    $max = max(max(array_keys($_POST['embargo_date'])), max(array_keys($_POST['description'])), max(array_keys($_POST['filePermissionsNew'])));
+    for ($i = 0; $i<=$max; $i++) {
+        $xsdmf_id = XSD_HTML_Match::getXSDMFIDByTitleXDIS_ID('Description for File Upload', $_POST['xdis_id']);
+        $_POST['xsd_display_fields'][$xsdmf_id][$i] = $_POST['description'][$i];
+        $fileXdis_id = $_POST['uploader_files_uploaded'];
+        $filename = $_FILES['xsd_display_fields']['name'][$fileXdis_id][$i];
+        Datastream::saveDatastreamSelectedPermissions($wfstatus->pid, $filename, $_POST['filePermissionsNew'][$i], $_POST['embargo_date'][$i]);
+        if ($_POST['filePermissionsNew'][$i] == 5) {
+            Datastream::setfezACML($wfstatus->pid, $filename, 10);
+        }
+    }
+}
 
 $wfstatus->setTemplateVars($tpl);
 $wfstatus->checkStateChange();
