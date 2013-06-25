@@ -46,8 +46,6 @@ include_once(APP_INC_PATH . "class.workflow_trigger.php");
  */
 class MyResearch
 {
-    private static $_file_options = Datastream::file_options;
-
 
     function addDatasetLink(&$tpl) {
       $wft_id = WorkflowTrigger::getWorkflowTriggerIDByTitle("Submission of Dataset");
@@ -95,6 +93,7 @@ class MyResearch
         $tpl->assign("isSuperAdministrator", $isSuperAdministrator);
         $tpl->assign("isUPO", $isUPO);
         $tpl->assign("active_nav", "my_fez");
+        $tpl->assign("jqueryUI", true);
 
         // Some text will be presented slightly differently to the user if they also have edited something.
         $tpl->assign("is_editor", Author::isAuthorAlsoAnEditor($author_id));
@@ -110,7 +109,7 @@ class MyResearch
             } elseif ($action == 'claim') {
                 $recordDetails = Record::getDetailsLite(Misc::GETorPOST('claim-pid'));
                 $tpl->assign("pid", $recordDetails[0]['rek_pid']);
-                $tpl->assign('file_options', MyResearch::$_file_options);
+                $tpl->assign('file_options', Datastream::$file_options);
                 $tpl->assign('sherpa_romeo_link',SherpaRomeo::getJournalColourFromPidComment($recordDetails[0]['rek_pid']));
                 $tpl->assign("citation", $recordDetails[0]['rek_citation']);
                 $tpl->assign("herdc_message", MyResearch::herdcMessage($recordDetails[0]['rek_date']));
@@ -131,7 +130,7 @@ class MyResearch
             } elseif ($action == 'correction') {
                 $recordDetails = Record::getDetailsLite(Misc::GETorPOST('pid'));
                 //---------------------------
-                $tpl->assign('file_options', MyResearch::$_file_options);
+                $tpl->assign('file_options', Datastream::$file_options);
                 $tpl->assign('sherpa_romeo_link',SherpaRomeo::getJournalColourFromPidComment($recordDetails[0]['rek_pid']));
                 $tpl->assign('header_include_flash_uploader_files', 1);
                 //---------------------------
@@ -861,8 +860,9 @@ class MyResearch
                 //If a HERDC file set permissions(5) to admin and upo only(10) ( else open access, which is inherit in this case)
                 $fezACMLTemplateNum = ($_POST['filePermissions'][$key] == 5) ? 10 : NULL;
                 Datastream::addDatastreamToPid($pid, $file, $fezACMLTemplateNum);
+                Datastream::saveDatastreamSelectedPermissions($pid, $file, $_POST['filePermissions'][$key], $_POST['embargo_date'][$key]);
                 $filePermsNumber = $_POST['filePermissions'][$key];
-                $historyComment .= $file.' - "'.MyResearch::$_file_options[$filePermsNumber].'"; ';
+                $historyComment .= $file.' - "'.Datastream::$file_options[$filePermsNumber].'"; ';
             }
         }
         History::addHistory($pid, null, '', '', true, 'User File Uploads', $historyComment);

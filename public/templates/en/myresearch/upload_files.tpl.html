@@ -52,15 +52,18 @@ function filePermissionsChange(descriptionNum) {
             {assign var='loop_num' value=$smarty.section.file_input.index}
             <span {if $smarty.section.file_input.index != 0}style="display:none"{/if} id=file_upload_{$smarty.section.file_input.index}>
 <table>
-    <tr><th>Type of File</th><th>File to be uploaded</th><th>Description</th></tr>
-    <tr><td>
+    <tr><th>Type of File</th><th>File to be uploaded</th></tr>
+    <tr class="{if $smarty.section.file_input.index % 2 == 0}text-input-odd{else}text-input-even{/if}"><td>
                 <select name="filePermissions[]" onchange="javascript:filePermissionsChange({$smarty.section.file_input.index});">
             {html_options options=$file_options} *
                 </select>
                 </td><td>
             <input type="file" name="file[{$smarty.section.file_input.index}]" onchange="javascript:uploadFile({$smarty.section.file_input.index});" />
-                 </td><td>
-            <input type="text" name="description[{$smarty.section.file_input.index}]" size="55" /><br>
+                 </td></tr><tr class="{if $smarty.section.file_input.index % 2 == 0}text-input-odd{else}text-input-even{/if}"><td>
+    Description: <input type="text" name="description[{$smarty.section.file_input.index}]" size="55" />
+    </td><td>
+    Embargo Date: <input type="text" id="datepicker{$smarty.section.file_input.index}" name="embargo_date[{$smarty.section.file_input.index}]" /><br><br>
+            <script type="text/javascript"> $( "#datepicker{$smarty.section.file_input.index}" ).datepicker({ldelim}dateFormat : 'dd-mm-yy'{rdelim}); </script>
     </td></tr>
 </table>
             </span>

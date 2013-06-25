@@ -52,4 +52,3 @@ if (APP_MY_RESEARCH_MODULE != 'ON') {
 
 MyResearch::dispatcher("claimed");
 
-?>
