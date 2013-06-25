@@ -24,6 +24,6 @@
 	background-color: #eee;
 }
 
-td.uploader_file_size { 
+td.uploader_file_size, tr th.uploader_file_size {
 	text-align: right; 
 }

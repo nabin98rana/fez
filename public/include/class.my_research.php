@@ -94,6 +94,7 @@ class MyResearch
         $tpl->assign("isUPO", $isUPO);
         $tpl->assign("active_nav", "my_fez");
         $tpl->assign("jqueryUI", true);
+        $tpl->assign("jquery", true);
 
         // Some text will be presented slightly differently to the user if they also have edited something.
         $tpl->assign("is_editor", Author::isAuthorAlsoAnEditor($author_id));

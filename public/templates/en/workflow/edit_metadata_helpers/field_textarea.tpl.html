@@ -6,7 +6,7 @@
 		{/if}
 	</td>
 	<td bgcolor="{$value_color}">
-	   <textarea class="default"  id="xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_0" name="xsd_display_fields[{$xsd_display_fields[i].xsdmf_id}]" rows="10" cols="60" {if $xsd_display_fields[i].xsdmf_validation_maxlength != null && $xsd_display_fields[i].xsdmf_validation_maxlength > 0}maxlength="{$xsd_display_fields[i].xsdmf_validation_maxlength}" validation="required"{/if}>{$details[$temp_fld_id]}</textarea>
+	   <textarea class="default"  id="xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_0" name="xsd_display_fields[{$xsd_display_fields[i].xsdmf_id}]" rows="8" cols="85" {if $xsd_display_fields[i].xsdmf_validation_maxlength != null && $xsd_display_fields[i].xsdmf_validation_maxlength > 0}maxlength="{$xsd_display_fields[i].xsdmf_validation_maxlength}" validation="required"{/if}>{$details[$temp_fld_id]}</textarea>
 	   {include file="error_icon.tpl.html" field="xsd_display_fields["|cat:$xsd_display_fields[i].xsdmf_id|cat:"]"}
 	   {if $xsd_display_fields[i].xsdmf_required == 1}
         <script language="JavaScript">
