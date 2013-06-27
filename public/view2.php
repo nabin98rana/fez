@@ -854,7 +854,8 @@ function generateTimestamps($pid, $datastreams, $requestedVersionDate, $tpl)
     // Retrieve all versions of all datastreams
     foreach ($datastreams as $datastream) {
       //probably only need to check the dates of the FezMD datastream. This should reduce calls to Fedora and improve performance - CK added 17/7/2009.
-      if ($datastream['ID'] == 'FezMD') {
+        //Re-added mods since they also need checking
+		if ($datastream['ID'] == 'FezMD' || $datastream['ID'] == 'MODS') {
         $parms = array('pid' => $pid, 'dsID' => $datastream['ID']);
 
         $datastreamVersions = Fedora_API::openSoapCall('getDatastreamHistory', $parms);
