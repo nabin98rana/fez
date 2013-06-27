@@ -259,6 +259,28 @@ class User
 		return $isUPO;
 	}
 
+    /**
+     * Method used to check whether an user is in the Org's IP range.
+     *
+     * @access  public
+     * @return  boolean
+     */
+    function isUserInOrgIPRange()
+    {
+        $ip = ip2long($_SERVER['REMOTE_ADDR']);
+        if ( ($ip > ip2long('130.102.0.0') && $ip < ip2long('130.102.255.255')) ||
+             ($ip > ip2long('152.98.192.0') && $ip < ip2long('152.98.255.255')) ||
+             ($ip > ip2long('10.0.0.0') && $ip < ip2long('10.255.255.255')) ||
+             ($ip > ip2long('172.16.0.0') && $ip < ip2long('172.31.255.255')) ||
+             ($ip > ip2long('192.168.0.0') && $ip < ip2long('192.168.255.255')) ) {
+            return true;
+        } else {
+            return false;
+        }
+
+    }
+
+
 	/**
 	 * Method used to check whether an user is an administrator.
 	 *
