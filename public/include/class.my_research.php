@@ -807,7 +807,7 @@ class MyResearch
     }
 
     /**
-     * Fire relevant subroutines for correcting a claimed publication this uploads attached.
+     * Fire relevant subroutines for correcting a claimed publication with uploads attached.
      */
     function claimedPubsCorrectFileUpload($pid)
     {
@@ -816,7 +816,6 @@ class MyResearch
         $author = Auth::getActingUsername();
         $user = Auth::getUsername();
         $correction = @$_POST['correction_upload'];
-        $jobID = MyResearch::markClaimedPubAsNeedingCorrection($pid, $author, $user, $correction);
 
         // 2. Send an email to Eventum about it
         $authorDetails = Author::getDetailsByUsername($author);

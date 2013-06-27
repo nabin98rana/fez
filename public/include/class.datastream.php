@@ -96,6 +96,7 @@ class Datastream
 
     }
 
+    //Saves $permissions and $embargo date. Does nothing and returns with true if both are unchanged
     function saveDatastreamSelectedPermissions($pid, $dsId, $permissions, $embargoDate)
     {
         $log = FezLog::get();
@@ -163,7 +164,7 @@ class Datastream
         return $res;
     }
 
-    function getEmbargoDate($pid, $dsId)
+    static function getEmbargoDate($pid, $dsId)
     {
         $log = FezLog::get();
         $db = DB_API::get();

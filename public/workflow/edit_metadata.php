@@ -154,6 +154,17 @@ if (isset($_POST['editedFileDescriptions']) && is_array($_POST['editedFileDescri
 	}
 }
 
+if (isset($_POST['fileNamesOld']) && is_array($_POST['fileNamesOld'])) {
+    $fileNames = $_POST['fileNamesOld'];
+    $filePermissions = $_POST['filePermissionsOld'];
+    $embargoDate = $_POST['embargoDateOld'];
+
+    foreach ($fileNames as $counter => $dsId) {
+        if ( !empty($filePermissions[$counter]) || !empty($embargoDate[$counter]) ) {
+            Datastream::saveDatastreamSelectedPermissions($pid, $dsId, $filePermissions[$counter], $embargoDate[$counter]);
+        }
+    }
+}
 // if the file names have changed, record this
 // this has to be done after the descriptions, otherwise, the datastream names will have changed and the description won't know which one to apply to
 if (isset($_POST['editedFilenames']) && is_array($_POST['editedFilenames'])) {

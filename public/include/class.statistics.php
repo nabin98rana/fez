@@ -529,6 +529,7 @@ class Statistics
 		}
 	}
 
+    //Remember the pid will have to be placed in the fulltext queue after update to ensure solr is kept up to date.
 	function updateSummaryStats()
 	{
 		$log = FezLog::get();
@@ -1134,6 +1135,7 @@ class Statistics
 	// 	$db->query($q, array($duplicatePid));
 	// }
 
+    //Remember the pids will have to be placed in the fulltext queue after update to ensure solr is kept up to date.
 	function updateSummaryStatsByIncrement($stats = array())
 	{
 		$log = FezLog::get();
@@ -1176,6 +1178,7 @@ class Statistics
 		}
 	}
 
+    //Remember the pid will have to be placed in the fulltext queue after update to ensure solr is kept up to date.
 	function updateSummaryStatsOnPid($pid)
 	{
 		$log = FezLog::get();

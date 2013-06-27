@@ -62,10 +62,10 @@ function filePermissionsChange(descriptionNum) {
                  </td></tr><tr class="{if $smarty.section.file_input.index % 2 == 0}text-input-odd{else}text-input-even{/if}"><td>
     Description: <input type="text" name="description[{$smarty.section.file_input.index}]" size="55" />
     </td><td>
-    Embargo Date: <input type="text" id="datepicker{$smarty.section.file_input.index}" name="embargo_date[{$smarty.section.file_input.index}]" /><br><br>
+    Embargo Date: <input type="text" id="datepicker{$smarty.section.file_input.index}" name="embargo_date[{$smarty.section.file_input.index}]" />
             <script type="text/javascript"> $( "#datepicker{$smarty.section.file_input.index}" ).datepicker({ldelim}dateFormat : 'dd-mm-yy'{rdelim}); </script>
     </td></tr>
-</table>
+</table><br>
             </span>
 {/section}
     <br />Note: Filenames must start with a letter, use only lower case alphanumeric characters and underscores (_) and be less than 45 characters e.g. smith_postprint.pdf.

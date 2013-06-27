@@ -58,14 +58,14 @@
                 <td class="default_white" colspan="4" style="background: {$heading_color}; height: 22px"><b>Attached Files</b></td>
               </tr>
 
-              <tr class="default">
-                <td style="background: {$cell_color}">Name</td>
-                <td style="background: {$cell_color}">Description (click to edit)</td>
-                <td style="background: {$cell_color}">MIMEType</td>
-              </tr>
         {assign var="filecounter" value=0}
         {section name="d" loop=$datastreams}
             {if $datastreams[d].controlGroup == "M" && ($datastreams[d].isLister == 1 || $isAdministrator)}
+            <tr class="default">
+                <td style="background: {$cell_color};padding:10px;">Name</td>
+                <td style="background: {$cell_color};padding:10px;">Description (click to edit)</td>
+                <td style="background: {$cell_color};padding:10px;">MIMEType</td>
+            </tr>
               <tr class="default">
                 {assign var="image_file_name" value=$datastreams[d].MIMEType|replace:"/":"_"|cat:".png"}
                 {assign var="image_name" value=$fez_root_dir|cat:"images/"|cat:$image_file_name}
@@ -108,6 +108,19 @@
                 <td bgcolor="{$value_color}"><div id="{$pid}_{$filecounter}_div"><span id="{$pid}_{$filecounter}_span" onclick="editFileLabel('{$pid}', '{$datastreams[d].ID}', {$filecounter});">{if $datastreams[d].label == ""}(empty){else}{$datastreams[d].label}{/if}</span></div></td>
                 <td bgcolor="{$value_color}">{$datastreams[d].MIMEType}</td>
               </tr>
+            <tr class="default">
+                <td bgcolor="{$value_color}" style="padding:10px;"><select name="filePermissionsOld[]">
+                    File Classification: {html_options options=$file_options selected=$datastreams[d].classification} *
+                </select></td>
+
+                <input type="hidden" name="fileNamesOld[]" value="{$datastreams[d].ID}">
+                <td bgcolor="{$value_color}" style="padding:10px;">
+                    Embargo Date: <input type="text" id="datepicker{$filecounter}" name="embargoDateOld[]" value = "{$datastreams[d].embargoDate}"/>
+                <script type="text/javascript"> $( "#datepicker{$filecounter}" ).datepicker({ldelim}dateFormat : 'dd-mm-yy'{rdelim}); </script>
+                </td>
+
+                <td  bgcolor="{$value_color}">&nbsp;</td>
+            </tr>
              {/if}
         {/section}
 </table>

@@ -344,7 +344,7 @@ function swfuploaderAddDatatableEntry(entry) {
     $( "#datepicker"+entry.id ).datepicker({dateFormat : 'dd-mm-yy'});
     var sizeCell2 = row2.insertCell(1);
     sizeCell2.colSpan = 4;
-    sizeCell2.innerHTML ='Description for File Upload '+entry.id+'<input type="text" size="60" name="description['+entry.id.slice(-1)+']"/>'
+    sizeCell2.innerHTML ='Description for File Upload<br /><input type="text" size="60" name="description['+entry.id.slice(-1)+']"/>'
 }
 
 // ========================================================

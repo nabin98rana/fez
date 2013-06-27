@@ -115,6 +115,11 @@ function submitForm()
                 return false;
             }
         }
+
+        //If they entered nothing in the box set it to ''
+        if (document.getElementById('correction').value == 'Information about the files') {
+            document.getElementById('correction').value = '';
+        }
     }
 
 	if (global_submitted < 2) {
