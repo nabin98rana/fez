@@ -20,7 +20,7 @@
 							{else}
 								{assign var="FckValue" value=""}
 							{/if}
-							{fckeditor BasePath=$fckpath InstanceName=$InstanceName Width="500px" Height="200px" ToolbarSet="FezBasic" Value=$FckValue|smarty:nodefaults}
+							{fckeditor BasePath=$fckpath InstanceName=$InstanceName Width="705px" Height="180px" ToolbarSet="FezBasic" Value=$FckValue|smarty:nodefaults}
 							{include file="error_icon.tpl.html" field="xsd_display_fields["|cat:$xsdmf.xsdmf_id|cat:"][]"}
 							{if $xsdmf.xsdmf_long_description != ""}
 							  <span class="default">{$xsdmf.xsdmf_long_description|smarty:nodefaults}</span>
@@ -45,7 +45,7 @@
 							{else}
 								{assign var="FckValue" value=""}
 							{/if}
-							{fckeditor BasePath=$fckpath InstanceName=$InstanceName Width="500px" Height="200px" ToolbarSet="FezBasic" Value=$FckValue|smarty:nodefaults}
+							{fckeditor BasePath=$fckpath InstanceName=$InstanceName Width="705px" Height="180px" ToolbarSet="FezBasic" Value=$FckValue|smarty:nodefaults}
 							{include file="error_icon.tpl.html" field="xsd_display_fields["|cat:$xsdmf.xsdmf_id|cat:"]"}
 							{if $xsdmf.xsdmf_long_description != ""}
 								<span class="default">{$xsdmf.xsdmf_long_description|smarty:nodefaults}</span>
