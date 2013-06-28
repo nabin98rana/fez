@@ -4216,7 +4216,7 @@ function getSearchKeyIndexValueShadow($pid, $searchKeyTitle, $getLookup=true, $s
                             " SELECT rek_keywords_pid AS rek_pid, MATCH(rek_keywords) AGAINST (".
                             $db->quote($input).") AS Relevance ".
                             " FROM {$dbtp}record_search_key_keywords ".
-                            " WHERE MATCH (rek_keywords) AGAINST (".$db->quote('*'.$input.'*')." IN BOOLEAN MODE))".
+                            " WHERE MATCH (rek_keywords) AGAINST (".$db->quote(''.$input.'*')." IN BOOLEAN MODE))".
                             " AS search ON search.rek_pid = r1.rek_pid ";
 
         $searchKey_join[SK_GROUP_BY] = " GROUP BY r1.rek_pid ";

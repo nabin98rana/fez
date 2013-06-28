@@ -695,7 +695,7 @@ class Author
 					}
         }
       } else {
-        $where_stmt .= " WHERE MATCH(aut_fname, aut_lname) AGAINST (".$db->quote('*'.$filter.'*')." IN BOOLEAN MODE) OR aut_org_username LIKE ".$db->quote($filter.'%')." ";
+        $where_stmt .= " WHERE MATCH(aut_fname, aut_lname) AGAINST (".$db->quote(''.$filter.'*')." IN BOOLEAN MODE) OR aut_org_username LIKE ".$db->quote($filter.'%')." ";
         $extra_stmt = " , MATCH(aut_fname, aut_lname) AGAINST (".$db->quote($filter).") as Relevance ";
         $extra_order_stmt = " Relevance DESC, ";
       }
@@ -1285,7 +1285,7 @@ class Author
     if (is_numeric($term)) {
       $stmt .= " WHERE (aut_id=".$db->quote($term, 'INTEGER');
     } else if (is_numeric(strpos(APP_SQL_DBTYPE, "mysql"))) {
-      $stmt .= " WHERE ( aut_lname = ".$db->quote($term)." OR MATCH (aut_display_name) AGAINST (".$db->quote('*'.$term.'*')." IN BOOLEAN MODE)
+      $stmt .= " WHERE ( aut_lname = ".$db->quote($term)." OR MATCH (aut_display_name) AGAINST (".$db->quote(''.$term.'*')." IN BOOLEAN MODE)
                  OR MATCH (aut_org_username) AGAINST (".$db->quote($term)." IN BOOLEAN MODE)";
     } else {
       $stmt .= " WHERE (";

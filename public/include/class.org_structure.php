@@ -431,7 +431,7 @@ class Org_Structure
 			$stmt .= " LIMIT 10 OFFSET 0) AS tempsuggest";
 		} else {
 			$stmt .= ",MATCH(org_title) AGAINST (".$db->quote($term).") as Relevance FROM ".$dbtp."org_structure
-		 WHERE MATCH (org_title) AGAINST (".$db->quote('*'.$term.'*')." IN BOOLEAN MODE) AND org_title NOT LIKE 'Faculty of%' AND (org_extdb_name = 'hr' OR org_extdb_name = 'centralorg' OR org_extdb_name = 'rrtd') ";
+		 WHERE MATCH (org_title) AGAINST (".$db->quote(''.$term.'*')." IN BOOLEAN MODE) AND org_title NOT LIKE 'Faculty of%' AND (org_extdb_name = 'hr' OR org_extdb_name = 'centralorg' OR org_extdb_name = 'rrtd') ";
 			$stmt .= " ORDER BY Relevance DESC, org_title LIMIT 10 OFFSET 0) AS tempsuggest";
 		}
 

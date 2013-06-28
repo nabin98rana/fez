@@ -1365,7 +1365,7 @@ class User
 		$extra_order_stmt = "";
 		if (!empty($filter)) {
 	    if (is_numeric(strpos(APP_SQL_DBTYPE, "mysql"))) {
-				$where_stmt .= " WHERE match(usr_full_name, usr_given_names, usr_family_name, usr_username, usr_shib_username) AGAINST (".$db->quote('*'.$filter.'*')." IN BOOLEAN MODE) ";
+				$where_stmt .= " WHERE match(usr_full_name, usr_given_names, usr_family_name, usr_username, usr_shib_username) AGAINST (".$db->quote(''.$filter.'*')." IN BOOLEAN MODE) ";
 				$extra_stmt = " , match(usr_full_name, usr_given_names, usr_family_name, usr_username, usr_shib_username) AGAINST (".$db->quote($filter).") as Relevance ";
 				$extra_order_stmt = " Relevance DESC, ";
 			} else {
@@ -1680,7 +1680,7 @@ class User
 
 		if (is_numeric(strpos(APP_SQL_DBTYPE, "mysql"))) {
 			$stmt .= "
-			 WHERE MATCH (usr_full_name) AGAINST (".$db->quote('*'.$term.'*')." IN BOOLEAN MODE)";
+			 WHERE MATCH (usr_full_name) AGAINST (".$db->quote(''.$term.'*')." IN BOOLEAN MODE)";
 		} else {
 			$stmt .= " WHERE ";
 			$names = explode(" ", $term);
