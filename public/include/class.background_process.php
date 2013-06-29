@@ -145,11 +145,13 @@ class BackgroundProcess {
 		$db = DB_API::get();
 
 		$dbtp =  APP_TABLE_PREFIX;
-		$stmt = "UPDATE ".$dbtp."background_process SET bgp_state=".$db->quote($state)." WHERE bgp_id=".$db->quote($this->bgp_id, 'INTEGER');
+		$stmt = "UPDATE ".$dbtp."background_process SET bgp_state=".$db->quote($state,'INTEGER')." WHERE bgp_id=".$db->quote($this->bgp_id, 'INTEGER');
 		try {
 			$db->exec($stmt);
+      $db->commit();
 		}
 		catch(Exception $ex) {
+      $this->setStatus($ex->getMessage());
 			$log->err($ex);
 		}
 		$this->setHeartbeat();
