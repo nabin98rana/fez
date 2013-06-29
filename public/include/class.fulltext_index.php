@@ -198,6 +198,8 @@ abstract class FulltextIndex {
 		// mark lock with pid
 		if (FulltextQueue::USE_LOCKING) {
 			if (!$this->updateLock()) {
+        $this->bgp->setStatus("Lock already acquired by another process, aborting");
+        $this->bgp->setState(2);
 				return false;
 			}
 		}
