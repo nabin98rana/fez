@@ -306,9 +306,9 @@
 			{if $isUser && ($useGoogleCitationCounts == 'ON')}
             <td align="center">
             {if $list_info.total_rows > 0 && ($list_type !== 'collection_list' && $list_type !== 'community_list')}
-            	<img src="{$rel_url}images/favicon_googlescholar.png" title="Google Scholar Citation Count" alt="Google Scholar Citation Count" />
+              <img src="{$rel_url}images/altmetric.png" width="21px" title="Altmetric Score" alt="Altmetric Score" />
             {/if}
-            </td>
+          </td>
 			{/if}
         </tr>
 
@@ -511,6 +511,16 @@
             {/if}
 		  </td>
 		  {/if}
+
+        <td align="left"{if !$isUser && !$icon}colspan="2" {/if} valign="middle" style="border-top:1px dashed #be87e9; width: 100%;">
+          {if $list[i].rek_altmetric_score != ""}
+            <a href="http://www.altmetric.com/details.php?citation_id={$list[i].rek_altmetric_id}">{$list[i].rek_altmetric_score}</a>
+          {elseif $list[i].rek_altmetric_score == 0}
+            {$list[i].rek_altmetric_score}
+          {else}
+            &nbsp;
+          {/if}
+        </td>
 
 
 	       </tr>

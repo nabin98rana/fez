@@ -138,6 +138,11 @@ function correctionRequired(pid)
 			        		<img src="{$rel_url}images/scopus_logo_small.gif" title="Scopus Citation Count" alt="Scopus Citation Count" />
 			        	{/if}
 			        </th>
+              <th style="text-align: center; padding: 2px;">
+                {if $list_info.total_rows > 0 && ($list_type !== 'collection_list' && $list_type !== 'community_list')}
+                  <img src="{$rel_url}images/altmetric.png" width="21px" title="Altmetric Score" alt="Altmetric Score" />
+                {/if}
+              </th>
 			        <th></th>
 			    </tr>
 		{/if}
@@ -232,6 +237,14 @@ function correctionRequired(pid)
 					{$list[i].rek_scopus_citation_count}
 				{/if}
 			</td>
+
+      <td style="vertical-align: middle; text-align: center;">
+        {if $list[i].rek_altmetric_score != ""}
+          <a href="http://www.altmetric.com/details.php?citation_id={$list[i].rek_altmetric_id}">{$list[i].rek_altmetric_score}</a>
+        {elseif $list[i].rek_altmetric_score == 0}
+          {$list[i].rek_altmetric_score}
+        {/if}
+      </td>
 
 			<td>
 				{if $flagged_claimed[$pid].type == 'D'}

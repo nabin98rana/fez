@@ -333,6 +333,9 @@ class Default_Data
 													'Zend_Filter_StripTags,';
         $defaultData['sherpa_romeo_url']                = "";
         $defaultData['sherpa_romeo_api']                = "";
+        $defaultData['altmetric_api_enabled']           = "false";
+        $defaultData['altmetric_api_url']               = "";
+        $defaultData['altmetric_api_key']               = "";
 		return $defaultData;
 	}
 

@@ -1439,6 +1439,7 @@ class Record
     Google_Scholar::updateCitationCache($pid);
     Record::updateThomsonCitationCountFromHistory($pid);
     Record::updateScopusCitationCountFromHistory($pid);
+    Record::updateAltmetricScoreFromHistory($pid);
 
     //
     // KJ: update fulltext index
@@ -3646,6 +3647,74 @@ class Record
     }
     return true;
   }
+
+
+    /**
+     * Updates the Altmetric score for a record using the last
+     * retrieved score from the history table
+     *
+     * @param $pid The PID to update the score for
+     * @return bool True if the update was successful else false
+     */
+    public static function updateAltmetricScoreFromHistory($pid)
+    {
+        $log = FezLog::get();
+        $db = DB_API::get();
+
+        $dbtp =  APP_TABLE_PREFIX; // Database and table prefix
+
+        // Get the DOI
+        $doi = false;
+        $stmt = "SELECT
+                      rek_doi
+                   FROM
+                      " . $dbtp . "record_search_key_doi
+                   WHERE
+                      rek_doi_pid = ".$db->quote($pid);
+        try {
+            $doi = $db->fetchOne($stmt);
+        }
+        catch(Exception $ex) {
+            $log->err($ex);
+        }
+        if ($doi) {
+            // Get the score using the DOI
+            $stmt = "SELECT
+                        as_score, as_amid
+                     FROM
+                        " . $dbtp . "altmetric
+                     WHERE
+                        as_doi = ".$db->quote($doi)."
+                     ORDER BY as_id DESC";
+
+            try {
+                $res = $db->fetchRow($stmt, array(), Zend_Db::FETCH_ASSOC);
+            }
+            catch(Exception $ex) {
+                $log->err($ex);
+                return false;
+            }
+        }
+
+        // If there is a previous count in the history
+        if (count($res) > 0) {
+            $stmt = "UPDATE
+                  " . $dbtp . "record_search_key
+               SET
+                 rek_altmetric_score = ".$db->quote($res['as_score'], 'INTEGER').",
+                 rek_altmetric_id = ".$db->quote($res['as_amid'], 'INTEGER')."
+               WHERE
+                  rek_pid = ".$db->quote($pid);
+            try {
+                $db->query($stmt);
+            }
+            catch(Exception $ex) {
+                $log->err($ex);
+                return false;
+            }
+        }
+        return true;
+    }
 
   function getPidsByFuzzyTitle(array $fields)
   {

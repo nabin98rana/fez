@@ -28,6 +28,7 @@ function hideAllSubPages()
 	document.getElementById('researcherid').style.display = "none";
 	document.getElementById('wok').style.display = "none";
     document.getElementById('scopus').style.display = "none";
+    document.getElementById('altmetric').style.display = "none";
 }
 
 function updatePreviewColour(el)
@@ -131,7 +132,8 @@ function restoreDefaultColours(el)
 		  <a href="#" onclick="javascript:showSubPage('origami');">Origami Settings</a><br />
 		  <a href="#" onclick="javascript:showSubPage('versioning');">Versioning Settings</a><br />
 		  <a href="#" onclick="javascript:showSubPage('researcherid');">ResearcherID Web Service Settings</a><br />
-            <a href="#" onclick="javascript:showSubPage('scopus');">Scopus Settings</a><br />
+        <a href="#" onclick="javascript:showSubPage('scopus');">Scopus Settings</a><br />
+        <a href="#" onclick="javascript:showSubPage('altmetric');">Altmetric API Settings</a><br />
 		</td>
 	  </tr>
 	</table>
@@ -2357,6 +2359,48 @@ function restoreDefaultColours(el)
                 </tbody>
             </table>
         </div>
+
+    <div id="altmetric" style="display: none;">
+      <table width="100%" class="admin-edit">
+        <thead>
+        <tr>
+          <th colspan="2">
+            <h2>Altmetric API Settings</h2>
+          </th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+          <th>Enabled</th>
+          <td>
+            <select name="altmetric_api_enabled">
+              <option value="false"{if $config_settings.altmetric_api_enabled == "false"} selected="selected"{/if}>No</option>
+              <option value="true"{if $config_settings.altmetric_api_enabled == "true"} selected="selected"{/if}>Yes</option>
+            </select>
+            <br />Enable Altmetric API features. This means you can harvest Altmetric scores from the API and display
+            these on publications listings.
+            {include file="error_icon.tpl.html" field="altmetric_api_enabled"}
+          </td>
+        </tr>
+        <tr>
+          <th>API URL</th>
+          <td>
+            <input type="text" name="altmetric_api_url" value="{$config_settings.altmetric_api_url}" size="100" />
+            <br />The URL of the Altmetric API (include the version you wish to use in the URL).
+            {include file="error_icon.tpl.html" field="altmetric_api_url"}
+          </td>
+        </tr>
+        <tr>
+          <th>API Key</th>
+          <td>
+            <input type="text" name="altmetric_api_key" value="{$config_settings.altmetric_api_key}" size="50" />
+            <br />The API key your institution has been allocated by Altmetric.
+            {include file="error_icon.tpl.html" field="altmetric_api_key"}
+          </td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
 
         <div id="submit" style="display: none;">
 		<br />&nbsp;&nbsp;&nbsp;<input type="submit" name="button" value="Save changes" class="submit" /> &nbsp; <input type="reset" value="Discard changes" /><br /><br />

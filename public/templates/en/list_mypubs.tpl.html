@@ -133,6 +133,11 @@
 					<img src="{$rel_url}images/scopus_logo_small.gif" title="Scopus Citation Count" alt="Scopus Citation Count" />
 				{/if}
 			</td>
+          <td style="text-align: center; padding: 2px;">
+            {if $list_info.total_rows > 0 && ($list_type !== 'collection_list' && $list_type !== 'community_list')}
+            <img src="{$rel_url}images/altmetric.png" width="21px" title="Altmetric Score" alt="Altmetric Score" />
+            {/if}
+          </td>
         </tr>
 		{section name="m" loop=$masterList}
         {assign var="list" value=$masterList[m].0}
@@ -287,6 +292,14 @@
 						{$list[i].rek_scopus_citation_count}
 					{/if}
 				</td>
+
+        <td style="vertical-align: middle; text-align: center; border-top:1px dashed #be87e9;">
+          {if $list[i].rek_altmetric_score != ""}
+            <a href="http://www.altmetric.com/details.php?citation_id={$list[i].rek_altmetric_id}">{$list[i].rek_altmetric_score}</a>
+          {elseif $list[i].rek_altmetric_score == 0}
+            {$list[i].rek_altmetric_score}
+          {/if}
+        </td>
 
 			</tr>
 
