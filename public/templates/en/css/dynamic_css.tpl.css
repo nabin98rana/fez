@@ -160,8 +160,13 @@ div#wordmark { display: none; visibility: hidden; }
     .logout-btn:hover SPAN.login-btn-right{
         background-position: 0 -216px;
     }
-        
-        
+
+.padded_table td, .padded_table th {
+    border:1px solid #CCCCCC;
+    border-spacing:0px;
+    padding:5px;
+}
+
 #mininav { margin: 0pt; padding: 10px 20px 8px 0; color: rgb(255, 255, 255); font-size: 9px; font-family: Helvetica,"Trebuchet MS",sans-serif; font-weight: lighter; float: right; }
 #mininav ul { margin: 0pt; padding: 5px 0 0 15px; list-style-type: none; list-style-image: none; list-style-position: outside; letter-spacing: 1px; }
 #mininav ul li { margin: 0pt 0.8em 0pt 0pt; padding: 0pt; float: left; display: inline; }

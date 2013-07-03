@@ -10,6 +10,7 @@
 <script type="text/javascript" src="{$rel_url}js/yahoo/autocomplete.js"></script>
 <script type="text/javascript" src="{$rel_url}js/editmeta.js"></script>
 <script type="text/javascript" src="{$rel_url}js/textarea.js"></script>
+<script type="text/javascript" src="{$rel_url}js/dynCalendar.js"></script>
 {include file='workflow/edit_metadata_helpers/javascript_block.tpl.html'}
 
 <input type="hidden" name="cat" value="update_form" />
@@ -109,12 +110,12 @@
                 <td bgcolor="{$value_color}">{$datastreams[d].MIMEType}</td>
               </tr>
             <tr class="default">
-                <td bgcolor="{$value_color}" style="padding:10px;"><select name="filePermissionsOld[]">
+                <td bgcolor="{$value_color}" style="padding:5px;"><select name="filePermissionsOld[]">
                     File Classification: {html_options options=$file_options selected=$datastreams[d].classification} *
                 </select></td>
 
                 <input type="hidden" name="fileNamesOld[]" value="{$datastreams[d].ID}">
-                <td bgcolor="{$value_color}" style="padding:10px;">
+                <td bgcolor="{$value_color}" style="padding:5px;">
                     Embargo Date: <input type="text" id="datepicker{$filecounter}" name="embargoDateOld[]" value = "{$datastreams[d].embargoDate}"/>
                 <script type="text/javascript"> $( "#datepicker{$filecounter}" ).datepicker({ldelim}dateFormat : 'dd-mm-yy'{rdelim}); </script>
                 </td>

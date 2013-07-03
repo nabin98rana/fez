@@ -39,7 +39,6 @@
                         prefix="" start_year="$app_earliest_input_year" end_year="+3" all_extra='class="default"'
                         year_extra="id=xsd_display_fields[$temp_xsdmf_id][Year]" month_extra="id=xsd_display_fields[$temp_xsdmf_id][Month]" day_extra="id=xsd_display_fields[$temp_xsdmf_id][Day]"}
 				  {if $xsd_display_fields[i].xsdmf_date_type == 0}
-				 <script language="JavaScript" type="text/javascript" src="{$rel_url}js/dynCalendar.js"></script>
                   <script type="text/javascript">
                   <!--
                   tCalendar_xsd_display_fields{$xsdmf.xsdmf_id} = new dynCalendar('tCalendar_xsd_display_fields{$xsdmf.xsdmf_id}', 'calendarCallback_xsd_display_fields{$xsdmf.xsdmf_id}', '{$rel_url}images/');
