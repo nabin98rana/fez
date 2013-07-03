@@ -316,6 +316,7 @@ function swfuploaderAddDatatableEntry(entry) {
     var progressCell = row.insertCell(1);
     progressCell.id = 'uploaderfilePermissionsNew-'+entry.id;
 
+    //Any changes here must be mirrored in class.datastream.php
     progressCell.innerHTML = '<select name="filePermissionsNew['+entry.id.slice(-1)+']" onchange="javascript:filePermissionsNewChange('+entry.id.slice(-1)+');"> \
     <option label="Please choose file type" value="0">Please choose file type</option> \
     <option label="Accepted version (author final draft  post-refereeing)" value="1">Accepted version (author final draft  post-refereeing)</option> \
@@ -323,7 +324,8 @@ function swfuploaderAddDatatableEntry(entry) {
     <option label="Publishers Copy (Open Access)" value="3">Publishers Copy (Open Access)</option> \
     <option label="Working/Technical Paper" value="4">Working/Technical Paper</option> \
     <option label="HERDC evidence (not open access- admin only)" value="5">HERDC evidence (not open access- admin only)</option> \
-    <option label="Other (any files not included in any of the above)" value="6">Other (any files not included in any of the above)</option> \
+    <option label="Data Collection (Open Access)" value="6">Data Collection (Open Access)</option> \
+    <option label="Other (any files not included in any of the above)" value="7">Other (any files not included in any of the above)</option> \
     </select>';
 
 	var sizeCell = row.insertCell(2);
