@@ -84,7 +84,7 @@ class Altmetric
         $data = array(
             'as_amid' => $info->altmetric_id,
             'as_doi'  => $doi,
-            'as_score' => round($info->score),
+            'as_score' => ceil($info->score),
             'as_last_checked' => time()
         );
 

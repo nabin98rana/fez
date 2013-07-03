@@ -212,6 +212,10 @@ class MyResearch
                 "searchKey" . Search_Key::getID("Scopus Citation Count")  => 'Scopus Citation Count'
             );
 
+            if (defined('ALTMETRIC_API_ENABLED') && ALTMETRIC_API_ENABLED == 'true') {
+                $sort_by_list["searchKey".Search_Key::getID("Altmetric Score")] = "Altmetric Score";
+            }
+
             $options = array();
             $options = Pager::saveSearchParams($params);
             $sort_by = $options["sort_by"];
