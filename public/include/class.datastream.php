@@ -41,7 +41,7 @@ include_once(APP_INC_PATH . 'class.fezacml.php');
 class Datastream
 {
 
-    //Any changes here must be mirrored in swfuploader.js and changes to closed access (Currently only option 5) must be changed in security changes functions applied off these
+    //Any changes here must be mirrored in swfuploader.js and changes to closed access (Currently only option 5) must be changed in security changes functions applied off these and javascript in upload_files_tpl.html
     public static $file_options = array(0 => 'Please choose file type', 1 => 'Accepted version (author final draft  post-refereeing)', 2  => 'Submitted version (author version pre-refereeing)',
         3 => 'Publishers Copy (Open Access)', 4 => 'Working/Technical Paper', 5 => 'HERDC evidence (not open access- admin only)', 6 => 'Data Collection (Open Access)', 7 => 'Other (any files not included in any of the above)'
     );

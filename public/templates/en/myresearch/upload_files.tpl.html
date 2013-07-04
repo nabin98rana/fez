@@ -27,22 +27,13 @@ function filePermissionsChange(descriptionNum) {
     descriptionValue = document.getElementsByName('description[' + descriptionNum + ']')[0].value;
     if (descriptionValue == '' || descriptionValue == 'Full text (open access)' || descriptionValue == 'Full text (administration only)') {
         if (document.getElementsByName('filePermissions[]')[descriptionNum].selectedIndex != 0) {
-            if (document.getElementsByName('filePermissions[]')[descriptionNum].selectedIndex == 4) {
+            if (document.getElementsByName('filePermissions[]')[descriptionNum].selectedIndex == 5) {
              document.getElementsByName('description[' + descriptionNum + ']')[0].value = 'Full text (administration only)';
             } else {
                 document.getElementsByName('description[' + descriptionNum + ']')[0].value = 'Full text (open access)';
             }
         }
     }
-
-    //if (descriptionValue == '' || descriptionValue == {/literal} '{$file_options[0]}' || descriptionValue == '{$file_options[1]}'
-    //        || descriptionValue == '{$file_options[2]}' || descriptionValue == '{$file_options[3]}' || descriptionValue == '{$file_options[4]}' ) {literal} {
-
-    //    if (document.getElementsByName('filePermissions[]')[descriptionNum].selectedIndex != 0) {
-    //    document.getElementsByName('description[' + descriptionNum + ']')[0].value = document.getElementsByName('filePermissions[]')[descriptionNum].options[document.getElementsByName('filePermissions[]')[descriptionNum].selectedIndex].text;
-    //    }
-    //}
-
 }
 
 </script>
