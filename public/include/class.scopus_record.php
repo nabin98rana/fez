@@ -275,25 +275,25 @@ class ScopusRecItem extends RecordImport
     private function enterXdisInformation($docType) {
         if ($docType == 'ar') {
             $this->_xdisTitle = 'Journal Article';
-            $this->_xdisSubtype = 'Article';
+            $this->_xdisSubtype = 'Article (original research)';
         } elseif ($docType == 'ab') {
             $this->_xdisTitle = 'Journal Article';
-            $this->_xdisSubtype = 'Article';
+            $this->_xdisSubtype = 'Article (original research)';
         } elseif ($docType == 'ip') {
             $this->_xdisTitle = 'Journal Article';
-            $this->_xdisSubtype = 'Article';
+            $this->_xdisSubtype = 'Article (original research)';
         } elseif ($docType == 'bk') {
             $this->_xdisTitle = 'Journal Article';
-            $this->_xdisSubtype = 'Article';
+            $this->_xdisSubtype = 'Article (original research)';
         } elseif ($docType == 'bz') {
             $this->_xdisTitle = 'Journal Article';
-            $this->_xdisSubtype = 'Article';
+            $this->_xdisSubtype = 'Article (original research)';
         } elseif ($docType == 'cp') {
             $this->_xdisTitle = 'Conference Paper';
             $this->_xdisSubtype = 'Fully Published Paper';
         } elseif ($docType == 'cr') {
             $this->_xdisTitle = 'Journal Article';
-            $this->_xdisSubtype = 'Article';
+            $this->_xdisSubtype = 'Article (original research)';
         } elseif ($docType == 'ed') {
             $this->_xdisTitle = 'Journal Article';
             $this->_xdisSubtype = 'Editorial';
@@ -302,22 +302,22 @@ class ScopusRecItem extends RecordImport
             $this->_xdisSubtype = 'Correction/erratum';
         } elseif ($docType == 'le') {
             $this->_xdisTitle = 'Journal Article';
-            $this->_xdisSubtype = 'Letter';
+            $this->_xdisSubtype = 'Letter to editor, brief commentary or brief communication';
         } elseif ($docType == 'no') {
             $this->_xdisTitle = 'Journal Article';
-            $this->_xdisSubtype = 'Other (News item, press release, note, obituary, other not liste';
+            $this->_xdisSubtype = 'Other';
         } elseif ($docType == 'pr') {
             $this->_xdisTitle = 'Journal Article';
-            $this->_xdisSubtype = 'Article';
+            $this->_xdisSubtype = 'Article (original research)';
         } elseif ($docType == 'rp') {
             $this->_xdisTitle = 'Journal Article';
-            $this->_xdisSubtype = 'Review of research - research literature review (NOT book review';
+            $this->_xdisSubtype = 'Review of book, film, TV, video, software, performance, music etc';
         } elseif ($docType == 're') {
             $this->_xdisTitle = 'Journal Article';
-            $this->_xdisSubtype = 'Review of research - research literature review (NOT book review';
+            $this->_xdisSubtype = 'Review of book, film, TV, video, software, performance, music etc';
         } elseif ($docType == 'sh') {
             $this->_xdisTitle = 'Journal Article';
-            $this->_xdisSubtype = 'Review of research - research literature review (NOT book review';
+            $this->_xdisSubtype = 'Review of book, film, TV, video, software, performance, music etc';
         }
     }
 
