@@ -1211,6 +1211,54 @@ class Controlled_Vocab
         return $children;
 
     }
+
+    /**
+     * Returns an array of key => value CVO children given an array of parent CVO IDs
+     *
+     * @param $cvo_ids Array of parent CVO IDs to get children for
+     * @return array
+     */
+    function getAllChildrenAssoc($cvo_ids)
+    {
+        $children = array();
+        $parents = $cvo_ids;
+        if (is_numeric($cvo_ids)) {
+            $parents = array($cvo_ids);
+        }
+
+        $parentsList = implode(",", $parents);
+
+        $log = FezLog::get();
+        $db = DB_API::get();
+        $stmt = " SELECT v.cvo_desc as parent_cvo_desc, c.cvo_id, c.cvo_title
+                  FROM " . APP_TABLE_PREFIX . "controlled_vocab v
+                  INNER JOIN " . APP_TABLE_PREFIX . "controlled_vocab_relationship r
+                   ON v.cvo_id = r.cvr_parent_cvo_id
+                  LEFT JOIN " . APP_TABLE_PREFIX . "controlled_vocab c
+                   ON r.cvr_child_cvo_id = c.cvo_id
+                  WHERE v.cvo_id IN (".$parentsList.")";
+        try {
+            $res = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
+
+            foreach ($res as $r) {
+                $v = '';
+                if (!empty($r['parent_cvo_desc'])) {
+                    $v .=  $r['parent_cvo_desc'] . ' - ';
+                }
+                $v .= $r['cvo_title'];
+                $children[$r['cvo_title']] = $v;
+            }
+        }
+        catch(Exception $ex) {
+            $log->err($ex);
+            return $children;
+        }
+        asort($children);
+
+        return $children;
+    }
+
+
 	function suggest($value, $parent_id)
 	{
 		$log = FezLog::get();
