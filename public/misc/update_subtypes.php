@@ -48,6 +48,8 @@ $filter["searchKey".Search_Key::getID("Display Type")][] =
     XSD_Display::getXDIS_IDByTitleVersion('Book Chapter', 'MODS 1.0');
 $filter["searchKey".Search_Key::getID("Display Type")][] =
     XSD_Display::getXDIS_IDByTitleVersion('Journal Article', 'MODS 1.0');
+$filter["searchKey".Search_Key::getID("Display Type")][] =
+    XSD_Display::getXDIS_IDByTitleVersion('Conference Paper', 'MODS 1.0');
 $filter["manualFilter"] = "subtype_t:[* TO *]"; // records with subtypes only
 
 $page_rows = 100;
@@ -129,8 +131,11 @@ for ($i = 0; $i < ((int)$listing['info']['total_pages']+1); $i++) {
     if (is_array($listing['list'])) {
         for ($j=0; $j < count($listing['list']); $j++) {
             $record = $listing['list'][$j];
-            $subtype = false;
-            if (! empty($record['rek_subtype'])) {
+            if (
+                (! empty($record['rek_subtype'])) ||
+                $record['rek_genre'] == 'Conference Paper'
+            ) {
+                $subtype = false;
                 if (
                     array_key_exists($record['rek_genre'], $mapping) &&
                     array_key_exists($record['rek_subtype'], $mapping[$record['rek_genre']])
@@ -149,21 +154,25 @@ for ($i = 0; $i < ((int)$listing['info']['total_pages']+1); $i++) {
                     } else {
                         $subtype = $m;
                     }
+                } else if ($record['rek_genre'] == 'Conference Paper') {
+                    // Copy rek_genre_type into rek_subtype
+                    print $record['rek_pid'] ." - " . $record['rek_genre'] . " - " .
+                        $record['rek_genre_type'];
+                    $subtype = $record['rek_genre_type'];
+                }
 
-                    if ($subtype) {
-                        print " - Updated with subtype: " .$subtype;
-                        $history = 'Updated subtype to new controlled vocabulary value';
-                        $r = new RecordObject($record['rek_pid']);
-                        $r->addSearchKeyValueList(array("Subtype"), array($subtype), true, $history);
-                        if ( APP_SOLR_INDEXER == "ON" ) {
-                            FulltextQueue::singleton()->add($record['rek_pid']);
-                        }
-                        if (APP_FILECACHE == "ON") {
-                            $cache = new fileCache($record['rek_pid'], 'pid='.$record['rek_pid']);
-                            $cache->poisonCache();
-                        }
+                if ($subtype) {
+                    $history = 'Mapped to new subtype';
+                    $r = new RecordObject($record['rek_pid']);
+                    $r->addSearchKeyValueList(array("Subtype"), array($subtype), true, $history);
+                    if ( APP_SOLR_INDEXER == "ON" ) {
+                        FulltextQueue::singleton()->add($record['rek_pid']);
                     }
-                    print "\n";
+                    if (APP_FILECACHE == "ON") {
+                        $cache = new fileCache($record['rek_pid'], 'pid='.$record['rek_pid']);
+                        $cache->poisonCache();
+                    }
+                    print " - Updated with subtype: " .$subtype . "\n";
                 }
             }
         }
