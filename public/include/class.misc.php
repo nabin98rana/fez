@@ -2235,7 +2235,7 @@ public static function multi_implode($glue, $pieces)
   function array_to_sql_string($array)
   {
     foreach ($array as &$item) {
-      $item = "'".mysql_escape_string($item)."'";
+      $item = "'".mysql_real_escape_string($item)."'";
     }
     return implode(', ', $array);
   }
@@ -2248,7 +2248,7 @@ public static function multi_implode($glue, $pieces)
   function array_to_sql($array)
   {
     foreach ($array as &$item) {
-      $item = mysql_escape_string($item);
+      $item = mysql_real_escape_string($item);
     }
     return implode(', ', $array);
   }
@@ -3809,13 +3809,15 @@ public static function multi_implode($glue, $pieces)
    */
   function keyArray($source, $kfield)
   {
-    $dest = array();
+    $dest = $source;
     if (!is_array($source)) {
       Error_Handler::logError("Not an array", __FILE__, __LINE__);
       return null;
     }
-    foreach ($source as $item) {
-      $dest[$item[$kfield]] = $item;
+    foreach ($source as $key => $item) {
+      if (is_array($item) && array_key_exists($kfield, $item)) {
+        $dest[$item[$kfield]] = $item;
+      }
     }
     return $dest;
   }
