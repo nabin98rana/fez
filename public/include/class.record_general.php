@@ -732,7 +732,7 @@ class RecordGeneral
                     $this->_log->err("\n**** PID " . $this->pid . " without a " . $datastreamName .
                     " datastream was found, this will need content model changing first **** \n");
                 }
-                else 
+                else
                 {
                     $doc = DOMDocument::loadXML($datastreams[$datastreamName]);
                     $tempdoc = $this->addSearchKeyValue($doc, $sk, $values[$s], $removeCurrent);
@@ -832,7 +832,7 @@ class RecordGeneral
 
                 // the instance where the attribute is set to [not(@type) or @type = ''] we make an expection
                 $noType = false;
-                if ($attribute == "[not(@type) or @type = '']") {
+                if ($attribute == "[not(@type) or @type = '']" || $attribute == '') {
                     $attributeName = '';
                     $attributeValue='';
                     $noType = true;
