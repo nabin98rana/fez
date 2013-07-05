@@ -46,7 +46,7 @@ $tpl->setTemplate("manage/index.tpl.html");
 $tpl->assign("type", "citations");
 $tpl->assign("active_nav", "admin");
 
-// Only Admins here please 
+// Only Admins here please
 Auth::checkAuthentication(APP_SESSION);
 
 $isUser = Auth::getUsername();
@@ -65,7 +65,7 @@ if (empty($action)) {
     $action = 'select_display';
 }
 $tpl->assign('action', $action);
-switch ($action) 
+switch ($action)
 {
     case 'select_display':
         $xsd_id = Doc_Type_XSD::getFoxmlXsdId();
@@ -74,7 +74,7 @@ switch ($action)
             $det = Citation::getDetails($item['xdis_id']);
             $template = trim($det['cit_template']);
             if (!empty($det) && !empty($template)) {
-                $list[$key]['cit'] = 1; 
+                $list[$key]['cit'] = 1;
             }
         }
         $tpl->assign("list", $list);
@@ -97,7 +97,7 @@ switch ($action)
         if (!empty($template)) {
             $xsdmf_ids = array();
             $preview = $template;
-            $preview = Citation::renderCitationTemplate($preview, $xsdmf_select_list, $xsdmf_select_list);
+            $preview = Citation::renderCitationTemplate($preview, $xsdmf_select_list, $xsdmf_list);
             $tpl->assign('preview', $preview);
         }
         $tpl->assign($det);
