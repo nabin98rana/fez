@@ -769,7 +769,7 @@ class Controlled_Vocab
 				$indent .= "---------";
 			}
 			foreach ($res as $key => $data) {
-				$newArray[$key] = $data;
+                $newArray[$key] = trim($data);
 				$tempArray = Controlled_Vocab::getAssocListFullDisplay($key, $indent, $level, $level_limit);
 				if (count($tempArray) > 0) {
 					$newArray['data'][$key] = Misc::array_merge_preserve(@$newArray[$key], $tempArray);
