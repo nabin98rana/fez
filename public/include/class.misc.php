@@ -3809,7 +3809,7 @@ public static function multi_implode($glue, $pieces)
    */
   function keyArray($source, $kfield)
   {
-    $dest = $source;
+    $dest = array();
     if (!is_array($source)) {
       Error_Handler::logError("Not an array", __FILE__, __LINE__);
       return null;
