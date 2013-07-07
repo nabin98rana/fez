@@ -572,11 +572,7 @@ class WosRecItem
         $sekData['Publisher']       = $this->publisher;
 
         /// exception for conf papers that the subtype goes into genre type
-        if ($xdis_title == "Conference Paper") {
-            $sekData["Genre Type"] = $xdis_subtype;
-        } else {
-            $sekData["Subtype"] = $xdis_subtype;
-        }
+        $sekData["Subtype"] = $xdis_subtype;
 
         //Commented out due to copyright reasons
         //$sekData['Description']     = $this->abstract;
@@ -827,12 +823,7 @@ class WosRecItem
     if (!empty($this->confLocCity) || !empty($this->confLocState)) {
             $searchKeyTargets['Conference Location'] = $this->confLocCity . ' ' . $this->confLocState;
     }
-  /// exception for conf papers that the subtype goes into genre type
-  if ($xdis_title == "Conference Paper") {
-   $searchKeyTargets["Genre Type"] = $xdis_subtype;
-  } else {
-   $searchKeyTargets["Subtype"] = $xdis_subtype;
-  }
+      $searchKeyTargets["Subtype"] = $xdis_subtype;
 
     $search_keys = array();
     $values = array();
