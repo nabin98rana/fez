@@ -105,7 +105,7 @@ class Thomson_Doctype_Mappings
     
     $result = $res;
     for ($i=0; $i<count($res); $i++) {
-      $result[$i]['subtypes'] = self::getSubtypes($res[$i]['xdis_id']);
+      $result[$i]['subtypes'] = self::getSubtypesFromVocab($res[$i]['xdis_id']);
     }
     return $result;
   }
