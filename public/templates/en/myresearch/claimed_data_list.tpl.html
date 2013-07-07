@@ -246,7 +246,36 @@ function correctionRequired(pid)
 					<input type="button" class="claimed-correction-required" value="Fix{if $smarty.const.TAG_UPLOAD_FILES == 'ON'} / Upload a file{/if}" onclick="javascript:correctionRequired('{$list[i].rek_pid}');" />
 				/if*}
 			</td>
+      {if ($list[i].isEditor==1 || $isAdministrator)}
+        <td align="left" style="border-top:1px dashed #be87e9; vertical-align: middle; white-space: nowrap;">
+          {section name="w" loop=$list[i].wft_id}
+            {if $list[i].wft_id[w] != ''}
+              {if $list[i].wft_icon[w] == 'images/security.gif'}
+                {if $list[i].security == 'include'}
+                  {assign var="wf_icon" value="images/security_include.gif"}
+                {elseif $list[i].security == 'exclude'}
+                  {assign var="wf_icon" value="images/security_exclude.gif"}
+                {elseif $list[i].security == 'inherit'}
+                  {assign var="wf_icon" value="images/security_inherit.gif"}
+                {else}
+                  {assign var="wf_icon" value=$list[i].wft_icon[w]}
+                {/if}
+              {else}
+                {assign var="wf_icon" value=$list[i].wft_icon[w]}
+              {/if}
 
+              {if $list[i].wft_type_id[w] == 6}
+                {assign var='wf_url' value=$rel_url|cat:'workflow/export.php'}
+              {else}
+                {assign var='wf_url' value=$rel_url|cat:'workflow/update.php'}
+              {/if}
+              <a href="{$wf_url}?pid={$list[i].rek_pid}&amp;cat=select_workflow&amp;xdis_id={$list[i].rek_display_type}&amp;wft_id={$list[i].wft_id[w]}&amp;href={$smarty.server.REQUEST_URI|smarty:nodefaults|escape:url}"{if $list[i].wft_icon[w] == 'images/delete.gif'} onclick="return confirmDelete();"{/if}><img alt="{$list[i].wfl_title[w]}" title="{$list[i].wfl_title[w]}" src="{$rel_url}{$wf_icon}" /></a>
+            {/if}
+          {/section}
+
+          <a href="{$rel_url}workflow/list_workflows2.php?pid={$list[i].rek_pid}&amp;href={$smarty.server.REQUEST_URI|smarty:nodefaults|escape:url}"><img src="{$rel_url}images/options_16.png" alt="More options" title="More options" width="16" height="16" /></a>
+        </td>
+      {/if}
 		</tr>
 
 		{if $smarty.section.i.last}

@@ -172,6 +172,7 @@ abstract class FulltextIndex {
 				$db->exec($stmt);
 				$db->commit();
 			} else {
+        $db->commit();
 				return false;
 			}
 		}

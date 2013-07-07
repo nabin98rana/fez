@@ -54,18 +54,21 @@ class RecordView {
 							foreach ($details[$dis_field['xsdmf_id']] as $ckey => $cdata) {
 								$details[$dis_field['xsdmf_id']][$ckey] = Controlled_Vocab::getTitle($cdata);
 								if ($dis_field['sek_title'] == "Subject" || $dis_field['sek_title'] == "Fields of Research" || $dis_field['sek_title'] == "SEO Code") {
-									$details[$dis_field['xsdmf_id']][$ckey] = "<a class='silent_link' href='".APP_BASE_URL."list/subject/".$cdata."/'>".Controlled_Vocab::getTitle($cdata)."</a>";
+									$details[$dis_field['xsdmf_id']][$ckey] = "<a title=".'"'."Search the repository for more like this".'"'." class='silent_link' href='".APP_BASE_URL."list/subject/".$cdata."/'>".Controlled_Vocab::getTitle($cdata)."</a>";
 								} else {
-									$details[$dis_field['xsdmf_id']][$ckey] = "<a class='silent_link' href=".'"'.APP_RELATIVE_URL."list/?cat=quick_filter&amp;search_keys%5B".$dis_field['xsdmf_sek_id']."%5D=".urlencode($details[$dis_field['xsdmf_id']][$ckey]).'"'.">".$cdata."</a>";
+									$details[$dis_field['xsdmf_id']][$ckey] = "<a title=".'"'."Search the repository for more like this".'"'." class='silent_link' href=".'"'.APP_RELATIVE_URL."list/?cat=quick_filter&amp;search_keys%5B".$dis_field['xsdmf_sek_id']."%5D=".urlencode($details[$dis_field['xsdmf_id']][$ckey]).'"'.">".$cdata."</a>";
 								}
 							}
 						} else {
 							if ($dis_field['sek_title'] == "Subject" || $dis_field['sek_title'] == "Fields of Research" || $dis_field['sek_title'] == "SEO Code") {
 								$details[$dis_field['xsdmf_id']] = "<a class='silent_link' href='".APP_BASE_URL."list/subject/".$details[$dis_field['xsdmf_id']]."/'>".Controlled_Vocab::getTitle($details[$dis_field['xsdmf_id']])."</a>";
-							} else {
-								$details[$dis_field['xsdmf_id']] = "<a class='silent_link' href=".'"'.APP_RELATIVE_URL."list/?cat=quick_filter&amp;search_keys%5B".$dis_field['xsdmf_sek_id']."%5D=".urlencode($details[$dis_field['xsdmf_id']]).'"'.">".Controlled_Vocab::getTitle($details[$dis_field['xsdmf_id']])."</a>";
+              } elseif ($dis_field['sek_title'] == "License") { // add icon and url for creative commons badge
+                $cv_details = Controlled_Vocab::getDetails($details[$dis_field['xsdmf_id']]);
+                $details[$dis_field['xsdmf_id']] = "<a title=".'"'."Search the repository for more like this".'"'." class='silent_link' href=".'"'.APP_RELATIVE_URL."list/?cat=quick_filter&amp;search_keys%5B".$dis_field['xsdmf_sek_id']."%5D=".urlencode($details[$dis_field['xsdmf_id']]).'"'.">".Controlled_Vocab::getTitle($details[$dis_field['xsdmf_id']])."</a><br /><br />"."<a href=".'"'.$cv_details['cvo_desc'].'"'."><img src=".'"'.APP_RELATIVE_URL.'images/'.$cv_details['cvo_image_filename'].'" alt="View License Details" title="View License Details" width="88" height="31" />'."</a>";
+              } else {
+								$details[$dis_field['xsdmf_id']] = "<a title=".'"'."Search the repository for more like this".'"'." class='silent_link' href=".'"'.APP_RELATIVE_URL."list/?cat=quick_filter&amp;search_keys%5B".$dis_field['xsdmf_sek_id']."%5D=".urlencode($details[$dis_field['xsdmf_id']]).'"'.">".Controlled_Vocab::getTitle($details[$dis_field['xsdmf_id']])."</a>";
 							}
-						}
+            }
 					}
 				}
 				if ($dis_field['xsdmf_html_input'] == "xsdmf_id_ref") {
