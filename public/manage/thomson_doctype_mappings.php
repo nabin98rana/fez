@@ -97,8 +97,9 @@ switch ($_REQUEST['cat'])
       break;
 }
 
+$l = Doc_Type_XSD::getList('xsd_id', "WHERE xsd_title='MODS'");
 $xsd_disp_list = Thomson_Doctype_Mappings::getXsdDispList(
-    Doc_Type_XSD::getFoxmlXsdId()
+    $l[0]['xsd_id']
 );
 $tpl->assign('xsd_disp_list', $xsd_disp_list);
 

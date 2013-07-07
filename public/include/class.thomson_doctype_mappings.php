@@ -92,9 +92,7 @@ class Thomson_Doctype_Mappings
     
     $stmt = "SELECT * FROM " . APP_TABLE_PREFIX . "xsd_display
              WHERE
-                xdis_xsd_id = ".$db->quote($xsd_id, 'INTEGER')." 
-                AND xdis_object_type = 3 
-                AND xdis_version = 'MODS 1.0'                
+                xdis_xsd_id = ".$db->quote($xsd_id, 'INTEGER')."
              ORDER BY
                 xdis_title ASC";
     try {
@@ -231,6 +229,43 @@ class Thomson_Doctype_Mappings
     
     return $res;  
   }
+
+    /**
+     * For a XSD display return all of its subtypes (which are in a controlled vocab)
+     *
+     * @param int $tdm_xsd_id
+     *
+     * @return array
+     */
+    public static function getSubtypesFromVocab($tdm_xsd_id)
+    {
+        $log = FezLog::get();
+        $db = DB_API::get();
+
+        // Get the vocab ID
+        $stmt = "SELECT xsdmf_cvo_id FROM " . APP_TABLE_PREFIX .
+            "xsd_display_matchfields WHERE xsdmf_xdis_id=? AND xsdmf_title=?";
+
+        try {
+            $xsdmf_cvo_id = $db->fetchOne($stmt, array($tdm_xsd_id, 'Sub-type'));
+        }
+        catch(Exception $ex) {
+            $log->err($ex);
+            return array();
+        }
+
+        if (empty($xsdmf_cvo_id)) {
+            return array();
+        }
+
+        $res = Controlled_Vocab::getAllChildrenAssoc($xsdmf_cvo_id);
+
+        if (empty($res)) {
+            return array();
+        }
+
+        return $res;
+    }
   
   /**
    * Returns an existing doc type mapping
