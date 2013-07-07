@@ -1,6 +1,7 @@
 var required_xsd_display_fields = new Array();
 var xsd_display_fields = new Array();
 var myDataSourceAuthor = new YAHOO.widget.DS_XHR(rel_url+"author_suggest_proxy.php", ["Result","name"]);
+var myDataSourcePID = new YAHOO.widget.DS_XHR(rel_url+"pid_suggest_proxy.php", ["Result","name"]);
 var myDataSourceConference = new YAHOO.widget.DS_XHR(rel_url+"conference_suggest_proxy.php", ["Result","name"]);
 var myDataSourcePublisher = new YAHOO.widget.DS_XHR(rel_url+"publisher_suggest_proxy.php", ["Result","name"]);
 
@@ -502,6 +503,14 @@ function formatAuthorRes(oResultItem, sQuery) {
     return oResultItem[1].name + usernameTxt;
 }
 
+function formatPIDRes(oResultItem, sQuery) {
+    var pidTxt = "";
+    if( oResultItem[1].pid != "" && oResultItem[1].pid != null ) {
+        pidTxt = ' (' +  oResultItem[1].pid + ')'
+    }
+    return oResultItem[1].name + pidTxt;
+}
+
 function formatConferenceRes(oResultItem, sQuery) {
     var idTxt = "";
     if( oResultItem[1].id != "" && oResultItem[1].id != null ) {
@@ -523,6 +532,21 @@ function attachYuiAuthorSuggest(axsdmf_id, xsdmf_id, loop_num)
     autocomp = new YAHOO.widget.AutoComplete("xsd_display_fields_"+axsdmf_id+"_"+loop_num+"_lookup","xsd_display_fields_"+axsdmf_id+"_"+loop_num+"_container", myDataSourceAuthor);
     autocomp.maxResultsDisplayed = 60;
     autocomp.formatResult = formatAuthorRes;
+    autocomp.registerControls(document.getElementById("xsd_display_fields_"+xsdmf_id+"_"+loop_num), document.getElementById("xsd_display_fields_"+axsdmf_id+"_"+loop_num));
+    autocomp.textboxFocusEvent.subscribe(function(){
+        var sInputValue = YAHOO.util.Dom.get("xsd_display_fields_"+axsdmf_id+"_"+loop_num+"_lookup").value;
+        if(sInputValue.length === 0) {
+            var oSelf = this;
+            setTimeout(function(){oSelf.sendQuery(sInputValue);},0);
+        }
+    });
+}
+
+function attachYuiPIDSuggest(axsdmf_id, xsdmf_id, loop_num)
+{
+    autocomp = new YAHOO.widget.AutoComplete("xsd_display_fields_"+axsdmf_id+"_"+loop_num+"_lookup","xsd_display_fields_"+axsdmf_id+"_"+loop_num+"_container", myDataSourcePID);
+    autocomp.maxResultsDisplayed = 60;
+    autocomp.formatResult = formatPIDRes;
     autocomp.registerControls(document.getElementById("xsd_display_fields_"+xsdmf_id+"_"+loop_num), document.getElementById("xsd_display_fields_"+axsdmf_id+"_"+loop_num));
     autocomp.textboxFocusEvent.subscribe(function(){
         var sInputValue = YAHOO.util.Dom.get("xsd_display_fields_"+axsdmf_id+"_"+loop_num+"_lookup").value;

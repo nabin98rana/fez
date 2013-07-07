@@ -101,6 +101,38 @@ class Record
   const status_unpublished = 1;
   const status_published = 2;
 
+
+   // Used to ajax lookup
+  function suggest($terms, $current_row = 0, $max = 10)
+  {
+      $options = array();
+      $filter = array();
+      if (APP_CUSTOM_VIEW_PID != "") {
+        // enforce custom view collections only
+        $options["searchKey".Search_Key::getID("isMemberOf")] = APP_CUSTOM_VIEW_PID;
+      }
+      $options["searchKey".Search_Key::getID("Status")] = 2; // enforce published records only
+      $options["searchKey".Search_Key::getID("Object Type")] = 3; // records only
+      $filter["manualFilter"] = ' (title_t:("'.$terms.'") OR pid_t:("'.$terms.'")) ';
+
+      $list = Record::getListing($options, array("Lister"), $current_row, $max, "Title", true, false, $filter);
+
+      $list = $list['list'];
+
+      $returnList = array();
+
+      foreach ($list as $key => $element) {
+        $returnList[$key] = array();
+        $returnList[$key]['id'] = $element['rek_pid'];
+        $returnList[$key]['pid'] = $element['rek_pid'];
+        $returnList[$key]['name'] = $element['rek_title'];
+      }
+      return $returnList;
+
+
+  }
+
+
   /**
    * Method used to get the parents of a given record available in the
    * system.

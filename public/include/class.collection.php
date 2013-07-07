@@ -957,6 +957,7 @@ class Collection
       $approved_roles=array(9,10);
       $params = array();
       $params['query'] = $terms;
+      $options = array();
       $res = $index->suggestQuery($params, $options, $approved_roles, $sort_by, $start, $max);
       return ($res['docs']);
     }

@@ -3264,6 +3264,13 @@ public static function multi_implode($glue, $pieces)
                       $disabled_msg = "<font color=\'red\'><b>DISABLED</b></font><br />";
                     }
                     switch ($ematch['xsdmf_html_input']) {
+                      case "pid_selector":
+                        $node_label .= '</a> <a target="basefrm" href="'.$match_form_url.$ehref.'&xsdsel_id='.
+                          $ematch["xsdmf_xsdsel_id"].'" class="form_note"> <span class="form_note">'.$disabled_msg.
+                          '<b>PID Selector:</b> '.$ematch['xsdmf_title'].'<br/>Loop: '.$ematch['xsdsel_title'].
+                          '<br/>Order: '.$ematch['xsdmf_order'].'<br/>XSDMF ID: '.$ematch['xsdmf_id'].
+                          '</span><img src="'.APP_RELATIVE_URL.'images/pid_selector_16.png" />';
+                        break;
                       case "xsd_loop_subelement":
                         $node_label .= ' <img title="Sublooping Element" src="'.APP_RELATIVE_URL.
                             'images/sel_16.png" />';
@@ -3532,6 +3539,13 @@ public static function multi_implode($glue, $pieces)
                       $disabled_msg = "<font color=\'red\'><b>DISABLED</b></font><br />";
                     }
                     switch ($ematch['xsdmf_html_input']) {
+                      case "pid_selector":
+                        $node_label .= '</a> <a target="basefrm" href="'.$match_form_url.$ehref.'&xsdsel_id='.
+                          $ematch["xsdmf_xsdsel_id"].'" class="form_note"> <span class="form_note">'.$disabled_msg.
+                          '<b>PID Selector:</b> '.$ematch['xsdmf_title'].'<br/>Loop: '.$ematch['xsdsel_title'].
+                          '<br/>Order: '.$ematch['xsdmf_order'].'<br/>XSDMF ID: '.$ematch['xsdmf_id'].
+                          '</span><img src="'.APP_RELATIVE_URL.'images/pid_selector_16.png" />';
+                        break;
                       case "xsd_loop_subelement":
                         $node_label .= ' <img title="Sublooping Element" src="'.APP_RELATIVE_URL.
                             'images/sel_16.png" />';

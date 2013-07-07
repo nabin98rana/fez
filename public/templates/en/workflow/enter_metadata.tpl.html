@@ -77,7 +77,7 @@
         function validateForm() {
         {/literal}
         {section name="i" loop=$xsd_display_fields}
-        {if (($xsd_display_fields[i].xsdmf_html_input == 'contvocab_selector' && $xsd_display_fields[i].xsdmf_cvo_min_level != 3) || $xsd_display_fields[i].xsdmf_html_input == 'dual_multiple') && $xsd_display_fields[i].xsdmf_enabled == 1}
+        {if (($xsd_display_fields[i].xsdmf_html_input == 'contvocab_selector' && $xsd_display_fields[i].xsdmf_cvo_min_level != 3) || $xsd_display_fields[i].xsdmf_html_input == 'dual_multiple' || $xsd_display_fields[i].xsdmf_html_input == 'pid_selector') && $xsd_display_fields[i].xsdmf_enabled == 1}
         {literal}
             var field = document.getElementById('xsd_display_fields_{/literal}{$xsd_display_fields[i].xsdmf_id}{literal}_0');
             for (var y = 0; y < field.options.length; y++) {
@@ -1042,7 +1042,11 @@
                         {include file="error_icon.tpl.html" field=$field_name}
                      </td>
                     </tr>
-          {* Dual Multiple Combo Box *}
+        {* PID Selector *}
+        {elseif ($xsd_display_fields[i].xsdmf_html_input == 'pid_selector') && $xsd_display_fields[i].xsdmf_enabled == 1}
+          {assign var="xsdmf" value=$xsd_display_fields[i]}
+          {include file="workflow/enter_metadata_helpers/field_pid_selector.tpl.html"}
+        {* Dual Multiple Combo Box *}
         {elseif ($xsd_display_fields[i].xsdmf_html_input == 'dual_multiple') && $xsd_display_fields[i].xsdmf_enabled == 1}
             {assign var="xsdmf" value=$xsd_display_fields[i]}
                 {if $xsdmf.xsdmf_enabled == 1}

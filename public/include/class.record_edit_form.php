@@ -267,7 +267,7 @@ class RecordEditForm
                                     $xsd_display_fields[$dis_key]['field_options'] = Controlled_Vocab::getAssocListFullDisplay($dis_field["xsdmf_cvo_id"], '',  1,2);
                                 }
 
-                if ($dis_field["xsdmf_html_input"] == 'combo' || $dis_field["xsdmf_html_input"] == 'multiple' || $dis_field["xsdmf_html_input"] == 'dual_multiple') {
+                if ($dis_field["xsdmf_html_input"] == 'pid_selector' || $dis_field["xsdmf_html_input"] == 'combo' || $dis_field["xsdmf_html_input"] == 'multiple' || $dis_field["xsdmf_html_input"] == 'dual_multiple') {
                     if (!empty($dis_field["xsdmf_smarty_variable"]) && $dis_field["xsdmf_smarty_variable"] != "none") {
                                                 if (is_numeric(strpos($dis_field["xsdmf_smarty_variable"], "::"))) {
                                                     eval("\$temp = ".$dis_field['xsdmf_smarty_variable']
@@ -310,7 +310,7 @@ class RecordEditForm
                             $parent_details = $parent_record->getDetails();
                             if (is_array($parent_details[$dis_field["xsdmf_parent_option_child_xsdmf_id"]])) {
                                 $xsdmf_details = XSD_HTML_Match::getDetailsByXSDMF_ID($dis_field["xsdmf_parent_option_child_xsdmf_id"]);
-                                if ($xsdmf_details['xsdmf_smarty_variable'] != "" && ($xsdmf_details['xsdmf_html_input'] == "multiple" || $xsdmf_details['xsdmf_html_input'] == "dual_multiple")) {
+                                if ($xsdmf_details['xsdmf_smarty_variable'] != "" && ($xsdmf_details['xsdmf_html_input'] == "pid_selector" || $xsdmf_details['xsdmf_html_input'] == "multiple" || $xsdmf_details['xsdmf_html_input'] == "dual_multiple")) {
                                     $temp_parent_options = array();
                                     $temp_parent_options_final = array();
                                     $this->setDynamicVar($xsdmf_details['xsdmf_smarty_variable']);
@@ -365,7 +365,7 @@ class RecordEditForm
                     }
                 }
 
-                if ($dis_field["xsdmf_html_input"] == 'combo' || $dis_field["xsdmf_html_input"] == 'dual_multiple' || $dis_field["xsdmf_html_input"] == 'customvocab_suggest' || $dis_field["xsdmf_html_input"] == 'multiple' || $dis_field["xsdmf_html_input"] == 'contvocab' || $dis_field["xsdmf_html_input"] == 'contvocab_selector') {
+                if ($dis_field["xsdmf_html_input"] == 'pid_selector' || $dis_field["xsdmf_html_input"] == 'combo' || $dis_field["xsdmf_html_input"] == 'dual_multiple' || $dis_field["xsdmf_html_input"] == 'customvocab_suggest' || $dis_field["xsdmf_html_input"] == 'multiple' || $dis_field["xsdmf_html_input"] == 'contvocab' || $dis_field["xsdmf_html_input"] == 'contvocab_selector') {
                     if (@$details[$dis_field["xsdmf_id"]]) { // if a record detail matches a display field xsdmf entry
                         if (($dis_field["xsdmf_html_input"] == 'contvocab_selector') && ($dis_field['xsdmf_cvo_save_type'] != 1) && ($dis_field['xsdmf_cvo_min_level'] != 3)) {
                             $tempArray = $details[$dis_field["xsdmf_id"]];
@@ -665,14 +665,14 @@ class RecordEditForm
                 continue; // skip non-enabled items
             }
             // make sure multiple items are arrays even if they only have one item
-            if ( ($dis_field["xsdmf_html_input"] == 'multiple' || $dis_field["xsdmf_html_input"] == 'dual_multiple' || $dis_field["xsdmf_html_input"] == 'customvocab_suggest'
+            if ( ($dis_field["xsdmf_html_input"] == 'pid_selector' || $dis_field["xsdmf_html_input"] == 'multiple' || $dis_field["xsdmf_html_input"] == 'dual_multiple' || $dis_field["xsdmf_html_input"] == 'customvocab_suggest'
                         || $dis_field["xsdmf_html_input"] == 'contvocab_selector')
                     && (!@is_array($params['xsd_display_fields'][$dis_field["xsdmf_id"]])) ){
                 $params['xsd_display_fields'][$dis_field["xsdmf_id"]]
                     = array($params['xsd_display_fields'][$dis_field["xsdmf_id"]]);
             }
             // the contvocab selector uses key value pairs but we only want the keys
-            if ($dis_field["xsdmf_html_input"] == 'contvocab_selector' || $dis_field["xsdmf_html_input"] == 'dual_multiple' || $dis_field["xsdmf_html_input"] == 'customvocab_suggest') {
+            if ($dis_field["xsdmf_html_input"] == 'pid_selector' || $dis_field["xsdmf_html_input"] == 'contvocab_selector' || $dis_field["xsdmf_html_input"] == 'dual_multiple' || $dis_field["xsdmf_html_input"] == 'customvocab_suggest') {
                 $params['xsd_display_fields'][$dis_field["xsdmf_id"]]
                     = array_keys($params['xsd_display_fields'][$dis_field["xsdmf_id"]]);
             }

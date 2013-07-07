@@ -1,0 +1,85 @@
+{assign var="field_name_helper" value="xsd_display_fields_helper["|cat:$xsdmf.xsdmf_id|cat:"][]"}
+{assign var="field_id_helper" value="xsd_display_fields_helper_"|cat:$xsdmf.xsdmf_id|cat:"_0"}
+{assign var="field_name" value="xsd_display_fields["|cat:$xsdmf.xsdmf_id|cat:"][]"}
+{assign var="field_id" value="xsd_display_fields_"|cat:$xsdmf.xsdmf_id|cat:"_0"}
+
+{assign var="btn_remove_left" value="remove_left_"|cat:$xsdmf.xsdmf_id}
+{assign var="btn_copy_left" value="copy_left_"|cat:$xsdmf.xsdmf_id}
+{assign var="loop_num" value="0"}
+
+<tr id="tr_xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_0"
+    {if ($isEditor != 1 && $xsd_display_fields[i].xsdmf_show_simple_create == 0 && $xsd_display_fields[i].xsdmf_required != 1) || $xsd_display_fields[i].xsdmf_invisible == 1}style="display:none"{/if}>
+  <th>
+    <b><label
+        for="xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_0">{$xsdmf.xsdmf_title}
+        (s)</label>
+      {if $xsdmf.xsdmf_required == 1} * {/if}</b>
+    <label class="invisible"
+           for="xsd_display_fields_helper_{$xsd_display_fields[i].xsdmf_id}_0">{$xsdmf.xsdmf_title}
+      helper</label>
+  </th>
+  <td>
+    <table>
+      <tr>
+
+        <td align="left" class="default">Search by PID or Title</td>
+      </tr>
+      <tr>
+
+        <td>
+          <!-- Google suggest style selection -->
+          {* IE HACK: We want the suggest dropdown to be on top of any other auto-suggest controls which appear below it *}
+          {* smarty.section.i.index is used incase this suggest control is used by more than 1 element ie. Author and Editor *}
+          <div id="pidsuggest"
+               style="width:25em;height:2em;position:relative;z-index:{math equation="2000 - x - y" y=$loop_num x=$smarty.section.i.index};">
+            <div id="xsd_display_fields_{$xsdmf.xsdmf_id}_0_container"
+                 style="position:absolute;top:1.6em;"></div>
+            <input id="xsd_display_fields_{$xsdmf.xsdmf_id}_0_lookup"
+                   type="text">
+          </div>
+        </td>
+      </tr>
+
+      <tr>
+        <td style="width: 5%;" valign="top">
+          <select id="{$field_id}" style="max-width:400px" multiple="multiple"
+                  size="6" class="default" name="{$field_name}">
+          </select>
+          {include file="error_icon.tpl.html" field=$field_name}
+        </td>
+      </tr>
+      <tr valign="top">
+        <td>
+          <input type="button"
+                 name="{$xsdmf.xsdmf_title} remove selected from left"
+                 class="button"
+                 value="Remove selected from left"
+                 id="remove_left_{$xsdmf.xsdmf_id}"
+                 title="{$xsdmf.xsdmf_title} remove selected from left"
+                 onclick="javascript:deleteSelectedItemsFromList(this.form.{$field_id});"/>
+        </td>
+
+
+        {*
+          <td>
+              <input type="button" name="copy_left" class="button"
+                     value="Copy selected to left"
+                     id="copy_left_{$xsdmf.xsdmf_id}"
+                     title="{$xsdmf.xsdmf_title} copy left"
+                     onclick="javascript:addToParentList(this.form.{$field_id_helper}, this.form.{$field_id});" />
+              <span id="translated_hint">&nbsp;</span>
+          </td> *}
+      </tr>
+
+    </table>
+
+
+  </td>
+  {include file='workflow/compare_records_helpers/get_right_column.tpl.html' input_field_name=$field_name}
+</tr>
+{literal}
+<script type="text/javascript">
+  attachYuiPIDSuggest({/literal}{$xsd_display_fields[i].xsdmf_id}, {$xsd_display_fields[i].xsdmf_id}, {$loop_num}{literal});
+</script>
+{/literal}
+
