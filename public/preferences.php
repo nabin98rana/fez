@@ -65,8 +65,8 @@ if (@$_POST["cat"] == "update_account") {
     $res = Prefs::set($usr_id);
     $tpl->assign('update_account_result', $res);
 } elseif (@$_POST["cat"] == "update_mypub_url") {
-	    $res = Author::updateMyPubURL($username, $mypub_url);
-	    $tpl->assign('update_mypub_url_result', $res);
+	$res = Author::updateMyPubURL($username, $mypub_url);
+	$tpl->assign('update_mypub_url_result', $res);
 } elseif (@$_POST["cat"] == "update_name") {
     $res = User::updateFullName($usr_id);
     $tpl->assign('update_name_result', $res);
@@ -76,6 +76,15 @@ if (@$_POST["cat"] == "update_account") {
 } elseif (@$_POST["cat"] == "update_password") {
     $res = User::updatePassword($usr_id);
     $tpl->assign('update_password_result', $res);
+} elseif (@$_POST["cat"] == "aut_update_identifiers") {
+    $ids = array(
+        'aut_people_australia_id' => @$_POST['aut_people_australia_id'],
+        'aut_scopus_id' => @$_POST['aut_scopus_id'],
+        'aut_orcid_id' => @$_POST['aut_orcid_id'],
+        'aut_google_scholar_id' => @$_POST['aut_google_scholar_id'],
+    );
+    $res = Author::updateAuthorIdentifiers($username);
+    $tpl->assign('aut_update_identifiers_result', $res);
 }
 
 $prefs = Prefs::get($usr_id);

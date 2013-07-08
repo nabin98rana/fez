@@ -37,6 +37,31 @@ function validateAccount(f)
 {
     return true;
 }
+
+function validateAuthorIdentifiers(f)
+{
+  if (!isWhitespace(f.aut_people_australia_id.value) && !isPeopleAustraliaID(f.aut_people_australia_id.value)) {
+    alert('Please enter a valid People Australia ID');
+    selectField(f, 'aut_people_australia_id');
+    return false;
+  }
+  if (!isWhitespace(f.aut_scopus_id.value) && !isScopusID(f.aut_scopus_id.value)) {
+    alert('Please enter a valid Scopus ID');
+    selectField(f, 'aut_scopus_id');
+    return false;
+  }
+  if (!isWhitespace(f.aut_orcid_id.value) && !isORCID(f.aut_orcid_id.value)) {
+    alert('Please enter a valid ORCID');
+    selectField(f, 'aut_orcid_id');
+    return false;
+  }
+  if (!isWhitespace(f.aut_google_scholar_id.value) && !isGoogleScholarID(f.aut_google_scholar_id.value)) {
+    alert('Please enter a valid Google Scholar ID');
+    selectField(f, 'aut_google_scholar_id');
+    return false;
+  }
+  return true;
+}
 //-->
 </script>
 {/literal}
@@ -324,6 +349,98 @@ function validateAccount(f)
   </tr>
 </table>
 {/if}
+
+<br />
+
+<table style="width: 100%; background: {$cell_color};">
+  <tr>
+    <td>
+      <form onsubmit="javascript:return validateAuthorIdentifiers(this);" action="{$smarty.server.PHP_SELF}" method="post" enctype="multipart/form-data">
+      <input type="hidden" name="cat" value="update_account" />
+      <table style="background: #FFFFFF; width: 100%;" cellspacing="1" cellpadding="2">
+        <tr style="background: {$heading_color};">
+          <td class="default_white" colspan="2" height="20px">
+            <b>My Author Identifiers</b>
+          </td>
+        </tr>
+
+        {if $aut_update_identifiers_result}
+        <tr>
+          <td colspan="2" class="error" style="background: {$cell_color};" align="center">
+            {if $aut_update_identifiers_result == -1}
+            <b>An error occurred while trying to run your query.</b>
+            {elseif $aut_update_identifiers_result == 1}
+            <b>Thank you, your Author Identifiers were updated successfully.</b>
+            {/if}
+          </td>
+        </tr>
+
+        {/if}
+
+        <tr>
+          <td style="width: 150px; background: {$cell_color};" class="default">
+            <b>People Australia ID:</b>
+          </td>
+          <td style="background: {$cell_color};">
+            <input type="text" name="aut_people_australia_id" size="40" class="default" value="{$aut_people_australia_id}" />
+            <br />
+            <span style="font-size: 10px;">Your People Australia ID
+              (for example <a href="http://nla.gov.au/nla.party-820860" target="_blank">nla.party-820860</a>).</span>
+            {include file="error_icon.tpl.html" field="aut_people_australia_id"}
+          </td>
+        </tr>
+
+        <tr>
+          <td style="width: 150px; background: {$light_color};" class="default">
+            <b>Scopus ID:</b>
+          </td>
+          <td style="background: {$light_color};">
+            <input type="text" name="aut_scopus_id" size="40" class="default" value="{$aut_scopus_id}" />
+            <br />
+            <span style="font-size: 10px;">Your Scopus ID
+              (for example <a href="http://www.scopus.com/authid/detail.url?authorId=7403882921" target="_blank">7403882921</a>).</span>
+            {include file="error_icon.tpl.html" field="aut_scopus_id"}
+          </td>
+        </tr>
+
+        <tr>
+          <td style="width: 150px; background: {$cell_color};" class="default">
+            <b>ORCID:</b>
+          </td>
+          <td style="background: {$cell_color};">
+            <input type="text" name="aut_orcid_id" size="40" class="default" value="{$aut_orcid_id}" />
+            <br />
+            <span style="font-size: 10px;">Your ORCID ID
+              (for example <a href="http://orcid.org/0000-0002-1205-0342" target="_blank">0000-0002-1205-0342</a>).</span></span>
+            {include file="error_icon.tpl.html" field="aut_orcid_id"}
+          </td>
+        </tr>
+
+        <tr>
+          <td style="width: 150px; background: {$light_color};" class="default">
+            <b>Google Scholar:</b>
+          </td>
+          <td style="background: {$light_color};">
+            <input type="text" name="aut_google_scholar_id" size="40" class="default" value="{$aut_google_scholar_id}" />
+            <br />
+            <span style="font-size: 10px;">Your Google Scholar ID
+              (for example <a href="http://scholar.google.com/citations?user=0Zfgv_4AAAAJ" target="_blank">0Zfgv_4AAAAJ</a>).</span>
+            {include file="error_icon.tpl.html" field="aut_google_scholar_id"}
+          </td>
+        </tr>
+
+        <tr>
+          <td colspan="2" style="background: {$cell_color};" align="center">
+            <input type="hidden" name="cat" value="aut_update_identifiers" />
+            <input class="button" type="submit" value="Update My Author Identifiers" />
+            <input class="button" type="reset" value="Reset" />
+          </td>
+        </tr>
+      </table>
+      </form>
+    </td>
+  </tr>
+</table>
 
 {include file="app_info.tpl.html"}
 {include file="footer.tpl.html"}

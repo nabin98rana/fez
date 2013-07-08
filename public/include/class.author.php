@@ -506,7 +506,71 @@ class Author
   }
 
 
-  /**
+    /**
+     * Updates an author's identifiers (NLA/Scopus ID/ORCID/Google Scholar)
+     * @access public
+     * @param string $org_username The org. username to update identifiers for
+     * @param array $ids Array of identifiers to update (ID => value)
+     * @return integer 1 if the update worked, -1 otherwise
+     */
+    function updateAuthorIdentifiers($org_username, $ids = array())
+    {
+        $log = FezLog::get();
+        $db = DB_API::get();
+
+        $data = array();
+
+        if (
+            array_key_exists('aut_people_australia_id', $ids) &&
+            !Validation::isWhitespace($ids['aut_people_australia_id']) &&
+            Validation::isPeopleAustraliaID($ids['aut_people_australia_id'])
+        ) {
+            $data['aut_people_australia_id'] = $ids['aut_people_australia_id'];
+        }
+        if (
+            array_key_exists('aut_scopus_id', $ids) &&
+            !Validation::isWhitespace($ids['aut_scopus_id']) &&
+            Validation::isScopusID($ids['aut_scopus_id'])
+        ) {
+            $data['aut_scopus_id'] = $ids['aut_scopus_id'];
+        }
+        if (
+            array_key_exists('aut_orcid_id', $ids) &&
+            !Validation::isWhitespace($ids['aut_orcid_id']) &&
+            Validation::isORCID($ids['aut_orcid_id'])
+        ) {
+            $data['aut_orcid_id'] = $ids['aut_orcid_id'];
+        }
+        if (
+            array_key_exists('aut_google_scholar_id', $ids) &&
+            !Validation::isWhitespace($ids['aut_google_scholar_id']) &&
+            Validation::isGoogleScholarID($ids['aut_google_scholar_id'])
+        ) {
+            $data['aut_google_scholar_id'] = $ids['aut_google_scholar_id'];
+        }
+
+        if (count($data) === 0) {
+            // Nothing to update
+            return -1;
+        }
+
+        try {
+            $db->update(
+                APP_TABLE_PREFIX . 'author',
+                $data,
+                'aut_org_username = ' . $db->quote($org_username)
+            );
+        }
+        catch(Exception $ex) {
+            $log->err($ex);
+            return -1;
+        }
+        return 1;
+    }
+
+
+
+    /**
    * Method used to add a new author to the system.
    *
    * @access  public

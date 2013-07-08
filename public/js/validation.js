@@ -129,7 +129,6 @@ function isMyPubURL(u) {
 	return regexp.test(u) && u.length < 101;
 }
 
-
 function isORCID(u) {
 	var valid = (u.length == 19);
 	valid = valid && (u.charAt(4) == '-') && (u.charAt(9) == '-') && (u.charAt(14) == '-');
@@ -144,6 +143,18 @@ function isORCID(u) {
     result = (12 - remainder) % 11;
     valid = valid && ((result == Number(u.charAt(18)) || (result == 10 && u.charAt(18) == 'X' )));
     return valid;
+}
+
+function isPeopleAustraliaID(u) {
+  return /^(http:\/\/nla\.gov\.au\/)?nla\.party\-\d+$/.test(u);
+}
+
+function isScopusID(u) {
+  return isInteger(u);
+}
+
+function isGoogleScholarID(u) {
+  return /^[A-Za-z0-9_]+$/.test(u);
 }
 
 function hasDeniedChars(s)

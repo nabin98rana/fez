@@ -40,7 +40,7 @@
  * the data integrity is the best possible.
  *
  * @version 1.0
- * @author João Prado Maia <jpm@mysql.com>
+ * @author Joï¿½o Prado Maia <jpm@mysql.com>
  */
 
 class Validation
@@ -155,5 +155,49 @@ class Validation
             }
         }
         return true;
+    }
+
+    /**
+     * Checks the input string is a valid ORCID identifier
+     *
+     * @param string $str The string to check
+     * @return bool True if valid else false
+     */
+    function isORCID($str)
+    {
+        return preg_match('/^\d{4}\-\d{4}\-\d{4}\-\d{4}$/', $str);
+    }
+
+    /**
+     * Checks the input string is a valid People Australia identifier
+     *
+     * @param string $str The string to check
+     * @return bool True if valid else false
+     */
+    function isPeopleAustraliaID($str)
+    {
+        return preg_match('/^(http:\/\/nla\.gov\.au\/)?nla\.party\-\d+$/', $str);
+    }
+
+    /**
+     * Checks the input string is a valid Scopus ID
+     *
+     * @param string $str The string to check
+     * @return bool True if valid else false
+     */
+    function isScopusID($str)
+    {
+        return preg_match('/^\d+$/', $str);
+    }
+
+    /**
+     * Checks the input string is a valid Google Scholar identifier
+     *
+     * @param string $str The string to check
+     * @return bool True if valid else false
+     */
+    function isGoogleScholarID($str)
+    {
+        return preg_match('/^[A-Za-z0-9_]+$/', $str);
     }
 }
