@@ -93,6 +93,10 @@ $authorDetails = Author::getDetailsByUsername($username);
 if (is_numeric($authorDetails['aut_id'])) {
 	$isAuthor = 1;
 	$myPubURLPref = $authorDetails['aut_mypub_url'];
+    $aut_people_australia_id = $authorDetails['aut_people_australia_id'];
+    $aut_scopus_id = $authorDetails['aut_scopus_id'];
+    $aut_orcid_id = $authorDetails['aut_orcid_id'];
+    $aut_google_scholar_id = $authorDetails['aut_google_scholar_id'];
 } else {
 	$isAuthor = 0;
 	$myPubURLPref = "";
@@ -124,6 +128,10 @@ $tpl->assign("SHIB_SWITCH", SHIB_SWITCH);
 $tpl->assign("shibAttribs", $shibAttribs);
 $tpl->assign("user_prefs", $prefs);
 $tpl->assign("myPubURLPref", $myPubURLPref);
+$tpl->assign("aut_people_australia_id", $aut_people_australia_id);
+$tpl->assign("aut_scopus_id", $aut_scopus_id);
+$tpl->assign("aut_orcid_id", $aut_orcid_id);
+$tpl->assign("aut_google_scholar_id", $aut_google_scholar_id);
 $tpl->assign("isAuthor", $isAuthor);
 $tpl->assign("front_pages", $front_pages);
 $tpl->assign("zones", Date_API::getTimezoneList());
