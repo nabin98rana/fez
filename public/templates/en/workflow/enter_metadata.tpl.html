@@ -918,7 +918,7 @@
                                 t.addCallback( function(msg) {
                                     var container_id_wos = '{/literal}{$xsd_display_fields[i].xsdmf_id}_0_container{literal}_wos';
                                     if(msg == '' || msg == 'false') {
-                                        dojo.byId(container_id_wos).innerHTML = 'Oops! Something unexpected happened. Please try again later..';
+                                        dojo.byId(container_id_wos).innerHTML = 'WoS API services currently appear to be offline, please try again later. If the problem persists please report it to your system administrators.';
                                     }
                                     else {
                                         dojo.byId(container_id_wos).innerHTML = '<h3 style="text-decoration:underline; color: #333333">Record successfully added</h3>Click <a href="{/literal}{$app_base_url}{literal}view/'+msg+'" id="pub_link">here</a> to view the new record.';
@@ -965,7 +965,6 @@
                                             var container_id_repo = '{/literal}{$xsd_display_fields[i].xsdmf_id}_0_container{literal}_repo';
 
                                             if(msg.length > 0) {
-
                                             	dojo.byId(container_id_repo).innerHTML = msg;
                                             }
                                             else {
@@ -1183,9 +1182,11 @@
             </tr>
         {* contvocab_selector *}
         {elseif $xsd_display_fields[i].xsdmf_html_input == 'contvocab_selector' && $xsd_display_fields[i].xsdmf_enabled == 1}
-                <tr id="tr_list_{$list[i].xsdmf_id}_0" valign="top" {if ($isEditor != 1 && $xsd_display_fields[i].xsdmf_show_simple_create == 0 && $xsd_display_fields[i].xsdmf_required != 1) || $xsd_display_fields[i].xsdmf_invisible == 1 || ($xsd_display_fields[i].cvo_hide == 1 && $xsd_display_fields[i].xsdmf_cvo_min_level == 3 && !$isAdmin)}style="display:none"{/if}>
+                <tr id="tr_list_{$list[i].xsdmf_id}_0" valign="top" {if ($isEditor != 1 && $xsd_display_fields[i].xsdmf_show_simple_create == 0 && $xsd_display_fields[i].xsdmf_required != 1)
+                                                                        || $xsd_display_fields[i].xsdmf_invisible == 1
+                                                                        || ($xsd_display_fields[i].cvo_hide == 1 && $xsd_display_fields[i].xsdmf_cvo_min_level == 3 && !$isAdmin)}style="display:none"{/if}>
                   <th>
-                    <b>{$xsd_display_fields[i].xsdmf_title} {if $xsd_display_fields[i].xsdmf_required == 1} * {/if}</b><br />
+                    <b><label for="xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}">{$xsd_display_fields[i].xsdmf_title}</label> {if $xsd_display_fields[i].xsdmf_required == 1} * {/if}</b><br />
             {if $xsd_display_fields[i].xsdmf_long_description != ""}
               <span class="default">{$xsd_display_fields[i].xsdmf_long_description|smarty:nodefaults}</span>
             {/if}
@@ -1193,7 +1194,7 @@
           </th>
                   {assign var="field_name" value="xsd_display_fields["|cat:$xsd_display_fields[i].xsdmf_id|cat:"][]"}
                   <td>
-                    {if $xsd_display_fields[i].xsdmf_cvo_min_level == 3}
+                   {if $xsd_display_fields[i].xsdmf_cvo_min_level == 3}
                        {assign var="field_name" value="xsd_display_fields["|cat:$xsd_display_fields[i].xsdmf_id|cat:"][]"}
                         <select id="xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}" class="default"
                             name="{$field_name}">
@@ -1223,7 +1224,7 @@
 
                 <tr id="tr_list_{$list[i].xsdmf_id}_0" valign="top" {if ($isEditor != 1 && $xsd_display_fields[i].xsdmf_show_simple_create == 0 && $xsd_display_fields[i].xsdmf_required != 1) || $xsd_display_fields[i].xsdmf_invisible == 1}style="display:none"{/if}>
                   <th>
-                    <b><label for="xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_0">{$xsd_display_fields[i].xsdmf_title} </label> {if $xsd_display_fields[i].xsdmf_required == 1} * {/if}</b><br />
+                    <b><label for="xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_0">{$xsd_display_fields[i].xsdmf_title}</label> {if $xsd_display_fields[i].xsdmf_required == 1} * {/if}</b><br />
                   </th>
                   {assign var="field_name" value="xsd_display_fields["|cat:$xsd_display_fields[i].xsdmf_id|cat:"][]"}
                   <td>
