@@ -2,7 +2,7 @@ CREATE TABLE IF NOT EXISTS %TABLE_PREFIX%record_search_key_isdatasetof (
      rek_isdatasetof_id INT(11) NOT NULL AUTO_INCREMENT,
      rek_isdatasetof_pid VARCHAR(64) DEFAULT NULL,
      rek_isdatasetof_xsdmf_id INT(11) DEFAULT NULL,
-     rek_isdatasetof int(11) DEFAULT NULL,
+     rek_isdatasetof varchar(255) DEFAULT NULL,
      PRIMARY KEY (rek_isdatasetof_id),
      KEY rek_isdatasetof (rek_isdatasetof),
      KEY rek_isdatasetof_pid (rek_isdatasetof_pid)
@@ -13,7 +13,7 @@ CREATE TABLE IF NOT EXISTS %TABLE_PREFIX%record_search_key_isdatasetof__shadow (
      rek_isdatasetof_stamp DATETIME,
      rek_isdatasetof_pid VARCHAR(64) DEFAULT NULL,
      rek_isdatasetof_xsdmf_id INT(11) DEFAULT NULL,
-     rek_isdatasetof int(11) DEFAULT NULL,
+     rek_isdatasetof varchar(255) DEFAULT NULL,
      PRIMARY KEY (rek_isdatasetof_id),
      KEY rek_isdatasetof (rek_isdatasetof),
      KEY rek_isdatasetof_pid (rek_isdatasetof_pid)
