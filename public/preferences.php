@@ -83,7 +83,7 @@ if (@$_POST["cat"] == "update_account") {
         'aut_orcid_id' => @$_POST['aut_orcid_id'],
         'aut_google_scholar_id' => @$_POST['aut_google_scholar_id'],
     );
-    $res = Author::updateAuthorIdentifiers($username);
+    $res = Author::updateAuthorIdentifiers($username, $ids);
     $tpl->assign('aut_update_identifiers_result', $res);
 }
 
