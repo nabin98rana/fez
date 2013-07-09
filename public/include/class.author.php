@@ -518,7 +518,12 @@ class Author
         $log = FezLog::get();
         $db = DB_API::get();
 
-        $data = array();
+        $data = array(
+            'aut_people_australia_id' => '',
+            'aut_scopus_id' => '',
+            'aut_orcid_id' => '',
+            'aut_google_scholar_id' => '',
+        );
 
         if (
             array_key_exists('aut_people_australia_id', $ids) &&
@@ -547,11 +552,6 @@ class Author
             Validation::isGoogleScholarID($ids['aut_google_scholar_id'])
         ) {
             $data['aut_google_scholar_id'] = $ids['aut_google_scholar_id'];
-        }
-
-        if (count($data) === 0) {
-            // Nothing to update
-            return -1;
         }
 
         try {
