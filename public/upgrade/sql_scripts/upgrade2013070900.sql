@@ -52,7 +52,6 @@ CREATE TABLE IF NOT EXISTS %TABLE_PREFIX%record_search_key_description_of_resour
      rek_description_of_resource_xsdmf_id INT(11) DEFAULT NULL,
      rek_description_of_resource TEXT DEFAULT NULL,
      PRIMARY KEY (rek_description_of_resource_id),
-     KEY rek_description_of_resource (rek_description_of_resource),
      KEY rek_description_of_resource_pid (rek_description_of_resource_pid)
 ) ENGINE=INNODB DEFAULT CHARSET=utf8;
 
@@ -63,7 +62,6 @@ CREATE TABLE IF NOT EXISTS %TABLE_PREFIX%record_search_key_description_of_resour
      rek_description_of_resource_xsdmf_id INT(11) DEFAULT NULL,
      rek_description_of_resource TEXT DEFAULT NULL,
      PRIMARY KEY (rek_description_of_resource_id),
-     KEY rek_description_of_resource (rek_description_of_resource),
      KEY rek_description_of_resource_pid (rek_description_of_resource_pid)
 ) ENGINE=INNODB DEFAULT CHARSET=utf8;
 
@@ -100,7 +98,6 @@ CREATE TABLE IF NOT EXISTS %TABLE_PREFIX%record_search_key_project_description (
      rek_project_description_xsdmf_id INT(11) DEFAULT NULL,
      rek_project_description TEXT DEFAULT NULL,
      PRIMARY KEY (rek_project_description_id),
-     KEY rek_project_description (rek_project_description),
      KEY rek_project_description_pid (rek_project_description_pid)
 ) ENGINE=INNODB DEFAULT CHARSET=utf8;
 
@@ -111,7 +108,6 @@ CREATE TABLE IF NOT EXISTS %TABLE_PREFIX%record_search_key_project_description__
      rek_project_description_xsdmf_id INT(11) DEFAULT NULL,
      rek_project_description TEXT DEFAULT NULL,
      PRIMARY KEY (rek_project_description_id),
-     KEY rek_project_description (rek_project_description),
      KEY rek_project_description_pid (rek_project_description_pid)
 ) ENGINE=INNODB DEFAULT CHARSET=utf8;
 
