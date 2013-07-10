@@ -3,11 +3,35 @@
 
 <form id="list_form" method="get" action="{$smarty.server.PHP_SELF}">
 
+<div class="aut-links">
+<ul>
 {if $researcherID != ""}
-<div style="float:right;">
-{include file="rid_badge.tpl.html"}
-</div>
+  <li class="btn"><a href="http://www.researcherid.com/rid/{$aut_researcher_id}" title="ResearcherID Profile Page">
+    <span class="icon">{include file="rid_badge_sm.tpl.html"}</span> ResearcherID
+  </a></li>
 {/if}
+{if $aut_orcid_id != ""}
+  <li class="btn"><a href="http://orcid.org/{$aut_orcid_id}" title="ORCID Profile Page">
+    <span class="icon"><img src="{$rel_url}images/orcid.gif"/></span> ORCID
+  </a></li>
+{/if}
+{if $aut_people_australia_id != ""}
+  <li class="btn"><a href="http://nla.gov.au/{$aut_people_australia_id}" title="People Australia Profile Page">
+    <span class="icon"><img src="{$rel_url}images/trove.png"/></span> People Australia
+  </a></li>
+{/if}
+{if $aut_scopus_id != ""}
+  <li class="btn"><a href="http://www.scopus.com/authid/detail.url?authorId={$aut_scopus_id}" title="Scopus ID Profile Page">
+    <span class="icon"><img src="{$rel_url}images/scopus_logo_small.gif"/></span> Scopus ID
+  </a></li>
+{/if}
+{if $aut_google_scholar_id != ""}
+  <li class="btn"><a href="http://scholar.google.com/citations?user={$aut_google_scholar_id}" title="Google Scholar Profile Page">
+    <span class="icon"><img src="{$rel_url}images/gscholar.png"/></span> Google Scholar
+  </a></li>
+{/if}
+</ul>
+</div>
 
 {include file="paging_control_header.tpl.html"}
 

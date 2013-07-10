@@ -2632,3 +2632,58 @@ table.adminManageList{
 .sherpa td.green  {background: #D0F9D2;}
 .sherpa td.white  {background: #FFFFFF;}
 .sherpa td ul     {margin-bottom: 0;}
+
+/* Author profile links */
+.aut-links {
+  float: right;
+}
+
+.aut-links ul li {
+  float: left;
+  margin-left: 10px;
+  height: 20px;
+}
+
+.aut-links a {
+  color: #333 !important;
+  line-height: 20px;
+  padding: 4px;
+}
+
+.aut-links .icon {
+  display: inline-block;
+}
+
+.aut-links img {
+  height: 15px;
+  margin-right: 2px;
+  margin-top: -2px;
+  vertical-align: middle;
+}
+
+.aut-links .btn {
+  display: block;
+  background-color: #f8f8f8;
+  background-image: -webkit-gradient(linear,left top,left bottom,from(#fff),to(#dedede));
+  background-image: -moz-linear-gradient(top,#fff,#dedede);
+  background-image: -o-linear-gradient(top,#fff,#dedede);
+  background-image: -ms-linear-gradient(top,#fff,#dedede);
+  background-image: linear-gradient(top,#fff,#dedede);
+  border-radius: 3px;
+  -moz-border-radius: 3px;
+  -webkit-border-radius: 3px;
+  border: #ccc solid 1px;
+  color: #333;
+  font: normal normal normal 11px/18px 'Helvetica Neue',Arial,sans-serif;
+  font-weight: bold;
+}
+
+.aut-links .btn:focus, .aut-links .btn:hover, .aut-links .btn:active {
+  border-color: #bbb;
+  background-color: #f8f8f8;
+  background-image: -webkit-gradient(linear,left top,left bottom,from(#f8f8f8),to(#d9d9d9));
+  background-image: -moz-linear-gradient(top,#f8f8f8,#d9d9d9);
+  background-image: -o-linear-gradient(top,#f8f8f8,#d9d9d9);
+  background-image: -ms-linear-gradient(top,#f8f8f8,#d9d9d9);
+  background-image: linear-gradient(top,#f8f8f8,#d9d9d9);
+}

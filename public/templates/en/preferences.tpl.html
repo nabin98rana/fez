@@ -249,6 +249,8 @@ function validateAuthorIdentifiers(f)
   </tr>
 </table>
 <br />
+
+{if $isAuthor == 1}
 <table style="width: 100%; background: {$cell_color};">
   <tr>
     <td>
@@ -322,6 +324,8 @@ function validateAuthorIdentifiers(f)
     </td>
   </tr>
 </table>
+{/if}
+
 {if $SHIB_SWITCH == "ON"}
 <br />
 <table style="width: 100%; background: {$cell_color};">

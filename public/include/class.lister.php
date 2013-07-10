@@ -859,12 +859,11 @@ class Lister
 
       $tpl->assign("masterList", $masterList);
 
-      if (!empty($authorDetails["aut_researcher_id"])) {
-        $tpl->assign("researcherID", $authorDetails["aut_researcher_id"]);
-      } else {
-        $tpl->assign("researcherID", "");
-      }
-
+      $tpl->assign("researcherID", $authorDetails["aut_researcher_id"]);
+      $tpl->assign("aut_people_australia_id", $authorDetails['aut_people_australia_id']);
+      $tpl->assign("aut_scopus_id", $authorDetails['aut_scopus_id']);
+      $tpl->assign("aut_orcid_id", $authorDetails['aut_orcid_id']);
+      $tpl->assign("aut_google_scholar_id", $authorDetails['aut_google_scholar_id']);
 
       $tpl->assign("list_type", "mypubs_list");
 
