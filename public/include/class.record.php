@@ -263,26 +263,26 @@ class Record
   }
 
 
-  function generateDerivationTree($pid, $derivations, &$dTree, &$shownPids=array())
+  function generateDerivationTree($pid, $derivations, &$dTree, &$shownPids=array(), $hideSelf = false)
   {
     if (!array($derivations)) {
       return;
     }
     foreach ($derivations as $devkey => $dev) { // now build HTML of the citation
       if (!in_array($dev['rek_pid'], $shownPids)) {
-        if ($dev['pid'] != $pid) {
+        if ($dev['rek_pid'] != $pid) {
           $xdis_title = XSD_Display::getTitle($dev['rek_display_type']);
           $dTree .= '<li>';
           $dTree .= '<a href="' . APP_RELATIVE_URL . 'view/' . $dev['rek_pid'] . '">' .
                     $dev['rek_title'] . '</a> <i>' . $xdis_title . '</i> (deposited ' .
                     Date_API::getFormattedSimpleDate($dev['rek_created_date']) . ')';
           $dTree .= '</li>';
-        } else {
+        } elseif ($hideSelf !== true) {
           $dTree .= '<li>' . $dev['rek_title'] . ' <b>(Current Record)</b></li>';
         }
         array_push($shownPids, $dev['rek_pid']);
         if (is_array($dev['children'])) {
-          Record::generateDerivationTree($pid, $dev['children'], $dTree, $shownPids);
+          Record::generateDerivationTree($pid, $dev['children'], $dTree, $shownPids, $hideSelf);
         }
       }
     }

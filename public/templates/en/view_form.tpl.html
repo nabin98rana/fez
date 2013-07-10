@@ -429,6 +429,23 @@ function loadPreview(pid,datastreamID, alt, origami)
               </table>
 		    {/if}
 
+        {if $hasDatasets == 1}
+          <table id="datasets">
+          <tr>
+            <td colspan="6">&nbsp;</td>
+          </tr>
+          <tr>
+            <td class="default_white" colspan="5" style="background: {$heading_color}"><b>Dataset relationships</b></td>
+          </tr>
+
+          <tr>
+            <td colspan="5" style="background: {$cell_color}">{$datasetTree|smarty:nodefaults}</td>
+          </tr>
+        <tr>
+          <td colspan="5">&nbsp;</td>
+        </tr>
+        </table>
+        {/if}
 		{include file='view_metadata.tpl.html'}
 		</td>
 	</tr>

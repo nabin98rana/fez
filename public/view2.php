@@ -268,7 +268,7 @@ if (!empty($pid) && $record->checkExists()) {
       }
       array_push($parent_relationships[$parent['rek_pid']], $parent['rek_display_type']);
       //Check if the order form should be displayed
-      $displayOrderForm =  $displayOrderForm || in_array($parent['rek_pid'], array('UQ:183974','UQ:130846','UQ:210175','UQ:155729', 'UQ:151710'));
+        $displayOrderForm =  $displayOrderForm || in_array($parent['rek_pid'], array('UQ:183974','UQ:130846','UQ:210175','UQ:155729', 'UQ:151710'));
 
     }
     $displayOrderForm = (empty($username) && $displayOrderForm);
@@ -697,6 +697,33 @@ if (!empty($pid) && $record->checkExists()) {
       Record::wrapDerivationTree($derivationTree);
     }
 
+    //what does this record isDatasetOf?
+    $hasDatasets = 0;
+    $datasets = Record::getParentsAll($pid, 'isDatasetOf', true);
+    //print_r($derivations); exit;
+    if (count($datasets) == 0) {
+      $datasets[0]['rek_title'] = Record::getSearchKeyIndexValue($pid, "Title");
+      $datasets[0]['rek_pid'] = $pid;
+    } else {
+      $hasDatasets = 1;
+    }
+//		print_r($derivations);
+    //are there any other records that also succeed this parent
+    foreach ($datasets as $devkey => $dev) { // gone all the way up, now go back down getting ALL the children as we ride the spiral
+      $child_devs = Record::getChildrenAll($datasets[$devkey]['rek_pid'], "isDatasetOf", false);
+      if (count($child_devs) != 0) {
+        $hasDatasets = 1;
+      }
+      $datasets[$devkey]['children'] = $child_devs;
+    }
+
+    $datasetTree = "";
+    $datasetArray = array();
+    if ($hasDatasets == 1) {
+      Record::generateDerivationTree($pid, $datasets, $datasetTree, $datasetArray, true);
+      Record::wrapDerivationTree($datasetTree);
+    }
+
     if(APP_ADDTHIS_SWITCH == 'ON')
     {
       $tpl->assign("addthis", APP_ADDTHIS_ID);
@@ -706,8 +733,10 @@ if (!empty($pid) && $record->checkExists()) {
     $tpl->assign("linkCount", $linkCount);
     $tpl->assign("links", $links);
     $tpl->assign("hasVersions", $hasVersions);
+    $tpl->assign("hasDatasets", $hasDatasets);
     $tpl->assign("fileCount", $fileCount);
     $tpl->assign("derivationTree", $derivationTree);
+    $tpl->assign("datasetTree", $datasetTree);
     $tpl->assign("created_date", $created_date);
     $tpl->assign("depositor", $depositor);
     $tpl->assign("depositor_id", $depositor_id);

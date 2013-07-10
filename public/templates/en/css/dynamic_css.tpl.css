@@ -58,12 +58,12 @@ table { border-collapse: collapse; border-spacing: 0pt; }
 div#wordmark { display: none; visibility: hidden; }
 
 /*	Hidden Content
------------------------------------------------------------------------------*/				  	  
-.skip {	display: none; }		
-#search label { display: none; visibility: hidden; }	
+-----------------------------------------------------------------------------*/
+.skip {	display: none; }
+#search label { display: none; visibility: hidden; }
 
 /* Header + Body
------------------------------------------------------------------------------*/	
+-----------------------------------------------------------------------------*/
 .wrapper { position: relative; top: 0pt; margin: 0px auto; width: 960px; }
 
 #header { margin: 0pt; padding: 0pt; background: rgb(96, 34, 124) url('[[$smarty.const.APP_RELATIVE_URL]]images/2009/bodybg.gif') repeat-x scroll 0pt 0pt; color: rgb(239, 239, 239); height: 100px; }
@@ -144,7 +144,7 @@ div#wordmark { display: none; visibility: hidden; }
         float: left;
     }
 
-    
+
 /* Hover state for the Login button */
 .login-btn:hover,
 .logout-btn:hover{
@@ -194,10 +194,10 @@ div#search input { border: 0pt none ; margin: 0 0 0 0; padding: 4px 0 0 0; backg
 div#search input.submit { margin: 0pt 0pt 0pt 3px; padding: 0pt; background: transparent url('[[$smarty.const.APP_RELATIVE_URL]]images/2009/form-right.png') no-repeat scroll 0pt 0pt; float: left; cursor: pointer; width: 20px; height: 22px; }
 
 /* Footer
------------------------------------------------------------------------------*/	
+-----------------------------------------------------------------------------*/
 #footer { background: #5e217a url('[[$smarty.const.APP_RELATIVE_URL]]images/2009/bg-footer.gif') repeat-x scroll 100% 0pt; border-top: solid 2px #78b800; }
 #footer { clear: both; min-height: 140px; ! important; }
-#footer .wrapper { margin-top: 40px; } 
+#footer .wrapper { margin-top: 40px; }
 #footer div { }
 #footer .wrapper {  }
 #footer li a, #navResources p a, .campus a, .directions a, .copyright a {  border-bottom: 1px solid rgb(108, 93, 94); color: rgb(241, 241, 241); cursor: pointer; }
@@ -344,7 +344,7 @@ p.centenary { padding: 16px 0 0 0; }
 
 .default a {
     text-decoration: none;
-    color: #3179C6; 
+    color: #3179C6;
 }
 
 .default a:hover {
@@ -579,7 +579,7 @@ div.suggestions div.current {
 
 .listrecord a {
     text-decoration: none;
-    color: #3179C6; 
+    color: #3179C6;
 }
 
 .listrecord a:hover {
@@ -848,7 +848,7 @@ width: 2em;
 /************************* Header Tags *************************/
 
 td.header {background-image: url("[[$smarty.const.APP_RELATIVE_URL]]images/2003/header_background.gif"); background-repeat: repeat; }
-td.toplinks {background-color: #367FCC;}	
+td.toplinks {background-color: #367FCC;}
 
 #intro-text {
 	color: #2a2a2a;
@@ -897,13 +897,13 @@ td.toplinks {background-color: #367FCC;}
 	border-top: 1px solid #336699;
 	border-right: 1px solid #336699;
 	border-left: 1px solid #336699;
-	border-bottom: 1px solid #336699;	
+	border-bottom: 1px solid #336699;
 	color: #f2f2f2;
 }
 
 .tabs li a:hover {
 	background: #336699;
-	text-decoration: underline;	
+	text-decoration: underline;
 }
 
 .tabs li a.active {
@@ -941,7 +941,7 @@ td.toplinks {background-color: #367FCC;}
 	border-top: 1px solid #828282;
 	border-right: 1px solid #828282;
 	border-left: 1px solid #828282;
-	border-bottom: 1px solid #828282;	
+	border-bottom: 1px solid #828282;
 	color: #fff;
 }
 
@@ -1044,7 +1044,7 @@ td.toplinks {background-color: #367FCC;}
 div.wfl_description {
 padding: 1em;
 margin: 1em;
-font-size: 110%;        
+font-size: 110%;
 border: 1px solid #[[$smarty.const.APP_DARK_COLOR]];
 background-color: #[[$smarty.const.APP_LIGHT_COLOR]];
 }
@@ -1110,7 +1110,7 @@ div.fez_form_item {
     width: 200px;
     vertical-align: top;
  }
- 
+
 span.fez_form_input {
     display: table-cell;
     background-color: #[[$smarty.const.APP_LIGHT_COLOR]];
@@ -1354,10 +1354,10 @@ hr {
 }
 
 .clearfix:after {
-    content: "."; 
-    display: block; 
-    height: 0; 
-    clear: both; 
+    content: ".";
+    display: block;
+    height: 0;
+    clear: both;
     visibility: hidden;
 }
 
@@ -1374,7 +1374,7 @@ hr {
 .clearfix {
 	display: block;
 }
-	
+
 /* End hide from IE-mac */
 #criteria-box {
 	margin: 1em 0 1em;
@@ -1426,7 +1426,7 @@ hr {
 .phantomVersionItem {color:#aaaaaa;}
 
 #viewInfoBoxUpper, #viewInfoBox, #viewInfoBoxNoEdit {
-	border: 1px solid #8e8e8e; 
+	border: 1px solid #8e8e8e;
 	padding: 10px;
 	line-height: 20px;
 }
@@ -1630,7 +1630,7 @@ div.maxlength {
     font-size: 70%;
     color: black;
  }
- 
+
 span.maxlength_exceeded {
     color: red;
     font-weight: bold;
@@ -1643,7 +1643,7 @@ span.maxlength_exceeded {
 	width: 500px;
 	text-align: center;
 	align: center;
-	margin: 0 auto;	
+	margin: 0 auto;
 }
 
 .gallery-row img {
@@ -1656,7 +1656,7 @@ span.maxlength_exceeded {
 
 /* Home page stylings */
 
-.boxes, 
+.boxes,
 .floated-boxes {
 	margin-bottom: 2em;
 	background: #f2f2f2;
@@ -1739,8 +1739,8 @@ ul.box-tab li.box-tab-active a {
 	background: none !important;
 }
 
-#first-box h1 { 
-	margin-bottom: 0.5em;	
+#first-box h1 {
+	margin-bottom: 0.5em;
 }
 
 #first-box p {
@@ -1799,7 +1799,7 @@ ul.box-tab li.box-tab-active a {
 a.icon-help {
 	text-decoration: none;
 	color: #fff;
-	
+
 }
 
 a.icon-help img {
@@ -2206,11 +2206,29 @@ a.author_id_link:hover {
     vertical-align: middle;
 }
 
-#versions {
+#versions, #datasets {
     margin-top: 20px;
     background: #FFFFFF;
     width: 100%;
 }
+
+
+
+
+#versions, #datasets th, #related-links td {
+  padding: 3px 5px 3px 5px;
+}
+
+#versions, #datasets tr {
+  border-bottom: 1px solid #[[$smarty.const.APP_CELL_COLOR]];
+}
+
+#versions, #datasets td {
+  background-color: #[[$smarty.const.APP_LIGHT_COLOR]];
+  padding: 4px;
+  vertical-align: middle;
+}
+
 
 .ext-lookup-results tbody tr td {
     padding: 2px;
@@ -2253,7 +2271,7 @@ a.author_id_link:hover {
 
 #shib-login form label  {
     font-size: 100% !important;
-    font-weight: normal !important;   
+    font-weight: normal !important;
 }
 
 #request-access {
@@ -2402,7 +2420,7 @@ a.author_id_link:hover {
     color:#666;
 }
 
-#topnav ul li a#bgpsClose, 
+#topnav ul li a#bgpsClose,
 #topnav ul li a#bgpsClose:hover{
     cursor:pointer;
     background:none;
@@ -2415,8 +2433,8 @@ a.author_id_link:hover {
 }
 
 #regAuthAffil{
-    border-collapse: collapse; 
-    padding: 5px; 
+    border-collapse: collapse;
+    padding: 5px;
     margin: 0;
 }
 
@@ -2466,7 +2484,7 @@ a.author_id_link:hover {
  * CSS Style of RID Jobs listing on Admin GUI, URL/manage/rid_jobs.php
  * Used by this file: rid_jobs.tpl.html
  */
- 
+
 H2.adminListHeader{
     padding: 15px 5px 5px;
 }
@@ -2474,35 +2492,35 @@ H2.adminListHeader{
 /* Sort & Search Form. We use #content to overwrite css style from #content div. */
 #content .adminListSortForm,
 #content .adminListSearchForm {
-    width: 45%; 
-    float: left; 
-    display: block; 
-    overflow:auto; 
-    background: #F6F6F6; 
+    width: 45%;
+    float: left;
+    display: block;
+    overflow:auto;
+    background: #F6F6F6;
     padding: 1px 0 6px;
     margin: 0px;
 }
 
     #content .adminListSearchForm{
-        margin:0 5px; 
+        margin:0 5px;
         float: right;
     }
-    
+
     .adminListSearchForm .button,
     .adminListSortForm .button{
-        font-size: 11px; 
-        cursor: pointer; 
-        background: #D4D4D4; 
-        color: #494949; 
+        font-size: 11px;
+        cursor: pointer;
+        background: #D4D4D4;
+        color: #494949;
         margin: 0 5px;
     }
     .adminListSearchForm LABEL{
-        padding: 5px 5px 5px 10px; 
+        padding: 5px 5px 5px 10px;
         font-weight: bold;
     }
 
     .adminListSortForm LABEL{
-        padding: 5px; 
+        padding: 5px;
         font-weight: bold;
     }
     .adminListSearchText{
@@ -2511,8 +2529,8 @@ H2.adminListHeader{
     .adminListSearchVal{
         height: 16px;
     }
-    
-/* Listing table */    
+
+/* Listing table */
 table.adminManageList{
     width: 100%;
 }
@@ -2560,7 +2578,7 @@ table.adminManageList{
             font-style: italic;
             margin-bottom: 1px !important; /* overwrites css on #content div */
         }
-        
+
 /* End of: Admin GUI for ResearcherID Download Request Jobs */
 
 
@@ -2572,20 +2590,20 @@ table.adminManageList{
 .sprite_arrows {
     background-image: url('/images/sprite_arrows.png');
 }
-.sprite-down_arrow{ 
-    background-position: 0 0; width: 9px; height: 7px; 
-} 
-.sprite-left_arrow{ 
-    background-position: 0 -57px; width: 6px; height: 9px; 
-} 
-.sprite-right_arrow{ 
-    background-position: 0 -116px; width: 6px; height: 9px; 
-} 
-.sprite-up_arrow{ 
-    background-position: 0 -175px; width: 9px; height: 6px; 
-} 
+.sprite-down_arrow{
+    background-position: 0 0; width: 9px; height: 7px;
+}
+.sprite-left_arrow{
+    background-position: 0 -57px; width: 6px; height: 9px;
+}
+.sprite-right_arrow{
+    background-position: 0 -116px; width: 6px; height: 9px;
+}
+.sprite-up_arrow{
+    background-position: 0 -175px; width: 9px; height: 6px;
+}
 
-/* End: General sprite arrows. */        
+/* End: General sprite arrows. */
 
 
 /**
@@ -2596,9 +2614,9 @@ table.adminManageList{
  *         - templates/en/workflow/enter_metadata_helpers/field_dual_multiple_language.tpl.html
  */
 #translated_hint {
-    height:30px; 
-    width:auto; 
-    display:none; 
+    height:30px;
+    width:auto;
+    display:none;
     padding: 3px 5px;
 }
 
