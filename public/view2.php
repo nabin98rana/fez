@@ -724,6 +724,18 @@ if (!empty($pid) && $record->checkExists()) {
       Record::wrapDerivationTree($datasetTree);
     }
 
+      // Link to request open access - shown on a Thesis where the current user is the author
+      $displayReqOpenAccess = false;
+      if (!empty($username) && $xdis_title == 'Thesis') {
+          $authors = $record->getAuthors();
+          $author_id = Author::getIDByUsername($username);
+          foreach ($authors as $a) {
+              if ($a['aut_id'] == $author_id) {
+                  $displayReqOpenAccess = true;
+              }
+          }
+      }
+
     if(APP_ADDTHIS_SWITCH == 'ON')
     {
       $tpl->assign("addthis", APP_ADDTHIS_ID);

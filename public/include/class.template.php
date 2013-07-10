@@ -284,6 +284,13 @@ class Template_API
 			$this->assign('admin_area', true);
 		}
 
+        if (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] != 'off') {
+            // SSL connection
+            $this->assign('is_ssl', true);
+        } else {
+            $this->assign('is_ssl', false);
+        }
+
 		$this->assign("start_date", date('Y-m-d', mktime(0,0,0,1,1,date('Y'))));
 		$this->assign("end_date", date('Y-m-d', mktime(0,0,0,12,31,date('Y'))));
 
