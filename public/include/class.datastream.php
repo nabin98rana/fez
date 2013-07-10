@@ -108,7 +108,7 @@ class Datastream
             $phpdate = strtotime( $embargoDate );
             $embargoDate = date( 'Y-m-d H:i:s', $phpdate );
         } else {
-            $embargoDate = NULL;
+            $embargoDate = 'NULL';
         }
 
         $stmt = "
@@ -122,21 +122,23 @@ class Datastream
             $log->err($ex);
             return false;
         }
-
+        if ($embargoDate != 'NULL') {
+            $embargoDate = $db->quote($embargoDate);
+        }
         if (is_array($res)) {
             if ($res['dsi_permissions'] == $permissions && $res['dsi_embargo_date'] == $embargoDate) {
                 return true;
             } else {
                 $stmt = "UPDATE " . APP_TABLE_PREFIX . "datastream_info SET
                     dsi_permissions = " . $db->quote($permissions) . ",
-                    dsi_embargo_date = " . $db->quote($embargoDate) . "
+                    dsi_embargo_date = " . $embargoDate . "
                     WHERE dsi_pid = ".$db->quote($pid)." AND dsi_dsid = ".$db->quote($dsId);
                 $historyDetail = 'Update '.$permissions.' to '.$dsId;
 
             }
         } else {
             $stmt = "INSERT INTO ". APP_TABLE_PREFIX . "datastream_info (dsi_pid, dsi_dsid, dsi_permissions, dsi_embargo_date)
-                    VALUES (". $db->quote($pid).",".$db->quote($dsId).",".$db->quote($permissions).",".$db->quote($embargoDate). ")";
+                    VALUES (". $db->quote($pid).",".$db->quote($dsId).",".$db->quote($permissions).",".$embargoDate. ")";
             $historyDetail = 'Add '.$permissions.' to '.$dsId;
         }
 
