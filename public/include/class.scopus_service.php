@@ -79,13 +79,13 @@ class ScopusService
      */
     public function getSavedToken()
     {
-        $sql = "SELECT scs_tok, unix_timestamp(ts) as ts FROM " 
+        $sql = "SELECT scs_tok, unix_timestamp(scs_ts) as ts FROM "
             . APP_TABLE_PREFIX . "scopus_session LIMIT 1";
         $stmt = $this->_db->query($sql);
         $tokenData = $stmt->fetch();
         
         //If the token is less than two hours old return it
-        $token = ($tokenData && ((time() - $tokenData['ts']) < 7200)) 
+        $token = ($tokenData && ((time() - $tokenData['ts']) < 7200))
                 ? $tokenData['scs_tok'] 
                 : false;
         
