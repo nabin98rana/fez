@@ -46,9 +46,9 @@ class BackgroundProcess_Scopus extends BackgroundProcess
   function run()
   {
     $this->setState(BGP_RUNNING);
+    extract(unserialize($this->inputs));
     $queue = ScopusQueue::get();
     $queue->setBGP($this);
-    $queue->prepareQueue();
     $queue->bgProcess();
     $this->setState(BGP_FINISHED);
   }

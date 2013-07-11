@@ -25,9 +25,7 @@ class ScopusQueue extends Queue
     protected $_batch_size;
     // If we've registered the commit shutdown function
     protected $_commit_shutdown_registered;
-    
-    protected $_service;
-  
+
     /**
      * Returns the singleton queue instance.
      * @return instance of class Scopus
@@ -47,7 +45,6 @@ class ScopusQueue extends Queue
             $instance->_use_locking = false;
             $instance->_dbqp = 'spq_';
             $instance->_dbtp = APP_TABLE_PREFIX . 'scopus_';
-            $instance->_service = new ScopusService(APP_SCOPUS_API_KEY);
             Zend_Registry::set('Scopus', $instance);
         }
         return $instance;
@@ -73,36 +70,6 @@ class ScopusQueue extends Queue
     public function setBGP(&$bgp) 
     {
         $this->_bgp = &$bgp;
-    }
-    
-    /**
-     * Get a list of UQ Scopus IDs owned by UQ
-     * from the last 30 days and push them into 
-     * the queue table.
-     */
-    public function prepareQueue()
-    {
-        $xml = $this->_service->getNextRecordSet();
-        
-        while($this->_service->getRecSetStart())
-        {
-            $doc = new DOMDocument();
-            $doc->loadXML($xml);
-            $records = $doc->getElementsByTagName('identifier');
-            
-            foreach($records as $record)
-            {
-                $scopusId = $record->nodeValue;
-                $matches = array();
-                preg_match("/^SCOPUS_ID\:(\d+)$/", $scopusId, $matches);
-                $scopusIdExtracted = (array_key_exists(1, $matches)) ? $matches[1] : null;
-                
-                $this->add($scopusIdExtracted);
-            }
-            
-            $this->commit();
-            $xml = $this->_service->getNextRecordSet();
-        }
     }
 
     /**
