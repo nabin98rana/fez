@@ -741,6 +741,7 @@ if (!empty($pid) && $record->checkExists()) {
       $tpl->assign("addthis", APP_ADDTHIS_ID);
     }
     $tpl->assign("displayOrderForm", $displayOrderForm);
+    $tpl->assign("displayReqOpenAccess", $displayReqOpenAccess);
     $tpl->assign("origami", APP_ORIGAMI_SWITCH);
     $tpl->assign("linkCount", $linkCount);
     $tpl->assign("links", $links);
