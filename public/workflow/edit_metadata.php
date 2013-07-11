@@ -175,18 +175,20 @@ if (isset($_POST['editedFilenames']) && is_array($_POST['editedFilenames'])) {
 
 //Set file description variables and other stuff from the swf uploader section
 $max = NULL;
-if (!empty($_POST['embargo_date']) || !empty($_POST['description']) || !empty($_POST['filePermissionsNew']) ) {
-    //get maximum key in all three arrays
-    $max = max(max(array_keys($_POST['embargo_date'])), max(array_keys($_POST['description'])), max(array_keys($_POST['filePermissionsNew'])));
-    for ($i = 0; $i<=$max; $i++) {
+//filenames are sequential but fileperms, embargo and description are ordered but possibly with gaps ie 0,1,3,4  (2 being a cancelled file).
+//Since fileperms always has a value (Default = 0) we use it to track if files have been added and use it to find the index
+if (!empty($_POST['filePermissionsNew'])) {
+    $count=0;
+    foreach($_POST['filePermissionsNew'] as $i => $value) {
         $xsdmf_id = XSD_HTML_Match::getXSDMFIDByTitleXDIS_ID('Description for File Upload', $_POST['xdis_id']);
-        $_POST['xsd_display_fields'][$xsdmf_id][$i] = $_POST['description'][$i];
+        $_POST['xsd_display_fields'][$xsdmf_id][$count] = $_POST['description'][$i];
         $fileXdis_id = $_POST['uploader_files_uploaded'];
-        $filename = $_FILES['xsd_display_fields']['name'][$fileXdis_id][$i];
+        $filename = $_FILES['xsd_display_fields']['name'][$fileXdis_id][$count];
         Datastream::saveDatastreamSelectedPermissions($wfstatus->pid, $filename, $_POST['filePermissionsNew'][$i], $_POST['embargo_date'][$i]);
         if ($_POST['filePermissionsNew'][$i] == 5) {
             Datastream::setfezACML($wfstatus->pid, $filename, 10);
         }
+        $count++;
     }
 }
 
