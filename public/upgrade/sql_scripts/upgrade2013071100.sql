@@ -12,3 +12,10 @@ CREATE TABLE IF NOT EXISTS %TABLE_PREFIX%scopus_session (
   scs_ts timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (scs_id)
 ) ENGINE=INNODB DEFAULT CHARSET=utf8;
+
+CREATE TABLE IF NOT EXISTS %TABLE_PREFIX%scopus_locks (
+  scl_name varchar(8) NOT NULL,
+  scl_value int(10) unsigned NOT NULL,
+  scl_pid int(10) unsigned DEFAULT NULL,
+  PRIMARY KEY (scl_name)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;

@@ -43,10 +43,13 @@ class ScopusQueue extends Queue
         {
             // Create a new instance
             $instance = new ScopusQueue();
-            $instance->_use_locking = false;
-            $instance->_dbqp = 'spq_';
             $instance->_dbtp = APP_TABLE_PREFIX . 'scopus_';
+            $instance->_dblp = 'scl_';
+            $instance->_dbqp = 'spq_';
+            $instance->_lock = 'scopus';
+            $instance->_use_locking = true;
             $instance->_service = new ScopusService(APP_SCOPUS_API_KEY);
+            $instance->_commit_shutdown_registered = false;
             Zend_Registry::set('Scopus', $instance);
         }
         return $instance;
