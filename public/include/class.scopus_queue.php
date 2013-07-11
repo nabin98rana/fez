@@ -25,6 +25,7 @@ class ScopusQueue extends Queue
     protected $_batch_size;
     // If we've registered the commit shutdown function
     protected $_commit_shutdown_registered;
+    protected $_service;
 
     /**
      * Returns the singleton queue instance.
@@ -45,6 +46,7 @@ class ScopusQueue extends Queue
             $instance->_use_locking = false;
             $instance->_dbqp = 'spq_';
             $instance->_dbtp = APP_TABLE_PREFIX . 'scopus_';
+            $instance->_service = new ScopusService(APP_SCOPUS_API_KEY);
             Zend_Registry::set('Scopus', $instance);
         }
         return $instance;

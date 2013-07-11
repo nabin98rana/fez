@@ -147,7 +147,7 @@ class ScopusService
         if(!$token)
         {
             $curlRes = $this->doCurl($params);
-            $xpath = $this->getXPath($this->doCurl($params));
+            $xpath = $this->getXPath($curlRes);
             $tokens = $xpath->query("//authenticate-response/authtoken");
             $token = $tokens->item(0)->nodeValue;
             $this->saveToken($token);
