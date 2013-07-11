@@ -359,6 +359,10 @@ function uploaderRemoveFileUpload(fileId) {
 	var row = document.getElementById(rowId);
 	var tbl = document.getElementById('uploader_file_table');
 	tbl.deleteRow(row.rowIndex);
+    var rowId = 'uploaderRow-'+fileId+'_';
+    var row = document.getElementById(rowId);
+    var tbl = document.getElementById('uploader_file_table');
+    tbl.deleteRow(row.rowIndex);
 }
 
 // ==============================================================================
