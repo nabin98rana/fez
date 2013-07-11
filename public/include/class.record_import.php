@@ -805,7 +805,6 @@ abstract class RecordImport
         return $recordSearchKey->getPid();
     }
 
-
     /**
      * Stores to a new record in Fez
      */
@@ -899,7 +898,6 @@ abstract class RecordImport
         }
         return $pid;
     }
-
 
     /**
      * Update an existing record with additional bib data from WoK
@@ -1035,14 +1033,14 @@ abstract class RecordImport
         $sekData['Updated Date']    = $recordSearchKey->getVersion();
 
         // Custom search keys based on Document Type
-        if ($xdis_title == 'Conference Paper') {
+        if ($this->_xdis_title == 'Conference Paper') {
             $sekData['Proceedings Title'] = $this->_title;
             $sekData['Conference Name']   = $this->_conferenceTitle;
             $sekData['Conference Dates']  = $this->_conferenceDates;
             if (!empty($this->_confenceLocationCity) || !empty($this->_confenceLocationState)) {
                 $sekData['Conference Location']  = $this->_confenceLocationCity . ' ' . $this->_confenceLocationState;
             }
-        } else if ($xdis_title == 'Journal Article') {
+        } else if ($this->_xdis_title == 'Journal Article') {
             $sekData['Journal Name'] = $this->_journalTitle;
         }
 
@@ -1076,29 +1074,6 @@ abstract class RecordImport
 
         $dupes = DuplicatesReport::similarTitlesQuery('dummy', trim($this->_title));
         return $dupes[0]['pid'];
-
-        /*
-        $log = FezLog::get();
-        $db = DB_API::get();
-        $stmt = "SELECT rek_pid, rek_title FROM " . APP_TABLE_PREFIX . "record_search_key";
-        try {
-            $res = $db->fetchAll($stmt);
-        }
-        catch(Exception $ex) {
-            $log->err($ex);
-            return '';
-        }
-        $bestPid = '';
-        $bestPidMatchPercent=$minPercent;
-        foreach ($res as $titles) {
-            similar_text($titles['rek_title'], $this->_title, $percent);
-            if ($percent >= $bestPidMatchPercent) {
-                $bestPid = $titles['rek_pid'];
-                $bestPidMatchPercent = $percent;
-            }
-        }
-        return $bestPid;
-        */
     }
 
     //Returns score 1-4 on matches
@@ -1153,6 +1128,7 @@ abstract class RecordImport
 
         return $matches;
     }
+
     public function comparePidTitle($pid) {
         $pidTitle =  Record::getSearchKeyIndexValue($pid, "Title", false);
         $stripedPidTitle = RCL::normaliseTitle($pidTitle);
