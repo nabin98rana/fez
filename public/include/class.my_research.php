@@ -855,7 +855,7 @@ class MyResearch
         $historyComment = '';
         foreach($_FILES['file']['name'] as $key => $file) {
             if (!empty($file)) {
-                if (move_uploaded_file($_FILES["file"]["tmp_name"][$key], "/tmp/" . $_FILES["file"]["name"][$key]) == false) {
+                if (move_uploaded_file($_FILES["file"]["tmp_name"][$key], APP_TEMP_DIR . $_FILES["file"]["name"][$key]) == false) {
                     $log->err("File not renamed $file (file already there?)<br/>\n", __FILE__, __LINE__);
                     return $listFiles.' Error on file uploads at '.date("Y-m-d H:i:s");
                 }
