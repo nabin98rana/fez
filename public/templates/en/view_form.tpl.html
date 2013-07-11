@@ -89,6 +89,10 @@ function loadPreview(pid,datastreamID, alt, origami)
         </tr>
 	  </table>
 
+    {if $displayReqOpenAccess}
+        <div style="float:right"><a href="{$rel_url}eserv/UQ:299070/OpenAccessThesisAuthorisation.pdf" target="_blank"><img src="{$rel_url}images/request_open_access.png"/></a></div>
+    {/if}
+
     {if $addthis && (!$isEditor && !$isAdministrator)}
         <!-- AddThis Button BEGIN -->
     {if $altmetricDOI}
@@ -107,9 +111,7 @@ function loadPreview(pid,datastreamID, alt, origami)
         <script type="text/javascript" src="//s7.addthis.com/js/300/addthis_widget.js#pubid={$addthis}"></script>
         <!-- AddThis Button END -->
     {/if}
-    {if $displayReqOpenAccess}
-      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <a href="{$rel_url}eserv/UQ:299070/OpenAccessThesisAuthorisation.pdf" target="_blank"><img src="{$rel_url}images/request_open_access.png"/></a>
-    {/if}
+
 {*--------------------------------------------------------------------------------------------------------------------*}
       {*Info box just for admins*}
       {if $isEditor || $isAdministrator || ($show_tombstone && $deleted)}
