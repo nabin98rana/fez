@@ -7,7 +7,7 @@
 <ul>
 {if $researcherID != ""}
   <li class="btn"><a href="http://www.researcherid.com/rid/{$researcherID}" title="ResearcherID Profile Page">
-    <span class="icon">{if $is_ssl}<img src="{$rel_url}images/rid_22.png"/></span>{else}{include file="rid_badge_sm.tpl.html"}</span> ResearcherID
+    <span class="icon">{if $is_ssl}<img src="{$rel_url}images/rid_22.png"/></span>{else}{include file="rid_badge_sm.tpl.html"}</span>{/if} ResearcherID
   </a></li>
 {/if}
 {if $aut_orcid_id != ""}
