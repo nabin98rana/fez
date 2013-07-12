@@ -5407,7 +5407,7 @@ function getSearchKeyIndexValueShadow($pid, $searchKeyTitle, $getLookup=true, $s
 
           if (!Fedora_API::datastreamExists($pid, $datastreamID)) {
             $add = true;
-          } else if ( APP_FEDORA_VERSION == '2.2' ) {
+          } else if ( APP_FEDORA_VERSION >= '2.2' ) {
             $mod = true;
           } else if ( APP_VERSION_UPLOADS_AND_LINKS == "ON" ) {
             $mod = true;
