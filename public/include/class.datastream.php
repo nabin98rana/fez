@@ -149,8 +149,8 @@ class Datastream
             $log->err($ex);
             return array();
         }
-        //Causing issues
-        //History::addHistory($pid, null, "", "", false, $historyDetail);
+        
+        History::addHistory($pid, null, "", "", false, $historyDetail);
         return $res;
     }
     function getClassification($pid, $dsId)
