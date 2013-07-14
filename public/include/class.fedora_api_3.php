@@ -777,7 +777,7 @@ class Fedora_API {
 		if (is_numeric(strpos($dsIDName, "/"))) {
 			$dsIDName = substr($dsIDName, strrpos($dsIDName, "/")+1);
 		}
-
+    $dsLocation = trim($dsLocation);
 //		$versionable = $versionable === true ? 'true' : $versionable === false ? 'false' : $versionable;
         if ($versionable != 'true' && $versionable != 'false') {
             $versionable = 'false';
@@ -870,7 +870,7 @@ class Fedora_API {
 //		         $log->err(array(print_r($results, true).print_r(curl_error($ch), true).print_r(curl_getinfo($ch), true),__FILE__,__LINE__).$getString.print_r(debug_backtrace(),true));
        if ($current_tries > 1) { //only bother logging error if greater than 1st try
          $log->err(print_r(array(print_r($results, true).print_r(curl_error($ch), true).print_r(curl_getinfo($ch), true),__FILE__,__LINE__), true).$getString.$tempFile.$xmlContent.", dsID was $dsID, dsIDName was $dsIDName");
-         $fedoraError = "Error when calling ".__FUNCTION__." :".print_r(curl_getinfo($ch),true)."\n\n \n\n FOR THE $current_tries time REQUEST: $pid "."\n\n RESPONSE: \n\n ".$xml;
+         $fedoraError = "Error when calling ".__FUNCTION__." :".print_r(curl_getinfo($ch),true)."\n\n \n\n FOR THE $current_tries time REQUEST: $pid "."\n\n RESPONSE: \n\n ";
          curl_close ($ch);
          $log->err(array($fedoraError, __FILE__,__LINE__));
        }
