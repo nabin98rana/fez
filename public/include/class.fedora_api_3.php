@@ -758,7 +758,7 @@ class Fedora_API {
 	 * @param boolean $xmlContent If it an X based xml content file then it uses a var rather than a file location
 	 * @return void
 	 */
-	function callAddDatastream ($pid, $dsID, $dsLocation, $dsLabel, $dsState, $mimetype, $controlGroup='M',$versionable='false', $xmlContent="")
+	function callAddDatastream ($pid, $dsID, $dsLocation, $dsLabel, $dsState, $mimetype, $controlGroup='M',$versionable='false', $xmlContent="", $current_tries = 0)
 	{
 		if ($mimetype == "") {
 			$mimetype = "text/xml";
@@ -841,7 +841,7 @@ class Fedora_API {
 //			curl_setopt($ch, CURLOPT_POSTFIELDS, array("file_name" => "@".$dsLocation,
 														"dsLabel" => urlencode($dsLabel),
 														"versionable" => $versionable,
-														"mimeType" => $mimeType,
+														"mimeType" => $mimetype,
 														"controlGroup" => $controlGroup,
 														"dsState" => "A",
 														"logMessage" => "Added Datastream",
@@ -866,11 +866,29 @@ class Fedora_API {
              }
 		     return true;
 		 } else {
+
 //		         $log->err(array(print_r($results, true).print_r(curl_error($ch), true).print_r(curl_getinfo($ch), true),__FILE__,__LINE__).$getString.print_r(debug_backtrace(),true));
-		         $log->err(print_r(array(print_r($results, true).print_r(curl_error($ch), true).print_r(curl_getinfo($ch), true),__FILE__,__LINE__), true).$getString.$tempFile.$xmlContent.", dsID was $dsID, dsIDName was $dsIDName");
+       if ($current_tries > 1) { //only bother logging error if greater than 1st try
+         $log->err(print_r(array(print_r($results, true).print_r(curl_error($ch), true).print_r(curl_getinfo($ch), true),__FILE__,__LINE__), true).$getString.$tempFile.$xmlContent.", dsID was $dsID, dsIDName was $dsIDName");
+         $fedoraError = "Error when calling ".__FUNCTION__." :".print_r(curl_getinfo($ch),true)."\n\n \n\n FOR THE $current_tries time REQUEST: $pid "."\n\n RESPONSE: \n\n ".$xml;
+         curl_close ($ch);
+         $log->err(array($fedoraError, __FILE__,__LINE__));
+       }
 //				exit;
-		         curl_close ($ch);
-		         return false;
+
+
+
+       $current_tries++;
+
+       if ($current_tries < 5) {
+         sleep(5); // sleep for a bit so the object can get unlocked before trying again
+//         return Fedora_API::callListDatastreamsLite($pid, $refresh, $current_tries);
+         return Fedora_API::callAddDatastream($pid, $dsID, $dsLocation, $dsLabel, $dsState, $mimetype, $controlGroup,$versionable, $xmlContent, $current_tries);
+       } else {
+         return false;
+       }
+
+
 		 }
 
 	}
