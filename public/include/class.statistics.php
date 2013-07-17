@@ -487,7 +487,7 @@ class Statistics
 	                 FROM
 	                    " . APP_TABLE_PREFIX . "statistics_buffer
 	                 ORDER BY
-	                    str_id ASC";
+	                    str_request_date ASC, str_id ASC";
 
 		if (is_numeric(WEBSERVER_LOG_STAT_CRON_LIMIT)) {
 			$stmt = $db->limit($stmt, WEBSERVER_LOG_STAT_CRON_LIMIT, 0);
