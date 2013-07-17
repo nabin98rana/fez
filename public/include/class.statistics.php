@@ -1933,6 +1933,8 @@ class Statistics
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
+    // some _ pid styles are now coming in, should be cleaned up before insert
+    $pid = str_replace('_', ':', $pid);
 
 		//Filter out basics, but dont do robots etc until the buffer moves to the main table as checking for robots will be to costly timewise
 		// Try and find any thumbnails and preview copies of images as these should not be counted towards the file downloads for an image datastream

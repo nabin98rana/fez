@@ -365,7 +365,7 @@ public static function multi_implode($glue, $pieces)
    */
   function numPID($pid)
   {
-    return substr($pid, strpos($pid, ":")+1);
+    return preg_replace("/[^0-9]/","",$pid);
   }
 
   function namespacePID($pid)
