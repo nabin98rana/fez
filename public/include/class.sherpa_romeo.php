@@ -1,5 +1,5 @@
 <?php
-
+include_once(APP_INC_PATH . "ForceUTF8/Encoding.php");
 class SherpaRomeo
 {
     /**
@@ -162,6 +162,7 @@ class SherpaRomeo
                  srm_xml = " . $db->quote($xml) . ",
                  srm_colour = " . $db->quote($colour) . ",
                  srm_date_updated = now() ";
+        $stmt = Encoding::fixUTF8($stmt);
         try {
             $db->exec($stmt);
         }
