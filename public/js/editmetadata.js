@@ -505,10 +505,15 @@ function formatAuthorRes(oResultItem, sQuery) {
 
 function formatPIDRes(oResultItem, sQuery) {
     var pidTxt = "";
+    var length = 100;
     if( oResultItem[1].pid != "" && oResultItem[1].pid != null ) {
         pidTxt = ' (' +  oResultItem[1].pid + ')'
     }
-    return oResultItem[1].name + pidTxt;
+    if (oResultItem[1].name.length > 90) {
+        oResultItem[1].name = oResultItem[1].name.substring(0,length) + '... ';
+    }
+    oResultItem[1].name += pidTxt;
+    return oResultItem[1].name;
 }
 
 function formatConferenceRes(oResultItem, sQuery) {
@@ -548,12 +553,18 @@ function attachYuiPIDSuggest(axsdmf_id, xsdmf_id, loop_num)
     autocomp.maxResultsDisplayed = 60;
     autocomp.formatResult = formatPIDRes;
     autocomp.registerControls(document.getElementById("xsd_display_fields_"+xsdmf_id+"_"+loop_num), document.getElementById("xsd_display_fields_"+axsdmf_id+"_"+loop_num));
+    var lookup = document.getElementById("xsd_display_fields_"+axsdmf_id+"_"+loop_num+"_lookup");
     autocomp.textboxFocusEvent.subscribe(function(){
         var sInputValue = YAHOO.util.Dom.get("xsd_display_fields_"+axsdmf_id+"_"+loop_num+"_lookup").value;
         if(sInputValue.length === 0) {
             var oSelf = this;
             setTimeout(function(){oSelf.sendQuery(sInputValue);},0);
         }
+    });
+    autocomp.containerCollapseEvent.subscribe(function(){
+        var sInput = YAHOO.util.Dom.get("xsd_display_fields_"+axsdmf_id+"_"+loop_num+"_lookup");
+        sInput.value = '';
+        sInput.focus();
     });
 }
 
