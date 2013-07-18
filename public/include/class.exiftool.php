@@ -32,6 +32,8 @@
 // +----------------------------------------------------------------------+
 //
 //
+include_once(APP_INC_PATH . "ForceUTF8/Encoding.php");
+
 class Exiftool
 {
 
@@ -99,6 +101,7 @@ class Exiftool
 		$values .= ")";
 
 		$stmt = $insert . $values;
+    $stmt = Encoding::fixUTF8($stmt);
 		try {
 			$db->exec($stmt);
 		}
