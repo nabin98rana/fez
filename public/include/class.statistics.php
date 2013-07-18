@@ -122,7 +122,7 @@ class Statistics
 					}
 					// Try and find any of the major web crawlers and exclude them from the stats (they will usually already have been picked up by the above robots.txt check)
 					$crawler_matches = 0;
-					$crawler_matches = preg_match("/^.*((googlebot)|(slurp)|(jeeves)|(yahoo)|(msn)).*/i", $hostname);
+					$crawler_matches = preg_match("/^.*((googlebot)|(slurp)|(jeeves)|(yahoo)|(baidu)|(msn)).*/i", $hostname);
 					if ($crawler_matches > 0) {
 						Statistics::addRobot($ip, $hostname);
 						continue;
