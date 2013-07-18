@@ -78,6 +78,8 @@ include_once(APP_INC_PATH . "class.record_general.php");
 include_once(APP_INC_PATH . "class.validation.php");
 include_once(APP_INC_PATH . "class.links_amr_queue.php");
 include_once(APP_INC_PATH . "class.internal_notes.php");
+include_once(APP_INC_PATH . "ForceUTF8/Encoding.php");
+
 
 define('SK_JOIN', 0);
 define('SK_LEFT_JOIN', 1);
@@ -1256,6 +1258,7 @@ class Record
 //                $stmt = $stmtIns;
         }
 
+        $stmt = Encoding::fixUTF8($stmt);
         try {
           $db->exec($stmt);
                 $db->commit();
@@ -1384,7 +1387,7 @@ class Record
                 }
                 $stmt .= ")";
               }
-
+              $stmt = Encoding::fixUTF8($stmt);
               try {
                 $db->exec($stmt);
               }
