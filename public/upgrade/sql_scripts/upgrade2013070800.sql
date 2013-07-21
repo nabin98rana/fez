@@ -1,4 +1,4 @@
-CREATE TABLE %TABLE_PREFIX%record_search_key_oa_notes (
+CREATE TABLE IF NOT EXISTS %TABLE_PREFIX%record_search_key_oa_notes (
   rek_oa_notes_id int(11) NOT NULL AUTO_INCREMENT,
   rek_oa_notes_pid varchar(64) DEFAULT NULL,
   rek_oa_notes_xsdmf_id int(11) DEFAULT NULL,
@@ -19,7 +19,7 @@ CREATE TABLE IF NOT EXISTS %TABLE_PREFIX%record_search_key_oa_notes__shadow (
      KEY rek_oa_notes_pid (rek_oa_notes_pid)
 ) ENGINE=INNODB DEFAULT CHARSET=utf8;
 
-CREATE TABLE %TABLE_PREFIX%record_search_key_oa_compliance (
+CREATE TABLE IF NOT EXISTS %TABLE_PREFIX%record_search_key_oa_compliance (
   rek_oa_compliance_id int(11) NOT NULL AUTO_INCREMENT,
   rek_oa_compliance_pid varchar(64) DEFAULT NULL,
   rek_oa_compliance_xsdmf_id int(11) DEFAULT NULL,
