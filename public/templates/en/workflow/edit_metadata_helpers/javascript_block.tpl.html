@@ -7,7 +7,7 @@
 function validateForm() {
 {/literal}
 {section name="i" loop=$xsd_display_fields}
-{if (($xsd_display_fields[i].xsdmf_html_input == 'contvocab_selector' && $xsd_display_fields[i].xsdmf_cvo_min_level != 3) || $xsd_display_fields[i].xsdmf_html_input == 'dual_multiple')}
+{if (($xsd_display_fields[i].xsdmf_html_input == 'contvocab_selector' && $xsd_display_fields[i].xsdmf_cvo_min_level != 3) || $xsd_display_fields[i].xsdmf_html_input == 'pid_selector' || $xsd_display_fields[i].xsdmf_html_input == 'dual_multiple')}
 	// The controlled vocabulary selector and dual multiple controls should select all the fields in the multiple combo box so that they will
 	// be included in the form submission.
 	var field = document.getElementById('xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_0');
@@ -128,7 +128,7 @@ function selectOrgStructure_{$xsd_display_fields[i].xsdmf_id}(f, field_name)
 	{/literal}
 	if (dt_load_state_{$xsd_display_fields[i].xsdmf_id} > 0) {literal}{
 	   return false;
-	} 
+	}
 	{/literal}
 	var field = document.getElementById('xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_0');
 	var selections = getSelectedItems(field);
@@ -147,7 +147,7 @@ function selectOrgStructure_{$xsd_display_fields[i].xsdmf_id}(f, field_name)
 			{literal}
 		}
 		obj.setTimeout(10000);
-		
+
 		if ((isNumeric(selections[0].value) == true) && (selections[0].value != '-1')) {
 			obj.getSubList(selections[0].value, function(dt_list) {
 					{/literal}
@@ -156,17 +156,17 @@ function selectOrgStructure_{$xsd_display_fields[i].xsdmf_id}(f, field_name)
 					{assign var="temp_select_id" value=$xsd_display_fields[i].xsdmf_org_fill_xsdmf_id}
 					hideLoading_{$xsd_display_fields[i].xsdmf_id}();
 					dt_load_state_{$xsd_display_fields[i].xsdmf_id}--;
-					});	
-					{literal}	
+					});
+					{literal}
 		} else {
 			{/literal}
-			removeAllOptions(f, 'xsd_display_fields[{$xsd_display_fields[i].xsdmf_org_fill_xsdmf_id}]');		
+			removeAllOptions(f, 'xsd_display_fields[{$xsd_display_fields[i].xsdmf_org_fill_xsdmf_id}]');
 			hideLoading_{$xsd_display_fields[i].xsdmf_id}();
 			dt_load_state_{$xsd_display_fields[i].xsdmf_id}--;
-			{literal}	
+			{literal}
 		}
 	}
-}		
+}
 {/literal}
 {/if}
 {/section}

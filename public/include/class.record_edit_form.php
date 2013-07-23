@@ -339,7 +339,7 @@ class RecordEditForm
      function fixDetails(&$details)
      {
         $xsd_display_fields = $this->xsd_display_fields;
-        foreach ($xsd_display_fields  as $dis_field) {
+        foreach ($xsd_display_fields  as $dis_key  => $dis_field) {
             if ($dis_field["xsdmf_enabled"] == 1) {
 
                 if ($dis_field["xsdmf_html_input"] == 'text' || $dis_field["xsdmf_html_input"] == 'textarea' || $dis_field["xsdmf_html_input"] == 'hidden') {
@@ -380,7 +380,7 @@ class RecordEditForm
                                 $details[$dis_field["xsdmf_id"]][$tempValue] = Controlled_Vocab::getTitle($tempValue);
                             }
 
-                        } elseif ($dis_field["xsdmf_html_input"] == 'dual_multiple') {
+                        } elseif ($dis_field["xsdmf_html_input"] == 'dual_multiple' || $dis_field["xsdmf_html_input"] == 'pid_selector') {
                             $tempArray = $details[$dis_field["xsdmf_id"]];
                             if (is_array($tempArray)) {
                                 $details[$dis_field["xsdmf_id"]] = array();
@@ -391,6 +391,10 @@ class RecordEditForm
                                         eval("\$details[\$dis_field[\"xsdmf_id\"]] += " . $smartyFunction . ";");
                                     } else {
                                         $tempValue = Record::getTitleFromIndex($cv_value);
+                                        if (strlen($tempValue) > 90) {
+                                          $tempValue = substr($tempValue, 0, 90).'...';
+                                        }
+                                        $tempValue .= ' ('.$cv_value.')';
                                         $details[$dis_field["xsdmf_id"]][$cv_value] = $tempValue ?  $tempValue : $cv_value;
                                     }
                                 }
@@ -400,14 +404,26 @@ class RecordEditForm
                                 if (!empty($dis_field["xsdmf_smarty_variable"]) && (!empty($tempValue))) {
                                     $smartyFunction = $dis_field["xsdmf_smarty_variable"];
                                     $smartyFunction = str_replace("()", "('".$tempValue."')", $smartyFunction);
+                                    $result = array();
                                     eval("\$result = " . $smartyFunction . ";");
+                                    $lookupValue = $result[$tempValue];
+                                    if (strlen($lookupValue) > 90) {
+                                      $lookupValue = substr($lookupValue, 0, 90).'...';
+                                    }
+                                    $lookupValue .= ' ('.$lookupValue.')';
+
                                     $details[$dis_field["xsdmf_id"]] = array();
-                                    $details[$dis_field["xsdmf_id"]][$tempValue] = $result[$tempValue];
+                                    $details[$dis_field["xsdmf_id"]][$tempValue] = $lookupValue;
                                 }
                             } elseif  (trim($details[$dis_field["xsdmf_id"]]) != "") {
                                 $tempValue = $details[$dis_field["xsdmf_id"]];
+                                $lookupValue = Record::getTitleFromIndex($tempValue);
+                                if (strlen($lookupValue) > 90) {
+                                  $lookupValue = substr($lookupValue, 0, 90).'...';
+                                }
+                                $lookupValue .= ' ('.$lookupValue.')';
                                 $details[$dis_field["xsdmf_id"]] = array();
-                                $details[$dis_field["xsdmf_id"]][$tempValue] = Record::getTitleFromIndex($tempValue);
+                                $details[$dis_field["xsdmf_id"]][$tempValue] = $lookupValue;
                             }
 
                         } elseif ($dis_field["xsdmf_html_input"] == 'customvocab_suggest') {

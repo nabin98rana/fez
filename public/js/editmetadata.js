@@ -504,15 +504,6 @@ function formatAuthorRes(oResultItem, sQuery) {
 }
 
 function formatPIDRes(oResultItem, sQuery) {
-    var pidTxt = "";
-    var length = 100;
-    if( oResultItem[1].pid != "" && oResultItem[1].pid != null ) {
-        pidTxt = ' (' +  oResultItem[1].pid + ')'
-    }
-    if (oResultItem[1].name.length > 90) {
-        oResultItem[1].name = oResultItem[1].name.substring(0,length) + '... ';
-    }
-    oResultItem[1].name += pidTxt;
     return oResultItem[1].name;
 }
 
@@ -561,7 +552,7 @@ function attachYuiPIDSuggest(axsdmf_id, xsdmf_id, loop_num)
             setTimeout(function(){oSelf.sendQuery(sInputValue);},0);
         }
     });
-    autocomp.containerCollapseEvent.subscribe(function(){
+    autocomp.itemSelectEvent.subscribe(function(){
         var sInput = YAHOO.util.Dom.get("xsd_display_fields_"+axsdmf_id+"_"+loop_num+"_lookup");
         sInput.value = '';
         sInput.focus();

@@ -39,6 +39,13 @@ include_once(APP_INC_PATH . "class.record.php");
 
 $suggestions = Record::suggest($_GET['query']);
 
+foreach ($suggestions as $key => $value) {
+  if (strlen($value['name']) > 90) {
+    $suggestions[$key]['name'] = substr($value['name'], 0, 90).'...';
+  }
+  $suggestions[$key]['name'] .= ' ('.$value['pid'].')';
+}
+
 $suggestions = array(
     'Result'    =>  $suggestions
 );
