@@ -13,6 +13,8 @@ var buttonIds;
 // required file uploader fields
 var required_xsd_display_fields_fileupload = new Array();
 
+// whether to show the file type and embargo date (hide for theses)
+var showFileUploadExtras = 1;
 
 // ==============================
 // Load the swfuploader component
@@ -22,6 +24,8 @@ function swfuploaderLoad(maxNumberFiles, baseUrl, postParams) {
 	// check if we have the correct version of flash for the uploader
 	var uploaderHasReqestedVersion = DetectFlashVer(9, 0, 45);
     xsdmfId = postParams.xsdmf_id;
+
+    showFileUploadExtras = postParams.showFileUploadExtras;
 
 	if (!uploaderHasReqestedVersion) {
 		// if not, remove the flash tbody section
@@ -48,7 +52,7 @@ function swfuploaderLoad(maxNumberFiles, baseUrl, postParams) {
 			buttonWidth = buttonWidth + 14;
 			buttonHeight = buttonHeight + 10;
 		}
-		
+
 		// and set up the flash uploader
 		swfuploader = new SWFUpload({
 			// Backend settings
@@ -75,7 +79,7 @@ function swfuploaderLoad(maxNumberFiles, baseUrl, postParams) {
 			upload_error_handler : swfuploaderUploadError,
 			upload_success_handler : swfuploaderUploadSuccess,
 			upload_complete_handler : swfuploaderUploadComplete,
-		
+
 			// deal with the queue
 			queue_complete_handler : swfuploaderQueueComplete,
 
@@ -95,7 +99,7 @@ function swfuploaderLoad(maxNumberFiles, baseUrl, postParams) {
 			// Debug settings
 			debug: false
 		});
-	
+
         // Add uploader field to validation checking
         if (postParams.required == 1) {
 
@@ -128,7 +132,7 @@ function swfuploaderFileQueued(entry) {
 		alertMsg = alertMsg+' - under 45 characters,\n';
 		alertMsg = alertMsg+' - with only one file extension (one period (.) character) and \n';
 		alertMsg = alertMsg+' - starting with a letter. Eg "s12345678_phd_thesis.pdf"';
-		
+
 		alert(alertMsg);
 		swfuploader.cancelUpload(entry.id); // remove file from the queue
 	}
@@ -167,17 +171,17 @@ function swfuploaderUploadFiles() {
 			// alert(cells.length);
 			cells[3].innerHTML = 'Uploading';
 		}
-		
+
 		// and disable the workflow buttons
 		uploaderDisableWorkflowButtons();
-	
+
 		// disable the add more button
 		dojo.byId('uploaderUploadButton').disabled = true;
 		swfuploader.setButtonDisabled(true);
 		swfuploader.setButtonCursor(SWFUpload.CURSOR.ARROW);
-	
+
 		swfuploader.startUpload();
-	
+
 		return false; // because we're waiting for the upload queue to be complete before submitting the form
 	}
 }
@@ -228,12 +232,12 @@ function swfuploaderUpdateProgressBar(fileId, percentage) {
 // ================
 function swfuploaderUploadError(file, errorCode, message) {
 	try {
-		
+
 		if (errorCode === SWFUpload.UPLOAD_ERROR.FILE_CANCELLED) {
 			// Don't show cancelled error boxes
 			return;
 		}
-		
+
 		switch (errorCode) {
 			case SWFUpload.QUEUE_ERROR.QUEUE_LIMIT_EXCEEDED:
 				alert("You have attempted to queue too many files.\n" + (message === 0 ? "You have reached the upload limit." : "You may select " + (message > 1 ? "up to " + message + " files." : "one file.")));
@@ -257,7 +261,7 @@ function swfuploaderUploadError(file, errorCode, message) {
 		}
 	} catch (e) {
 	}
-	
+
 }
 
 // ====================================================
@@ -276,7 +280,7 @@ function swfuploaderQueueComplete() {
 		newElement.value = element.value;
 		dojo.byId('wfl_form1').appendChild(newElement);
 	}
-	
+
 	// and submit the form
 	dojo.byId('wfl_form1').submit();
 }
@@ -313,38 +317,57 @@ function swfuploaderAddDatatableEntry(entry) {
 	var fileCell = row.insertCell(0);
 	fileCell.innerHTML = entry.name;
 
-    var progressCell = row.insertCell(1);
-    progressCell.id = 'uploaderfilePermissionsNew-'+entry.id;
+    if (showFileUploadExtras == 1) {
 
-    //Any changes here must be mirrored in class.datastream.php
-    progressCell.innerHTML = '<select name="filePermissionsNew['+entry.id.slice(-1)+']" onchange="javascript:filePermissionsNewChange('+entry.id.slice(-1)+');"> \
-    <option label="Please choose file type" value="0">Please choose file type</option> \
-    <option label="Accepted version (author final draft  post-refereeing)" value="1">Accepted version (author final draft  post-refereeing)</option> \
-    <option label="Submitted version (author version pre-refereeing)" value="2">Submitted version (author version pre-refereeing)</option> \
-    <option label="Publishers Copy (Open Access)" value="3">Publishers Copy (Open Access)</option> \
-    <option label="Working/Technical Paper" value="4">Working/Technical Paper</option> \
-    <option label="HERDC evidence (not open access- admin only)" value="5">HERDC evidence (not open access- admin only)</option> \
-    <option label="Data Collection (Open Access)" value="6">Data Collection (Open Access)</option> \
-    <option label="Other (any files not included in any of the above)" value="7">Other (any files not included in any of the above)</option> \
-    </select>';
+        var progressCell = row.insertCell(1);
+        progressCell.id = 'uploaderfilePermissionsNew-'+entry.id;
 
-	var sizeCell = row.insertCell(2);
+        //Any changes here must be mirrored in class.datastream.php
+        progressCell.innerHTML = '<select name="filePermissionsNew['+entry.id.slice(-1)+']" onchange="javascript:filePermissionsNewChange('+entry.id.slice(-1)+');"> \
+        <option label="Please choose file type" value="0">Please choose file type</option> \
+        <option label="Accepted version (author final draft  post-refereeing)" value="1">Accepted version (author final draft  post-refereeing)</option> \
+        <option label="Submitted version (author version pre-refereeing)" value="2">Submitted version (author version pre-refereeing)</option> \
+        <option label="Publishers Copy (Open Access)" value="3">Publishers Copy (Open Access)</option> \
+        <option label="Working/Technical Paper" value="4">Working/Technical Paper</option> \
+        <option label="HERDC evidence (not open access- admin only)" value="5">HERDC evidence (not open access- admin only)</option> \
+        <option label="Data Collection (Open Access)" value="6">Data Collection (Open Access)</option> \
+        <option label="Other (any files not included in any of the above)" value="7">Other (any files not included in any of the above)</option> \
+        </select>';
+        var sizeCell = row.insertCell(2);
+    } else {
+        var sizeCell = row.insertCell(1);
+    }
+
 	sizeCell.className = 'uploader_file_size';
 	sizeCell.innerHTML = formattedSize;
 
-	var progressCell = row.insertCell(3);
+    if (showFileUploadExtras == 1) {
+	    var progressCell = row.insertCell(3);
+    } else {
+        var progressCell = row.insertCell(2);
+    }
 	progressCell.id = 'uploaderProgressBar-'+entry.id;
 	progressCell.innerHTML = progressbar;
 
-	var deleteCell = row.insertCell(4);
+    if (showFileUploadExtras == 1) {
+	    var deleteCell = row.insertCell(4);
+    } else {
+        var deleteCell = row.insertCell(3);
+    }
 	deleteCell.id = 'uploaderCancelCell-'+entry.id;
 	deleteCell.className = 'uploaderDeleteLinkCell';
 	deleteCell.innerHTML = '<a href="javascript:uploaderRemoveFileUpload(\''+entry.id+'\');">Remove</a>';
 
-    var sizeCell2 = row2.insertCell(0);
-    sizeCell2.innerHTML ='Embargo Date: <input type="text" id="datepicker'+entry.id+'" name="embargo_date['+entry.id.slice(-1)+']" />'
-    $( "#datepicker"+entry.id ).datepicker({dateFormat : 'dd-mm-yy'});
-    var sizeCell2 = row2.insertCell(1);
+    if (showFileUploadExtras == 1) {
+        var sizeCell2 = row2.insertCell(0);
+        sizeCell2.innerHTML ='Embargo Date: <input type="text" id="datepicker'+entry.id+'" name="embargo_date['+entry.id.slice(-1)+']" />'
+        $( "#datepicker"+entry.id ).datepicker({dateFormat : 'dd-mm-yy'});
+        var sizeCell2 = row2.insertCell(1);
+    } else {
+        var sizeCell2 = row2.insertCell(0);
+    }
+
+
     sizeCell2.colSpan = 4;
     sizeCell2.innerHTML ='Description for File Upload<br /><input type="text" size="60" name="description['+entry.id.slice(-1)+']"/>'
 }
@@ -380,7 +403,7 @@ function uploaderAddEventListeners() {
 
 	var elements = workflowForm.getElementsByTagName('input');
 	var regexp = /^workflow_button_[0-9]+$/;
-	
+
 	for (var i = 0; i < elements.length; i++) {
 		if (elements[i].type == 'submit' && regexp.test(elements[i].name)) {
 			dojo.connect(dojo.byId(elements[i].id), 'onclick', function(clickEvent) {
@@ -390,8 +413,8 @@ function uploaderAddEventListeners() {
 	}
 }
 
-// ============================ 
-// disable the workflow buttons 
+// ============================
+// disable the workflow buttons
 // ============================
 function uploaderDisableWorkflowButtons() {
 	if (undefined !== buttonIds && null !== buttonIds) {

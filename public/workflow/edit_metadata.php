@@ -230,6 +230,13 @@ $record->getDisplay();
 $xdis_id = $record->getXmlDisplayId();
 $xdis_title = XSD_Display::getTitle($xdis_id);
 $tpl->assign("xdis_title", $xdis_title);
+// if this is a thesis, hide the embargo date and file type picker because they will confuse students
+if ($xdis_title == 'Thesis') {
+  $showFileUploadExtras = 0;
+} else {
+  $showFileUploadExtras = 1;
+}
+$tpl->assign("showFileUploadExtras", $showFileUploadExtras);
 $tpl->assign("extra_title", "Edit ".$xdis_title);
 $tpl->assign("internal_notes", InternalNotes::readNote($pid));
 $tpl->assign("isSuperAdministrator", $isSuperAdministrator);

@@ -201,6 +201,15 @@ if ($access_ok) {
     }
     $tpl->assign("xdis_id", $xdis_id);
     $tpl->assign("xdis_title", $xdis_title);
+
+    // if this is a thesis, hide the embargo date and file type picker because they will confuse students
+    if ($xdis_title == 'Thesis') {
+      $showFileUploadExtras = 0;
+    } else {
+      $showFileUploadExtras = 1;
+    }
+    $tpl->assign("showFileUploadExtras", $showFileUploadExtras);
+
     $sta_id = Status::getID("In Creation"); // set to unpublished to start with
     $tpl->assign('sta_id', $sta_id);
 	$xdis_collection_list = XSD_Display::getAssocListCollectionDocTypes(); // @@@ CK - 13/1/06 added for communities to be able to select their collection child document types/xdisplays

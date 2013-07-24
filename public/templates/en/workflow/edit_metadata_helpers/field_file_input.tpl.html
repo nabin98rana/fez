@@ -41,12 +41,19 @@
                                 {else}
                                     var required_fileupload = {$xsd_display_fields[i].xsdmf_required};
                                 {/if}
+                                {if $showFileUploadExtras == true}
+                                  var showFileUploadExtras = 1;
+                                {else}
+                                  var showFileUploadExtras = 0;
+                                {/if}
+
 
 				swfuploaderLoad({$xsdmf.xsdmf_multiple_limit},
                                                 '{$rel_url}',
                                                 {ldelim} workflowId : {$id},
                                                          xsdmf_id : '{$xsdmf.xsdmf_id}',
-                                                         required : required_fileupload
+                                                         required : required_fileupload,
+                                                         showFileUploadExtras  : showFileUploadExtras
                                                 {rdelim});
                                 {rdelim});
                 </script>
