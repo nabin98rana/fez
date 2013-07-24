@@ -861,8 +861,12 @@ class MyResearch
                 }
                 $listFiles .= $file .' ';
 
-                //If a HERDC file set permissions(5) to admin and upo only(10) ( else open access, which is inherit in this case)
-                $fezACMLTemplateNum = ($_POST['filePermissions'][$key] == 5) ? 10 : NULL;
+                //If (a HERDC file OR an embargo date is saved) set permissions(5) to admin and upo only(10) ( else open access, which is inherit in this case)
+                if (($_POST['filePermissions'][$key] == 5) || !empty($_POST['embargo_date'][$key])) {
+                  $fezACMLTemplateNum = 10;
+                } else {
+                  $fezACMLTemplateNum = NULL;
+                }
                 Datastream::addDatastreamToPid($pid, $file, $fezACMLTemplateNum);
                 Datastream::saveDatastreamSelectedPermissions($pid, $file, $_POST['filePermissions'][$key], $_POST['embargo_date'][$key]);
                 $filePermsNumber = $_POST['filePermissions'][$key];
