@@ -63,17 +63,17 @@ if (Misc::isValidPid($pid)) {
 
 if(is_numeric($record->depositor)) {
 	$usrDetails = User::getDetailsByID($record->depositor);
-	
+
 	$tplEmail = new Template_API();
 	$tplEmail->setTemplate('workflow/emails/sfa_confirm.tpl.txt');
 	$tplEmail->assign('application_name', APP_NAME);
 	$tplEmail->assign('title', $record->getTitle());
 	$tplEmail->assign('name', $usrDetails['usr_full_name']);
 	$tplEmail->assign('view_record_url', $view_record_url);
-	
+
 	$email_txt = $tplEmail->getTemplateContents();
-	
-	
+
+
 	$mail = new Mail_API;
 	$mail->setTextBody(stripslashes($email_txt));
 	$subject = '['.APP_NAME.'] - Your submission has been completed';
@@ -82,7 +82,9 @@ if(is_numeric($record->depositor)) {
 	$mail->send($from, $to, $subject, false);
 }
 $wfstatus->checkStateChange();
+
 $tpl = new Template_API();
+
 $tpl->setTemplate("workflow/index.tpl.html");
 $tpl->assign("type", 'sfa_confirm');
 $tpl->assign('view_record_url', $view_record_url);
@@ -90,6 +92,7 @@ $tpl->assign('record_title', $record_title);
 $tpl->assign('application_name', APP_NAME);
 $tpl->assign('title', $record->getTitle());
 $tpl->assign('name', $usrDetails['usr_full_name']);
+MyResearch::addDatasetLink($tpl);
 
 $tpl->displayTemplate();
 
