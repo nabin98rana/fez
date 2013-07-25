@@ -14,7 +14,7 @@
                         <thead>
                             <tr>
                                 <th>Name</th>
-                                <th>File Classification</th>
+                                {if $showFileUploadExtras == 1}<th>File Classification</th>{/if}
                                 <th class="uploader_file_size">Size</th>
                                 <th>Progress</th>
                                 <th>&nbsp;</th>
@@ -41,11 +41,7 @@
                                 {else}
                                     var required_fileupload = {$xsd_display_fields[i].xsdmf_required};
                                 {/if}
-                                {if $showFileUploadExtras == true}
-                                  var showFileUploadExtras = 1;
-                                {else}
-                                  var showFileUploadExtras = 0;
-                                {/if}
+                                var showFileUploadExtras = {$showFileUploadExtras};
 
 
 				swfuploaderLoad({$xsdmf.xsdmf_multiple_limit},
