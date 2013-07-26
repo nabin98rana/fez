@@ -410,7 +410,7 @@ class RecordEditForm
                                     if (strlen($lookupValue) > 90) {
                                       $lookupValue = substr($lookupValue, 0, 90).'...';
                                     }
-                                    $lookupValue .= ' ('.$lookupValue.')';
+                                    $lookupValue .= ' ('.$tempValue.')';
 
                                     $details[$dis_field["xsdmf_id"]] = array();
                                     $details[$dis_field["xsdmf_id"]][$tempValue] = $lookupValue;
@@ -421,7 +421,7 @@ class RecordEditForm
                                 if (strlen($lookupValue) > 90) {
                                   $lookupValue = substr($lookupValue, 0, 90).'...';
                                 }
-                                $lookupValue .= ' ('.$lookupValue.')';
+                                $lookupValue .= ' ('.$tempValue.')';
                                 $details[$dis_field["xsdmf_id"]] = array();
                                 $details[$dis_field["xsdmf_id"]][$tempValue] = $lookupValue;
                             }
