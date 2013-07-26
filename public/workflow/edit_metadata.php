@@ -241,6 +241,13 @@ $tpl->assign("extra_title", "Edit ".$xdis_title);
 $tpl->assign("internal_notes", InternalNotes::readNote($pid));
 $tpl->assign("isSuperAdministrator", $isSuperAdministrator);
 
+$canApprove = $record->canApprove();
+if ($canApprove === true) {
+  $tpl->assign("isApprover", 1);
+} else {
+  $tpl->assign("isApprover", 0);
+}
+
 $access_ok = $record->canEdit();
 if ($access_ok) {
 
