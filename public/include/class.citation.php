@@ -456,7 +456,12 @@ class Citation
 						break;
 				}
 			}
-			// hacky formatting of authors names.  Pretty easy to break - like
+
+    } elseif (!empty($xsdmf['sek_lookup_function'])) {
+      $lookupFunction = $xsdmf['sek_lookup_function'];
+      eval("\$value = ".$lookupFunction."(".$value.");");
+      $value = htmlspecialchars($value);
+      // hacky formatting of authors names.  Pretty easy to break - like
 			// if the field doesn't use the selector or the sek_title or xsdmf_title is in a different language. WILL PROBABLY NEVER BE USED!
 		} elseif ($xsdmf['xsdmf_html_input'] == 'author_selector') {
 			$value = Citation::formatAuthor(Author::getFullname($value), $type);
