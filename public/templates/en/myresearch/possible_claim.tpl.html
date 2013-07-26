@@ -20,7 +20,7 @@ function toggleCorrections()
         document.getElementById('correction').style.display = 'block';
         document.getElementById('correction').value = 'Please tell us any issues or additional information.';
 	}
-	
+
 	return;
 }
 
@@ -43,7 +43,7 @@ function submitForm()
 		window.alert('You must select one of the three radio boxes.');
 		return false;
 	}
-	
+
 	if (document.getElementById('nok').checked && (document.getElementById('correction').value == '' || document.getElementById('correction').value == 'Please tell us what is wrong with the record.')) {
 		window.alert('You must tell us what is wrong with the record.');
 		return false;
@@ -68,7 +68,7 @@ function submitForm()
         }
 
         if (fileCheck != '') {
-            var fileCheck = 'The following files are being submitted as accessible by the public please confirm this is the case \n\n Other files submitted will be admin access only\n\n' + fileCheck;
+            var fileCheck = 'The following files will be submitted as open access and will be made publicly available. Please click Cancel if you do not wish to proceed.\n\n' + fileCheck + 'Any other files selected will be accessible by UQ eSpace administrators and UPOs only.';
             conf = confirm(fileCheck);
             if (conf == false) {
                 return false;
@@ -157,7 +157,7 @@ function cancel()
 	<div id="research-missing-meta">
 		<b>PLEASE NOTE</b><br />
 		<div>This record was recently imported from an external source, and has not yet been processed by the {$app_name} data team. You therefore <span style="text-decoration: underline;";>do not have to notify us about missing data</span> for this record - it will be added later by the data team.<br /><br />
-		
+
 		If this record was authored by you, please proceed with the claim.
 		</div>
 	</div>

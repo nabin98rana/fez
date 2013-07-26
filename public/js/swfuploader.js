@@ -360,7 +360,7 @@ function swfuploaderAddDatatableEntry(entry) {
 
     if (showFileUploadExtras == 1) {
         var sizeCell2 = row2.insertCell(0);
-        sizeCell2.innerHTML ='Embargo Date: <input type="text" id="datepicker'+entry.id+'" name="embargo_date['+entry.id.slice(-1)+']" />'
+        sizeCell2.innerHTML ='Open Access Release Date: <input type="text" id="datepicker'+entry.id+'" name="embargo_date['+entry.id.slice(-1)+']" />'
         $( "#datepicker"+entry.id ).datepicker({dateFormat : 'dd-mm-yy'});
         var sizeCell2 = row2.insertCell(1);
     } else {

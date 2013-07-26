@@ -38,7 +38,7 @@ function filePermissionsChange(descriptionNum) {
 
 </script>
 {/literal}
-<H2>Upload Open Access versions or HERDC evidence files:</H2><br />
+<H2>Upload Open Access or HERDC evidence files:</H2><br />
 {section name=file_input start=0 loop=10 step=1}
             {assign var='loop_num' value=$smarty.section.file_input.index}
             <span {if $smarty.section.file_input.index != 0}style="display:none"{/if} id=file_upload_{$smarty.section.file_input.index}>

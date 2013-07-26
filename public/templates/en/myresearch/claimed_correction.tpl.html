@@ -10,7 +10,7 @@ function notMine(pid)
 	} else {
 		document.getElementById('rad-not-mine').checked = false;
 	}
-    
+
     return;
 }
 
@@ -52,7 +52,7 @@ function toggleCorrections()
         document.getElementById('upload-area-fix').style.display = 'none';
         document.getElementById('action').value = 'correction-add';
 	}
-	
+
 	return;
 }
 
@@ -84,7 +84,7 @@ function submitForm()
     global_submitted++;
 	if ((document.getElementById('rad-fix').checked && (document.getElementById('correction').value == '' || document.getElementById('correction').value == 'Please tell us what is wrong with the record. Be specific.'))
             || (document.getElementById('rad-dupe').checked && (document.getElementById('duplication').value == '' || document.getElementById('duplication').value == 'Please tell us the PID number or URL location of the original you believe this record duplicates.'))) {
-        global_submitted--;		
+        global_submitted--;
         window.alert('You must tell us what is wrong with the record. Or what record you think this record duplicates.');
 		return false;
 	}
@@ -108,7 +108,7 @@ function submitForm()
         }
 
         if (fileCheck != '') {
-            var fileCheck = 'The following files are being submitted as accessible by the public please confirm this is the case.\n\nOther files submitted will be admin access only\n\n' + fileCheck;
+            var fileCheck = 'The following files will be submitted as open access and will be made publicly available. Please click Cancel if you do not wish to proceed.\n\n' + fileCheck + 'Any other files selected will be accessible by UQ eSpace administrators and UPOs only.';
             conf = confirm(fileCheck);
             if (conf == false) {
                 global_submitted--;
@@ -209,7 +209,7 @@ function cancel()
 	<input type="radio" name="type" id="rad-not-mine" value="rad-not-mine" onclick="javascript:toggleCorrections(); notMine('{$pid}');" /> This is not my record<br />
     <input type="radio" name="type" id="rad-dupe" value="rad-dupe" onclick="javascript:toggleCorrections();" /> I am the author of this publication, but the record is a duplicate<br />
 	<input type="radio" name="type" id="rad-fix" value="rad-fix" onclick="javascript:toggleCorrections();" /> I would like to report a problem<br />
-    <span {if $smarty.const.TAG_UPLOAD_FILES != 'ON'}style="display: none;"{/if}><input type="radio" name="type" id="rad-upload" value="rad-upload" onclick="javascript:toggleCorrections();" /> I would like to upload any file including Open Access versions and/or HERDC evidence files</span>
+    <span {if $smarty.const.TAG_UPLOAD_FILES != 'ON'}style="display: none;"{/if}><input type="radio" name="type" id="rad-upload" value="rad-upload" onclick="javascript:toggleCorrections();" /> I would like to upload an Open Access or HERDC evidence file</span>
 
 </p>
 
@@ -217,7 +217,7 @@ function cancel()
 	<p>
 		<textarea id="correction" name="correction" rows="5" cols="70" onfocus="javascript:toggleCorrectionsText();">Please tell us what is wrong with the record. Be specific.</textarea>
 	</p>
-	
+
 	<input type="button" value="Submit correction" name="button" onclick="javascript:submitForm();" />
 </div>
     <div id="duplication-area-fix" style="display: none;">
@@ -244,7 +244,7 @@ function cancel()
 
 </form>
 
-<form action="{$rel_url}my_research_claimed.php" method="post" id="notMine">	
+<form action="{$rel_url}my_research_claimed.php" method="post" id="notMine">
 	<div>
 		<input type="hidden" id="not-mine-pid" name="pid" value="" />
 		<input type="hidden" name="action" value="not-mine" />
