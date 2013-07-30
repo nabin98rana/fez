@@ -418,7 +418,8 @@ class Template_API
 		$this->assign('headerscript', $this->headerscript);
 		$this->assign('benchmark_total', $log->getLogElapsedTime());
     $this->assign('solr_query_time', $log->solr_query_time);
-    $this->assign('solr_query_string', $log->solr_query_string);
+    // xml is easier to debug/read solr results in so switch it to xml before display
+    $this->assign('solr_query_string', preg_replace('/wt=json/', 'wt=xml', $log->solr_query_string));
 
 		$profiler = $db->getProfiler();
 		if($profiler) {
