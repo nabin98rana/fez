@@ -38,7 +38,7 @@ RewriteRule     ^rid_citation_count_history_([A-Za-z]+):([0-9]+)$              r
 RewriteRule     ^rid_citation_count_history_([A-Za-z]+):([0-9]+)_graph.?(.*)$   rid_citation_count_history_graph.php?pid=$1:$2&ext=$3 [L,QSA]
 RewriteRule     ^scopus_citation_count_history_([A-Za-z]+):([0-9]+)$              scopus_citation_count_history.php?pid=$1:$2 [L,QSA]
 RewriteRule     ^scopus_citation_count_history_([A-Za-z]+):([0-9]+)_graph.?(.*)$   scopus_citation_count_history_graph.php?pid=$1:$2&ext=$3 [L,QSA]
-#RewriteRule     ^js/(.*).js$                                       	min.php/js/$1.js [L,QSA]
+RewriteRule     ^js/(.*).js$                                       	min.php/js/$1.js [L,QSA]
 #RewriteRule     ^js/(.*).js$                                       	min.php/js/$1.js?debug=1 [L,QSA]
 RewriteRule     ^stream/([A-Za-z]+):([0-9]+)/(.+?)(/.*)*$           eserv.php?pid=$1:$2&dsID=$3&qs=$4/stream=1 [L]
 
