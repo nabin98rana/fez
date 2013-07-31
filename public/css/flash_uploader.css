@@ -14,6 +14,12 @@
 
 #uploader_file_table td, #uploader_file_table th {
 	padding: 4px;
+  width: 180px;
+  white-space: nowrap;
+}
+
+#uploader_file_table input {
+  text-align: right;
 }
 
 #uploader_file_table tr.odd {
@@ -25,5 +31,5 @@
 }
 
 td.uploader_file_size, tr th.uploader_file_size {
-	text-align: right; 
+	text-align: right;
 }

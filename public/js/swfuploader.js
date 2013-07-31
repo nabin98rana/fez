@@ -360,16 +360,23 @@ function swfuploaderAddDatatableEntry(entry) {
 
     if (showFileUploadExtras == 1) {
         var sizeCell2 = row2.insertCell(0);
-        sizeCell2.innerHTML ='Open Access Release Date: <input type="text" id="datepicker'+entry.id+'" name="embargo_date['+entry.id.slice(-1)+']" />'
-        $( "#datepicker"+entry.id ).datepicker({dateFormat : 'dd-mm-yy'});
         var sizeCell2 = row2.insertCell(1);
+        sizeCell2.colSpan = 2;
     } else {
         var sizeCell2 = row2.insertCell(0);
+        sizeCell2.colSpan = 4;
     }
 
 
-    sizeCell2.colSpan = 4;
+
     sizeCell2.innerHTML ='Description for File Upload<br /><input type="text" size="60" name="description['+entry.id.slice(-1)+']"/>'
+
+    if (showFileUploadExtras == 1) {
+        var sizeCell2 = row2.insertCell(2);
+        sizeCell2.innerHTML ='Open Access Release Date <br /><input type="text" id="datepicker'+entry.id+'" name="embargo_date['+entry.id.slice(-1)+']" />'
+        $( "#datepicker"+entry.id ).datepicker({dateFormat : 'dd-mm-yy'});
+        var sizeCell2 = row2.insertCell(3);
+    }
 }
 
 // ========================================================
