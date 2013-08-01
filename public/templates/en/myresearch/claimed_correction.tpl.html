@@ -75,7 +75,6 @@ function toggleDuplicationText()
 	}
 }
 
-
 function submitForm()
 {
     if (typeof global_submitted === 'undefined') {
@@ -108,12 +107,21 @@ function submitForm()
         }
 
         if (fileCheck != '') {
-            var fileCheck = 'The following files will be submitted as open access and will be made publicly available. Please click Cancel if you do not wish to proceed.\n\n' + fileCheck + '\n\nAny other files selected will be accessible by UQ eSpace administrators and UPOs only.';
-            conf = confirm(fileCheck);
-            if (conf == false) {
-                global_submitted--;
-                return false;
-            }
+            var fileCheck = 'The following files will be submitted as open access and will be made publicly available. Please click Cancel if you do not wish to proceed.<br /><br />' + fileCheck + '<br /><br />Any other files selected will be accessible by UQ eSpace administrators and UPOs only.';
+            $('<div>' + fileCheck + '</div>').dialog({
+              resizable: false,
+              title: "Open Access Warning:",
+              buttons: {
+                "OK": function() {
+                  $(this).dialog("close");
+                },
+                Cancel: function() {
+                  global_submitted--;
+                  $(this).dialog("close"); //close confirmation
+                  return false;
+                }
+              }
+            });
         }
 
         //If they entered nothing in the box set it to ''
@@ -149,6 +157,8 @@ function cancel()
     {$citation|smarty:nodefaults}
 	<div style="display: block; font-size: 80%; padding-top: 15px;">[ <a href="{$rel_url}view/{$pid}" onclick="javascript:window.open('{$rel_url}view/{$pid}'); return false;">View the full record</a> ]</div>
 </div>
+
+
 
 <table id="research-q-index-details">
     <tr>
