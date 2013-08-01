@@ -32,7 +32,7 @@ function uploadFile(n)
 <table class="padded_table">
     <tr><th>Type of File</th><th>File to be uploaded</th></tr>
     <tr class="{if $smarty.section.file_input.index % 2 == 0}text-input-odd{else}text-input-even{/if}"><td>
-                <select name="filePermissions[]" onchange="javascript:filePermissionsChange({$smarty.section.file_input.index}, this);">
+                <select name="filePermissions[]" onchange="javascript:filePermissionsChange({$smarty.section.file_input.index});">
             {html_options options=$file_options} *
                 </select>
                 </td><td>

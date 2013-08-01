@@ -323,7 +323,7 @@ function swfuploaderAddDatatableEntry(entry) {
         progressCell.id = 'uploaderfilePermissionsNew-'+entry.id;
 
         //Any changes here must be mirrored in class.datastream.php
-        progressCell.innerHTML = '<select name="filePermissionsNew['+entry.id.slice(-1)+']" onchange="javascript:filePermissionsChange('+entry.id.slice(-1)+', this);"> \
+        progressCell.innerHTML = '<select id="filePermissionsNew['+entry.id.slice(-1)+']" name="filePermissionsNew['+entry.id.slice(-1)+']" onchange="javascript:filePermissionsChangeNew('+entry.id.slice(-1)+');"> \
         <option label="Please choose file type" value="0">Please choose file type</option> \
         <option label="Accepted version (author final draft  post-refereeing)" value="1">Accepted version (author final draft  post-refereeing)</option> \
         <option label="Submitted version (author version pre-refereeing)" value="2">Submitted version (author version pre-refereeing)</option> \

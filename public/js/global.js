@@ -23,9 +23,8 @@ function hideClosed(f)
     }
 }
 
-function filePermissionsChange(descriptionNum, item) {
-//    descriptionValue = item.getElementsByName('description[' + descriptionNum + ']')[0].value;
-    descriptionValue = item[0].value;
+function filePermissionsChange(descriptionNum) {
+    descriptionValue = document.getElementsByName('description[' + descriptionNum + ']')[0].value;
     if (descriptionValue == '' || descriptionValue == 'Full text (open access)' || descriptionValue == 'Full text (administration only)') {
         if (document.getElementsByName('filePermissions[]')[descriptionNum].selectedIndex != 0) {
             if (document.getElementsByName('filePermissions[]')[descriptionNum].selectedIndex == 5) {
@@ -36,6 +35,21 @@ function filePermissionsChange(descriptionNum, item) {
         }
     }
 }
+
+function filePermissionsChangeNew(descriptionNum) {
+    descriptionValue = document.getElementsByName('description[' + descriptionNum + ']')[0].value;
+
+    if (descriptionValue == '' || descriptionValue == 'Full text (open access)' || descriptionValue == 'Full text (administration only)') {
+        if (document.getElementById('filePermissionsNew['+ descriptionNum + ']').selectedIndex != 0) {
+            if (document.getElementById('filePermissionsNew['+ descriptionNum + ']').selectedIndex == 5) {
+                document.getElementsByName('description[' + descriptionNum + ']')[0].value = 'Full text (administration only)';
+            } else {
+                document.getElementsByName('description[' + descriptionNum + ']')[0].value = 'Full text (open access)';
+            }
+        }
+    }
+}
+
 
 function unhideRow(element_name, table_name)
 {
