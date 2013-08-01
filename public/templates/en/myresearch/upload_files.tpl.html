@@ -23,19 +23,6 @@ function uploadFile(n)
     return true;
 }
 
-function filePermissionsChange(descriptionNum) {
-    descriptionValue = document.getElementsByName('description[' + descriptionNum + ']')[0].value;
-    if (descriptionValue == '' || descriptionValue == 'Full text (open access)' || descriptionValue == 'Full text (administration only)') {
-        if (document.getElementsByName('filePermissions[]')[descriptionNum].selectedIndex != 0) {
-            if (document.getElementsByName('filePermissions[]')[descriptionNum].selectedIndex == 5) {
-             document.getElementsByName('description[' + descriptionNum + ']')[0].value = 'Full text (administration only)';
-            } else {
-                document.getElementsByName('description[' + descriptionNum + ']')[0].value = 'Full text (open access)';
-            }
-        }
-    }
-}
-
 </script>
 {/literal}
 <H2>Upload Open Access or HERDC evidence files:</H2><br />
@@ -45,7 +32,7 @@ function filePermissionsChange(descriptionNum) {
 <table class="padded_table">
     <tr><th>Type of File</th><th>File to be uploaded</th></tr>
     <tr class="{if $smarty.section.file_input.index % 2 == 0}text-input-odd{else}text-input-even{/if}"><td>
-                <select name="filePermissions[]" onchange="javascript:filePermissionsChange({$smarty.section.file_input.index});">
+                <select name="filePermissions[]" onchange="javascript:filePermissionsChange({$smarty.section.file_input.index}, this);">
             {html_options options=$file_options} *
                 </select>
                 </td><td>
