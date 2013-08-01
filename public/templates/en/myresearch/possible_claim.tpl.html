@@ -68,7 +68,7 @@ function submitForm()
         }
 
         if (fileCheck != '') {
-            var fileCheck = 'The following files will be submitted as open access and will be made publicly available. Please click Cancel if you do not wish to proceed.\n\n' + fileCheck + 'Any other files selected will be accessible by UQ eSpace administrators and UPOs only.';
+            var fileCheck = 'The following files will be submitted as open access and will be made publicly available. Please click Cancel if you do not wish to proceed.\n\n' + fileCheck + '\n\nAny other files selected will be accessible by UQ eSpace administrators and UPOs only.';
             conf = confirm(fileCheck);
             if (conf == false) {
                 return false;
