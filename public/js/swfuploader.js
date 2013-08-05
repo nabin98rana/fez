@@ -111,7 +111,11 @@ function swfuploaderLoad(maxNumberFiles, baseUrl, postParams) {
             // For completed file upload checking
             required_xsd_display_fields_fileupload[required_xsd_display_fields_fileupload.length] = new Option('uploader_files_uploaded', 'File Upload');
         }
-
+        if (showFileUploadExtras == 1) {
+            // enforce file type as a mandatory field
+            required_xsd_display_fields[required_xsd_display_fields.length] = new Option('filePermissionsNew[]', 'fileupload_perms');
+        }
+//        required_xsd_display_fields_fileupload[required_xsd_display_fields_fileupload.length] = new Option('uploader_files_uploaded', 'File Upload');
 		// add event listeners to the form submit buttons
 		uploaderAddEventListeners();
 	}

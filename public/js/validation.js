@@ -506,9 +506,24 @@ function checkRequiredFields(f, required_fields)
                 errors[errors.length] = new Option(getFieldTitle(xsd_display_fields,required_fields[i].text), required_fields[i].text);
             }
 
+
+
+        } else if (required_fields[i].value == 'fileupload_perms') {
         // Initial file validation: check if there is file(s) on the queue
+            if (typeof(swfuploader) != 'undefined') {
+                var stats = swfuploader.getStats();
+                if (stats.files_queued > 0) {
+                   var x = 0;
+                   for (var x = 0; x < stats.files_queued; x++) {
+                     if (document.getElementById('filePermissionsNew[' + x + ']').selectedIndex == 0) {
+                        document.getElementById('uploaderUploadButton').style.backgroundColor = '#FF9999';
+                        errors[errors.length] = new Option('File Classification', 'File Classification');
+                     }
+                   }
+                }
+             }
         } else if (required_fields[i].value == 'fileupload') {
-            if (typeof(swfuploader) != 'undefined'){
+           if (typeof(swfuploader) != 'undefined') {
                 var stats = swfuploader.getStats();
                 if (stats.files_queued == 0 &&
                     (existsUploadedFields(document.getElementById('wfl_form1'), required_xsd_display_fields_fileupload) == false) ){
