@@ -67,7 +67,6 @@ class Default_Data
 			$defaultData['app_php_exec']                    = "C:/php/php.exe";
 			$defaultData['app_py_exec']                     = "C:/python/python.exe";
 			$defaultData['app_pdftotext_exec']              = "C:/utils/pdftotext.exe";
-			$defaultData['app_san_import_dir']              = "C:/fez/incoming/";
 			$defaultData['app_ffmpeg_cmd']					= "C:/ffmpeg/ffmpeg.exe";
 			$defaultData['app_duplicates_reports_location']	= "C:/temp/fez_duplicates_reports/";
 			$defaultData['app_exiftool_cmd']                = "C:/exiftool/exiftool.exe";
@@ -90,14 +89,13 @@ class Default_Data
 			$defaultData['app_php_exec']                    = "/usr/local/bin/php";
 			$defaultData['app_py_exec']                     = "/usr/bin/python";
 			$defaultData['app_pdftotext_exec']              = "/usr/bin/pdftotext";
-			$defaultData['app_san_import_dir']              = "/fez/incoming/";
 			$defaultData['app_ffmpeg_cmd']					= "/usr/bin/ffmpeg";
 			$defaultData['app_duplicates_reports_location']	= "/usr/local/fez_duplicates_reports/";
 			$defaultData['app_exiftool_cmd']                = "/usr/bin/exiftool";
 			$defaultData['app_jahdl_dir']                   = "/usr/local/jahdl/";
 			$defaultData['handle_admpriv_key_file']         = "/usr/local/handle/data/admpriv.bin";
 			$defaultData['app_log_location']                = "/var/log/fez/fez-error.log";
-            $defaultData['br_img_dir']                      = "/pidimages/";
+            $defaultData['br_img_dir']                      = "pidimages/";
             $defaultData['ghostscript_pth']                 = "/usr/bin/gs";
 
 			// Sensible Debian/Ubuntu defaults
@@ -108,10 +106,12 @@ class Default_Data
 			    $defaultData['app_dot_exec']                = "/usr/bin/dot";
 			    $defaultData['app_php_exec']                = "/usr/bin/php";
 			    $defaultData['app_jhove_dir']               = "/usr/bin/";
+			    $defaultData['app_ffmpeg_yamdi_cmd']        = "/usr/bin/yamdi";
 			}
 
 		}   // Can add some other defaults here for other common OS setups
 
+		$defaultData['app_san_import_dir']                  = "";
 		$defaultData['datamodel_version']                   = "2012100500";                 // Change this to last upgrade + 1
 		$defaultData['shib_switch']                         = "OFF";
 		$defaultData['shib_direct_login']                   = "OFF";
@@ -270,7 +270,7 @@ class Default_Data
 		$defaultData['app_use_article_title_search']		= "OFF";
 		$defaultData['app_article_add_to_collection']		= "";
 		$defaultData['app_article_search_wos_address']		= "";
-		$defaultData['app_template_compile_path']			= "";
+		$defaultData['app_template_compile_path']			= dirname(dirname(__FILE__)) . "/templates_c/";
 		$defaultData['app_internal_notes']					= "ON";
 		$defaultData['app_session_timeout']					= "10800";
 		$defaultData['app_user_group_cache_expiry']			= "3";
