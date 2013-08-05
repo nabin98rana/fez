@@ -835,10 +835,10 @@ class MyResearch
         $subject = "My Research :: File Uploads :: " . $jobID . " :: " . $pid . " :: " . $publishedDate . " :: " . $author;
         $body = "Record: http://" . APP_HOSTNAME . APP_RELATIVE_URL . "view/" . $pid . "\n\n";
         if ($author == $user) {
-            $body .= $authorName . " (" . $authorID . ") has supplied the following correction information:\n\n";
+            $body .= $authorName . " (" . $authorID . ") has supplied the following file uploads information:\n\n";
         } else {
             $body .= "User " . $userName . ", acting on behalf of " . $authorName
-                . ", has supplied the following correction information:\n\n";
+                . ", has supplied the following file uploads information:\n\n";
         }
         $body .= 'Notes: '.$correction;
         $body .= "\n\nFiles uploaded: ". $listFiles;
