@@ -440,7 +440,7 @@ class MyResearch
             $sendEmail = false;
         }
 
-        $subject = "My Research :: Claimed Publication :: " . $jobID . " :: " . $pid . " :: " . $publishedDate . " :: " . $author;
+
 
         $body = "Record: http://" . APP_HOSTNAME . APP_RELATIVE_URL . "view/" . $pid . "\n\n";
         if ($author == $user) {
@@ -455,8 +455,19 @@ class MyResearch
         }
 
         $listFiles = MyResearch::uploadFilesToPid($pid);
+        $accessMessage = "";
+        if (is_numeric(strpos($listFiles, '(open access)')) && is_numeric(strpos($listFiles, '(admin access)'))) {
+          $accessMessage = "(admin/open access)";
+        } elseif (is_numeric(strpos($listFiles, '(admin access)'))) {
+          $accessMessage = "(admin access)";
+        } elseif (is_numeric(strpos($listFiles, '(open access)'))) {
+          $accessMessage = "(open access)";
+        }
         if (!empty($listFiles)) {
-            $body .= "\n\n And the following files were attached" . $listFiles;
+            $body .= "\n\n And the following files were attached:\n\n" . $listFiles;
+            $subject = "My Research :: Claimed Publication :: " . $jobID . " :: " . $pid . " :: " . $publishedDate . " :: " . $author;
+        } else {
+          $subject = "My Research :: Claimed Publication with File Uploads (".$accessMessage.") :: " . $jobID . " :: " . $pid . " :: " . $publishedDate . " :: " . $author;
         }
 
         // If this record is claimed and it is in the WoS import collection, strip it from there and put it into the provisional HERDC collection as long as it is in the last 6 years
@@ -832,7 +843,16 @@ class MyResearch
         $publishedDate = strftime("%Y", strtotime($publishedDate));
         $listFiles = MyResearch::uploadFilesToPid($pid);
 
-        $subject = "My Research :: File Uploads :: " . $jobID . " :: " . $pid . " :: " . $publishedDate . " :: " . $author;
+        $accessMessage = "";
+        if (is_numeric(strpos($listFiles, '(open access)')) && is_numeric(strpos($listFiles, '(admin access)'))) {
+          $accessMessage = "(admin/open access)";
+        } elseif (is_numeric(strpos($listFiles, '(admin access)'))) {
+          $accessMessage = "(admin access)";
+        } elseif (is_numeric(strpos($listFiles, '(open access)'))) {
+          $accessMessage = "(open access)";
+        }
+
+        $subject = "My Research :: File Uploads ".$accessMessage." :: " . $jobID . " :: " . $pid . " :: " . $publishedDate . " :: " . $author;
         $body = "Record: http://" . APP_HOSTNAME . APP_RELATIVE_URL . "view/" . $pid . "\n\n";
         if ($author == $user) {
             $body .= $authorName . " (" . $authorID . ") has supplied the following file uploads information:\n\n";
@@ -841,7 +861,7 @@ class MyResearch
                 . ", has supplied the following file uploads information:\n\n";
         }
         $body .= 'Notes: '.$correction;
-        $body .= "\n\nFiles uploaded: ". $listFiles;
+        $body .= "\n\nFiles uploaded: \n\n ". $listFiles;
         Eventum::lodgeJob($subject, $body, $userEmail);
 
         return;
@@ -864,8 +884,10 @@ class MyResearch
                 //If (a HERDC file OR an embargo date is saved) set permissions(5) to admin and upo only(10) ( else open access, which is inherit in this case)
                 if (($_POST['filePermissions'][$key] == 5) || !empty($_POST['embargo_date'][$key])) {
                   $fezACMLTemplateNum = 10;
+                  $listFiles .= "(admin access)\n";
                 } else {
                   $fezACMLTemplateNum = NULL;
+                  $listFiles .= "(open access)\n";
                 }
                 Datastream::addDatastreamToPid($pid, $file, $fezACMLTemplateNum);
                 Datastream::saveDatastreamSelectedPermissions($pid, $file, $_POST['filePermissions'][$key], $_POST['embargo_date'][$key]);
