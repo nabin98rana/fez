@@ -190,7 +190,7 @@ class SanityChecks
         }
         $results = array(ConfigResult::message('Testing general directories'));
         $results = array_merge($results, SanityChecks::checkDir('APP_TEMP_DIR', APP_TEMP_DIR, true));
-        $results = array_merge($results, SanityChecks::checkDir('APP_SAN_IMPORT_DIR', APP_SAN_IMPORT_DIR));
+        if (APP_SAN_IMPORT_DIR) $results = array_merge($results, SanityChecks::checkDir('APP_SAN_IMPORT_DIR', APP_SAN_IMPORT_DIR));
         $results = array_merge($results, SanityChecks::checkDir('APP_TEMPLATE_COMPILE_PATH', APP_TEMPLATE_COMPILE_PATH, true));
         $results = array_merge($results,SanityChecks::checkdir('BR_IMG_DIR',APP_PATH . BR_IMG_DIR, true));
 
