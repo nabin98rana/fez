@@ -68,7 +68,7 @@ function submitForm()
         }
 
       if (fileCheck != '') {
-        var fileCheck = 'The following files will be submitted as open access and will be made publicly available. Please click Cancel if you do not wish to proceed.<br /><br />' + fileCheck + '<br /><br />Any other files selected will be accessible by UQ eSpace administrators and UPOs only.';
+        var fileCheck = 'The following files will be submitted as open access and will be made publicly available immediately. Please click Cancel if you do not wish to proceed.<br /><br />' + fileCheck + '<br /><br />Any other files selected will be accessible by UQ eSpace administrators and UPOs only.';
         var returnValue = false;
         $('<div>' + fileCheck + '</div>').dialog({
           resizable: false,
@@ -76,10 +76,7 @@ function submitForm()
           buttons: {
             "OK": function() {
               returnValue = true;
-              global_submitted--;
-              if (global_submitted < 2) {
-                proceedSubmission();
-              }
+              proceedSubmission();
               $(this).dialog("close");
             },
             Cancel: function() {
@@ -87,17 +84,25 @@ function submitForm()
             }
           }
         });
+      } else {
+        returnValue = true;
       }
+    } else {
+      returnValue = true;
     }
+  if (returnValue == true) {
+    proceedSubmission();
+  }
+
   return true;
 }
 
 function proceedSubmission() {
   //If they entered nothing in the box set it to ''
-  if (document.getElementById('correction').value == 'Information about the files') {
+  if (document.getElementById('correction').value == 'Please tell us any issues or additional information.') {
     document.getElementById('correction').value = '';
   }
-  document.forms['correctForm'].submit();
+  document.forms['claimForm'].submit();
 }
 
 function cancel()

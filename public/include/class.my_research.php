@@ -861,7 +861,7 @@ class MyResearch
                 . ", has supplied the following file uploads information:\n\n";
         }
         $body .= 'Notes: '.$correction;
-        $body .= "\n\nFiles uploaded: \n\n ". $listFiles;
+        $body .= "\n\nFiles uploaded: \n\n". $listFiles;
         Eventum::lodgeJob($subject, $body, $userEmail);
 
         return;
