@@ -48,7 +48,7 @@ $server = new Zend_Json_Server();
 $server->setClass('MatchingRecords');
 
 if ('GET' == $_SERVER['REQUEST_METHOD']) {
-    
+
 	$server->setTarget($_SERVER["SCRIPT_NAME"])
            ->setEnvelope(Zend_Json_Server_Smd::ENV_JSONRPC_2);
     $smd = $server->getServiceMap();
@@ -61,7 +61,7 @@ $server->handle();
 
 /**
  * Class to handle records matching via WOK Web Service and Scopus Web Service.
- * 
+ *
  * @package fedora & fedora_bypass
  */
 class MatchingRecords
@@ -80,7 +80,7 @@ class MatchingRecords
     {
     	$log = FezLog::get();
 		$db = DB_API::get();
-		
+
     	$matches = array();
 
         // Specify the Document Type & Database Edition on the search query parameter
@@ -105,10 +105,10 @@ class MatchingRecords
 
             // Escape characters used for wrapping title on search query
             $title = $this->_escapeSearchTitle($title);
-            
+
             // Title query param
             $query = 'TI=("'.$title.'")';
-            
+
 // Requested by eSpace team to not restrict the search by org unit anymore
 //            if(APP_ARTICLE_SEARCH_WOS_ADDRESS != '' ) {
 //
@@ -152,7 +152,7 @@ class MatchingRecords
                 }
             }
     	}
-    	
+
     	$matchCount = count($matches);
 
     	if($matchCount > 0) {
@@ -160,18 +160,18 @@ class MatchingRecords
 			$tpl->setTemplate("workflow/edit_metadata_helpers/matching_records_results.tpl.html");
 			$tpl->assign('matches', $matches);
 			$tpl->assign('rel_url', APP_RELATIVE_URL);
-			$tpl->assign('found', $result['recordsFound']);
+			$tpl->assign('found', $matchCount);
 			$tpl->assign('max_results', $num_recs);
 			$tpl->assign('num_wos', $matchCount);
-			$tpl->assign('dupe_records', $dupe_records);
-			
+			$tpl->assign('dupe_records', 0);
+
 			return $tpl->getTemplateContents();
     	}
     	else {
     		return '';
     	}
     }
-    
+
     /**
      * Retrieve Scopus records based on title
      * @param string $title
@@ -183,7 +183,7 @@ class MatchingRecords
 		$db = DB_API::get();
 		$num_recs = 3;
 		$matches = array();
-		
+
 		//Grab 40 records to work with in case some of them are not really UQ's
 		$query = array('query' => "affil(University+of+Queensland)+title('"
 		    . urlencode($title) . "')",
@@ -191,33 +191,33 @@ class MatchingRecords
 		             'start' => 0,
 		             'view' => 'STANDARD',
 		);
-		
+
 		$scopusService = new ScopusService(APP_SCOPUS_API_KEY);
 		$xml = $scopusService->getNextRecordSet($query);
-		
+
 		$doc = new DOMDocument();
 		$doc->loadXML($xml);
 		$records = $doc->getElementsByTagName('identifier');
-        
+
 		$nodeItem = 0;
-		
+
 		while(($nodeItem < $records->length) && (count($matches) < $num_recs))
 		{
 		    $record = $records->item($nodeItem);
-		    
+
 		    $csr = new ScopusRecItem();
-		    
+
 		    $scopusId = $record->nodeValue;
-		    
+
 		    $pregMatches = array();
 		    preg_match("/^SCOPUS_ID\:(\d+)$/", $scopusId, $pregMatches);
 		    $scopusIdExtracted = (array_key_exists(1, $pregMatches)) ? $pregMatches[1] : null;
-		    
+
 		    $iscop = new ScopusService(APP_SCOPUS_API_KEY);
 		    $rec = $iscop->getRecordByScopusId($scopusIdExtracted);
-		    
+
 		    $csr->load($rec, $nameSpaces);
-		    
+
 		    //If the record has a UQ affiliation (ie, it's loaded), then continue
 		    if($csr->_loaded)
 		    {
@@ -232,9 +232,9 @@ class MatchingRecords
 		        $fields->dateIssued = $csr->_issueDate;
 		        $fields->scopusId = $scopusIdExtracted;
 		        $fields->pid = null;
-		    
+
 		        $isInImportColl = Record::getPIDsByScopusID($csr->_scopusId, true);
-		    
+
 		        if(empty($isInImportColl))
 		        {
 		            $fields->record_exists = 0;
@@ -244,15 +244,15 @@ class MatchingRecords
 		            $fields->record_exists = 0;
 		            $fields->pid = $isInImportColl[0]['rek_scopus_id_pid'];
 		        }
-		    
+
 		        $matches[] = $fields;
 		    }
-		    
+
 		    $nodeItem++;
 		}
-		
+
 		$matchCount = count($matches);
-		
+
 		if($matchCount > 0)
 		{
 		    $tpl = new Template_API();
@@ -260,9 +260,9 @@ class MatchingRecords
 		    $tpl->assign('scopusMatches', $matches);
 		    $tpl->assign('rel_url', APP_RELATIVE_URL);
 		    $tpl->assign('num_scopus', $matchCount);
-		    
+
 		    $tplCont = $tpl->getTemplateContents();
-		    
+
 		    return $tplCont;
 		}
     }
@@ -277,11 +277,11 @@ class MatchingRecords
     {
     	$log = FezLog::get();
 		$db = DB_API::get();
-		
+
     	$dupe_records = array();
     	$max_results = 5;
     	$count = 0;
-	
+
     	$dupes = DuplicatesReport::similarTitlesQuery('dummy', trim($title));
 
     	if(count($dupes) > 0) {
@@ -297,7 +297,7 @@ class MatchingRecords
     			}
     		}
     	}
-    	
+
     	if($count > 0) {
 			$tpl = new Template_API();
 			$tpl->setTemplate("workflow/edit_metadata_helpers/matching_records_results.tpl.html");
@@ -306,7 +306,7 @@ class MatchingRecords
 			$tpl->assign('found', $count);
 			$tpl->assign('max_results', $max_results);
 			$tpl->assign('dupe_records', $dupe_records);
-			
+
 			return $tpl->getTemplateContents();
     	}
     	else {
@@ -316,20 +316,20 @@ class MatchingRecords
 
     /**
      * Saves publication found on ISI WOS.
-     * 
+     *
      * @example enter_metadata.tpl.html -> Triggerred by "Add" button on Matching Records results on Journal Article titles.
      * @package fedora & fedora_bypass
-     * @param string $ut 
+     * @param string $ut
      * @return string PID of the newly added record
      */
-    public function add($ut) 
+    public function add($ut)
     {
     	$log = FezLog::get();
 		$db = DB_API::get();
 
 		$pid = '';
 		$collection = APP_ARTICLE_ADD_TO_COLLECTION;
-        
+
 		if(Fedora_API::objectExists($collection)) {
 
             // Retrieve record from Wok web service
@@ -373,7 +373,7 @@ class MatchingRecords
 		}
 		return $pid;
     }
-    
+
     /**
      * Add a record found in Scopus to the system
      * @param string $scopusId
@@ -384,24 +384,24 @@ class MatchingRecords
         $log = FezLog::get();
         $db = DB_API::get();
         $pid = false;
-        
+
         $scopServ = new ScopusService(APP_SCOPUS_API_KEY);
         $record = $scopServ->getRecordByScopusId($scopusId);
-        
+
         $sri = new ScopusRecItem();
         $sri->load($record);
-        
+
         if($sri->_loaded)
         {
             $pid = $sri->save(null, APP_SCOPUS_IMPORT_COLLECTION);
         }
-        
+
         return $pid;
     }
 
     /**
      * Clean user query from invalid characters that may cause error on SOAP call.
-     * 
+     *
      * @param string $userQuery
      * @return string Cleaned user query string.
      */
@@ -411,7 +411,7 @@ class MatchingRecords
             return "";
         }
 
-        // Escape " double quote from user entered query, 
+        // Escape " double quote from user entered query,
         // as we are using double quote to wrap the query string sent to SOAP
         //Also remove some special characters http://images.webofknowledge.com/WOKRS56B5/help/WOK/hs_wildcards.html
         $search = array("\"", "?", "*");

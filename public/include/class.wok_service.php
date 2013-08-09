@@ -63,7 +63,10 @@ class WokService
     if ($lite) {
       $this->searchEndpoint .= 'Lite';
     }
-    $options = array();
+
+    $options = array(
+      'soap_version' => SOAP_1_1
+    );
     $this->client = new Zend_Soap_Client($this->authEndpoint . '?wsdl', $options);
     // Try and reuse an existing cookie
     $wokSession = WokSession::get();
@@ -262,7 +265,7 @@ class WokService
     $options = array(
         'login' => $username,
         'password' => $password,
-        'soap_version' => 'SOAP_1_1'
+        'soap_version' => SOAP_1_1
     );
     try {
       // Make SOAP request
@@ -273,7 +276,8 @@ class WokService
       // Unset these options on the client, will use cookie for remainder of session
       $options = array(
         'login' => null,
-        'password' => null
+        'password' => null,
+        'soap_version' => SOAP_1_1
       );
       $this->client->setOptions($options);
       return $response->return;
