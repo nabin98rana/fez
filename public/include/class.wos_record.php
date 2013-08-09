@@ -383,7 +383,7 @@ class WosRecItem
     }
 
     $this->setBibIssueYVM($node);
-    $this->setDateIssued($node);
+    $this->set_date_issued($node);
 
     $this->docType = $node->getElementsByTagName("doctype")->item(0)->nodeValue;
     $this->docTypeCode = Wok::getDoctype($this->docType );
@@ -458,23 +458,24 @@ class WosRecItem
      */
     public function returnDataEnterForm()
     {
-        $matching->title = $this->itemTitle;
-        $matching->authors = $this->authors;
-        $matching->sourceTitle = $this->sourceTitle;
-        $matching->volume_number = $this->bibIssueVol;
-        $matching->issue_number = $this->bibIssueNum;
-        $matching->page_start = $this->bibPageBegin;
-        $matching->page_end = $this->bibPageEnd;
-        $matching->dateIssued = $this->date_issued;
-        $matching->isi_loc = $this->ut;
+
+        $this->title = $this->itemTitle;
+        $this->authors = $this->authors;
+        $this->sourceTitle = $this->sourceTitle;
+        $this->volume_number = $this->bibIssueVol;
+        $this->issue_number = $this->bibIssueNum;
+        $this->page_start = $this->bibPageBegin;
+        $this->page_end = $this->bibPageEnd;
+        $this->dateIssued = $this->date_issued;
+        $this->isi_loc = $this->ut;
         // Check if exists
         $pid = Record::getPIDByIsiLoc($this->ut);
         if($pid) {
-            $matching->record_exists = 1;
-            $matching->pid = $pid;
+          $this->record_exists = 1;
+          $this->pid = $pid;
         }
-        $matching->isi_loc = $this->ut;
-        return $matching;
+        $this->isi_loc = $this->ut;
+        return $this;
 
     }
 
@@ -528,7 +529,7 @@ class WosRecItem
    * @param DomNode $node
    * @return null
    */
-  public function setDateIssued($node) {
+  public function set_date_issued($node) {
     $this->date_issued = '';
       $pubInfo = $node->getElementsByTagName("pub_info")->item(0);
       $coverDate = $pubInfo->getAttribute('sortdate');
