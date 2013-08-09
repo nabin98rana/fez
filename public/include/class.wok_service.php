@@ -261,7 +261,8 @@ class WokService
   {
     $options = array(
         'login' => $username,
-        'password' => $password
+        'password' => $password,
+        'soap_version' => 'SOAP_1_1'
     );
     try {
       // Make SOAP request
