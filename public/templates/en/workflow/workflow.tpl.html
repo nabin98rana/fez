@@ -132,7 +132,7 @@
 	{if $submit_to_popup}
 		<form id="wfl_form1" onkeypress="return disableEnterKey(event)" onsubmit="javascript:return (checkFormSubmission(this, 'validateForm') && updateForm() && disableWorkflowButtons(this){if ($header_include_flash_uploader_files == 1 && $smarty.const.APP_ENABLE_FLASH_UPLOADER_SWITCH == 'ON')} && swfuploaderUploadFiles(this) {/if});" target="_popup_window" action="{$rel_url}popup.php" method="POST" enctype="multipart/form-data">
 	{else}
-		<form id="wfl_form1" onkeypress="return disableEnterKey(event)" onsubmit="javascript:return (checkFormSubmission(this, 'validateForm') && disableWorkflowButtons(this){if ($header_include_flash_uploader_files == 1 && $smarty.const.APP_ENABLE_FLASH_UPLOADER_SWITCH == 'ON')} && swfuploaderUploadFiles(this) {/if});"  action="{$smarty.server.PHP_SELF}" method="post" enctype="multipart/form-data">
+		<form id="wfl_form1" onkeypress="return disableEnterKey(event)" onsubmit="javascript:return (checkFormSubmission(this, 'validateForm') && CheckFileClassifications() && disableWorkflowButtons(this){if ($header_include_flash_uploader_files == 1 && $smarty.const.APP_ENABLE_FLASH_UPLOADER_SWITCH == 'ON')} && swfuploaderUploadFiles(this) {/if});"  action="{$smarty.server.PHP_SELF}" method="post" enctype="multipart/form-data">
 	{/if}
 
 	<div>

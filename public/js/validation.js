@@ -716,4 +716,53 @@ function isValidSolrFilename(s)
 
 	return regexp.test(s);
 }
+
+function CheckFileClassifications()
+{
+    //Create warning for user if any files are added
+    fileCheck = '';
+    fileTable = document.getElementById('uploader_file_table');
+    if (fileTable != null) {
+        numberFiles = fileTable.rows.length - 1;
+        for (index = 0; index < numberFiles/2; ++index) {
+            //$uploadFilename = document.getElementsByName('file[' + index + ']')[0].value;
+            $uploadFilename = document.getElementById('uploader_file_table').rows[index*2+1].cells[0].innerHTML;
+            if ($uploadFilename != '') {
+                var e = document.getElementById('filePermissionsNew[' + index + ']');
+                fileUploadType = e.options[e.selectedIndex].value;
+                if (fileUploadType == 0) {
+                    window.alert('You must tell us the file classification of all attached files');
+                    return false;
+                }
+                //No need to check if HERDC since it's private
+                if (fileUploadType != 5) {
+                    $uploadFilename = $uploadFilename.replace(/^.*[\\\/]/, '');
+                    fileCheck = fileCheck + 'File: '+ $uploadFilename +'\n';
+                }
+            }
+        }
+        if (fileCheck != '') {
+            var fileCheck = 'The following files will be submitted as open access and will be made publicly available immediately. Please click Cancel if you do not wish to proceed.<br /><br />' + fileCheck + '<br /><br />All other files submitted will be accessible by UQ eSpace administrators and Unit Publications Officers only. If you have attached files with an Open Access Release Date specified, then these will be made fully available to the public on the date nominated.';
+            $('<div>' + fileCheck + '</div>').dialog({
+                resizable: false,
+                title: "Open Access Warning:",
+                modal: true,
+                buttons: {
+                    "OK": function() {
+                        disableWorkflowButtons(this);
+                        swfuploaderUploadFiles(this);
+                        document.wfl_form1.submit();
+                        $(this).dialog("close"); //close confirmation
+                    },
+                    Cancel: function() {
+                        $(this).dialog("close"); //close confirmation
+                    }
+                }
+            });
+            return false;
+        } else {
+            return true;
+        }
+    }
+}
 //-->
