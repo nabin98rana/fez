@@ -1,4 +1,4 @@
-<!--
+
 // @(#) $Id: s.validation.js 1.13 03/10/20 21:24:54-00:00 jpradomaia $
 function isWhitespace(s)
 {
@@ -751,8 +751,8 @@ function CheckFileClassifications()
                     "OK": function() {
                         disableWorkflowButtons(this);
                         swfuploaderUploadFiles(this);
-                        document.wfl_form1.submit();
                         $(this).dialog("close"); //close confirmation
+                        document.wfl_form1.submit();
                     },
                     Cancel: function() {
                         $(this).dialog("close"); //close confirmation
