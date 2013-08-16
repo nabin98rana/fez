@@ -729,7 +729,11 @@ function CheckFileClassifications()
             $uploadFilename = document.getElementById('uploader_file_table').rows[index*2+1].cells[0].innerHTML;
             if ($uploadFilename != '') {
                 var e = document.getElementById('filePermissionsNew[' + index + ']');
-                fileUploadType = e.options[e.selectedIndex].value;
+
+                //Thesis form has no permissions
+                if(e != null) {
+                    fileUploadType = e.options[e.selectedIndex].value;
+                }
                 if (fileUploadType == 0) {
                     window.alert('You must tell us the file classification of all attached files');
                     return false;
