@@ -512,7 +512,7 @@ class MyResearch
             $subject = str_replace("Claimed Publication ::", "Claimed Publication :: Completed HERDC author change :: ", $subject);
             $sendEmail = true; //make sure the email is sent even if author id matching was automatic as this will need a followup
         }
-        if ($sendEmail) {
+        if ($sendEmail || !empty($listFiles)) {
             Eventum::lodgeJob($subject, $body, $userEmail);
         }
 
