@@ -34,6 +34,14 @@ function filePermissionsChange(descriptionNum) {
             }
         }
     }
+
+    if (document.getElementsByName('filePermissions[]')[descriptionNum].selectedIndex == 5) {
+        document.getElementById('open_access_release_date[' + descriptionNum + ']').style.display = "none";
+        document.getElementById('datepicker' + descriptionNum).value = '';
+    } else {
+        document.getElementById('open_access_release_date[' + descriptionNum + ']').style.display = "block";
+    }
+
 }
 
 function filePermissionsChangeNew(descriptionNum) {
@@ -47,6 +55,12 @@ function filePermissionsChangeNew(descriptionNum) {
                 document.getElementsByName('description[' + descriptionNum + ']')[0].value = 'Full text (open access)';
             }
         }
+    }
+    if (document.getElementById('filePermissionsNew['+ descriptionNum + ']').selectedIndex == 5) {
+        document.getElementById('open_access_release_date[' + descriptionNum + ']').style.display = "none";
+        document.getElementById('datepickerSWFUpload_0_' + descriptionNum).value = '';
+    } else {
+        document.getElementById('open_access_release_date[' + descriptionNum + ']').style.display = "block";
     }
 }
 
