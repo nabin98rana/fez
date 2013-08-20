@@ -66,15 +66,16 @@ class Datastream
                 $versionable = APP_VERSION_UPLOADS_AND_LINKS == "ON" ? 'true' : 'false';
                 Fedora_API::getUploadLocationByLocalRef($pid, $newFileName, $newFile, $newFileName, $mimetype, 'M', null, $versionable);
                 Exiftool::saveExif($pid, $newFileName);
-                if (is_file($newFile)) {
-                    $deleteCommand = APP_DELETE_CMD." ".$deleteFile;
-                    exec($deleteCommand);
-                }
                 if (is_integer($fezACMLTemplateNum)) {
                     Datastream::setfezACML($pid, $newFileName, $fezACMLTemplateNum);
                 }
                 Workflow::processIngestTrigger($pid, $newFileName, $mimetype);
+                Record::generatePresmd($pid, $newFileName);
                 Record::setIndexMatchingFields($pid);
+                if (is_file($newFile)) {
+                    $deleteCommand = APP_DELETE_CMD." ".$deleteFile;
+                    exec($deleteCommand);
+                }
             } else {
                 $log->err("File not created $newFile<br/>\n", __FILE__, __LINE__);
             }
@@ -149,7 +150,7 @@ class Datastream
             $log->err($ex);
             return array();
         }
-        
+
         History::addHistory($pid, null, "", "", false, $historyDetail);
         return $res;
     }
