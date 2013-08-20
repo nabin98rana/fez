@@ -427,17 +427,53 @@ class Citation
 			// recurse for each item of the list to format each of them too.
 			$list = '';
 			$cnt = count($value);
-			for ($ii = 0; $ii < $cnt; $ii++) {
-				if ($ii > 0) {
-					if ($ii >= $cnt - 1) {
-						$list .= ' and ';
-					} else {
-						$list .= ', ';
-					}
-				}
-				// recurse for each item of list.
-				$list .= Citation::formatValue($value[$ii], $ii, $details, $xsdmf, $option, $type);
-			}
+
+            //Except for when there is more than 15 Authors
+            if ($xsdmf['sek_title'] == 'Author' && $cnt > 15){
+                //First Author stays first
+                $list .= Citation::formatValue($value[0], 0, $details, $xsdmf, $option, $type);
+                $authorCount = 1;
+                //UQ Authors first
+                for ($ii = 1; $ii < $cnt; $ii++) {
+                    if (is_array($details['rek_author_id']) && $details['rek_author_id'][$ii] != 0) {
+                        $list .= ', ';
+                        // recurse for each uq author
+                        $list .= Citation::formatValue($value[$ii], $ii, $details, $xsdmf, $option, $type);
+                        $authorCount++;
+                        if ($authorCount > 15 - 1) {
+                            break;
+                        }
+                    }
+
+                }
+                //Fill in with up to 15 total authors
+                for ($ii = 1; $ii < $cnt; $ii++) {
+                    // recurse for each non uq author
+                    if (!is_array($details['rek_author_id']) || empty($details['rek_author_id'][$ii])) {
+                        //See if this is more Authors than we should have
+                        if ($authorCount > 15 - 1) {
+                            $list .= '  .........';
+                            break;
+                        }
+                        $list .= ', ';
+                        $list .= Citation::formatValue($value[$ii], $ii, $details, $xsdmf, $option, $type);
+                        $authorCount++;
+                    }
+                }
+
+            } else {
+                for ($ii = 0; $ii < $cnt; $ii++) {
+                    if ($ii > 0) {
+                        if ($ii >= $cnt - 1) {
+                            $list .= ' and ';
+                        } else {
+                            $list .= ', ';
+                        }
+                    }
+                    // recurse for each item of list.
+                    $list .= Citation::formatValue($value[$ii], $ii, $details, $xsdmf, $option, $type);
+                }
+            }
 			$value = $list;
 		} elseif ($xsdmf['sek_data_type'] == 'date' || $xsdmf['xsdmf_html_input'] == 'date_selector') {
 			if (!empty($value) && !is_null($value) && $value != "") {
