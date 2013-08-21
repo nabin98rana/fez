@@ -48,8 +48,7 @@ Scenario: Delete WOS imports
 
   @destructive @now2
   Scenario: Add to WOS queue and make sure it imports
-    Given I am on "/"
-    And I login as administrator
+    Given I login as administrator
     And I turn off waiting checks
     And I add "000304837700019" to the WOK queue
     Given I am on "/misc/process_wok_queue.php"
