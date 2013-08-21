@@ -725,23 +725,22 @@ function CheckFileClassifications()
     if (fileTable != null) {
         numberFiles = fileTable.rows.length - 1;
         for (index = 0; index < numberFiles/2; ++index) {
-            //$uploadFilename = document.getElementsByName('file[' + index + ']')[0].value;
             $uploadFilename = document.getElementById('uploader_file_table').rows[index*2+1].cells[0].innerHTML;
             if ($uploadFilename != '') {
                 var e = document.getElementById('filePermissionsNew[' + index + ']');
 
                 //Thesis form has no permissions
                 if(e != null) {
-                    fileUploadType = e.options[e.selectedIndex].value;
-                }
-                if (fileUploadType == 0) {
-                    window.alert('You must tell us the file classification of all attached files');
-                    return false;
-                }
-                //No need to check if HERDC since it's private
-                if (fileUploadType != 5) {
-                    $uploadFilename = $uploadFilename.replace(/^.*[\\\/]/, '');
-                    fileCheck = fileCheck + 'File: '+ $uploadFilename +'\n';
+                     fileUploadType = e.options[e.selectedIndex].value;
+                    if (fileUploadType == 0) {
+                        window.alert('You must tell us the file classification of all attached files');
+                        return false;
+                    }
+                    //No need to check if HERDC since it's private
+                    if (fileUploadType != 5) {
+                        $uploadFilename = $uploadFilename.replace(/^.*[\\\/]/, '');
+                        fileCheck = fileCheck + 'File: '+ $uploadFilename +'\n';
+                    }
                 }
             }
         }
