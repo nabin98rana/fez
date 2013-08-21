@@ -30,6 +30,11 @@ use Behat\Gherkin\Node\BackgroundNode,
 class ProgressFormatter extends ConsoleFormatter
 {
     /**
+     * Holds amount of printed items in current line;
+     */
+    private $stepsPrinted = 0;
+
+    /**
      * Maximum line length.
      *
      * @var integer
@@ -139,6 +144,10 @@ class ProgressFormatter extends ConsoleFormatter
                 $this->write('{+failed}F{-failed}');
                 break;
         }
+
+        if (++$this->stepsPrinted % 70 == 0) {
+            $this->writeln(' '.$this->stepsPrinted);
+        }
     }
 
     /**
@@ -180,13 +189,14 @@ class ProgressFormatter extends ConsoleFormatter
             $exception = $event->getException();
 
             if (null !== $exception) {
-                $color = $exception instanceof PendingException ? 'pending' : 'failed';
-
-                if ($this->parameters->get('verbose')) {
-                    $error = (string) $exception;
-                } else {
+                if ($exception instanceof PendingException) {
+                    $color = 'pending';
                     $error = $exception->getMessage();
+                } else {
+                    $color = 'failed';
+                    $error = $this->exceptionToString($exception);
                 }
+
                 $error = sprintf("%s. %s",
                     str_pad((string) ($number + 1), 2, '0', STR_PAD_LEFT),
                     strtr($error, array("\n" => "\n    "))
@@ -226,8 +236,15 @@ class ProgressFormatter extends ConsoleFormatter
         }
         $scenarioPathLn     = mb_strlen($scenarioPath);
 
+        $feature       = $node->getFeature();
+        $title         = $feature->getTitle();
+        $title         = $title ? "`$title'" : '***';
+        $featurePath   = "Of feature $title.";
+        $featurePathLn = mb_strlen($featurePath);
+
         $this->maxLineLength = max($this->maxLineLength, $stepPathLn);
         $this->maxLineLength = max($this->maxLineLength, $scenarioPathLn);
+        $this->maxLineLength = max($this->maxLineLength, $featurePathLn);
 
         $this->write("    {+$color}$stepPath{-$color}");
         if (null !== $definition) {
@@ -244,6 +261,13 @@ class ProgressFormatter extends ConsoleFormatter
         $this->printPathComment(
             $this->relativizePathsInString($node->getFile()) . ':' . $node->getLine(), $indentCount
         );
+
+        $this->write("    {+$color}$featurePath{-$color}");
+        $indentCount = $this->maxLineLength - $featurePathLn;
+        $this->printPathComment(
+            $this->relativizePathsInString($feature->getFile()), $indentCount
+        );
+
         $this->writeln();
     }
 

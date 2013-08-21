@@ -3,7 +3,7 @@
 [![Build
 Status](https://secure.travis-ci.org/Behat/MinkExtension.png?branch=master)](http://travis-ci.org/Behat/MinkExtension)
 
-Provides integrartion layer:
+Provides integration layer:
 
 * Additional services for Behat (`Mink`, `Sessions`, `Drivers`).
 * `Behat\MinkExtension\Context\MinkAwareInterface` which provides `Mink`
@@ -22,7 +22,7 @@ between Behat 2.4+ and Mink 1.4+.
 
 For now exist 10 translated languages: `cs`,`de`,`es`,`fr`,`ja`,`nl`,`pl`,`pt`,`ru`,`sv`.
 
-**Note:** The `ja`,`nl`,`pt` and `sv` are outdated.
+**Note:** The `ja`,`nl` and `sv` are outdated.
 
 #### How to add a new translated language?
 

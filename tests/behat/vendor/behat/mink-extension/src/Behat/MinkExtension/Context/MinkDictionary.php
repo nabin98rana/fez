@@ -47,6 +47,16 @@ trait MinkDictionary
     }
 
     /**
+     * Returns the parameters provided for Mink.
+     *
+     * @return array
+     */
+    public function getMinkParameters()
+    {
+        return $this->minkParameters;
+    }
+
+    /**
      * Sets parameters provided for Mink.
      *
      * @param array $parameters
@@ -66,6 +76,18 @@ trait MinkDictionary
     public function getMinkParameter($name)
     {
         return isset($this->minkParameters[$name]) ? $this->minkParameters[$name] : null;
+    }
+
+    /**
+     * Applies the given parameter to the Mink configuration. Consider that all parameters get reset for each
+     * feature context.
+     *
+     * @param string $name  The key of the parameter
+     * @param string $value The value of the parameter
+     */
+    public function setMinkParameter($name, $value)
+    {
+        $this->minkParameters[$name] = $value;
     }
 
     /**
@@ -95,8 +117,8 @@ trait MinkDictionary
     /**
      * Opens homepage.
      *
-     * @Given /^(?:|I )am on homepage$/
-     * @When /^(?:|I )go to homepage$/
+     * @Given /^(?:|I )am on (?:|the )homepage$/
+     * @When /^(?:|I )go to (?:|the )homepage$/
      */
     public function iAmOnHomepage()
     {
@@ -170,6 +192,7 @@ trait MinkDictionary
      * Fills in form field with specified id|name|label|value.
      *
      * @When /^(?:|I )fill in "(?P<field>(?:[^"]|\\")*)" with "(?P<value>(?:[^"]|\\")*)"$/
+     * @When /^(?:|I )fill in "(?P<field>(?:[^"]|\\")*)" with:$/
      * @When /^(?:|I )fill in "(?P<value>(?:[^"]|\\")*)" for "(?P<field>(?:[^"]|\\")*)"$/
      */
     public function fillField($field, $value)
@@ -264,13 +287,23 @@ trait MinkDictionary
     }
 
     /**
+     * Checks, that current page is the homepage.
+     *
+     * @Then /^(?:|I )should be on (?:|the )homepage$/
+     */
+    public function assertHomepage()
+    {
+        $this->assertSession()->addressEquals($this->locatePath('/'));
+    }
+
+    /**
      * Checks, that current page PATH matches regular expression.
      *
      * @Then /^the (?i)url(?-i) should match (?P<pattern>"([^"]|\\")*")$/
      */
     public function assertUrlRegExp($pattern)
     {
-        $this->assertSession()->addressMatches($pattern);
+        $this->assertSession()->addressMatches($this->fixStepArgument($pattern));
     }
 
     /**
@@ -320,7 +353,7 @@ trait MinkDictionary
      */
     public function assertPageMatchesText($pattern)
     {
-        $this->assertSession()->pageTextMatches($this->fixStepArgument($text));
+        $this->assertSession()->pageTextMatches($this->fixStepArgument($pattern));
     }
 
     /**
@@ -330,7 +363,7 @@ trait MinkDictionary
      */
     public function assertPageNotMatchesText($pattern)
     {
-        $this->assertSession()->pageTextNotMatches($this->fixStepArgument($text));
+        $this->assertSession()->pageTextNotMatches($this->fixStepArgument($pattern));
     }
 
     /**
@@ -384,6 +417,16 @@ trait MinkDictionary
     }
 
     /**
+     * Checks, that element with specified CSS doesn't contain specified HTML.
+     *
+     * @Then /^the "(?P<element>[^"]*)" element should not contain "(?P<value>(?:[^"]|\\")*)"$/
+     */
+    public function assertElementNotContains($element, $value)
+    {
+        $this->assertSession()->elementNotContains('css', $element, $this->fixStepArgument($value));
+    }
+
+    /**
      * Checks, that element with specified CSS exists on page.
      *
      * @Then /^(?:|I )should see an? "(?P<element>[^"]*)" element$/
@@ -410,6 +453,8 @@ trait MinkDictionary
      */
     public function assertFieldContains($field, $value)
     {
+        $field = $this->fixStepArgument($field);
+        $value = $this->fixStepArgument($value);
         $this->assertSession()->fieldValueEquals($field, $value);
     }
 
@@ -420,6 +465,8 @@ trait MinkDictionary
      */
     public function assertFieldNotContains($field, $value)
     {
+        $field = $this->fixStepArgument($field);
+        $value = $this->fixStepArgument($value);
         $this->assertSession()->fieldValueNotEquals($field, $value);
     }
 
@@ -427,20 +474,23 @@ trait MinkDictionary
      * Checks, that checkbox with specified in|name|label|value is checked.
      *
      * @Then /^the "(?P<checkbox>(?:[^"]|\\")*)" checkbox should be checked$/
+     * @Then /^the checkbox "(?P<checkbox>(?:[^"]|\\")*)" (?:is|should be) checked$/
      */
     public function assertCheckboxChecked($checkbox)
     {
-        $this->assertSession()->checkboxChecked($checkbox);
+        $this->assertSession()->checkboxChecked($this->fixStepArgument($checkbox));
     }
 
     /**
      * Checks, that checkbox with specified in|name|label|value is unchecked.
      *
      * @Then /^the "(?P<checkbox>(?:[^"]|\\")*)" checkbox should not be checked$/
+     * @Then /^the checkbox "(?P<checkbox>(?:[^"]|\\")*)" should (?:be unchecked|not be checked)$/
+     * @Then /^the checkbox "(?P<checkbox>(?:[^"]|\\")*)" is (?:unchecked|not checked)$/
      */
     public function assertCheckboxNotChecked($checkbox)
     {
-        $this->assertSession()->checkboxNotChecked($checkbox);
+        $this->assertSession()->checkboxNotChecked($this->fixStepArgument($checkbox));
     }
 
     /**
@@ -451,6 +501,16 @@ trait MinkDictionary
     public function assertNumElements($num, $element)
     {
         $this->assertSession()->elementsCount('css', $element, intval($num));
+    }
+
+    /**
+     * Prints current URL to console.
+     *
+     * @Then /^print current URL$/
+     */
+    public function printCurrentUrl()
+    {
+        $this->printDebug($this->getSession()->getCurrentUrl());
     }
 
     /**

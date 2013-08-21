@@ -59,8 +59,13 @@ class FeatureSuiteLoader extends AbstractFileLoader
      */
     public function load($resource)
     {
+        if (!$this->featuresPath || !file_exists($this->featuresPath)) {
+            return array();
+        }
+
         $iterator = Finder::create()
             ->depth(0)
+            ->followLinks()
             ->sortByName()
             ->in($this->featuresPath)
         ;

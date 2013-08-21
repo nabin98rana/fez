@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright 2004-2012 Facebook. All Rights Reserved.
+ * Copyright 2004-2013 Facebook. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@
  * @package WebDriver
  *
  * @author Justin Bishop <jubishop@gmail.com>
- * @author Anthon Pang <anthonp@nationalfibre.net>
+ * @author Anthon Pang <apang@softwaredevelopment.ca>
  */
 
 namespace WebDriver;
@@ -35,6 +35,7 @@ abstract class Exception extends \Exception
      * @link http://code.google.com/p/selenium/wiki/JsonWireProtocol#Response_Status_Codes
      */
     const SUCCESS = 0;
+    const NO_SUCH_DRIVER = 6;
     const NO_SUCH_ELEMENT = 7;
     const NO_SUCH_FRAME = 8;
     const UNKNOWN_COMMAND = 9;
@@ -56,6 +57,8 @@ abstract class Exception extends \Exception
     const IME_NOT_AVAILABLE = 30;
     const IME_ENGINE_ACTIVATION_FAILED = 31;
     const INVALID_SELECTOR = 32;
+    const SESSION_NOT_CREATED = 33;
+    const MOVE_TARGET_OUT_OF_BOUNDS = 34;
 
     // obsolete
     const INDEX_OUT_OF_BOUNDS = 1;
@@ -63,7 +66,6 @@ abstract class Exception extends \Exception
     const NO_STRING = 3;
     const NO_STRING_LENGTH = 4;
     const NO_STRING_WRAPPER = 5;
-    const NO_SUCH_DRIVER = 6;
     const OBSOLETE_ELEMENT = 10;
     const ELEMENT_NOT_DISPLAYED = 11;
     const UNHANDLED = 13;
@@ -89,12 +91,13 @@ abstract class Exception extends \Exception
     private static $errs = array(
 //      self::SUCCESS => array('Success', 'This should never be thrown!'),
 
+        self::NO_SUCH_DRIVER => array('NoSuchDriver', 'A session is either terminated or not started'),
         self::NO_SUCH_ELEMENT => array('NoSuchElement', 'An element could not be located on the page using the given search parameters.'),
         self::NO_SUCH_FRAME => array('NoSuchFrame', 'A request to switch to a frame could not be satisfied because the frame could not be found.'),
         self::UNKNOWN_COMMAND => array('UnknownCommand', 'The requested resource could not be found, or a request was received using an HTTP method that is not supported by the mapped resource.'),
         self::STALE_ELEMENT_REFERENCE => array('StaleElementReference', 'An element command failed because the referenced element is no longer attached to the DOM.'),
         self::ELEMENT_NOT_VISIBLE => array('ElementNotVisible', 'An element command could not be completed because the element is not visible on the page.'),
-        self::INVALID_ELEMENT_STATE => array('InvalidElementState', 'An element command could not be completed because the element is in an invalid state (e.g. attempting to click a disabled element).'),
+        self::INVALID_ELEMENT_STATE => array('InvalidElementState', 'An element command could not be completed because the element is in an invalid state (e.g., attempting to click a disabled element).'),
         self::UNKNOWN_ERROR => array('UnknownError', 'An unknown server-side error occurred while processing the command.'),
         self::ELEMENT_IS_NOT_SELECTABLE => array('ElementIsNotSelectable', 'An attempt was made to select an element that cannot be selected.'),
         self::JAVASCRIPT_ERROR => array('JavaScriptError', 'An error occurred while executing user supplied JavaScript.'),
@@ -109,7 +112,9 @@ abstract class Exception extends \Exception
         self::INVALID_ELEMENT_COORDINATES => array('InvalidElementCoordinates', 'The coordinates provided to an interactions operation are invalid.'),
         self::IME_NOT_AVAILABLE => array('IMENotAvailable', 'IME was not available.'),
         self::IME_ENGINE_ACTIVATION_FAILED => array('IMEEngineActivationFailed', 'An IME engine could not be started.'),
-        self::INVALID_SELECTOR => array('InvalidSelector', 'Argument was an invalid selector (e.g. XPath/CSS).'),
+        self::INVALID_SELECTOR => array('InvalidSelector', 'Argument was an invalid selector (e.g., XPath/CSS).'),
+        self::SESSION_NOT_CREATED => array('SessionNotCreated', 'A new session could not be created (e.g., a required capability could not be set).'),
+        self::MOVE_TARGET_OUT_OF_BOUNDS => array('MoveTargetOutOfBounds', 'Target provided for a move action is out of bounds.'),
 
         self::CURL_EXEC => array('CurlExec', 'curl_exec() error.'),
         self::OBSOLETE_COMMAND => array('ObsoleteCommand', 'This WebDriver command is obsolete.'),
@@ -134,7 +139,7 @@ abstract class Exception extends \Exception
     {
         // unknown error
         if (!isset(self::$errs[$code])) {
-            if (trim($message) == '') {
+            if (trim($message) === '') {
                 $message = 'Unknown Error';
             }
 
@@ -143,20 +148,12 @@ abstract class Exception extends \Exception
 
         $errorDefinition = self::$errs[$code];
 
-        if (trim($message) == '') {
+        if (trim($message) === '') {
             $message = $errorDefinition[1];
         }
 
-        // dynamically define custom exception classes
-        $className = $errorDefinition[0];
-        $namespacedClassName = __CLASS__ . '\\' . $className;
+        $className = __CLASS__ . '\\' . $errorDefinition[0];
 
-        if (!class_exists($namespacedClassName, false)) {
-            eval(
-                'namespace ' . __CLASS__ . '; final class ' . $className . ' extends \\' . __CLASS__ . ' {}'
-            );
-        }
-
-        return new $namespacedClassName($message, $code, $previousException);
+        return new $className($message, $code, $previousException);
     }
 }

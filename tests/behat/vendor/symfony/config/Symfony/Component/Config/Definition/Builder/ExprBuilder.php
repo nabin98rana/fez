@@ -170,6 +170,8 @@ class ExprBuilder
      * @param string $message
      *
      * @return ExprBuilder
+     *
+     * @throws \InvalidArgumentException
      */
     public function thenInvalid($message)
     {
@@ -182,6 +184,8 @@ class ExprBuilder
      * Sets a closure unsetting this key of the array at validation time.
      *
      * @return ExprBuilder
+     *
+     * @throws UnsetKeyException
      */
     public function thenUnset()
     {
@@ -194,6 +198,8 @@ class ExprBuilder
      * Returns the related node
      *
      * @return NodeDefinition
+     *
+     * @throws \RuntimeException
      */
     public function end()
     {
@@ -210,15 +216,15 @@ class ExprBuilder
     /**
      * Builds the expressions.
      *
-     * @param array $expressions An array of ExprBuilder instances to build
+     * @param ExprBuilder[] $expressions An array of ExprBuilder instances to build
      *
      * @return array
      */
-    static public function buildExpressions(array $expressions)
+    public static function buildExpressions(array $expressions)
     {
         foreach ($expressions as $k => $expr) {
             if ($expr instanceof ExprBuilder) {
-                $expressions[$k] = function($v) use($expr) {
+                $expressions[$k] = function($v) use ($expr) {
                     return call_user_func($expr->ifPart, $v) ? call_user_func($expr->thenPart, $v) : $v;
                 };
             }

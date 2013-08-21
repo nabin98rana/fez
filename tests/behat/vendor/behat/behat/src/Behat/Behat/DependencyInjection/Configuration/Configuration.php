@@ -104,10 +104,13 @@ class Configuration
                             defaultNull()->
                         end()->
                         booleanNode('strict')->
-                            defaultNull()->
+                            defaultFalse()->
                         end()->
                         booleanNode('dry_run')->
-                            defaultNull()->
+                            defaultFalse()->
+                        end()->
+                        booleanNode('stop_on_failure')->
+                            defaultFalse()->
                         end()->
                         scalarNode('rerun')->
                             defaultNull()->

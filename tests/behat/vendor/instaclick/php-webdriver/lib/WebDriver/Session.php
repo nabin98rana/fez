@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright 2004-2012 Facebook. All Rights Reserved.
+ * Copyright 2004-2013 Facebook. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@
  * @package WebDriver
  *
  * @author Justin Bishop <jubishop@gmail.com>
- * @author Anthon Pang <anthonp@nationalfibre.net>
+ * @author Anthon Pang <apang@softwaredevelopment.ca>
  */
 
 namespace WebDriver;
@@ -49,7 +49,7 @@ namespace WebDriver;
  * @method void postAlert_text($jsonText) Sends keystrokes to a JavaScript prompt() dialog.
  * @method void accept_alert() Accepts the currently displayed alert dialog.
  * @method void dismiss_alert() Dismisses the currently displayed alert dialog.
- * @method void moveto($jsonCoordinates) Move the mouse by an offset of the specificed element (or current mouse cursor).
+ * @method void moveto($jsonCoordinates) Move the mouse by an offset of the specified element (or current mouse cursor).
  * @method void click($jsonButton) Click any mouse button (at the coordinates set by the last moveto command).
  * @method void buttondown() Click and hold the left mouse button (at the coordinates set by the last moveto command).
  * @method void buttonup() Releases the mouse button previously held (where the mouse is currently at).
@@ -224,7 +224,7 @@ final class Session extends Container
     public function window()
     {
         // close current window
-        if (func_num_args() == 0) {
+        if (func_num_args() === 0) {
             $this->curl('DELETE', '/window');
 
             return $this;
@@ -270,7 +270,7 @@ final class Session extends Container
 
     /**
      * timeouts methods: /session/:sessionId/timeouts (POST)
-     * - $session->timesouts($json) - set timeout for an operation
+     * - $session->timeouts($json) - set timeout for an operation
      * - $session->timeouts()->method() - chaining
      *
      * @return \WebDriver\Timeouts
@@ -278,14 +278,14 @@ final class Session extends Container
     public function timeouts()
     {
         // set timeouts
-        if (func_num_args() == 1) {
+        if (func_num_args() === 1) {
             $arg = func_get_arg(0); // json
             $this->curl('POST', '/timeouts', $arg);
 
             return $this;
         }
 
-        if (func_num_args() == 2) {
+        if (func_num_args() === 2) {
             $arg = array(
                 'type' => func_get_arg(0), // 'script' or 'implicit'
                 'ms' => func_get_arg(1),   // timeout in milliseconds

@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright 2011-2012 Fabrizio Branca. All Rights Reserved.
+ * Copyright 2011-2013 Fabrizio Branca. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@
  * @package WebDriver
  *
  * @author Fabrizio Branca <mail@fabrizio-branca.de>
- * @author Anthon Pang <anthonp@nationalfibre.net>
+ * @author Anthon Pang <apang@softwaredevelopment.ca>
  */
 
 namespace WebDriver;

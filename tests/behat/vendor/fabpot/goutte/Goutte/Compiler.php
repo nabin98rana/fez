@@ -78,12 +78,14 @@ class Compiler
             'LICENSE',
             'vendor/autoload.php',
             'Goutte/Client.php',
+            'vendor/guzzle/http/Guzzle/Http/Resources/cacert.pem',
+            'vendor/guzzle/http/Guzzle/Http/Resources/cacert.pem.md5'
         );
 
         $dirs = array(
             'vendor/composer',
             'vendor/symfony',
-            'vendor/guzzle/guzzle/src/Guzzle'
+            'vendor/guzzle'
         );
 
         $iterator = Finder::create()->files()->name('*.php')->in($dirs);

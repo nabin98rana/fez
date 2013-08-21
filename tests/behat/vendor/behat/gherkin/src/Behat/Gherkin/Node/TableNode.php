@@ -146,7 +146,7 @@ class TableNode implements StepArgumentNodeInterface
         $hash = array();
 
         foreach ($this->getRows() as $row) {
-            $hash[$row[0]] = $row[1];
+            $hash[array_shift($row)] = (1 == count($row)) ? $row[0] : $row;
         }
 
         return $hash;
@@ -234,8 +234,10 @@ class TableNode implements StepArgumentNodeInterface
         $max = 0;
 
         foreach ($this->getRows() as $row) {
-            if (($tmp = mb_strlen($row[$columnNum])) > $max) {
-                $max = $tmp;
+            if(isset($row[$columnNum])){
+                if (($tmp = mb_strlen($row[$columnNum])) > $max) {
+                    $max = $tmp;
+                }
             }
         }
 

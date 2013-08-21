@@ -15,19 +15,24 @@
 
     "require": {
         "php":                           ">=5.3.1",
-        "behat/gherkin":                 ">=2.2.0,<2.3.0-dev",
-        "symfony/console":               ">=2.0.0,<2.2.0-dev",
-        "symfony/config":                ">=2.0.0,<2.2.0-dev",
-        "symfony/dependency-injection":  ">=2.0.0,<2.2.0-dev",
-        "symfony/event-dispatcher":      ">=2.0.0,<2.2.0-dev",
-        "symfony/translation":           ">=2.0.0,<2.2.0-dev",
-        "symfony/yaml":                  ">=2.0.0,<2.2.0-dev",
-        "symfony/finder":                ">=2.0.0,<2.2.0-dev"
+        "behat/gherkin":                 "~2.2.9",
+        "symfony/console":               "~2.0",
+        "symfony/config":                "~2.0",
+        "symfony/dependency-injection":  "~2.0",
+        "symfony/event-dispatcher":      "~2.0",
+        "symfony/translation":           "~2.0",
+        "symfony/yaml":                  "~2.0",
+        "symfony/finder":                "~2.0"
+    },
+
+    "require-dev": {
+        "phpunit/phpunit": "~3.7.19"
     },
 
     "suggest": {
-        "behat/mink-extension": "for integration of with Mink",
-        "behat/yii-extension":  "for integration of with Yii framework"
+        "behat/symfony2-extension":  "for integration with Symfony2 web framework",
+        "behat/yii-extension":       "for integration with Yii web framework",
+        "behat/mink-extension":      "for integration with Mink testing framework"
     },
 
     "autoload": {
@@ -36,5 +41,11 @@
         }
     },
 
-    "bin": ["bin/behat"]
+    "bin": ["bin/behat"],
+
+    "extra": {
+        "branch-alias": {
+            "dev-develop": "2.4-dev"
+        }
+    }
 }

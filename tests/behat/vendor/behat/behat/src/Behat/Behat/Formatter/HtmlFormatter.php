@@ -262,7 +262,8 @@ class HtmlFormatter extends PrettyFormatter
         foreach ($events as $event) {
             $exception = $event->getException();
             if ($exception && !$exception instanceof UndefinedException) {
-                $error = $this->relativizePathsInString($exception->getMessage());
+                $error = $this->exceptionToString($exception);
+                $error = $this->relativizePathsInString($error);
 
                 $this->writeln('<tr class="failed exception">');
                 $this->writeln('<td colspan="' . $colCount . '">');
@@ -378,7 +379,8 @@ class HtmlFormatter extends PrettyFormatter
      */
     protected function printStepException(\Exception $exception, $color)
     {
-        $error = $this->relativizePathsInString($exception->getMessage());
+        $error = $this->exceptionToString($exception);
+        $error = $this->relativizePathsInString($error);
 
         $this->writeln('<pre class="backtrace">' . htmlspecialchars($error) . '</pre>');
     }
@@ -482,7 +484,8 @@ class HtmlFormatter extends PrettyFormatter
     /**
      * {@inheritdoc}
      */
-    protected function printSummary(LoggerDataCollector $logger) {
+    protected function printSummary(LoggerDataCollector $logger)
+    {
         $results = $logger->getScenariosStatuses();
         $result = $results['failed'] > 0 ? 'failed' : 'passed';
         $this->writeln('<div class="summary '.$result.'">');
@@ -505,7 +508,8 @@ HTML
     /**
      * {@inheritdoc}
      */
-    protected function printScenariosSummary(LoggerDataCollector $logger) {
+    protected function printScenariosSummary(LoggerDataCollector $logger)
+    {
         $this->writeln('<p class="scenarios">');
         parent::printScenariosSummary($logger);
         $this->writeln('</p>');
@@ -514,7 +518,8 @@ HTML
     /**
      * {@inheritdoc}
      */
-    protected function printStepsSummary(LoggerDataCollector $logger) {
+    protected function printStepsSummary(LoggerDataCollector $logger)
+    {
         $this->writeln('<p class="steps">');
         parent::printStepsSummary($logger);
         $this->writeln('</p>');
@@ -533,7 +538,8 @@ HTML
     /**
      * {@inheritdoc}
      */
-    protected function printStatusesSummary(array $statusesStatistics) {
+    protected function printStatusesSummary(array $statusesStatistics)
+    {
         $statuses = array();
         $statusTpl = '<strong class="%s">%s</strong>';
         foreach ($statusesStatistics as $status => $count) {
@@ -567,7 +573,7 @@ HTML
 '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns ="http://www.w3.org/1999/xhtml">
 <head>
-    <meta content="text/html;charset=utf-8"/>
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8"/>
     <title>Behat Test Suite</title>
     <style type="text/css">
 ' . $this->getHtmlTemplateStyle() . '

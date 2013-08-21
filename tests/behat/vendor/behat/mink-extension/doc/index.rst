@@ -93,7 +93,7 @@ Usage
 After installing extension, there would be 6 usage options available for you:
 
 1. Writing features with bundled steps only. In this case, you don't need to create
-   ``boostrap/`` folder or custom ``FeatureContext`` class - Behat will use default
+   ``bootstrap/`` folder or custom ``FeatureContext`` class - Behat will use default
    ``MinkContext`` by default. To see all available steps, run:
 
     .. code-block:: bash
@@ -206,7 +206,7 @@ Configuration
 -------------
 
 MinkExtension comes with flexible configuration system, that gives you
-ability to configure Mink inside Behat to fullfil all your needs.
+ability to configure Mink inside Behat to fulfil all your needs.
 
 Drivers
 ~~~~~~~
@@ -224,6 +224,20 @@ with support for 5 drivers out of the box:
             extensions:
                 Behat\MinkExtension\Extension:
                     goutte: ~
+
+.. Tips : HTTPS and self-signed certificate
+In case you use Behat/Mink/Goutte to test your application, and want to test an 
+application secured with HTTPS, but with a self-signed certificate, you can use 
+the following parameters to avoid the validation error triggered by Guzzle :
+
+  .. code-block:: yaml
+    
+    default:
+      extensions:
+        Behat\MinkExtension\Extension:
+          goutte:
+            guzzle_parameters:
+              ssl.certificate_authority: false
 
 * ``Selenium2Driver`` - default javascript driver. It is used by default for
   ``@javascript`` tagged scenarios, which means that if you didn't changed

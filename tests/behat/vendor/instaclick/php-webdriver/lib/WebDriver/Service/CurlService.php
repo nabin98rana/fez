@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright 2004-2012 Facebook. All Rights Reserved.
+ * Copyright 2004-2013 Facebook. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,8 @@
  * @package WebDriver
  *
  * @author Justin Bishop <jubishop@gmail.com>
- * @author Anthon Pang <anthonp@nationalfibre.net>
+ * @author Anthon Pang <apang@softwaredevelopment.ca>
+ * @author Fabrizio Branca <mail@fabrizio-branca.de>
  */
 
 namespace WebDriver\Service;
@@ -36,7 +37,7 @@ class CurlService implements CurlServiceInterface
      */
     public function execute($requestMethod, $url, $parameters = null, $extraOptions = array())
     {
-	$customHeaders = array(
+        $customHeaders = array(
             'Content-Type: application/json;charset=UTF-8',
             'Accept: application/json;charset=UTF-8',
         );
@@ -44,15 +45,33 @@ class CurlService implements CurlServiceInterface
         $curl = curl_init($url);
         curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
 
-        if ($requestMethod === 'POST') {
-            curl_setopt($curl, CURLOPT_POST, true);
-            if ($parameters && is_array($parameters)) {
-                curl_setopt($curl, CURLOPT_POSTFIELDS, json_encode($parameters));
-            } else {
-                $customHeaders[] = 'Content-Length: 0';
-            }
-        } else if ($requestMethod == 'DELETE') {
-            curl_setopt($curl, CURLOPT_CUSTOMREQUEST, 'DELETE');
+        switch ($requestMethod) {
+            case 'GET':
+                break;
+
+            case 'POST':
+                if ($parameters && is_array($parameters)) {
+                    curl_setopt($curl, CURLOPT_POSTFIELDS, json_encode($parameters));
+                } else {
+                    $customHeaders[] = 'Content-Length: 0';
+                }
+
+                curl_setopt($curl, CURLOPT_POST, true);
+                break;
+
+            case 'DELETE':
+                curl_setopt($curl, CURLOPT_CUSTOMREQUEST, 'DELETE');
+                break;
+
+            case 'PUT':
+                if ($parameters && is_array($parameters)) {
+                    curl_setopt($curl, CURLOPT_POSTFIELDS, json_encode($parameters));
+                } else {
+                    $customHeaders[] = 'Content-Length: 0';
+                }
+
+                curl_setopt($curl, CURLOPT_CUSTOMREQUEST, 'PUT');
+                break;
         }
 
         foreach ($extraOptions as $option => $value) {
@@ -64,9 +83,9 @@ class CurlService implements CurlServiceInterface
         $rawResults = trim(curl_exec($curl));
         $info = curl_getinfo($curl);
 
-        if ($error = curl_error($curl)) {
+        if (CURLE_GOT_NOTHING !== curl_errno($curl) && $error = curl_error($curl)) {
             $message = sprintf(
-                'Curl error thrown for http %s to %s$s',
+                'Curl error thrown for http %s to %s%s',
                 $requestMethod,
                 $url,
                 $parameters && is_array($parameters)

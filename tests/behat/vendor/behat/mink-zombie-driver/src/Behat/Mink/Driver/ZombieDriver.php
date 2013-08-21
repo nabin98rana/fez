@@ -22,8 +22,12 @@ use Behat\Mink\Session,
  *
  * @author Pascal Cremer <b00gizm@gmail.com>
  */
-class ZombieDriver implements DriverInterface
+class ZombieDriver extends CoreDriver
 {
+    /**
+     * @var Session
+     */
+    private $session;
     private $started = false;
     private $nativeRefs = array();
     private $server = null;
@@ -168,11 +172,7 @@ browser.visit("{$url}", function(err) {
   }
 });
 JS;
-        $out = $this->server->evalJS($js);
-
-        if (!empty($out)) {
-          throw new DriverException(sprintf("Could not load resource for URL '%s'", $url));
-        }
+        $this->server->evalJS($js);
     }
 
     /**
@@ -207,30 +207,6 @@ JS;
     public function back()
     {
         $this->server->evalJS("browser.window.history.back(); browser.wait(function() { stream.end(); })");
-    }
-
-    /**
-     * Switches to specific browser window.
-     *
-     * @param string $name window name (null for switching back to main window)
-     *
-     * @throws UnsupportedDriverActionException
-     */
-    public function switchToWindow($name = null)
-    {
-        throw new UnsupportedDriverActionException('Window management is not supported by %s', $this);
-    }
-
-    /**
-     * Switches to specific iFrame.
-     *
-     * @param string $name iframe name (null for switching back)
-     *
-     * @throws UnsupportedDriverActionException
-     */
-    public function switchToIFrame($name = null)
-    {
-        throw new UnsupportedDriverActionException('iFrame management is not supported by %s', $this);
     }
 
     /**
@@ -633,7 +609,7 @@ browser.fire("click", node, function(err) {
 JS;
         $out = $this->server->evalJS($js);
         if (!empty($out)) {
-            throw new DriverException('Error while clicking button: [%s]', $out);
+            throw new DriverException(sprintf('Error while clicking button: [%s]', $out));
         }
     }
 
@@ -756,17 +732,6 @@ JS;
     public function keyUp($xpath, $char, $modifier = null)
     {
         $this->triggerKeyEvent("keyup", $xpath, $char, $modifier);
-    }
-
-    /**
-     * Drag one element onto another.
-     *
-     * @param string $sourceXpath
-     * @param string $destinationXpath
-     */
-    public function dragTo($sourceXpath, $destinationXpath)
-    {
-        throw new UnsupportedDriverActionException('Dragging is not supported by %s', $this);
     }
 
     /**

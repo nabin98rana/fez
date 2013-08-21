@@ -2,7 +2,8 @@
 
 namespace Behat\Mink;
 
-use Behat\Mink\Element\NodeElement,
+use Behat\Mink\Element\Element,
+    Behat\Mink\Element\NodeElement,
     Behat\Mink\Exception\ElementNotFoundException,
     Behat\Mink\Exception\ExpectationException,
     Behat\Mink\Exception\ResponseTextException,
@@ -90,9 +91,28 @@ class WebAssert
     }
 
     /**
+     * Checks that specified cookie exists and its value equals to a given one
+     *
+     * @param string $name   cookie name
+     * @param string $value  cookie value
+     *
+     * @throws Behat\Mink\Exception\ExpectationException
+     */
+    public function cookieEquals($name, $value)
+    {
+        $this->cookieExists($name);
+        $actualValue = $this->session->getCookie($name);
+        if ($actualValue != $value) {
+            $message = sprintf('Cookie "%s" value is "%s", but should be "%s".', $name,
+                $actualValue, $value);
+            throw new ExpectationException($message, $this->session);
+        }
+    }
+
+    /**
      * Checks that specified cookie exists
      *
-     * @param string $name  cookie name
+     * @param string $name cookie name
      *
      * @throws Behat\Mink\Exception\ExpectationException
      */
@@ -148,6 +168,7 @@ class WebAssert
     public function pageTextContains($text)
     {
         $actual = $this->session->getPage()->getText();
+        $actual = preg_replace('/\s+/u', ' ', $actual);
         $regex  = '/'.preg_quote($text, '/').'/ui';
 
         if (!preg_match($regex, $actual)) {
@@ -166,6 +187,7 @@ class WebAssert
     public function pageTextNotContains($text)
     {
         $actual = $this->session->getPage()->getText();
+        $actual = preg_replace('/\s+/u', ' ', $actual);
         $regex  = '/'.preg_quote($text, '/').'/ui';
 
         if (preg_match($regex, $actual)) {
@@ -284,12 +306,14 @@ class WebAssert
      * @param string  $selectorType element selector type (css, xpath)
      * @param string  $selector     element selector
      * @param integer $count        expected count
+     * @param Element $container    document to check against
      *
      * @throws ExpectationException
      */
-    public function elementsCount($selectorType, $selector, $count)
+    public function elementsCount($selectorType, $selector, $count, Element $container = null)
     {
-        $nodes = $this->session->getPage()->findAll($selectorType, $selector);
+        $container = $container ?: $this->session->getPage();
+        $nodes = $container->findAll($selectorType, $selector);
 
         if (intval($count) !== count($nodes)) {
             $message = sprintf('%d elements matching %s "%s" found on the page, but should be %d.', count($nodes), $selectorType, $selector, $count);
@@ -300,16 +324,18 @@ class WebAssert
     /**
      * Checks that specific element exists on the current page.
      *
-     * @param string $selectorType element selector type (css, xpath)
-     * @param string $selector     element selector
+     * @param string  $selectorType element selector type (css, xpath)
+     * @param string  $selector     element selector
+     * @param Element $container    document to check against
      *
      * @return NodeElement
      *
      * @throws ElementNotFoundException
      */
-    public function elementExists($selectorType, $selector)
+    public function elementExists($selectorType, $selector, Element $container = null)
     {
-        $node = $this->session->getPage()->find($selectorType, $selector);
+        $container = $container ?: $this->session->getPage();
+        $node = $container->find($selectorType, $selector);
 
         if (null === $node) {
             throw new ElementNotFoundException($this->session, 'element', $selectorType, $selector);
@@ -321,14 +347,16 @@ class WebAssert
     /**
      * Checks that specific element does not exists on the current page.
      *
-     * @param string $selectorType element selector type (css, xpath)
-     * @param string $selector     element selector
+     * @param string  $selectorType element selector type (css, xpath)
+     * @param string  $selector     element selector
+     * @param Element $container    document to check against
      *
      * @throws ExpectationException
      */
-    public function elementNotExists($selectorType, $selector)
+    public function elementNotExists($selectorType, $selector, Element $container = null)
     {
-        $node = $this->session->getPage()->find($selectorType, $selector);
+        $container = $container ?: $this->session->getPage();
+        $node = $container->find($selectorType, $selector);
 
         if (null !== $node) {
             $message = sprintf('An element matching %s "%s" appears on this page, but it should not.', $selectorType, $selector);
@@ -424,14 +452,16 @@ class WebAssert
      * Checks that specific field exists on the current page.
      *
      * @param string $field field id|name|label|value
+     * @param Element $container    document to check against
      *
      * @return NodeElement
      *
      * @throws ElementNotFoundException
      */
-    public function fieldExists($field)
+    public function fieldExists($field, Element $container = null)
     {
-        $node = $this->session->getPage()->findField($field);
+        $container = $container ?: $this->session->getPage();
+        $node = $container->findField($field);
 
         if (null === $node) {
             throw new ElementNotFoundException($this->session, 'form field', 'id|name|label|value', $field);
@@ -444,12 +474,14 @@ class WebAssert
      * Checks that specific field does not exists on the current page.
      *
      * @param string $field field id|name|label|value
+     * @param Element $container    document to check against
      *
      * @throws ExpectationException
      */
-    public function fieldNotExists($field)
+    public function fieldNotExists($field, Element $container = null)
     {
-        $node = $this->session->getPage()->findField($field);
+        $container = $container ?: $this->session->getPage();
+        $node = $container->findField($field);
 
         if (null !== $node) {
             $message = sprintf('A field "%s" appears on this page, but it should not.', $field);
@@ -462,14 +494,15 @@ class WebAssert
      *
      * @param string $field field id|name|label|value
      * @param string $value field value
+     * @param Element $container    document to check against
      *
      * @throws ExpectationException
      */
-    public function fieldValueEquals($field, $value)
+    public function fieldValueEquals($field, $value, Element $container = null)
     {
-        $node   = $this->fieldExists($field);
+        $node   = $this->fieldExists($field, $container);
         $actual = $node->getValue();
-        $regex  = '/^'.preg_quote($value, '$/').'/ui';
+        $regex  = '/^'.preg_quote($value, '/').'/ui';
 
         if (!preg_match($regex, $actual)) {
             $message = sprintf('The field "%s" value is "%s", but "%s" expected.', $field, $actual, $value);
@@ -482,14 +515,15 @@ class WebAssert
      *
      * @param string $field field id|name|label|value
      * @param string $value field value
+     * @param Element $container    document to check against
      *
      * @throws ExpectationException
      */
-    public function fieldValueNotEquals($field, $value)
+    public function fieldValueNotEquals($field, $value, Element $container = null)
     {
-        $node   = $this->fieldExists($field);
+        $node   = $this->fieldExists($field, $container);
         $actual = $node->getValue();
-        $regex  = '/^'.preg_quote($value, '$/').'/ui';
+        $regex  = '/^'.preg_quote($value, '/').'/ui';
 
         if (preg_match($regex, $actual)) {
             $message = sprintf('The field "%s" value is "%s", but it should not be.', $field, $actual);
@@ -501,12 +535,13 @@ class WebAssert
      * Checks that specific checkbox is checked.
      *
      * @param string $field field id|name|label|value
+     * @param Element $container    document to check against
      *
      * @throws ExpectationException
      */
-    public function checkboxChecked($field)
+    public function checkboxChecked($field, Element $container = null)
     {
-        $node = $this->fieldExists($field);
+        $node = $this->fieldExists($field, $container);
 
         if (!$node->isChecked()) {
             $message = sprintf('Checkbox "%s" is not checked, but it should be.', $field);
@@ -518,12 +553,13 @@ class WebAssert
      * Checks that specific checkbox is unchecked.
      *
      * @param string $field field id|name|label|value
+     * @param Element $container    document to check against
      *
      * @throws ExpectationException
      */
-    public function checkboxNotChecked($field)
+    public function checkboxNotChecked($field, Element $container = null)
     {
-        $node = $this->fieldExists($field);
+        $node = $this->fieldExists($field, $container);
 
         if ($node->isChecked()) {
             $message = sprintf('Checkbox "%s" is checked, but it should not be.', $field);

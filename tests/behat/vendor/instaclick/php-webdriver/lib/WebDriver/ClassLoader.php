@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright 2012 Anthon Pang. All Rights Reserved.
+ * Copyright 2012-2013 Anthon Pang. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,15 +16,10 @@
  *
  * @package WebDriver
  *
- * @author Anthon Pang <anthonp@nationalfibre.net>
+ * @author Anthon Pang <apang@softwaredevelopment.ca>
  */
 
 namespace WebDriver;
-
-/**
- * @TODO implement the class loader!
- */
-require_once(__DIR__ . '/__init__.php');
 
 /**
  * WebDriver\ClassLoader (autoloader) class
@@ -33,4 +28,58 @@ require_once(__DIR__ . '/__init__.php');
  */
 final class ClassLoader
 {
+    /**
+     * Load class
+     *
+     * @param string $class Class name
+     */
+    public static function loadClass($class)
+    {
+        $file = strpos($class, '\\') !== false
+            ? str_replace('\\', DIRECTORY_SEPARATOR, $class)
+            : str_replace('_', DIRECTORY_SEPARATOR, $class);
+
+        $path = dirname(__DIR__) . DIRECTORY_SEPARATOR . $file . '.php';
+
+        if (file_exists($path)) {
+            include_once $path;
+        }
+    }
+
+    /**
+     * Autoloader
+     *
+     * @param string $class Class name
+     */
+    public static function autoload($class)
+    {
+        try {
+            self::loadClass($class);
+        } catch (Exception $e) {
+        }
+    }
+}
+
+if (function_exists('spl_autoload_register')) {
+    /**
+     * use the SPL autoload stack
+     */
+    spl_autoload_register(array('WebDriver\ClassLoader', 'autoload'));
+
+    /**
+     * preserve any existing __autoload
+     */
+    if (function_exists('__autoload')) {
+        spl_autoload_register('__autoload');
+    }
+} else {
+    /**
+     * Our fallback; only one __autoload per PHP instance
+     *
+     * @param string $class Class name
+     */
+    function __autoload($class)
+    {
+        ClassLoader::autoload($class);
+    }
 }

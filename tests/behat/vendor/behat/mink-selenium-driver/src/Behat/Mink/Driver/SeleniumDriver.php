@@ -26,7 +26,7 @@ use Selenium\Client as SeleniumClient,
  *
  * @author Alexandre Salomé <alexandre.salome@gmail.com>
  */
-class SeleniumDriver implements DriverInterface
+class SeleniumDriver extends CoreDriver
 {
     const MODIFIER_CTRL  = 'ctrl';
     const MODIFIER_ALT   = 'alt';
@@ -43,14 +43,14 @@ class SeleniumDriver implements DriverInterface
     /**
      * The current session
      *
-     * @var Behat\Mink\Session
+     * @var \Behat\Mink\Session
      */
     private $session;
 
     /**
      * The selenium browser instance
      *
-     * @var Selenium\Browser
+     * @var \Selenium\Browser
      */
     private $browser;
 
@@ -64,9 +64,9 @@ class SeleniumDriver implements DriverInterface
     /**
      * Instanciates the driver.
      *
-     * @param string          $browser Browser name
-     * @param string          $baseUrl Base URL for testing
-     * @param Selenium\Client $client  The client for getting a browser
+     * @param string         $browser Browser name
+     * @param string         $baseUrl Base URL for testing
+     * @param SeleniumClient $client  The client for getting a browser
      */
     public function __construct($browser, $baseUrl, SeleniumClient $client)
     {
@@ -76,7 +76,7 @@ class SeleniumDriver implements DriverInterface
     /**
      * Returns Selenium browser instance.
      *
-     * @return  Selenium\Browser
+     * @return  \Selenium\Browser
      */
     public function getBrowser()
     {
@@ -201,30 +201,6 @@ class SeleniumDriver implements DriverInterface
     }
 
     /**
-     * @see Behat\Mink\Driver\DriverInterface::setBasicAuth()
-     */
-    public function setBasicAuth($user, $password)
-    {
-        throw new UnsupportedDriverActionException('Basic Auth is not supported by %s', $this);
-    }
-
-    /**
-     * @see Behat\Mink\Driver\DriverInterface::setRequestHeader()
-     */
-    public function setRequestHeader($name, $value)
-    {
-        throw new UnsupportedDriverActionException('Request header is not supported by %s', $this);
-    }
-
-    /**
-     * @see Behat\Mink\Driver\DriverInterface::getResponseHeaders()
-     */
-    public function getResponseHeaders()
-    {
-        throw new UnsupportedDriverActionException('Request header is not supported by %s', $this);
-    }
-
-    /**
      * @see Behat\Mink\Driver\DriverInterface::setCookie()
      */
     public function setCookie($name, $value = null)
@@ -246,14 +222,6 @@ class SeleniumDriver implements DriverInterface
         }
 
         return null;
-    }
-
-    /**
-     * @see Behat\Mink\Driver\DriverInterface::getStatusCode()
-     */
-    public function getStatusCode()
-    {
-        throw new UnsupportedDriverActionException('Request header is not supported by %s', $this);
     }
 
     /**
@@ -435,6 +403,26 @@ JS;
         $multipleJS   = $multiple ? 'true' : 'false';
 
         $script = <<<JS
+// Function to triger an event. Cross-browser compliant. See http://stackoverflow.com/a/2490876/135494
+var triggerEvent = function (element, eventName) {
+    var event;
+    if (document.createEvent) {
+        event = document.createEvent("HTMLEvents");
+        event.initEvent(eventName, true, true);
+    } else {
+        event = document.createEventObject();
+        event.eventType = eventName;
+    }
+
+    event.eventName = eventName;
+
+    if (document.createEvent) {
+        element.dispatchEvent(event);
+    } else {
+        element.fireEvent("on" + event.eventType, event);
+    }
+}
+
 var node = this.browserbot.locateElementByXPath("$xpathEscaped", window.document);
 if (node.tagName == 'SELECT') {
     var i, l = node.length;
@@ -445,6 +433,7 @@ if (node.tagName == 'SELECT') {
             node[i].selected = false;
         }
     }
+    triggerEvent(node, 'change');
 } else {
     var nodes = window.document.getElementsByName(node.getAttribute('name'));
     var i, l = nodes.length;
@@ -472,6 +461,8 @@ JS;
         if ($readyState == 'loading' || $readyState == 'interactive') {
             $this->browser->waitForPageToLoad($this->timeout);
         }
+
+        $this->getCurrentUrl();
     }
 
     /**
@@ -499,16 +490,6 @@ JS;
     }
 
     /**
-     * @see Behat\Mink\Driver\DriverInterface::rightClick()
-     *
-     * @throws  Behat\Mink\Exception\UnsupportedDriverActionException   action is not supported by this driver
-     */
-    public function rightClick($xpath)
-    {
-        throw new UnsupportedDriverActionException('Right click is not supported by %s', $this);
-    }
-
-    /**
      * @see Behat\Mink\Driver\DriverInterface::mouseOver()
      */
     public function mouseOver($xpath)
@@ -517,29 +498,7 @@ JS;
     }
 
     /**
-     * @see Behat\Mink\Driver\DriverInterface::focus()
-     *
-     * @throws  Behat\Mink\Exception\UnsupportedDriverActionException   action is not supported by this driver
-     */
-    public function focus($xpath)
-    {
-        throw new UnsupportedDriverActionException('Focus is not supported by %s', $this);
-    }
-
-    /**
-     * @see Behat\Mink\Driver\DriverInterface::blur()
-     *
-     * @throws  Behat\Mink\Exception\UnsupportedDriverActionException   action is not supported by this driver
-     */
-    public function blur($xpath)
-    {
-        throw new UnsupportedDriverActionException('Blur is not supported by %s', $this);
-    }
-
-    /**
      * @see Behat\Mink\Driver\DriverInterface::keyPress()
-     *
-     * @throws  Behat\Mink\Exception\UnsupportedDriverActionException   action is not supported by this driver
      */
     public function keyPress($xpath, $char, $modifier = null)
     {
@@ -550,8 +509,6 @@ JS;
 
     /**
      * @see Behat\Mink\Driver\DriverInterface::keyPress()
-     *
-     * @throws  Behat\Mink\Exception\UnsupportedDriverActionException   action is not supported by this driver
      */
     public function keyDown($xpath, $char, $modifier = null)
     {
@@ -562,8 +519,6 @@ JS;
 
     /**
      * @see Behat\Mink\Driver\DriverInterface::keyPress()
-     *
-     * @throws  Behat\Mink\Exception\UnsupportedDriverActionException   action is not supported by this driver
      */
     public function keyUp($xpath, $char, $modifier = null)
     {
@@ -581,16 +536,6 @@ JS;
     }
 
     /**
-     * @see Behat\Mink\Driver\DriverInterface::evaluateScript()
-     *
-     * @throws  Behat\Mink\Exception\UnsupportedDriverActionException   action is not supported by this driver
-     */
-    public function evaluateScript($script)
-    {
-        throw new UnsupportedDriverActionException('Evaluate script is not supported by %s', $this);
-    }
-
-    /**
      * @see Behat\Mink\Driver\DriverInterface::wait()
      */
     public function wait($time, $condition)
@@ -602,8 +547,6 @@ JS;
 
     /**
      * @see Behat\Mink\Driver\DriverInterface::isVisible()
-     *
-     * @throws  Behat\Mink\Exception\UnsupportedDriverActionException   action is not supported by this driver
      */
     public function isVisible($xpath)
     {
@@ -612,8 +555,6 @@ JS;
 
     /**
      * @see Behat\Mink\Driver\DriverInterface::dragTo()
-     *
-     * @throws  Behat\Mink\Exception\UnsupportedDriverActionException   action is not supported by this driver
      */
     public function dragTo($sourceXpath, $destinationXpath)
     {
@@ -623,9 +564,9 @@ JS;
     /**
      * Returns crawler instance (got from client).
      *
-     * @return  Symfony\Component\DomCrawler\Crawler
+     * @return  \Symfony\Component\DomCrawler\Crawler
      *
-     * @throws  Behat\Mink\Exception\DriverException    if can't init crawler (no page is opened)
+     * @throws  \Behat\Mink\Exception\DriverException    if can't init crawler (no page is opened)
      */
     private function getCrawler()
     {

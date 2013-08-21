@@ -119,10 +119,11 @@ Feature: Snippets format
           And 'another escaped' string
           And one 'more string'
           And one "more string"
+          And one percentage 10%
       """
 
   Scenario: Run feature with failing scenarios
-    When I run "behat -f snippets"
+    When I run "behat --no-ansi -f snippets"
     Then it should fail with:
       """
       /**
@@ -193,6 +194,14 @@ Feature: Snippets format
            * @Given /^one "([^"]*)"$/
            */
           public function one2($arg1)
+          {
+              throw new PendingException();
+          }
+
+          /**
+           * @Given /^one percentage (\d+)%$/
+           */
+          public function onePercentage($arg1)
           {
               throw new PendingException();
           }

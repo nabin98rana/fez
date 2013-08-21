@@ -15,9 +15,10 @@ use Goutte\Client;
 use Symfony\Component\BrowserKit\Cookie;
 
 use Guzzle\Http\Message\Response as GuzzleResponse;
+use Guzzle\Http\Message\Header as GuzzleHeader;
 use Guzzle\Http\Client as GuzzleClient;
-use Guzzle\Http\Plugin\MockPlugin;
-use Guzzle\Http\Plugin\HistoryPlugin;
+use Guzzle\Plugin\Mock\MockPlugin;
+use Guzzle\Plugin\History\HistoryPlugin;
 use Guzzle\Http\Message\Response;
 use Guzzle\Http\Message\PostFile;
 
@@ -36,7 +37,7 @@ class ClientTest extends \PHPUnit_Framework_TestCase
         $this->historyPlugin = new HistoryPlugin();
         $this->mockPlugin = new MockPlugin();
         $this->mockPlugin->addResponse(new GuzzleResponse(200, null, '<html><body><p>Hi</p></body></html>'));
-        $guzzle = new GuzzleClient();
+        $guzzle = new GuzzleClient('', array('redirect.disable' => true));
         $guzzle->getEventDispatcher()->addSubscriber($this->mockPlugin);
         $guzzle->getEventDispatcher()->addSubscriber($this->historyPlugin);
 
@@ -65,6 +66,16 @@ class ClientTest extends \PHPUnit_Framework_TestCase
         $client->setHeader('X-Test', 'test');
         $crawler = $client->request('GET', 'http://www.example.com/');
         $this->assertEquals('test', $this->historyPlugin->getLastRequest()->getHeader('X-Test'));
+    }
+
+    public function testCustomUserAgent()
+    {
+        $guzzle = $this->getGuzzle();
+        $client = new Client();
+        $client->setClient($guzzle);
+        $client->setHeader('User-Agent', 'foo');
+        $crawler = $client->request('GET', 'http://www.example.com/');
+        $this->assertEquals('foo', $this->historyPlugin->getLastRequest()->getHeader('User-Agent'));
     }
 
     public function testUsesAuth()
@@ -112,6 +123,89 @@ class ClientTest extends \PHPUnit_Framework_TestCase
         ), $request->getPostFiles());
     }
 
+    public function testUsesPostNamedFiles()
+    {
+        $guzzle = $this->getGuzzle();
+        $client = new Client();
+        $client->setClient($guzzle);
+        $files = array(
+            'test' => __FILE__
+        );
+
+        $crawler = $client->request('POST', 'http://www.example.com/', array(), $files);
+        $request = $this->historyPlugin->getLastRequest();
+
+        $this->assertEquals(array(
+            'test' => array(
+                new PostFile('test', __FILE__, 'text/x-php')
+            )
+        ), $request->getPostFiles());
+    }
+
+    public function testUsesPostFilesNestedFields()
+    {
+        $guzzle = $this->getGuzzle();
+        $client = new Client();
+        $client->setClient($guzzle);
+        $files = array(
+            'form' => array(
+                'test' => array(
+                    'name' => 'test.txt',
+                    'tmp_name' => __FILE__
+                ),
+            ),
+        );
+
+        $crawler = $client->request('POST', 'http://www.example.com/', array(), $files);
+        $request = $this->historyPlugin->getLastRequest();
+
+        $this->assertEquals(array(
+            'form[test]' => array(
+                new PostFile('form[test]', __FILE__, 'text/x-php')
+            )
+        ), $request->getPostFiles());
+    }
+
+    public function testUsesPostFilesOnClientSide()
+    {
+        $guzzle = $this->getGuzzle();
+        $client = new Client();
+        $client->setClient($guzzle);
+        $files = array(
+            'test' => __FILE__,
+        );
+
+        $crawler = $client->request('POST', 'http://www.example.com/', array(), $files);
+        $request = $this->historyPlugin->getLastRequest();
+
+        $this->assertEquals(array(
+            'test' => array(
+                new PostFile('test', __FILE__, 'text/x-php')
+            )
+        ), $request->getPostFiles());
+    }
+
+    public function testUsesPostFilesUploadError()
+    {
+        $guzzle = $this->getGuzzle();
+        $client = new Client();
+        $client->setClient($guzzle);
+        $files = array(
+            'test' => array(
+                'name' => '',
+                'type' => '',
+                'tmp_name' => '',
+                'error' => 4,
+                'size' => 0,
+            ),
+        );
+
+        $crawler = $client->request('POST', 'http://www.example.com/', array(), $files);
+        $request = $this->historyPlugin->getLastRequest();
+
+        $this->assertEquals(array(), $request->getPostFiles());
+    }
+
     public function testUsesCurlOptions()
     {
         $guzzle = $this->getGuzzle();
@@ -150,5 +244,27 @@ class ClientTest extends \PHPUnit_Framework_TestCase
 
         // Ensure that two requests were sent
         $this->assertEquals(2, count($this->historyPlugin));
+    }
+
+    public function testConvertsGuzzleHeadersToArrays()
+    {
+        if (!class_exists("Guzzle\Http\Message\Header")) {
+            $this->markTestSkipped("Guzzle ~3.6 required");
+        }
+
+        $guzzle = $this->getGuzzle();
+
+        $this->mockPlugin->clearQueue();
+        $this->mockPlugin->addResponse(new GuzzleResponse(200, array(
+            new GuzzleHeader('Date', 'Tue, 04 Jun 2013 13:22:41 GMT'),
+        )));
+
+        $client = new Client();
+        $client->setClient($guzzle);
+        $client->request('GET', 'http://www.example.com/');
+        $response = $client->getResponse();
+        $headers = $response->getHeaders();
+
+        $this->assertInternalType("array", array_shift($headers), "Header not converted from Guzzle\Http\Message\Header to array");
     }
 }

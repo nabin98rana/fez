@@ -4,10 +4,10 @@ namespace Behat\Mink\Driver;
 
 use Behat\Mink\Session,
     Behat\Mink\Element\NodeElement,
-    Behat\Mink\Exception\DriverException,
-    Behat\Mink\Exception\UnsupportedDriverActionException;
+    Behat\Mink\Exception\DriverException;
 
 use WebDriver\WebDriver;
+use WebDriver\Key;
 
 /*
  * This file is part of the Behat\Mink.
@@ -22,11 +22,11 @@ use WebDriver\WebDriver;
  *
  * @author Pete Otaqui <pete@otaqui.com>
  */
-class Selenium2Driver implements DriverInterface
+class Selenium2Driver extends CoreDriver
 {
     /**
      * The current Mink session
-     * @var Behat\Mink\Session
+     * @var \Behat\Mink\Session
      */
     private $session;
 
@@ -43,9 +43,25 @@ class Selenium2Driver implements DriverInterface
     private $webDriver;
 
     /**
+     * @var string
+     */
+    private $browserName;
+
+    /**
+     * @var array
+     */
+    private $desiredCapabilities;
+
+    /**
+     * The WebDriverSession instance
+     * @var \WebDriver\Session
+     */
+    private $wdSession;
+
+    /**
      * Instantiates the driver.
      *
-     * @param string    $browser Browser name
+     * @param string    $browserName Browser name
      * @param array     $desiredCapabilities The desired capabilities
      * @param string    $wdHost The WebDriver host
      */
@@ -70,6 +86,8 @@ class Selenium2Driver implements DriverInterface
      * Sets the desired capabilities - called on construction.  If null is provided, will set the
      * defaults as dsesired.
      *
+     * See http://code.google.com/p/selenium/wiki/DesiredCapabilities
+     *
      * @param   array $desiredCapabilities  an array of capabilities to pass on to the WebDriver server
      */
     public function setDesiredCapabilities($desiredCapabilities = null)
@@ -77,6 +95,29 @@ class Selenium2Driver implements DriverInterface
         if (null === $desiredCapabilities) {
             $desiredCapabilities = self::getDefaultCapabilities();
         }
+
+        if (isset($desiredCapabilities['firefox'])) {
+            foreach ($desiredCapabilities['firefox'] as $capability => $value) {
+                switch ($capability) {
+                    case 'profile':
+                        $desiredCapabilities['firefox_'.$capability] = base64_encode(file_get_contents($value));
+                        break;
+                    default:
+                        $desiredCapabilities['firefox_'.$capability] = $value;
+                }
+            }
+
+            unset($desiredCapabilities['firefox']);
+        }
+
+        if (isset($desiredCapabilities['chrome'])) {
+            foreach ($desiredCapabilities['chrome'] as $capability => $value) {
+                $desiredCapabilities['chrome.'.$capability] = $value;
+            }
+
+            unset($desiredCapabilities['chrome']);
+        }
+
         $this->desiredCapabilities = $desiredCapabilities;
     }
 
@@ -91,26 +132,42 @@ class Selenium2Driver implements DriverInterface
     }
 
     /**
+     * Gets the WebDriverSession instance
+     *
+     * @return \WebDriver\Session
+     */
+    public function getWebDriverSession()
+    {
+        return $this->wdSession;
+    }
+
+    /**
      * Returns the default capabilities
      *
-     * @return  array
+     * @return array
      */
     public static function getDefaultCapabilities()
     {
         return array(
-            'browserName'    => 'firefox',
-            'version'        => '9',
-            'platform'       => 'ANY',
-            'browserVersion' => '9',
-            'browser'        => 'firefox'
+            'browserName'       => 'firefox',
+            'version'           => '9',
+            'platform'          => 'ANY',
+            'browserVersion'    => '9',
+            'browser'           => 'firefox',
+            'name'              => 'Behat Test',
+            'deviceOrientation' => 'portrait',
+            'deviceType'        => 'tablet',
+            'selenium-version'  => '2.31.0'
         );
     }
 
     /**
      * Makes sure that the Syn event library has been injected into the current page,
-     * and return $this for a fluid interface, * $this->withSyn()->executeJsOnXpath($xpath, $script);
+     * and return $this for a fluid interface,
      *
-     * @return  mixed
+     *     $this->withSyn()->executeJsOnXpath($xpath, $script);
+     *
+     * @return Selenium2Driver
      */
     protected function withSyn()
     {
@@ -120,7 +177,7 @@ class Selenium2Driver implements DriverInterface
         ));
 
         if (!$hasSyn) {
-            $synJs = file_get_contents(dirname(__FILE__).DIRECTORY_SEPARATOR.'Selenium2'.DIRECTORY_SEPARATOR.'syn.js');
+            $synJs = file_get_contents(__DIR__.'/Selenium2/syn.js');
             $this->wdSession->execute(array(
                 'script' => $synJs,
                 'args'   => array()
@@ -199,7 +256,12 @@ class Selenium2Driver implements DriverInterface
      */
     public function start()
     {
-        $this->wdSession = $this->webDriver->session($this->browserName, $this->desiredCapabilities);
+        try {
+            $this->wdSession = $this->webDriver->session($this->browserName, $this->desiredCapabilities);
+        } catch (\Exception $e) {
+            throw new DriverException('Could not open connection', 0, $e);
+        }
+
         if (!$this->wdSession) {
             throw new DriverException('Could not connect to a Selenium 2 / WebDriver server');
         }
@@ -226,7 +288,11 @@ class Selenium2Driver implements DriverInterface
         }
 
         $this->started = false;
-        $this->wdSession->close();
+        try {
+            $this->wdSession->close();
+        } catch (\Exception $e) {
+            throw new DriverException('Could not close connection', 0, $e);
+        }
     }
 
     /**
@@ -302,38 +368,6 @@ class Selenium2Driver implements DriverInterface
     }
 
     /**
-     * Sets HTTP Basic authentication parameters
-     *
-     * @param   string|false    $user       user name or false to disable authentication
-     * @param   string          $password   password
-     */
-    public function setBasicAuth($user, $password)
-    {
-        throw new UnsupportedDriverActionException('Basic Auth is not supported by %s', $this);
-    }
-
-    /**
-     * Sets specific request header on client.
-     *
-     * @param   string  $name
-     * @param   string  $value
-     */
-    public function setRequestHeader($name, $value)
-    {
-        throw new UnsupportedDriverActionException('Request header is not supported by %s', $this);
-    }
-
-    /**
-     * Returns last response headers.
-     *
-     * @return  array
-     */
-    public function getResponseHeaders()
-    {
-        throw new UnsupportedDriverActionException('Response header is not supported by %s', $this);
-    }
-
-    /**
      * Sets cookie.
      *
      * @param   string  $name
@@ -374,16 +408,6 @@ class Selenium2Driver implements DriverInterface
     }
 
     /**
-     * Returns last response status code.
-     *
-     * @return  integer
-     */
-    public function getStatusCode()
-    {
-        throw new UnsupportedDriverActionException('Status code is not supported by %s', $this);
-    }
-
-    /**
      * Returns last response content.
      *
      * @return  string
@@ -391,6 +415,17 @@ class Selenium2Driver implements DriverInterface
     public function getContent()
     {
         return $this->wdSession->source();
+    }
+
+    /**
+     * Capture a screenshot of the current window.
+     *
+     * @return  string  screenshot of MIME type image/* depending
+     *   on driver (e.g., image/png, image/jpeg)
+     */
+    public function getScreenshot()
+    {
+        return base64_decode($this->wdSession->screenshot());
     }
 
     /**
@@ -556,16 +591,28 @@ JS;
      */
     public function setValue($xpath, $value)
     {
+        $value = strval($value);
         $element = $this->wdSession->element('xpath', $xpath);
-        if (
-            strtolower($element->name()) != 'input' ||
-            strtolower($element->attribute('type')) != 'file'
-        )
-        {
-            $element->clear();
+        $elementname = strtolower($element->name());
+
+        switch (true) {
+            case ($elementname == 'input' && strtolower($element->attribute('type')) == 'text'):
+                for ($i = 0; $i < strlen($element->attribute('value')); $i++) {
+                    $value = Key::BACKSPACE . $value;
+                }
+                break;
+            case ($elementname == 'textarea'):
+            case ($elementname == 'input' && strtolower($element->attribute('type')) != 'file'):
+                $element->clear();
+                break;
+            case ($elementname == 'select'):
+                $this->selectOption($xpath, $value);
+                return;
         }
 
         $element->value(array('value' => array($value)));
+        $script = "Syn.trigger('change', {}, {{ELEMENT}})";
+        $this->withSyn()->executeJsOnXpath($xpath, $script);
     }
 
     /**
@@ -576,6 +623,8 @@ JS;
     public function check($xpath)
     {
         $this->executeJsOnXpath($xpath, '{{ELEMENT}}.checked = true');
+        $script = "Syn.trigger('change', {}, {{ELEMENT}})";
+        $this->withSyn()->executeJsOnXpath($xpath, $script);
     }
 
     /**
@@ -586,6 +635,8 @@ JS;
     public function uncheck($xpath)
     {
         $this->executeJsOnXpath($xpath, '{{ELEMENT}}.checked = false');
+        $script = "Syn.trigger('change', {}, {{ELEMENT}})";
+        $this->withSyn()->executeJsOnXpath($xpath, $script);
     }
 
     /**
@@ -652,6 +703,12 @@ if (node.tagName == 'SELECT') {
         if (nodes[i].getAttribute('value') == "$valueEscaped") {
             node.checked = true;
         }
+    }
+    if (node.tagName == 'INPUT') {
+      var type = node.getAttribute('type');
+      if (type == 'radio') {
+        triggerEvent(node, 'change');
+      }
     }
 }
 JS;
@@ -802,36 +859,39 @@ JS;
         $source      = $this->wdSession->element('xpath', $sourceXpath);
         $destination = $this->wdSession->element('xpath', $destinationXpath);
 
-        $sourceSize = $source->size();
-        $sourceX    = $sourceSize['width']/2;
-        $sourceY    = $sourceSize['height']/2;
-
-        $destinationSize = $destination->size();
-        $destinationX    = $destinationSize['width']/2;
-        $destinationY    = $destinationSize['height']/2;
-
         $this->wdSession->moveto(array(
-            'element' => $source->getID(),
-            'xoffset' => $sourceX,
-            'yoffset' => $sourceY
+            'element' => $source->getID()
         ));
+
+        $script = <<<JS
+(function (element) {
+    var event = document.createEvent("HTMLEvents");
+
+    event.initEvent("dragstart", true, true);
+    event.dataTransfer = {};
+
+    element.dispatchEvent(event);
+}({{ELEMENT}}));
+JS;
+        $this->withSyn()->executeJsOnXpath($sourceXpath, $script);
+
         $this->wdSession->buttondown();
         $this->wdSession->moveto(array(
-            'element' => $source->getID(),
-            'xoffset' => $sourceX+1,
-            'yoffset' => $sourceY+1
-        ));
-        $this->wdSession->moveto(array(
-            'element' => $destination->getID(),
-            'xoffset' => $destinationX,
-            'yoffset' => $destinationY
-        ));
-        $this->wdSession->moveto(array(
-            'element' => $destination->getID(),
-            'xoffset' => $destinationX+1,
-            'yoffset' => $destinationY+1
+            'element' => $destination->getID()
         ));
         $this->wdSession->buttonup();
+
+        $script = <<<JS
+(function (element) {
+    var event = document.createEvent("HTMLEvents");
+
+    event.initEvent("drop", true, true);
+    event.dataTransfer = {};
+
+    element.dispatchEvent(event);
+}({{ELEMENT}}));
+JS;
+        $this->withSyn()->executeJsOnXpath($destinationXpath, $script);
     }
 
     /**
@@ -861,15 +921,32 @@ JS;
      *
      * @param   integer $time       time in milliseconds
      * @param   string  $condition  JS condition
+     *
+     * @return boolean
      */
     public function wait($time, $condition)
     {
         $script = "return $condition;";
-        $start = 1000 * microtime(true);
-        $end = $start + $time;
-        $count = 0;
-        while (1000 * microtime(true) < $end && !$this->wdSession->execute(array('script' => $script, 'args' => array()))) {
-            sleep(0.1);
-        }
+        $start = microtime(true);
+        $end = $start + $time / 1000.0;
+
+        do {
+            $result = $this->wdSession->execute(array('script' => $script, 'args' => array()));
+            usleep(100000);
+        } while ( microtime(true) < $end && !$result );
+
+        return (bool)$result;
+    }
+
+    /**
+     * Set the dimensions of the window.
+     *
+     * @param integer $width set the window width, measured in pixels
+     * @param integer $height set the window height, measured in pixels
+     * @param string $name window name (null for the main window)
+     */
+    public function resizeWindow($width, $height, $name = null)
+    {
+        return $this->wdSession->window($name ? $name : 'current')->postSize(array('width' => $width, 'height' => $height));
     }
 }

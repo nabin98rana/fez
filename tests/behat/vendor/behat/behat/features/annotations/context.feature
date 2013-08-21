@@ -69,6 +69,16 @@ Feature: Context consistency
           }
       }
       """
+    And a file named "features/bootstrap/CustomContext.php" with:
+      """
+      <?php
+
+      use Behat\Behat\Context\BehatContext;
+
+      class CustomContext extends BehatContext
+      {
+      }
+      """
 
   Scenario: True "apples story"
     Given a file named "features/apples.feature" with:
@@ -100,7 +110,7 @@ Feature: Context consistency
             | 0   | 5     | 8      |
             | 2   | 2     | 3      |
       """
-    When I run "behat -f progress features/apples.feature"
+    When I run "behat --no-ansi -f progress features/apples.feature"
     Then it should pass with:
       """
       ..................
@@ -139,7 +149,7 @@ Feature: Context consistency
             | 0   | 5     | 8      |
             | 2   | 2     | 4      |
       """
-    When I run "behat -f progress features/apples.feature"
+    When I run "behat --no-ansi -f progress features/apples.feature"
     Then it should fail with:
       """
       ..F..F...F.......F
@@ -149,18 +159,22 @@ Feature: Context consistency
       01. Failed asserting that 2 matches expected 5.
           In step `Then I should have 5 apples'. # FeatureContext::iShouldHaveApples()
           From scenario `I'm little hungry'.     # features/apples.feature:9
+          Of feature `Apples story'.             # features/apples.feature
 
       02. Failed asserting that 13 matches expected 10.
           In step `Then I should have 10 apples'. # FeatureContext::iShouldHaveApples()
           From scenario `Found more apples'.      # features/apples.feature:13
+          Of feature `Apples story'.              # features/apples.feature
 
       03. Failed asserting that 1 matches expected 3.
           In step `Then I should have 3 apples'.  # FeatureContext::iShouldHaveApples()
           From scenario `Other situations'.       # features/apples.feature:17
+          Of feature `Apples story'.              # features/apples.feature
 
       04. Failed asserting that 3 matches expected 4.
           In step `Then I should have 4 apples'.  # FeatureContext::iShouldHaveApples()
           From scenario `Other situations'.       # features/apples.feature:17
+          Of feature `Apples story'.              # features/apples.feature
 
       5 scenarios (1 passed, 4 failed)
       18 steps (14 passed, 4 failed)
@@ -188,11 +202,85 @@ Feature: Context consistency
           Then context parameter "parameter1" should be equal to "val_one"
           And context parameter "parameter2" should be array with 2 elements
       """
-  When I run "behat -f progress features/params.feature"
+  When I run "behat --no-ansi -f progress features/params.feature"
   Then it should pass with:
     """
     ..
 
     1 scenario (1 passed)
     2 steps (2 passed)
+    """
+
+  Scenario: Existing custom context class
+    Given a file named "behat.yml" with:
+      """
+      default:
+        context:
+          class: CustomContext
+      """
+    And a file named "features/params.feature" with:
+      """
+      Feature: Context parameters
+        In order to run a browser
+        As feature runner
+        I need to be able to configure behat context
+
+        Scenario: I'm little hungry
+          Then context parameter "parameter1" should be equal to "val_one"
+          And context parameter "parameter2" should be array with 2 elements
+      """
+  When I run "behat --no-ansi -f progress features/params.feature"
+  Then it should pass with:
+    """
+    UU
+
+    1 scenario (1 undefined)
+    2 steps (2 undefined)
+
+    You can implement step definitions for undefined steps with these snippets:
+
+        /**
+         * @Then /^context parameter "([^"]*)" should be equal to "([^"]*)"$/
+         */
+        public function contextParameterShouldBeEqualTo($arg1, $arg2)
+        {
+            throw new PendingException();
+        }
+
+        /**
+         * @Given /^context parameter "([^"]*)" should be array with (\d+) elements$/
+         */
+        public function contextParameterShouldBeArrayWithElements($arg1, $arg2)
+        {
+            throw new PendingException();
+        }
+    """
+
+  Scenario: Unexisting custom context class
+    Given a file named "behat.yml" with:
+      """
+      default:
+        context:
+          class: UnexistentContext
+      """
+    And a file named "features/params.feature" with:
+      """
+      Feature: Context parameters
+        In order to run a browser
+        As feature runner
+        I need to be able to configure behat context
+
+        Scenario: I'm little hungry
+          Then context parameter "parameter1" should be equal to "val_one"
+          And context parameter "parameter2" should be array with 2 elements
+      """
+  When I run "behat --no-ansi -f progress features/params.feature"
+  Then it should fail with:
+    """
+    [RuntimeException]
+      Context class "UnexistentContext" not found and can not be instantiated.
+
+
+
+    behat [--init] [-f|--format="..."] [--out="..."] [--lang="..."] [--[no-]ansi] [--[no-]time] [--[no-]paths] [--[no-]snippets] [--[no-]snippets-paths] [--[no-]multiline] [--[no-]expand] [--story-syntax] [-d|--definitions="..."] [--name="..."] [--tags="..."] [--cache="..."] [--strict] [--dry-run] [--stop-on-failure] [--rerun="..."] [--append-snippets] [--append-to="..."] [features]
     """

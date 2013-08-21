@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright 2004-2012 Facebook. All Rights Reserved.
+ * Copyright 2004-2013 Facebook. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@
  * @package WebDriver
  *
  * @author Justin Bishop <jubishop@gmail.com>
- * @author Anthon Pang <anthonp@nationalfibre.net>
+ * @author Anthon Pang <apang@softwaredevelopment.ca>
  * @author Fabrizio Branca <mail@fabrizio-branca.de>
  */
 

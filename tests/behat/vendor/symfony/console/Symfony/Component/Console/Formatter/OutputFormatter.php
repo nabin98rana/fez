@@ -23,17 +23,29 @@ class OutputFormatter implements OutputFormatterInterface
     /**
      * The pattern to phrase the format.
      */
-    const FORMAT_PATTERN = '#<(/?)([a-z][a-z0-9_=;-]+)?>([^<]*)#is';
+    const FORMAT_PATTERN = '#(\\\\?)<(/?)([a-z][a-z0-9_=;-]+)?>((?: [^<\\\\]+ | (?!<(?:/?[a-z]|/>)). | .(?<=\\\\<) )*)#isx';
 
     private $decorated;
     private $styles = array();
     private $styleStack;
 
     /**
+     * Escapes "<" special char in given text.
+     *
+     * @param string $text Text to escape
+     *
+     * @return string Escaped text
+     */
+    public static function escape($text)
+    {
+        return preg_replace('/([^\\\\]?)</is', '$1\\<', $text);
+    }
+
+    /**
      * Initializes console output formatter.
      *
-     * @param Boolean $decorated Whether this formatter should actually decorate strings
-     * @param array   $styles    Array of "name => FormatterStyle" instances
+     * @param Boolean          $decorated Whether this formatter should actually decorate strings
+     * @param FormatterStyle[] $styles    Array of "name => FormatterStyle" instances
      *
      * @api
      */
@@ -118,7 +130,7 @@ class OutputFormatter implements OutputFormatterInterface
     public function getStyle($name)
     {
         if (!$this->hasStyle($name)) {
-            throw new \InvalidArgumentException('Undefined style: '.$name);
+            throw new \InvalidArgumentException(sprintf('Undefined style: %s', $name));
         }
 
         return $this->styles[strtolower($name)];
@@ -135,7 +147,9 @@ class OutputFormatter implements OutputFormatterInterface
      */
     public function format($message)
     {
-        return preg_replace_callback(self::FORMAT_PATTERN, array($this, 'replaceStyle'), $message);
+        $message = preg_replace_callback(self::FORMAT_PATTERN, array($this, 'replaceStyle'), $message);
+
+        return str_replace('\\<', '<', $message);
     }
 
     /**
@@ -155,35 +169,40 @@ class OutputFormatter implements OutputFormatterInterface
      */
     private function replaceStyle($match)
     {
-        if ('' === $match[2]) {
-            if ('/' === $match[1]) {
+        // we got "\<" escaped char
+        if ('\\' === $match[1]) {
+            return $this->applyCurrentStyle($match[0]);
+        }
+
+        if ('' === $match[3]) {
+            if ('/' === $match[2]) {
                 // we got "</>" tag
                 $this->styleStack->pop();
 
-                return $this->applyStyle($this->styleStack->getCurrent(), $match[3]);
+                return $this->applyCurrentStyle($match[4]);
             }
 
             // we got "<>" tag
-            return '<>'.$match[3];
+            return '<>'.$this->applyCurrentStyle($match[4]);
         }
 
-        if (isset($this->styles[strtolower($match[2])])) {
-            $style = $this->styles[strtolower($match[2])];
+        if (isset($this->styles[strtolower($match[3])])) {
+            $style = $this->styles[strtolower($match[3])];
         } else {
-            $style = $this->createStyleFromString($match[2]);
+            $style = $this->createStyleFromString($match[3]);
 
             if (false === $style) {
-                return $match[0];
+                return $this->applyCurrentStyle($match[0]);
             }
         }
 
-        if ('/' === $match[1]) {
+        if ('/' === $match[2]) {
             $this->styleStack->pop($style);
         } else {
             $this->styleStack->push($style);
         }
 
-        return $this->applyStyle($this->styleStack->getCurrent(), $match[3]);
+        return $this->applyCurrentStyle($match[4]);
     }
 
     /**
@@ -216,15 +235,14 @@ class OutputFormatter implements OutputFormatterInterface
     }
 
     /**
-     * Applies style to text if must be applied.
+     * Applies current style from stack to text, if must be applied.
      *
-     * @param OutputFormatterStyleInterface $style Style to apply
-     * @param string                        $text  Input text
+     * @param string $text Input text
      *
-     * @return string string Styled text
+     * @return string Styled text
      */
-    private function applyStyle(OutputFormatterStyleInterface $style, $text)
+    private function applyCurrentStyle($text)
     {
-        return $this->isDecorated() && strlen($text) > 0 ? $style->apply($text) : $text;
+        return $this->isDecorated() && strlen($text) > 0 ? $this->styleStack->getCurrent()->apply($text) : $text;
     }
 }

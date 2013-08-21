@@ -37,15 +37,15 @@ class FormatterHelperTest extends \PHPUnit_Framework_TestCase
         );
 
         $this->assertEquals(
-            '<error> Some text to display </error>' . "\n" .
+            '<error> Some text to display </error>'."\n" .
             '<error> foo bar              </error>',
             $formatter->formatBlock(array('Some text to display', 'foo bar'), 'error'),
             '::formatBlock() formats a message in a block'
         );
 
         $this->assertEquals(
-            '<error>                        </error>' . "\n" .
-            '<error>  Some text to display  </error>' . "\n" .
+            '<error>                        </error>'."\n" .
+            '<error>  Some text to display  </error>'."\n" .
             '<error>                        </error>',
             $formatter->formatBlock('Some text to display', 'error', true),
             '::formatBlock() formats a message in a block'
@@ -61,11 +61,24 @@ class FormatterHelperTest extends \PHPUnit_Framework_TestCase
         $formatter = new FormatterHelper();
 
         $this->assertEquals(
-            '<error>                       </error>' . "\n" .
-            '<error>  Du texte à afficher  </error>' . "\n" .
+            '<error>                       </error>'."\n" .
+            '<error>  Du texte à afficher  </error>'."\n" .
             '<error>                       </error>',
             $formatter->formatBlock('Du texte à afficher', 'error', true),
             '::formatBlock() formats a message in a block'
+        );
+    }
+
+    public function testFormatBlockLGEscaping()
+    {
+        $formatter = new FormatterHelper();
+
+        $this->assertEquals(
+            '<error>                            </error>'."\n" .
+            '<error>  \<info>some info\</info>  </error>'."\n" .
+            '<error>                            </error>',
+            $formatter->formatBlock('<info>some info</info>', 'error', true),
+            '::formatBlock() escapes \'<\' chars'
         );
     }
 }

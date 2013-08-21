@@ -16,7 +16,7 @@ use Symfony\Component\Config\FileLocator;
 
 class CrossCheckTest extends \PHPUnit_Framework_TestCase
 {
-    static protected $fixturesPath;
+    protected static $fixturesPath;
 
     protected function setUp()
     {
@@ -25,7 +25,7 @@ class CrossCheckTest extends \PHPUnit_Framework_TestCase
         }
     }
 
-    static public function setUpBeforeClass()
+    public static function setUpBeforeClass()
     {
         self::$fixturesPath = __DIR__.'/Fixtures/';
 
@@ -80,18 +80,24 @@ class CrossCheckTest extends \PHPUnit_Framework_TestCase
 
     public function crossCheckLoadersDumpers()
     {
-        return array(
+        $tests = array(
             array('services1.xml', 'xml'),
             array('services2.xml', 'xml'),
             array('services6.xml', 'xml'),
             array('services8.xml', 'xml'),
             array('services9.xml', 'xml'),
-
-            array('services1.yml', 'yaml'),
-            array('services2.yml', 'yaml'),
-            array('services6.yml', 'yaml'),
-            array('services8.yml', 'yaml'),
-            array('services9.yml', 'yaml'),
         );
+
+        if (class_exists('Symfony\Component\Yaml\Yaml')) {
+            $tests = array_merge($tests, array(
+                array('services1.yml', 'yaml'),
+                array('services2.yml', 'yaml'),
+                array('services6.yml', 'yaml'),
+                array('services8.yml', 'yaml'),
+                array('services9.yml', 'yaml'),
+            ));
+        }
+
+        return $tests;
     }
 }

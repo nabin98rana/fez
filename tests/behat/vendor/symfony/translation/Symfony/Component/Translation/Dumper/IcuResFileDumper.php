@@ -68,17 +68,17 @@ class IcuResFileDumper implements DumperInterface
             $resources .= pack('V', $this->getPosition($data));
 
             $data .= pack('V', strlen($target))
-                  .  mb_convert_encoding($target."\0", 'UTF-16LE', 'UTF-8')
-                  .  $this->writePadding($data)
+                .mb_convert_encoding($target."\0", 'UTF-16LE', 'UTF-8')
+                .$this->writePadding($data)
                   ;
         }
 
         $resOffset = $this->getPosition($data);
 
         $data .= pack('v', count($messages))
-              .  $indexes
-              .  $this->writePadding($data)
-              .  $resources
+            .$indexes
+            .$this->writePadding($data)
+            .$resources
               ;
 
         $bundleTop = $this->getPosition($data);
@@ -103,8 +103,8 @@ class IcuResFileDumper implements DumperInterface
         );
 
         $output = $header
-                . $root
-                . $data;
+               .$root
+               .$data;
 
         return $output;
     }
@@ -113,7 +113,7 @@ class IcuResFileDumper implements DumperInterface
     {
         $padding = strlen($data) % 4;
 
-        if ($padding ) {
+        if ($padding) {
             return str_repeat("\xAA", 4 - $padding);
         }
     }

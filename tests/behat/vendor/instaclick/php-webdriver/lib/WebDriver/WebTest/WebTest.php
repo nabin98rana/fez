@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright 2011-2012 Anthon Pang. All Rights Reserved.
+ * Copyright 2011-2013 Anthon Pang. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
  *
  * @package WebDriver
  *
- * @author Anthon Pang <anthonp@nationalfibre.net>
+ * @author Anthon Pang <apang@softwaredevelopment.ca>
  */
 
 namespace WebDriver\WebTest;
@@ -27,7 +27,7 @@ use WebDriver\Exception as WebDriverException;
 /**
  * WebDriver\WebTest\WebTest class - test runner
  *
- * WebDriver-based web test runner, outputing results in TAP format.
+ * WebDriver-based web test runner, outputting results in TAP format.
  *
  * @package WebDriver
  *
@@ -165,8 +165,8 @@ class WebTest
     /**
      * Is this a testable method?
      *
-     * @param string             $className        Class name
-     * @param \RefelectionMethod $reflectionMethod Reflection method
+     * @param string            $className        Class name
+     * @param \ReflectionMethod $reflectionMethod Reflection method
      *
      * @return boolean False if method should not be counted
      */
@@ -252,7 +252,7 @@ class WebTest
                         $reflectionParameters = $reflectionMethod->getParameters();
 
                         foreach ($reflectionParameters as $reflectionParameter) {
-                            if ($reflectionParameter->getName() == 'description'
+                            if ($reflectionParameter->getName() === 'description'
                                 && $reflectionParameter->isDefaultValueAvailable()
                             ) {
                                 $defaultValue = $reflectionParameter->getDefaultValue();
@@ -327,7 +327,7 @@ class WebTest
         /*
          * parse command line options
          */
-        if ($argc == 1) {
+        if ($argc === 1) {
             $argc++;
             array_push($argv, '-h');
         }

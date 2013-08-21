@@ -179,4 +179,18 @@ abstract class JavascriptDriverTest extends GeneralDriverTest
 
         $this->assertContains('OH AIH!', $this->getSession()->getPage()->getText());
     }
+
+    /**
+     * 'change' event should be fired after selecting an <option> in a <select>
+     */
+    public function testIssue255()
+    {
+        $session = $this->getSession();
+        $session->visit($this->pathTo('/issue255.php'));
+
+        $session->getPage()->selectFieldOption('foo_select', 'Option 3');
+
+        $session->wait(2000, '$("#output_foo_select").text() != ""');
+        $this->assertEquals('onChangeSelect', $session->getPage()->find('css', '#output_foo_select')->getText());
+    }
 }

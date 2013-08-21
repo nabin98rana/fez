@@ -26,8 +26,8 @@ class MinkContext extends RawMinkContext implements TranslatedContextInterface
     /**
      * Opens homepage.
      *
-     * @Given /^(?:|I )am on homepage$/
-     * @When /^(?:|I )go to homepage$/
+     * @Given /^(?:|I )am on (?:|the )homepage$/
+     * @When /^(?:|I )go to (?:|the )homepage$/
      */
     public function iAmOnHomepage()
     {
@@ -101,6 +101,7 @@ class MinkContext extends RawMinkContext implements TranslatedContextInterface
      * Fills in form field with specified id|name|label|value.
      *
      * @When /^(?:|I )fill in "(?P<field>(?:[^"]|\\")*)" with "(?P<value>(?:[^"]|\\")*)"$/
+     * @When /^(?:|I )fill in "(?P<field>(?:[^"]|\\")*)" with:$/
      * @When /^(?:|I )fill in "(?P<value>(?:[^"]|\\")*)" for "(?P<field>(?:[^"]|\\")*)"$/
      */
     public function fillField($field, $value)
@@ -178,7 +179,7 @@ class MinkContext extends RawMinkContext implements TranslatedContextInterface
         $field = $this->fixStepArgument($field);
 
         if ($this->getMinkParameter('files_path')) {
-            $fullPath = rtrim($this->getMinkParameter('files_path'), DIRECTORY_SEPARATOR).DIRECTORY_SEPARATOR.$path;
+            $fullPath = rtrim(realpath($this->getMinkParameter('files_path')), DIRECTORY_SEPARATOR).DIRECTORY_SEPARATOR.$path;
             if (is_file($fullPath)) {
                 $path = $fullPath;
             }
@@ -198,13 +199,23 @@ class MinkContext extends RawMinkContext implements TranslatedContextInterface
     }
 
     /**
+     * Checks, that current page is the homepage.
+     *
+     * @Then /^(?:|I )should be on (?:|the )homepage$/
+     */
+    public function assertHomepage()
+    {
+        $this->assertSession()->addressEquals($this->locatePath('/'));
+    }
+
+    /**
      * Checks, that current page PATH matches regular expression.
      *
      * @Then /^the (?i)url(?-i) should match (?P<pattern>"([^"]|\\")*")$/
      */
     public function assertUrlRegExp($pattern)
     {
-        $this->assertSession()->addressMatches($pattern);
+        $this->assertSession()->addressMatches($this->fixStepArgument($pattern));
     }
 
     /**
@@ -318,6 +329,16 @@ class MinkContext extends RawMinkContext implements TranslatedContextInterface
     }
 
     /**
+     * Checks, that element with specified CSS doesn't contain specified HTML.
+     *
+     * @Then /^the "(?P<element>[^"]*)" element should not contain "(?P<value>(?:[^"]|\\")*)"$/
+     */
+    public function assertElementNotContains($element, $value)
+    {
+        $this->assertSession()->elementNotContains('css', $element, $this->fixStepArgument($value));
+    }
+
+    /**
      * Checks, that element with specified CSS exists on page.
      *
      * @Then /^(?:|I )should see an? "(?P<element>[^"]*)" element$/
@@ -344,6 +365,8 @@ class MinkContext extends RawMinkContext implements TranslatedContextInterface
      */
     public function assertFieldContains($field, $value)
     {
+        $field = $this->fixStepArgument($field);
+        $value = $this->fixStepArgument($value);
         $this->assertSession()->fieldValueEquals($field, $value);
     }
 
@@ -354,6 +377,8 @@ class MinkContext extends RawMinkContext implements TranslatedContextInterface
      */
     public function assertFieldNotContains($field, $value)
     {
+        $field = $this->fixStepArgument($field);
+        $value = $this->fixStepArgument($value);
         $this->assertSession()->fieldValueNotEquals($field, $value);
     }
 
@@ -361,20 +386,23 @@ class MinkContext extends RawMinkContext implements TranslatedContextInterface
      * Checks, that checkbox with specified in|name|label|value is checked.
      *
      * @Then /^the "(?P<checkbox>(?:[^"]|\\")*)" checkbox should be checked$/
+     * @Then /^the checkbox "(?P<checkbox>(?:[^"]|\\")*)" (?:is|should be) checked$/
      */
     public function assertCheckboxChecked($checkbox)
     {
-        $this->assertSession()->checkboxChecked($checkbox);
+        $this->assertSession()->checkboxChecked($this->fixStepArgument($checkbox));
     }
 
     /**
      * Checks, that checkbox with specified in|name|label|value is unchecked.
      *
      * @Then /^the "(?P<checkbox>(?:[^"]|\\")*)" checkbox should not be checked$/
+     * @Then /^the checkbox "(?P<checkbox>(?:[^"]|\\")*)" should (?:be unchecked|not be checked)$/
+     * @Then /^the checkbox "(?P<checkbox>(?:[^"]|\\")*)" is (?:unchecked|not checked)$/
      */
     public function assertCheckboxNotChecked($checkbox)
     {
-        $this->assertSession()->checkboxNotChecked($checkbox);
+        $this->assertSession()->checkboxNotChecked($this->fixStepArgument($checkbox));
     }
 
     /**
@@ -385,6 +413,16 @@ class MinkContext extends RawMinkContext implements TranslatedContextInterface
     public function assertNumElements($num, $element)
     {
         $this->assertSession()->elementsCount('css', $element, intval($num));
+    }
+
+    /**
+     * Prints current URL to console.
+     *
+     * @Then /^print current URL$/
+     */
+    public function printCurrentUrl()
+    {
+        $this->printDebug($this->getSession()->getCurrentUrl());
     }
 
     /**
@@ -434,21 +472,6 @@ class MinkContext extends RawMinkContext implements TranslatedContextInterface
     public function getMinkTranslationResources()
     {
         return glob(__DIR__.'/../../../../i18n/*.xliff');
-    }
-
-    /**
-     * Locates url, based on provided path.
-     * Override to provide custom routing mechanism.
-     *
-     * @param string $path
-     *
-     * @return string
-     */
-    protected function locatePath($path)
-    {
-        $startUrl = rtrim($this->getMinkParameter('base_url'), '/') . '/';
-
-        return 0 !== strpos($path, 'http') ? $startUrl . ltrim($path, '/') : $path;
     }
 
     /**

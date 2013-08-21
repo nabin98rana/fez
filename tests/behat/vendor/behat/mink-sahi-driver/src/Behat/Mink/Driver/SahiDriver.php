@@ -6,9 +6,7 @@ use Behat\SahiClient\Client,
     Behat\SahiClient\Exception\ConnectionException;
 
 use Behat\Mink\Session,
-    Behat\Mink\Element\NodeElement,
-    Behat\Mink\Exception\DriverException,
-    Behat\Mink\Exception\UnsupportedDriverActionException;
+    Behat\Mink\Element\NodeElement;
 
 /*
  * This file is part of the Behat\Mink.
@@ -23,7 +21,7 @@ use Behat\Mink\Session,
  *
  * @author Konstantin Kudryashov <ever.zet@gmail.com>
  */
-class SahiDriver implements DriverInterface
+class SahiDriver extends CoreDriver
 {
     private $started = false;
     private $browserName;
@@ -151,68 +149,6 @@ class SahiDriver implements DriverInterface
     }
 
     /**
-     * Sets HTTP Basic authentication parameters
-     *
-     * @param string|Boolean $user     user name or false to disable authentication
-     * @param string         $password password
-     *
-     * @throws UnsupportedDriverActionException
-     */
-    public function setBasicAuth($user, $password)
-    {
-        throw new UnsupportedDriverActionException('HTTP Basic authentication is not supported by %s', $this);
-    }
-
-    /**
-     * Switches to specific browser window.
-     *
-     * @param string $name window name (null for switching back to main window)
-     *
-     * @throws UnsupportedDriverActionException
-     */
-    public function switchToWindow($name = null)
-    {
-        throw new UnsupportedDriverActionException('Window management is broken in Sahi, so %s does not support switching into windows', $this);
-    }
-
-    /**
-     * Switches to specific iFrame.
-     *
-     * @param string $name iframe name (null for switching back)
-     *
-     * @throws UnsupportedDriverActionException
-     */
-    public function switchToIFrame($name = null)
-    {
-        throw new UnsupportedDriverActionException('Sahi does not have ability to switch into iFrames, so %s does not support it too', $this);
-    }
-
-    /**
-     * Sets specific request header on client.
-     *
-     * @param string $name
-     * @param string $value
-     *
-     * @throws UnsupportedDriverActionException
-     */
-    public function setRequestHeader($name, $value)
-    {
-        throw new UnsupportedDriverActionException('Request headers manipulation is not supported by %s', $this);
-    }
-
-    /**
-     * Returns last response headers.
-     *
-     * @return array
-     *
-     * @throws UnsupportedDriverActionException
-     */
-    public function getResponseHeaders()
-    {
-        throw new UnsupportedDriverActionException('Response headers manipulation is not supported by %s', $this);
-    }
-
-    /**
      * Sets cookie.
      *
      * @param string $name
@@ -242,18 +178,6 @@ class SahiDriver implements DriverInterface
         try {
             return urldecode($this->evaluateScript(sprintf('_sahi._cookie("%s")', $name)));
         } catch (ConnectionException $e) {}
-    }
-
-    /**
-     * Returns last response status code.
-     *
-     * @return integer
-     *
-     * @throws UnsupportedDriverActionException
-     */
-    public function getStatusCode()
-    {
-        throw new UnsupportedDriverActionException('Status code reading is not supported by %s', $this);
     }
 
     /**
@@ -356,7 +280,8 @@ JS;
      */
     public function getValue($xpath)
     {
-        $xpath = $this->prepareXPath($xpath);
+        $xpathEscaped = $this->prepareXPath($xpath);
+
         $tag   = $this->getTagName($xpath);
         $type  = $this->getAttribute($xpath, 'type');
         $value = null;
@@ -388,7 +313,7 @@ JS;
                 return $this->evaluateScript($function);
             }
         } elseif ('checkbox' === $type) {
-            return $this->client->findByXPath($xpath)->isChecked();
+            return $this->client->findByXPath($xpathEscaped)->isChecked();
         } elseif ('select' === $tag && 'multiple' === $this->getAttribute($xpath, 'multiple')) {
             $name = $this->getAttribute($xpath, 'name');
 
@@ -412,14 +337,14 @@ JS;
 JS;
             $value = $this->evaluateScript($function);
 
-            if ('' === $value) {
+            if ('' === $value || false === $value) {
                 return array();
             } else {
                 return explode(',', $value);
             }
         }
 
-        return $this->client->findByXPath($xpath)->getValue();
+        return $this->client->findByXPath($xpathEscaped)->getValue();
     }
 
     /**
@@ -689,6 +614,23 @@ JS;
                 var item = elements[f];
                 if ("{$value}" == item.value) {
                     item.checked = true;
+
+                    var event;
+                    if (document.createEvent) {
+                        event = document.createEvent("HTMLEvents");
+                        event.initEvent("change", true, true);
+                    } else {
+                        event = document.createEventObject();
+                        event.eventType = "change";
+                    }
+
+                    event.eventName = "change";
+
+                    if (document.createEvent) {
+                        item.dispatchEvent(event);
+                    } else {
+                        item.fireEvent("on" + event.eventType, event);
+                    }
                 }
             }
         }

@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright 2004-2012 Facebook. All Rights Reserved.
+ * Copyright 2004-2013 Facebook. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@
  * @package WebDriver
  *
  * @author Justin Bishop <jubishop@gmail.com>
- * @author Anthon Pang <anthonp@nationalfibre.net>
+ * @author Anthon Pang <apang@softwaredevelopment.ca>
  * @author Fabrizio Branca <mail@fabrizio-branca.de>
  */
 
@@ -66,15 +66,31 @@ abstract class Container extends AbstractWebDriver
                 $locatorJson
             );
         } catch (WebDriverException\NoSuchElement $e) {
-            throw WebDriverException::factory(WebDriverException::NO_SUCH_ELEMENT,
+            throw WebDriverException::factory(
+                WebDriverException::NO_SUCH_ELEMENT,
                 sprintf(
-                    'Element not found with %s, %s',
+                    "Element not found with %s, %s\n\n%s",
                     $locatorJson['using'],
-                    $locatorJson['value']) . "\n\n" . $e->getMessage(), $e
+		    $locatorJson['value'],
+                    $e->getMessage()
+                ),
+                $e
             );
         }
 
-        return $this->webDriverElement($results['value']);
+        $element = $this->webDriverElement($results['value']);
+
+        if ($element === null) {
+            throw WebDriverException::factory(WebDriverException::NO_SUCH_ELEMENT,
+                sprintf(
+                    "Element not found with %s, %s\n",
+                    $locatorJson['using'],
+                    $locatorJson['value']
+                )
+            );
+        }
+
+        return $element;
     }
 
     /**
@@ -138,7 +154,8 @@ abstract class Container extends AbstractWebDriver
                 }
 
             default:
-                throw WebDriverException::factory(WebDriverException::JSON_PARAMETERS_EXPECTED,
+                throw WebDriverException::factory(
+                    WebDriverException::JSON_PARAMETERS_EXPECTED,
                     sprintf('Invalid arguments to %s method: %s', $method, print_r($argv, true))
                 );
         }
@@ -159,7 +176,8 @@ abstract class Container extends AbstractWebDriver
     public function locate($using, $value)
     {
         if (!in_array($using, $this->strategies)) {
-            throw WebDriverException::factory(WebDriverException::UNKNOWN_LOCATOR_STRATEGY,
+            throw WebDriverException::factory(
+                WebDriverException::UNKNOWN_LOCATOR_STRATEGY,
                 sprintf('Invalid locator strategy %s', $using)
             );
         }
@@ -192,7 +210,7 @@ abstract class Container extends AbstractWebDriver
      */
     public function __call($name, $arguments)
     {
-        if (count($arguments) == 1 && in_array(str_replace('_', ' ', $name), $this->strategies)) {
+        if (count($arguments) === 1 && in_array(str_replace('_', ' ', $name), $this->strategies)) {
             return $this->locate($name, $arguments[0]);
         }
 

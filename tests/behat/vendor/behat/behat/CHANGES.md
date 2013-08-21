@@ -1,3 +1,67 @@
+2.5.0 / 2013-08-11
+==================
+
+  * First Behat LTS release
+  * Update Junit formatter to reflect latest junit format (thanks @alistairstead)
+  * Fix some container options
+
+2.4.6 / 2013-06-06
+==================
+
+  * New --stop-on-failure option
+  * Support JSON in environment variables
+  * Update Gherkin
+  * Support Symfony 2.3
+  * Out-of-the-box support for PHPUnit assertions pretty output
+
+2.4.5 / 2013-01-27
+==================
+
+  * Added wrapping of lines in progress formatter
+  * Added `--append-to` option to be able to add snippets to custom class
+  * Both `ScenarioEvent` and `OutlineExampleEvent` now extend same `BaseScenarioEvent` class
+  * Highly improved ability to create simple custom extensions
+  * Always hide stack traces for `PendingException`
+  * Ensured compatibility with all major symfony versions
+  * Fixed configs import directive and loading precedence
+  * Fixed path to vendor dir (solves problem of custom vendor dirs)
+
+2.4.4 / 2012-09-12
+==================
+
+  * Fixed `RuntimeException` namespacing error
+  * Added `FormatterManager::disableFormatter(s)` method
+  * Updated Gherkin parser and fixed couple of helper bugs
+
+2.4.3 / 2012-07-28
+==================
+
+  * Fixed broken `output_path` setting ([issue #169](https://github.com/Behat/Behat/issues/169))
+  * Added shellbang to phar executable ([issue #167](https://github.com/Behat/Behat/issues/167))
+  * Added feature title to progress exceptions ([issue #166](https://github.com/Behat/Behat/issues/166))
+  * Tuned failed formatter to print only failed examples in outline ([issue #154](https://github.com/Behat/Behat/issues/154))
+  * Small bugfixes
+
+2.4.2 / 2012-06-26
+==================
+
+  * Fixed broken autoloading with Composer installation
+
+2.4.1 / 2012-06-26
+==================
+
+  * Force custom context class usage if user changed it from `FeatureContext`
+  * Clarified `Context class not found` exception
+  * Use CWD for CLI options, basepath (config path) for everything else
+  * Pass `behat.extension.classes` container param to extensions during their load
+  * Tuned `event_subscriber` priorities
+  * Use `require_once` instead of `require` in closured loaders
+  * Fixed transformers bug with falsy transformations (that return **falsy** values)
+  * Fixed custom formatters definition bug
+  * Fixed formatter manager exception bug
+  * Fixed czech translation
+  * Fixed CS to be PSR2 compliant
+
 2.4.0 / 2012-05-15
 ==================
 

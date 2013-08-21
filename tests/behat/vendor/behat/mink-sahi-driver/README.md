@@ -1,6 +1,9 @@
 Mink Sahi.JS Driver
 ===================
 
+[![Build
+Status](https://travis-ci.org/Behat/MinkSahiDriver.png?branch=master)](https://travis-ci.org/Behat/MinkSahiDriver)
+
 Usage Example
 -------------
 
@@ -25,22 +28,17 @@ Installation
 
 ``` json
 {
-    "requires": {
+    "require": {
         "behat/mink":              "1.4.*",
-        "behat/mink-sahi-driver":  "*"
+        "behat/mink-sahi-driver":  "1.0.*"
     }
 }
 ```
 
 ``` bash
-curl http://getcomposer.org/installer | php
-php composer.phar install
+$> curl http://getcomposer.org/installer | php
+$> php composer.phar install
 ```
-
-Copyright
----------
-
-Copyright (c) 2012 Konstantin Kudryashov (ever.zet). See LICENSE for details.
 
 Maintainers
 -----------

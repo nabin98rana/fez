@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright 2011-2012 Anthon Pang. All Rights Reserved.
+ * Copyright 2011-2013 Anthon Pang. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
  *
  * @package WebDriver
  *
- * @author Anthon Pang <anthonp@nationalfibre.net>
+ * @author Anthon Pang <apang@softwaredevelopment.ca>
  */
 
 namespace WebDriver;
@@ -28,8 +28,8 @@ namespace WebDriver;
  *
  * @method array available_engines() List all available engines on the machines.
  * @method string active_engine() Get the name of the active IME engine.
- * @method boolean activated() Indicates whether IME input is active at the momeent.
- * @method void deactivate() De-activates the curently active IME engine.
+ * @method boolean activated() Indicates whether IME input is active at the moment.
+ * @method void deactivate() De-activates the currently active IME engine.
  * @method void activate($json) Make an engine that is available active.
  */
 final class Ime extends AbstractWebDriver

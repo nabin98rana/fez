@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright 2004-2012 Facebook. All Rights Reserved.
+ * Copyright 2004-2013 Facebook. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@
  * @package WebDriver
  *
  * @author Justin Bishop <jubishop@gmail.com>
- * @author Anthon Pang <anthonp@nationalfibre.net>
+ * @author Anthon Pang <apang@softwaredevelopment.ca>
  */
 
 namespace WebDriver;
@@ -45,25 +45,41 @@ final class WebDriver extends AbstractWebDriver
      * New Session: /session (POST)
      * Get session object for chaining
      *
-     * @param string $browser                Browser name
-     * @param array  $additionalCapabilities Additional capabilities desired
+     * @param mixed $requiredCapabilities Required capabilities (or browser name)
+     * @param array $desiredCapabilities  Desired capabilities
      *
      * @return \WebDriver\Session
      */
-    public function session($browser = Browser::FIREFOX, $additionalCapabilities = array())
+    public function session($requiredCapabilities = Browser::FIREFOX, $desiredCapabilities = array())
     {
-        $desiredCapabilities = array_merge(
-            $additionalCapabilities,
-            array(Capability::BROWSER_NAME => $browser)
-        );
+        if (!is_array($desiredCapabilities)) {
+            $desiredCapabilities = array();
+        }
+
+        if (!is_array($requiredCapabilities)) {
+            $desiredCapabilities = array_merge(
+                $desiredCapabilities,
+                array(Capability::BROWSER_NAME => $requiredCapabilities)
+            );
+
+            $requiredCapabilities = array();
+        }
 
         $results = $this->curl(
             'POST',
             '/session',
-            array('desiredCapabilities' => $desiredCapabilities),
+            array(
+                'desiredCapabilities' => $desiredCapabilities,
+                'requiredCapabilities' => $requiredCapabilities,
+            ),
             array(CURLOPT_FOLLOWLOCATION => true)
         );
 
+        if (isset($results['value']['webdriver.remote.sessionid'])) {
+            return new Session($this->url . '/session/' . $results['value']['webdriver.remote.sessionid']);
+        }
+
+        // backward compatibility fallback
         return new Session($results['info']['url']);
     }
 

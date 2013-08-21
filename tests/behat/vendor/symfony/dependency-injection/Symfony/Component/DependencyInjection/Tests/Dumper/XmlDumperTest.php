@@ -16,16 +16,9 @@ use Symfony\Component\DependencyInjection\Dumper\XmlDumper;
 
 class XmlDumperTest extends \PHPUnit_Framework_TestCase
 {
-    static protected $fixturesPath;
+    protected static $fixturesPath;
 
-    protected function setUp()
-    {
-        if (!class_exists('Symfony\Component\Config\Loader\Loader')) {
-            $this->markTestSkipped('The "Config" component is not available');
-        }
-    }
-
-    static public function setUpBeforeClass()
+    public static function setUpBeforeClass()
     {
         self::$fixturesPath = realpath(__DIR__.'/../Fixtures/');
     }

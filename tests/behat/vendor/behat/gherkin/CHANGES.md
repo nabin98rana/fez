@@ -1,3 +1,33 @@
+2.2.9 / 2013-03-02
+==================
+
+  * Fix dependency version requirement
+
+2.2.8 / 2013-03-02
+==================
+
+  * Features filtering behavior change. Now emptified (by filtering) features
+    that do not match filter themselves are removed from resultset.
+  * Small potential bug fix in TableNode
+
+2.2.7 / 2013-01-27
+==================
+
+  * Fixed bug in i18n syncing script
+  * Resynced Gherkin i18n
+
+2.2.6 / 2013-01-26
+==================
+
+  * Support long row hashes in tables ([see](https://github.com/Behat/Gherkin/issues/40))
+  * Synced Gherkin i18n
+
+2.2.5 / 2012-09-26
+==================
+
+  * Fixed issue with loading empty features
+  * Synced Gherkin i18n
+
 2.2.4 / 2012-08-03
 ==================
 

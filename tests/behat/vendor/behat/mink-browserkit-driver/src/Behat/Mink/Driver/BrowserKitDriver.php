@@ -4,10 +4,12 @@ namespace Behat\Mink\Driver;
 
 use Symfony\Component\BrowserKit\Client,
     Symfony\Component\BrowserKit\Cookie,
+    Symfony\Component\BrowserKit\Response,
     Symfony\Component\DomCrawler\Crawler,
     Symfony\Component\DomCrawler\Form,
     Symfony\Component\DomCrawler\Field,
     Symfony\Component\DomCrawler\Field\FormField;
+use Symfony\Component\HttpFoundation\Response as HttpFoundationResponse;
 
 use Behat\Mink\Session,
     Behat\Mink\Element\NodeElement,
@@ -28,12 +30,14 @@ use Behat\Mink\Session,
  *
  * @author Konstantin Kudryashov <ever.zet@gmail.com>
  */
-class BrowserKitDriver implements DriverInterface
+class BrowserKitDriver extends CoreDriver
 {
     private $session;
     private $client;
     private $forms = array();
     private $started = false;
+    private $removeScriptFromUrl = true;
+    private $removeHostFromUrl = false;
 
     /**
      * Initializes Goutte driver.
@@ -64,6 +68,26 @@ class BrowserKitDriver implements DriverInterface
     public function setSession(Session $session)
     {
         $this->session = $session;
+    }
+
+    /**
+     * Tells driver to remove hostname from URL.
+     *
+     * @param Boolean $remove
+     */
+    public function setRemoveHostFromUrl($remove = true)
+    {
+        $this->removeHostFromUrl = (bool) $remove;
+    }
+
+    /**
+     * Tells driver to remove scriptname from URL.
+     *
+     * @param Boolean $remove
+     */
+    public function setRemoveScriptFromUrl($remove = true)
+    {
+        $this->removeScriptFromUrl = (bool) $remove;
     }
 
     /**
@@ -152,30 +176,6 @@ class BrowserKitDriver implements DriverInterface
     }
 
     /**
-     * Switches to specific browser window.
-     *
-     * @param string $name window name (null for switching back to main window)
-     *
-     * @throws UnsupportedDriverActionException
-     */
-    public function switchToWindow($name = null)
-    {
-        throw new UnsupportedDriverActionException('Window management is not supported by %s', $this);
-    }
-
-    /**
-     * Switches to specific iFrame.
-     *
-     * @param string $name iframe name (null for switching back)
-     *
-     * @throws UnsupportedDriverActionException
-     */
-    public function switchToIFrame($name = null)
-    {
-        throw new UnsupportedDriverActionException('iFrame management is not supported by %s', $this);
-    }
-
-    /**
      * Sets HTTP Basic authentication parameters
      *
      * @param string|Boolean $user     user name or false to disable authentication
@@ -232,21 +232,7 @@ class BrowserKitDriver implements DriverInterface
      */
     public function getResponseHeaders()
     {
-        $headers         = array();
-        $responseHeaders = trim($this->client->getResponse()->headers->__toString());
-
-        foreach (explode("\r\n", $responseHeaders) as $header) {
-            list($name, $value) = array_map('trim', explode(':', $header, 2));
-
-            if (isset($headers[$name])) {
-                $headers[$name]   = array($headers[$name]);
-                $headers[$name][] = $value;
-            } else {
-                $headers[$name] = $value;
-            }
-        }
-
-        return $headers;
+        return $this->getResponse()->getHeaders();
     }
 
     /**
@@ -306,7 +292,7 @@ class BrowserKitDriver implements DriverInterface
      */
     public function getStatusCode()
     {
-        return $this->client->getResponse()->getStatusCode();
+        return $this->getResponse()->getStatus();
     }
 
     /**
@@ -316,7 +302,7 @@ class BrowserKitDriver implements DriverInterface
      */
     public function getContent()
     {
-        return $this->client->getResponse()->getContent();
+        return $this->getResponse()->getContent();
     }
 
     /**
@@ -506,6 +492,13 @@ class BrowserKitDriver implements DriverInterface
                 $this->mergeForms($form, $this->forms[$formId]);
             }
 
+            // remove empty file fields from request
+            foreach ($form->getFiles() as $name => $field) {
+                if (empty($field['name']) && empty($field['tmp_name'])) {
+                    $form->remove($name);
+                }
+            }
+
             $this->client->submit($form);
         } else {
             throw new DriverException(sprintf(
@@ -539,170 +532,38 @@ class BrowserKitDriver implements DriverInterface
         $this->getFormField($xpath)->upload($path);
     }
 
-    /**
-     * Double-clicks button or link located by it's XPath query.
-     *
-     * @param string $xpath
-     *
-     * @throws UnsupportedDriverActionException
-     */
-    public function doubleClick($xpath)
+    protected function getResponse()
     {
-        throw new UnsupportedDriverActionException('Double-clicking is not supported by %s', $this);
-    }
+        $response = $this->getClient()->getResponse();
 
-    /**
-     * Right-clicks button or link located by it's XPath query.
-     *
-     * @param string $xpath
-     *
-     * @throws UnsupportedDriverActionException
-     */
-    public function rightClick($xpath)
-    {
-        throw new UnsupportedDriverActionException('Right-clicking is not supported by %s', $this);
-    }
+        if ($response instanceof Response) {
+            return $response;
+        }
 
-    /**
-     * Simulates a mouse over on the element.
-     *
-     * @param string $xpath
-     *
-     * @throws UnsupportedDriverActionException
-     */
-    public function mouseOver($xpath)
-    {
-        throw new UnsupportedDriverActionException('Mouse moving is not supported by %s', $this);
-    }
+        // due to a bug, the HttpKernel client implementation returns the HttpFoundation response
+        // The conversion logic is copied from Symfony\Component\HttpKernel\Client::filterResponse
+        if ($response instanceof HttpFoundationResponse) {
+            $headers = $response->headers->all();
+            if ($response->headers->getCookies()) {
+                $cookies = array();
+                foreach ($response->headers->getCookies() as $cookie) {
+                    $cookies[] = new Cookie($cookie->getName(), $cookie->getValue(), $cookie->getExpiresTime(), $cookie->getPath(), $cookie->getDomain(), $cookie->isSecure(), $cookie->isHttpOnly());
+                }
+                $headers['Set-Cookie'] = $cookies;
+            }
 
-    /**
-     * Brings focus to element.
-     *
-     * @param string $xpath
-     *
-     * @throws UnsupportedDriverActionException
-     */
-    public function focus($xpath)
-    {
-        throw new UnsupportedDriverActionException('Focus actions are not supported by %s', $this);
-    }
+            // this is needed to support StreamedResponse
+            ob_start();
+            $response->sendContent();
+            $content = ob_get_clean();
 
-    /**
-     * Removes focus from element.
-     *
-     * @param string $xpath
-     *
-     * @throws UnsupportedDriverActionException
-     */
-    public function blur($xpath)
-    {
-        throw new UnsupportedDriverActionException('Focus actions are not supported by %s', $this);
-    }
+            return new Response($content, $response->getStatusCode(), $headers);
+        }
 
-    /**
-     * Presses specific keyboard key.
-     *
-     * @param string $xpath
-     * @param mixed  $char     could be either char ('b') or char-code (98)
-     * @param string $modifier keyboard modifier (could be 'ctrl', 'alt', 'shift' or 'meta')
-     *
-     * @throws UnsupportedDriverActionException
-     */
-    public function keyPress($xpath, $char, $modifier = null)
-    {
-        throw new UnsupportedDriverActionException('Keyboard actions are not supported by %s', $this);
-    }
-
-    /**
-     * Pressed down specific keyboard key.
-     *
-     * @param string $xpath
-     * @param mixed  $char     could be either char ('b') or char-code (98)
-     * @param string $modifier keyboard modifier (could be 'ctrl', 'alt', 'shift' or 'meta')
-     *
-     * @throws UnsupportedDriverActionException
-     */
-    public function keyDown($xpath, $char, $modifier = null)
-    {
-        throw new UnsupportedDriverActionException('Keyboard actions are not supported by %s', $this);
-    }
-
-    /**
-     * Pressed up specific keyboard key.
-     *
-     * @param string $xpath
-     * @param mixed  $char     could be either char ('b') or char-code (98)
-     * @param string $modifier keyboard modifier (could be 'ctrl', 'alt', 'shift' or 'meta')
-     *
-     * @throws UnsupportedDriverActionException
-     */
-    public function keyUp($xpath, $char, $modifier = null)
-    {
-        throw new UnsupportedDriverActionException('Keyboard actions are not supported by %s', $this);
-    }
-
-    /**
-     * Executes JS script.
-     *
-     * @param string $script
-     *
-     * @throws UnsupportedDriverActionException
-     */
-    public function executeScript($script)
-    {
-        throw new UnsupportedDriverActionException('JS scripts execution is not supported by %s', $this);
-    }
-
-    /**
-     * Evaluates JS script.
-     *
-     * @param string $script
-     *
-     * @throws UnsupportedDriverActionException
-     */
-    public function evaluateScript($script)
-    {
-        throw new UnsupportedDriverActionException('JS scripts execution is not supported by %s', $this);
-    }
-
-    /**
-     * Waits some time or until JS condition turns true.
-     *
-     * @param integer $time      time in milliseconds
-     * @param string  $condition JS condition
-     *
-     * @throws UnsupportedDriverActionException
-     */
-    public function wait($time, $condition)
-    {
-        throw new UnsupportedDriverActionException('JS scripts execution is not supported by %s', $this);
-    }
-
-    /**
-     * Checks whether element visible located by it's XPath query.
-     *
-     * @param string $xpath
-     *
-     * @return Boolean
-     *
-     * @throws UnsupportedDriverActionException
-     */
-    public function isVisible($xpath)
-    {
-        throw new UnsupportedDriverActionException('Element visibility check is not supported by %s', $this);
-    }
-
-    /**
-     * Drag one element onto another.
-     *
-     * @param string $sourceXpath
-     * @param string $destinationXpath
-     *
-     * @throws UnsupportedDriverActionException
-     */
-    public function dragTo($sourceXpath, $destinationXpath)
-    {
-        throw new UnsupportedDriverActionException('Element dragging is not supported by %s', $this);
+        throw new \LogicException(sprintf(
+            'The BrowserKit client returned an unsupported response implementation: %s',
+            get_class($response)
+        ));
     }
 
     /**
@@ -715,7 +576,9 @@ class BrowserKitDriver implements DriverInterface
      */
     protected function prepareUrl($url)
     {
-        return preg_replace('/^(https?\:\/\/[^\/]+)(\/[^\/]+\.php)?/', '$1', $url);
+        return preg_replace('#(https?\://[^/]+)(/[^/\.]+\.php)?#',
+            ($this->removeHostFromUrl ? '' : '$1').($this->removeScriptFromUrl ? '' : '$2'), $url
+        );
     }
 
     /**
@@ -728,7 +591,7 @@ class BrowserKitDriver implements DriverInterface
      * @throws ElementNotFoundException
      * @throws \LogicException
      */
-    private function getFormField($xpath)
+    protected function getFormField($xpath)
     {
         if (!count($crawler = $this->getCrawler()->filterXPath($xpath))) {
             throw new ElementNotFoundException(
@@ -739,6 +602,19 @@ class BrowserKitDriver implements DriverInterface
         $fieldNode = $this->getCrawlerNode($crawler);
         $fieldName = str_replace('[]', '', $fieldNode->getAttribute('name'));
         $formNode  = $fieldNode;
+
+        // we will access our element by name next, but that's not unique, so we need to know wich is ou element
+        $elements = $this->getCrawler()->filterXPath('//*[@name=\''.$fieldNode->getAttribute('name').'\']');
+        $position = 0;
+        if(count($elements) > 1) {
+            // more than one element contains this name !
+            // so we need to find the position of $fieldNode
+            foreach($elements as $key => $element) {
+                if($element->getAttribute('id') == $fieldNode->getAttribute('id')) {
+                    $position = $key;
+                }
+            }
+        }
 
         do {
             // use the ancestor form element
@@ -751,6 +627,10 @@ class BrowserKitDriver implements DriverInterface
 
         // check if form already exists
         if (isset($this->forms[$formId])) {
+            if (is_array($this->forms[$formId][$fieldName])) {
+                return $this->forms[$formId][$fieldName][$position];
+            }
+
             return $this->forms[$formId][$fieldName];
         }
 
@@ -762,6 +642,10 @@ class BrowserKitDriver implements DriverInterface
         }
 
         $this->forms[$formId] = new Form($buttonNode, $this->client->getRequest()->getUri());
+
+        if (is_array($this->forms[$formId][$fieldName])) {
+            return $this->forms[$formId][$fieldName][$position];
+        }
 
         return $this->forms[$formId][$fieldName];
     }
