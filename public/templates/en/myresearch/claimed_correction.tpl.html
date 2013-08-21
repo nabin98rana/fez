@@ -157,7 +157,7 @@ function cancel()
 </script>
 {/literal}
 
-<h1>Fix Records {if $smarty.const.TAG_UPLOAD_FILES == 'ON'}/ Upload files for open access and HERDC evidence{/if} </h1>
+<h1>Fix Records / Upload files for open access and HERDC evidence </h1>
 
 {if $isUPO}
 	{include file="myresearch/acting.tpl.html"}
@@ -231,7 +231,7 @@ function cancel()
 	<input type="radio" name="type" id="rad-not-mine" value="rad-not-mine" onclick="javascript:toggleCorrections(); notMine('{$pid}');" /> This is not my record<br />
     <input type="radio" name="type" id="rad-dupe" value="rad-dupe" onclick="javascript:toggleCorrections();" /> I am the author of this publication, but the record is a duplicate<br />
 	<input type="radio" name="type" id="rad-fix" value="rad-fix" onclick="javascript:toggleCorrections();" /> I would like to report a problem<br />
-    <span {if $smarty.const.TAG_UPLOAD_FILES != 'ON'}style="display: none;"{/if}><input type="radio" name="type" id="rad-upload" value="rad-upload" onclick="javascript:toggleCorrections();" /> I would like to upload an Open Access or HERDC evidence file</span>
+    <input type="radio" name="type" id="rad-upload" value="rad-upload" onclick="javascript:toggleCorrections();" /> I would like to upload an Open Access or HERDC evidence file
 
 </p>
 
@@ -272,7 +272,3 @@ function cancel()
 		<input type="hidden" name="action" value="not-mine" />
 	</div>
 </form>
-        <script type="text/javascript">
-//$('input:radio[name="type"]').filter('[value="rad-upload"]').attr('checked', true);
-//toggleCorrections();
-        </script>
