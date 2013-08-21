@@ -425,7 +425,7 @@ class FeatureContext extends MinkContext
   {
     // Check this isn't a modal popup
 //    $popupText = $this->assertPopupMessage('');
-//    if (!$this->getSession()->getDriver()->wdSession->getAlert()) {
+//    if (!$this->getSession()->getDriver()->getWebDriverSession()->getAlert()) {
     if (!($this->getSession()->getDriver() instanceof Behat\Mink\Driver\GoutteDriver) &&
       !($this->getSession()->getDriver() instanceof Behat\Mink\Driver\ZombieDriver)) {
 
@@ -664,7 +664,7 @@ public function afterScenario($event)
    */
   public function confirmPopup()
   {
-    $this->getSession()->getDriver()->wdSession->accept_alert();
+    $this->getSession()->getDriver()->getWebDriverSession()->accept_alert();
   }
 
   /**
@@ -672,7 +672,7 @@ public function afterScenario($event)
    */
   public function cancelPopup()
   {
-    $this->getSession()->getDriver()->wdSession->dismiss_alert();
+    $this->getSession()->getDriver()->getWebDriverSession()->dismiss_alert();
   }
 
   /**
@@ -684,7 +684,7 @@ public function afterScenario($event)
    */
   public function assertPopupMessage($message)
   {
-    return $message == $this->getSession()->getDriver()->wdSession->getAlert_text();
+    return $message == $this->getSession()->getDriver()->getWebDriverSession()->getAlert_text();
 
 
   }
@@ -696,7 +696,7 @@ public function afterScenario($event)
    */
   public function setPopupText($test)
   {
-    $this->getSession()->getDriver()->wdSession->postAlert_text($test);
+    $this->getSession()->getDriver()->getWebDriverSession()->postAlert_text($test);
   }
 
   /**
@@ -966,7 +966,7 @@ abstract class BackgroundService {
     // Store the output of the background service and it's pid in temporary
     // files in the system tmp directory.
     $directory = sys_get_temp_dir() . '/background-services';
-    @mkdir($directory);
+    mkdir($directory);
     $unique_file = tempnam($directory, 'background-service-');
     $this->pid_file_name =  $unique_file . '.pid';
     $this->output_file_name = $unique_file . '.out';
