@@ -30,6 +30,7 @@
         <parameter key="behat.options.stop_on_failure">false</parameter>
         <parameter key="behat.options.append_snippets">null</parameter>
         <parameter key="behat.options.retry_scenario">null</parameter>
+        <parameter key="behat.options.retry_step">null</parameter>
 
         <!-- Gherkin Parser -->
         <parameter key="gherkin.class">Behat\Gherkin\Gherkin</parameter>

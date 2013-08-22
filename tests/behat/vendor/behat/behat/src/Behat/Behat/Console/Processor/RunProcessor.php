@@ -65,7 +65,10 @@ class RunProcessor extends Processor
                 "Appends snippets for undefined steps into specified class."
             )
             ->addOption('--retry-scenario', null, InputOption::VALUE_REQUIRED,
-                "Attempt to retry a scenario a given ammount of times after  a step fails."
+                "Attempt to retry a scenario a given amount of times after a step fails."
+            )
+            ->addOption('--retry-step', null, InputOption::VALUE_REQUIRED,
+              "Attempt to retry a step a given amount of times after a step fails."
             )
         ;
     }
@@ -95,8 +98,12 @@ class RunProcessor extends Processor
         if ($retry = $input->getOption('retry-scenario') ?: $this->container->getParameter('behat.options.retry_scenario')) {
             $command->setRetryScenario($retry);
         }
+        if ($retry = $input->getOption('retry-step') ?: $this->container->getParameter('behat.options.retry_step')) {
+          $command->setRetryStep($retry);
+        }
 
-        if ($file = $input->getOption('rerun') ?: $this->container->getParameter('behat.options.rerun')) {
+
+      if ($file = $input->getOption('rerun') ?: $this->container->getParameter('behat.options.rerun')) {
             if (file_exists($file)) {
                 $command->setFeaturesPaths(explode("\n", trim(file_get_contents($file))));
             }

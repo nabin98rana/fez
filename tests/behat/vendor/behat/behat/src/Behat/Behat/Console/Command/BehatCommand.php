@@ -10,7 +10,8 @@ use Behat\Gherkin\Gherkin;
 
 use Behat\Behat\Console\Input\InputDefinition,
     Behat\Behat\Console\Processor\ProcessorInterface,
-    Behat\Behat\Event\SuiteEvent;
+    Behat\Behat\Event\SuiteEvent,
+    Behat\Behat\Event\StepEvent;
 
 /*
  * This file is part of the Behat.
