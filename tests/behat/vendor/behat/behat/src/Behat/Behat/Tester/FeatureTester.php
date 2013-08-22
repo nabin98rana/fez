@@ -10,7 +10,8 @@ use Behat\Gherkin\Node\NodeVisitorInterface,
     Behat\Gherkin\Node\OutlineNode;
 
 use Behat\Behat\Exception\BehaviorException,
-    Behat\Behat\Event\FeatureEvent;
+    Behat\Behat\Event\FeatureEvent,
+    Behat\Behat\Event\StepEvent;;
 
 /*
  * This file is part of the Behat.
@@ -31,6 +32,18 @@ class FeatureTester implements NodeVisitorInterface
     private $dispatcher;
     private $parameters;
     private $skip = false;
+    /**
+     * Count of retry attempts for the tester.
+     *
+     * @var     integer
+     */
+    private $allowedRetryAttempts = 0;
+    /**
+     * Current retry attempt count.
+     *
+     * @var     integer
+     */
+    private $retryAttempt = 0;
 
     /**
      * Initializes tester.
@@ -42,6 +55,26 @@ class FeatureTester implements NodeVisitorInterface
         $this->container  = $container;
         $this->dispatcher = $container->get('behat.event_dispatcher');
         $this->parameters = $container->get('behat.context.dispatcher')->getContextParameters();
+    }
+
+  /**
+   * Set count of retry attempts for the tester.
+   *
+   * @param   integer $count
+   */
+    public function setAllowedRetryAttempts($count)
+    {
+        $this->allowedRetryAttempts = $count;
+    }
+
+    /**
+     * Check wheter there are retry attempts left.
+     *
+     * @return  Boolean
+     */
+    public function isAttemptsLeft()
+    {
+          return $this->retryAttempt < $this->allowedRetryAttempts;
     }
 
     /**
@@ -70,10 +103,14 @@ class FeatureTester implements NodeVisitorInterface
         );
 
         $result = 0;
+        $this->retryAttempt = 0;
         $skip   = false;
 
         // Visit & test scenarios
-        foreach ($feature->getScenarios() as $scenario) {
+        //foreach ($feature->getScenarios() as $scenario) {
+        $scenarioIterator = new \ArrayIterator($feature->getScenarios());
+        while ($scenarioIterator->valid()) {
+            $scenario = $scenarioIterator->current();
             if ($scenario instanceof OutlineNode) {
                 $tester = $this->container->get('behat.tester.outline');
             } elseif ($scenario instanceof ScenarioNode) {
@@ -85,7 +122,15 @@ class FeatureTester implements NodeVisitorInterface
             }
 
             $tester->setSkip($skip || $this->skip);
-            $result = max($result, $scenario->accept($tester));
+            //$result = max($result, $scenario->accept($tester));
+            $tester->setAllowInstability($this->isAttemptsLeft());
+            $scResult = $scenario->accept($tester);
+            $result = max($result, $scResult);
+
+            if (StepEvent::UNSTABLE !== $scResult) {
+                $scenarioIterator->next();
+            }
+            $this->retryAttempt++;
         }
 
         $this->dispatcher->dispatch(

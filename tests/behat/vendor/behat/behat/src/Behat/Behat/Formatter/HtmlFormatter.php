@@ -805,6 +805,11 @@ HTML
             border-color:cyan !important;
             color:#000;
         }
+        #behat .unstable {
+            background:#BDAEC6;
+            color:#421C52;
+            border-color:#732C7B !important;
+        }
         #behat .summary {
             position: absolute;
             top: 0px;

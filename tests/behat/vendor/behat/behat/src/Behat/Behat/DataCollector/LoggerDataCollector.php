@@ -33,7 +33,8 @@ class LoggerDataCollector implements EventSubscriberInterface
         StepEvent::SKIPPED     => 'skipped',
         StepEvent::PENDING     => 'pending',
         StepEvent::UNDEFINED   => 'undefined',
-        StepEvent::FAILED      => 'failed'
+        StepEvent::FAILED      => 'failed',
+        StepEvent::UNSTABLE    => 'unstable'
     );
     private $suiteResult          = 0;
     private $featuresCount        = 0;

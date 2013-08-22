@@ -11,6 +11,7 @@
         'pending_count'       => '[1,Inf] %1% pending',
         'undefined_count'     => '[1,Inf] %1% undefined',
         'skipped_count'       => '[1,Inf] %1% skipped',
+        'unstable_count'      => '[1,Inf] %1% unstable',
     ),
     'cs' =>
     array (
@@ -24,6 +25,7 @@
         'pending_count'       => '{1} %1% čeká|{2,3,4} %1% čekají|]4,Inf] %1% čeká',
         'undefined_count'     => '{1} %1% nedefinován|{2,3,4} %1% nedefinovány|]4,Inf] %1% nedefinováno',
         'skipped_count'       => '{1} %1% přeskočen|{2,3,4} %1% přeskočeny|]4,Inf] %1% přeskočeno',
+        'unstable_count'      => '[1,Inf] %1% unstable',
     ),
     'de' =>
     array (
@@ -37,6 +39,7 @@
         'pending_count'       => '[1,Inf] %1% ausbleibend',
         'undefined_count'     => '[1,Inf] %1% undefiniert',
         'skipped_count'       => '[1,Inf] %1% übersprungen',
+        'unstable_count'      => '[1,Inf] %1% unstable',
     ),
     'es' =>
     array (
@@ -50,6 +53,7 @@
         'pending_count'       => '[1,Inf] %1% pendientes',
         'undefined_count'     => '[1,Inf] %1% sin definir',
         'skipped_count'       => '[1,Inf] %1% omitidos',
+        'unstable_count'      => '[1,Inf] %1% unstable',
     ),
     'fr' =>
     array (
@@ -63,6 +67,7 @@
         'pending_count'       => '[1,Inf] %1% en attente',
         'undefined_count'     => '[1,Inf] %1% non définies',
         'skipped_count'       => '[1,Inf] %1% ignorées',
+        'unstable_count'      => '[1,Inf] %1% unstable',
     ),
     'id' =>
     array (
@@ -76,6 +81,7 @@
         'pending_count'       => '[1,Inf] %1% ditunda',
         'undefined_count'     => '[1,Inf] %1% tidak terdefinisikan',
         'skipped_count'       => '[1,Inf] %1% dilewat',
+        'unstable_count'      => '[1,Inf] %1% unstable',
     ),
     'it' =>
     array (
@@ -89,6 +95,7 @@
         'pending_count'       => '[1,Inf] %1% in attesa',
         'undefined_count'     => '[1,Inf] %1% non definito',
         'skipped_count'       => '[1,Inf] %1% saltato',
+        'unstable_count'      => '[1,Inf] %1% unstable',
     ),
     'ja' =>
     array (
@@ -102,6 +109,7 @@
         'pending_count'       => '[1,Inf] %1% 個ペンディング',
         'undefined_count'     => '[1,Inf] %1% 個未定義',
         'skipped_count'       => '[1,Inf] %1% 個スキップ',
+        'unstable_count'      => '[1,Inf] %1% unstable',
     ),
     'nl' =>
     array (
@@ -115,6 +123,7 @@
         'pending_count'       => '[1,Inf] %1% wachtend',
         'undefined_count'     => '[1,Inf] %1% ongedefinieerd',
         'skipped_count'       => '[1,Inf] %1% overgeslagen',
+        'unstable_count'      => '[1,Inf] %1% unstable',
     ),
     'pl' =>
     array (
@@ -128,6 +137,7 @@
         'pending_count'       => '{1} %1% oczekujący|{2,3,4,22,23,24,32,33,34,42,43,44} %1% oczekujące|]4,Inf] %1% oczekujących',
         'undefined_count'     => '{1} %1% niezdefiniowany|{2,3,4,22,23,24,32,33,34,42,43,44} %1% niezdefiniowane|]4,Inf] %1% niezdefiniowanych',
         'skipped_count'       => '{1} %1% pominięty|{2,3,4,22,23,24,32,33,34,42,43,44} %1% pominięte|]4,Inf] %1% pominiętych',
+        'unstable_count'      => '[1,Inf] %1% unstable',
     ),
     'pt' =>
     array (
@@ -141,6 +151,7 @@
         'pending_count'       => '{1} %1% pendente|]1,Inf] %1% pendentes',
         'undefined_count'     => '{1} %1% indefinido|]1,Inf] %1% indefinidos',
         'skipped_count'       => '{1} %1% ignorado|]1,Inf] %1% ignorados',
+        'unstable_count'      => '[1,Inf] %1% unstable',
     ),
     'ru' =>
     array (
@@ -154,6 +165,7 @@
         'pending_count'       => '[1,Inf] %1% в ожидании',
         'undefined_count'     => '{1,21,31} %1% не определен|]1,Inf] %1% не определено',
         'skipped_count'       => '{1,21,31} %1% пропущен|]1,Inf] %1% пропущено',
+        'unstable_count'      => '[1,Inf] %1% unstable',
     ),
     'sk' =>
     array(
@@ -167,6 +179,7 @@
         'pending_count' => '{1} %1% čaká|{2,3,4} %1% čakajú|]4,Inf] %1% čaká',
         'undefined_count' => '{1} %1% nedefinovaný|{2,3,4} %1% nedefinované|]4,Inf] %1% nedefinovaných',
         'skipped_count' => '{1} %1% preskočený|{2,3,4} %1% preskočené|]4,Inf] %1% preskočených',
+        'unstable_count'      => '[1,Inf] %1% unstable',
     ),
     'zh-CN' =>
     array (
@@ -180,6 +193,7 @@
         'pending_count' => '[1,Inf] %1% 待定的',
         'undefined_count' => '[1,Inf] %1% 未定义',
         'skipped_count' => '[1,Inf] %1% 跳过的',
+        'unstable_count'      => '[1,Inf] %1% unstable',
     ),
     'tr' =>
     array (
@@ -193,5 +207,6 @@
         'pending_count'       => '[1,Inf] %1% bekleyen',
         'undefined_count'     => '[1,Inf] %1% tanımlanmamış',
         'skipped_count'       => '[1,Inf] %1% atlandı',
+        'unstable_count'      => '[1,Inf] %1% unstable',
     )
 );

@@ -64,6 +64,9 @@ class RunProcessor extends Processor
             ->addOption('--append-to', null, InputOption::VALUE_REQUIRED,
                 "Appends snippets for undefined steps into specified class."
             )
+            ->addOption('--retry-scenario', null, InputOption::VALUE_REQUIRED,
+                "Attempt to retry a scenario a given ammount of times after  a step fails."
+            )
         ;
     }
 
@@ -89,6 +92,9 @@ class RunProcessor extends Processor
         $hookDispatcher->setDryRun(
             $input->getOption('dry-run') || $this->container->getParameter('behat.options.dry_run')
         );
+        if ($retry = $input->getOption('retry-scenario') ?: $this->container->getParameter('behat.options.retry_scenario')) {
+            $command->setRetryScenario($retry);
+        }
 
         if ($file = $input->getOption('rerun') ?: $this->container->getParameter('behat.options.rerun')) {
             if (file_exists($file)) {
@@ -161,7 +167,7 @@ class RunProcessor extends Processor
     protected function initializeStopOnFailure()
     {
         $command = $this->container->get('behat.console.command');
-        
+
         $this->container->get('behat.event_dispatcher')
             ->addListener('afterScenario', function ($scenarioEvent) use ($command) {
                 if ($scenarioEvent->getResult() === StepEvent::FAILED) {

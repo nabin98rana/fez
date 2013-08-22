@@ -24,6 +24,7 @@ abstract class BaseScenarioEvent extends Event implements EventInterface
     private $context;
     private $result;
     private $skipped;
+    private $attempts;
 
     /**
      * Initializes scenario event.
@@ -32,11 +33,12 @@ abstract class BaseScenarioEvent extends Event implements EventInterface
      * @param integer          $result
      * @param Boolean          $skipped
      */
-    public function __construct(ContextInterface $context, $result = null, $skipped = false)
+    public function __construct(ContextInterface $context, $result = null, $skipped = false, $attempts = null)
     {
         $this->context = $context;
         $this->result  = $result;
         $this->skipped = $skipped;
+        $this->attempts = $attempts;
     }
 
     /**
@@ -67,5 +69,36 @@ abstract class BaseScenarioEvent extends Event implements EventInterface
     public function isSkipped()
     {
         return $this->skipped;
+    }
+
+    /**
+     * Get count on scenario attempts.
+     *
+     * @return integer|null
+     */
+    public function getAttempts()
+    {
+        return $this->attempts;
+    }
+
+    /**
+     * Checks wheter scenario has attempts.
+     *
+     * @return bool
+     */
+    public function hasAttempts()
+    {
+          return null !== $this->getAttempts();
+    }
+
+    /**
+     * Checks wheter scenario has been completet after
+     * more then one attempt and is consideret as unstable.
+     *
+     * @return Boolean
+     */
+    public function isUnstable()
+    {
+          return 1 < intval($this->getAttempts());
     }
 }

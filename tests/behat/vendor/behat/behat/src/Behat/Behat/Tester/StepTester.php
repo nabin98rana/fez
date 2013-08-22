@@ -38,6 +38,18 @@ class StepTester implements NodeVisitorInterface
     private $context;
     private $definitions;
     private $skip = false;
+    /**
+     * Allow step instability instead of immidiate fail.
+     *
+     * @var     boolean
+     */
+    private $allowInstability = false;
+    /**
+     * Is test marked as unstable.
+     *
+     * @var     boolean
+     */
+    private $unstable = false;
 
     /**
      * Initializes tester.
@@ -48,6 +60,27 @@ class StepTester implements NodeVisitorInterface
     {
         $this->dispatcher  = $container->get('behat.event_dispatcher');
         $this->definitions = $container->get('behat.definition.dispatcher');
+    }
+
+    /**
+     * Set whether the step will allow instability instead of
+     * immediate failure.
+     *
+     * @param   boolean $allowInstability
+     */
+    public function setAllowInstability($allowInstability)
+    {
+      $this->allowInstability = $allowInstability;
+    }
+
+    /**
+     * Mark test as unstable.
+     *
+     * @param   boolean $unstable
+     */
+    public function unstable($unstable = true)
+    {
+      $this->unstable = $unstable;
     }
 
     /**
@@ -116,6 +149,10 @@ class StepTester implements NodeVisitorInterface
         try {
             $definition = $this->definitions->findDefinition($this->context, $step, $this->skip);
 
+            if ($this->unstable) {
+              return new StepEvent($step, $context, StepEvent::UNSTABLE, $definition);
+            }
+
             if ($this->skip) {
                 return new StepEvent(
                     $step, $this->logicalParent, $context, StepEvent::SKIPPED, $definition
@@ -129,7 +166,10 @@ class StepTester implements NodeVisitorInterface
                 $result    = StepEvent::PENDING;
                 $exception = $e;
             } catch (\Exception $e) {
-                $result    = StepEvent::FAILED;
+                //$result    = StepEvent::FAILED;
+                $result    = $this->allowInstability
+                  ? StepEvent::UNSTABLE
+                  : StepEvent::FAILED;
                 $exception = $e;
             }
         } catch (UndefinedException $e) {

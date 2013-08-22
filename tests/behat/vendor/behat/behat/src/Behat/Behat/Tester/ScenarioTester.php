@@ -13,7 +13,8 @@ use Behat\Gherkin\Node\NodeVisitorInterface,
     Behat\Gherkin\Node\StepNode;
 
 use Behat\Behat\Context\ContextInterface,
-    Behat\Behat\Event\ScenarioEvent;
+    Behat\Behat\Event\ScenarioEvent,
+    Behat\Behat\Event\StepEvent;
 
 /*
  * This file is part of the Behat.
@@ -34,6 +35,18 @@ class ScenarioTester implements NodeVisitorInterface
     protected $dispatcher;
     private $context;
     private $skip = false;
+    /**
+     * Allow step instability instead of immidiate fail.
+     *
+     * @var     boolean
+     */
+    private $allowInstability = false;
+    /**
+     * Is test marked as unstable.
+     *
+     * @var     boolean
+     */
+    private $unstable = false;
 
     /**
      * Initializes tester.
@@ -58,6 +71,27 @@ class ScenarioTester implements NodeVisitorInterface
     }
 
     /**
+     * Set whether the step will allow instability instead of
+     * immediate failure.
+     *
+     * @param   boolean $allowInstability
+     */
+    public function setAllowInstability($allowInstability)
+    {
+      $this->allowInstability = $allowInstability;
+    }
+
+    /**
+     * Mark test as unstable.
+     *
+     * @param   boolean $unstable
+     */
+    public function unstable($unstable = true)
+    {
+        $this->unstable = $unstable;
+    }
+
+    /**
      * Visits & tests ScenarioNode.
      *
      * @param AbstractNode $scenario
@@ -76,8 +110,12 @@ class ScenarioTester implements NodeVisitorInterface
             $bgResult = $this->visitBackground(
                 $scenario->getFeature()->getBackground(), $scenario, $this->context
             );
-            if (0 !== $bgResult) {
+            //if (0 !== $bgResult) {
+            if (StepEvent::UNSTABLE < $bgResult) {
                 $skip = true;
+            }
+            if (StepEvent::UNSTABLE === $bgResult) {
+                  $this->unstable();
             }
             $result = max($result, $bgResult);
         }
@@ -85,8 +123,12 @@ class ScenarioTester implements NodeVisitorInterface
         // Visit & test steps
         foreach ($scenario->getSteps() as $step) {
             $stResult = $this->visitStep($step, $scenario, $this->context, array(), $skip);
-            if (0 !== $stResult) {
+            //if (0 !== $stResult) {
+            if (StepEvent::UNSTABLE < $stResult) {
                 $skip = true;
+            }
+            if (StepEvent::UNSTABLE === $stResult) {
+                $this->unstable();
             }
             $result = max($result, $stResult);
         }
@@ -116,6 +158,7 @@ class ScenarioTester implements NodeVisitorInterface
         $tester->setLogicalParent($logicalParent);
         $tester->setContext($context);
         $tester->setSkip($this->skip);
+        $tester->setAllowInstability($this->allowInstability);
 
         return $background->accept($tester);
     }
@@ -144,6 +187,8 @@ class ScenarioTester implements NodeVisitorInterface
         $tester->setLogicalParent($logicalParent);
         $tester->setContext($context);
         $tester->skip($skip || $this->skip);
+        $tester->unstable($this->unstable);
+        $tester->setAllowInstability($this->allowInstability);
 
         return $step->accept($tester);
     }

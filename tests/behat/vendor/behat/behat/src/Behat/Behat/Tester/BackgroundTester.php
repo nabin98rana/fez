@@ -9,7 +9,8 @@ use Behat\Gherkin\Node\NodeVisitorInterface,
     Behat\Gherkin\Node\ScenarioNode;
 
 use Behat\Behat\Context\ContextInterface,
-    Behat\Behat\Event\BackgroundEvent;
+    Behat\Behat\Event\BackgroundEvent,
+    Behat\Behat\Event\StepEvent;
 
 /*
  * This file is part of the Behat.
@@ -31,6 +32,12 @@ class BackgroundTester implements NodeVisitorInterface
     private $dispatcher;
     private $context;
     private $skip = false;
+    /**
+     * Allow step instability instead of immediate fail.
+     *
+     * @var     boolean
+     */
+    private $allowInstability = false;
 
     /**
      * Initializes tester.
@@ -41,6 +48,16 @@ class BackgroundTester implements NodeVisitorInterface
     {
         $this->container  = $container;
         $this->dispatcher = $container->get('behat.event_dispatcher');
+    }
+    /**
+     * Set whether the step will allow instability instead of
+     * immediate failure.
+     *
+     * @param   boolean $allowInstability
+     */
+    public function setAllowInstability($allowInstability)
+    {
+        $this->allowInstability = $allowInstability;
     }
 
     /**
@@ -93,10 +110,12 @@ class BackgroundTester implements NodeVisitorInterface
             $tester->setLogicalParent($this->logicalParent);
             $tester->setContext($this->context);
             $tester->skip($skip || $this->skip);
+            $tester->setAllowInstability($this->allowInstability);
 
             $stResult = $step->accept($tester);
 
-            if (0 !== $stResult) {
+            //if (0 !== $stResult) {
+            if (StepEvent::UNSTABLE < $stResult) {
                 $skip = true;
             }
             $result = max($result, $stResult);

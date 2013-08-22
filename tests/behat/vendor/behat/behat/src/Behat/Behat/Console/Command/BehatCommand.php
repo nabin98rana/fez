@@ -31,6 +31,7 @@ class BehatCommand extends BaseCommand
     private $featuresPaths;
     private $strict = true;
     private $dryRun = false;
+    private $retryScenario = 0;
 
     /**
      * Initializes command.
@@ -108,6 +109,26 @@ class BehatCommand extends BaseCommand
     }
 
     /**
+     * Set count of retry attempts after failure.
+     *
+     * @param   integer $count
+     */
+    public function setRetryScenario($count)
+    {
+        $this->retryScenario = $count;
+    }
+
+    /**
+     * Return count of retry attempts after failure.
+     *
+     * @return  integer Retry count
+     */
+    public function getRetryScenario()
+    {
+          return $this->retryScenario;
+    }
+
+    /**
      * Returns container instance.
      *
      * @return ContainerInterface
@@ -146,6 +167,7 @@ class BehatCommand extends BaseCommand
             foreach ($features as $feature) {
                 $tester = $this->getContainer()->get('behat.tester.feature');
                 $tester->setSkip($this->isDryRun());
+                $tester->setAllowedRetryAttempts($this->getRetryScenario());
 
                 $feature->accept($tester);
             }
@@ -162,10 +184,12 @@ class BehatCommand extends BaseCommand
         $logger = $this->getContainer()->get('behat.logger');
 
         if ($this->isStrict()) {
-            return intval(0 < $logger->getSuiteResult());
+            //return intval(0 < $logger->getSuiteResult());
+            return intval(StepEvent::UNSTABLE < $logger->getSuiteResult());
         }
 
-        return intval(4 === $logger->getSuiteResult());
+        //return intval(4 === $logger->getSuiteResult());
+        return intval(StepEvent::FAILED === $logger->getSuiteResult());
     }
 
     /**
