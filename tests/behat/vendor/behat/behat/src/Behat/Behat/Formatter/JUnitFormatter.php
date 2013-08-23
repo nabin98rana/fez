@@ -276,25 +276,27 @@ class JUnitFormatter extends ConsoleFormatter
             $error = $this->exceptionToString($exception);
             $elemType = $this->getElementType($event->getResult());
             $elemAttributes = '';
-            if ($elemType !== 'skipped' && $elemType !== 'unstable') {
-                $elemAttributes = sprintf(
-                    'message="%s" type="%s"',
-                    htmlspecialchars($error),
-                    $this->getResultColorCode($event->getResult())
-                );
-            }
+            if ($elemType !== 'unstable') {
+              if ($elemType !== 'skipped') {
+                  $elemAttributes = sprintf(
+                      'message="%s" type="%s"',
+                      htmlspecialchars($error),
+                      $this->getResultColorCode($event->getResult())
+                  );
+              }
 
-            $xml .= sprintf(
-                '        <%s %s>',
-                $elemType,
-                $elemAttributes
-            );
-            $exception = str_replace(array('<![CDATA[', ']]>'), '', (string) $exception);
-            $xml .= sprintf(
-                "<![CDATA[\n%s\n]]></%s>\n",
-                $exception,
-                $elemType
-            );
+              $xml .= sprintf(
+                  '        <%s %s>',
+                  $elemType,
+                  $elemAttributes
+              );
+              $exception = str_replace(array('<![CDATA[', ']]>'), '', (string) $exception);
+              $xml .= sprintf(
+                  "<![CDATA[\n%s\n]]></%s>\n",
+                  $exception,
+                  $elemType
+              );
+            }
         }
         $this->exceptions = array();
 //        $xml = str_replace('< message', '<message', $xml);
