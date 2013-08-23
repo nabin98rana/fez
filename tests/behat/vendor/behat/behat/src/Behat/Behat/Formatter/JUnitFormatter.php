@@ -276,7 +276,7 @@ class JUnitFormatter extends ConsoleFormatter
             $error = $this->exceptionToString($exception);
             $elemType = $this->getElementType($event->getResult());
             $elemAttributes = '';
-            if ($elemType !== 'skipped') {
+            if ($elemType !== 'skipped' && $elemType !== 'unstable') {
                 $elemAttributes = sprintf(
                     'message="%s" type="%s"',
                     htmlspecialchars($error),
@@ -297,7 +297,8 @@ class JUnitFormatter extends ConsoleFormatter
             );
         }
         $this->exceptions = array();
-
+//        $xml = str_replace('< message', '<message', $xml);
+//        $xml = str_replace('</>', '</message>', $xml);
         $xml .= "    </testcase>";
 
         $this->testcases[] = $xml;
