@@ -150,7 +150,10 @@ class StepTester implements NodeVisitorInterface
             $definition = $this->definitions->findDefinition($this->context, $step, $this->skip);
 
             if ($this->unstable) {
-              return new StepEvent($step, $context, StepEvent::UNSTABLE, $definition);
+              return new StepEvent(
+                    $step, $this->logicalParent, $context, StepEvent::UNSTABLE, $definition
+              );
+              //return new StepEvent($step, $context, StepEvent::UNSTABLE, $definition);
             }
 
             if ($this->skip) {
