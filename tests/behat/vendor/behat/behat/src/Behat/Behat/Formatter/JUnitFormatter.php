@@ -299,6 +299,7 @@ class JUnitFormatter extends ConsoleFormatter
             }
         }
         $this->exceptions = array();
+        $xml = preg_replace('/(.*)(< message.*\<\/\>)(.*)/s', '$1$3', $xml);
 //        $xml = str_replace('< message', '<message', $xml);
 //        $xml = str_replace('</>', '</message>', $xml);
         $xml .= "    </testcase>";
