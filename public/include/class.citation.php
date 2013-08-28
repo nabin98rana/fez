@@ -428,8 +428,8 @@ class Citation
 			$list = '';
 			$cnt = count($value);
 
-            //Except for when there is more than 15 Authors
-            if ($xsdmf['sek_title'] == 'Author' && $cnt > 15){
+            //Except for when there is more than 20 Authors
+            if ($xsdmf['sek_title'] == 'Author' && $cnt > 20){
                 //First Author stays first
                 $list .= Citation::formatValue($value[0], 0, $details, $xsdmf, $option, $type);
                 $authorCount = 1;
@@ -440,19 +440,19 @@ class Citation
                         // recurse for each uq author
                         $list .= Citation::formatValue($value[$ii], $ii, $details, $xsdmf, $option, $type);
                         $authorCount++;
-                        if ($authorCount > 15 - 1) {
+                        if ($authorCount > 20 - 1) {
                             break;
                         }
                     }
 
                 }
-                //Fill in with up to 15 total authors
+                //Fill in with up to 20 total authors
                 for ($ii = 1; $ii < $cnt; $ii++) {
                     // recurse for each non uq author
                     if (!is_array($details['rek_author_id']) || empty($details['rek_author_id'][$ii])) {
                         //See if this is more Authors than we should have
-                        if ($authorCount > 15 - 1) {
-                            $list .= '  .........';
+                        if ($authorCount > 20 - 1) {
+                            $list .= '  et al.';
                             break;
                         }
                         $list .= ', ';
