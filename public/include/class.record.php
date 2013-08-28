@@ -115,7 +115,8 @@ class Record
       }
       $options["searchKey".Search_Key::getID("Status")] = 2; // enforce published records only
       $options["searchKey".Search_Key::getID("Object Type")] = 3; // records only
-      $filter["manualFilter"] = ' (title_t:("'.$terms.'") OR pid_t:("'.$terms.'")) ';
+
+      $filter["manualFilter"] = ' ( (title_t:("'.$terms.'") OR pid_t:("'.$terms.'")) AND !ismemberof_mt:"'.APP_TEMPORARY_DUPLICATES_COLLECTION.'" ) ';
 
       $list = Record::getListing($options, array("Lister"), $current_row, $max, "Title", true, false, $filter);
 
