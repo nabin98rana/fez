@@ -162,7 +162,7 @@ class SherpaRomeo
                  srm_xml = " . $db->quote($xml) . ",
                  srm_colour = " . $db->quote($colour) . ",
                  srm_date_updated = now() ";
-        $stmt = Encoding::fixUTF8($stmt);
+        $stmt = Encoding::toUTF8($stmt);
         try {
             $db->exec($stmt);
         }

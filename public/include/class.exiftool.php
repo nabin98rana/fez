@@ -101,7 +101,7 @@ class Exiftool
 		$values .= ")";
 
 		$stmt = $insert . $values;
-    $stmt = Encoding::fixUTF8($stmt);
+    $stmt = Encoding::toUTF8($stmt);
 		try {
 			$db->exec($stmt);
 		}

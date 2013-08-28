@@ -1259,7 +1259,7 @@ class Record
 //                $stmt = $stmtIns;
         }
 
-        $stmt = Encoding::fixUTF8($stmt);
+        $stmt = Encoding::toUTF8($stmt);
         try {
           $db->exec($stmt);
                 $db->commit();
@@ -1388,7 +1388,7 @@ class Record
                 }
                 $stmt .= ")";
               }
-              $stmt = Encoding::fixUTF8($stmt);
+              $stmt = Encoding::toUTF8($stmt);
               try {
                 $db->exec($stmt);
               }
