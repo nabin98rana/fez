@@ -62,8 +62,16 @@ if (isset($_REQUEST['sort_by'])) {
 	$sort_by = $_REQUEST['sort_by'];
 }
 
-if (empty($sort_by) || ($sort_by == "searchKey0" && empty($options['searchKey0']))) {
-	$sort_by = "searchKey".Search_Key::getID("Title");
+
+if ($sort_by == "attachment_number") {
+    $sortOnAttachmentFlag =  true;
+    $sort_by = "searchKey".Search_Key::getID("Created Date");
+} else {
+    $sortOnAttachmentFlag = false;
+}
+
+if (empty($sort_by) || ($sort_by == "searchKey0" && empty($options['searchKey0'])) ) {
+    $sort_by = "searchKey".Search_Key::getID("Title");
 }
 
 
@@ -152,8 +160,16 @@ if (array_key_exists('searchKey0', $options) && $options["searchKey0"] != "" && 
 	$options["sort_order"] = 0;	
 }
 
+//Need to get all results if sorting on attachment size since sorts needs to be done post solr returned values
+if ($sortOnAttachmentFlag) {
+    $temp = Record::getListing($options, array("Editor", "Approver"), $pager_row, $rows, $sort_by);
+    $info = $temp['info'];
+    $rowsAttach = $rows;
+    $rows = 10000;
+    $pagerRowAttach = $pager_row;
+    $pager_row = 0;
+}
 $assigned_items = Record::getListing($options, array("Editor", "Approver"), $pager_row, $rows, $sort_by);
-//print_r($assigned_items);
 Record::getParentsByPids($assigned_items['list']);
 $username = Auth::getUsername();
 if (APP_MY_RESEARCH_MODULE == "ON" && MyResearch::getHRorgUnit($username) != "") {
@@ -161,6 +177,19 @@ if (APP_MY_RESEARCH_MODULE == "ON" && MyResearch::getHRorgUnit($username) != "")
 } else {
 	$show_my_pubs = "0";
 }
+
+if ($sortOnAttachmentFlag) {
+    $ordering = ($options["sort_order"]) ? -1 : 1;
+    //We will sort on the number of rek_file_attachment_names
+    usort($assigned_items['list'], function($a, $b) {
+        global $ordering;
+        return $ordering*(count($b['rek_file_attachment_name']) - count($a['rek_file_attachment_name']));
+    });
+    //Now splice off the values to be displayed on the page
+    $assigned_items['list'] = array_slice($assigned_items['list'], $pagerRowAttach*$rowsAttach, $rowsAttach);
+    $assigned_items['info'] = $info;
+}
+
 $tpl->assign("show_my_pubs", 	       	  $show_my_pubs);
 
 $tpl->assign("bulk_workflows",          $bulk_workflows);
@@ -178,5 +207,4 @@ $tpl->assign('my_assigned_items_list',  $assigned_items['list']);
 $tpl->assign('items_info',              $assigned_items['info']);
 $tpl->assign('isApprover',              $_SESSION['auth_is_approver']);
 $tpl->assign("active_nav", 				"my_fez");
-//       print_r($assigned_items['list']);
 $tpl->displayTemplate();
