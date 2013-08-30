@@ -792,7 +792,7 @@ class Fedora_API {
 			$xmlContent = file_get_contents($dsLocation);
 		}
 		if ($dsLocation != "" && $controlGroup == "R") {
-			$getString .= "&dsLocation=".$dsLocation;
+			$getString .= "&dsLocation=".urlencode($dsLocation);
 			$ch = curl_init($getString);
  		 	curl_setopt($ch, CURLOPT_POST, 1);
 
