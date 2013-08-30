@@ -470,6 +470,7 @@ class FeatureContext extends MinkContext
         $sn = $event->getStep()->getParent()->getTitle();
         $sn = Foxml::makeNCName($sn);
         $scenarioName = preg_replace('/\s+/', '_', str_replace(" ", "_", $sn));
+        $scenarioName = (strlen($scenarioName) < 200) ? $scenarioName : substr($scenarioName, 0, 200);
         $imageName = sprintf("fail_%s_%s.png", time(), $scenarioName);
         $this->saveScreenshot($imageName);
         if ($this->screencast) {
@@ -951,6 +952,33 @@ public function afterScenario($event)
             throw new Exception("Error with database ".$stmt);
         }
         return $res;
+    }
+
+    /**
+     * @param string $radioLabel
+     *
+     * @throws ElementNotFoundException
+     * @return void
+     * @Given /^I select the "([^"]*)" radio button$/
+     */
+    public function iSelectTheRadioButton($radioLabel)
+    {
+        $radioButton = $this->getSession()->getPage()->findField($radioLabel);
+        if (null === $radioButton) {
+            throw new Exception($this->getSession(), 'form field', 'id|name|label|value', $radioLabel);
+        }
+        $value = $radioButton->getAttribute('value');
+        $this->getSession()->getDriver()->click($radioButton->getXPath());
+    }
+
+    /**
+     * @param string $javascript
+     *
+     * @Given /^I run javascript "([^"]*)"$/
+     */
+    public function iRunJavascript($javascript)
+    {
+        $this->getSession()->executeScript($javascript);
     }
 
 } // FeatureContext
