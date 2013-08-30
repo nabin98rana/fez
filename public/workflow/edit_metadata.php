@@ -185,7 +185,7 @@ if (!empty($_POST['filePermissionsNew'])) {
         $fileXdis_id = $_POST['uploader_files_uploaded'];
         $filename = $_FILES['xsd_display_fields']['name'][$fileXdis_id][$count];
         Datastream::saveDatastreamSelectedPermissions($wfstatus->pid, $filename, $_POST['filePermissionsNew'][$i], $_POST['embargo_date'][$i]);
-        if ($_POST['filePermissionsNew'][$i] == 5) {
+        if ($_POST['filePermissionsNew'][$i] == 5 || !empty($_POST['embargo_date'][$i]) ) {
             Datastream::setfezACML($wfstatus->pid, $filename, 10);
         }
         $count++;
