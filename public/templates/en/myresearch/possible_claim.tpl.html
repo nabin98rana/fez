@@ -6,12 +6,14 @@ function toggleCorrections()
 	if (document.getElementById('ok').checked) {
 		document.getElementById('correction').disabled = true;
         document.getElementById('upload-area').disabled = true;
+        document.getElementById('upload-area').style.display = 'none';
 		document.getElementById('correction').style.display = 'none';
 		document.getElementById('correction').value = '';
 	} else if (document.getElementById('nok').checked) {
         document.getElementById('correction').disabled = false;
         document.getElementById('upload-area').disabled = true;
         document.getElementById('correction').style.display = 'block';
+        document.getElementById('upload-area').style.display = 'none';
         document.getElementById('correction').value = 'Please tell us what is wrong with the record.';
     } else {
         document.getElementById('correction').disabled = false;

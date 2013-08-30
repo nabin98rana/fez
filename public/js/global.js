@@ -25,10 +25,10 @@ function hideClosed(f)
 
 function filePermissionsChange(descriptionNum) {
     descriptionValue = document.getElementsByName('description[' + descriptionNum + ']')[0].value;
-    if (descriptionValue == '' || descriptionValue == 'Full text (open access)' || descriptionValue == 'Full text (administration only)') {
+    if (descriptionValue == '' || descriptionValue == 'Full text (open access)' || descriptionValue == 'HERDC evidence - not publicly available') {
         if (document.getElementsByName('filePermissions[]')[descriptionNum].selectedIndex != 0) {
             if (document.getElementsByName('filePermissions[]')[descriptionNum].selectedIndex == 5) {
-                document.getElementsByName('description[' + descriptionNum + ']')[0].value = 'Full text (administration only)';
+                document.getElementsByName('description[' + descriptionNum + ']')[0].value = 'HERDC evidence - not publicly available';
             } else {
                 document.getElementsByName('description[' + descriptionNum + ']')[0].value = 'Full text (open access)';
             }
@@ -47,10 +47,10 @@ function filePermissionsChange(descriptionNum) {
 function filePermissionsChangeNew(descriptionNum) {
     descriptionValue = document.getElementsByName('description[' + descriptionNum + ']')[0].value;
 
-    if (descriptionValue == '' || descriptionValue == 'Full text (open access)' || descriptionValue == 'Full text (administration only)') {
+    if (descriptionValue == '' || descriptionValue == 'Full text (open access)' || descriptionValue == 'HERDC evidence - not publicly available') {
         if (document.getElementById('filePermissionsNew['+ descriptionNum + ']').selectedIndex != 0) {
             if (document.getElementById('filePermissionsNew['+ descriptionNum + ']').selectedIndex == 5) {
-                document.getElementsByName('description[' + descriptionNum + ']')[0].value = 'Full text (administration only)';
+                document.getElementsByName('description[' + descriptionNum + ']')[0].value = 'HERDC evidence - not publicly available';
             } else {
                 document.getElementsByName('description[' + descriptionNum + ']')[0].value = 'Full text (open access)';
             }
