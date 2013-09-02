@@ -11,6 +11,9 @@ Feature: WOS imports. Check imports from wos work correctly
     And I fill in "Title" with "Influence of Malt Roasting on the Oxidative Stability of Sweet Wort"
     And I select "Article" from "Sub-type"
     And I fill in "ISI LOC" with "Testing"
+    And I wait for "2" seconds
+    And I see "Matching records found in ISI Web of Science" or wait for "300" seconds
+    And I follow "Matching records found in ISI Web of Science"
     And I see "pub_add" id or wait for "300" seconds
     And I follow "Add record"
     And I see "pub_link" id or wait for "300" seconds
