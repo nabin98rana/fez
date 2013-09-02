@@ -2245,7 +2245,6 @@ public static function multi_implode($glue, $pieces)
    */
   function array_to_sql_string($array)
   {
-    global $db;
     foreach ($array as &$item) {
       $item = "'".Misc::mysql_escape_mimic($item)."'";
     }
@@ -2260,13 +2259,9 @@ public static function multi_implode($glue, $pieces)
    */
   function array_to_sql($array)
   {
-    $db = DB_API::get();
-    $db->getConnection();
-    $db->beginTransaction();
     foreach ($array as &$item) {
       $item = Misc::mysql_escape_mimic($item);
     }
-    $db->commit();
     return implode(', ', $array);
   }
 
