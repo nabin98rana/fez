@@ -31,10 +31,10 @@ class ScopusQueue extends Queue
      * Returns the singleton queue instance.
      * @return instance of class Scopus
      */
-    public static function get() 
+    public static function get()
     {
         $log = FezLog::get();
-        
+
         try
         {
           $instance = Zend_Registry::get('Scopus');
@@ -54,53 +54,72 @@ class ScopusQueue extends Queue
         }
         return $instance;
     }
-    
+
     /**
      * Processes the queue.
      */
-    protected function process() 
+    protected function process()
     {
         $log = FezLog::get();
-            
+
         $bgp = new BackgroundProcess_Scopus();
         // TODO: maybe take something other than admin
         $bgp->register(serialize(array()), APP_SYSTEM_USER_ID);
     }
-    
+
     /**
      * Links this instance to a corresponding background process started above
      *
      * @param BackgroundProcess_LinksAmr $bgp
      */
-    public function setBGP(&$bgp) 
+    public function setBGP(&$bgp)
     {
         $this->_bgp = &$bgp;
     }
 
     /**
-    * Processes the queue in the background.    
+    * Processes the queue in the background.
     */
-    public function bgProcess() 
+    public function bgProcess()
     {
         $log = FezLog::get();
-        
+
         $this->_bgp->setStatus("Scopus queue processing started");
         $recCount = 0;
-        
+
         $nameSpaces = array(
-                            'prism' => "http://prismstandard.org/namespaces/basic/2.0/",
-                            'dc' => "http://purl.org/dc/elements/1.1/",
-                            'opensearch' => "http://a9.com/-/spec/opensearch/1.1/"
+          'd' => 'http://www.elsevier.com/xml/svapi/abstract/dtd',
+          'ce' => 'http://www.elsevier.com/xml/ani/common',
+          'prism' => "http://prismstandard.org/namespaces/basic/2.0/",
+          'dc' => "http://purl.org/dc/elements/1.1/",
+          'opensearch' => "http://a9.com/-/spec/opensearch/1.1/"
         );
-        
+
         do
         {
             $scopRec = $this->pop();
             $scopusId = $scopRec[$this->_dbqp.'id'];
-            
+
             if($scopRec)
             {
-                $csr = new ScopusRecItem();
+
+
+              // first query the main service to get the doc type (only place to get it)
+              $query = array('query' => "(scopus-id(".$scopusId."))",
+                'count' => 1,
+                'start' => 0,
+                'view' => 'STANDARD'
+              );
+
+              $scopusService = new ScopusService(APP_SCOPUS_API_KEY);
+              $xml = $scopusService->getNextRecordSet($query);
+
+              $doc = new DOMDocument();
+              $doc->loadXML($xml);
+
+
+
+              $csr = new ScopusRecItem();
                 $rec = $this->_service->getRecordByScopusId($scopusId);
                 $csr->load($rec, $nameSpaces);
                 $csr->liken();
@@ -109,7 +128,7 @@ class ScopusQueue extends Queue
         }
         while($scopRec);
         $this->_bgp->setStatus("Scopus queue processing finished");
-        
+
         return $recCount;
     }
 }

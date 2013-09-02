@@ -181,7 +181,7 @@ class MatchingRecords
     {
     $log = FezLog::get();
 		$db = DB_API::get();
-		$num_recs = 3;
+		$num_recs = 5;
 		$matches = array();
 
     // Test it out on  http://www.scopus.com/search/form.url?display=advanced
@@ -190,7 +190,7 @@ class MatchingRecords
 //		$query = array('query' => "affil(University+of+Queensland)+subtype(ar,cp,bk)+title('"
 		$query = array('query' => "(doctype(ar)+OR+doctype(cp)+OR+doctype(bk)+OR+doctype(ch))+title('"
 		    . urlencode($title) . "')",
-		             'count' => 10,
+		             'count' => $num_recs,
 		             'start' => 0,
 		             'view' => 'STANDARD',
 		);
@@ -208,9 +208,11 @@ class MatchingRecords
 		while(($nodeItem < $records->length) && (count($matches) < $num_recs)) {
 		    $record = $records->item($nodeItem);
 
+        $recordXML = $this->stripOtherChildren($xml, '//atom:feed/atom:entry', $nodeItem);
+
 		    $csr = new ScopusRecItem();
 
-        $subtype = $doc->getElementsByTagName('subtype')->item($nodeItem)->nodeValue;;
+        $subtype = $doc->getElementsByTagName('subtype')->item($nodeItem)->nodeValue;
         $csr->_scopusDocTypeCode = $subtype;
 		    $scopusId = $record->nodeValue;
 
@@ -223,7 +225,7 @@ class MatchingRecords
 //		    $rec = $iscop->getRecordByScopusId($scopusIdExtracted);
 //        $rec = $record;
 
-		    $csr->load($xml);
+		    $csr->load($recordXML, null);
         $csr_fields = $csr->getFields();
 		    //If the record has a UQ affiliation (ie, it's loaded), then continue
 		    if($csr->isLoaded())
@@ -272,6 +274,46 @@ class MatchingRecords
 
 		    return $tplCont;
 		}
+    }
+
+
+  /**
+   * Return the XML with only the 1 item node of the type of child specified in $keepNumber
+   *
+   * @param  string $title The title to search on
+   * @param  string $childQuery The element tag name to find the set of children
+   * @param  integer $keepNumber The number of the child to keep
+   * @return string $xml The stripped xml
+   */
+    public function stripOtherChildren($xml, $childQuery, $keepNumber) {
+      $nodeItem = 0;
+
+      $doc = new DOMDocument();
+      $doc->loadXML($xml);
+      $_namespaces = array(
+        'atom', "http://www.w3.org/2005/Atom",
+        'd' => 'http://www.elsevier.com/xml/svapi/abstract/dtd',
+        'ce' => 'http://www.elsevier.com/xml/ani/common',
+        'prism' => "http://prismstandard.org/namespaces/basic/2.0/",
+        'dc' => "http://purl.org/dc/elements/1.1/",
+        'opensearch' => "http://a9.com/-/spec/opensearch/1.1/"
+      );
+
+      $xpath = new DOMXPath($doc);
+      foreach ($_namespaces as $name => $uri) {
+        $xpath->registerNamespace($name, $uri);
+      }
+      $fieldNodeList = $xpath->query($childQuery);
+
+      foreach ($fieldNodeList as $fieldNode) { // first delete all the isMemberOfs
+        $parentNode = $fieldNode->parentNode;
+        if ($nodeItem != $keepNumber) {
+          $parentNode->removeChild($fieldNode);
+        }
+        $nodeItem++;
+      }
+      $newXML = $doc->saveXML();
+      return $newXML;
     }
 
     /**
