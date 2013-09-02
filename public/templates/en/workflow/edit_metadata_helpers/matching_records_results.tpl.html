@@ -3,15 +3,15 @@
         <span style="color:#fff;" id="ctScopus">{$num_scopus}</span>
         <ol>
     {/if}
-    
+
         <li>
-        
+
         <a href="javascript:void(null)" style="text-decoration:none;">{$scopusMatches[i]->title}</a><br />
 	    Author(s):
 	    {section name="j" loop=$scopusMatches[i]->authors}
 	        {$scopusMatches[i]->authors[j]}{if ! $smarty.section.j.last}, {/if}
 	    {/section}<br />
-	
+
 	    {if $scopusMatches[i]->sourceTitle != ''}
 	        Source:<b>{$scopusMatches[i]->sourceTitle}</b>
 	    {/if}
@@ -33,9 +33,9 @@
 	        <a href="javascript:add_scopus('{$scopusMatches[i]->scopusId}')" style="border:0">
 	            <img src="{$rel_url}images/add.gif" id="pub_add" height="16" width="33" alt="Add record" alt="Add record" style="border:0" /></a>
 	    {/if}
-        
+
         </li>
-    
+
     {if $smarty.section.i.last}
         </ol>
     {/if}

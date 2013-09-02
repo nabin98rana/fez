@@ -46,23 +46,25 @@ class ScopusRecItem extends RecordImport
      * @var FezLog
      */
     protected $_log;
-    
+
     /**
      * Affiliations for this record
      * @var array
      */
     protected $_affiliations = array();
-    
+
     /**
      * Default namespaces for this record
      * @var array
      */
-    protected $_namesSpaces = array(
+    protected $_namespaces = array(
+            'd' => 'http://www.elsevier.com/xml/svapi/abstract/dtd',
+            'ce' => 'http://www.elsevier.com/xml/ani/common',
             'prism' => "http://prismstandard.org/namespaces/basic/2.0/",
             'dc' => "http://purl.org/dc/elements/1.1/",
             'opensearch' => "http://a9.com/-/spec/opensearch/1.1/"
            );
-    
+
     public function __construct($recordData=null)
     {
         $this->_log = FezLog::get();
@@ -89,43 +91,44 @@ class ScopusRecItem extends RecordImport
                 $this->_namespaces[$name] = $uri;
             }
         }
-        
+
         $this->_loaded = false;
-        
+
         $xpath = $this->getXPath($recordData);
         $this->_doi = $this->extract('//prism:doi', $xpath);
         $this->_title = $this->extract('//dc:title', $xpath);
-        
-        $affiliations = $xpath->query('//affiliation/affilname');
+
+        $affiliations = $xpath->query('//d:affiliation/d:affilname');
         foreach ($affiliations as $affiliation) {
             $this->_affiliations[] = $affiliation->nodeValue;
         }
-        
-        if ($this->likenAffiliation()) {
-            $this->_pubmedId = $this->extract('//pubmed-id', $xpath);
-            $this->_embaseId = $xpath->query("//itemidlist/itemid[@idtype='PUI']")->item(0)->nodeValue;
-            $this->_scopusCitationCount = $this->extract('//citedby-count', $xpath);
+
+//        if ($this->likenAffiliation()) {
+            $this->_pubmedId = $this->extract('//d:pubmed-id', $xpath);
+            $this->_embaseId = $xpath->query("//d:itemidlist/d:itemid[@idtype='PUI']")->item(0)->nodeValue;
+            $this->_scopusCitationCount = $this->extract('//d:citedby-count', $xpath);
             $this->_issn = $this->extract('//prism:issn', $xpath);
             $this->_issueVolume = $this->extract('//prism:volume', $xpath);
             $date = $this->extract('//prism:coverDate', $xpath);
             $this->_issueDate = date('Y-m-d', strtotime($date));
             $scopusDocTypeExtracted = $this->extract('//prism:aggregationType', $xpath);
             $this->_scopusAggregationType = $scopusDocTypeExtracted;
-            $scopusDocTypeMatched = Record::getScopusDocTypeCodeByDescription($scopusDocTypeExtracted);
-            
-            if($scopusDocTypeMatched)
-            {
-                $this->_scopusDocType = $scopusDocTypeMatched;
-            }
-            
-            $this->_scopusDocTypeCode = $xpath->query('//head/citation-info/citation-type/@code')->item(0)->nodeValue;
-            $this->enterXdisInformation($this->_scopusDocTypeCode);
-            $this->_journalTitle = $this->extract('//source/sourcetitle', $xpath);
-            $this->_isbn = $this->extract('//source/isbn', $xpath);
-            $this->_journalTitleAbbreviation = $this->extract('//source/sourcetitle-abbrev', $xpath);
-            $this->_languageCode = $xpath->query('//head/citation-info/citation-language/@xml:lang')->item(0)->nodeValue;
+//            $scopusDocTypeMatched = Record::getScopusDocTypeCodeByDescription($scopusDocTypeExtracted);
 
-            $authors= $xpath->query('//authors/author');
+//            if($scopusDocTypeMatched)
+//            {
+//                $this->_scopusDocType = $scopusDocTypeMatched;
+//            } else {
+//              return false;
+//            }
+
+            $this->enterXdisInformation($this->_scopusDocTypeCode);
+            $this->_journalTitle = $this->extract('//prism:publicationName', $xpath);
+            $this->_isbn = $this->extract('//prism:isbn', $xpath);
+//            $this->_journalTitleAbbreviation = $this->extract('//prism:publicationName-abbrev', $xpath);
+//            $this->_languageCode = $xpath->query('//head/citation-info/citation-language/@xml:lang')->item(0)->nodeValue;
+
+            $authors= $xpath->query('//dc:creator/d:author');
             foreach ($authors as $author) {
                 $this->_authors[] = $author->getElementsByTagName('indexed-name')->item(0)->nodeValue;
             }
@@ -145,12 +148,12 @@ class ScopusRecItem extends RecordImport
                 $this->_conferenceTitle = $xpath->query('//source/additional-srcinfo/conferenceinfo/confevent/confname')->item(0)->nodeValue;
                 $this->_confenceLocationCity = $xpath->query('//source/additional-srcinfo/conferenceinfo/confevent/conflocation/city-group')->item(0)->nodeValue;
 
-                $startDay =  $xpath->query('//source/additional-srcinfo/conferenceinfo/confevent/confdate/startdate/@day', $embaseArticle)->item(0)->nodeValue;
-                $startMonth = $xpath->query('//source/additional-srcinfo/conferenceinfo/confevent/confdate/startdate/@month', $embaseArticle)->item(0)->nodeValue;
-                $startYear = $xpath->query('//source/additional-srcinfo/conferenceinfo/confevent/confdate/startdate/@year', $embaseArticle)->item(0)->nodeValue;
-                $endDay =  $xpath->query('//source/additional-srcinfo/conferenceinfo/confevent/confdate/enddate/@day', $embaseArticle)->item(0)->nodeValue;
-                $endMonth = $xpath->query('//source/additional-srcinfo/conferenceinfo/confevent/confdate/enddate/@month', $embaseArticle)->item(0)->nodeValue;
-                $endYear = $xpath->query('//source/additional-srcinfo/conferenceinfo/confevent/confdate/enddate/@year', $embaseArticle)->item(0)->nodeValue;
+                $startDay =  $xpath->query('//source/additional-srcinfo/conferenceinfo/confevent/confdate/startdate/@day')->item(0)->nodeValue;
+                $startMonth = $xpath->query('//source/additional-srcinfo/conferenceinfo/confevent/confdate/startdate/@month')->item(0)->nodeValue;
+                $startYear = $xpath->query('//source/additional-srcinfo/conferenceinfo/confevent/confdate/startdate/@year')->item(0)->nodeValue;
+                $endDay =  $xpath->query('//source/additional-srcinfo/conferenceinfo/confevent/confdate/enddate/@day')->item(0)->nodeValue;
+                $endMonth = $xpath->query('//source/additional-srcinfo/conferenceinfo/confevent/confdate/enddate/@month')->item(0)->nodeValue;
+                $endYear = $xpath->query('//source/additional-srcinfo/conferenceinfo/confevent/confdate/enddate/@year')->item(0)->nodeValue;
 
                 //We'll only save dates if they are not incomplete
                 if (!empty($startDay) && !empty($startMonth) && !empty($startYear)) {
@@ -162,13 +165,13 @@ class ScopusRecItem extends RecordImport
             }
 
             $this->_loaded = true;
-        }
-        else 
-        {
-            $this->_log->err("Problem with affiliation for: {$this->_title}; Affiliations: " . var_export($this->_affiliations, true));
-        }
+//        }
+//        else
+//        {
+//            $this->_log->err("Problem with affiliation for: {$this->_title}; Affiliations: " . var_export($this->_affiliations, true));
+//        }
     }
-    
+
     /**
     * Map a log message to a second stage dedupe status code (ie ST10+)
     * @param array $searchData
@@ -197,32 +200,32 @@ class ScopusRecItem extends RecordImport
         10 => 'ST28 - Matched on DOI, start page, end page, issue, volume. Scopus ID in the downloaded record was %s. Scopus ID in the local record was null.',
         110 => 'ST29 - Matched on DOI, start page, end page, issue, volume. Scopus ID in the downloaded record was %s. Scopus ID in the local record was %s.',
         );
-    
+
         $statuses = array();
-        
+
         $scopusIdDL = ($this->_scopusId) ? $this->_scopusId : 'empty';
-    
+
         foreach($searchData['data'] as $localRecord)
         {
             $scopusIdLocal = (preg_match("/2\-s2\.0\-\d+/", $localRecord['rek_scopus_id'])) ? $localRecord['rek_scopus_id'] : 'empty';
-            
-            if(is_null($localRecord['rek_scopus_id']) 
-                || strtolower($localRecord['rek_scopus_id']) == 'null' 
+
+            if(is_null($localRecord['rek_scopus_id'])
+                || strtolower($localRecord['rek_scopus_id']) == 'null'
                 || !preg_match("/2\-s2\.0\-\d+/", $localRecord['rek_scopus_id']))
             {
                 $statusMessage = sprintf($statusMessages[$searchData['state']], $scopusIdDL);
             }
-            else 
+            else
             {
                 $statusMessage = sprintf($statusMessages[$searchData['state']+100], $scopusIdDL, $scopusIdLocal);
             }
-    
+
             $statuses[] = $statusMessage . " Pid matched: " . $localRecord['rek_pid'];
         }
-    
+
         return $statuses;
     }
-    
+
     /**
     * Check to see if a record already resides in a import collection
     * based on Scopus ID
@@ -231,7 +234,7 @@ class ScopusRecItem extends RecordImport
     {
         return Record::getPIDsByScopusID($this->_scopusId, true);
     }
-    
+
     /*
      * Retrieve a value from a node list using xpath.
      * @param string $query
@@ -240,10 +243,15 @@ class ScopusRecItem extends RecordImport
     public function extract($query, $xpath)
     {
         $nodeList = $xpath->query($query);
-        $val = $nodeList->item(0)->nodeValue;
+        if ($nodeList->length > 0) {
+          $val = $nodeList->item(0)->nodeValue;
+        } else {
+          $val = null;
+        }
+
         return $val;
     }
-    
+
     /**
      * Getter overload
      * @param string $propName
@@ -252,7 +260,16 @@ class ScopusRecItem extends RecordImport
     {
         return $this->$propName;
     }
-    
+
+  /**
+   * Getter overload
+   * @param string $propName
+   */
+  public function __set($propName, $value)
+  {
+    $this->$propName = $value;
+  }
+
     /**
      * Double check to make sure this is really ours
      * @param string $recordData
@@ -261,7 +278,7 @@ class ScopusRecItem extends RecordImport
     protected function likenAffiliation()
     {
         $affiliated = false;
-        
+
         foreach($this->_affiliations as $affiliation)
         {
             if(preg_match('/(University of Queensland)|(University of Qld)/',
@@ -276,49 +293,25 @@ class ScopusRecItem extends RecordImport
         if ($docType == 'ar') {
             $this->_xdisTitle = 'Journal Article';
             $this->_xdisSubtype = 'Article (original research)';
-        } elseif ($docType == 'ab') {
-            $this->_xdisTitle = 'Journal Article';
-            $this->_xdisSubtype = 'Article (original research)';
+            $this->_xdisId = 179;
         } elseif ($docType == 'ip') {
             $this->_xdisTitle = 'Journal Article';
             $this->_xdisSubtype = 'Article (original research)';
+            $this->_xdisId = 179;
         } elseif ($docType == 'bk') {
-            $this->_xdisTitle = 'Journal Article';
-            $this->_xdisSubtype = 'Article (original research)';
-        } elseif ($docType == 'bz') {
-            $this->_xdisTitle = 'Journal Article';
-            $this->_xdisSubtype = 'Article (original research)';
+            $this->_xdisTitle = 'Book';
+            $this->_xdisSubtype = 'Research book (original research)';
+            $this->_xdisId = 174;
         } elseif ($docType == 'cp') {
             $this->_xdisTitle = 'Conference Paper';
-            $this->_xdisSubtype = 'Fully Published Paper';
-        } elseif ($docType == 'cr') {
-            $this->_xdisTitle = 'Journal Article';
-            $this->_xdisSubtype = 'Article (original research)';
-        } elseif ($docType == 'ed') {
-            $this->_xdisTitle = 'Journal Article';
-            $this->_xdisSubtype = 'Editorial';
-        } elseif ($docType == 'er') {
-            $this->_xdisTitle = 'Journal Article';
-            $this->_xdisSubtype = 'Correction/erratum';
-        } elseif ($docType == 'le') {
-            $this->_xdisTitle = 'Journal Article';
-            $this->_xdisSubtype = 'Letter to editor, brief commentary or brief communication';
-        } elseif ($docType == 'no') {
-            $this->_xdisTitle = 'Journal Article';
-            $this->_xdisSubtype = 'Other';
-        } elseif ($docType == 'pr') {
-            $this->_xdisTitle = 'Journal Article';
-            $this->_xdisSubtype = 'Article (original research)';
-        } elseif ($docType == 'rp') {
-            $this->_xdisTitle = 'Journal Article';
-            $this->_xdisSubtype = 'Review of book, film, TV, video, software, performance, music etc';
-        } elseif ($docType == 're') {
-            $this->_xdisTitle = 'Journal Article';
-            $this->_xdisSubtype = 'Review of book, film, TV, video, software, performance, music etc';
-        } elseif ($docType == 'sh') {
-            $this->_xdisTitle = 'Journal Article';
-            $this->_xdisSubtype = 'Review of book, film, TV, video, software, performance, music etc';
+            $this->_xdisSubtype = 'Fully published paper';
+            $this->_xdisId = 130;
+        } elseif ($docType == 'ch') {
+            $this->_xdisTitle = 'Book Chapter';
+            $this->_xdisSubtype = 'Research book chapter (original research)';
+            $this->_xdisId = 177;
         }
+
     }
 
 }

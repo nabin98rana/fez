@@ -2227,6 +2227,17 @@ public static function multi_implode($glue, $pieces)
     }
   }
 
+  function mysql_escape_mimic($inp) {
+    if(is_array($inp))
+      return array_map(__METHOD__, $inp);
+
+    if(!empty($inp) && is_string($inp)) {
+      return str_replace(array('\\', "\0", "\n", "\r", "'", '"', "\x1a"), array('\\\\', '\\0', '\\n', '\\r', "\\'", '\\"', '\\Z'), $inp);
+    }
+
+    return $inp;
+  }
+
   /**
    * makes an array into a string ready to be used in a MySQL query list
    * @param $array The array to be put in the query
@@ -2234,9 +2245,11 @@ public static function multi_implode($glue, $pieces)
    */
   function array_to_sql_string($array)
   {
+    global $db;
     foreach ($array as &$item) {
-      $item = "'".mysql_real_escape_string($item)."'";
+      $item = "'".Misc::mysql_escape_mimic($item)."'";
     }
+
     return implode(', ', $array);
   }
 
@@ -2247,9 +2260,13 @@ public static function multi_implode($glue, $pieces)
    */
   function array_to_sql($array)
   {
+    $db = DB_API::get();
+    $db->getConnection();
+    $db->beginTransaction();
     foreach ($array as &$item) {
-      $item = mysql_real_escape_string($item);
+      $item = Misc::mysql_escape_mimic($item);
     }
+    $db->commit();
     return implode(', ', $array);
   }
 

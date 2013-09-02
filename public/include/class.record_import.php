@@ -33,8 +33,8 @@ abstract class RecordImport
     protected $_issueNumber = null;
     protected $_issueVolume = null;
     protected $_wokDocTypeCode = null;
-    protected $_scopusDocType = null;
-    protected $_scopusDocTypeCode = null;
+    public   $_scopusDocType = null;
+    public   $_scopusDocTypeCode = null;
     protected $_pubmedDocTypeCode = null;
     protected $_embaseDocTypeCode = null;
     protected $_scopusAggregationType = null;
@@ -55,20 +55,20 @@ abstract class RecordImport
     protected $_xdisId = null;
     protected $_xdisTitle = null;
     protected $_xdisSubtype = null;
-    
+
     /**
      * The PID of the collection to save
      * newly inserted records into.
      * @var string
      */
     protected $_insertCollection = null;
-    
+
     /**
      * The prefix used to name the primary ID and related fields.
      * @var string
      */
     protected $_primaryIdPrefix = null;
-    
+
     /**
      * The path to the SQLite DB for logging purposes.
      * Used on when $_inTest is true
@@ -76,7 +76,7 @@ abstract class RecordImport
      */
     protected $_statsFile = null;
     ///var/www/scopusimptest/scopusDownloaded.s3db
-    
+
     /**
      * Switch for setting the object to test mode.
      * @var boolean
@@ -88,7 +88,7 @@ abstract class RecordImport
      * @var array
      */
     protected $_namespaces = array();
-    
+
     /**
      * An array of doc type codes to exempt from insertion,
      * update or any deduping
@@ -113,19 +113,19 @@ abstract class RecordImport
      * @param array $nameSpaces
      */
     public abstract function load($recordData, $nameSpaces=null);
-    
+
     /**
      * Map a log message to a second stage dedupe status code (ie ST10+)
      * @param array $searchData
      */
     public abstract function getFuzzySearchStatus(array $searchData);
-    
+
     /**
      * Check to see if a record already resides in a import collection
      * based on a primary id
      */
     protected abstract function checkImportCollections();
-    
+
     /**
      * Set the test state of the object.
      * True causes the output of the de-duping logic
@@ -138,9 +138,9 @@ abstract class RecordImport
         $this->_inTest = $state;
         return $this->_inTest;
     }
-    
+
     /**
-     * Return the values of all fields 
+     * Return the values of all fields
      * in the object.
      * @return array
      */
@@ -149,16 +149,16 @@ abstract class RecordImport
         $mirrorMirror = new ReflectionClass($this);
         $fields = $mirrorMirror->getProperties();
         $allFields = array();
-        
+
         foreach($fields as $fkey => $field)
         {
             $fn = $field->name;
             $allFields[$fn] = $this->$fn;
         }
-        
+
         return $allFields;
     }
-    
+
     /**
      * Set a path to the stats file for testing purposes.
      * Use in conjunction with setInTest() method.
@@ -195,7 +195,7 @@ abstract class RecordImport
 
         return $xpath;
     }
-    
+
     /**
      * Compare titles longer than 10 chars
      * @param string $authorativePid
@@ -205,27 +205,27 @@ abstract class RecordImport
         //Fuzzy title matching. Title must be at least 10 chars long and
         //have a match of better than 80%
         $titleIsFuzzyMatched = false;
-        
+
         if($authorativePid && strlen($this->_title) > 10)
         {
             $rec = new Record();
             $title = $rec->getTitleFromIndex($authorativePid);
-        
+
             $percentageMatch = 0;
-        
+
             $downloadedTitle = RCL::normaliseTitle($this->_title);
             $localTitle = RCL::normaliseTitle($title);
             similar_text($downloadedTitle, $localTitle, $percentageMatch);
-        
+
             if($percentageMatch > 80)
             {
                 $titleIsFuzzyMatched = true;
             }
         }
-        
+
         return $titleIsFuzzyMatched;
     }
-    
+
     /**
      * Store stats in SQLite DB when running in test mode.
      * $this->_statsFile should be set to the path of the SQLite DB.
@@ -256,7 +256,11 @@ abstract class RecordImport
         ."VALUES ('" . $contribId . "', '" . $operation . "', '" . $docType . "', '" . $agType . "')";
         $db->query($query);
     }
-    
+
+    public function isLoaded() {
+      return $this->_loaded;
+    }
+
     /**
      * Perform de-duping on incoming records
      */
@@ -266,33 +270,33 @@ abstract class RecordImport
         //Eg for ScopusRecItem _scopusId should be first,
         //for PubmedRecItem _pubmedId should be first, etc.
         $primaryId = $this->_comparisonIdTypes[0];
-        
+
         $docTypeCode = "_{$this->_primaryIdPrefix}DocTypeCode";
         $aggregationType = "_{$this->_primaryIdPrefix}AggregationType";
-        
-        
+
+
         if(in_array($this->$docTypeCode, $this->_doctypeExceptions))
         {
             return false;
         }
-        
-        //If the Scopus ID matches soemthing that is already in the Scopus 
+
+        //If the Scopus ID matches soemthing that is already in the Scopus
         //import collection, we need not go any further.
         if($this->_inTest)
         {
             if(is_file($this->_statsFile))
             {
                 $db = new PDO('sqlite:'.$this->_statsFile);
-                
+
                 $query = "SELECT * FROM records WHERE contrib_id = '" . $this->$primaryId . "' LIMIT 1";
                 $res = $db->query($query);
                 $rows = $res->fetchAll(PDO::FETCH_ASSOC);
-                
+
                 if(!empty($rows))
                 {
                     $query = "UPDATE records SET count = count+1 WHERE contrib_id = '" . $this->$primaryId . "'";
                     $db->query($query);
-                    
+
                     return;
                 }
             }
@@ -306,12 +310,12 @@ abstract class RecordImport
                 return;
             }
         }
-        
+
         //set an idcollection array for pids returned by id type
         $idCollection = array();
         $mirrorMirror = new ReflectionClass($this);
         $associations = array();
-        
+
         //See what returns a PID
         foreach($this->_comparisonIdTypes as $id)
         {
@@ -319,14 +323,14 @@ abstract class RecordImport
             //a local record by that id type.
             $retrieverName = 'getPIDsBy'.$id;
             $retriever = $mirrorMirror->getMethod($retrieverName);
-            
+
             if($retriever)
             {
                 //Run the method and capture the pid(s)
                 $pids = $this->$retrieverName();
-                
+
                 $pidCount = count($pids);
-                
+
                 //if there is only one pid returned
                 if($pidCount == 1)
                 {
@@ -342,27 +346,27 @@ abstract class RecordImport
                     $histMsg = "ST01 - "
                     . $this->$primaryId." matches more than one pid("
                     . implode(',', $pids) . ") based on $retrieverName";
-                    
+
                     $this->_log->err($histMsg);
-                    
+
                     if(!$this->_inTest)
                     {
                         $this->save($histMsg, $this->_insertCollection);
                     }
-                    else 
+                    else
                     {
-                        $this->inTestSave($this->$primaryId, 'ST01', 
+                        $this->inTestSave($this->$primaryId, 'ST01',
                             $this->$docTypeCode, $this->$aggregationType);
                     }
                     return false;
                 }
-                else 
+                else
                 {
                     $associations[$id]['status'] = 'UNMATCHED';
                 }
             }
         }
-        
+
         $authorativePid = false;
         $pidCollection = array();
         $areMatched = array();
@@ -375,16 +379,16 @@ abstract class RecordImport
                     $pidCollection[] = $association['matchedPid'];
                 }
             }
-            
+
             if($association['status'] == 'MATCHED')
             {
                 $areMatched[] = $id;
             }
         }
-        
+
         //See that different ids return the same PID
         $ctUniq = count(array_unique($pidCollection));
-        
+
         //If we have a single PID, weed out any remaining fields that did not match and log them.
         //A pid that matched on Scopus ID is considered most reliable, DOI is next most reliable and so on
         //so the order of $this->_comparisonIdTypes matters.
@@ -396,7 +400,7 @@ abstract class RecordImport
                 if(in_array($cit, $areMatched))
                 {
                     $idMismatches = $this->getMismatchedFields(array_keys($associations), $associations[$cit]['matchedPid'], array($cit));
-                
+
                     if(!$idMismatches)
                     {
                         $authorativePid = $associations[$cit]['matchedPid'];
@@ -406,14 +410,14 @@ abstract class RecordImport
                         $histMsg = "ST02 - Mismatch error. Scopus Id "
                         . $this->$cit . " matches but the following do not: "
                         . var_export($idMismatches, true);
-                        
+
                         $this->_log->err($histMsg);
-                        
+
                         if(!$this->_inTest)
                         {
                             $this->save($histMsg, $this->_insertCollection);
                         }
-                        else 
+                        else
                         {
                             $this->inTestSave($this->$primaryId, 'ST02', $this->$docTypeCode, $this->$aggregationType);
                         }
@@ -422,18 +426,18 @@ abstract class RecordImport
                     break; //Stop processing any further id types
                 }
             }
-            
-            //Fuzzy title matching. Title must be at least 10 chars long and 
+
+            //Fuzzy title matching. Title must be at least 10 chars long and
             //have a match of better than 80%
-            
+
             $titleIsFuzzyMatched = $this->fuzzyTitleMatch($authorativePid);
-            
+
             if((($associations['_title']['status'] == 'UNMATCHED') && $titleIsFuzzyMatched))
             {
                 $associations['_title']['status'] = 'MATCHED';
             }
-            
-            //If we have either an exact title match (unlikely) or an acceptable 
+
+            //If we have either an exact title match (unlikely) or an acceptable
             //fuzzy title match, proceed to volume and page matching
             if($associations['_title']['status'] == 'MATCHED')
             {
@@ -444,28 +448,28 @@ abstract class RecordImport
                     {
                         $associations['_startPage']['status'] = 'MATCHED';
                     }
-                    else 
+                    else
                     {
                         $histMsg = "ST03 - Start page mismatch for '" . $this->_title
                         . " - Scopus ID: " . $this->$primaryId
                         . "'. Local start page is: " . $localStartPage
                         . " . Downloaded start page is: " . $this->_startPage;
-                        
+
                         $this->_log->err($histMsg);
-                        
+
                         if(!$this->_inTest)
                         {
                             $this->save($histMsg, $this->_insertCollection);
                         }
-                        else 
+                        else
                         {
                             $this->inTestSave($this->$primaryId, 'ST03', $this->$docTypeCode, $this->$aggregationType);
                         }
-                        
+
                         return false;
                     }
                 }
-                
+
                 $localEndPage = Record::getSearchKeyIndexValue($authorativePid, 'End Page', false);
                 if(!empty($this->_endPage) && !empty($localEndPage))
                 {
@@ -473,28 +477,28 @@ abstract class RecordImport
                     {
                         $associations['_endPage']['status'] = 'MATCHED';
                     }
-                    else 
+                    else
                     {
-                        $histMsg = "ST04 - End page mismatch for '" . $this->_title 
+                        $histMsg = "ST04 - End page mismatch for '" . $this->_title
                                 . " - Scopus ID " . $this->$primaryId
-                                . "'. Local end page is: " . $localEndPage 
+                                . "'. Local end page is: " . $localEndPage
                                 . " . Downloaded end page is: " . $this->_endPage;
-                        
+
                         $this->_log->err($histMsg);
-                        
+
                         if(!$this->_inTest)
                         {
                             $this->save($histMsg, $this->_insertCollection);
                         }
-                        else 
+                        else
                         {
                             $this->inTestSave($this->$primaryId, 'ST04', $this->$docTypeCode, $this->$aggregationType);
                         }
-                        
+
                         return false;
                     }
                 }
-                
+
                 $localVolume = Record::getSearchKeyIndexValue($authorativePid, 'Volume Number' , false);
                 if(!empty($this->_issueVolume) && !empty($localVolume))
                 {
@@ -504,23 +508,23 @@ abstract class RecordImport
                     }
                     else
                     {
-                        
+
                         $histMsg = "ST05 - Volume mismatch for '" . $this->_title
                                 . " - Scopus ID " . $this->$primaryId
                                 . "'. Local end page is: " . $localVolume
                                 . " . Downloaded end page is: " . $this->_issueVolume;
-                        
+
                         $this->_log->err($histMsg);
-                        
+
                         if(!$this->_inTest)
                         {
                             $this->save($histMsg, $this->_insertCollection);
                         }
-                        else 
+                        else
                         {
                             $this->inTestSave($this->$primaryId, 'ST05', $this->$docTypeCode, $this->$aggregationType);
                         }
-                        
+
                         return false;
                     }
                 }
@@ -528,19 +532,19 @@ abstract class RecordImport
             elseif($associations['_title']['status'] != 'UNMATCHED')
             {
                 $associations['_title']['status'] = 'UNCERTAIN';
-                
-                $histMsg = "ST06 - Scopus ID: " . $this->$primaryId 
-                        . " Downloaded title: '" . $downloadedTitle 
-                        . "' FAILED TO MATCH the local title: '" . $localTitle 
+
+                $histMsg = "ST06 - Scopus ID: " . $this->$primaryId
+                        . " Downloaded title: '" . $downloadedTitle
+                        . "' FAILED TO MATCH the local title: '" . $localTitle
                         . "' with a match of only " . $percentageMatch . "%";
-                
+
                 $this->_log->err($histMsg);
-                
+
                 if(!$this->_inTest)
                 {
                     $this->save($histMsg, $this->_insertCollection);
                 }
-                else 
+                else
                 {
                     $this->inTestSave($this->$primaryId, 'ST06', $this->$docTypeCode, $this->$aggregationType);
                 }
@@ -550,16 +554,16 @@ abstract class RecordImport
         {
             //Begin last ditch attempts to match on fuzzy title, DOI and IVP only
             $fuzzyMatchResult = Record::getPidsByFuzzyTitle($this->getFields());
-            
+
             if($fuzzyMatchResult['state'])
             {
                 $fuzzyMatchState = $this->getFuzzySearchStatus($fuzzyMatchResult);
-                
+
                 if(!$this->_inTest)
                 {
                     $this->save($fuzzyMatchState[0], $this->_insertCollection);
                 }
-                else 
+                else
                 {
                     //ST10-2x status
                     $stCode = preg_replace("/(^ST\d{2})*./", "$1", $fuzzyMatchState[0]);
@@ -568,42 +572,42 @@ abstract class RecordImport
                 }
                 return 'POSSIBLE MATCH';
             }
-            
-            $histMsg = "ST07 - No matches, saving a new PID for Scopus ID: " 
+
+            $histMsg = "ST07 - No matches, saving a new PID for Scopus ID: "
                     . $this->$primaryId . "'" . $this->_title;
-            
+
             if(!$this->_inTest)
             {
                 $this->save($histMsg, $this->_insertCollection);
             }
-            else 
+            else
             {
                 $this->inTestSave($this->$primaryId, 'ST07', $this->$docTypeCode, $this->$aggregationType);
             }
-            
+
             return "SAVE";
-            
+
         }
-        else 
+        else
         {
-            $histMsg = "ST08 - Different ids in the same downloaded record are matching up with different pids for Scopus ID: " 
+            $histMsg = "ST08 - Different ids in the same downloaded record are matching up with different pids for Scopus ID: "
                     . $this->$primaryId . " '" . $this->_title . "'."
                     .var_export($associations,true);
-            
+
             $this->_log->err($histMsg);
-            
+
             if(!$this->_inTest)
             {
                 $this->save(null, $this->_insertCollection);
             }
-            else 
+            else
             {
                 $this->inTestSave($this->$primaryId, 'ST08', $this->$docTypeCode, $this->$aggregationType);
             }
-            
+
             return false;
         }
-        
+
         if($authorativePid)
         {
             if(!$this->_inTest)
@@ -611,18 +615,18 @@ abstract class RecordImport
                 //ST09 - updating
                 $this->update($authorativePid);
             }
-            else 
+            else
             {
-                /*file_put_contents($this->_statsFile, "ST09 - Updating: ".$authorativePid.". Scopus ID: " 
+                /*file_put_contents($this->_statsFile, "ST09 - Updating: ".$authorativePid.". Scopus ID: "
                     . $this->_scopusId . "\n\n", FILE_APPEND);*/
                 $this->inTestSave($this->$primaryId, 'ST09', $this->$docTypeCode, $this->$aggregationType);
             }
             return "UPDATE";
         }
     }
-    
+
     /**
-     * Compare values of local fields with the values of fields 
+     * Compare values of local fields with the values of fields
      * in a downloaded record and return mismatches.
      * @param array $idTypes
      * @param array $exceptions
@@ -634,25 +638,25 @@ abstract class RecordImport
         {
             $exceptions[] = '_title';
         }
-        
+
         //Diff otherIdValues keys with exceptions to determine which ones to check
         $idsToProcess = array_diff($otherIds, $exceptions);
         $mismatches = array();
-        
+
         //Iterate through id types and check against local record for the given pid
         foreach($idsToProcess as $idToProcess)
         {
             $skIndex = strtolower(preg_replace("/[A-Z]/","_$0", ltrim($idToProcess, "_")));
-            
+
             $localIdValue = Record::getSearchKeyIndexValue($pid, $skIndex , false);
             $dlValue = $this->$idToProcess;
-            
+
             if(($localIdValue && $dlValue) && ($localIdValue != $dlValue))
             {
                 $mismatches[$idToProcess] = array('localValue' => $localIdValue, 'dlValue' => $dlValue);
             }
         }
-        
+
         //return mismatches if any otherwise return false.
         return (count($mismatches) > 0) ? $mismatches : false;
     }
@@ -690,7 +694,7 @@ abstract class RecordImport
         if($this->_scopusId)
         {
             $pidSet = Record::getPIDsByScopusID($this->_scopusId);
-            
+
         }
 
         for($i=0;$i<count($pidSet);$i++)
@@ -708,7 +712,7 @@ abstract class RecordImport
     protected function getPIDsBy_pubmedId()
     {
         $pids = array();
-        
+
         if($this->_pubmedId)
         {
             $pidSet = Record::getPIDsByPubmedId($this->_pubmedId);
@@ -720,7 +724,7 @@ abstract class RecordImport
                 }
         return $pids;
     }
-    
+
     /**
     * Fetch an array of pids by title
     * @param mixed $id
@@ -729,12 +733,12 @@ abstract class RecordImport
     protected function getPIDsBy_title()
     {
         $pids = array();
-        
+
         if($this->_title)
         {
             $pidSet = Record::getPIDsByTitle($this->_title);
         }
-        
+
         for($i=0;$i<count($pidSet);$i++)
         {
         $pids[] = $pidSet[$i]['rek_pid'];
@@ -753,7 +757,7 @@ abstract class RecordImport
 
         //return array of pids
     }
-    
+
     /**
      * Saves record items to Record Search Key
      *
@@ -777,10 +781,10 @@ abstract class RecordImport
         }
 
         // Citation Data
-        if ($this->_wokCitationCount) {
+        if (is_numeric($this->_wokCitationCount)) {
             $citationData['thomson'] = $this->_wokCitationCount;
         }
-        if (($this->_scopusCitationCount)) {
+        if (is_numeric($this->_scopusCitationCount)) {
             $citationData['scopus'] = $this->_scopusCitationCount;
         }
 
@@ -888,7 +892,7 @@ abstract class RecordImport
             $rec = new Record();
             $collection = ($collection) ? $collection : $this->_collections[0];
             $pid = $rec->insertFromArray($mods, $collection, "MODS 1.0", $history, 0, $links, array());
-            
+
             if (is_numeric($this->_wokCitationCount)) {
                 Record::updateThomsonCitationCount($pid, $this->_wokCitationCount, $this->_isiLoc);
             }
@@ -1028,7 +1032,7 @@ abstract class RecordImport
         $sekData['Status']          = Status::getID("Published");
         $sekData['Object Type']     = Object_Type::getID("Record");
         $sekData['Depositor']       = Auth::getUserID();
-        $sekData['isMemberOf']      = $this->_collections[0];
+        $sekData['isMemberOf']      = $this->_insertCollection;
         $sekData['Created Date']    = $recordSearchKey->getVersion();
         $sekData['Updated Date']    = $recordSearchKey->getVersion();
 

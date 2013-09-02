@@ -179,15 +179,18 @@ class MatchingRecords
      */
     public function search_scopus($title)
     {
-        $log = FezLog::get();
+    $log = FezLog::get();
 		$db = DB_API::get();
 		$num_recs = 3;
 		$matches = array();
 
+    // Test it out on  http://www.scopus.com/search/form.url?display=advanced
+
 		//Grab 40 records to work with in case some of them are not really UQ's
-		$query = array('query' => "affil(University+of+Queensland)+title('"
+//		$query = array('query' => "affil(University+of+Queensland)+subtype(ar,cp,bk)+title('"
+		$query = array('query' => "(doctype(ar)+OR+doctype(cp)+OR+doctype(bk)+OR+doctype(ch))+title('"
 		    . urlencode($title) . "')",
-		             'count' => 40,
+		             'count' => 10,
 		             'start' => 0,
 		             'view' => 'STANDARD',
 		);
@@ -199,41 +202,45 @@ class MatchingRecords
 		$doc->loadXML($xml);
 		$records = $doc->getElementsByTagName('identifier');
 
+
 		$nodeItem = 0;
 
-		while(($nodeItem < $records->length) && (count($matches) < $num_recs))
-		{
+		while(($nodeItem < $records->length) && (count($matches) < $num_recs)) {
 		    $record = $records->item($nodeItem);
 
 		    $csr = new ScopusRecItem();
 
+        $subtype = $doc->getElementsByTagName('subtype')->item($nodeItem)->nodeValue;;
+        $csr->_scopusDocTypeCode = $subtype;
 		    $scopusId = $record->nodeValue;
 
 		    $pregMatches = array();
 		    preg_match("/^SCOPUS_ID\:(\d+)$/", $scopusId, $pregMatches);
 		    $scopusIdExtracted = (array_key_exists(1, $pregMatches)) ? $pregMatches[1] : null;
 
-		    $iscop = new ScopusService(APP_SCOPUS_API_KEY);
-		    $rec = $iscop->getRecordByScopusId($scopusIdExtracted);
 
-		    $csr->load($rec, $nameSpaces);
+//		    $iscop = new ScopusService(APP_SCOPUS_API_KEY);
+//		    $rec = $iscop->getRecordByScopusId($scopusIdExtracted);
+//        $rec = $record;
 
+		    $csr->load($xml);
+        $csr_fields = $csr->getFields();
 		    //If the record has a UQ affiliation (ie, it's loaded), then continue
-		    if($csr->_loaded)
+		    if($csr->isLoaded())
 		    {
 		        $fields = new stdClass();
-		        $fields->authors = $csr->_authors;
-		        $fields->title = $csr->_title;
-		        $fields->sourceTitle = $csr->_journalTitle;
-		        $fields->volume_number = $csr->_issueVolume;
-		        $fields->issue_number = $csr->_issueNumber;
-		        $fields->page_start = $csr->_startPage;
-		        $fields->page_end = $csr->_endPage;
-		        $fields->dateIssued = $csr->_issueDate;
+		        $fields->authors = $csr_fields['_authors'];
+		        $fields->title = $csr_fields['_title'];
+		        $fields->sourceTitle = $csr_fields['_journalTitle'];
+		        $fields->volume_number = $csr_fields['_issueVolume'];
+		        $fields->issue_number = $csr_fields['_issueNumber'];
+		        $fields->page_start = $csr_fields['_startPage'];
+		        $fields->page_end = $csr_fields['_endPage'];
+		        $fields->dateIssued = $csr_fields['_issueDate'];
 		        $fields->scopusId = $scopusIdExtracted;
 		        $fields->pid = null;
 
-		        $isInImportColl = Record::getPIDsByScopusID($csr->_scopusId, true);
+		        $isInImportColl = Record::getPIDsByScopusID($csr_fields['_scopusId'], true);
 
 		        if(empty($isInImportColl))
 		        {
@@ -355,11 +362,11 @@ class MatchingRecords
                     if (!defined('APP_WOS_COLLECTIONS') || trim(APP_WOS_COLLECTIONS) == "") {
                         $rec->collections = array(RID_DL_COLLECTION);
                     } else {
-                        if ($aut_ids) {
-                            $rec->collections = array(RID_DL_COLLECTION);
-                        } else {
+//                        if ($aut_ids) {
+//                            $rec->collections = array(RID_DL_COLLECTION);
+//                        } else {
                             $rec->collections = array($wos_collection);
-                        }
+//                        }
                     }
 
                     $history = "Imported from WoS";
@@ -385,15 +392,32 @@ class MatchingRecords
         $db = DB_API::get();
         $pid = false;
 
-        $scopServ = new ScopusService(APP_SCOPUS_API_KEY);
-        $record = $scopServ->getRecordByScopusId($scopusId);
+        // first query the main service to get the doc type (only place to get it)
+        $query = array('query' => "(scopus-id(".$scopusId."))",
+          'count' => 1,
+          'start' => 0,
+          'view' => 'STANDARD'
+        );
+
+        $scopusService = new ScopusService(APP_SCOPUS_API_KEY);
+        $xml = $scopusService->getNextRecordSet($query);
+
+        $doc = new DOMDocument();
+        $doc->loadXML($xml);
+
+
+
+        $record = $scopusService->getRecordByScopusId($scopusId);
 
         $sri = new ScopusRecItem();
+        // get the subtype from the search results as the main service doesn't return it
+        $sri->_scopusDocTypeCode = $doc->getElementsByTagName('subtype')->item(0)->nodeValue;
         $sri->load($record);
 
-        if($sri->_loaded)
+        if($sri->isLoaded())
         {
-            $pid = $sri->save(null, APP_SCOPUS_IMPORT_COLLECTION);
+            $history = "Imported from Scopus";
+            $pid = $sri->save($history, APP_SCOPUS_IMPORT_COLLECTION);
         }
 
         return $pid;

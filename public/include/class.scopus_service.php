@@ -43,19 +43,19 @@
 class ScopusService
 {
     protected $_log;
-    
+
     protected $_authToken;
-    
+
     protected $_apiKey;
-    
+
     protected $_db;
-    
+
     protected $_recSetStart = 0;
-    
+
     protected $_recSetSize = 30;
-    
+
     protected $_lastSet = false;
-    
+
     public function __construct($apiKey)
     {
         $this->_apiKey = $apiKey;
@@ -63,7 +63,7 @@ class ScopusService
         $this->_db = DB_API::get();
         $this->auth();
     }
-    
+
     /**
      * Fetch the auth token
      * @return string
@@ -72,7 +72,7 @@ class ScopusService
     {
         return $this->_authToken;
     }
-    
+
     /**
      * Return the cached token
      * @return string
@@ -83,15 +83,15 @@ class ScopusService
             . APP_TABLE_PREFIX . "scopus_session LIMIT 1";
         $stmt = $this->_db->query($sql);
         $tokenData = $stmt->fetch();
-        
+
         //If the token is less than two hours old return it
         $token = ($tokenData && ((time() - $tokenData['ts']) < 7200))
-                ? $tokenData['scs_tok'] 
+                ? $tokenData['scs_tok']
                 : false;
-        
+
         return $token;
     }
-    
+
     /**
     * Getter overload
     * @param string $propName
@@ -100,7 +100,7 @@ class ScopusService
     {
         return $this->$propName;
     }
-    
+
     /**
      * Clear out the token table and save a new token
      * @param string $token
@@ -109,8 +109,8 @@ class ScopusService
     {
         $sqlTruncate = "TRUNCATE TABLE " . APP_TABLE_PREFIX . "scopus_session";
         $sqlInsert = "INSERT INTO " . APP_TABLE_PREFIX . "scopus_session (scs_tok) VALUES (?)";
-        
-        try 
+
+        try
         {
             $tr = $this->_db->query($sqlTruncate);
         }
@@ -118,7 +118,7 @@ class ScopusService
         {
             $this->_log->err($e->getMessage());
         }
-        
+
         try
         {
             $in = $this->_db->query($sqlInsert, array($token));
@@ -127,10 +127,10 @@ class ScopusService
         {
             $this->_log->err($e->getMessage());
         }
-        
+
         return ($tr && $in) ? true : false;
     }
-    
+
     /**
      * Perform an authentication operation against ScopusAPI
      */
@@ -141,9 +141,9 @@ class ScopusService
                 'platform' => 'SCOPUS'
             )
         );
-        
+
         $token = $this->getSavedToken();
-        
+
         if(!$token)
         {
             $curlRes = $this->doCurl($params);
@@ -152,10 +152,10 @@ class ScopusService
             $token = $tokens->item(0)->nodeValue;
             $this->saveToken($token);
         }
-        
+
         $this->_authToken = $token;
     }
-    
+
     /**
      * Perform a search operation on ScopusAPI with an existing token
      * @param array $query
@@ -170,17 +170,17 @@ class ScopusService
                 . __FILE__ . ":" . __LINE__);
             return false;
         }
-        
+
         $params = array(
             'action' => 'search',
             'db' => 'index:SCOPUS',
             'qs' => $query
         );
-        
+
         $recordData = $this->doCurl($params, 'content');
         return $recordData;
     }
-    
+
     /**
      * Grab the next recordset from Scopus if
      * there is one to grab
@@ -196,13 +196,13 @@ class ScopusService
                                 'view' => 'STANDARD',
             );
         }
-        
+
         $records = $this->search($query);
         $this->_recSetStart = $this->getNextRecStart($records);
 
         return $records;
     }
-    
+
     public function getRecordByScopusId($scopusId)
     {
         $params = array(
@@ -210,12 +210,12 @@ class ScopusService
                 'db' => 'SCOPUS_ID:' . $scopusId,
                 'qs' => array()
         );
-    
+
         return $this->doCurl($params, 'content');
     }
-    
+
     /**
-     * Return the sequence number of the record at 
+     * Return the sequence number of the record at
      * which to start fetching the next record set.
      * @return integer
      */
@@ -223,10 +223,10 @@ class ScopusService
     {
         return $this->_recSetStart;
     }
-    
+
     /**
      * Return the starting record of the next recordset
-     * to fetch from the <link> tag provided by the 
+     * to fetch from the <link> tag provided by the
      * current record set.
      * @param string $recordSet
      * @return mixed
@@ -237,11 +237,11 @@ class ScopusService
         {
             return false;
         }
-        
+
         $xpath = $this->getXPath($recordSet);
         $links = $xpath->query('//default:feed/default:link');
         $nextRecStart = false;
-        
+
         foreach($links as $link)
         {
             $ref = $link->getAttribute('ref');
@@ -250,23 +250,23 @@ class ScopusService
                 $nextLink = $link->getAttribute('href');
                 $matches = array();
                 preg_match("/start=(\d+)&/", $nextLink, $matches);
-                
+
                 if(array_key_exists(1, $matches))
                 {
                     $nextRecStart = $matches[1];
                 }
             }
         }
-        
+
         if(!$nextRecStart)
         {
             $this->_lastSet = true;
             $nextRecStart = $this->_recSetStart + $this->_recSetSize;
         }
-        
+
         return $nextRecStart;
     }
-    
+
     /**
     * Download records from Scopus, perform
     * de-duping and enter into database.
@@ -276,40 +276,42 @@ class ScopusService
     public function downloadRecords()
     {
         $xml = $this->getNextRecordSet();
-        
+
         $nameSpaces = array(
+                    'd' => 'http://www.elsevier.com/xml/svapi/abstract/dtd',
+                    'ce' => 'http://www.elsevier.com/xml/ani/common',
                     'prism' => "http://prismstandard.org/namespaces/basic/2.0/",
                     'dc' => "http://purl.org/dc/elements/1.1/",
                     'opensearch' => "http://a9.com/-/spec/opensearch/1.1/"
         );
-        
+
         while($this->_recSetStart)
         {
             $doc = new DOMDocument();
             $doc->loadXML($xml);
             $records = $doc->getElementsByTagName('identifier');
-            
+
             foreach($records as $record)
             {
                 $csr = new ScopusRecItem();
-        
+
                 $scopusId = $record->nodeValue;
                 $matches = array();
                 preg_match("/^SCOPUS_ID\:(\d+)$/", $scopusId, $matches);
                 $scopusIdExtracted = (array_key_exists(1, $matches)) ? $matches[1] : null;
-        
+
                 $iscop = new ScopusService($this->_apiKey);
                 $rec = $iscop->getRecordByScopusId($scopusIdExtracted);
-                
+
                 $csr->load($rec, $nameSpaces);
                 $csr->liken();
             }
-        
+
             $xml = $this->getNextRecordSet();
-        
+
         }
     }
-    
+
     /**
      * Execute a cURL request on the ScopusAPI
      * @param array $params
@@ -323,12 +325,12 @@ class ScopusService
                 . __FILE__ . ":" . __LINE__);
             return false;
         }
-        
+
         $uri = (preg_match('/.*\/$/', SCOPUS_WS_BASE_URL)) ? $utility : '/'.$utility;
         $uri .= (array_key_exists('action', $params)) ? "/".$params['action'] : '';
         $uri .= (array_key_exists('db', $params) ? "/".$params['db'] : '');
         $uri .= '?' . http_build_query($params['qs']);
-        
+
         $curlHandle = curl_init(SCOPUS_WS_BASE_URL . $uri);
         curl_setopt($curlHandle, CURLOPT_SSL_VERIFYPEER, FALSE);
         curl_setopt($curlHandle, CURLOPT_SSL_VERIFYHOST, FALSE);
@@ -338,17 +340,17 @@ class ScopusService
         ));
         curl_setopt($curlHandle, CURLOPT_RETURNTRANSFER, true);
         $curlResponse = curl_exec($curlHandle);
-        
+
         if(!$curlResponse)
         {
             $this->_log->err(curl_errno($curlHandle));
         }
-        
+
         curl_close($curlHandle);
-        
+
         return $curlResponse;
     }
-    
+
     /**
      * Generate an XPAth object from raw XML
      * @param string $rawXML
@@ -360,10 +362,10 @@ class ScopusService
         $xmlDoc->preserveWhiteSpace = false;
         $xmlDoc->loadXML($rawXML);
         $rootNameSpace = $xmlDoc->lookupNamespaceUri($xmlDoc->namespaceURI);
-        
+
         $xpath = new DOMXPath($xmlDoc);
         $xpath->registerNamespace('default', $rootNameSpace);
-        
+
         return $xpath;
     }
 }

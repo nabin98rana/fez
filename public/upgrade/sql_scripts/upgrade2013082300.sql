@@ -1,0 +1,2 @@
+insert ignore into %TABLE_PREFIX%config (config_name, config_module, config_value) values ('app_scopus_api_key','core','');
+insert ignore into %TABLE_PREFIX%config (config_name, config_module, config_value) values ('scopus_ws_base_url','core','https://api.elsevier.com/');

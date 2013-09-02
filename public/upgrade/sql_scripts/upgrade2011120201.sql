@@ -1,4 +1,4 @@
-CREATE TABLE `fez_scopus_doctypes` (
+CREATE TABLE `%TABLE_PREFIX%scopus_doctypes` (
   `sdt_id` int(11) NOT NULL AUTO_INCREMENT,
   `sdt_code` varchar(5) DEFAULT NULL,
   `sdt_description` varchar(255) DEFAULT NULL,
@@ -7,7 +7,7 @@ CREATE TABLE `fez_scopus_doctypes` (
   PRIMARY KEY (`sdt_id`)
 );
 
-INSERT INTO `fez_scopus_doctypes`
+INSERT INTO `%TABLE_PREFIX%scopus_doctypes`
 (sdt_code, sdt_description, sdt_created_date)
 VALUES
  ('ar','Article',NOW()),

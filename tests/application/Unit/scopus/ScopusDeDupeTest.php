@@ -24,20 +24,20 @@ class ScopusTest extends PHPUnit_Framework_TestCase
      * @var array
      */
     protected $_savedPids = array();
-    
+
     /**
      * Current Scopus ID being processed.
      * @var string
      */
     protected $_scopusIDCurrent = null;
-    
+
     /**
      * Set the Scopus record item (ScopusRecItem) to being in test
      * so that it only logs its actions without actually performimg them
      * @var boolean
      */
     protected $_recItemIntest = false;
-    
+
     /**
      * Add pids to remove to the _savedPids array by scopus id.
      * Used as a clean sweep mechanism in case any test data
@@ -46,11 +46,11 @@ class ScopusTest extends PHPUnit_Framework_TestCase
      */
     protected function getPIDsByScopusId($scopusId)
      {
-         
+
         if($scopusId)
         {
             $pidSet = Record::getPIDsByScopusID($scopusId);
-            
+
         }
 
         for($i=0;$i<count($pidSet);$i++)
@@ -61,10 +61,10 @@ class ScopusTest extends PHPUnit_Framework_TestCase
             }
         }
      }
-     
+
      /**
       * Remove anything in the _savedPids array and also
-      * check for any others to remove matched by 
+      * check for any others to remove matched by
       * scopus id or passed in manually to be sure.
       * @param array $andThese
       * @param string $scopusId
@@ -81,20 +81,20 @@ class ScopusTest extends PHPUnit_Framework_TestCase
                  }
              }
          }
-         
+
          if($scopusId)
          {
              $this->getPIDsByScopusId($scopusId);
          }
-         
+
          foreach($this->_savedPids as $sPID)
          {
              $this->removeTestData($sPID);
          }
-         
+
 //          $this->_savedPids = array();
      }
-    
+
     /**
      * Load required test data. Yes, there's a setUp method
      * in PHPUnit; no, it's not suitable for what's being done here.
@@ -108,19 +108,22 @@ class ScopusTest extends PHPUnit_Framework_TestCase
         $doc->loadXML($xml);
         $records = $doc->getElementsByTagName('abstracts-retrieval-response');
         $rec = $records->item(0);
-    
+
         $csr = new ScopusRecItem();
         $csr->setInTest($this->_recItemIntest);
-         
+
         $nameSpaces = array(
-                   'prism' => "http://prismstandard.org/namespaces/basic/2.0/",
-                   'dc' => "http://purl.org/dc/elements/1.1/",
-                   'opensearch' => "http://a9.com/-/spec/opensearch/1.1/"
+          'd' => 'http://www.elsevier.com/xml/svapi/abstract/dtd',
+          'ce' => 'http://www.elsevier.com/xml/ani/common',
+          'prism' => "http://prismstandard.org/namespaces/basic/2.0/",
+          'dc' => "http://purl.org/dc/elements/1.1/",
+          'opensearch' => "http://a9.com/-/spec/opensearch/1.1/"
+
         );
-    
+
         $xmlDoc = new DOMDocument();
         $xmlDoc->appendChild($xmlDoc->importNode($rec, true));
-          
+
         $csr->load($xmlDoc->saveXML(), $nameSpaces);
         $savedPid = $csr->save();
 
@@ -128,7 +131,7 @@ class ScopusTest extends PHPUnit_Framework_TestCase
         $this->_savedPids[] = $savedPid;
         $this->_scopusIDCurrent = $csr->__get('_scopusId');
         $this->getPIDsByScopusId($csr->__get('_scopusId'));
-         
+
         return $savedPid;
     }
 
@@ -151,32 +154,35 @@ class ScopusTest extends PHPUnit_Framework_TestCase
      */
     protected function saveUpdateAbstract($xml)
     {
-         
+
         $doc = new DOMDocument();
         $doc->loadXML($xml);
         $records = $doc->getElementsByTagName('abstracts-retrieval-response');
         $rec = $records->item(0);
-         
+
         $csr = new ScopusRecItem();
         $csr->setInTest($this->_recItemIntest);
-         
+
         $nameSpaces = array(
-                     'prism' => "http://prismstandard.org/namespaces/basic/2.0/",
-                     'dc' => "http://purl.org/dc/elements/1.1/",
-                     'opensearch' => "http://a9.com/-/spec/opensearch/1.1/"
+          'd' => 'http://www.elsevier.com/xml/svapi/abstract/dtd',
+          'ce' => 'http://www.elsevier.com/xml/ani/common',
+          'prism' => "http://prismstandard.org/namespaces/basic/2.0/",
+          'dc' => "http://purl.org/dc/elements/1.1/",
+          'opensearch' => "http://a9.com/-/spec/opensearch/1.1/"
+
         );
-         
+
         $xmlDoc = new DOMDocument();
         $xmlDoc->appendChild($xmlDoc->importNode($rec, true));
-     
+
         $csr->load($xmlDoc->saveXML(), $nameSpaces);
-        
+
         //Prepare to clean up test data
         $this->getPIDsByScopusId($csr->__get('_scopusId'));
-        
+
         return $csr->liken();
     }
-     
+
     /**
      * Scopus Id matches
      * Title matches
@@ -191,17 +197,17 @@ class ScopusTest extends PHPUnit_Framework_TestCase
     {
         $this->_recItemIntest = true;
         $testPid = $this->loadTestData(APP_PATH.'../tests/application/Unit/scopus/sampleAbstractScopusIdMatch.xml');
-    
+
         $xml = file_get_contents(APP_PATH.'../tests/application/Unit/scopus/sampleAbstracts02.xml');
         $likened = $this->saveUpdateAbstract($xml);
-         
+
         $this->removeTestData($testPid);
         $this->removeAllTestPIDs(array($testPid), $this->_scopusIDCurrent);
         $this->_recItemIntest = false;
 
         $this->assertEquals('UPDATE', $likened);
     }
-     
+
     /**
      * Scopus Id matches
      * Title mismatches
@@ -217,51 +223,54 @@ class ScopusTest extends PHPUnit_Framework_TestCase
     public function testSaveUpdateAllButTitleMatches()
     {
         $testPid = $this->loadTestData(APP_PATH.'../tests/application/Unit/scopus/sampleAbstractAllButTitleMatchLocal.xml');
-        
+
         $xml = file_get_contents(APP_PATH.'../tests/application/Unit/scopus/sampleAbstractAllButTitleMatchDL.xml');
         $likened = $this->saveUpdateAbstract($xml);
-         
+
         $this->removeTestData($testPid);
         $this->removeAllTestPIDs(array($testPid), $this->_scopusIDCurrent);
-        
+
         $this->assertEquals('UPDATE', $likened);
     }
-    
+
     /**
      * Update functionality is passed data known to match a local record
-     * 
+     *
      * Update method should return true
      */
     public function testPIDUpdate()
     {
         $xml = file_get_contents(APP_PATH.'../tests/application/Unit/scopus/sampleAbstractUpdateTest.xml');
-         
+
         $doc = new DOMDocument();
         $doc->loadXML($xml);
         $records = $doc->getElementsByTagName('abstracts-retrieval-response');
         $rec = $records->item(0);
-    
+
         $csr = new ScopusRecItem();
-    
+
         $nameSpaces = array(
-                              'prism' => "http://prismstandard.org/namespaces/basic/2.0/",
-                              'dc' => "http://purl.org/dc/elements/1.1/",
-                              'opensearch' => "http://a9.com/-/spec/opensearch/1.1/"
+          'd' => 'http://www.elsevier.com/xml/svapi/abstract/dtd',
+          'ce' => 'http://www.elsevier.com/xml/ani/common',
+          'prism' => "http://prismstandard.org/namespaces/basic/2.0/",
+          'dc' => "http://purl.org/dc/elements/1.1/",
+          'opensearch' => "http://a9.com/-/spec/opensearch/1.1/"
+
         );
-    
+
         $xmlDoc = new DOMDocument();
         $xmlDoc->appendChild($xmlDoc->importNode($rec, true));
-    
+
         $csr->load($xmlDoc->saveXML(), $nameSpaces);
         $testDataPid = $csr->save();
-         
+
         $res = $csr->update($testDataPid);
-         
+
         $this->removeAllTestPIDs($testDataPid, $csr->__get('_scopusId'));
-        
+
         $this->assertEquals(true, $res);
     }
-     
+
     /**
      * Scopus Id matches
      * Title matches
@@ -269,22 +278,22 @@ class ScopusTest extends PHPUnit_Framework_TestCase
      * End is empty in the DL record
      * Volume is empty in the DL record
      * Pubmed Id is empty in the DL record
-     * 
+     *
      * This should update.
      */
      public function testSaveUpdateScopusIdTitleMatches()
      {
          $testPid = $this->loadTestData(APP_PATH.'../tests/application/Unit/scopus/sampleAbstractVolumePageEmptyLocal.xml');
-        
+
          $xml = file_get_contents(APP_PATH.'../tests/application/Unit/scopus/sampleAbstractVolumePageEmptyDL.xml');
          $likened = $this->saveUpdateAbstract($xml);
-         
+
          $this->removeTestData($testPid);
          $this->removeAllTestPIDs(array($testPid), $this->_scopusIDCurrent);
-        
+
          $this->assertEquals('UPDATE', $likened);
      }
-     
+
      /**
      * Title is very similar but not identical (differences in punctuation marks)
      * Start matches
@@ -299,17 +308,17 @@ class ScopusTest extends PHPUnit_Framework_TestCase
      {
          $this->_recItemIntest = true;
          $testPid = $this->loadTestData(APP_PATH.'../tests/application/Unit/scopus/sampleAbstractFuzzyDOIIVPMatchLocal.xml');
-         
+
          $xml = file_get_contents(APP_PATH.'../tests/application/Unit/scopus/sampleAbstractFuzzyDOIIVPMatchDL.xml');
          $likened = $this->saveUpdateAbstract($xml);
-         
+
          $this->removeTestData($testPid);
          $this->removeAllTestPIDs(array($testPid), $this->_scopusIDCurrent);
          $this->_recItemIntest = false;
-         
+
          $this->assertRegExp('/^ST26/', $likened[0]);
      }
-     
+
      /**
      * Title is very similar but not identical (letters in the title differ)
      * Start matches
@@ -324,17 +333,17 @@ class ScopusTest extends PHPUnit_Framework_TestCase
      {
          $this->_recItemIntest = true;
          $testPid = $this->loadTestData(APP_PATH.'../tests/application/Unit/scopus/sampleAbstractFuzzyDOIIVPTitleMismatchLocal.xml');
-          
+
          $xml = file_get_contents(APP_PATH.'../tests/application/Unit/scopus/sampleAbstractFuzzyDOIIVPTitleMismatchDL.xml');
          $likened = $this->saveUpdateAbstract($xml);
-          
+
          $this->removeTestData($testPid);
          $this->removeAllTestPIDs(array($testPid), $this->_scopusIDCurrent);
          $this->_recItemIntest = false;
-         
+
          $this->assertEquals('UPDATE', $likened);
      }
-     
+
      /**
       * Check to see that new PIDs are being saved to a collection
       */
@@ -348,35 +357,37 @@ class ScopusTest extends PHPUnit_Framework_TestCase
              $res = $db->fetchAll($query);
              define('APP_SCOPUS_IMPORT_COLLECTION', $res[0]['rek_ismemberof']);
          }
-         
+
          $xml = file_get_contents(APP_PATH.'../tests/application/Unit/scopus/sampleAbstractUpdateTest.xml');
-          
+
          $doc = new DOMDocument();
          $doc->loadXML($xml);
          $records = $doc->getElementsByTagName('abstracts-retrieval-response');
          $rec = $records->item(0);
-     
+
          $csr = new ScopusRecItem();
-     
+
          $nameSpaces = array(
-                   'prism' => "http://prismstandard.org/namespaces/basic/2.0/",
-                   'dc' => "http://purl.org/dc/elements/1.1/",
-                   'opensearch' => "http://a9.com/-/spec/opensearch/1.1/"
+           'd' => 'http://www.elsevier.com/xml/svapi/abstract/dtd',
+           'ce' => 'http://www.elsevier.com/xml/ani/common',
+           'prism' => "http://prismstandard.org/namespaces/basic/2.0/",
+           'dc' => "http://purl.org/dc/elements/1.1/",
+           'opensearch' => "http://a9.com/-/spec/opensearch/1.1/"
          );
-     
+
          $xmlDoc = new DOMDocument();
          $xmlDoc->appendChild($xmlDoc->importNode($rec, true));
-     
+
          $csr->load($xmlDoc->saveXML(), $nameSpaces);
          $testDataPid = $csr->save(null, APP_SCOPUS_IMPORT_COLLECTION);
-     
+
          $inTestCollection = Record::getPIDsByScopusID($csr->__get('_scopusId'), true);
-         
+
          $this->assertEquals(false, empty($inTestCollection));
          $this->removeTestData($testDataPid);
          $this->removeAllTestPIDs($testDataPid, $csr->__get('_scopusId'));
      }
-     
+
      /**
      * Check that a Scopus import collection has been set
      */
@@ -384,14 +395,14 @@ class ScopusTest extends PHPUnit_Framework_TestCase
      {
          $this->assertRegExp("/^UQ\:\d+/", APP_SCOPUS_IMPORT_COLLECTION);
      }
-     
+
      /**
       * Perform a fuzzy title and IVP search using all IVP and DOI
       */
      public function testFuzzyMatchTitleAllIVP()
      {
          $testPID = $this->loadTestData(APP_PATH.'../tests/application/Unit/scopus/fuzzyMatchingLocalTitleDoiSpEpVolIss.xml');
-         
+
          //Faux downloaded record data
          $fields = array();
          $fields['_doi'] = '10.1080/09936846.2011.646069';
@@ -400,26 +411,26 @@ class ScopusTest extends PHPUnit_Framework_TestCase
          $fields['_issueNumber'] = 15;
          $fields['_endPage'] = 1029;
          $fields['_title'] = 'Localization of a brain sulfotransferase, SULT4A1-18, in the human, pig, gerbil, zombie and rat brain: An immunohistochemical study';
-         
+
          $searchRes = Record::getPidsByFuzzyTitle($fields);
          $this->removeTestData($testPID);
          $this->removeAllTestPIDs(array($testPID), $this->_scopusIDCurrent);
-         
+
          $this->assertEquals($fields['_title'], $searchRes['data'][0]["rek_title"]);
          $this->assertEquals($fields['_doi'], $searchRes['data'][0]["rek_doi"]);
          $this->assertEquals($fields['_startPage'], $searchRes['data'][0]["rek_start_page"]);
          $this->assertEquals($fields['_issueVolume'], $searchRes['data'][0]["rek_volume_number"]);
          $this->assertEquals($fields['_endPage'], $searchRes['data'][0]["rek_end_page"]);
-         $this->assertEquals($fields['_issueNumber'], $searchRes['data'][0]["rek_issue_number"]);         
+         $this->assertEquals($fields['_issueNumber'], $searchRes['data'][0]["rek_issue_number"]);
      }
-     
+
      /**
       * Perform fuzzy title search with doi start page and volume
       */
      public function testFuzzyMatchTitleDOIStartpVol()
      {
          $testPID = $this->loadTestData(APP_PATH.'../tests/application/Unit/scopus/fuzzyMatchingLocalTitleDoiSpVol.xml');
-          
+
          //Faux downloaded record data
          $fields = array();
          $fields['_doi'] = '10.1080/09936846.2011.646069';
@@ -428,11 +439,11 @@ class ScopusTest extends PHPUnit_Framework_TestCase
          $fields['_issueNumber'] = 15;
          $fields['_endPage'] = 1029;
          $fields['_title'] = 'Localization of a brain sulfotransferase, SULT4A1-18, in the human, pig, gerbil, zombie and rat brain: An immunohistochemical study';
-          
+
          $searchRes = Record::getPidsByFuzzyTitle($fields);
          $this->removeTestData($testPID);
          $this->removeAllTestPIDs(array($testPID), $this->_scopusIDCurrent);
-          
+
          $this->assertEquals($fields['_title'], $searchRes['data'][0]["rek_title"]);
          $this->assertEquals($fields['_doi'], $searchRes['data'][0]["rek_doi"]);
          $this->assertEquals($fields['_startPage'], $searchRes['data'][0]["rek_start_page"]);
@@ -440,14 +451,14 @@ class ScopusTest extends PHPUnit_Framework_TestCase
          $this->assertFalse($fields['_endPage'] == $searchRes['data'][0]["rek_end_page"]);
          $this->assertFalse($fields['_issueNumber'] == $searchRes['data'][0]["rek_issue_number"]);
      }
-     
+
      /**
      * Perform fuzzy title search with doi
      */
      public function testFuzzyMatchTitleDOI()
      {
          $testPID = $this->loadTestData(APP_PATH.'../tests/application/Unit/scopus/fuzzyMatchingLocalTitleDoi.xml');
-     
+
          //Faux downloaded record data
          $fields = array();
          $fields['_doi'] = '10.1080/09936846.2011.646069';
@@ -456,11 +467,11 @@ class ScopusTest extends PHPUnit_Framework_TestCase
          $fields['_issueNumber'] = 15;
          $fields['_endPage'] = 1029;
          $fields['_title'] = 'Localization of a brain sulfotransferase, SULT4A1-18, in the human, pig, gerbil, zombie and rat brain: An immunohistochemical study';
-     
+
          $searchRes = Record::getPidsByFuzzyTitle($fields);
          $this->removeTestData($testPID);
          $this->removeAllTestPIDs(array($testPID), $this->_scopusIDCurrent);
-     
+
          $this->assertEquals($fields['_title'], $searchRes['data'][0]["rek_title"]);
          $this->assertEquals($fields['_doi'], $searchRes['data'][0]["rek_doi"]);
          $this->assertFalse($fields['_startPage'] == $searchRes['data'][0]["rek_start_page"]);
@@ -468,14 +479,14 @@ class ScopusTest extends PHPUnit_Framework_TestCase
          $this->assertFalse($fields['_endPage'] == $searchRes['data'][0]["rek_end_page"]);
          $this->assertFalse($fields['_issueNumber'] == $searchRes['data'][0]["rek_issue_number"]);
      }
-     
+
      /**
      * Fuzzy matching matches nothing
      */
      public function testFuzzyMatchNoMatch()
      {
          $testPID = $this->loadTestData(APP_PATH.'../tests/application/Unit/scopus/fuzzyMatchingLocalTitleDoi.xml');
-          
+
          //Faux downloaded record data
          $fields = array();
          $fields['_doi'] = '10.1080/09932246.2040.646779';
@@ -484,15 +495,15 @@ class ScopusTest extends PHPUnit_Framework_TestCase
          $fields['_issueNumber'] = 234555;
          $fields['_endPage'] = 999999;
          $fields['_title'] = 'I am nothing';
-          
+
          $searchRes = Record::getPidsByFuzzyTitle($fields);
          $this->removeTestData($testPID);
          $this->removeAllTestPIDs(array($testPID), $this->_scopusIDCurrent);
-          
+
          $this->assertEquals(0, $searchRes['state']);
          $this->assertEquals(array(), $searchRes['data']);
      }
-     
+
      /**
       * Test log message to search result mapping.
       * This test does no actual fuzzy title/Scopus ID/IVP matching
@@ -500,7 +511,7 @@ class ScopusTest extends PHPUnit_Framework_TestCase
      public function testFuzzyMatchResultReporting1()
      {
          $xml = file_get_contents(APP_PATH.'../tests/application/Unit/scopus/fuzzyMatchResultReporting01.xml');
-         
+
          $results = array ('state' => 9,
             'data' => array (
                 0 => array (
@@ -535,21 +546,24 @@ class ScopusTest extends PHPUnit_Framework_TestCase
                 ),
             ),
          );
-         
+
          $nameSpaces = array(
-             'prism' => "http://prismstandard.org/namespaces/basic/2.0/",
-             'dc' => "http://purl.org/dc/elements/1.1/",
-             'opensearch' => "http://a9.com/-/spec/opensearch/1.1/"
+           'd' => 'http://www.elsevier.com/xml/svapi/abstract/dtd',
+           'ce' => 'http://www.elsevier.com/xml/ani/common',
+           'prism' => "http://prismstandard.org/namespaces/basic/2.0/",
+           'dc' => "http://purl.org/dc/elements/1.1/",
+           'opensearch' => "http://a9.com/-/spec/opensearch/1.1/"
+
          );
-         
+
          $csr = new ScopusRecItem();
          $csr->load($xml, $nameSpaces);
          $res = $csr->getFuzzySearchStatus($results);
-         
+
          $this->assertEquals("ST27 - Matched on fuzzy title. Scopus ID in the downloaded record was 2-s2.0-84859635595. Scopus ID in the local record was 2-s2.0-896587658765876. Pid matched: UQ:10048", $res[0]);
          $this->assertEquals("ST26 - Matched on fuzzy title. Scopus ID in the downloaded record was 2-s2.0-84859635595. Scopus ID in the local record was null. Pid matched: UQ:4158", $res[1]);
      }
-     
+
      /**
      * Test log message to search result mapping.
      * This test does no actual fuzzy title/Scopus ID/IVP matching
@@ -557,7 +571,7 @@ class ScopusTest extends PHPUnit_Framework_TestCase
      public function testFuzzyMatchResultReporting2()
      {
          $xml = file_get_contents(APP_PATH.'../tests/application/Unit/scopus/fuzzyMatchResultReporting01.xml');
-          
+
          $results = array ('state' => 1,
                  'data' => array (
                  0 => array (
@@ -582,21 +596,24 @@ class ScopusTest extends PHPUnit_Framework_TestCase
          ),
              ),
          );
-          
+
          $nameSpaces = array(
-                  'prism' => "http://prismstandard.org/namespaces/basic/2.0/",
-                  'dc' => "http://purl.org/dc/elements/1.1/",
-                  'opensearch' => "http://a9.com/-/spec/opensearch/1.1/"
+           'd' => 'http://www.elsevier.com/xml/svapi/abstract/dtd',
+           'ce' => 'http://www.elsevier.com/xml/ani/common',
+           'prism' => "http://prismstandard.org/namespaces/basic/2.0/",
+           'dc' => "http://purl.org/dc/elements/1.1/",
+           'opensearch' => "http://a9.com/-/spec/opensearch/1.1/"
+
          );
-          
+
          $csr = new ScopusRecItem();
          $csr->load($xml, $nameSpaces);
          $res = $csr->getFuzzySearchStatus($results);
-         
+
          $this->assertEquals("ST11 - Matched on fuzzy title, DOI, start page, end page, issue, volume. Scopus ID in the downloaded record was 2-s2.0-84859635595. Scopus ID in the local record was 2-s2.0-896587658765876. Pid matched: UQ:10048", $res[0]);
          $this->assertEquals("ST10 - Matched on fuzzy title, DOI, start page, end page, issue, volume. Scopus ID in the downloaded record was 2-s2.0-84859635595. Scopus ID in the local record was null. Pid matched: UQ:10023", $res[1]);
      }
-     
+
      /**
      * Scopus Id matches
      * Title matches
@@ -608,19 +625,19 @@ class ScopusTest extends PHPUnit_Framework_TestCase
      * Doc type is in press
      *
      * This should return false and do no updating
-     * or inserting because in press documents are 
+     * or inserting because in press documents are
      * not allowed.
      */
      public function testSaveUpdateIsInPress()
      {
          $testPid = $this->loadTestData(APP_PATH.'../tests/application/Unit/scopus/sampleAbstractInPressDocTypeLocal.xml');
-     
+
          $xml = file_get_contents(APP_PATH.'../tests/application/Unit/scopus/sampleAbstractInPressDocTypeDL.xml');
          $likened = $this->saveUpdateAbstract($xml);
-          
+
          $this->removeTestData($testPid);
          $this->removeAllTestPIDs(array($testPid), $this->_scopusIDCurrent);
-     
+
          $this->assertEquals(false, $likened);
      }
 }
