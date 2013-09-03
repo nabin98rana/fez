@@ -56,7 +56,7 @@ class ScopusService
 
     protected $_lastSet = false;
 
-    public function __construct($apiKey)
+    public function __construct($apiKey = APP_SCOPUS_API_KEY)
     {
         $this->_apiKey = $apiKey;
         $this->_log = FezLog::get();
@@ -205,10 +205,12 @@ class ScopusService
 
     public function getRecordByScopusId($scopusId)
     {
+//        $query = array('view' => 'COMPLETE');
+        $query = array();
         $params = array(
                 'action' => 'abstract',
                 'db' => 'SCOPUS_ID:' . $scopusId,
-                'qs' => array()
+                'qs' => $query
         );
 
         return $this->doCurl($params, 'content');
@@ -299,6 +301,9 @@ class ScopusService
                 $matches = array();
                 preg_match("/^SCOPUS_ID\:(\d+)$/", $scopusId, $matches);
                 $scopusIdExtracted = (array_key_exists(1, $matches)) ? $matches[1] : null;
+                //TODO: Check for existing scopus ID, DOI, Title first, so you don't waste time on looking up the full metadata
+                // Maybe there is nothing in the full metadata we do deduping on anyway?
+
 
                 $iscop = new ScopusService($this->_apiKey);
                 $rec = $iscop->getRecordByScopusId($scopusIdExtracted);
@@ -344,6 +349,8 @@ class ScopusService
         if(!$curlResponse)
         {
             $this->_log->err(curl_errno($curlHandle));
+        } elseif (is_numeric(strpos($curlResponse, 'service-error'))) {
+          $this->_log->err($curlResponse);
         }
 
         curl_close($curlHandle);

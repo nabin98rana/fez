@@ -280,7 +280,9 @@ abstract class RecordImport
             return false;
         }
 
-        //If the Scopus ID matches soemthing that is already in the Scopus
+        //TODO: don't restrict restrict search to just the scopus import collection, search the entire espace for pids with that scopus id
+
+        //If the Scopus ID matches something that is already in the Scopus
         //import collection, we need not go any further.
         if($this->_inTest)
         {
