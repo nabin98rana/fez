@@ -2058,7 +2058,7 @@ class Author
         // Get formatted datetime fields with user's preferred timezone.
         // Get success status of RID response.
         $timezone = Date_API::getPreferredTimezone();
-        foreach ($res as $key => $row) {
+        foreach ((array)$res as $key => $row) {
             if (is_array($row)){
                 $res[$key]["success_response"] = Author::_isSuccessRIDRegistrationResponse($res[$key]);
                 $res[$key]["rre_created_date_formatted"]    = Date_API::getFormattedDate($res[$key]["rre_created_date"], $timezone);
