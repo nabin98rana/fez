@@ -6,7 +6,7 @@
 
         <li>
 
-        <a href="{$app_link_prefix}http://www.scopus.com/record/display.url?eid={$scopusMatches[i]->scopusId}&origin=inward" style="text-decoration:none;" target="_blank">{$scopusMatches[i]->title}</a><br />
+        <a href="{$app_link_prefix}http://www.scopus.com/record/display.url?eid=2-s2.0-{$scopusMatches[i]->scopusId}&origin=inward" style="text-decoration:none;" target="_blank">{$scopusMatches[i]->title}</a><br />
 	    Author(s):
 	    {section name="j" loop=$scopusMatches[i]->authors}
 	        {$scopusMatches[i]->authors[j]}{if ! $smarty.section.j.last}, {/if}
