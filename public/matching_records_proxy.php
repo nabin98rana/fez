@@ -491,6 +491,3 @@ class MatchingRecords
         return $userQuery;
     }
 }
-
-
-

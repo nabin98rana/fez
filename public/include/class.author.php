@@ -2097,14 +2097,14 @@ class Author
      */
     public static function hasResearcherID($aut_org_username = null)
     {
-        if (empty($aut_org_username)){
+        if (empty($aut_org_username)) {
             return false;
         }
 
         $db  = DB_API::get();
         $log = FezLog::get();
 
-        $stmt = "SELECT * FROM ". APP_TABLE_PREFIX ."author
+        $stmt = "SELECT * FROM " . APP_TABLE_PREFIX . "author
                  WHERE aut_org_username = " . $db->quote($aut_org_username, 'STRING') . "
                       AND aut_researcher_id IS NOT NULL
                       AND aut_researcher_id != ''
@@ -2113,7 +2113,7 @@ class Author
 
         // fetchOne() returns False when there is no result.
         // Hey, empty() function works for checking false on PHP 5.3
-        if (!empty($rid)){
+        if (!empty($rid)) {
             return true;
         }
         return false;
