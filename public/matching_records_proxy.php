@@ -158,6 +158,8 @@ class MatchingRecords
     	if($matchCount > 0) {
 			$tpl = new Template_API();
 			$tpl->setTemplate("workflow/edit_metadata_helpers/matching_records_results.tpl.html");
+            $app_link_prefix = (defined('APP_LINK_PREFIX')) ? APP_LINK_PREFIX : '';
+            $tpl->assign("app_link_prefix", $app_link_prefix);
 			$tpl->assign('matches', $matches);
 			$tpl->assign('rel_url', APP_RELATIVE_URL);
 			$tpl->assign('found', $matchCount);
@@ -266,6 +268,8 @@ class MatchingRecords
 		{
 		    $tpl = new Template_API();
 		    $tpl->setTemplate("workflow/edit_metadata_helpers/matching_records_results.tpl.html");
+            $app_link_prefix = (defined('APP_LINK_PREFIX')) ? APP_LINK_PREFIX : '';
+            $tpl->assign("app_link_prefix", $app_link_prefix);
 		    $tpl->assign('scopusMatches', $matches);
 		    $tpl->assign('rel_url', APP_RELATIVE_URL);
 		    $tpl->assign('num_scopus', $matchCount);
