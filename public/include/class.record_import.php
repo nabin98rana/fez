@@ -859,11 +859,13 @@ abstract class RecordImport
                     $mods['subject'][$i]['topic'] = $this->_keywords[$i];
                 }
             }
+            $countKeywords = count($this->_keywords);
             if (count($this->_subjects) > 0) {
               for ($i = 0; $i < count($this->_subjects); $i++) {
-                $mods['subject'][$i]['authority'] = 'asrc';
-                $mods['subject'][$i]['topic'] =  Controlled_Vocab::getTitle($this->_subjects[$i]);
-                $mods['subject'][$i]['id'] =  $this->_subjects[$i];
+                $y = $i + $countKeywords;
+                $mods['subject'][$y]['authority'] = 'asrc';
+                $mods['subject'][$y]['topic'] =  Controlled_Vocab::getTitle($this->_subjects[$i]);
+                $mods['subject'][$y]['id'] =  $this->_subjects[$i];
               }
             }
             $mods['identifier_isi_loc'] = $this->_isiLoc;
