@@ -49,6 +49,7 @@ abstract class RecordImport
     protected $_authors = array();
     protected $_author_ids = array();
     protected $_keywords = array();
+    protected $_subjects = array();
     protected $_loaded = FALSE;
     protected $_publisher = null;
     protected $_doi = null;
@@ -857,6 +858,13 @@ abstract class RecordImport
                     $mods['subject'][$i]['authority'] = 'keyword';
                     $mods['subject'][$i]['topic'] = $this->_keywords[$i];
                 }
+            }
+            if (count($this->_subjects) > 0) {
+              for ($i = 0; $i < count($this->_subjects); $i++) {
+                $mods['subject'][$i]['authority'] = 'asrc';
+                $mods['subject'][$i]['topic'] =  Controlled_Vocab::getTitle($this->_subjects[$i]);
+                $mods['subject'][$i]['id'] =  $this->_subjects[$i];
+              }
             }
             $mods['identifier_isi_loc'] = $this->_isiLoc;
             $mods['identifier_isbn'] = $this->_isbn;

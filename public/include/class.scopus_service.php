@@ -205,8 +205,8 @@ class ScopusService
 
     public function getRecordByScopusId($scopusId)
     {
-//        $query = array('view' => 'COMPLETE');
-        $query = array();
+        $query = array('view' => 'FULL');
+//        $query = array();
         $params = array(
                 'action' => 'abstract',
                 'db' => 'SCOPUS_ID:' . $scopusId,
