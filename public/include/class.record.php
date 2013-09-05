@@ -1546,7 +1546,7 @@ class Record
         $provHERDCcode = "A1";
       } elseif ($subType == "Edited book") {
         $provHERDCcode = "A3";
-      } elseif ($subType == "Creative Work") {
+      } elseif ($subType == "Creative work") {
         $provHERDCcode = "AX";
       } elseif ($subType == "Other") {
         $provHERDCcode = "AX";
@@ -1565,7 +1565,7 @@ class Record
         $provHERDCcode = "BX";
       } elseif ($subType == "Other") {
         $provHERDCcode = "BX";
-      } elseif ($subType == "Creative Work") {
+      } elseif ($subType == "Creative work") {
         $provHERDCcode = "BX";
       } elseif ($subType == "Chapter in reference work, encyclopaedia, manual or handbook") {
         $provHERDCcode = "BX";
