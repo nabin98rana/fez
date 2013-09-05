@@ -144,7 +144,7 @@ class ScopusRecItem extends RecordImport
                 $this->_authors[] = $author->nodeValue;
             }
             // if you don't use the FULL abstract response you won't get the <authors> element so, get only the first author from <dc:creator> instead
-            if ($this->_authors->length == 0) {
+            if (count($this->_authors) == 0) {
               $authors = $xpath->query('//dc:creator');
               foreach ($authors as $author) {
                 $this->_authors[] = $author->nodeValue;
