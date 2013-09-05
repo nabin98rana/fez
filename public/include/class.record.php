@@ -1508,12 +1508,25 @@ class Record
   function applyProvisionalCode($pid)
   {
     // Load up the record, extract the bits we need to determine the provisional HERDC code.
-    $record = new RecordObject($pid);
-    $docType = $record->getDocumentType();
-    $subType = Record::getSearchKeyIndexValue($pid, "Subtype");
-    // no longer use genreType for records, only subtype
+
+
+    if(APP_FEDORA_BYPASS == 'ON') {
+      $record = new RecordObject($pid);
+      $docType = $record->getDocumentType();
+      $subType = Record::getSearchKeyIndexValue($pid, "Subtype");
+      // no longer use genreType for records, only subtype
 //    $genreType = Record::getSearchKeyIndexValue($pid, "Genre Type");
-    $existingHERDCcode = Record::getSearchKeyIndexValue($pid, "HERDC code");
+      $existingHERDCcode = Record::getSearchKeyIndexValue($pid, "HERDC code");
+    } else {
+      $record = new RecordGeneral($pid);
+      $subType = $record->getFieldValueBySearchKey("Subtype");
+      $subType = $subType[0];
+//      $genreType = $record->getFieldValueBySearchKey("Genre Type");
+//      $genreType = $genreType[0];
+      $existingHERDCcode = $record->getFieldValueBySearchKey("HERDC code");
+      $existingHERDCcode = $existingHERDCcode[0];
+    }
+
     $provHERDCcode = "";
 
     // Bail out if we already have a HERDC code
