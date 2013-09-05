@@ -868,6 +868,7 @@ abstract class RecordImport
                 $mods['subject'][$y]['id'] =  $this->_subjects[$i];
               }
             }
+            $mods['abstract'] = $this->_abstract;
             $mods['identifier_isi_loc'] = $this->_isiLoc;
             $mods['identifier_isbn'] = $this->_isbn;
             $mods['identifier_issn'] = $this->_issn;
