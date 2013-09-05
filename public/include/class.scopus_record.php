@@ -139,7 +139,7 @@ class ScopusRecItem extends RecordImport
               $this->_keywords[] = $keyword->nodeValue;
             }
 
-            $authors = $xpath->query('/d:authors/d:author/ce:indexed-name');
+            $authors = $xpath->query('/d:abstracts-retrieval-response/d:authors/d:author/ce:indexed-name');
             foreach ($authors as $author) {
                 $this->_authors[] = $author->nodeValue;
             }
@@ -163,31 +163,32 @@ class ScopusRecItem extends RecordImport
             $this->_totalPages = ($this->_endPage - $this->_startPage) + 1;
 
             $this->_abstract = $this->extract('/d:abstracts-retrieval-response/d:coredata/dc:description/d:abstract/ce:para', $xpath);
+            $this->_abstract = substr($this->_abstract, 0, strrpos($this->_abstract, '©'));
             $subjects = $xpath->query('/d:abstracts-retrieval-response/d:subject-areas/d:subject-area[@code]');
             foreach ($subjects as $subject) {
               $this->_subjects[] = Controlled_Vocab::getInternalIDByExternalID($subject->getAttribute('code'));
             }
 
             // This section seems to only be for embase, so commenting out for now, maybe remove later
-//            if ($xpath->query('//source/additional-srcinfo/conferenceinfo')->length > 0) {
-//                $this->_conferenceTitle = $xpath->query('//source/additional-srcinfo/conferenceinfo/confevent/confname')->item(0)->nodeValue;
-//                $this->_confenceLocationCity = $xpath->query('//source/additional-srcinfo/conferenceinfo/confevent/conflocation/city-group')->item(0)->nodeValue;
-//
-//                $startDay =  $xpath->query('//source/additional-srcinfo/conferenceinfo/confevent/confdate/startdate/@day')->item(0)->nodeValue;
-//                $startMonth = $xpath->query('//source/additional-srcinfo/conferenceinfo/confevent/confdate/startdate/@month')->item(0)->nodeValue;
-//                $startYear = $xpath->query('//source/additional-srcinfo/conferenceinfo/confevent/confdate/startdate/@year')->item(0)->nodeValue;
-//                $endDay =  $xpath->query('//source/additional-srcinfo/conferenceinfo/confevent/confdate/enddate/@day')->item(0)->nodeValue;
-//                $endMonth = $xpath->query('//source/additional-srcinfo/conferenceinfo/confevent/confdate/enddate/@month')->item(0)->nodeValue;
-//                $endYear = $xpath->query('//source/additional-srcinfo/conferenceinfo/confevent/confdate/enddate/@year')->item(0)->nodeValue;
-//
-//                //We'll only save dates if they are not incomplete
-//                if (!empty($startDay) && !empty($startMonth) && !empty($startYear)) {
-//                    $this->_conferenceDates = date('F j, Y', strtotime($startDay.'-'.$startMonth.'-'.$startYear));
-//                }
-//                if (!empty($endDay) && !empty($endMonth) && !empty($endYear)) {
-//                    $this->_conferenceDates .= '-'.date('F j, Y',strtotime($endDay.'-'.$endMonth.'-'.$endYear));
-//                }
-//            }
+            if ($xpath->query('//source/additional-srcinfo/conferenceinfo')->length > 0) {
+                $this->_conferenceTitle = $xpath->query('//source/additional-srcinfo/conferenceinfo/confevent/confname')->item(0)->nodeValue;
+                $this->_confenceLocationCity = $xpath->query('//source/additional-srcinfo/conferenceinfo/confevent/conflocation/city-group')->item(0)->nodeValue;
+
+                $startDay =  $xpath->query('//source/additional-srcinfo/conferenceinfo/confevent/confdate/startdate/@day')->item(0)->nodeValue;
+                $startMonth = $xpath->query('//source/additional-srcinfo/conferenceinfo/confevent/confdate/startdate/@month')->item(0)->nodeValue;
+                $startYear = $xpath->query('//source/additional-srcinfo/conferenceinfo/confevent/confdate/startdate/@year')->item(0)->nodeValue;
+                $endDay =  $xpath->query('//source/additional-srcinfo/conferenceinfo/confevent/confdate/enddate/@day')->item(0)->nodeValue;
+                $endMonth = $xpath->query('//source/additional-srcinfo/conferenceinfo/confevent/confdate/enddate/@month')->item(0)->nodeValue;
+                $endYear = $xpath->query('//source/additional-srcinfo/conferenceinfo/confevent/confdate/enddate/@year')->item(0)->nodeValue;
+
+                //We'll only save dates if they are not incomplete
+                if (!empty($startDay) && !empty($startMonth) && !empty($startYear)) {
+                    $this->_conferenceDates = date('F j, Y', strtotime($startDay.'-'.$startMonth.'-'.$startYear));
+                }
+                if (!empty($endDay) && !empty($endMonth) && !empty($endYear)) {
+                    $this->_conferenceDates .= '-'.date('F j, Y',strtotime($endDay.'-'.$endMonth.'-'.$endYear));
+                }
+            }
 
             $this->_loaded = true;
 //        }
