@@ -44,6 +44,7 @@ abstract class RecordImport
     protected $_isbn = null;
     protected $_conferenceDates = null;
     protected $_conferenceTitle = null;
+    protected $_conferenceProceedingsTitle = null;
     protected $_confenceLocationCity = null;
     protected $_confenceLocationState = null;
     protected $_authors = array();
@@ -887,7 +888,7 @@ abstract class RecordImport
             $mods['relatedItem']['part']['extent_page']['total'] = $this->_totalPages;
             if ($this->_xdisTitle == 'Conference Paper') {
                 $mods['originInfo']['dateIssued'] = $this->_issueDate;
-                $mods['relatedItem']['titleInfo']['title'] = $this->_title;
+                $mods['relatedItem']['titleInfo']['title'] = $this->_conferenceProceedingsTitle;
                 $mods['relatedItem']['name'][0]['namePart_type'] = 'conference';
                 $mods['relatedItem']['name'][0]['namePart'] = $this->_conferenceTitle;
                 if (!empty($this->_confenceLocationCity) || !empty($this->_confenceLocationState)) {

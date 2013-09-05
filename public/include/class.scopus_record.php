@@ -173,7 +173,7 @@ class ScopusRecItem extends RecordImport
             if ($xpath->query('//source/additional-srcinfo/conferenceinfo')->length > 0) {
                 $this->_conferenceTitle = $xpath->query('//source/additional-srcinfo/conferenceinfo/confevent/confname')->item(0)->nodeValue;
                 $this->_confenceLocationCity = $xpath->query('//source/additional-srcinfo/conferenceinfo/confevent/conflocation/city-group')->item(0)->nodeValue;
-
+                $this->_conferenceProceedingsTitle = $xpath->query('//source/sourcetitle')->item(0)->nodeValue;
                 $startDay =  $xpath->query('//source/additional-srcinfo/conferenceinfo/confevent/confdate/startdate/@day')->item(0)->nodeValue;
                 $startMonth = $xpath->query('//source/additional-srcinfo/conferenceinfo/confevent/confdate/startdate/@month')->item(0)->nodeValue;
                 $startYear = $xpath->query('//source/additional-srcinfo/conferenceinfo/confevent/confdate/startdate/@year')->item(0)->nodeValue;
