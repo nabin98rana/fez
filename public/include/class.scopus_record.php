@@ -108,6 +108,11 @@ class ScopusRecItem extends RecordImport
             $this->_embaseId = $xpath->query("//d:itemidlist/d:itemid[@idtype='PUI']")->item(0)->nodeValue;
             $this->_scopusCitationCount = $this->extract('//d:citedby-count', $xpath);
             $this->_issn = $this->extract('//prism:issn', $xpath);
+            //scopus ISSNs don't have a - in the middle, so add it
+            if (strlen($this->_issn) == 8) {
+              $this->_issn = substr($this->_issn, 0, 4) . '-'.substr($this->_issn, 4, 4);
+            }
+
             $this->_issueVolume = $this->extract('//prism:volume', $xpath);
             $date = $this->extract('//prism:coverDate', $xpath);
             $this->_issueDate = date('Y-m-d', strtotime($date));
@@ -126,9 +131,15 @@ class ScopusRecItem extends RecordImport
             $this->_journalTitle = $this->extract('//prism:publicationName', $xpath);
             $this->_isbn = $this->extract('//prism:isbn', $xpath);
 //            $this->_journalTitleAbbreviation = $this->extract('//prism:publicationName-abbrev', $xpath);
-//            $this->_languageCode = $xpath->query('//head/citation-info/citation-language/@xml:lang')->item(0)->nodeValue;
+            $this->_languageCode = $xpath->query('//head/citation-info/citation-language/@xml:lang')->item(0)->nodeValue;
+//            $this->_languageCode = $this->extract('/d:abstracts-retrieval-response/item/bibrecord/head/citation-info/citation-language', $xpath);
 
-            $authors = $xpath->query('//d:authors/d:author/ce:indexed-name');
+            $keywords = $xpath->query('//head/citation-info/author-keywords/author-keyword');
+            foreach ($keywords as $keyword) {
+              $this->_keywords[] = $keyword->nodeValue;
+            }
+
+            $authors = $xpath->query('/d:authors/d:author/ce:indexed-name');
             foreach ($authors as $author) {
                 $this->_authors[] = $author->nodeValue;
             }
@@ -149,7 +160,9 @@ class ScopusRecItem extends RecordImport
             $this->_issueNumber = $this->extract('//prism:issueIdentifier', $xpath);
             $this->_startPage = $this->extract('//prism:startingPage', $xpath);
             $this->_endPage = $this->extract('//prism:endingPage', $xpath);
-            $this->_totalPages = $this->_endPage - $this->_startPage;
+            $this->_totalPages = ($this->_endPage - $this->_startPage) + 1;
+
+            $this->_abstract = $this->extract('/d:abstracts-retrieval-response/d:coredata/dc:description/d:abstract/ce:para', $xpath);
             $subjects = $xpath->query('/d:abstracts-retrieval-response/d:subject-areas/d:subject-area[@code]');
             foreach ($subjects as $subject) {
               $this->_subjects[] = Controlled_Vocab::getInternalIDByExternalID($subject->getAttribute('code'));
