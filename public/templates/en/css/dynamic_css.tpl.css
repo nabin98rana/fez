@@ -315,7 +315,12 @@ p.centenary { padding: 16px 0 0 0; }
 	line-height: 1.4em;
 }
 
-
+#record-suggestions div ol li{
+  list-style: decimal outside none;
+  padding: 3px;
+  margin-left: 5px;
+  font-size: 11px;
+}
 
 
 
