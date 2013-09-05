@@ -1519,6 +1519,7 @@ class Record
       $existingHERDCcode = Record::getSearchKeyIndexValue($pid, "HERDC code");
     } else {
       $record = new RecordGeneral($pid);
+      $docType = $record->getDocumentType();
       $subType = $record->getFieldValueBySearchKey("Subtype");
       $subType = $subType[0];
 //      $genreType = $record->getFieldValueBySearchKey("Genre Type");
