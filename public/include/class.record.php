@@ -1517,7 +1517,7 @@ class Record
     $provHERDCcode = "";
 
     // Bail out if we already have a HERDC code
-    if (!is_null($existingHERDCcode) && $existingHERDCcode != '' && $existingHERDCcode != -1) {
+    if ((is_array($existingHERDCcode) && count($existingHERDCcode) != 0) || (!is_array($existingHERDCcode) && ($existingHERDCcode != '' || !is_null($existingHERDCcode) )) ) {
       return;
     }
 
