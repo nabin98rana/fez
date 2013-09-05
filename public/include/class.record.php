@@ -1511,7 +1511,8 @@ class Record
     $record = new RecordObject($pid);
     $docType = $record->getDocumentType();
     $subType = Record::getSearchKeyIndexValue($pid, "Subtype");
-    $genreType = Record::getSearchKeyIndexValue($pid, "Genre Type");
+    // no longer use genreType for records, only subtype
+//    $genreType = Record::getSearchKeyIndexValue($pid, "Genre Type");
     $existingHERDCcode = Record::getSearchKeyIndexValue($pid, "HERDC code");
     $provHERDCcode = "";
 
@@ -1528,111 +1529,89 @@ class Record
     // document; these have come from email discussions.                        //
     //////////////////////////////////////////////////////////////////////////////
     if ($docType == "Conference Paper") {
-      if ($genreType == "Fully Published Paper") {
+      if ($subType == "Fully published paper") {
         $provHERDCcode = "E1";
-      } elseif ($genreType == "Oral Presentation") {
+      } elseif ($subType == "Oral presentation") {
         $provHERDCcode = "EX";
-      } elseif ($genreType == "Other") {
+      } elseif ($subType == "Other") {
         $provHERDCcode = "EX";
-      } elseif ($genreType == "Poster") {
+      } elseif ($subType == "Poster") {
         $provHERDCcode = "EX";
-      } elseif ($genreType == "Published Abstract") {
+      } elseif ($subType == "Published abstract") {
         $provHERDCcode = "EX";
       }
 
     } elseif ($docType == "Book") {
-      if ($subType == "Anthologies") {
-        $provHERDCcode = "AX";
-      } elseif ($subType == "Critical scholarly texts") {
+      if ($subType == "Research book (original research)") {
         $provHERDCcode = "A1";
-      } elseif ($subType == "Edited books") {
+      } elseif ($subType == "Edited book") {
         $provHERDCcode = "A3";
-      } elseif ($subType == "Fiction") {
-        $provHERDCcode = "AX";
-      } elseif ($subType == "New ideas or perspectives based on established research finding") {
-        $provHERDCcode = "A1";
-      } elseif ($subType == "New interpretations of historical events") {
-        $provHERDCcode = "A1";
-      } elseif ($subType == "Non-fiction") {
+      } elseif ($subType == "Creative Work") {
         $provHERDCcode = "AX";
       } elseif ($subType == "Other") {
         $provHERDCcode = "AX";
-      } elseif ($subType == "Reference") {
+      } elseif ($subType == "Reference work, encyclopaedia, manual or book") {
         $provHERDCcode = "AX";
-      } elseif ($subType == "Revision or new edition") {
-        $provHERDCcode = "AX";
-      } elseif ($subType == "Textbooks") {
+      } elseif ($subType == "Textbook") {
         $provHERDCcode = "AX";
       }
 
     } elseif ($docType == "Book Chapter") {
-      if ($subType == "Chapter in a textbook, anthology, reference book") {
-        $provHERDCcode = "BX";
-      } elseif ($subType == "Critical review of current research") {
+      if ($subType == "Research book chapter (original research)") {
         $provHERDCcode = "B1";
-      } elseif ($subType == "Critical scholarly text") {
+      } elseif ($subType == "Critical review of research, literature review, critical commentary") {
         $provHERDCcode = "B1";
-      } elseif ($subType == "Fiction") {
-        $provHERDCcode = "BX";
-      } elseif ($subType == "Forewords, brief introductions, editorials or appendices") {
-        $provHERDCcode = "BX";
-      } elseif ($subType == "Non-fiction") {
+      } elseif ($subType == "Introduction, foreword, editorial or appendix") {
         $provHERDCcode = "BX";
       } elseif ($subType == "Other") {
         $provHERDCcode = "BX";
-      } elseif ($subType == "Reference") {
+      } elseif ($subType == "Creative Work") {
         $provHERDCcode = "BX";
-      } elseif ($subType == "Revision of a chapter in an edited work") {
+      } elseif ($subType == "Chapter in reference work, encyclopaedia, manual or handbook") {
         $provHERDCcode = "BX";
-      } elseif ($subType == "Scholarly introduction to an edited work") {
+      } elseif ($subType == "Chapter in textbook") {
         $provHERDCcode = "BX";
       }
 
     } elseif ($docType == "Journal Article") {
-      if ($subType == "Article") {
+      if ($subType == "Article (original research)") {
         $provHERDCcode = "C1";
       } elseif ($subType == "Correction/erratum") {
         $provHERDCcode = "CX";
-      } elseif ($subType == "Creative output (poetry, musical score, fiction or prose)") {
+      } elseif ($subType == "Creative work") {
         $provHERDCcode = "CX";
-      } elseif ($subType == "Discussion (responses, round table/panel discussions, Q&A, reply") {
+      } elseif ($subType == "Discussion - responses, round table/panel discussions, Q&A, reply") {
         $provHERDCcode = "CX";
       } elseif ($subType == "Editorial") {
         $provHERDCcode = "CX";
-      } elseif ($subType == "Journal – editorial role") {
+      } elseif ($subType == "Letter to editor, brief commentary or brief communication") {
         $provHERDCcode = "CX";
-      } elseif ($subType == "Letter") {
+      } elseif ($subType == "Other") {
         $provHERDCcode = "CX";
-      } elseif ($subType == "Other (News item, press release, note, obituary, other not liste") {
+      } elseif ($subType == "Review of book, film, TV, video, software, performance, music etc") {
         $provHERDCcode = "CX";
-      } elseif ($subType == "Published Abstract") {
-        $provHERDCcode = "CX";
-      } elseif ($subType == "Review of Book, Film, TV, video, software, performance, music et") {
-        $provHERDCcode = "CX";
-      } elseif ($subType == "Review of research - research literature review (NOT book review") {
+      } elseif ($subType == "Critical review of research, literature review, critical commentary") {
         $provHERDCcode = "C1";
       }
 
     } elseif ($docType == "Online Journal Article") {
-      if ($subType == "Article") {
+      if ($subType == "Article (original research)") {
         $provHERDCcode = "C1";
       } elseif ($subType == "Correction/erratum") {
         $provHERDCcode = "CX";
-      } elseif ($subType == "Creative output (poetry, musical score, fiction or prose)") {
+      } elseif ($subType == "Creative work") {
         $provHERDCcode = "CX";
-      } elseif ($subType == "Discussion (responses, round table/panel discussions, Q&A, reply") {
+      } elseif ($subType == "Discussion - responses, round table/panel discussions, Q&A, reply") {
         $provHERDCcode = "CX";
       } elseif ($subType == "Editorial") {
         $provHERDCcode = "CX";
-      } elseif ($subType == "Journal – editorial role") {
+      } elseif ($subType == "Letter to editor, brief commentary or brief communication") {
         $provHERDCcode = "CX";
-      } elseif ($subType == "Letter") {
+      } elseif ($subType == "Other") {
         $provHERDCcode = "CX";
-      } elseif ($subType == "Other (News item, press release, note, obituary, other not liste") {
+      } elseif ($subType == "Review of book, film, TV, video, software, performance, music etc") {
         $provHERDCcode = "CX";
-      } elseif ($subType == "Review of Book, Film, TV, video, software, performance, music et") {
-        $provHERDCcode = "CX";
-      } elseif ($subType == "Review of research - research literature review (NOT book review") {
+      } elseif ($subType == "Critical review of research, literature review, critical commentary") {
         $provHERDCcode = "C1";
       }
 
