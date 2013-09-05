@@ -5145,6 +5145,8 @@ function getSearchKeyIndexValueShadow($pid, $searchKeyTitle, $getLookup=true, $s
     $fezmd['created_date'] = Date_API::getFedoraFormattedDateUTC();;
     $fezmd['updated_date'] = $fezmd['created_date'];
     $fezmd['depositor'] = Auth::getUserID();
+    $fezmd['wok_doc_type'] = $mods['identifier_wok_doc_type'];
+    $fezmd['scopus_doc_type'] = $mods['identifier_scopus_doc_type'];
 
     // RELS-EXT
     $rels = array();

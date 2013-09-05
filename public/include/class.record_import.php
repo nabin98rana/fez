@@ -874,7 +874,8 @@ abstract class RecordImport
             $mods['identifier_isbn'] = $this->_isbn;
             $mods['identifier_issn'] = $this->_issn;
             $mods['identifier_doi'] = $this->_doi;
-            $mods['identifier_scopus_doc_type'] = $this->_docSubType;
+            $mods['identifier_scopus_doc_type'] = $this->_scopusDocTypeCode;
+            $mods['identifier_wok_doc_type'] = $this->_wokDocTypeCode;
             $mods['identifier_scopus'] = $this->_scopusId;
             $mods['identifier_pubmed'] = $this->_pubmedId;
             $mods['identifier_embase'] = $this->_embaseId;
@@ -950,7 +951,7 @@ abstract class RecordImport
             "Conference Name" => $this->_conferenceTitle,
             "Journal Name" => $this->_journalTitle,
             "WoK Doc Type" => $this->_wokDocTypeCode,
-            "Scopus Doc Type" => $this->_scopusDocType,
+            "Scopus Doc Type" => $this->_scopusDocTypeCode,
             "Pubmed Id" => $this->_pubmedId,
             "Embase Id" => $this->_embaseId,
             "Scopus Id" => $this->_scopusId,

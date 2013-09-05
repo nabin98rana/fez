@@ -1,14 +1,16 @@
 	<foxml:datastream ID="FezMD" VERSIONABLE="true" CONTROL_GROUP="X" STATE="A">
 		<foxml:datastreamVersion MIMETYPE="text/xml" ID="Fez1.0" LABEL="Fez extension metadata">
-			<foxml:xmlContent>            
+			<foxml:xmlContent>
 				<FezMD xmlns:xsi="http://www.w3.org/2001/XMLSchema">
 					<xdis_id>{$fezmd.xdis_id}</xdis_id>
 					<sta_id>{$fezmd.sta_id}</sta_id>
 					<ret_id>{$fezmd.ret_id}</ret_id>
-					<created_date>{$fezmd.created_date}</created_date>					  
+					<created_date>{$fezmd.created_date}</created_date>
 					<updated_date>{$fezmd.updated_date}</updated_date>
-					<depositor>{$fezmd.depositor}</depositor>            
-				</FezMD>
+					<depositor>{$fezmd.depositor}</depositor>
+          {if $fezmd.wok_doc_type != ''}<wok_doc_type>{$fezmd.wok_doc_type}</wok_doc_type>{/if}
+          {if $fezmd.scopus_doc_type != ''}<scopus_doc_type>{$fezmd.scopus_doc_type}</scopus_doc_type>{/if}
+        </FezMD>
 				</foxml:xmlContent>
 		</foxml:datastreamVersion>
 	</foxml:datastream>
