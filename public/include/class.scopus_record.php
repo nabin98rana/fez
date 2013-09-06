@@ -129,6 +129,7 @@ class ScopusRecItem extends RecordImport
 
             $this->enterXdisInformation($this->_scopusDocTypeCode);
             $this->_journalTitle = $this->extract('//prism:publicationName', $xpath);
+            $this->_publisher = $this->extract('//publishername', $xpath);
             $this->_isbn = $this->extract('//isbn', $xpath);
 //            $this->_journalTitleAbbreviation = $this->extract('//prism:publicationName-abbrev', $xpath);
             $this->_languageCode = $xpath->query('//head/citation-info/citation-language/@xml:lang')->item(0)->nodeValue;
@@ -141,7 +142,9 @@ class ScopusRecItem extends RecordImport
 
             $authors = $xpath->query('/d:abstracts-retrieval-response/d:authors/d:author/ce:indexed-name');
             foreach ($authors as $author) {
-                $this->_authors[] = $author->nodeValue;
+                if (!in_array($author->nodeValue, $this->_authors)) {
+                  $this->_authors[] = $author->nodeValue;
+                }
             }
             // if you don't use the FULL abstract response you won't get the <authors> element so, get only the first author from <dc:creator> instead
             if (count($this->_authors) == 0) {
