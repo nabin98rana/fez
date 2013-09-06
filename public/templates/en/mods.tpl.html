@@ -89,6 +89,11 @@
 						    	<mods:title>{$mods.relatedItem.titleInfo_translated.title}</mods:title>
 						    </mods:titleInfo>
     						{/if}
+                {if $mods.relatedItem.titleInfo.subTitle != ''}
+                  <mods:titleInfo>
+                    <mods:subTitle>{$mods.relatedItem.titleInfo.subTitle}</mods:subTitle>
+                  </mods:titleInfo>
+                {/if}
 
 			          		{section name="i" loop=$mods.relatedItem.name}
 					    	<mods:name>
