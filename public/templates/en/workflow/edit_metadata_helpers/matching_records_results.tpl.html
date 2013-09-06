@@ -11,21 +11,23 @@
 	    {section name="j" loop=$scopusMatches[i]->authors}
 	        {$scopusMatches[i]->authors[j]}{if ! $smarty.section.j.last}, {/if}
 	    {/section}<br />
-
+      {if $scopusMatches[i]->docTypeCode != ''}
+        Scopus Doctype: <b>{$scopusMatches[i]->docTypeCode}</b><br />
+      {/if}
 	    {if $scopusMatches[i]->sourceTitle != ''}
-	        Source:<b>{$scopusMatches[i]->sourceTitle}</b>
+	        Source: <b>{$scopusMatches[i]->sourceTitle}</b>
 	    {/if}
-	    {if $scopusMatches[i]->volume_number != ''}
-	        Volume:<b>{$scopusMatches[i]->volume_number}</b>
+      {if $scopusMatches[i]->volume_number != ''}
+	        Volume: <b>{$scopusMatches[i]->volume_number}</b>
 	    {/if}
 	    {if $scopusMatches[i]->issue_number != ''}
-	        Issue:<b>{$scopusMatches[i]->issue_number}</b>
+	        Issue: <b>{$scopusMatches[i]->issue_number}</b>
 	    {/if}
 	    {if $scopusMatches[i]->page_start != '' && $scopusMatches[i]->page_end != ''}
-	        Pages:<b>{$scopusMatches[i]->page_start}-{$scopusMatches[i]->page_end}</b>
+	        Pages: <b>{$scopusMatches[i]->page_start}-{$scopusMatches[i]->page_end}</b>
 	    {/if}
 	    {if $scopusMatches[i]->dateIssued != ''}
-	        Published:<b>{$scopusMatches[i]->dateIssued}</b><br />
+	        Published: <b>{$scopusMatches[i]->dateIssued}</b><br />
 	    {/if}
 	    {if $scopusMatches[i]->record_exists}
 	        Record already in repository (<a href="{$rel_url}view/{$scopusMatches[i]->pid}">View</a>)
@@ -55,19 +57,19 @@
 	{/section}<br />
 
 	{if $matches[i]->sourceTitle != ''}
-		Source:<b>{$matches[i]->sourceTitle}</b>
+		Source: <b>{$matches[i]->sourceTitle}</b>
 	{/if}
 	{if $matches[i]->volume_number != ''}
-		Volume:<b>{$matches[i]->volume_number}</b>
+		Volume: <b>{$matches[i]->volume_number}</b>
 	{/if}
 	{if $matches[i]->issue_number != ''}
-		Issue:<b>{$matches[i]->issue_number}</b>
+		Issue: <b>{$matches[i]->issue_number}</b>
 	{/if}
 	{if $matches[i]->page_start != '' && $matches[i]->page_end != ''}
-		Pages:<b>{$matches[i]->page_start}-{$matches[i]->page_end}</b>
+		Pages: <b>{$matches[i]->page_start}-{$matches[i]->page_end}</b>
 	{/if}
 	{if $matches[i]->dateIssued != ''}
-		Published:<b>{$matches[i]->dateIssued}</b><br />
+		Published: <b>{$matches[i]->dateIssued}</b><br />
 	{/if}
 	{if $matches[i]->record_exists}
 		Record already in repository (<a href="{$rel_url}view/{$matches[i]->pid}">View</a>)

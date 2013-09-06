@@ -233,6 +233,7 @@ class MatchingRecords
 		    if($csr->isLoaded())
 		    {
 		        $fields = new stdClass();
+            $fields->docTypeCode = $csr_fields['_scopusDocTypeCode'];
 		        $fields->authors = $csr_fields['_authors'];
 		        $fields->title = $csr_fields['_title'];
 		        $fields->sourceTitle = $csr_fields['_journalTitle'];
