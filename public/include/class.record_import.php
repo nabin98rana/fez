@@ -892,6 +892,8 @@ abstract class RecordImport
                 $mods['relatedItem']['titleInfo']['title'] = $this->_conferenceProceedingsTitle;
                 $mods['relatedItem']['name'][0]['namePart_type'] = 'conference';
                 $mods['relatedItem']['name'][0]['namePart'] = $this->_conferenceTitle;
+                $mods['relatedItem']['name'][1]['namePart_type'] = 'journal';
+                $mods['relatedItem']['name'][1]['namePart'] = $this->_journalTitle;
                 if (!empty($this->_confenceLocationCity) || !empty($this->_confenceLocationState)) {
                     $mods['relatedItem']['originInfo']['place']['placeTerm'] = $this->_confenceLocationCity . ' ' . $this->_confenceLocationState;
                 }
