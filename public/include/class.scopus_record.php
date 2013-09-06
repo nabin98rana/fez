@@ -129,7 +129,7 @@ class ScopusRecItem extends RecordImport
 
             $this->enterXdisInformation($this->_scopusDocTypeCode);
             $this->_journalTitle = $this->extract('//prism:publicationName', $xpath);
-            $this->_isbn = $this->extract('//prism:isbn', $xpath);
+            $this->_isbn = $this->extract('//isbn', $xpath);
 //            $this->_journalTitleAbbreviation = $this->extract('//prism:publicationName-abbrev', $xpath);
             $this->_languageCode = $xpath->query('//head/citation-info/citation-language/@xml:lang')->item(0)->nodeValue;
 //            $this->_languageCode = $this->extract('/d:abstracts-retrieval-response/item/bibrecord/head/citation-info/citation-language', $xpath);
@@ -160,7 +160,11 @@ class ScopusRecItem extends RecordImport
             $this->_issueNumber = $this->extract('//prism:issueIdentifier', $xpath);
             $this->_startPage = $this->extract('//prism:startingPage', $xpath);
             $this->_endPage = $this->extract('//prism:endingPage', $xpath);
-            $this->_totalPages = ($this->_endPage - $this->_startPage) + 1;
+            $this->_totalPages = $this->extract('//pagecount', $xpath);
+            if (!is_numeric($this->_totalPages)) {
+              $this->_totalPages = ($this->_endPage - $this->_startPage) + 1;
+            }
+
 
             $this->_abstract = $this->extract('/d:abstracts-retrieval-response/d:coredata/dc:description/d:abstract/ce:para', $xpath);
             $this->_abstract = substr($this->_abstract, 0, strrpos($this->_abstract, '©'));

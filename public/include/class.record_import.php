@@ -901,6 +901,10 @@ abstract class RecordImport
                 $mods['relatedItem']['originInfo']['dateIssued'] = $this->_issueDate;
                 $mods['relatedItem']['name'][0]['namePart_type'] = 'journal';
                 $mods['relatedItem']['name'][0]['namePart'] = $this->_journalTitle;
+            } else if ($this->_xdisTitle == 'Book') {
+              $mods['originInfo']['dateIssued'] = $this->_issueDate;
+            } else if ($this->_xdisTitle == 'Book Chapter') {
+              $mods['relatedItem']['originInfo']['dateIssued'] = $this->_issueDate;
             }
             // Links currently blank since only getting first DOI or link
             $links = array();
