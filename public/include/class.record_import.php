@@ -892,7 +892,10 @@ abstract class RecordImport
                 $mods['relatedItem']['titleInfo']['title'] = $this->_conferenceProceedingsTitle;
                 $mods['relatedItem']['name'][0]['namePart_type'] = 'conference';
                 $mods['relatedItem']['name'][0]['namePart'] = $this->_conferenceTitle;
-                $mods['relatedItem']['titleInfo']['subTitle'] =  $this->_journalTitle;
+                //Only save scopus (and wos) journal name (prism:publicationName) if it has an ISSN otherwise its a proceedings
+                if (strlen($this->_issn) == 9) {
+                  $mods['relatedItem']['titleInfo']['subTitle'] =  $this->_journalTitle;
+                }
                 if (!empty($this->_confenceLocationCity) || !empty($this->_confenceLocationState)) {
                     $mods['relatedItem']['originInfo']['place']['placeTerm'] = $this->_confenceLocationCity . ' ' . $this->_confenceLocationState;
                 }
