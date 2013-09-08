@@ -140,11 +140,16 @@ class ScopusRecItem extends RecordImport
               $this->_keywords[] = $keyword->nodeValue;
             }
 
-            $authors = $xpath->query('/d:abstracts-retrieval-response/d:authors/d:author/ce:indexed-name');
+            $authors = $xpath->query('/d:abstracts-retrieval-response/d:authors/d:author'); ///ce:indexed-name');
             foreach ($authors as $author) {
-                if (!in_array($author->nodeValue, $this->_authors)) {
-                  $this->_authors[] = $author->nodeValue;
+                $sequence = $author->getAttribute('seq');
+                $name = $xpath->query('//ce:indexed-name', $author)->item(0)->nodeValue;
+
+                if (!array_key_exists($sequence, $this->_authors)) {
+                  $this->_authors[$sequence] = $name;
                 }
+                // sort by sequence (key)
+                ksort($this->authors);
             }
             // if you don't use the FULL abstract response you won't get the <authors> element so, get only the first author from <dc:creator> instead
             if (count($this->_authors) == 0) {
