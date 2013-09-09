@@ -85,8 +85,6 @@ class ScopusRecItem extends RecordImport
 
     public function load($recordData, $nameSpaces=null)
     {
-        $recordData = Misc::processURL('http://espacestage.library.uq.edu.au/fullcpauthor.xml');
-        $recordData = $recordData[0];
         if ($nameSpaces) {
             foreach ($nameSpaces as $name => $uri) {
                 $this->_namespaces[$name] = $uri;
