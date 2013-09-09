@@ -85,7 +85,8 @@ class ScopusRecItem extends RecordImport
 
     public function load($recordData, $nameSpaces=null)
     {
-
+        $recordData = Misc::processURL('http://espacestage.library.uq.edu.au/fullcpauthor.xml');
+        $recordData = $recordData[0];
         if ($nameSpaces) {
             foreach ($nameSpaces as $name => $uri) {
                 $this->_namespaces[$name] = $uri;
@@ -143,14 +144,15 @@ class ScopusRecItem extends RecordImport
             $authors = $xpath->query('/d:abstracts-retrieval-response/d:authors/d:author'); ///ce:indexed-name');
             foreach ($authors as $author) {
                 $sequence = $author->getAttribute('seq');
-                $name = $xpath->query('//ce:indexed-name', $author)->item(0)->nodeValue;
+                $name = $xpath->query('ce:indexed-name', $author)->item(0)->nodeValue;
 
                 if (!array_key_exists($sequence, $this->_authors)) {
                   $this->_authors[$sequence] = $name;
                 }
-                // sort by sequence (key)
-                ksort($this->authors);
+
             }
+            // sort by sequence (key)
+            ksort($this->_authors);
             // if you don't use the FULL abstract response you won't get the <authors> element so, get only the first author from <dc:creator> instead
             if (count($this->_authors) == 0) {
               $authors = $xpath->query('//dc:creator');
