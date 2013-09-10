@@ -142,10 +142,15 @@ class ScopusRecItem extends RecordImport
             $authors = $xpath->query('/d:abstracts-retrieval-response/d:authors/d:author'); ///ce:indexed-name');
             foreach ($authors as $author) {
                 $sequence = $author->getAttribute('seq');
-                $name = $xpath->query('ce:indexed-name', $author)->item(0)->nodeValue;
+                if (is_numeric($sequence)) {
+                  // sequence goes from 1 up, but this array goes from 0 up, so take it down one
+                  $sequence =- 1;
+                  $name = $xpath->query('ce:indexed-name', $author)->item(0)->nodeValue;
 
-                if (!array_key_exists($sequence, $this->_authors)) {
-                  $this->_authors[$sequence] = $name;
+                  if (!array_key_exists($sequence, $this->_authors)) {
+                    $this->_authors[$sequence] = $name;
+                  }
+
                 }
 
             }
