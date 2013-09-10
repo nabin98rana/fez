@@ -144,7 +144,7 @@ class ScopusRecItem extends RecordImport
                 $sequence = $author->getAttribute('seq');
                 if (is_numeric($sequence)) {
                   // sequence goes from 1 up, but this array goes from 0 up, so take it down one
-                  $sequence =- 1;
+                  $sequence -= 1;
                   $name = $xpath->query('ce:indexed-name', $author)->item(0)->nodeValue;
 
                   if (!array_key_exists($sequence, $this->_authors)) {
