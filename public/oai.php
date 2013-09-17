@@ -59,6 +59,10 @@ if (is_numeric(strpos($originalSet, ":cvo_id:"))) {
 
 }
 $filter = array();
+
+//Stop retracted articles
+$filter["manualFilter"] = " !retracted_i:(1) ";
+
 if (!empty($custom_view_pid)) {
 	$child_collections = Record::getCollectionChildrenAll($custom_view_pid);
 	$child_pids = array();
