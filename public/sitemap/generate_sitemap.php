@@ -30,39 +30,46 @@
 // | Authors: Christiaan Kortekaas <c.kortekaas@library.uq.edu.au>,       |
 // |          Matthew Smith <m.smith@library.uq.edu.au>                   |
 // +----------------------------------------------------------------------+
+
 //Create a site map to allow search engines find all of out pids
 
 include_once dirname(dirname(__FILE__)).DIRECTORY_SEPARATOR.'config.inc.php';
 require_once ('sitemap.php');
 define(BASE_URI, dirname(__FILE__).DIRECTORY_SEPARATOR);
-define(BASE_URL, APP_HOSTNAME.'/');
+define(BASE_URL, 'http://'.APP_HOSTNAME.'/');
 
-echo "Script started: " . date('Y-m-d H:i:s') . "\n";
-flush();
-ob_flush();
-// get listing of all pids in fedora
-//$fedoraPids = Fedora_Direct_Access::fetchAllFedoraPIDs('');
-$stmt = "SELECT rek_pid, rek_updated_date FROM fez_record_search_key WHERE rek_status = '2'";
-$pidList = $db->fetchAll($stmt);
-
-echo "Adding " . count($pidList) . " pids to sitemap\n";
-flush();
-ob_flush();
-
-$sitemap = new Sitemap(false);
-$sitemap->page('records');
-
-foreach ($pidList as $pidDetails) {
-    $pid = $pidDetails['rek_pid'];
-    $updated = $pidDetails['rek_updated_date'];
-
-    //We'll tell google to check on pids updated lately(Past 4 weeks) sooner rather than later
-    $changeFrequency = ($updated > strftime("%Y-%m-%d", time() - 60*60*24*7*4)) ? 'daily' : 'monthly';
-    $url = 'view/'.$pid;
-    $sitemap->url($url, $updated, $changeFrequency);
+if (php_sapi_name()==="cli" || 1) {
+    echo "Script started: " . date('Y-m-d H:i:s') . "\n";
     flush();
     ob_flush();
-}
+    $approved_roles=array(9,10);
+    // get listing of all published pids, which since it's run from CLI will be publicly viewable pids
+    $stmt = "SELECT rek_pid, rek_updated_date FROM " . APP_TABLE_PREFIX . "record_search_key";
+    $authArray = Collection::getAuthIndexStmt($approved_roles, "rek_pid");
+    $stmt .= $authArray['authStmt'];
+    $stmt .= " AND rek_status = '2' ORDER BY rek_updated_date DESC";
+    $pidList = $db->fetchAll($stmt);
 
-$sitemap->close();
-unset ($sitemap);
+    echo "Adding " . count($pidList) . " pids to sitemap\n";
+    flush();
+    ob_flush();
+
+    $sitemap = new Sitemap(false);
+    $sitemap->page('records');
+
+    foreach ($pidList as $pidDetails) {
+        $pid = $pidDetails['rek_pid'];
+        $updated = $pidDetails['rek_updated_date'];
+
+        //We'll tell google to check on pids updated lately(Past 4 weeks) sooner rather than later
+        $changeFrequency = ($updated > strftime("%Y-%m-%d", time() - 60*60*24*7*4)) ? 'daily' : 'monthly';
+        $url = 'view/'.$pid;
+        $sitemap->url($url, $updated, $changeFrequency);
+    }
+
+    $sitemap->close();
+    unset ($sitemap);
+    echo "Script finished: " . date('Y-m-d H:i:s') . "\n";
+} else {
+    echo "Run from command only";
+}
