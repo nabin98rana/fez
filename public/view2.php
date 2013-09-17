@@ -736,6 +736,8 @@ if (!empty($pid) && $record->checkExists()) {
           }
       }
 
+    $retracted = Record::getSearchKeyIndexValue($pid, "Retracted");
+    $tpl->assign("retracted", $retracted);
     if(APP_ADDTHIS_SWITCH == 'ON')
     {
       $tpl->assign("addthis", APP_ADDTHIS_ID);

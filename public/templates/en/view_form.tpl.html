@@ -433,6 +433,13 @@ function loadPreview(pid,datastreamID, alt, origami)
                 </td></tr>
               </table>
 		    {/if}
+            {if  $retracted}
+            <table style = "width: 100%">
+                <tr><td class="error" style="background: {$heading_color}; text-align: center">
+                    <b>NOTE: This article has been retracted.</b>
+                </td></tr>
+            </table>
+            {/if}
 
         {if $hasDatasets == 1}
           <table id="datasets">

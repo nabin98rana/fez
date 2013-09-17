@@ -48,6 +48,3 @@ if ($this->wft_details['wft_type_id'] == WorkflowTrigger::getTriggerId('Bulk Cha
 	}
 	$this->rec_obj->releaseLock();
 }
-
-
-?>
