@@ -8,7 +8,7 @@
 {assign var="loop_num" value="0"}
 
 <tr id="tr_xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_0"
-    {if ($isEditor != 1 && $xsd_display_fields[i].xsdmf_show_simple_create == 0 && $xsd_display_fields[i].xsdmf_required != 1) || $xsd_display_fields[i].xsdmf_invisible == 1}style="display:none"{/if}>
+    {if ($isApprover != 1 && $xsd_display_fields[i].xsdmf_show_simple_create == 0 && $xsd_display_fields[i].xsdmf_required != 1) || $xsd_display_fields[i].xsdmf_invisible == 1}style="display:none"{/if}>
   <th>
     <b><label
         for="xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_0">{$xsdmf.xsdmf_title}
