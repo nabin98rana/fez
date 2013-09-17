@@ -68,14 +68,11 @@ No items found
 		</th>
 
 
-       {if $options.searchKeycore_8 == ""}
        <th class="default tableheader" nowrap valign="middle">
        {if $options.sort_order == "1"}
        <a href='{$page_url_order}&sort_by=searchKeycore_8&sort_order=0'>Collection{if $options.sort_by == "searchKeycore_8"}<img border="0" title="click to sort by Collection Ascending" src="{$rel_url}images/sort_asc_off_16.gif" align="middle">{/if}</a>
        {else}
        <a href='{$page_url_order}&sort_by=searchKeycore_8&sort_order=1'>Collection{if $options.sort_by == "searchKeycore_8"}<img border="0" title="click to sort by Collection Descending"  src="{$rel_url}images/sort_desc_off_16.gif" align="middle">{/if}</a>
-       {/if}
-       </td>
        {/if}
        </th>
        <th class="default tableheader" valign="middle">
@@ -90,9 +87,9 @@ No items found
        </th>
          <th class="default tableheader" valign="middle">
              {if $options.sort_order == "0"}
-                <a href='{$page_url_order}&sort_by=attachment_number&sort_order=1' title="Attachment number">Att #{if $options.sort_by == "attachment_number"}<img border="0" title="click to sort by Attachment size"  src="{$rel_url}images/sort_desc_off_16.gif" align="middle">{/if}</a>
+                <a href='{$page_url_order}&sort_by=attachment_number&sort_order=1' title="Attachment number">~Att #{if $options.sort_by == "attachment_number"}<img border="0" title="click to sort by Attachment size"  src="{$rel_url}images/sort_desc_off_16.gif" align="middle">{/if}</a>
              {else}
-                 <a href='{$page_url_order}&sort_by=attachment_number&sort_order=0' title="Attachment number">Att #{if $options.sort_by == "attachment_number"}<img border="0" title="click to sort by Attachment size" src="{$rel_url}images/sort_asc_off_16.gif" align="middle">{/if}</a>
+                 <a href='{$page_url_order}&sort_by=attachment_number&sort_order=0' title="Attachment number">~Att #{if $options.sort_by == "attachment_number"}<img border="0" title="click to sort by Attachment size" src="{$rel_url}images/sort_asc_off_16.gif" align="middle">{/if}</a>
              {/if}
          </th>
 
