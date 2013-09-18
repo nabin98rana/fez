@@ -895,7 +895,10 @@ abstract class RecordImport
                 $mods['relatedItem']['name'][0]['namePart_type'] = 'conference';
                 $mods['relatedItem']['name'][0]['namePart'] = $this->_conferenceTitle;
                 //Only save scopus (and wos) journal name (prism:publicationName) if it has an ISSN otherwise its a proceedings, but don't put journal name there if its a cp from a p
-                if ($this->_scopusDocTypeCode == 'cp' && $this->_scopusSrcType == 'k') {
+                if ($this->_scopusDocTypeCode == 'cp' && $this->_scopusSrcType == 'p') {
+                  $mods['relatedItem']['name'][0]['namePart_type'] = 'series';
+                  $mods['relatedItem']['name'][0]['namePart'] = $this->_seriesTitle;
+                } elseif ($this->_scopusDocTypeCode == 'cp' && $this->_scopusSrcType == 'k') {
                   $mods['relatedItem']['titleInfo']['subTitle'] =  $this->_seriesTitle;
                   $mods['relatedItem']['name'][0]['namePart_type'] = 'series';
                   $mods['relatedItem']['name'][0]['namePart'] = $this->_seriesTitle;
