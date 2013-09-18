@@ -124,7 +124,7 @@ class ScopusRecItem extends RecordImport
             $this->_scopusAggregationType = $scopusDocTypeExtracted;
 //            $scopusDocTypeMatched = Record::getScopusDocTypeCodeByDescription($scopusDocTypeExtracted);
 
-            $this->_scopusSrcType = $this->extract('//srctype', $xpath);
+            $this->_scopusSrcType = $this->extract('//d:srctype', $xpath);
 
 //            if($scopusDocTypeMatched)
 //            {
