@@ -245,7 +245,7 @@ class MatchingRecords
 		        $fields->scopusId = $scopusIdExtracted;
 		        $fields->pid = null;
 
-		        $isInImportColl = Record::getPIDsByScopusID($csr_fields['_scopusId'], true);
+		        $isInImportColl = Record::getPIDsByScopusID($csr_fields['_scopusId']);
 
 		        if(empty($isInImportColl))
 		        {
@@ -253,7 +253,7 @@ class MatchingRecords
 		        }
 		        else
 		        {
-		            $fields->record_exists = 0;
+		            $fields->record_exists = 1;
 		            $fields->pid = $isInImportColl[0]['rek_scopus_id_pid'];
 		        }
 

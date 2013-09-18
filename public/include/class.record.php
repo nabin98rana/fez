@@ -3993,10 +3993,7 @@ class Record
           else
           {
               $sql = "SELECT DISTINCT rek_scopus_id_pid FROM ".$dbtp."record_search_key_scopus_id "
-                ."LEFT JOIN ".$dbtp."record_search_key_ismemberof "
-                ."ON rek_scopus_id_pid = rek_ismemberof_pid "
-                ."WHERE rek_scopus_id = ? "
-                ."AND (rek_ismemberof NOT IN('".APP_SCOPUS_IMPORT_COLLECTION."', '".APP_TEMPORARY_DUPLICATES_COLLECTION."') OR rek_ismemberof IS NULL)";
+                ."WHERE rek_scopus_id = ? ";
           }
 
           try
