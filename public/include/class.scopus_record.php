@@ -114,10 +114,17 @@ class ScopusRecItem extends RecordImport
 
             $this->_issueVolume = $this->extract('//prism:volume', $xpath);
             $date = $this->extract('//prism:coverDate', $xpath);
-            $this->_issueDate = date('Y-m-d', strtotime($date));
+            if (strlen($date) > 4) {
+              $this->_issueDate = date('Y-m-d', strtotime($date));
+            } elseif (strlen($date) == 4) {
+              $this->_issueDate = $date;
+            }
+
             $scopusDocTypeExtracted = $this->extract('//prism:aggregationType', $xpath);
             $this->_scopusAggregationType = $scopusDocTypeExtracted;
 //            $scopusDocTypeMatched = Record::getScopusDocTypeCodeByDescription($scopusDocTypeExtracted);
+
+            $this->_scopusSrcType = $this->extract('//srctype', $xpath);
 
 //            if($scopusDocTypeMatched)
 //            {
@@ -126,7 +133,7 @@ class ScopusRecItem extends RecordImport
 //              return false;
 //            }
 
-            $this->enterXdisInformation($this->_scopusDocTypeCode);
+            $this->enterXdisInformation($this->_scopusDocTypeCode, $this->_scopusSrcType);
             $this->_journalTitle = $this->extract('//prism:publicationName', $xpath);
             $this->_publisher = $this->extract('//publishername', $xpath);
             $this->_isbn = $this->extract('//isbn', $xpath);
@@ -185,12 +192,32 @@ class ScopusRecItem extends RecordImport
             foreach ($subjects as $subject) {
               $this->_subjects[] = Controlled_Vocab::getInternalIDByExternalID($subject->getAttribute('code'));
             }
+            // if it is a book with a source type k (book series) treat it as a book chapter and get the series and book title elsewhere
+            if ($this->_scopusDocTypeCode == 'bk' && $this->_scopusSrcType == 'k') {
+              $this->_seriesTitle = $xpath->query('//source/sourcetitle')->item(0)->nodeValue;
+              $tempTitle = '';
+              // if issue title exists, use it instead of the standard prism:publication name
+              $tempTitle = $xpath->query('//source/issuetitle')->item(0)->nodeValue;
+              if ($tempTitle != '') {
+                $this->_journalTitle = $tempTitle;
+              }
+            }
 
             // This section seems to only be for embase, so commenting out for now, maybe remove later
             if ($xpath->query('//source/additional-srcinfo/conferenceinfo')->length > 0) {
                 $this->_conferenceTitle = $xpath->query('//source/additional-srcinfo/conferenceinfo/confevent/confname')->item(0)->nodeValue;
                 $this->_confenceLocationCity = $xpath->query('//source/additional-srcinfo/conferenceinfo/confevent/conflocation/city-group')->item(0)->nodeValue;
-                $this->_conferenceProceedingsTitle = $xpath->query('//source/sourcetitle')->item(0)->nodeValue;
+                // if a conference paper has a src type of p - paper or book series - k, then put source title into series and issue title into proceedings title
+                if ($this->_scopusDocTypeCode == 'cp' && ($this->_scopusSrcType == 'p' || $this->_scopusSrcType == 'k')) {
+                  $this->_seriesTitle = $xpath->query('//source/sourcetitle')->item(0)->nodeValue;
+                  $this->_conferenceProceedingsTitle = $xpath->query('//source/issuetitle')->item(0)->nodeValue;
+                } elseif ($this->_scopusDocTypeCode == 'cp' && ($this->_scopusSrcType == 'b' ) { // if a cp from a book b, then put issue title into conf proceedings title
+                  $this->_conferenceProceedingsTitle = $xpath->query('//source/issuetitle')->item(0)->nodeValue;
+                } else {
+                  $this->_conferenceProceedingsTitle = $xpath->query('//source/sourcetitle')->item(0)->nodeValue;
+                }
+
+
                 $startDay =  $xpath->query('//source/additional-srcinfo/conferenceinfo/confevent/confdate/startdate/@day')->item(0)->nodeValue;
                 $startMonth = $xpath->query('//source/additional-srcinfo/conferenceinfo/confevent/confdate/startdate/@month')->item(0)->nodeValue;
                 $startYear = $xpath->query('//source/additional-srcinfo/conferenceinfo/confevent/confdate/startdate/@year')->item(0)->nodeValue;
@@ -332,7 +359,7 @@ class ScopusRecItem extends RecordImport
         }
         return $affiliated;
     }
-    private function enterXdisInformation($docType) {
+    private function enterXdisInformation($docType, $srcType) {
         if ($docType == 'ar') {
             $this->_xdisTitle = 'Journal Article';
             $this->_xdisSubtype = 'Article (original research)';
@@ -341,6 +368,10 @@ class ScopusRecItem extends RecordImport
             $this->_xdisTitle = 'Journal Article';
             $this->_xdisSubtype = 'Article (original research)';
             $this->_xdisId = 179;
+        } elseif ($docType == 'ch' || ($docType == 'bk' && $srcType == 'k')) {
+          $this->_xdisTitle = 'Book Chapter';
+          $this->_xdisSubtype = 'Research book chapter (original research)';
+          $this->_xdisId = 177;
         } elseif ($docType == 'bk') {
             $this->_xdisTitle = 'Book';
             $this->_xdisSubtype = 'Research book (original research)';
@@ -349,10 +380,6 @@ class ScopusRecItem extends RecordImport
             $this->_xdisTitle = 'Conference Paper';
             $this->_xdisSubtype = 'Fully published paper';
             $this->_xdisId = 130;
-        } elseif ($docType == 'ch') {
-            $this->_xdisTitle = 'Book Chapter';
-            $this->_xdisSubtype = 'Research book chapter (original research)';
-            $this->_xdisId = 177;
         }
 
     }

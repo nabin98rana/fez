@@ -34,6 +34,7 @@ abstract class RecordImport
     protected $_issueVolume = null;
     protected $_wokDocTypeCode = null;
     public   $_scopusDocType = null;
+    public   $_scopusSrcType = null;
     public   $_scopusDocTypeCode = null;
     protected $_pubmedDocTypeCode = null;
     protected $_embaseDocTypeCode = null;
@@ -45,6 +46,7 @@ abstract class RecordImport
     protected $_conferenceDates = null;
     protected $_conferenceTitle = null;
     protected $_conferenceProceedingsTitle = null;
+    protected $_seriesTitle = null;
     protected $_confenceLocationCity = null;
     protected $_confenceLocationState = null;
     protected $_authors = array();
@@ -892,8 +894,12 @@ abstract class RecordImport
                 $mods['relatedItem']['titleInfo']['title'] = $this->_conferenceProceedingsTitle;
                 $mods['relatedItem']['name'][0]['namePart_type'] = 'conference';
                 $mods['relatedItem']['name'][0]['namePart'] = $this->_conferenceTitle;
-                //Only save scopus (and wos) journal name (prism:publicationName) if it has an ISSN otherwise its a proceedings
-                if (strlen($this->_issn) == 9) {
+                //Only save scopus (and wos) journal name (prism:publicationName) if it has an ISSN otherwise its a proceedings, but don't put journal name there if its a cp from a p
+                if ($this->_scopusDocTypeCode == 'cp' && $this->_scopusSrcType == 'k') {
+                  $mods['relatedItem']['titleInfo']['subTitle'] =  $this->_seriesTitle;
+                  $mods['relatedItem']['name'][0]['namePart_type'] = 'series';
+                  $mods['relatedItem']['name'][0]['namePart'] = $this->_seriesTitle;
+                } elseif (strlen($this->_issn) == 9 && ($this->_scopusDocTypeCode != 'cp' && $this->_scopusSrcType != 'p')) {
                   $mods['relatedItem']['titleInfo']['subTitle'] =  $this->_journalTitle;
                 }
                 if (!empty($this->_confenceLocationCity) || !empty($this->_confenceLocationState)) {
@@ -912,6 +918,12 @@ abstract class RecordImport
               $mods['relatedItem']['titleInfo']['title'] = $this->_journalTitle;
               $mods['relatedItem']['originInfo']['dateIssued'] = $this->_issueDate;
               $mods['relatedItem']['originInfo']['publisher'] = $this->_publisher;
+              // series only seems to come when its from a book in a book (bk in a k)
+              if ($this->_seriesTitle != '') {
+                $mods['relatedItem']['name'][0]['namePart_type'] = 'series';
+                $mods['relatedItem']['name'][0]['namePart'] = $this->_seriesTitle;
+
+              }
             }
             // Links currently blank since only getting first DOI or link
             $links = array();
