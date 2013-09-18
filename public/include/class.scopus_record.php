@@ -132,6 +132,7 @@ class ScopusRecItem extends RecordImport
 //            } else {
 //              return false;
 //            }
+            $this->_scopusDocTypeCode =  $xpath->query('//head/citation-info/citation-type')->item(0)->getAttribute('code');
 
             $this->enterXdisInformation($this->_scopusDocTypeCode, $this->_scopusSrcType);
             $this->_journalTitle = $this->extract('//prism:publicationName', $xpath);

@@ -440,25 +440,25 @@ class MatchingRecords
         $pid = false;
 
         // first query the main service to get the doc type (only place to get it)
-        $query = array('query' => "(scopus-id(".$scopusId."))",
-          'count' => 1,
-          'start' => 0,
-          'view' => 'STANDARD'
-        );
+//        $query = array('query' => "(scopus-id(".$scopusId."))",
+//          'count' => 1,
+//          'start' => 0,
+//          'view' => 'STANDARD'
+//        );
 
         $scopusService = new ScopusService(APP_SCOPUS_API_KEY);
-        $xml = $scopusService->getNextRecordSet($query);
-
-        $doc = new DOMDocument();
-        $doc->loadXML($xml);
+//        $xml = $scopusService->getNextRecordSet($query);
+//
+//        $doc = new DOMDocument();
+//        $doc->loadXML($xml);
 
 
 
         $record = $scopusService->getRecordByScopusId($scopusId);
 
         $sri = new ScopusRecItem();
-        // get the subtype from the search results as the main service doesn't return it
-        $sri->_scopusDocTypeCode = $doc->getElementsByTagName('subtype')->item(0)->nodeValue;
+        // DONT NEED TO DO THIS ANYMORE, MAY REMOVE get the subtype from the search results as the main service doesn't return it
+//        $sri->_scopusDocTypeCode = $doc->getElementsByTagName('subtype')->item(0)->nodeValue;
         $sri->load($record);
 
         if($sri->isLoaded())
