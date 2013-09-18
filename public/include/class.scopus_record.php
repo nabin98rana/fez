@@ -132,7 +132,10 @@ class ScopusRecItem extends RecordImport
 //            } else {
 //              return false;
 //            }
-            $this->_scopusDocTypeCode =  $xpath->query('//head/citation-info/citation-type')->item(0)->getAttribute('code');
+            if ($this->_scopusDocTypeCode == '') {
+              $this->_scopusDocTypeCode =  $xpath->query('//head/citation-info/citation-type')->item(0)->getAttribute('code');
+            }
+
 
             $this->enterXdisInformation($this->_scopusDocTypeCode, $this->_scopusSrcType);
             $this->_journalTitle = $this->extract('//prism:publicationName', $xpath);
@@ -212,7 +215,7 @@ class ScopusRecItem extends RecordImport
                 if ($this->_scopusDocTypeCode == 'cp' && ($this->_scopusSrcType == 'p' || $this->_scopusSrcType == 'k')) {
                   $this->_seriesTitle = $xpath->query('//source/sourcetitle')->item(0)->nodeValue;
                   $this->_conferenceProceedingsTitle = $xpath->query('//source/issuetitle')->item(0)->nodeValue;
-                } elseif ($this->_scopusDocTypeCode == 'cp' && ($this->_scopusSrcType == 'b' ) { // if a cp from a book b, then put issue title into conf proceedings title
+                } elseif ($this->_scopusDocTypeCode == 'cp' && $this->_scopusSrcType == 'b' ) { // if a cp from a book b, then put issue title into conf proceedings title
                   $this->_conferenceProceedingsTitle = $xpath->query('//source/issuetitle')->item(0)->nodeValue;
                 } else {
                   $this->_conferenceProceedingsTitle = $xpath->query('//source/sourcetitle')->item(0)->nodeValue;
