@@ -894,7 +894,7 @@
                         {/if}
                       </th>
                       <td>
-                        {if $xsd_display_fields[i].sek_title == 'Title' && ( $xdis_title == 'Journal Article' || $xdis_title == 'Conference Paper') && $smarty.const.APP_USE_ARTICLE_TITLE_SEARCH == 'ON'}
+                        {if $xsd_display_fields[i].sek_title == 'Title' && ( $xdis_title == 'Journal Article' || $xdis_title == 'Conference Paper' || $xdis_title == 'Book' || $xdis_title == 'Book Chapter' || $xdis_title == 'Conference Proceedings' || $xdis_title == 'Department Technical Report' || $xdis_title == 'Preprint' || $xdis_title == 'Reference Entry' || $xdis_title == 'Working Paper')  && $smarty.const.APP_USE_ARTICLE_TITLE_SEARCH == 'ON'}
 
                             {literal}
                             <script type="text/javascript">
