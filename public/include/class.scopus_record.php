@@ -375,6 +375,10 @@ class ScopusRecItem extends RecordImport
             $this->_xdisTitle = 'Journal Article';
             $this->_xdisSubtype = 'Article (original research)';
             $this->_xdisId = 179;
+        } elseif ($docType == 're') {
+          $this->_xdisTitle = 'Journal Article';
+          $this->_xdisSubtype = 'Critical review of research, literature review, critical commentary';
+          $this->_xdisId = 179;
         } elseif ($docType == 'ip') {
             $this->_xdisTitle = 'Journal Article';
             $this->_xdisSubtype = 'Article (original research)';
