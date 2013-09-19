@@ -432,7 +432,7 @@
 		{if $list[i].rek_display_type_lookup == "Thesis"}
 			{if $list[i].rek_org_name}
 			      {if !is_array($list[i].rek_org_name)}
-				    <dc:publisher>{$list[i].rek_org_name[0]}{if ($list[i].rek_org_name && $list[i].rek_faculty)}, {/if}{$list[i].rek_faculty}{if (($list[i].rek_org_name || $list[i].rek_org_unit_name) && $list[i].rek_org_unit_name)}, {/if}{$list[i].rek_org_unit_name}</dc:publisher>
+				    <dc:publisher>{$list[i].rek_org_name}{if ($list[i].rek_org_name && $list[i].rek_faculty)}, {/if}{$list[i].rek_faculty}{if (($list[i].rek_org_name || $list[i].rek_org_unit_name) && $list[i].rek_org_unit_name)}, {/if}{$list[i].rek_org_unit_name}</dc:publisher>
 			  
 			      {else}
 				    {assign var="loop_org_name" value=$list[i].rek_org_name}
