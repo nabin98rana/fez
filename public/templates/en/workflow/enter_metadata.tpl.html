@@ -1052,7 +1052,7 @@
                                         <div class="default">{$xsd_display_fields[i].xsdmf_long_description|smarty:nodefaults}</div>
                                     {/if}
                                 </td>
-                                {if $xsd_display_fields[i].sek_title == 'Title' && ( $xdis_title == 'Journal Article' || $xdis_title == 'Conference Paper') && $smarty.const.APP_USE_ARTICLE_TITLE_SEARCH == 'ON'}
+                                {if $xsd_display_fields[i].sek_title == 'Title' && ( $xdis_title == 'Journal Article' || $xdis_title == 'Conference Paper' || $xdis_title == 'Book' || $xdis_title == 'Book Chapter' || $xdis_title == 'Conference Proceedings' || $xdis_title == 'Department Technical Report' || $xdis_title == 'Preprint' || $xdis_title == 'Reference Entry' || $xdis_title == 'Working Paper') && $smarty.const.APP_USE_ARTICLE_TITLE_SEARCH == 'ON'}
                                 <td style="vertical-align: top">
                                     <div id="record-suggestions" style="height:400px;">
                                     <h3 style="text-decoration:underline; color: #333333">Matching records found in repository<sup>&#174;</sup>&nbsp;<span id="ctRepoRec">0</span></h3>

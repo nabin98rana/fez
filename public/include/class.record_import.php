@@ -902,7 +902,7 @@ abstract class RecordImport
                   $mods['relatedItem']['titleInfo']['subTitle'] =  $this->_seriesTitle;
                   $mods['relatedItem']['name'][1]['namePart_type'] = 'Series'; //conf paper doctype using capital S Series
                   $mods['relatedItem']['name'][1]['namePart'] = $this->_seriesTitle;
-                } elseif (strlen($this->_issn) == 9 && ($this->_scopusDocTypeCode != 'cp' && $this->_scopusSrcType != 'p')) {
+                } elseif (strlen($this->_issn) == 9 && ($this->_scopusDocTypeCode == 'cp' && $this->_scopusSrcType != 'p')) {
                   $mods['relatedItem']['titleInfo']['subTitle'] =  $this->_journalTitle;
                 }
                 if (!empty($this->_confenceLocationCity) || !empty($this->_confenceLocationState)) {
@@ -918,7 +918,10 @@ abstract class RecordImport
               $mods['originInfo']['dateIssued'] = $this->_issueDate;
               $mods['originInfo']['publisher'] = $this->_publisher;
             } else if ($this->_xdisTitle == 'Book Chapter') {
-              $mods['relatedItem']['titleInfo']['title'] = $this->_journalTitle;
+              // don't add book title if it comes from a book series
+              if ($this->_scopusSrcType != 'k') {
+                $mods['relatedItem']['titleInfo']['title'] = $this->_journalTitle;
+              }
               $mods['relatedItem']['originInfo']['dateIssued'] = $this->_issueDate;
               $mods['relatedItem']['originInfo']['publisher'] = $this->_publisher;
               // series only seems to come when its from a book in a book (bk in a k)

@@ -114,11 +114,15 @@ class ScopusRecItem extends RecordImport
 
             $this->_issueVolume = $this->extract('//prism:volume', $xpath);
             $date = $this->extract('//prism:coverDate', $xpath);
-            if (strlen($date) > 4) {
-              $this->_issueDate = date('Y-m-d', strtotime($date));
-            } elseif (strlen($date) == 4) {
-              $this->_issueDate = $date;
+            $year = $this->extract('//source/publicationdate/year', $xpath);
+            $month = $this->extract('//source/publicationdate/month', $xpath);
+            $day = $this->extract('//source/publicationdate/day', $xpath);
+            if (is_numeric($month) && is_numeric($day) && is_numeric($year)) {
+              $date = $year.'-'.$month.'-'.$day;
+            } elseif (is_numeric($year)) {
+              $date = $year;
             }
+            $this->_issueDate = $date;
 
             $scopusDocTypeExtracted = $this->extract('//prism:aggregationType', $xpath);
             $this->_scopusAggregationType = $scopusDocTypeExtracted;
@@ -199,12 +203,15 @@ class ScopusRecItem extends RecordImport
             // if it is a book with a source type k (book series) treat it as a book chapter and get the series and book title elsewhere
             if ($this->_scopusDocTypeCode == 'bk' && $this->_scopusSrcType == 'k') {
               $this->_seriesTitle = $xpath->query('//source/sourcetitle')->item(0)->nodeValue;
-              $tempTitle = '';
+//              $tempTitle = '';
               // if issue title exists, use it instead of the standard prism:publication name
-              $tempTitle = $xpath->query('//source/issuetitle')->item(0)->nodeValue;
-              if ($tempTitle != '') {
-                $this->_journalTitle = $tempTitle;
-              }
+//              $tempTitle = $xpath->query('//source/issuetitle')->item(0)->nodeValue;
+//              if ($tempTitle != '') {
+//                $this->_journalTitle = $tempTitle;
+//              }
+              // issuetitle seems useless for book series - so just clear our journal title
+              $this->_journalTitle = '';
+
             }
 
             // This section seems to only be for embase, so commenting out for now, maybe remove later
