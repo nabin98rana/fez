@@ -190,8 +190,8 @@ class MatchingRecords
 
 		//Grab 40 records to work with in case some of them are not really UQ's
 //		$query = array('query' => "affil(University+of+Queensland)+subtype(ar,cp,bk)+title('"
-		$query = array('query' => "(doctype(ar)+OR+doctype(cp)+OR+doctype(bk)+OR+doctype(ch))+title('"
-		    . urlencode($title) . "')",
+		$query = array('query' => "(doctype(ar)+OR+doctype(cp)+OR+doctype(bk)+OR+doctype(ch))+title(\""
+		    . urlencode($title) . "\")",
 		             'count' => $num_recs,
 		             'start' => 0,
 		             'view' => 'STANDARD',
