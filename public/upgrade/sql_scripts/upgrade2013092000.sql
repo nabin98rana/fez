@@ -1,0 +1,1 @@
+ALTER TABLE %TABLE_PREFIX%exif CHANGE exif_mime_type exif_mime_type VARCHAR(128) CHARSET utf8 COLLATE utf8_general_ci NULL;
