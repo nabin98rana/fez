@@ -40,7 +40,7 @@
  * the data integrity is the best possible.
  *
  * @version 1.0
- * @author Jo�o Prado Maia <jpm@mysql.com>
+ * @author João Prado Maia <jpm@mysql.com>
  */
 
 class Validation
@@ -165,7 +165,7 @@ class Validation
      */
     function isORCID($str)
     {
-        return preg_match('/^\d{4}\-\d{4}\-\d{4}\-\d{4}$/', $str);
+        return preg_match('/^\d{4}\-\d{4}\-\d{4}\-\d{3}(\d|x|X)$/', $str);
     }
 
     /**
