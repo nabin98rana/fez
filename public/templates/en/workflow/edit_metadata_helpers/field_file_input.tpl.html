@@ -3,7 +3,7 @@
 {if $smarty.const.APP_ENABLE_FLASH_UPLOADER_SWITCH == 'ON'}
     <tbody id="flash_file_uploader_rows" style="display:none">
         <tr>
-            <td colspan="2" width="200" bgcolor="{$cell_color}" class="default" valign="top"><strong>File upload{if $xsd_display_fields[i].xsdmf_required == 1} * {/if}</strong></td>
+            <td colspan="2" width="200" bgcolor="{$cell_color}" class="default" valign="top"><strong>{$xsd_display_fields[i].xsdmf_title}{if $xsd_display_fields[i].xsdmf_required == 1} * {/if}</strong><br /><i>{$xsd_display_fields[i].xsdmf_description|smarty:nodefaults}</i></td>
         </tr>
         <tr>
             <td colspan="2" bgcolor="{$value_color}" class="default">
