@@ -138,6 +138,10 @@ class MatchingRecords
                 $editions = array();
                 $wok_ws = new WokService(FALSE);
                 $response = $wok_ws->search($databaseID, $query, $editions, $timeSpan, $depth, "en", $num_recs);
+                if (is_soap_fault($response)) {
+                  return '<span style="color:#fff;" id="ctWos">- ERROR</span>
+                    <ol><li>Error: '.$response->getMessage().'</li></ol>';
+                }
                 $records = new DomDocument();
                 $records->loadXML($response->return->records);
                 $recordsNodes = $records->getElementsByTagName('REC');
@@ -156,20 +160,19 @@ class MatchingRecords
     	$matchCount = count($matches);
 
     	if($matchCount > 0) {
-			$tpl = new Template_API();
-			$tpl->setTemplate("workflow/edit_metadata_helpers/matching_records_results.tpl.html");
-            $app_link_prefix = (defined('APP_LINK_PREFIX')) ? APP_LINK_PREFIX : '';
-            $tpl->assign("app_link_prefix", $app_link_prefix);
-			$tpl->assign('matches', $matches);
-			$tpl->assign('rel_url', APP_RELATIVE_URL);
-			$tpl->assign('found', $matchCount);
-			$tpl->assign('max_results', $num_recs);
-			$tpl->assign('num_wos', $matchCount);
-			$tpl->assign('dupe_records', 0);
+        $tpl = new Template_API();
+        $tpl->setTemplate("workflow/edit_metadata_helpers/matching_records_results.tpl.html");
+              $app_link_prefix = (defined('APP_LINK_PREFIX')) ? APP_LINK_PREFIX : '';
+              $tpl->assign("app_link_prefix", $app_link_prefix);
+        $tpl->assign('matches', $matches);
+        $tpl->assign('rel_url', APP_RELATIVE_URL);
+        $tpl->assign('found', $matchCount);
+        $tpl->assign('max_results', $num_recs);
+        $tpl->assign('num_wos', $matchCount);
+        $tpl->assign('dupe_records', 0);
 
-			return $tpl->getTemplateContents();
-    	}
-    	else {
+        return $tpl->getTemplateContents();
+    	} else {
     		return '';
     	}
     }
@@ -200,8 +203,29 @@ class MatchingRecords
 		$scopusService = new ScopusService(APP_SCOPUS_API_KEY);
 		$xml = $scopusService->getNextRecordSet($query);
 
-		$doc = new DOMDocument();
+    // check for errors in the api, if found return that to the gui
+
+    $xmlDoc = new DOMDocument();
+    $xmlDoc->preserveWhiteSpace = false;
+    $xmlDoc->loadXML($xml);
+
+    $xpath = new DOMXPath($xmlDoc);
+
+
+
+    if ($xpath->query("/service-error")->length > 0) {
+
+      $statusCode = $xpath->query("//statusCode")->item(0)->nodeValue;
+      $statusText = $xpath->query("//statusText")->item(0)->nodeValue;
+      return '<span style="color:#fff;" id="ctScopus">- ERROR</span>
+        <ol><li>Error: '.$statusCode.'<br />'.$statusText.'</li></ol>';
+    }
+
+
+
+    $doc = new DOMDocument();
 		$doc->loadXML($xml);
+
 		$records = $doc->getElementsByTagName('identifier');
 
 
@@ -265,8 +289,7 @@ class MatchingRecords
 
 		$matchCount = count($matches);
 
-		if($matchCount > 0)
-		{
+		if($matchCount > 0) {
 		    $tpl = new Template_API();
 		    $tpl->setTemplate("workflow/edit_metadata_helpers/matching_records_results.tpl.html");
             $app_link_prefix = (defined('APP_LINK_PREFIX')) ? APP_LINK_PREFIX : '';
@@ -278,8 +301,11 @@ class MatchingRecords
 		    $tplCont = $tpl->getTemplateContents();
 
 		    return $tplCont;
-		}
+		} else {
+      return '';
     }
+
+  }
 
 
   /**

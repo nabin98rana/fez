@@ -51,6 +51,11 @@ $wok_ws = new WokService(FALSE);
 // Do an initial sleep just in something else ran just before this..
 sleep(WOK_SECONDS_BETWEEN_CALLS);
 $response = $wok_ws->search($databaseID, $query, $editions, $timeSpan, $depth, "en", $num_recs);
+if (is_soap_fault($response)) {
+  $log = FezLog::get();
+  $log->err($response->getMessage());
+  exit;
+}
 $queryId = $response->return->queryId;
 $records_found = $response->return->recordsFound;
 
@@ -65,7 +70,7 @@ for($i=0; $i<$pages; $i++) {
     }
     $first_rec += $num_recs;
     $records = @simplexml_load_string($result);
-	
+
 	if($records) {
 		foreach($records->REC as $record) {
 			if(@$record->UID) {
@@ -74,6 +79,6 @@ for($i=0; $i<$pages; $i++) {
                 $wq->add($ut);
 			}
 		}
-	}	
+	}
 }
 
