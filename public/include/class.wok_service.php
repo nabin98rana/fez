@@ -183,7 +183,7 @@ class WokService
     }
     catch(SoapFault $ex) {
       $this->log->err($ex);
-      return FALSE;
+      return $ex;
     }
   }
 
