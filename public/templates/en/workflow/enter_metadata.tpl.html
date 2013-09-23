@@ -294,7 +294,7 @@
         {if $xsd_display_fields[i].xsdmf_html_input == 'file_input' && $xsd_display_fields[i].xsdmf_enabled == 1}
             {if $smarty.const.APP_ENABLE_FLASH_UPLOADER_SWITCH == 'ON'}
                 <tr id="flash_file_uploader_rows" style="display:none">
-                    <th><strong>File upload {if $xsd_display_fields[i].xsdmf_required == 1} * {/if} </strong></th>
+                    <th><strong>{$xsd_display_fields[i].xsdmf_title} {if $xsd_display_fields[i].xsdmf_required == 1} * {/if} </strong><br /><i>{$xsd_display_fields[i].xsdmf_description|smarty:nodefaults}</i></th>
                     <td>
                         {include file="error_icon.tpl.html" field="uploader_files_uploaded"}
                         <div id="uploader_file_table_container" style="display:none;">
@@ -586,7 +586,7 @@
                       {assign var="attached_xsdmf_id" value=$xsdmf.xsdmf_attached_xsdmf_id}
                       {section name='aa' loop=$xsd_display_fields}{if $xsd_display_fields[aa].xsdmf_id == $attached_xsdmf_id}{assign var="attached_xsdmf" value=$xsd_display_fields[aa]}{/if}{/section}
                     {/if}
-                    <tr  valign="top" {if $loop_num != 0 || ($isApprover != 1 && $xsd_display_fields[i].xsdmf_show_simple_create == 0 && ($xsd_display_fields[i].xsdmf_required != 1 || $xsd_display_fields[i].selected_option != '')) || $xsd_display_fields[i].xsdmf_invisible == 1}style="display:none"{/if}>
+                    <tr  valign="top" {if $loop_num != 0 || ($isApprover != 1 && $xsd_display_fields[i].xsdmf_show_simple_create == 0 && ($xsd_display_fields[i].xsdmf_required != 1 || $xsd_display_fields[i].selected_option != '')) || $xsd_display_fields[i].xsdmf_invisible == 1 || $xsd_display_fields[i].xsdmf_multiple_limit == 1}style="display:none"{/if}>
                       <th>
                         <b>{$xsd_display_fields[i].xsdmf_title}(s) {if $xsd_display_fields[i].xsdmf_required == 1 && $loop_num == 0} * {/if}</b>
                         {if $loop_num == 0}
