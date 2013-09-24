@@ -8,28 +8,47 @@
 				var last_page = {/literal}{if $list_info.last_page != ""}{$list_info.last_page}{else}0{/if}{literal};
               function validateForm(f)
               {
+                  var returnValue = true;
                   if (isWhitespace(f.fname.value)) {
                       alert('Please enter the first name of this author.');
                       selectField(f, 'fname');
-                      return false;
+                      returnValue = false;
                   }
                   if (isWhitespace(f.lname.value)) {
                       alert('Please enter the last name of this author.');
                       selectField(f, 'lname');
-                      return false;
+                      returnValue = false;
                   }
                   if (!isWhitespace(f.mypub_url.value) && !isMyPubURL(f.mypub_url.value)) {
                       alert('My Pub URL must be lowercase, only a-z characters and underscores, and less than 100 characters.');
                       selectField(f, 'mypubs_url');
-                      return false;
+                      returnValue = false;
                   }
                   if (!isWhitespace(f.orcid_id.value) && !isORCID(f.orcid_id.value)) {
                       alert('ORCID ID incorrect');
                       selectField(f, 'orcid_id');
-                      return false;
+                      returnValue = false;
                   }
 
-                  return true;
+                  if (!isWhitespace(f.google_scholar_id.value) && !isGoogleScholarID(f.google_scholar_id.value)) {
+                      alert('Google Scholar ID incorrect');
+                      selectField(f, 'google_scholar_id');
+                      returnValue = false;
+                  }
+
+                  if (!isWhitespace(f.people_australia_id.value) && !isPeopleAustraliaID(f.people_australia_id.value)) {
+                      alert('People Australia ID incorrect');
+                      selectField(f, 'people_australia_id');
+                      returnValue = false;
+                  }
+
+                  if (!isWhitespace(f.scopus_id.value) && !isScopusID(f.scopus_id.value)) {
+                      alert('ScopusID incorrect');
+                      selectField(f, 'scopus_id');
+                      returnValue = false;
+                  }
+
+                  return true && returnValue;
               }
 			    function resizePager(f)
 				{
@@ -374,7 +393,7 @@
 		                          - OR -
 		                        </td>
 						                <td style="width: 600px">
-						                  <input class="button" type="submit" value="Register in ResearcherID" id="register_researcherid_profile" />
+						                  <input class="button" value="Register in ResearcherID" id="register_researcherid_profile" />
 						                  &nbsp;
 						                  Register with this email address (optional): <input type="text" id="register_researcherid_alt_email" size="30" class="default" value="" />
 						                </td>
@@ -385,12 +404,12 @@
                   	{elseif $info.aut_researcher_id == '-1'}
 	                  	  <input type="text" name="researcher_id" size="12" class="default" value="" />
 	                  		&nbsp;Profile is under Registration Process.
-                        &nbsp;<input class="button" type="submit" value="Re-send registration" id="register_researcherid_profile" />
+                        &nbsp;<input class="button" value="Re-send registration" id="register_researcherid_profile" />
 	                  		&nbsp;Email address (optional): <input type="text" id="register_researcherid_alt_email" size="30" class="default" value="" />
 	                {else}
 	                  <input type="text" name="researcher_id" size="12" class="default" value="{$info.aut_researcher_id}" />
-	                	<input class="button" type="submit" value="Download Publications" id="download_from_researcherid" />
-	                	<input class="button" type="submit" value="Upload Publications" id="upload_to_researcherid" />
+	                	<input class="button" value="Download Publications" id="download_from_researcherid" />
+	                	<input class="button" value="Upload Publications" id="upload_to_researcherid" />
 
 	                	{if $info.aut_rid_password}&nbsp;(Temp pass: {$info.aut_rid_password}){/if}
     	          	{/if}
