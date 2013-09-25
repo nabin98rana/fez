@@ -60,6 +60,12 @@ abstract class RecordImport
     protected $_xdisTitle = null;
     protected $_xdisSubtype = null;
 
+    //Levenstein distance fuzzy matching vars:
+    protected $percentageMatch = null;
+    protected $downloadedTitle = null;
+    protected $localTitle = null;
+
+
     /**
      * The PID of the collection to save
      * newly inserted records into.
@@ -86,6 +92,12 @@ abstract class RecordImport
      * @var boolean
      */
     protected $_inTest = false;
+
+    /**
+     * Switch for setting the object to action mode where it will save as it dedupes, otherwise just returns message and dupe status
+     * @var boolean
+     */
+    protected $_likenAction= false;
 
     /**
      * Namespaces to use with the XPath object
@@ -143,7 +155,20 @@ abstract class RecordImport
         return $this->_inTest;
     }
 
-    /**
+  /**
+   * Set the action state of the object.
+   * True causes the de-duping logic
+   * to save records, otherwise just returns the history and status code
+   * @param boolean $state
+   */
+  public function setLikenAction($state)
+  {
+    $this->_likenAction = $state;
+    return $this->_likenAction;
+  }
+
+
+  /**
      * Return the values of all fields
      * in the object.
      * @return array
@@ -215,13 +240,13 @@ abstract class RecordImport
             $rec = new Record();
             $title = $rec->getTitleFromIndex($authorativePid);
 
-            $percentageMatch = 0;
+            $this->percentageMatch = 0;
 
-            $downloadedTitle = RCL::normaliseTitle($this->_title);
-            $localTitle = RCL::normaliseTitle($title);
-            similar_text($downloadedTitle, $localTitle, $percentageMatch);
+            $this->downloadedTitle = RCL::normaliseTitle($this->_title);
+            $this->localTitle = RCL::normaliseTitle($title);
+            similar_text($this->downloadedTitle, $this->localTitle, $this->percentageMatch);
 
-            if($percentageMatch > 80)
+            if($this->percentageMatch > 80)
             {
                 $titleIsFuzzyMatched = true;
             }
@@ -268,368 +293,314 @@ abstract class RecordImport
     /**
      * Perform de-duping on incoming records
      */
-    public function liken()
-    {
-        //Order of ids in the _comparisonIdTypes matters.
-        //Eg for ScopusRecItem _scopusId should be first,
-        //for PubmedRecItem _pubmedId should be first, etc.
-        $primaryId = $this->_comparisonIdTypes[0];
+  public function liken()
+  {
+    //Order of ids in the _comparisonIdTypes matters.
+    //Eg for ScopusRecItem _scopusId should be first,
+    //for PubmedRecItem _pubmedId should be first, etc.
+    $primaryId = $this->_comparisonIdTypes[0];
 
-        $docTypeCode = "_{$this->_primaryIdPrefix}DocTypeCode";
-        $aggregationType = "_{$this->_primaryIdPrefix}AggregationType";
+    $docTypeCode = "_{$this->_primaryIdPrefix}DocTypeCode";
+    $aggregationType = "_{$this->_primaryIdPrefix}AggregationType";
 
-
-        if(in_array($this->$docTypeCode, $this->_doctypeExceptions))
-        {
-            return false;
-        }
-
-        //TODO: don't restrict restrict search to just the scopus import collection, search the entire espace for pids with that scopus id
-
-        //If the Scopus ID matches something that is already in the Scopus
-        //import collection, we need not go any further.
-        if($this->_inTest)
-        {
-            if(is_file($this->_statsFile))
-            {
-                $db = new PDO('sqlite:'.$this->_statsFile);
-
-                $query = "SELECT * FROM records WHERE contrib_id = '" . $this->$primaryId . "' LIMIT 1";
-                $res = $db->query($query);
-                $rows = $res->fetchAll(PDO::FETCH_ASSOC);
-
-                if(!empty($rows))
-                {
-                    $query = "UPDATE records SET count = count+1 WHERE contrib_id = '" . $this->$primaryId . "'";
-                    $db->query($query);
-
-                    return;
-                }
-            }
-        }
-        else
-        {
-            //$inImportColl = Record::getPIDsByScopusID($this->_scopusId, true);
-            $inImportColl = $this->checkImportCollections();
-            if(!empty($inImportColl))
-            {
-                return;
-            }
-        }
-
-        //set an idcollection array for pids returned by id type
-        $idCollection = array();
-        $mirrorMirror = new ReflectionClass($this);
-        $associations = array();
-
-        //See what returns a PID
-        foreach($this->_comparisonIdTypes as $id)
-        {
-            //Check that a method exists for retrieving
-            //a local record by that id type.
-            $retrieverName = 'getPIDsBy'.$id;
-            $retriever = $mirrorMirror->getMethod($retrieverName);
-
-            if($retriever)
-            {
-                //Run the method and capture the pid(s)
-                $pids = $this->$retrieverName();
-
-                $pidCount = count($pids);
-
-                //if there is only one pid returned
-                if($pidCount == 1)
-                {
-                    $associations[$id]['status'] = 'MATCHED';
-                    $associations[$id]['matchedPid'] = $pids[0];
-                }
-                elseif(!$this->$id)
-                {
-                    $associations[$id]['status'] = 'EMPTY';
-                }
-                elseif($pidCount > 1)
-                {
-                    $histMsg = "ST01 - "
-                    . $this->$primaryId." matches more than one pid("
-                    . implode(',', $pids) . ") based on $retrieverName";
-
-                    $this->_log->err($histMsg);
-
-                    if(!$this->_inTest)
-                    {
-                        $this->save($histMsg, $this->_insertCollection);
-                    }
-                    else
-                    {
-                        $this->inTestSave($this->$primaryId, 'ST01',
-                            $this->$docTypeCode, $this->$aggregationType);
-                    }
-                    return false;
-                }
-                else
-                {
-                    $associations[$id]['status'] = 'UNMATCHED';
-                }
-            }
-        }
-
-        $authorativePid = false;
-        $pidCollection = array();
-        $areMatched = array();
-        foreach($associations as $id => $association)
-        {
-            if(array_key_exists('matchedPid', $association))
-            {
-                if(!is_null($association['matchedPid']))
-                {
-                    $pidCollection[] = $association['matchedPid'];
-                }
-            }
-
-            if($association['status'] == 'MATCHED')
-            {
-                $areMatched[] = $id;
-            }
-        }
-
-        //See that different ids return the same PID
-        $ctUniq = count(array_unique($pidCollection));
-
-        //If we have a single PID, weed out any remaining fields that did not match and log them.
-        //A pid that matched on Scopus ID is considered most reliable, DOI is next most reliable and so on
-        //so the order of $this->_comparisonIdTypes matters.
-        if($ctUniq == 1)
-        {
-            for($i=0;$i<count($this->_comparisonIdTypes);$i++)
-            {
-                $cit = $this->_comparisonIdTypes[$i];
-                if(in_array($cit, $areMatched))
-                {
-                    $idMismatches = $this->getMismatchedFields(array_keys($associations), $associations[$cit]['matchedPid'], array($cit));
-
-                    if(!$idMismatches)
-                    {
-                        $authorativePid = $associations[$cit]['matchedPid'];
-                    }
-                    else
-                    {
-                        $histMsg = "ST02 - Mismatch error. Scopus Id "
-                        . $this->$cit . " matches but the following do not: "
-                        . var_export($idMismatches, true);
-
-                        $this->_log->err($histMsg);
-
-                        if(!$this->_inTest)
-                        {
-                            $this->save($histMsg, $this->_insertCollection);
-                        }
-                        else
-                        {
-                            $this->inTestSave($this->$primaryId, 'ST02', $this->$docTypeCode, $this->$aggregationType);
-                        }
-                        return false;
-                    }
-                    break; //Stop processing any further id types
-                }
-            }
-
-            //Fuzzy title matching. Title must be at least 10 chars long and
-            //have a match of better than 80%
-
-            $titleIsFuzzyMatched = $this->fuzzyTitleMatch($authorativePid);
-
-            if((($associations['_title']['status'] == 'UNMATCHED') && $titleIsFuzzyMatched))
-            {
-                $associations['_title']['status'] = 'MATCHED';
-            }
-
-            //If we have either an exact title match (unlikely) or an acceptable
-            //fuzzy title match, proceed to volume and page matching
-            if($associations['_title']['status'] == 'MATCHED')
-            {
-                $localStartPage = Record::getSearchKeyIndexValue($authorativePid, 'Start Page' , false);
-                if(!empty($this->_startPage) && !empty($localStartPage))
-                {
-                    if($this->_startPage == $localStartPage)
-                    {
-                        $associations['_startPage']['status'] = 'MATCHED';
-                    }
-                    else
-                    {
-                        $histMsg = "ST03 - Start page mismatch for '" . $this->_title
-                        . " - Scopus ID: " . $this->$primaryId
-                        . "'. Local start page is: " . $localStartPage
-                        . " . Downloaded start page is: " . $this->_startPage;
-
-                        $this->_log->err($histMsg);
-
-                        if(!$this->_inTest)
-                        {
-                            $this->save($histMsg, $this->_insertCollection);
-                        }
-                        else
-                        {
-                            $this->inTestSave($this->$primaryId, 'ST03', $this->$docTypeCode, $this->$aggregationType);
-                        }
-
-                        return false;
-                    }
-                }
-
-                $localEndPage = Record::getSearchKeyIndexValue($authorativePid, 'End Page', false);
-                if(!empty($this->_endPage) && !empty($localEndPage))
-                {
-                    if($this->_endPage == $localEndPage)
-                    {
-                        $associations['_endPage']['status'] = 'MATCHED';
-                    }
-                    else
-                    {
-                        $histMsg = "ST04 - End page mismatch for '" . $this->_title
-                                . " - Scopus ID " . $this->$primaryId
-                                . "'. Local end page is: " . $localEndPage
-                                . " . Downloaded end page is: " . $this->_endPage;
-
-                        $this->_log->err($histMsg);
-
-                        if(!$this->_inTest)
-                        {
-                            $this->save($histMsg, $this->_insertCollection);
-                        }
-                        else
-                        {
-                            $this->inTestSave($this->$primaryId, 'ST04', $this->$docTypeCode, $this->$aggregationType);
-                        }
-
-                        return false;
-                    }
-                }
-
-                $localVolume = Record::getSearchKeyIndexValue($authorativePid, 'Volume Number' , false);
-                if(!empty($this->_issueVolume) && !empty($localVolume))
-                {
-                    if($this->_issueVolume == $localVolume)
-                    {
-                        $associations['_volume']['status'] = 'MATCHED';
-                    }
-                    else
-                    {
-
-                        $histMsg = "ST05 - Volume mismatch for '" . $this->_title
-                                . " - Scopus ID " . $this->$primaryId
-                                . "'. Local end page is: " . $localVolume
-                                . " . Downloaded end page is: " . $this->_issueVolume;
-
-                        $this->_log->err($histMsg);
-
-                        if(!$this->_inTest)
-                        {
-                            $this->save($histMsg, $this->_insertCollection);
-                        }
-                        else
-                        {
-                            $this->inTestSave($this->$primaryId, 'ST05', $this->$docTypeCode, $this->$aggregationType);
-                        }
-
-                        return false;
-                    }
-                }
-            }
-            elseif($associations['_title']['status'] != 'UNMATCHED')
-            {
-                $associations['_title']['status'] = 'UNCERTAIN';
-
-                $histMsg = "ST06 - Scopus ID: " . $this->$primaryId
-                        . " Downloaded title: '" . $downloadedTitle
-                        . "' FAILED TO MATCH the local title: '" . $localTitle
-                        . "' with a match of only " . $percentageMatch . "%";
-
-                $this->_log->err($histMsg);
-
-                if(!$this->_inTest)
-                {
-                    $this->save($histMsg, $this->_insertCollection);
-                }
-                else
-                {
-                    $this->inTestSave($this->$primaryId, 'ST06', $this->$docTypeCode, $this->$aggregationType);
-                }
-            }
-        }
-        elseif(empty($pidCollection))
-        {
-            //Begin last ditch attempts to match on fuzzy title, DOI and IVP only
-            $fuzzyMatchResult = Record::getPidsByFuzzyTitle($this->getFields());
-
-            if($fuzzyMatchResult['state'])
-            {
-                $fuzzyMatchState = $this->getFuzzySearchStatus($fuzzyMatchResult);
-
-                if(!$this->_inTest)
-                {
-                    $this->save($fuzzyMatchState[0], $this->_insertCollection);
-                }
-                else
-                {
-                    //ST10-2x status
-                    $stCode = preg_replace("/(^ST\d{2})*./", "$1", $fuzzyMatchState[0]);
-                    $this->inTestSave($this->$primaryId, $stCode, $this->$docTypeCode, $this->$aggregationType);
-                    return $fuzzyMatchState;
-                }
-                return 'POSSIBLE MATCH';
-            }
-
-            $histMsg = "ST07 - No matches, saving a new PID for Scopus ID: "
-                    . $this->$primaryId . "'" . $this->_title;
-
-            if(!$this->_inTest)
-            {
-                $this->save($histMsg, $this->_insertCollection);
-            }
-            else
-            {
-                $this->inTestSave($this->$primaryId, 'ST07', $this->$docTypeCode, $this->$aggregationType);
-            }
-
-            return "SAVE";
-
-        }
-        else
-        {
-            $histMsg = "ST08 - Different ids in the same downloaded record are matching up with different pids for Scopus ID: "
-                    . $this->$primaryId . " '" . $this->_title . "'."
-                    .var_export($associations,true);
-
-            $this->_log->err($histMsg);
-
-            if(!$this->_inTest)
-            {
-                $this->save(null, $this->_insertCollection);
-            }
-            else
-            {
-                $this->inTestSave($this->$primaryId, 'ST08', $this->$docTypeCode, $this->$aggregationType);
-            }
-
-            return false;
-        }
-
-        if($authorativePid)
-        {
-            if(!$this->_inTest)
-            {
-                //ST09 - updating
-                $this->update($authorativePid);
-            }
-            else
-            {
-                /*file_put_contents($this->_statsFile, "ST09 - Updating: ".$authorativePid.". Scopus ID: "
-                    . $this->_scopusId . "\n\n", FILE_APPEND);*/
-                $this->inTestSave($this->$primaryId, 'ST09', $this->$docTypeCode, $this->$aggregationType);
-            }
-            return "UPDATE";
-        }
+    // likely used for testing specifics only
+    if (in_array($this->$docTypeCode, $this->_doctypeExceptions)) {
+      return false;
     }
+
+
+
+    //If the Scopus ID matches something that is already in the Scopus
+    //import collection, we need not go any further.
+    if ($this->_inTest) {
+      if (is_file($this->_statsFile)) {
+        $db = new PDO('sqlite:' . $this->_statsFile);
+
+        $query = "SELECT * FROM records WHERE contrib_id = '" . $this->$primaryId . "' LIMIT 1";
+        $res = $db->query($query);
+        $rows = $res->fetchAll(PDO::FETCH_ASSOC);
+
+        if (!empty($rows)) {
+          $query = "UPDATE records SET count = count+1 WHERE contrib_id = '" . $this->$primaryId . "'";
+          $db->query($query);
+
+          return;
+        }
+      }
+    }
+//TODO: don't restrict restrict search to just the scopus import collection, search the entire espace for pids with that scopus id
+//    } else {
+//      //$inImportColl = Record::getPIDsByScopusID($this->_scopusId, true);
+//      $inImportColl = $this->checkImportCollections();
+//      if (!empty($inImportColl)) {
+//        return;
+//      }
+//    }
+
+    //set an idcollection array for pids returned by id type
+    $idCollection = array();
+    $mirrorMirror = new ReflectionClass($this);
+    $associations = array();
+
+    //See what returns a PID
+    foreach ($this->_comparisonIdTypes as $id) {
+      //Check that a method exists for retrieving
+      //a local record by that id type.
+      $retrieverName = 'getPIDsBy' . $id;
+      $retriever = $mirrorMirror->getMethod($retrieverName);
+
+      if ($retriever) {
+        //Run the method and capture the pid(s)
+        $pids = $this->$retrieverName();
+
+        $pidCount = count($pids);
+
+        //if there is only one pid returned
+        if ($pidCount == 1) {
+          $associations[$id]['status'] = 'MATCHED';
+          $associations[$id]['matchedPid'] = $pids[0];
+        } elseif (!$this->$id) {
+          $associations[$id]['status'] = 'EMPTY';
+        } elseif ($pidCount > 1) {
+          $histMsg = "ST01 - "
+            . $this->$primaryId . " matches more than one pid("
+            . implode(',', $pids) . ") based on $retrieverName";
+
+
+          if ($this->_likenAction) {
+            return array('ST01', $histMsg);
+          } elseif (!$this->_inTest) {
+            $this->save($histMsg, $this->_insertCollection);
+          } else {
+            $this->_log->err($histMsg);
+            $this->inTestSave($this->$primaryId, 'ST01',
+              $this->$docTypeCode, $this->$aggregationType);
+          }
+          return false;
+        } else {
+          $associations[$id]['status'] = 'UNMATCHED';
+        }
+      }
+    }
+
+    $authorativePid = false;
+    $pidCollection = array();
+    $areMatched = array();
+    foreach ($associations as $id => $association) {
+      if (array_key_exists('matchedPid', $association)) {
+        if (!is_null($association['matchedPid'])) {
+          $pidCollection[] = $association['matchedPid'];
+        }
+      }
+
+      if ($association['status'] == 'MATCHED') {
+        $areMatched[] = $id;
+      }
+    }
+
+    //See that different ids return the same PID
+    $ctUniq = count(array_unique($pidCollection));
+
+    //If we have a single PID, weed out any remaining fields that did not match and log them.
+    //A pid that matched on Scopus ID is considered most reliable, DOI is next most reliable and so on
+    //so the order of $this->_comparisonIdTypes matters.
+    if ($ctUniq == 1) {
+      for ($i = 0; $i < count($this->_comparisonIdTypes); $i++) {
+        $cit = $this->_comparisonIdTypes[$i];
+        if (in_array($cit, $areMatched)) {
+          $idMismatches = $this->getMismatchedFields(array_keys($associations), $associations[$cit]['matchedPid'], array($cit));
+
+          if (!$idMismatches) {
+            $authorativePid = $associations[$cit]['matchedPid'];
+          } else {
+            $histMsg = "ST02 - Mismatch error. Scopus Id "
+              . $this->$cit . " matches but the following do not: "
+              . var_export($idMismatches, true);
+
+
+            if ($this->_likenAction) {
+              return array('ST02', $histMsg);
+            } elseif (!$this->_inTest) {
+              $this->save($histMsg, $this->_insertCollection);
+            } else {
+              $this->_log->err($histMsg);
+              $this->inTestSave($this->$primaryId, 'ST02', $this->$docTypeCode, $this->$aggregationType);
+            }
+            return false;
+          }
+          break; //Stop processing any further id types
+        }
+      }
+
+      //Fuzzy title matching. Title must be at least 10 chars long and
+      //have a match of better than 80%
+
+      $titleIsFuzzyMatched = $this->fuzzyTitleMatch($authorativePid);
+
+      if ((($associations['_title']['status'] == 'UNMATCHED') && $titleIsFuzzyMatched)) {
+        $associations['_title']['status'] = 'MATCHED';
+      }
+
+      //If we have either an exact title match (unlikely) or an acceptable
+      //fuzzy title match, proceed to volume and page matching
+      if ($associations['_title']['status'] == 'MATCHED') {
+        $localStartPage = Record::getSearchKeyIndexValue($authorativePid, 'Start Page', false);
+        if (!empty($this->_startPage) && !empty($localStartPage)) {
+          if ($this->_startPage == $localStartPage) {
+            $associations['_startPage']['status'] = 'MATCHED';
+          } else {
+            $histMsg = "ST03 - Start page mismatch for '" . $this->_title
+              . " - Scopus ID: " . $this->$primaryId
+              . "'. Local start page is: " . $localStartPage
+              . " . Downloaded start page is: " . $this->_startPage;
+
+
+            if (!$this->_likenAction) {
+              return array('ST03', $histMsg);
+            } elseif (!$this->_inTest) {
+              $this->save($histMsg, $this->_insertCollection);
+            } else {
+              $this->_log->err($histMsg);
+              $this->inTestSave($this->$primaryId, 'ST03', $this->$docTypeCode, $this->$aggregationType);
+            }
+
+            return false;
+          }
+        }
+
+        $localEndPage = Record::getSearchKeyIndexValue($authorativePid, 'End Page', false);
+        if (!empty($this->_endPage) && !empty($localEndPage)) {
+          if ($this->_endPage == $localEndPage) {
+            $associations['_endPage']['status'] = 'MATCHED';
+          } else {
+            $histMsg = "ST04 - End page mismatch for '" . $this->_title
+              . " - Scopus ID " . $this->$primaryId
+              . "'. Local end page is: " . $localEndPage
+              . " . Downloaded end page is: " . $this->_endPage;
+
+
+            if (!$this->_likenAction) {
+              return array('ST04', $histMsg);
+            } elseif (!$this->_inTest) {
+              $this->save($histMsg, $this->_insertCollection);
+            } else {
+              $this->_log->err($histMsg);
+              $this->inTestSave($this->$primaryId, 'ST04', $this->$docTypeCode, $this->$aggregationType);
+            }
+
+            return false;
+          }
+        }
+
+        $localVolume = Record::getSearchKeyIndexValue($authorativePid, 'Volume Number', false);
+        if (!empty($this->_issueVolume) && !empty($localVolume)) {
+          if ($this->_issueVolume == $localVolume) {
+            $associations['_volume']['status'] = 'MATCHED';
+          } else {
+
+            $histMsg = "ST05 - Volume mismatch for '" . $this->_title
+              . " - Scopus ID " . $this->$primaryId
+              . "'. Local end page is: " . $localVolume
+              . " . Downloaded end page is: " . $this->_issueVolume;
+
+
+
+            if (!$this->_likenAction) {
+              return array('ST05', $histMsg);
+            } elseif (!$this->_inTest) {
+              $this->save($histMsg, $this->_insertCollection);
+            } else {
+              $this->_log->err($histMsg);
+              $this->inTestSave($this->$primaryId, 'ST05', $this->$docTypeCode, $this->$aggregationType);
+            }
+
+            return false;
+          }
+        }
+      } elseif ($associations['_title']['status'] != 'UNMATCHED') {
+        $associations['_title']['status'] = 'UNCERTAIN';
+
+        $histMsg = "ST06 - Scopus ID: " . $this->$primaryId
+          . " Downloaded title: '" . $this->downloadedTitle
+          . "' FAILED TO MATCH the local title: '" . $this->localTitle
+          . "' with a match of only " . $this->percentageMatch . "%";
+
+        if (!$this->_likenAction) {
+          return array('ST06', $histMsg);
+        } elseif (!$this->_inTest) {
+          $this->save($histMsg, $this->_insertCollection);
+        } else {
+          $this->_log->err($histMsg);
+          $this->inTestSave($this->$primaryId, 'ST06', $this->$docTypeCode, $this->$aggregationType);
+        }
+      }
+    } elseif (empty($pidCollection)) {
+      //Begin last ditch attempts to match on fuzzy title, DOI and IVP only
+      $fuzzyMatchResult = Record::getPidsByFuzzyTitle($this->getFields());
+
+      if ($fuzzyMatchResult['state']) {
+        $fuzzyMatchState = $this->getFuzzySearchStatus($fuzzyMatchResult);
+
+        $stCode = preg_replace("/(^ST\d{2})*./", "$1", $fuzzyMatchState[0]);
+        $histMsg = $fuzzyMatchState[0];
+        if (!$this->_likenAction) {
+          return array($stCode, $histMsg);
+        } elseif (!$this->_inTest) {
+          $this->save($fuzzyMatchState[0], $this->_insertCollection);
+        } else {
+          //ST10-2x status
+          $this->inTestSave($this->$primaryId, $stCode, $this->$docTypeCode, $this->$aggregationType);
+          return $fuzzyMatchState;
+        }
+        return 'POSSIBLE MATCH';
+      }
+
+      $histMsg = "ST07 - No matches, saving a new PID for Scopus ID: "
+        . $this->$primaryId . "'" . $this->_title;
+
+      if (!$this->_likenAction) {
+        return array('ST07', $histMsg);
+      } elseif (!$this->_inTest) {
+        $this->save($histMsg, $this->_insertCollection);
+      } else {
+        $this->inTestSave($this->$primaryId, 'ST07', $this->$docTypeCode, $this->$aggregationType);
+      }
+
+      return "SAVE";
+
+    } else {
+      $histMsg = "ST08 - Different ids in the same downloaded record are matching up with different pids for Scopus ID: "
+        . $this->$primaryId . " '" . $this->_title . "'."
+        . var_export($associations, true);
+
+
+
+      if (!$this->_likenAction) {
+        return array('ST08', $histMsg);
+      } elseif (!$this->_inTest) {
+        $this->save(null, $this->_insertCollection);
+      } else {
+        $this->_log->err($histMsg);
+        $this->inTestSave($this->$primaryId, 'ST08', $this->$docTypeCode, $this->$aggregationType);
+      }
+
+      return false;
+    }
+
+    if ($authorativePid) {
+      if (!$this->_likenAction) {
+        return array('ST09', $histMsg);
+      } elseif (!$this->_inTest) {
+        //ST09 - updating
+        $this->update($authorativePid);
+      } else {
+        /*file_put_contents($this->_statsFile, "ST09 - Updating: ".$authorativePid.". Scopus ID: "
+            . $this->_scopusId . "\n\n", FILE_APPEND);*/
+        $this->inTestSave($this->$primaryId, 'ST09', $this->$docTypeCode, $this->$aggregationType);
+      }
+      return "UPDATE";
+    }
+  }
 
     /**
      * Compare values of local fields with the values of fields

@@ -3624,7 +3624,6 @@ class Record
     $db = DB_API::get();
 
     $dbtp =  APP_TABLE_PREFIX; // Database and table prefix
-    $prev_count;
 
       // Get the eid
       $stmt = "SELECT
@@ -3756,22 +3755,22 @@ class Record
       $state = 0;
 
       $queryMap = array(
-      	'doi' => "AND PREG_REPLACE('/[^0-9]/', '', doi.rek_doi) = PREG_REPLACE('/[^0-9]/', '','" . $fields['_doi'] . "') ",
+      	'doi' => "AND doi.rek_doi = '" . $fields['_doi'] . "' ",
       	'spage' => "AND PREG_REPLACE('/[^0-9]/', '', startp.rek_start_page) = PREG_REPLACE('/[^0-9]/', '', '" . $fields['_startPage'] . "') ",
       	'volume' => "AND PREG_REPLACE('/[^0-9]/', '', volume.rek_volume_number) = PREG_REPLACE('/[^0-9]/', '', '" . $fields['_issueVolume'] . "') ",
       	'issue' => "AND PREG_REPLACE('/[^0-9]/', '', issue.rek_issue_number) = PREG_REPLACE('/[^0-9]/', '', '" . $fields['_issueNumber'] . "') ",
       	'epage' => "AND PREG_REPLACE('/[^0-9]/', '', endp.rek_end_page) = PREG_REPLACE('/[^0-9]/', '', '" . $fields['_endPage'] . "') "
       );
 
-      $excludeCollections = "AND (rek_ismemberof NOT IN('".APP_SCOPUS_IMPORT_COLLECTION."', '".APP_TEMPORARY_DUPLICATES_COLLECTION."') OR rek_ismemberof IS NULL)";
+
 
       $searchSets = array();
-      $searchSets[1] = array('doi', 'spage', 'volume', 'issue', 'epage');
-      $searchSets[2] = array('doi', 'spage', 'volume', 'issue');
-      $searchSets[3] = array('spage', 'volume', 'issue', 'epage');
-      $searchSets[4] = array('doi', 'spage', 'volume');
+      $searchSets[1] = array('doi', 'spage', 'volume', 'issue', 'epage'); //ST10/11
+      $searchSets[2] = array('doi', 'spage', 'volume', 'issue'); //ST12/13
+      $searchSets[3] = array('spage', 'volume', 'issue', 'epage'); //ST14/15
+      $searchSets[4] = array('doi', 'spage', 'volume'); //ST16/17
       $searchSets[5] = array('doi', 'spage', 'issue');
-      $searchSets[6] = array('spage', 'volume', 'issue');
+      $searchSets[6] = array('spage', 'volume', 'issue'); //ST21/22
       $searchSets[7] = array('doi', 'spage');
       $searchSets[8] = array('doi');
 
@@ -3785,8 +3784,7 @@ class Record
       . "LEFT JOIN ".$dbtp."record_search_key_start_page startp ON sk.rek_pid = startp.rek_start_page_pid "
       . "LEFT JOIN ".$dbtp."record_search_key_end_page endp ON sk.rek_pid = endp.rek_end_page_pid "
       . "LEFT JOIN ".$dbtp."record_search_key_volume_number volume ON sk.rek_pid = volume.rek_volume_number_pid "
-      . "LEFT JOIN ".$dbtp."record_search_key_issue_number issue on sk.rek_pid = issue.rek_issue_number_pid "
-      . "LEFT JOIN ".$dbtp."record_search_key_ismemberof ON sk.rek_pid = rek_ismemberof_pid ";
+      . "LEFT JOIN ".$dbtp."record_search_key_issue_number issue on sk.rek_pid = issue.rek_issue_number_pid ";
 
       $ct = 0;
 
@@ -3803,7 +3801,7 @@ class Record
 
           try
           {
-              $stmt = $db->query($sql.$excludeCollections);
+              $stmt = $db->query($sql);
               $res = $stmt->fetchAll();
               $state = (!empty($res)) ? $ssKey : $state;
           }
@@ -3821,7 +3819,7 @@ class Record
       {
           try
           {
-              $stmt = $db->query($sqlPre . $fuzzyTitle . $excludeCollections);
+              $stmt = $db->query($sqlPre . $fuzzyTitle);
               $res = $stmt->fetchAll();
               $state = (!empty($res)) ? 9 : $state;
           }
@@ -3849,7 +3847,7 @@ class Record
 
           try
           {
-              $stmt = $db->query($sql.$excludeCollections);
+              $stmt = $db->query($sql);
               $res = $stmt->fetchAll();
               $state = (!empty($res)) ? 10 : $state;
           }
@@ -3876,10 +3874,7 @@ class Record
       $pids = null;
 
       $sql = "SELECT DISTINCT rek_doi_pid FROM ".$dbtp."record_search_key_doi "
-            . "LEFT JOIN ".$dbtp."record_search_key_ismemberof "
-            . "ON rek_doi_pid = rek_ismemberof_pid "
-            . "WHERE rek_doi = ? "
-            . "AND (rek_ismemberof NOT IN('".APP_SCOPUS_IMPORT_COLLECTION."', '".APP_TEMPORARY_DUPLICATES_COLLECTION."') OR rek_ismemberof IS NULL)";
+            . "WHERE rek_doi = ? ";
 
       try
       {
@@ -3908,10 +3903,7 @@ class Record
       $pids = null;
 
       $sql = "SELECT DISTINCT rek_pubmed_id_pid FROM ".$dbtp."record_search_key_pubmed_id "
-      . "LEFT JOIN ".$dbtp."record_search_key_ismemberof "
-      . "ON rek_pubmed_id_pid = rek_ismemberof_pid "
-      . "WHERE rek_pubmed_id = ? "
-      . "AND (rek_ismemberof NOT IN('".APP_SCOPUS_IMPORT_COLLECTION."', '".APP_TEMPORARY_DUPLICATES_COLLECTION."') OR rek_ismemberof IS NULL)";
+      . "WHERE rek_pubmed_id = ? ";
 
       try
       {
@@ -3940,10 +3932,7 @@ class Record
       $pids = null;
 
       $sql = "SELECT DISTINCT rek_pid FROM ".$dbtp."record_search_key "
-      	    . "LEFT JOIN ".$dbtp."record_search_key_ismemberof "
-            . "ON rek_pid = rek_ismemberof_pid "
-            . "WHERE rek_title = ? "
-            . "AND (rek_ismemberof NOT IN('".APP_SCOPUS_IMPORT_COLLECTION."', '".APP_TEMPORARY_DUPLICATES_COLLECTION."') OR rek_ismemberof IS NULL)";
+            . "WHERE rek_title = ? ";
 
       try
       {
@@ -3985,10 +3974,8 @@ class Record
           {
               $sql = "SELECT DISTINCT rek_scopus_id_pid FROM "
                 .$dbtp."record_search_key_scopus_id "
-                ."LEFT JOIN ".$dbtp."record_search_key_ismemberof "
-                ."ON rek_scopus_id_pid = rek_ismemberof_pid "
-                ."WHERE rek_scopus_id = ? "
-                ."AND rek_ismemberof IN ('".APP_SCOPUS_IMPORT_COLLECTION."', '".APP_TEMPORARY_DUPLICATES_COLLECTION."')";
+                ."WHERE rek_scopus_id = ? ";
+
           }
           else
           {

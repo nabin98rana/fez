@@ -257,55 +257,52 @@ class ScopusRecItem extends RecordImport
     * Map a log message to a second stage dedupe status code (ie ST10+)
     * @param array $searchData
     */
-    public function getFuzzySearchStatus(array $searchData)
-    {
-        $statusMessages = array(
-        1 => 'ST10 - Matched on fuzzy title, DOI, start page, end page, issue, volume. Scopus ID in the downloaded record was %s. Scopus ID in the local record was null.',
-        101 => 'ST11 - Matched on fuzzy title, DOI, start page, end page, issue, volume. Scopus ID in the downloaded record was %s. Scopus ID in the local record was %s.',
-        2 => 'ST12 - Matched on fuzzy title, DOI, start page, end page, volume and issue. Scopus ID in the downloaded record was %s. Scopus ID in the local record was null',
-        102 => 'ST13 - Matched on fuzzy title, DOI, start page, end page, volume and issue. Scopus ID in the downloaded record was %s. Scopus ID in the local record was %s',
-        3 => 'ST14 - Matched on fuzzy title, start page, end page, volume and issue. Scopus ID in the downloaded record was %s. Scopus ID in the local record was null',
-        103 => 'ST15 - Matched on fuzzy title, start page, end page, volume and issue. Scopus ID in the downloaded record was %s. Scopus ID in the local record was %s',
-        4 => 'ST16 - Matched on fuzzy title, DOI, start page and volume. Scopus ID in the downloaded record was %s. Scopus ID in the local record was null',
-        104 => 'ST17 - Matched on fuzzy title, DOI, start page and volume. Scopus ID in the downloaded record was %s. Scopus ID in the local record was %s',
-        5 => 'ST18 - Matched on fuzzy title, DOI, start page issue. Scopus ID in the downloaded record was %s. Scopus ID in the local record was null',
-        105 => 'ST19 - Matched on fuzzy title, DOI, start page issue. Scopus ID in the downloaded record was %s. Scopus ID in the local record was %s',
-        6 => 'ST20 - Matched on fuzzy title, start page volume and issue. Scopus ID in the downloaded record was %s. Scopus ID in the local record was null',
-        106 => 'ST21 - Matched on fuzzy title, start page volume and issue. Scopus ID in the downloaded record was %s. Scopus ID in the local record was %s',
-        7 => 'ST22 - Matched on fuzzy title, DOI and start page. Scopus ID in the downloaded record was %s. Scopus ID in the local record was null.',
-        107 => 'ST23 - Matched on fuzzy title, DOI and start page. Scopus ID in the downloaded record was %s. Scopus ID in the local record was %s.',
-        8 => 'ST24 - Matched on fuzzy title, DOI. Scopus ID in the downloaded record was %s. Scopus ID in the local record was null.',
-        108 => 'ST25 - Matched on fuzzy title, DOI. Scopus ID in the downloaded record was %s. Scopus ID in the local record was %s.',
-        9 => 'ST26 - Matched on fuzzy title. Scopus ID in the downloaded record was %s. Scopus ID in the local record was null.',
-        109 => 'ST27 - Matched on fuzzy title. Scopus ID in the downloaded record was %s. Scopus ID in the local record was %s.',
-        10 => 'ST28 - Matched on DOI, start page, end page, issue, volume. Scopus ID in the downloaded record was %s. Scopus ID in the local record was null.',
-        110 => 'ST29 - Matched on DOI, start page, end page, issue, volume. Scopus ID in the downloaded record was %s. Scopus ID in the local record was %s.',
-        );
+  public function getFuzzySearchStatus(array $searchData)
+  {
+    $statusMessages = array(
+      1 => 'ST10 - Matched on fuzzy title, DOI, start page, end page, issue, volume. Scopus ID in the downloaded record was %s. Scopus ID in the local record was null.',
+      101 => 'ST11 - Matched on fuzzy title, DOI, start page, end page, issue, volume. Scopus ID in the downloaded record was %s. Scopus ID in the local record was %s.',
+      2 => 'ST12 - Matched on fuzzy title, DOI, start page, end page, volume and issue. Scopus ID in the downloaded record was %s. Scopus ID in the local record was null',
+      102 => 'ST13 - Matched on fuzzy title, DOI, start page, end page, volume and issue. Scopus ID in the downloaded record was %s. Scopus ID in the local record was %s',
+      3 => 'ST14 - Matched on fuzzy title, start page, end page, volume and issue. Scopus ID in the downloaded record was %s. Scopus ID in the local record was null',
+      103 => 'ST15 - Matched on fuzzy title, start page, end page, volume and issue. Scopus ID in the downloaded record was %s. Scopus ID in the local record was %s',
+      4 => 'ST16 - Matched on fuzzy title, DOI, start page and volume. Scopus ID in the downloaded record was %s. Scopus ID in the local record was null',
+      104 => 'ST17 - Matched on fuzzy title, DOI, start page and volume. Scopus ID in the downloaded record was %s. Scopus ID in the local record was %s',
+      5 => 'ST18 - Matched on fuzzy title, DOI, start page issue. Scopus ID in the downloaded record was %s. Scopus ID in the local record was null',
+      105 => 'ST19 - Matched on fuzzy title, DOI, start page issue. Scopus ID in the downloaded record was %s. Scopus ID in the local record was %s',
+      6 => 'ST20 - Matched on fuzzy title, start page volume and issue. Scopus ID in the downloaded record was %s. Scopus ID in the local record was null',
+      106 => 'ST21 - Matched on fuzzy title, start page volume and issue. Scopus ID in the downloaded record was %s. Scopus ID in the local record was %s',
+      7 => 'ST22 - Matched on fuzzy title, DOI and start page. Scopus ID in the downloaded record was %s. Scopus ID in the local record was null.',
+      107 => 'ST23 - Matched on fuzzy title, DOI and start page. Scopus ID in the downloaded record was %s. Scopus ID in the local record was %s.',
+      8 => 'ST24 - Matched on fuzzy title, DOI. Scopus ID in the downloaded record was %s. Scopus ID in the local record was null.',
+      108 => 'ST25 - Matched on fuzzy title, DOI. Scopus ID in the downloaded record was %s. Scopus ID in the local record was %s.',
+      9 => 'ST26 - Matched on fuzzy title. Scopus ID in the downloaded record was %s. Scopus ID in the local record was null.',
+      109 => 'ST27 - Matched on fuzzy title. Scopus ID in the downloaded record was %s. Scopus ID in the local record was %s.',
+      10 => 'ST28 - Matched on DOI, start page, end page, issue, volume. Scopus ID in the downloaded record was %s. Scopus ID in the local record was null.',
+      110 => 'ST29 - Matched on DOI, start page, end page, issue, volume. Scopus ID in the downloaded record was %s. Scopus ID in the local record was %s.',
+    );
 
-        $statuses = array();
+    $statuses = array();
 
-        $scopusIdDL = ($this->_scopusId) ? $this->_scopusId : 'empty';
+    $scopusIdDL = ($this->_scopusId) ? $this->_scopusId : 'empty';
 
-        foreach($searchData['data'] as $localRecord)
-        {
-            $scopusIdLocal = (preg_match("/2\-s2\.0\-\d+/", $localRecord['rek_scopus_id'])) ? $localRecord['rek_scopus_id'] : 'empty';
+    foreach ($searchData['data'] as $localRecord) {
+        $scopusIdLocal = (preg_match("/2\-s2\.0\-\d+/", $localRecord['rek_scopus_id'])) ? $localRecord['rek_scopus_id'] : 'empty';
 
-            if(is_null($localRecord['rek_scopus_id'])
-                || strtolower($localRecord['rek_scopus_id']) == 'null'
-                || !preg_match("/2\-s2\.0\-\d+/", $localRecord['rek_scopus_id']))
-            {
-                $statusMessage = sprintf($statusMessages[$searchData['state']], $scopusIdDL);
-            }
-            else
-            {
-                $statusMessage = sprintf($statusMessages[$searchData['state']+100], $scopusIdDL, $scopusIdLocal);
-            }
+      if (is_null($localRecord['rek_scopus_id'])
+        || strtolower($localRecord['rek_scopus_id']) == 'null'
+        || !preg_match("/2\-s2\.0\-\d+/", $localRecord['rek_scopus_id'])
+      ) {
+        $statusMessage = sprintf($statusMessages[$searchData['state']], $scopusIdDL);
+      } else {
+        $statusMessage = sprintf($statusMessages[$searchData['state'] + 100], $scopusIdDL, $scopusIdLocal);
+      }
 
-            $statuses[] = $statusMessage . " Pid matched: " . $localRecord['rek_pid'];
-        }
-
-        return $statuses;
+      $statuses[] = $statusMessage . " Pid matched: " . $localRecord['rek_pid'];
     }
+
+    return $statuses;
+  }
 
     /**
     * Check to see if a record already resides in a import collection
