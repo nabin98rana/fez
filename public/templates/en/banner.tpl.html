@@ -1,5 +1,5 @@
 <body id="bodyElement">
-
+{if $editorCondensedView != 'yes'}
     <!--START: For Accessibility -->
     <p><a href="#title" class="skip" accesskey="2">skip nav</a></p>
     <!--END: For Accessibility -->
@@ -67,7 +67,30 @@
 
         </div>
     </div>
+{else}
+<div class="editor-condensed-view">
+    <div class="editor-condensed-view-inner">
+        <span>
+            {$app_name}:&nbsp;
+            <span>
+                <form  method="get" action="{$rel_url}list/">
+                    <fieldset>
+                        <input size="100" type="text" value="{$previousSearch}" name="search_keys[0]" tabindex="1" />
+                        <input  name="submit" title="Search {$app_name}" type="submit" value='' style="position: absolute; left: -9999px" /> {*Push off the screen*}
+                        <input type="hidden" name="cat" value="quick_filter" />
+                        <input type="hidden" name="sort_by" value="searchKey0" />
+                    </fieldset>
+                </form>
+            </span>
+            <span class="float-right" >
+                    You are logged in as <b>{$current_full_name}</b>
+                    <a href="{$rel_url}logout.php" class="logout-btn" style="float: none; display: inline-block; "><span class="login-btn-text">LOGOUT</span><span class="login-btn-right"></span></a>
 
+            </span>
+        </span>
+    </div>
+</div>
+{/if}
     <div id="topnav">
         <div id="topnav-inner">
             <ul>

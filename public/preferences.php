@@ -58,6 +58,8 @@ if (Auth::userExists($username)) { // if the user is registered as a Fez user
 	Auth::redirect(APP_RELATIVE_URL);
 }
 $tpl->assign("isAdministrator", $isAdministrator);
+$isUPO = User::isUserUPO($isUser);
+$tpl->assign("isUPO", $isUPO);
 
 $mypub_url = @$_POST["mypub_url"];
 

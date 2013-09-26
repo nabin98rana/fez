@@ -313,6 +313,21 @@ function validateAuthorIdentifiers(f)
 			  <span style="font-size: 10px;">Remember your search parameters each time you go to the advanced search form.</span>
           </td>
         </tr>
+         {if $isAdministrator || $isUPO || $user_prefs.editor_condensed_view == 'yes'}
+        <tr>
+            <td style="width: 190px; background: {$cell_color};">
+                <b>Condensed view for editors (Beta):</b>
+            </td>
+            <td style="background: $light_color};">
+                <select class="default" name="editor_condensed_view">
+                    <option label="No" value="no" {if $user_prefs.editor_condensed_view == 'no'}selected="selected"{/if}>No</option>
+                    <option label="Yes" value="yes" {if $user_prefs.editor_condensed_view == 'yes'}selected="selected"{/if}>Yes</option>
+                </select>
+                <br />
+                <span style="font-size: 10px;">An alternate eSpace style for editors and admin to maximise space, subject to change</span>
+            </td>
+        </tr>
+          {/if}
         <tr>
           <td colspan="2" style="background: {$cell_color}; text-align: center;">
             <input class="button" type="submit" value="Update Preferences" />

@@ -324,20 +324,6 @@ p.centenary { padding: 16px 0 0 0; }
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 .invisible {
     display: none;
     visibility: hidden;
@@ -2709,4 +2695,28 @@ table.adminManageList{
   background-image: -o-linear-gradient(top,#f8f8f8,#d9d9d9);
   background-image: -ms-linear-gradient(top,#f8f8f8,#d9d9d9);
   background-image: linear-gradient(top,#f8f8f8,#d9d9d9);
+}
+
+.editor-condensed-view {
+    font-family: Helvetica, "Trebuchet MS", sans-serif;
+    font-size: 9pt;
+    width: 100%;
+    background-color:#8431A4;
+    color: whitesmoke;
+    margin: 0px auto;
+    display: inline-block;
+    padding: 3px 0px
+}
+
+.editor-condensed-view form {
+    display: inline-block;
+}
+.editor-condensed-view-inner {
+    padding: 0pt;
+    width: 1200px;
+    margin: 0pt auto;
+}
+
+.editor-condensed-view-inner input {
+    margin-top: 0px;
 }
