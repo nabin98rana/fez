@@ -39,6 +39,7 @@ include_once(APP_INC_PATH . "class.mail.php");
 include_once(APP_INC_PATH . "class.xsd_display.php");
 include_once(APP_INC_PATH . "class.datastream.php");
 include_once(APP_INC_PATH . "class.workflow_trigger.php");
+include_once(APP_INC_PATH . "class.page.php");
 
 /**
  * MyResearch
@@ -96,6 +97,12 @@ class MyResearch
         $tpl->assign("jqueryUI", true);
         $tpl->assign("jquery", true);
         $tpl->assign('isApprover', $_SESSION['auth_is_approver']);
+
+        //We allow admins to edit this page header, if it exits
+        $page = Page::getPage('my-research-header');
+        $zf = new Fez_Filter_RichTextHtmlpurifyWithLinks();
+        $page = $zf->filter($page);
+        $tpl->assign("headerContent", $page['content']);
 
         // Some text will be presented slightly differently to the user if they also have edited something.
         $tpl->assign("is_editor", Author::isAuthorAlsoAnEditor($author_id));

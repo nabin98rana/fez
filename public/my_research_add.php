@@ -53,6 +53,12 @@ if (APP_MY_RESEARCH_MODULE != 'ON') {
 $tpl = new Template_API();
 $tpl->setTemplate("myresearch/index.tpl.html");
 
+//We allow admins to edit this page header, if it exits
+$page = Page::getPage('my-research-header');
+$zf = new Fez_Filter_RichTextHtmlpurifyWithLinks();
+$page = $zf->filter($page);
+$tpl->assign("headerContent", $page['content']);
+
 Auth::checkAuthentication(APP_SESSION, $_SERVER['PHP_SELF']."?".$_SERVER['QUERY_STRING']);
 $username = Auth::getUsername();
 $actingUser = Auth::getActingUsername();

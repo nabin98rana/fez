@@ -82,6 +82,12 @@ if (!isset($_SESSION['my_researcher_aou'])) {
 }
 $currentAOU = $_SESSION['my_researcher_aou'];
 
+//We allow admins to edit this page header, if it exits
+$page = Page::getPage('my-research-header');
+$zf = new Fez_Filter_RichTextHtmlpurifyWithLinks();
+$page = $zf->filter($page);
+$tpl->assign("headerContent", $page['content']);
+
 $tpl->assign("type", "upo");
 
 $tpl->assign("isUser", $isUser);
