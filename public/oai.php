@@ -73,30 +73,6 @@ if (!empty($custom_view_pid)) {
 	}
 }
 
-// For Picture Australia feeds filter to only show Image / Diglib Image / Photograph objects
-if ($metadataPrefix == "pa") {
-	$digilib_image_xdis_id = XSD_Display::getXDIS_IDByTitle("Digilib Image");
-	$image_xdis_id = XSD_Display::getXDIS_IDByTitle("Image");
-	$photograph_xdis_id = XSD_Display::getXDIS_IDByTitle("Photograph");
-	if (is_numeric($digilib_image_xdis_id)) {
-		$filter["searchKey".Search_Key::getID("Display Type")][] = $digilib_image_xdis_id;
-	}
-	if (is_numeric($image_xdis_id)) {
-		$filter["searchKey".Search_Key::getID("Display Type")][] = $image_xdis_id;
-	}
-	if (is_numeric($photograph_xdis_id)) {
-		$filter["searchKey".Search_Key::getID("Display Type")][] = $photograph_xdis_id;
-	}
-}
-
-// For ANDS feeds, filter to only show Data Collection objects - will move this from hardcoded to admin menu at some stage
-if ($metadataPrefix == "rif") {
-	$data_collection_xdis_id = XSD_Display::getXDIS_IDByTitle("Data Collection");
-	if (is_numeric($data_collection_xdis_id)) {
-		$filter["searchKey".Search_Key::getID("Display Type")][] = $data_collection_xdis_id;
-	}
-}
-
 /*$test = base64_decode("Jm1ldGFkYXRhUHJlZml4PW9haV9kYw==");
 $test = ltrim($test, "&");
 $test = Misc::parse_str_ext($test);
@@ -206,6 +182,31 @@ if ($resumptionToken != "") {
 		}
 	}
 }
+
+// For Picture Australia feeds filter to only show Image / Diglib Image / Photograph objects
+if ($metadataPrefix == "pa") {
+  $digilib_image_xdis_id = XSD_Display::getXDIS_IDByTitle("Digilib Image");
+  $image_xdis_id = XSD_Display::getXDIS_IDByTitle("Image");
+  $photograph_xdis_id = XSD_Display::getXDIS_IDByTitle("Photograph");
+  if (is_numeric($digilib_image_xdis_id)) {
+    $filter["searchKey".Search_Key::getID("Display Type")][] = $digilib_image_xdis_id;
+  }
+  if (is_numeric($image_xdis_id)) {
+    $filter["searchKey".Search_Key::getID("Display Type")][] = $image_xdis_id;
+  }
+  if (is_numeric($photograph_xdis_id)) {
+    $filter["searchKey".Search_Key::getID("Display Type")][] = $photograph_xdis_id;
+  }
+}
+
+// For ANDS feeds, filter to only show Data Collection objects - will move this from hardcoded to admin menu at some stage
+if ($metadataPrefix == "rif") {
+  $data_collection_xdis_id = XSD_Display::getXDIS_IDByTitle("Data Collection");
+  if (is_numeric($data_collection_xdis_id)) {
+    $filter["searchKey".Search_Key::getID("Display Type")][] = $data_collection_xdis_id;
+  }
+}
+
 //echo $resumptionToken;
 //exit;
 $collection_pid = "";
