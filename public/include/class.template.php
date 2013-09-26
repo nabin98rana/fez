@@ -259,6 +259,11 @@ class Template_API
 		$this->assign("isAdministrator", $isAdministrator);
 		$canMasquerade = Masquerade::canUserMasquerade($username);
 		$this->assign("canMasquerade", $canMasquerade);
+        $prefs = Prefs::get(Auth::getUserID());
+        if (isset($prefs['editor_condensed_view'])) {
+            $this->assign("editorCondensedView", $prefs['editor_condensed_view']);
+        }
+
 
 		$custom_view_pid = (isset($_GET['custom_view_pid'])) ? $_GET['custom_view_pid'] : null;
 		if (!empty($custom_view_pid)) {

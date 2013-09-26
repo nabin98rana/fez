@@ -168,6 +168,7 @@ class Prefs
             'email_signature'         => @$_POST['signature'],
             'front_page'              => @$_POST['front_page'],
             'auto_append_sig'         => @$_POST['auto_append_sig'],
+            'editor_condensed_view'   => @$_POST['editor_condensed_view'],
 			'remember_search_params'  => @$_POST['remember_search_params']
 		));
 		$stmt = "UPDATE

@@ -1008,6 +1008,7 @@ class Lister
       $tpl->assign("q", $q);
 
       $tpl->assign("list_type", "all_records_list");
+      $tpl->assign("previousSearch", $params['search_keys'][0]);
     } else {
       $tpl->assign("list_type", "community_list");
       $tpl->assign("list_heading", "List of Communities");
