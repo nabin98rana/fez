@@ -371,7 +371,7 @@ function loadPreview(pid,datastreamID, alt, origami)
                                         {/if}
                                     </td>
                                     <td>
-                                        {$datastreams[d].MIMEType}
+                                        {$datastreams[d].MIMEType|truncate:27}
                                     </td>
                                     <td>
                                         {$datastreams[d].archival_size}
