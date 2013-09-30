@@ -2713,10 +2713,22 @@ table.adminManageList{
 }
 .editor-condensed-view-inner {
     padding: 0pt;
-    width: 1200px;
+    width: 1100px;
     margin: 0pt auto;
 }
 
 .editor-condensed-view-inner input {
     margin-top: 0px;
+}
+
+.editor-condensed-view-inner a:visited, .editor-condensed-view-inner a:link{
+    color: #FFFFFF;
+}
+
+.addthis_button_tweet {
+    width:83px !important;
+}
+
+.addthis_pill_style {
+    padding-left: 10px;
 }

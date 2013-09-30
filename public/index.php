@@ -113,12 +113,13 @@ if ((@$_SESSION[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-TargetedID'] != "" || @$_S
 	if (!$noemptyVal->isValid($_POST["passwd"])) {
 		Auth::redirect(APP_RELATIVE_URL . "login.php?err=2&username=" . $_POST["username"]);
 	}
-	// check if the password matches
-	// This method can also check via LDAP
+
 	if ($masquerade != '' && User::isUserSuperAdministrator($_POST["username"])) {
 		Auth::redirect(APP_RELATIVE_URL . "login.php?err=30&username=" . $_POST["username"]);
 	}
 
+    // check if the password matches
+    // This method can also check via LDAP
 	if (!Auth::isCorrectPassword($_POST["username"], $_POST["passwd"])) {
         Auth::redirect(APP_RELATIVE_URL . "login.php?err=3&username=" . $_POST["username"].'&url='.base64_encode($_POST["url"]));
 	}
@@ -153,6 +154,10 @@ if ($aliasResult == false) {
     $tpl = new Template_API();
     //flush header first so browser can start rendering css/images/js quickly
     $tpl->setTemplate('header.tpl.html');
+
+    $metaDescription = APP_NAME." operates as an institutional repository for open access publications and other digitised materials created by the University such as print materials, photographs, audio materials, videos,
+     manuscripts and other original work.";
+    $tpl->assign("meta_description", $metaDescription);
     $tpl->assign("isHomePage", "true");
     $tpl->assign("active_nav", "home");
     $tpl->assign("extra_title", "Home");

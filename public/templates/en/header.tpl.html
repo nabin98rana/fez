@@ -6,7 +6,10 @@
 {if $smarty.const.APP_ADDTHIS_SWITCH == 'ON'}
     <link rel="dns-prefetch" href="//s7.addthis.com">
 {/if}
+<link rel="dns-prefetch" href="//d1bxh8uas1mnw7.cloudfront.net">
+
 <title>{if $extra_title != ""}{$extra_title} - {elseif $list_heading != ""}{$list_heading} - {/if}{$application_title}</title>
+{if $meta_description}<meta name="Description" content="{$meta_description}"/>{/if}
 
 {*This is to find javascript errors and put them into a variable for testing *}
 <script type="text/javascript">

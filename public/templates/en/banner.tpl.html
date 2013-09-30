@@ -70,9 +70,7 @@
 {else}
 <div class="editor-condensed-view">
     <div class="editor-condensed-view-inner">
-        <span>
-            {$app_name}:&nbsp;
-            <span>
+        <a href="{$rel_url}">{$app_name}</a>:&nbsp;
                 <form  method="get" action="{$rel_url}list/">
                     <fieldset>
                         <input size="100" type="text" value="{$previousSearch}" name="search_keys[0]" tabindex="1" />
@@ -81,13 +79,11 @@
                         <input type="hidden" name="sort_by" value="searchKey0" />
                     </fieldset>
                 </form>
-            </span>
             <span class="float-right" >
                     You are logged in as <b>{$current_full_name}</b>
                     <a href="{$rel_url}logout.php" class="logout-btn" style="float: none; display: inline-block; "><span class="login-btn-text">LOGOUT</span><span class="login-btn-right"></span></a>
 
             </span>
-        </span>
     </div>
 </div>
 {/if}

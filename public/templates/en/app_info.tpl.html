@@ -86,5 +86,5 @@
 	</div>
 </div>
 {else}
-    <div class="editor-condensed-view text-center" style=" bottom: 0;">Page generated in <!--fez:totaltime-->{$benchmark_total}<!--/fez:totaltime--> seconds {if $solr_query_time}({section name="i" loop=$solr_query_time}{if $isAdministrator || true}<a href="{$solr_query_string[i]}">{/if}{$solr_query_time[i]} ms{if $isAdministrator}</a>{/if} {/section}search){/if} {if $total_queries}({$total_queries} queries{if $total_elapsed_secs} taking {$total_elapsed_secs} seconds{/if}){/if} on {$generated_time}</div>
+    <div class="editor-condensed-view text-center" >Page generated in <!--fez:totaltime-->{$benchmark_total}<!--/fez:totaltime--> seconds {if $solr_query_time}({section name="i" loop=$solr_query_time}{if $isAdministrator || true}<a href="{$solr_query_string[i]}">{/if}{$solr_query_time[i]} ms{if $isAdministrator}</a>{/if} {/section}search){/if} {if $total_queries}({$total_queries} queries{if $total_elapsed_secs} taking {$total_elapsed_secs} seconds{/if}){/if} on {$generated_time}</div>
 {/if}
