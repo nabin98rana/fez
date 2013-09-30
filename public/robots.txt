@@ -8,6 +8,8 @@ Disallow: /adv_search.php
 Disallow: /list.php
 
 Disallow: /list/
+Disallow: /community/
+Disallow: /collection/
 Disallow: /js/
 Disallow: /css/
 Disallow: /flviewer/
