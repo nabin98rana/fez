@@ -18,6 +18,9 @@ Feature: Test that Thesis upload correctly. @bug it can't check the swf uploader
     And I turn on waiting checks
     And I fill in "Thesis Title" with "Thesis Test Name 2012"
     And I fill in "Author 1" with "Thesis Test Writer Name"
+    And I fill in "Supervisor 1" with "Thesis Test supervisor Name"
+    And I fill in "School, Centre or Institute" with "Test School"
+    And I select "Honours Thesis" from "Thesis type"
     And I check "Copyright Agreement"
     And I press "Upload your Thesis"
     And I should see "Thesis Submission Completed"
