@@ -13,7 +13,7 @@ class SherpaRomeo
     {
         $log = FezLog::get();
         if (!empty($searchTerm)) {
-            $uRL = SHERPA_ROMEO_URL.'?'.$searchParam.'='.urlencode($searchTerm).'&ak='.SHERPA_ROMEO_API;//.'&versions=all';
+            $uRL = SHERPA_ROMEO_URL.'?'.$searchParam.'='.urlencode($searchTerm).'&ak='.SHERPA_ROMEO_API.'&versions=all';
             $ch = curl_init($uRL);
             curl_setopt($ch, CURLOPT_TIMEOUT, 300);
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
