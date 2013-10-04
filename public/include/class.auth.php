@@ -1296,6 +1296,43 @@ class Auth
 		return $auth_groups;
 	}
 
+    //Return var $publicPerms['lister'] and $publicPerms['viewer'] = true if publicly list/viewable
+    function getAuthPublic($pid, $dsID="") {
+        $results = Auth::getAuth($pid, $dsID);
+        $has_list_rules = false;
+        $has_view_rules = false;
+        if (!empty($results)) {
+            // add some pre-processed special rules
+            foreach ($results as $role => $rules) {
+                if( $role == 'Lister' ) {
+                    foreach ( $rules as $ruleID => $rule ) {
+                        if( $rule['rule'] == "override" ) {
+                            $has_list_rules = false;
+                            break;
+                        } elseif(  $rule['value'] != "off" ) {
+                            $has_list_rules = true;
+                        }
+                    }
+                } elseif( $role == 'Viewer' ) {
+                    foreach ( $rules as $ruleID => $rule ) {
+                        if( $rule['rule'] == "override" ) {
+                            $has_view_rules = false;
+                            break;
+                        } elseif( $rule['value'] != "off" ) {
+                            $has_view_rules = true;
+                        }
+                    }
+                }
+            }
+        }
+
+        // if no lister rules are found, then this pid is publically listable
+        $publicPerms['lister'] = !$has_list_rules;
+        // if no viewer rules are found, then this pid is publically listable
+        $publicPerms['viewer'] = !$has_view_rules;
+        return $publicPerms;
+    }
+
 	function addRuleArray(&$auth_groups, $role, $ruleArray = array())
 	{
 		if (!is_array($auth_groups[$role])) {
