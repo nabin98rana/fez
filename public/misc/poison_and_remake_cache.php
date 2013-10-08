@@ -47,7 +47,7 @@ $isUser = Auth::getUsername();
 if ((php_sapi_name()==="cli") || (User::isUserSuperAdministrator($isUser))) {
 
     //This is a limit on how many file to check for re caching each time this is run.
-    $numberOfCachedPidsToProcess = 20000;
+    $numberOfCachedPidsToProcess = 500000;
 
     // Get all PIDs and md5 them with key to create a reverse look up table
     $stmt = "SELECT rek_pid FROM " . APP_TABLE_PREFIX . "record_search_key";
@@ -76,12 +76,12 @@ if ((php_sapi_name()==="cli") || (User::isUserSuperAdministrator($isUser))) {
     $command = 'find '.APP_FILECACHE_DIR.APP_HOSTNAME.' -type f -printf "%f,%T@ \n"';
     exec($command, $outputFiles);
     foreach ($outputFiles as $outputLine) {
-        $filesAndDate[] = explode(',',$outputLine);
+        $filesAndDate[] = explode(',', $outputLine);
     }
 
     //Sort by unix time early to latter
     usort($filesAndDate, function ($a, $b) {
-    return strcmp($a[1], $b[1]);
+        return strcmp($a[1], $b[1]);
     });
 
 
@@ -106,6 +106,8 @@ if ((php_sapi_name()==="cli") || (User::isUserSuperAdministrator($isUser))) {
                 break;
             }
             echo 'Done: '.$pid;
+            flush();
+            ob_flush();
         }
     }
 
