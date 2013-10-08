@@ -159,6 +159,11 @@ class fileCache {
 		return;
 	}
 
+    function checkCacheFileExists()
+    {
+        return (file_exists($this->cachePath.$this->cacheFileName));
+    }
+
 	function getPathFileOnDisk()
 	{
 		$md5arr = str_split($this->cacheFileName, 2);
