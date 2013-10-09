@@ -89,7 +89,7 @@ $page = $zf->filter($page);
 if (empty($page)) {
   $page = array('content' => '');
 }
-$tpl->assign("headerContent", $page['pge_content']);
+$tpl->assign("headerContent", $page['content']);
 
 $tpl->assign("type", "upo");
 
