@@ -3774,7 +3774,7 @@ class Record
       $searchSets[7] = array('doi', 'spage');
       $searchSets[8] = array('doi');
 
-      $fuzzyTitle = "WHERE PREG_REPLACE('/[^a-z]/', '', LOWER(rek_title)) = PREG_REPLACE('/[^a-z]/', '', LOWER('" . $fields['_title'] . "')) ";
+      $fuzzyTitle = "WHERE PREG_REPLACE('/[^a-z]/', '', LOWER(rek_title)) = PREG_REPLACE('/[^a-z]/', '', '" . strtolower($fields['_title']) . "') ";
 
       $sqlPre = "SELECT rek_pid, rek_title, rek_doi, rek_scopus_id, rek_start_page, "
       . "rek_end_page, rek_volume_number, rek_issue_number "

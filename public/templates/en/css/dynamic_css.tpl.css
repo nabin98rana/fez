@@ -1502,6 +1502,12 @@ top: 5px;
     background-color: #fffec6;
 }
 
+.matching_alert {
+  border: 1px solid #fffc00;
+  padding: 2px;
+  background-color: #fffec6;
+}
+
 .message_error {
     border: 1px solid #ff1010;
     background-color: #ffc6c6;

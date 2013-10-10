@@ -134,13 +134,13 @@ abstract class RecordImport
      * Map a log message to a second stage dedupe status code (ie ST10+)
      * @param array $searchData
      */
-    public abstract function getFuzzySearchStatus(array $searchData);
+//    public abstract function getFuzzySearchStatus(array $searchData);
 
     /**
      * Check to see if a record already resides in a import collection
      * based on a primary id
      */
-    protected abstract function checkImportCollections();
+//    protected abstract function checkImportCollections();
 
     /**
      * Set the test state of the object.
@@ -224,6 +224,59 @@ abstract class RecordImport
 
         return $xpath;
     }
+
+
+
+  /**
+   * Map a log message to a second stage dedupe status code (ie ST10+)
+   * @param array $searchData
+   */
+  public function getFuzzySearchStatus(array $searchData)
+  {
+    $statusMessages = array(
+      1 => 'ST10 - Matched on fuzzy title, DOI, start page, end page, issue, volume. ID in the downloaded record was %s. ID in the local record was null.',
+      101 => 'ST11 - Matched on fuzzy title, DOI, start page, end page, issue, volume. ID in the downloaded record was %s. ID in the local record was %s.',
+      2 => 'ST12 - Matched on fuzzy title, DOI, start page, end page, volume and issue. ID in the downloaded record was %s. ID in the local record was null',
+      102 => 'ST13 - Matched on fuzzy title, DOI, start page, end page, volume and issue. ID in the downloaded record was %s. ID in the local record was %s',
+      3 => 'ST14 - Matched on fuzzy title, start page, end page, volume and issue. ID in the downloaded record was %s. ID in the local record was null',
+      103 => 'ST15 - Matched on fuzzy title, start page, end page, volume and issue. ID in the downloaded record was %s. ID in the local record was %s',
+      4 => 'ST16 - Matched on fuzzy title, DOI, start page and volume. ID in the downloaded record was %s. ID in the local record was null',
+      104 => 'ST17 - Matched on fuzzy title, DOI, start page and volume. ID in the downloaded record was %s. ID in the local record was %s',
+      5 => 'ST18 - Matched on fuzzy title, DOI, start page issue. ID in the downloaded record was %s. ID in the local record was null',
+      105 => 'ST19 - Matched on fuzzy title, DOI, start page issue. ID in the downloaded record was %s. ID in the local record was %s',
+      6 => 'ST20 - Matched on fuzzy title, start page volume and issue. ID in the downloaded record was %s. ID in the local record was null',
+      106 => 'ST21 - Matched on fuzzy title, start page volume and issue. ID in the downloaded record was %s. ID in the local record was %s',
+      7 => 'ST22 - Matched on fuzzy title, DOI and start page. ID in the downloaded record was %s. ID in the local record was null.',
+      107 => 'ST23 - Matched on fuzzy title, DOI and start page. ID in the downloaded record was %s. ID in the local record was %s.',
+      8 => 'ST24 - Matched on fuzzy title, DOI. ID in the downloaded record was %s. ID in the local record was null.',
+      108 => 'ST25 - Matched on fuzzy title, DOI. ID in the downloaded record was %s. ID in the local record was %s.',
+      9 => 'ST26 - Matched on fuzzy title. ID in the downloaded record was %s. ID in the local record was null.',
+      109 => 'ST27 - Matched on fuzzy title. ID in the downloaded record was %s. ID in the local record was %s.',
+      10 => 'ST28 - Matched on DOI, start page, end page, issue, volume. ID in the downloaded record was %s. ID in the local record was null.',
+      110 => 'ST29 - Matched on DOI, start page, end page, issue, volume. ID in the downloaded record was %s. ID in the local record was %s.',
+    );
+
+    $statuses = array();
+
+    $scopusIdDL = ($this->_scopusId) ? $this->_scopusId : 'empty';
+
+    foreach ($searchData['data'] as $localRecord) {
+      $scopusIdLocal = (preg_match("/2\-s2\.0\-\d+/", $localRecord['rek_scopus_id'])) ? $localRecord['rek_scopus_id'] : 'empty';
+
+      if (is_null($localRecord['rek_scopus_id'])
+        || strtolower($localRecord['rek_scopus_id']) == 'null'
+        || !preg_match("/2\-s2\.0\-\d+/", $localRecord['rek_scopus_id'])
+      ) {
+        $statusMessage = sprintf($statusMessages[$searchData['state']], $scopusIdDL);
+      } else {
+        $statusMessage = sprintf($statusMessages[$searchData['state'] + 100], $scopusIdDL, $scopusIdLocal);
+      }
+
+      $statuses[] = $statusMessage . " Pid matched: " . $localRecord['rek_pid'];
+    }
+
+    return $statuses;
+  }
 
     /**
      * Compare titles longer than 10 chars
@@ -359,15 +412,17 @@ abstract class RecordImport
         if ($pidCount == 1) {
           $associations[$id]['status'] = 'MATCHED';
           $associations[$id]['matchedPid'] = $pids[0];
+          // Add the history message if this flows all the way to ST09
+          $histMsg = 'ST09 - Found '.$associations[$id]['matchedPid'].' based on match on '.$id;
         } elseif (!$this->$id) {
           $associations[$id]['status'] = 'EMPTY';
         } elseif ($pidCount > 1) {
           $histMsg = "ST01 - "
-            . $this->$primaryId . " matches more than one pid("
-            . implode(',', $pids) . ") based on $retrieverName";
+            . $this->$primaryId . " matches more than one record ("
+            . implode(', ', $pids) . ") based on $retrieverName";
 
 
-          if ($this->_likenAction) {
+          if (!$this->_likenAction) {
             return array('ST01', $histMsg);
           } elseif (!$this->_inTest) {
             $this->save($histMsg, $this->_insertCollection);
@@ -414,11 +469,11 @@ abstract class RecordImport
             $authorativePid = $associations[$cit]['matchedPid'];
           } else {
             $histMsg = "ST02 - Mismatch error. Scopus Id "
-              . $this->$cit . " matches but the following do not: "
+              . $this->$cit . " matches ".$associations[$cit]['matchedPid']." but the following do not: "
               . var_export($idMismatches, true);
 
 
-            if ($this->_likenAction) {
+            if (!$this->_likenAction) {
               return array('ST02', $histMsg);
             } elseif (!$this->_inTest) {
               $this->save($histMsg, $this->_insertCollection);

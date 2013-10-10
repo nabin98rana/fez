@@ -152,7 +152,6 @@ class MatchingRecords
                         $matches[] = $xmlRecords->returnDataEnterForm();
 
                     }
-
                 }
             }
     	}
@@ -269,16 +268,15 @@ class MatchingRecords
 		        $fields->scopusId = $scopusIdExtracted;
 		        $fields->pid = null;
 
-		        $isInImportColl = Record::getPIDsByScopusID($csr_fields['_scopusId']);
+            $csr->setLikenAction(false);
+            $likenResults = $csr->liken();
 
-		        if(empty($isInImportColl))
-		        {
+		        if($likenResults[0] == 'ST07') {
 		            $fields->record_exists = 0;
-		        }
-		        else
-		        {
+		        } else {
 		            $fields->record_exists = 1;
-		            $fields->pid = $isInImportColl[0]['rek_scopus_id_pid'];
+                $fields->likenCode = $likenResults[0];
+                $fields->likenMessage = preg_replace('/('.APP_PID_NAMESPACE.':[0-9]*)/', '<a href="'.APP_RELATIVE_URL.'view/$1">$1</a>', $likenResults[1]);
 		        }
 
 		        $matches[] = $fields;

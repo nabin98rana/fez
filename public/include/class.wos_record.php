@@ -35,6 +35,7 @@ include_once(APP_INC_PATH . "class.record.php");
 include_once(APP_INC_PATH . "class.language.php");
 include_once(APP_INC_PATH . "class.misc.php");
 include_once(APP_INC_PATH . "class.author.php");
+include_once(APP_INC_PATH . "class.record_import.php");
 include_once(APP_INC_PATH . "class.thomson_doctype_mappings.php");
 
 /**
@@ -45,7 +46,7 @@ include_once(APP_INC_PATH . "class.thomson_doctype_mappings.php");
  *
  */
 
-class WosRecItem
+class WosRecItem extends RecordImport
 {
   /**
    * Collections
@@ -263,12 +264,6 @@ class WosRecItem
    */
   private $keywords = array();
 
-  /**
-   * If a WoS record has been loaded
-   *
-   * @var bool
-   */
-  private $_loaded = FALSE;
 
   /**
    * Publisher
@@ -326,7 +321,7 @@ class WosRecItem
    *
    * @param DomNode $node
    */
-  public function load($node)
+  public function load($node, $nameSpaces=null)
   {
     $siloTc = $node->getElementsByTagName("silo_tc")->item(0);
     $this->timesCited = $siloTc->getAttribute('local_count');
@@ -475,6 +470,19 @@ class WosRecItem
           $this->pid = $pid;
         }
         $this->isi_loc = $this->ut;
+
+        $this->setLikenAction(false);
+        $likenResults = $this->liken();
+
+        if($likenResults[0] == 'ST07') {
+          $this->record_exists = 0;
+        } else {
+          $this->record_exists = 1;
+          //		            $fields->pid = $isInImportColl[0]['rek_scopus_id_pid'];
+          $this->likenCode = $likenResults[0];
+          $this->likenMessage = preg_replace('/('.APP_PID_NAMESPACE.':[0-9]*)/', '<a href="'.APP_RELATIVE_URL.'view/$1">$1</a>', $likenResults[1]);
+        }
+
         return $this;
 
     }
