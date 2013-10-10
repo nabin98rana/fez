@@ -48,7 +48,7 @@ class Page
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		$stmt = "
 			SELECT
 				pge_id AS id,
@@ -59,7 +59,7 @@ class Page
 				pge_title ASC
 			;
 		";
-		
+
 		try {
 			$res = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
 		}
@@ -67,17 +67,17 @@ class Page
 			$log->err($ex);
 			return '';
 		}
-		
+
 		return $res;
 	}
-	
-	
-	
+
+
+
 	function getPage($pageID)
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		$stmt = "
 			SELECT
 				pge_id AS id,
@@ -89,7 +89,7 @@ class Page
 				pge_id = " . $db->quote($pageID) . "
 			;
 			";
-		
+
 		try {
 			$res = $db->fetchRow($stmt, array(), Zend_Db::FETCH_ASSOC);
 		}
@@ -97,17 +97,19 @@ class Page
 			$log->err($ex);
 			return '';
 		}
-		
+    if (empty($res)) {
+      $res = array('content' => '');
+    }
 		return $res;
 	}
-	
-	
-	
+
+
+
 	function updatePage()
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		$content = $_POST["content"];
 		$config = array('indent' => true,
 						'output-xhtml' => true,
@@ -115,12 +117,12 @@ class Page
 						'show-body-only' => true,
 						'wrap' => 0
 						);
-		
+
 		$tidy = new tidy;
 		$tidy->parseString($content, $config, 'utf8');
 		$tidy->cleanRepair();
 		$content = $tidy;
-		
+
 		$stmt = "UPDATE
                     " . APP_TABLE_PREFIX . "pages
                  SET

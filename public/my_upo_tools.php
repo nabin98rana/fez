@@ -86,9 +86,7 @@ $currentAOU = $_SESSION['my_researcher_aou'];
 $page = Page::getPage('my-research-header');
 $zf = new Fez_Filter_RichTextHtmlpurifyWithLinks();
 $page = $zf->filter($page);
-if (empty($page)) {
-  $page = array('content' => '');
-}
+
 $tpl->assign("headerContent", $page['content']);
 
 $tpl->assign("type", "upo");
