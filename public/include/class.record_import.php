@@ -73,7 +73,7 @@ abstract class RecordImport
 //      102 => 'ST13 - Matched on fuzzy title, DOI, start page, end page, volume and issue. ID in the downloaded record was %s. ID in the local record was %s',
 //      3 => 'ST14 - Matched on fuzzy title, start page, end page, volume and issue. ID in the downloaded record was %s. ID in the local record was null',
 //      103 => 'ST15 - Matched on fuzzy title, start page, end page, volume and issue. ID in the downloaded record was %s. ID in the local record was %s',
-      1 => 'ST10 - Matched on fuzzy title, start page, end page, volume and issue. ID in the downloaded record was %s. ID in the local record was null',
+      1 => 'ST10 - Matched on fuzzy title, start page, end page, volume and issue. ID in the downloaded record was %s. ID in the local record was missing',
       102 => 'ST11 - Matched on fuzzy title, start page, end page, volume and issue. ID in the downloaded record was %s. ID in the local record was %s',
 
 //      4 => 'ST16 - Matched on fuzzy title, DOI, start page and volume. ID in the downloaded record was %s. ID in the local record was null',
@@ -82,7 +82,7 @@ abstract class RecordImport
 //      105 => 'ST19 - Matched on fuzzy title, DOI, start page issue. ID in the downloaded record was %s. ID in the local record was %s',
 //      6 => 'ST20 - Matched on fuzzy title, start page volume and issue. ID in the downloaded record was %s. ID in the local record was null',
 //      106 => 'ST21 - Matched on fuzzy title, start page volume and issue. ID in the downloaded record was %s. ID in the local record was %s',
-      2 => 'ST12 - Matched on fuzzy title, start page volume and issue. ID in the downloaded record was %s. ID in the local record was null',
+      2 => 'ST12 - Matched on fuzzy title, start page volume and issue. ID in the downloaded record was %s. ID in the local record was missing',
       102 => 'ST13 - Matched on fuzzy title, start page volume and issue. ID in the downloaded record was %s. ID in the local record was %s',
 
 //      7 => 'ST22 - Matched on fuzzy title, DOI and start page. ID in the downloaded record was %s. ID in the local record was null.',
@@ -91,7 +91,7 @@ abstract class RecordImport
 //      108 => 'ST25 - Matched on fuzzy title, DOI. ID in the downloaded record was %s. ID in the local record was %s.',
 //      9 => 'ST26 - Matched on fuzzy title. ID in the downloaded record was %s. ID in the local record was null.',
 //      109 => 'ST27 - Matched on fuzzy title. ID in the downloaded record was %s. ID in the local record was %s.',
-      9 => 'ST14 - Matched on fuzzy title. ID in the downloaded record was %s. ID in the local record was null.',
+      9 => 'ST14 - Matched on fuzzy title. ID in the downloaded record was %s. ID in the local record was missing.',
       109 => 'ST15 - Matched on fuzzy title. ID in the downloaded record was %s. ID in the local record was %s.',
 
 //      10 => 'ST28 - Matched on DOI, start page, end page, issue, volume. ID in the downloaded record was %s. ID in the local record was null.',

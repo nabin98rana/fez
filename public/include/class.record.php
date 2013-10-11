@@ -3852,7 +3852,7 @@ class Record
       {
         $dupes = DuplicatesReport::similarTitlesQuery('dummy', trim($fields['_title']));
 
-        if (count($dupes) > 0) {
+        if (count($dupes) > 0 && $dupes[0]['relevance'] > 1) {
 //          foreach ($dupes as $dupe) {
 //            $res['rek_pid'] = $dupe['pid'];
 //            $res['rek_isi_loc'] = Record::getSearchKeyIndexValue($dupe['pid'], 'ISI Loc');

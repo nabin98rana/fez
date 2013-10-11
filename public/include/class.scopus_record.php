@@ -95,7 +95,7 @@ class ScopusRecItem extends RecordImport
       $scopusIdLocal = (preg_match("/2\-s2\.0\-\d+/", $localRecord['rek_scopus_id'])) ? $localRecord['rek_scopus_id'] : 'empty';
 
       if (is_null($localRecord['rek_scopus_id'])
-        || strtolower($localRecord['rek_scopus_id']) == 'null'
+        || strtolower($localRecord['rek_scopus_id']) == ''
         || !preg_match("/2\-s2\.0\-\d+/", $localRecord['rek_scopus_id'])
       ) {
         $statusMessage = sprintf($this->fuzzySearchStatusMessages[$searchData['state']], $scopusIdDL);
