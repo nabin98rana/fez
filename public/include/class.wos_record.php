@@ -277,6 +277,8 @@ class WosRecItem extends RecordImport
    */
   public function __construct($record = false)
   {
+    $this->_log = FezLog::get();
+    $this->_comparisonIdTypes = array('_isiloc', '_doi', '_pubmedId', '_title');
     $this->_loaded = FALSE;
     if ($record) {
       $this->load($record);
@@ -316,6 +318,37 @@ class WosRecItem extends RecordImport
     }
   }
 
+
+  /**
+   * Map a log message to a second stage dedupe status code (ie ST10+)
+   * @param array $searchData
+   */
+  public function getFuzzySearchStatus($searchData)
+  {
+
+    $statuses = array();
+
+    $IdDL = ($this->ut) ? $this->ut : 'empty';
+
+//    foreach ($searchData as $localRecord) {
+      $localRecord = $searchData['data'];
+      $IdLocal = $localRecord['rek_isi_loc'];
+//      $IdLocal = (preg_match("/2\-s2\.0\-\d+/", $localRecord['rek_isi_loc_id'])) ? $localRecord['rek_isi_loc_id'] : 'empty';
+
+      if (is_null($localRecord['rek_isi_loc'])
+        || strtolower($localRecord['rek_isi_loc']) == 'null'
+      ) {
+        $statusMessage = sprintf($this->fuzzySearchStatusMessages[$searchData['state']], $IdDL);
+      } else {
+        $statusMessage = sprintf($this->fuzzySearchStatusMessages[$searchData['state'] + 100], $IdDL, $IdLocal);
+      }
+
+      $statuses[] = $statusMessage . " Pid matched: " . $localRecord['rek_pid'];
+//    }
+
+    return $statuses;
+  }
+
   /**
    * Loads an object from a REC node
    *
@@ -326,7 +359,8 @@ class WosRecItem extends RecordImport
     $siloTc = $node->getElementsByTagName("silo_tc")->item(0);
     $this->timesCited = $siloTc->getAttribute('local_count');
     $this->abstract = $node->getElementsByTagName("abstract_text")->item(0)->nodeValue;
-    $this->ut = str_ireplace("WOS:", "", $node->getElementsByTagName("UID")->item(0)->nodeValue );
+    $this->ut = str_ireplace("WOS:", "", $node->getElementsByTagName("UID")->item(0)->nodeValue);
+    $this->_isiLoc = $this->ut;
     $elements = $node->getElementsByTagName("identifier");
     foreach($elements as $element) {
         if ($element->getAttribute('type') == "issn") {
@@ -340,6 +374,7 @@ class WosRecItem extends RecordImport
             if (!in_array($element->getAttribute('value'), $this->articleNos)) {
                 $this->articleNos[] = $element->getAttribute('value');
             }
+            $this->_doi = $this->articleNos[0];
         }
     }
 
@@ -351,6 +386,7 @@ class WosRecItem extends RecordImport
       }
       if ($element->getAttribute('type') == "item") {
           $this->itemTitle = $element->nodeValue;
+          $this->_title = $this->itemTitle;
       }
       if ($element->getAttribute('type') == "source_abbrev") {
           $this->sourceAbbrev = $element->nodeValue;
@@ -373,7 +409,9 @@ class WosRecItem extends RecordImport
     if ($bibPages) {
       $this->bibPages = $bibPages->nodeValue;
       $this->bibPageBegin = $bibPages->getAttribute('begin');
+      $this->_startPage = $this->bibPageBegin;
       $this->bibPageEnd = $bibPages->getAttribute('end');
+      $this->_endPage = $this->bibPageEnd;
       $this->bibPageCount = $bibPages->getAttribute('page_count');
     }
 
@@ -463,13 +501,6 @@ class WosRecItem extends RecordImport
         $this->page_end = $this->bibPageEnd;
         $this->dateIssued = $this->date_issued;
         $this->isi_loc = $this->ut;
-        // Check if exists
-        $pid = Record::getPIDByIsiLoc($this->ut);
-        if($pid) {
-          $this->record_exists = 1;
-          $this->pid = $pid;
-        }
-        $this->isi_loc = $this->ut;
 
         $this->setLikenAction(false);
         $likenResults = $this->liken();
@@ -523,10 +554,12 @@ class WosRecItem extends RecordImport
 
     $this->bibIssueYear = $pubInfo->getAttribute('pubyear');
     $this->bibIssueVol = $pubInfo->getAttribute('vol');
+    $this->_issueVolume = $this->bibIssueVol;
 
       $bibVol = $node->getElementsByTagName("pub_info")->item(0);
       if ($bibVol) {
         $this->bibIssueNum = $bibVol->getAttribute('issue');
+        $this->_issueNumber = $this->bibIssueNum;
       }
 
   }

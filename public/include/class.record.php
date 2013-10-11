@@ -3155,6 +3155,39 @@ class Record
   }
 
   /**
+   * Retrieve PIDs by ISI Loc ID excluding any in the temporary duplicates collection
+   * @param string $isi_loc
+   * @return boolean|array
+   */
+  function getPIDsByIsiLoc($isi_loc)
+  {
+    $log = FezLog::get();
+    $db = DB_API::get();
+    $dbtp =  APP_TABLE_PREFIX; // Database and table prefix
+    $pids = null;
+
+    $matches = array();
+
+
+    if($isi_loc) {
+      $sql = "SELECT DISTINCT rek_isi_loc_pid FROM ".$dbtp."record_search_key_isi_loc "
+          ."WHERE rek_isi_loc = ? ";
+      try
+      {
+        $stmt = $db->query($sql, array($isi_loc));
+        $pids = $stmt->fetchAll();
+      }
+      catch(Exception $e)
+      {
+        $log->err($e->getMessage());
+        return false;
+      }
+    }
+
+    return $pids;
+  }
+
+  /**
    * Method updates the Google Scholar citation count
    *
    * @param $pid The PID to update the citation count for
@@ -3765,14 +3798,14 @@ class Record
 
 
       $searchSets = array();
-      $searchSets[1] = array('doi', 'spage', 'volume', 'issue', 'epage'); //ST10/11
-      $searchSets[2] = array('doi', 'spage', 'volume', 'issue'); //ST12/13
-      $searchSets[3] = array('spage', 'volume', 'issue', 'epage'); //ST14/15
-      $searchSets[4] = array('doi', 'spage', 'volume'); //ST16/17
-      $searchSets[5] = array('doi', 'spage', 'issue');
-      $searchSets[6] = array('spage', 'volume', 'issue'); //ST21/22
-      $searchSets[7] = array('doi', 'spage');
-      $searchSets[8] = array('doi');
+//      $searchSets[1] = array('doi', 'spage', 'volume', 'issue', 'epage'); //ST10/11
+//      $searchSets[2] = array('doi', 'spage', 'volume', 'issue'); //ST12/13
+      $searchSets[1] = array('spage', 'volume', 'issue', 'epage'); //ST14/15, now 10/11
+//      $searchSets[4] = array('doi', 'spage', 'volume'); //ST16/17
+//      $searchSets[5] = array('doi', 'spage', 'issue');
+      $searchSets[2] = array('spage', 'volume', 'issue'); //ST21/22, now 12/13
+//      $searchSets[7] = array('doi', 'spage');
+//      $searchSets[8] = array('doi');
 
       $fuzzyTitle = "WHERE PREG_REPLACE('/[^a-z]/', '', LOWER(rek_title)) = PREG_REPLACE('/[^a-z]/', '', '" . strtolower($fields['_title']) . "') ";
 
@@ -3815,19 +3848,33 @@ class Record
       }
 
       //Try just the title
-      if(empty($res))
+      if (empty($res))
       {
-          try
-          {
-              $stmt = $db->query($sqlPre . $fuzzyTitle);
-              $res = $stmt->fetchAll();
-              $state = (!empty($res)) ? 9 : $state;
-          }
-          catch(Exception $e)
-          {
-              $log->err($e->getMessage());
-              return false;
-          }
+        $dupes = DuplicatesReport::similarTitlesQuery('dummy', trim($fields['_title']));
+
+        if (count($dupes) > 0) {
+//          foreach ($dupes as $dupe) {
+//            $res['rek_pid'] = $dupe['pid'];
+//            $res['rek_isi_loc'] = Record::getSearchKeyIndexValue($dupe['pid'], 'ISI Loc');
+//            $res['rek_scopus_id'] = Record::getSearchKeyIndexValue($dupe['pid'], 'Scopus ID');
+//          }
+          $res['rek_pid'] = $dupes[0]['pid'];
+          $res['rek_isi_loc'] = Record::getSearchKeyIndexValue($dupes[0]['pid'], 'ISI Loc');
+          $res['rek_scopus_id'] = Record::getSearchKeyIndexValue($dupes[0]['pid'], 'Scopus ID');
+
+          $state = 9;
+        }
+//          try
+//          {
+//              $stmt = $db->query($sqlPre . $fuzzyTitle);
+//              $res = $stmt->fetchAll();
+//              $state = (!empty($res)) ? 9 : $state;
+//          }
+//          catch(Exception $e)
+//          {
+//              $log->err($e->getMessage());
+//              return false;
+//          }
       }
 
       //Add doi and IVP without the title search

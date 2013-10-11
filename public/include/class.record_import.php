@@ -66,7 +66,40 @@ abstract class RecordImport
     protected $localTitle = null;
 
 
-    /**
+    protected $fuzzySearchStatusMessages = array(
+//      1 => 'ST10 - Matched on fuzzy title, DOI, start page, end page, issue, volume. ID in the downloaded record was %s. ID in the local record was null.',
+//      101 => 'ST11 - Matched on fuzzy title, DOI, start page, end page, issue, volume. ID in the downloaded record was %s. ID in the local record was %s.',
+//      2 => 'ST12 - Matched on fuzzy title, DOI, start page, end page, volume and issue. ID in the downloaded record was %s. ID in the local record was null',
+//      102 => 'ST13 - Matched on fuzzy title, DOI, start page, end page, volume and issue. ID in the downloaded record was %s. ID in the local record was %s',
+//      3 => 'ST14 - Matched on fuzzy title, start page, end page, volume and issue. ID in the downloaded record was %s. ID in the local record was null',
+//      103 => 'ST15 - Matched on fuzzy title, start page, end page, volume and issue. ID in the downloaded record was %s. ID in the local record was %s',
+      1 => 'ST10 - Matched on fuzzy title, start page, end page, volume and issue. ID in the downloaded record was %s. ID in the local record was null',
+      102 => 'ST11 - Matched on fuzzy title, start page, end page, volume and issue. ID in the downloaded record was %s. ID in the local record was %s',
+
+//      4 => 'ST16 - Matched on fuzzy title, DOI, start page and volume. ID in the downloaded record was %s. ID in the local record was null',
+//      104 => 'ST17 - Matched on fuzzy title, DOI, start page and volume. ID in the downloaded record was %s. ID in the local record was %s',
+//      5 => 'ST18 - Matched on fuzzy title, DOI, start page issue. ID in the downloaded record was %s. ID in the local record was null',
+//      105 => 'ST19 - Matched on fuzzy title, DOI, start page issue. ID in the downloaded record was %s. ID in the local record was %s',
+//      6 => 'ST20 - Matched on fuzzy title, start page volume and issue. ID in the downloaded record was %s. ID in the local record was null',
+//      106 => 'ST21 - Matched on fuzzy title, start page volume and issue. ID in the downloaded record was %s. ID in the local record was %s',
+      2 => 'ST12 - Matched on fuzzy title, start page volume and issue. ID in the downloaded record was %s. ID in the local record was null',
+      102 => 'ST13 - Matched on fuzzy title, start page volume and issue. ID in the downloaded record was %s. ID in the local record was %s',
+
+//      7 => 'ST22 - Matched on fuzzy title, DOI and start page. ID in the downloaded record was %s. ID in the local record was null.',
+//      107 => 'ST23 - Matched on fuzzy title, DOI and start page. ID in the downloaded record was %s. ID in the local record was %s.',
+//      8 => 'ST24 - Matched on fuzzy title, DOI. ID in the downloaded record was %s. ID in the local record was null.',
+//      108 => 'ST25 - Matched on fuzzy title, DOI. ID in the downloaded record was %s. ID in the local record was %s.',
+//      9 => 'ST26 - Matched on fuzzy title. ID in the downloaded record was %s. ID in the local record was null.',
+//      109 => 'ST27 - Matched on fuzzy title. ID in the downloaded record was %s. ID in the local record was %s.',
+      9 => 'ST14 - Matched on fuzzy title. ID in the downloaded record was %s. ID in the local record was null.',
+      109 => 'ST15 - Matched on fuzzy title. ID in the downloaded record was %s. ID in the local record was %s.',
+
+//      10 => 'ST28 - Matched on DOI, start page, end page, issue, volume. ID in the downloaded record was %s. ID in the local record was null.',
+//      110 => 'ST29 - Matched on DOI, start page, end page, issue, volume. ID in the downloaded record was %s. ID in the local record was %s.',
+    );
+
+
+  /**
      * The PID of the collection to save
      * newly inserted records into.
      * @var string
@@ -130,11 +163,11 @@ abstract class RecordImport
      */
     public abstract function load($recordData, $nameSpaces=null);
 
-    /**
-     * Map a log message to a second stage dedupe status code (ie ST10+)
-     * @param array $searchData
-     */
-//    public abstract function getFuzzySearchStatus(array $searchData);
+  /**
+   * Map a log message to a second stage dedupe status code (ie ST10+)
+   * @param array $searchData
+   */
+    public abstract function getFuzzySearchStatus($searchData);
 
     /**
      * Check to see if a record already resides in a import collection
@@ -227,56 +260,7 @@ abstract class RecordImport
 
 
 
-  /**
-   * Map a log message to a second stage dedupe status code (ie ST10+)
-   * @param array $searchData
-   */
-  public function getFuzzySearchStatus(array $searchData)
-  {
-    $statusMessages = array(
-//      1 => 'ST10 - Matched on fuzzy title, DOI, start page, end page, issue, volume. ID in the downloaded record was %s. ID in the local record was null.',
-//      101 => 'ST11 - Matched on fuzzy title, DOI, start page, end page, issue, volume. ID in the downloaded record was %s. ID in the local record was %s.',
-//      2 => 'ST12 - Matched on fuzzy title, DOI, start page, end page, volume and issue. ID in the downloaded record was %s. ID in the local record was null',
-//      102 => 'ST13 - Matched on fuzzy title, DOI, start page, end page, volume and issue. ID in the downloaded record was %s. ID in the local record was %s',
-      3 => 'ST14 - Matched on fuzzy title, start page, end page, volume and issue. ID in the downloaded record was %s. ID in the local record was null',
-      103 => 'ST15 - Matched on fuzzy title, start page, end page, volume and issue. ID in the downloaded record was %s. ID in the local record was %s',
-//      4 => 'ST16 - Matched on fuzzy title, DOI, start page and volume. ID in the downloaded record was %s. ID in the local record was null',
-//      104 => 'ST17 - Matched on fuzzy title, DOI, start page and volume. ID in the downloaded record was %s. ID in the local record was %s',
-//      5 => 'ST18 - Matched on fuzzy title, DOI, start page issue. ID in the downloaded record was %s. ID in the local record was null',
-//      105 => 'ST19 - Matched on fuzzy title, DOI, start page issue. ID in the downloaded record was %s. ID in the local record was %s',
-      6 => 'ST20 - Matched on fuzzy title, start page volume and issue. ID in the downloaded record was %s. ID in the local record was null',
-      106 => 'ST21 - Matched on fuzzy title, start page volume and issue. ID in the downloaded record was %s. ID in the local record was %s',
-//      7 => 'ST22 - Matched on fuzzy title, DOI and start page. ID in the downloaded record was %s. ID in the local record was null.',
-//      107 => 'ST23 - Matched on fuzzy title, DOI and start page. ID in the downloaded record was %s. ID in the local record was %s.',
-//      8 => 'ST24 - Matched on fuzzy title, DOI. ID in the downloaded record was %s. ID in the local record was null.',
-//      108 => 'ST25 - Matched on fuzzy title, DOI. ID in the downloaded record was %s. ID in the local record was %s.',
-      9 => 'ST26 - Matched on fuzzy title. ID in the downloaded record was %s. ID in the local record was null.',
-      109 => 'ST27 - Matched on fuzzy title. ID in the downloaded record was %s. ID in the local record was %s.',
-//      10 => 'ST28 - Matched on DOI, start page, end page, issue, volume. ID in the downloaded record was %s. ID in the local record was null.',
-//      110 => 'ST29 - Matched on DOI, start page, end page, issue, volume. ID in the downloaded record was %s. ID in the local record was %s.',
-    );
 
-    $statuses = array();
-
-    $scopusIdDL = ($this->_scopusId) ? $this->_scopusId : 'empty';
-
-    foreach ($searchData['data'] as $localRecord) {
-      $scopusIdLocal = (preg_match("/2\-s2\.0\-\d+/", $localRecord['rek_scopus_id'])) ? $localRecord['rek_scopus_id'] : 'empty';
-
-      if (is_null($localRecord['rek_scopus_id'])
-        || strtolower($localRecord['rek_scopus_id']) == 'null'
-        || !preg_match("/2\-s2\.0\-\d+/", $localRecord['rek_scopus_id'])
-      ) {
-        $statusMessage = sprintf($statusMessages[$searchData['state']], $scopusIdDL);
-      } else {
-        $statusMessage = sprintf($statusMessages[$searchData['state'] + 100], $scopusIdDL, $scopusIdLocal);
-      }
-
-      $statuses[] = $statusMessage . " Pid matched: " . $localRecord['rek_pid'];
-    }
-
-    return $statuses;
-  }
 
     /**
      * Compare titles longer than 10 chars
@@ -714,6 +698,27 @@ abstract class RecordImport
 
         return $pids;
     }
+
+  /**
+   * Fetch an array of pids by IsiLoc
+   * @param mixed $id
+   * @return array
+   */
+  protected function getPIDsBy_isiloc()
+  {
+    $pids = array();
+    if($this->_isiLoc)
+    {
+      $pidSet = Record::getPIDsByIsiLoc($this->_isiLoc);
+
+    }
+
+    for($i=0;$i<count($pidSet);$i++)
+    {
+      $pids[] = $pidSet[$i]['rek_isiloc_pid'];
+    }
+    return $pids;
+  }
 
     /**
     * Fetch an array of pids by ScopusId

@@ -78,6 +78,37 @@ class ScopusRecItem extends RecordImport
         }
     }
 
+
+  /**
+   * Map a log message to a second stage dedupe status code (ie ST10+)
+   * @param array $searchData
+   */
+  public function getFuzzySearchStatus($searchData)
+  {
+
+    $statuses = array();
+
+    $scopusIdDL = ($this->_scopusId) ? $this->_scopusId : 'empty';
+
+//    foreach ($searchData as $localRecord) {
+      $localRecord = $searchData['data'];
+      $scopusIdLocal = (preg_match("/2\-s2\.0\-\d+/", $localRecord['rek_scopus_id'])) ? $localRecord['rek_scopus_id'] : 'empty';
+
+      if (is_null($localRecord['rek_scopus_id'])
+        || strtolower($localRecord['rek_scopus_id']) == 'null'
+        || !preg_match("/2\-s2\.0\-\d+/", $localRecord['rek_scopus_id'])
+      ) {
+        $statusMessage = sprintf($this->fuzzySearchStatusMessages[$searchData['state']], $scopusIdDL);
+      } else {
+        $statusMessage = sprintf($this->fuzzySearchStatusMessages[$searchData['state'] + 100], $scopusIdDL, $scopusIdLocal);
+      }
+
+      $statuses[] = $statusMessage . " Pid matched: " . $localRecord['rek_pid'];
+//    }
+
+    return $statuses;
+  }
+
     /**
      * Set all the entry fields for the object
      * @param string $entryXML
