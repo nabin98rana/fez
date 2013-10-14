@@ -1259,7 +1259,8 @@
                                                                         || $xsd_display_fields[i].xsdmf_invisible == 1
                                                                         || ($xsd_display_fields[i].cvo_hide == 1 && $xsd_display_fields[i].xsdmf_cvo_min_level == 3 && !$isAdmin)}style="display:none"{/if}>
                   <th>
-                    <b><label for="xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}">{$xsd_display_fields[i].xsdmf_title}</label> {if $xsd_display_fields[i].xsdmf_required == 1} * {/if}</b><br />
+                    <b><label for="xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}">{$xsd_display_fields[i].xsdmf_title}</label>{if $xsd_display_fields[i].xsdmf_required == 1} * {/if}</b>
+                      {if $xsd_display_fields[i].xsdmf_description != ""}<br /><i>{$xsd_display_fields[i].xsdmf_description}</i>{/if}
             {if $xsd_display_fields[i].xsdmf_long_description != ""}
               <span class="default">{$xsd_display_fields[i].xsdmf_long_description|smarty:nodefaults}</span>
             {/if}
