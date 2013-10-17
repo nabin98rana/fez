@@ -489,7 +489,7 @@ abstract class RecordImport
             $associations['_startPage']['status'] = 'MATCHED';
           } else {
             $histMsg = "ST03 - Start page mismatch for '" . $this->_title
-              . " - Scopus ID: " . $this->$primaryId
+              . " - ID: " . $this->$primaryId
               . "'. Local start page is: " . $localStartPage
               . " . Downloaded start page is: " . $this->_startPage;
 
@@ -559,7 +559,7 @@ abstract class RecordImport
       } elseif ($associations['_title']['status'] != 'UNMATCHED') {
         $associations['_title']['status'] = 'UNCERTAIN';
 
-        $histMsg = "ST06 - Scopus ID: " . $this->$primaryId
+        $histMsg = "ST06 - ID: " . $this->$primaryId
           . " Downloaded title: '" . $this->downloadedTitle
           . "' FAILED TO MATCH the local title: '" . $this->localTitle
           . "' with a match of only " . $this->percentageMatch . "%";
@@ -595,7 +595,7 @@ abstract class RecordImport
         return 'POSSIBLE MATCH';
       }
 
-      $histMsg = "ST07 - No matches, saving a new PID for Scopus ID: "
+      $histMsg = "ST07 - No matches, saving a new PID for ID: "
         . $this->$primaryId . "'" . $this->_title;
 
       if (!$this->_likenAction) {
@@ -609,9 +609,10 @@ abstract class RecordImport
       return "SAVE";
 
     } else {
-      $histMsg = "ST08 - Different ids in the same downloaded record are matching up with different pids for Scopus ID: "
-        . $this->$primaryId . " '" . $this->_title . "'."
-        . var_export($associations, true);
+      $histMsg = "ST08 - Different IDs in the same downloaded record are matching up with different pids for ".$primaryId." ID: "
+        . $this->$primaryId . ", '" . $this->_title . "'."
+        . $this->formatMatches($associations);
+//        . var_export($associations, true);
 
 
 
@@ -643,6 +644,25 @@ abstract class RecordImport
   }
 
 
+  /**
+   * Formats an array of matches as HTML
+   * @param $matches (array) of string
+   * @return $message (string) of formatted HTML
+   */
+  function formatMatches($matches) {
+    $message = '';
+    if (is_array($matches) && count($matches) > 0) {
+      foreach($matches as $id => $details) {
+        if ($details['status'] == 'MATCHED' && !empty($details['matchedPid'])) {
+          $message .= str_replace("_", "", strtolower($id)) ." matched ".$details['matchedPid']."<br />";
+        }
+      }
+      if ($message != '') {
+        $message = "<br />".$message;
+      }
+    }
+    return $message;
+  }
 
   function getPidsByFuzzyTitle(array $fields)
   {
@@ -676,15 +696,16 @@ abstract class RecordImport
 
     $fuzzyTitle = "WHERE PREG_REPLACE('/[^a-z]/', '', LOWER(rek_title)) = PREG_REPLACE('/[^a-z]/', '', '" . strtolower($fields['_title']) . "') ";
 
-    $sqlPre = "SELECT rek_pid, rek_title, rek_doi, rek_scopus_id, rek_start_page, "
+    $sqlPre = "SELECT rek_pid, rek_title, rek_doi, rek_scopus_id, rek_isi_loc, rek_start_page, "
       . "rek_end_page, rek_volume_number, rek_issue_number "
-      . "FROM ".$dbtp."record_search_key sk "
-      . "LEFT JOIN ".$dbtp."record_search_key_doi doi ON sk.rek_pid = doi.rek_doi_pid "
-      . "LEFT JOIN ".$dbtp."record_search_key_scopus_id scopus ON sk.rek_pid = scopus.rek_scopus_id_pid "
-      . "LEFT JOIN ".$dbtp."record_search_key_start_page startp ON sk.rek_pid = startp.rek_start_page_pid "
-      . "LEFT JOIN ".$dbtp."record_search_key_end_page endp ON sk.rek_pid = endp.rek_end_page_pid "
-      . "LEFT JOIN ".$dbtp."record_search_key_volume_number volume ON sk.rek_pid = volume.rek_volume_number_pid "
-      . "LEFT JOIN ".$dbtp."record_search_key_issue_number issue on sk.rek_pid = issue.rek_issue_number_pid ";
+      . "FROM ".$dbtp."record_search_key "
+      . "LEFT JOIN ".$dbtp."record_search_key_doi ON rek_pid = rek_doi_pid "
+      . "LEFT JOIN ".$dbtp."record_search_key_scopus_id ON rek_pid = rek_scopus_id_pid "
+      . "LEFT JOIN ".$dbtp."record_search_key_isi_loc ON rek_pid = rek_isi_loc_pid "
+      . "LEFT JOIN ".$dbtp."record_search_key_start_page ON rek_pid = rek_start_page_pid "
+      . "LEFT JOIN ".$dbtp."record_search_key_end_page ON rek_pid = rek_end_page_pid "
+      . "LEFT JOIN ".$dbtp."record_search_key_volume_number ON rek_pid = rek_volume_number_pid "
+      . "LEFT JOIN ".$dbtp."record_search_key_issue_number on rek_pid = rek_issue_number_pid ";
 
     $ct = 0;
 
@@ -727,7 +748,7 @@ abstract class RecordImport
 //            $res['rek_scopus_id'] = Record::getSearchKeyIndexValue($dupe['pid'], 'Scopus ID');
 //          }
           $res['rek_pid'] = $dupes[0]['pid'];
-          $res['rek_isi_loc'] = Record::getSearchKeyIndexValue($dupes[0]['pid'], 'ISI Loc');
+//          $res['rek_isi_loc'] = Record::getSearchKeyIndexValue($dupes[0]['pid'], 'ISI Loc');
           $res['rek_scopus_id'] = Record::getSearchKeyIndexValue($dupes[0]['pid'], 'Scopus ID');
 
           $state = 9;
