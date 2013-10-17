@@ -612,8 +612,6 @@ abstract class RecordImport
       $histMsg = "ST08 - Different IDs in the same downloaded record are matching up with different pids for ".$primaryId." ID: "
         . $this->$primaryId . ", '" . $this->_title . "'."
         . $this->formatMatches($associations);
-//        . var_export($associations, true);
-
 
 
       if (!$this->_likenAction) {

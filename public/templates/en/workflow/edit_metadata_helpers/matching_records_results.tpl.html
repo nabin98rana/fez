@@ -29,7 +29,7 @@
 	    {if $scopusMatches[i]->dateIssued != ''}
 	        Published: <b>{$scopusMatches[i]->dateIssued}</b><br />
 	    {/if}
-      {if !$scopusMatches[i]->record_exists || ($scopusMatches[i]->record_exists || $scopusMatches[i]->likenStatus == 'ST15' || $scopusMatches[i]->likenStatus == 'ST14') }
+      {if !$scopusMatches[i]->record_exists || ($scopusMatches[i]->record_exists && ($scopusMatches[i]->likenStatus == 'ST15' || $scopusMatches[i]->likenStatus == 'ST14')) }
         <a href="javascript:add_scopus('{$scopusMatches[i]->scopusId}')" style="border:0">
           <img src="{$rel_url}images/add.gif" id="pub_add" height="16" width="33" alt="Add record" alt="Add record" style="border:0" /></a>
       {/if}
@@ -75,7 +75,7 @@
 	{if $matches[i]->dateIssued != ''}
 		Published: <b>{$matches[i]->dateIssued}</b><br />
 	{/if}
-  {if !$matches[i]->record_exists || ($matches[i]->record_exists || $matches[i]->likenStatus == 'ST15' || $matches[i]->likenStatus == 'ST14') }
+  {if !$matches[i]->record_exists || ($matches[i]->record_exists && ($matches[i]->likenStatus == 'ST15' || $matches[i]->likenStatus == 'ST14')) }
     <a href="javascript:add_pub('{$matches[i]->isi_loc}')" style="border:0">
       <img src="{$rel_url}images/add.gif" id="pub_add" height="16" width="33" alt="Add record" alt="Add record" style="border:0" /></a>
   {/if}
