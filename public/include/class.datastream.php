@@ -98,6 +98,12 @@ class Datastream
 
     }
 
+    //Removes permissions on datastream which makes it open access if the pid is accessible.
+    static function removeFezACMLDatastream($pid, $dsID) {
+        $FezACML_dsID = FezACML::getFezACMLDSName($dsID);
+        return Fedora_API::callPurgeDatastream($pid, $FezACML_dsID);
+    }
+
     //Saves $permissions and $embargo date. Does nothing and returns with true if both are unchanged
     function saveDatastreamSelectedPermissions($pid, $dsId, $permissions, $embargoDate)
     {
@@ -105,7 +111,8 @@ class Datastream
         $db = DB_API::get();
 
         if (!empty($embargoDate)) {
-            //Make sure the date is in mysql time
+            //Make sure the date is in English time -> mysql time
+            $embargoDate = str_replace('/', '-', $embargoDate);
             $phpdate = strtotime( $embargoDate );
             $embargoDate = date( 'Y-m-d H:i:s', $phpdate );
         } else {

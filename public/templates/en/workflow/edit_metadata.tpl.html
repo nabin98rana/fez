@@ -117,7 +117,7 @@
                 <input type="hidden" name="fileNamesOld[]" value="{$datastreams[d].ID}">
                 <td bgcolor="{$value_color}" style="padding:5px;">
                   <a class="form_note"><span class="form_note">date that the file can be made publicly available</span>Open Access Release Date</a> <br /> <input type="text" id="datepicker{$filecounter}" name="embargoDateOld[]" value = "{$datastreams[d].embargoDate}"/>
-                <script type="text/javascript"> $( "#datepicker{$filecounter}" ).datepicker({ldelim}dateFormat : 'dd-mm-yy'{rdelim}); </script>
+                <script type="text/javascript"> $( "#datepicker{$filecounter}" ).datepicker({ldelim}dateFormat : 'dd/mm/yy'{rdelim}); </script>
                 </td>
 
                 <td  bgcolor="{$value_color}">&nbsp;</td>

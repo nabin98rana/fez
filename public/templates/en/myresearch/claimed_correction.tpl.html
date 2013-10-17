@@ -104,15 +104,18 @@ function submitForm()
                 //No need to check if HERDC since it's private
                 if (fileUploadType != 5) {
                     $uploadFilename = $uploadFilename.replace(/^.*[\\\/]/, '');
-                    fileCheck = fileCheck + 'File: '+ $uploadFilename +'\n';
+                    $embargoDate = document.getElementsByName('embargo_date[' + index + ']')[0].value;
+                    $embargoText = ($embargoDate) ? $embargoDate : 'Immediate';
+                    fileCheck = fileCheck + 'File: ' + $uploadFilename + '    Open Access Release Date: ' + $embargoText + '\n';
                 }
             }
         }
 
         if (fileCheck != '') {
-            var fileCheck = 'The following files will be submitted as open access and will be made publicly available immediately. Please click Cancel if you do not wish to proceed.<br /><br />' + fileCheck + '<br /><br />All other files submitted will be accessible by UQ eSpace administrators and Unit Publications Officers only. If you have attached files with an Open Access Release Date specified, then these will be made fully available to the public on the date nominated.';
+            var fileCheck = 'The following files will be submitted as open access and will be made publicly available immediately or on the date nominated. Please click Cancel if you do not wish to proceed.<br /><br />' + fileCheck + '<br /><br />All other files submitted will be accessible by UQ eSpace administrators and Unit Publications Officers only.';
             $('<div>' + fileCheck + '</div>').dialog({
               resizable: false,
+              width: "450px",
               title: "Open Access Warning:",
               buttons: {
                 "OK": function() {
