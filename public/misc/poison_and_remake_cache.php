@@ -57,7 +57,8 @@ if ((php_sapi_name()==="cli") || (User::isUserSuperAdministrator($isUser))) {
         $log->err($ex);
         echo "Failed to retrieve pid data. Error: " . $ex;
     }
-
+    $deletedPids = getDeletedPids();
+    $res = array_merge($res, $deletedPids);
     $md5s = array();
     foreach ($res as $pid) {
         $md5s[md5('pid='.$pid)] = $pid;
@@ -115,4 +116,21 @@ if ((php_sapi_name()==="cli") || (User::isUserSuperAdministrator($isUser))) {
     echo 'Fini';
 } else {
     echo "Please run from command line or logged in as a super user";
+}
+
+function getDeletedPids() {
+    $fedoraDirect = new Fedora_Direct_Access();
+    $fedoraList = $fedoraDirect->fetchAllFedoraPIDs('*', 'D');
+
+    // Correct for Oracle-produced array key case issue reported by Kostas
+    foreach ($fedoraList as $fkey => $flist) {
+        $fedoraList[$fkey] = array_change_key_case($flist, CASE_LOWER);
+    }
+
+    // Extract just the PIDs
+    $fedoraPIDs = array();
+    foreach ($fedoraList as $flist) {
+        array_push($fedoraPIDs, $flist['pid']);
+    }
+    return $fedoraPIDs;
 }
