@@ -237,9 +237,10 @@
 </tr>
 <tr>
     <td class="default_white" style="background: {$heading_color}; padding: 3px;" colspan="2">
-        <img style="vertical-align: middle" src="{$rel_url}images/edit_32.gif" alt="" /><b>{$wfs_title}</b>
+        <img style="vertical-align: middle" src="{$rel_url}images/edit_32.gif" alt="" /><b>{$wfs_title}{if $xdis_title} [{$xdis_title}]{/if}</b>
         {if $isApprover == 1}
             <input type="button" maxlength="55"  name="simple_toggle" value="Show All Fields" onclick="javascript:toggleCreateMode(); this.disabled = true;" class="button" />
+
         {/if}
         {if $isUPO && $acting_user.aut_org_username != $actual_user}
           &nbsp;Currently acting as: <b>{$acting_user.aut_org_username}</b> &nbsp; ({$acting_user.aut_display_name}, {$acting_user.org_unit_description})
@@ -586,7 +587,7 @@
                       {assign var="attached_xsdmf_id" value=$xsdmf.xsdmf_attached_xsdmf_id}
                       {section name='aa' loop=$xsd_display_fields}{if $xsd_display_fields[aa].xsdmf_id == $attached_xsdmf_id}{assign var="attached_xsdmf" value=$xsd_display_fields[aa]}{/if}{/section}
                     {/if}
-                    <tr  valign="top" {if $loop_num != 0 || ($isApprover != 1 && $xsd_display_fields[i].xsdmf_show_simple_create == 0 && ($xsd_display_fields[i].xsdmf_required != 1 || $xsd_display_fields[i].selected_option != '')) || $xsd_display_fields[i].xsdmf_invisible == 1 || $xsd_display_fields[i].xsdmf_multiple_limit == 1}style="display:none"{/if}>
+                    <tr  valign="top" {if $loop_num != 0 || ($isApprover != 1 && $xsd_display_fields[i].xsdmf_show_simple_create == 0 && ($xsd_display_fields[i].xsdmf_required != 1 || $xsd_display_fields[i].selected_option != '')) || $xsd_display_fields[i].xsdmf_invisible == 1 || $xsd_display_fields[i].xsdmf_multiple_limit == 1 || !$xsd_display_fields[i].xsdmf_multiple} style="display:none"{/if}>
                       <th>
                         <b>{$xsd_display_fields[i].xsdmf_title}(s) {if $xsd_display_fields[i].xsdmf_required == 1 && $loop_num == 0} * {/if}</b>
                         {if $loop_num == 0}
