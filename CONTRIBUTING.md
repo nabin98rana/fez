@@ -1,4 +1,4 @@
-#Contributing
+Contributing
 ---
 For now we will accept pull requests and for trusted members we can add you to a push group.
 
