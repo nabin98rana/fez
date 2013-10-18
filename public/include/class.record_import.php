@@ -378,7 +378,7 @@ abstract class RecordImport
     $idCollection = array();
     $mirrorMirror = new ReflectionClass($this);
     $associations = array();
-
+    $return = array();
     //See what returns a PID
     foreach ($this->_comparisonIdTypes as $id) {
       //Check that a method exists for retrieving
@@ -458,7 +458,7 @@ abstract class RecordImport
 
 
             if (!$this->_likenAction) {
-              return array('ST02', $histMsg);
+              $return = array('ST02', $histMsg);
             } elseif (!$this->_inTest) {
               $this->save($histMsg, $this->_insertCollection);
             } else {
@@ -556,7 +556,7 @@ abstract class RecordImport
             return false;
           }
         }
-      } elseif ($associations['_title']['status'] != 'UNMATCHED') {
+      } elseif ($associations['_title']['status'] == 'UNMATCHED') {
         $associations['_title']['status'] = 'UNCERTAIN';
 
         $histMsg = "ST06 - ID "
@@ -759,7 +759,7 @@ abstract class RecordImport
 //            $res['rek_scopus_id'] = Record::getSearchKeyIndexValue($dupe['pid'], 'Scopus ID');
 //          }
           $res['rek_pid'] = $dupes[0]['pid'];
-//          $res['rek_isi_loc'] = Record::getSearchKeyIndexValue($dupes[0]['pid'], 'ISI Loc');
+          $res['rek_isi_loc'] = Record::getSearchKeyIndexValue($dupes[0]['pid'], 'ISI Loc');
           $res['rek_scopus_id'] = Record::getSearchKeyIndexValue($dupes[0]['pid'], 'Scopus ID');
 
           $state = 9;
