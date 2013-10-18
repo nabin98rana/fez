@@ -278,7 +278,7 @@ class WosRecItem extends RecordImport
   public function __construct($record = false)
   {
     $this->_log = FezLog::get();
-    $this->_comparisonIdTypes = array('_isiloc', '_doi', '_pubmedId', '_title');
+    $this->_comparisonIdTypes = array('_title', '_pubmedId', '_isiloc', '_doi');
     $this->_loaded = FALSE;
     if ($record) {
       $this->load($record);

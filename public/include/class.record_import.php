@@ -336,7 +336,7 @@ abstract class RecordImport
     //Eg for ScopusRecItem _scopusId should be first,
     //for PubmedRecItem _pubmedId should be first, etc.
     $primaryId = $this->_comparisonIdTypes[0];
-
+    $formattedPrimaryId = $this->formatMatchID($primaryId);
     $docTypeCode = "_{$this->_primaryIdPrefix}DocTypeCode";
     $aggregationType = "_{$this->_primaryIdPrefix}AggregationType";
 
@@ -397,12 +397,12 @@ abstract class RecordImport
           $associations[$id]['status'] = 'MATCHED';
           $associations[$id]['matchedPid'] = $pids[0];
           // Add the history message if this flows all the way to ST09
-          $histMsg = 'ST09 - Found '.$associations[$id]['matchedPid'].' based on match on '.$id;
+          $histMsg = 'ST09 - Found '.$associations[$id]['matchedPid'].' based on match on '.$this->formatMatchID($id);
         } elseif (!$this->$id) {
           $associations[$id]['status'] = 'EMPTY';
         } elseif ($pidCount > 1) {
           $histMsg = "ST01 - "
-            . $this->$primaryId . " matches more than one record ("
+            . " this record matches more than one existing record ("
             . implode(', ', $pids) . ") based on $retrieverName";
 
 
@@ -452,8 +452,8 @@ abstract class RecordImport
           if (!$idMismatches) {
             $authorativePid = $associations[$cit]['matchedPid'];
           } else {
-            $histMsg = "ST02 - Mismatch error. ID "
-              . $this->$cit . " matches ".$associations[$cit]['matchedPid']." but the following do not: "
+            $histMsg = "ST02 - Mismatch error. At least one ID "
+              . " matches ".$associations[$cit]['matchedPid']." but the following do not: "
               . var_export($idMismatches, true);
 
 
@@ -488,10 +488,10 @@ abstract class RecordImport
           if ($this->_startPage == $localStartPage) {
             $associations['_startPage']['status'] = 'MATCHED';
           } else {
-            $histMsg = "ST03 - Start page mismatch for '" . $this->_title
-              . " - ID: " . $this->$primaryId
-              . "'. Local start page is: " . $localStartPage
-              . " . Downloaded start page is: " . $this->_startPage;
+            $histMsg = "ST03 - Found existing record '" . $this->_title."' ".$authorativePid.", though it has a start page mismatch"
+              . ":"
+              . "<br />Local start page is: " . $localStartPage
+              . "<br />Downloaded start page is: " . $this->_startPage;
 
 
             if (!$this->_likenAction) {
@@ -512,10 +512,11 @@ abstract class RecordImport
           if ($this->_endPage == $localEndPage) {
             $associations['_endPage']['status'] = 'MATCHED';
           } else {
-            $histMsg = "ST04 - End page mismatch for '" . $this->_title
-              . " - ID " . $this->$primaryId
-              . "'. Local end page is: " . $localEndPage
-              . " . Downloaded end page is: " . $this->_endPage;
+            $histMsg = "ST04 - Found existing record '" . $this->_title."' ".$authorativePid.", though it has an end page mismatch"
+              . ":"
+              . "<br />Local end page is: " . $localEndPage
+              . "<br />Downloaded end page is: " . $this->_endPage;
+
 
 
             if (!$this->_likenAction) {
@@ -537,11 +538,10 @@ abstract class RecordImport
             $associations['_volume']['status'] = 'MATCHED';
           } else {
 
-            $histMsg = "ST05 - Volume mismatch for '" . $this->_title
-              . " - ID " . $this->$primaryId
-              . "'. Local end page is: " . $localVolume
-              . " . Downloaded end page is: " . $this->_issueVolume;
-
+            $histMsg = "ST05 - Found existing record '" . $this->_title."' ".$authorativePid.", though it has a volume mismatch"
+              . ":"
+              . "<br />Local volume is: " . $localVolume
+              . "<br />Downloaded volume is: " . $this->_issueVolume;
 
 
             if (!$this->_likenAction) {
@@ -559,7 +559,9 @@ abstract class RecordImport
       } elseif ($associations['_title']['status'] != 'UNMATCHED') {
         $associations['_title']['status'] = 'UNCERTAIN';
 
-        $histMsg = "ST06 - ID: " . $this->$primaryId
+        $histMsg = "ST06 - ID "
+          . $formattedPrimaryId ." "
+          . $this->$primaryId
           . " Downloaded title: '" . $this->downloadedTitle
           . "' FAILED TO MATCH the local title: '" . $this->localTitle
           . "' with a match of only " . $this->percentageMatch . "%";
@@ -595,7 +597,8 @@ abstract class RecordImport
         return 'POSSIBLE MATCH';
       }
 
-      $histMsg = "ST07 - No matches, saving a new PID for ID: "
+      $histMsg = "ST07 - No matches, saving a new PID for ID "
+        . $formattedPrimaryId ." "
         . $this->$primaryId . "'" . $this->_title;
 
       if (!$this->_likenAction) {
@@ -609,7 +612,8 @@ abstract class RecordImport
       return "SAVE";
 
     } else {
-      $histMsg = "ST08 - Different IDs in the same downloaded record are matching up with different pids for ".$primaryId." ID: "
+      $histMsg = "ST08 - Different IDs in the same downloaded record are matching up with different pids for ".$primaryId." ID "
+        . $formattedPrimaryId ." "
         . $this->$primaryId . ", '" . $this->_title . "'."
         . $this->formatMatches($associations);
 
@@ -652,7 +656,7 @@ abstract class RecordImport
     if (is_array($matches) && count($matches) > 0) {
       foreach($matches as $id => $details) {
         if ($details['status'] == 'MATCHED' && !empty($details['matchedPid'])) {
-          $message .= str_replace("_", "", strtolower($id)) ." matched ".$details['matchedPid']."<br />";
+          $message .= $this->formatMatchID($id) ." matched ".$details['matchedPid']."<br />";
         }
       }
       if ($message != '') {
@@ -660,6 +664,15 @@ abstract class RecordImport
       }
     }
     return $message;
+  }
+
+  /**
+   * Formats a comparison ID for display to the user
+   * @param $id (string) of the identifier type
+   * @return $message (string) of formatted comparison identifier type
+   */
+  function formatMatchID($id) {
+    return str_replace("_", "", strtolower($id));
   }
 
   function getPidsByFuzzyTitle(array $fields)
@@ -871,7 +884,7 @@ abstract class RecordImport
 
     for($i=0;$i<count($pidSet);$i++)
     {
-      $pids[] = $pidSet[$i]['rek_isiloc_pid'];
+      $pids[] = $pidSet[$i]['rek_isi_loc_pid'];
     }
     return $pids;
   }
