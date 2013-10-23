@@ -888,7 +888,7 @@ class MyResearch
                     return $listFiles.' Error on file uploads at '.date("Y-m-d H:i:s");
                 }
                 $listFiles .= $file .' ';
-
+                $description = $_POST['description'][$key];
                 //If (a HERDC file OR an embargo date is saved) set permissions(5) to admin and upo only(10) ( else open access, which is inherit in this case)
                 if (($_POST['filePermissions'][$key] == 5) || !empty($_POST['embargo_date'][$key])) {
                   $fezACMLTemplateNum = 10;
@@ -897,7 +897,7 @@ class MyResearch
                   $fezACMLTemplateNum = NULL;
                   $listFiles .= "(open access)\n";
                 }
-                Datastream::addDatastreamToPid($pid, $file, $fezACMLTemplateNum);
+                Datastream::addDatastreamToPid($pid, $file, $description, $fezACMLTemplateNum);
                 Datastream::saveDatastreamSelectedPermissions($pid, $file, $_POST['filePermissions'][$key], $_POST['embargo_date'][$key]);
                 $filePermsNumber = $_POST['filePermissions'][$key];
                 $historyComment .= $file.' - "'.Datastream::$file_options[$filePermsNumber].'"; ';

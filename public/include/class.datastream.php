@@ -49,7 +49,7 @@ class Datastream
     //Add a datastream to a pid
     //$newFile is the file name in the temporary upload directory
     //$filesFezACMLNum the security template number applied to the datastream, if empty it defaults to default
-    public static function addDatastreamToPid($pid, $newFile, $fezACMLTemplateNum = null)
+    public static function addDatastreamToPid($pid, $newFile, $description, $fezACMLTemplateNum = null)
     {
         $log = FezLog::get();
         if (!empty($newFile)) {
@@ -64,7 +64,7 @@ class Datastream
             if (file_exists($newFile)) {
                 $mimetype = Misc::mime_content_type($newFile);
                 $versionable = APP_VERSION_UPLOADS_AND_LINKS == "ON" ? 'true' : 'false';
-                Fedora_API::getUploadLocationByLocalRef($pid, $newFileName, $newFile, $newFileName, $mimetype, 'M', null, $versionable);
+                Fedora_API::getUploadLocationByLocalRef($pid, $newFileName, $newFile, $description, $mimetype, 'M', null, $versionable);
                 Exiftool::saveExif($pid, $newFileName);
                 if (is_integer($fezACMLTemplateNum)) {
                     Datastream::setfezACML($pid, $newFileName, $fezACMLTemplateNum);

@@ -741,13 +741,13 @@ function CheckFileClassifications()
                         $uploadFilename = $uploadFilename.replace(/^.*[\\\/]/, '');
                         $embargoDate = document.getElementsByName('embargo_date[' + index + ']')[0].value;
                         $embargoText = ($embargoDate) ? $embargoDate : 'Immediate';
-                        fileCheck = fileCheck + 'File: ' + $uploadFilename + '    Open Access Release Date: ' + $embargoText + '\n';
+                        fileCheck = fileCheck + '<br/>File: ' + $uploadFilename + '    Open Access Release Date: ' + $embargoText + '\n';
                     }
                 }
             }
         }
         if (fileCheck != '') {
-            var fileCheck = 'The following files will be submitted as open access and will be made publicly available immediately or on the date nominated. Please click Cancel if you do not wish to proceed.<br /><br />' + fileCheck + '<br /><br />All other files submitted will be accessible by UQ eSpace administrators and Unit Publications Officers only.';
+            var fileCheck = 'The following files will be submitted as open access and will be made publicly available immediately or on the date nominated. Please click Cancel if you do not wish to proceed.<br />' + fileCheck + '<br /><br />All other files submitted will be accessible by UQ eSpace administrators and Unit Publications Officers only.';
             $('<div>' + fileCheck + '</div>').dialog({
                 resizable: false,
                 width: "450px",

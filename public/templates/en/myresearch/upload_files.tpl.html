@@ -40,7 +40,7 @@ function uploadFile(n)
                  </td></tr><tr class="{if $smarty.section.file_input.index % 2 == 0}text-input-odd{else}text-input-even{/if}"><td>
     <b>Description:</b> <input type="text" name="description[{$smarty.section.file_input.index}]" size="55" />
     </td><td><span id="open_access_release_date[{$smarty.section.file_input.index}]">
-    <b><a class="form_note"><span class="form_note">date that the file can be made publicly available</span>Open Access Release Date:</a></b> <input type="text" id="datepicker{$smarty.section.file_input.index}" name="embargo_date[{$smarty.section.file_input.index}]" />
+    <b><a class="form_note"><span class="form_note">Date that the file can be made publicly available</span>Open Access Release Date:</a></b> <input type="text" id="datepicker{$smarty.section.file_input.index}" name="embargo_date[{$smarty.section.file_input.index}]" />
             <script type="text/javascript"> $( "#datepicker{$smarty.section.file_input.index}" ).datepicker({ldelim}dateFormat : 'dd/mm/yy'{rdelim}); </script>
     </span></td></tr>
 </table><br>
