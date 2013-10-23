@@ -327,7 +327,7 @@
                                 {if $isAdmin == 1}
                                     var required_fileupload = 0;
                                 {else}
-                                    var required_fileupload = {$xsd_display_fields[i].xsdmf_required};
+                                    var required_fileupload = {$xsd_display_fields[i].xsdmf_required} + 0;
                                 {/if}
 
                                     var showFileUploadExtras = {$showFileUploadExtras};
@@ -613,9 +613,12 @@
                     {if (is_numeric($xsdmf.xsdmf_multiple_limit))} {assign var ="multiple_limit" value =$xsdmf.xsdmf_multiple_limit} {else} {assign var = "multiple_limit" value = "1"} {/if}
                     <script type="text/javascript">
                     var field = document.getElementById('xsd_display_fields_{$xsdmf.xsdmf_id}_{$loop_num}');
-                    field.onchange = {literal}function () {{/literal}createTextBox({$xsdmf.xsdmf_id},{$loop_num},'{$xsdmf.xsdmf_title}',{math equation="0+y-1" y=$xsdmf.xsdmf_multiple_limit},'{$xsdmf.xsdmf_attached_xsdmf_id}','{$attached_xsdmf.xsdmf_title}', {if $xsd_display_fields[i].sek_suggest_function != ""}1{else}''{/if}, {$isCreator}){literal}}{/literal};
-                    field.onfocus  = {literal}function () {{/literal}createTextBox({$xsdmf.xsdmf_id},{$loop_num},'{$xsdmf.xsdmf_title}',{math equation="0+y-1" y=$xsdmf.xsdmf_multiple_limit},'{$xsdmf.xsdmf_attached_xsdmf_id}','{$attached_xsdmf.xsdmf_title}', {if $xsd_display_fields[i].sek_suggest_function != ""}1{else}''{/if}, {$isCreator}){literal}}{/literal};
-                    field.onkeyup  = {literal}function () {{/literal}createTextBox({$xsdmf.xsdmf_id},{$loop_num},'{$xsdmf.xsdmf_title}',{math equation="0+y-1" y=$xsdmf.xsdmf_multiple_limit},'{$xsdmf.xsdmf_attached_xsdmf_id}','{$attached_xsdmf.xsdmf_title}', {if $xsd_display_fields[i].sek_suggest_function != ""}1{else}''{/if}, {$isCreator}){literal}}{/literal};
+                    field.onchange = {literal}function () {{/literal}createTextBox({$xsdmf.xsdmf_id},{$loop_num},'{$xsdmf.xsdmf_title}',{if $xsdmf.xsdmf_multiple_limit}{math equation="0+y-1" y=$xsdmf.xsdmf_multiple_limit}{else}0{/if},
+                        '{$xsdmf.xsdmf_attached_xsdmf_id}', '{$attached_xsdmf.xsdmf_title}', {if $xsd_display_fields[i].sek_suggest_function != ""}1{else}''{/if}, {$isCreator}){literal}}{/literal};
+                    field.onfocus  = {literal}function () {{/literal}createTextBox({$xsdmf.xsdmf_id},{$loop_num},'{$xsdmf.xsdmf_title}',{if $xsdmf.xsdmf_multiple_limit}{math equation="0+y-1" y=$xsdmf.xsdmf_multiple_limit}{else}0{/if},
+                        '{$xsdmf.xsdmf_attached_xsdmf_id}', '{$attached_xsdmf.xsdmf_title}', {if $xsd_display_fields[i].sek_suggest_function != ""}1{else}''{/if}, {$isCreator}){literal}}{/literal};
+                    field.onkeyup  = {literal}function () {{/literal}createTextBox({$xsdmf.xsdmf_id},{$loop_num},'{$xsdmf.xsdmf_title}',{if $xsdmf.xsdmf_multiple_limit}{math equation="0+y-1" y=$xsdmf.xsdmf_multiple_limit}{else}0{/if},
+                        '{$xsdmf.xsdmf_attached_xsdmf_id}','{$attached_xsdmf.xsdmf_title}', {if $xsd_display_fields[i].sek_suggest_function != ""}1{else}''{/if}, {$isCreator}){literal}}{/literal};
                     </script>
                     {* /if *}
                     {include file="error_icon.tpl.html" field="xsd_display_fields["|cat:$xsd_display_fields[i].xsdmf_id|cat:"][]"}

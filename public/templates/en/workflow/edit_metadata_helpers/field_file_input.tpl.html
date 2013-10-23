@@ -41,7 +41,7 @@
                                 {if $isAdmin == 1}
                                     var required_fileupload = 0;
                                 {else}
-                                    var required_fileupload = {$xsd_display_fields[i].xsdmf_required};
+                                    var required_fileupload = {$xsd_display_fields[i].xsdmf_required} + 0;
                                 {/if}
                                 var showFileUploadExtras = {$showFileUploadExtras};
 
