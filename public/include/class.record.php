@@ -3939,7 +3939,8 @@ class Record
       return $res;
   }
 
-  function getSearchKeyIndexValue($pid, $searchKeyTitle, $getLookup=true, $sek_details="")
+  //$get top when given an array returns listed titles only
+  function getSearchKeyIndexValue($pid, $searchKeyTitle, $getLookup=true, $sek_details="", $getTop = null)
   {
     $log = FezLog::get();
     $db = DB_API::get();
@@ -3988,17 +3989,13 @@ class Record
         }
         $res = $temp;
       }
-      return $res;
-
     } else { //1-1 so will return single value
-//			$log->debug('1-1 will return single value');
       $stmt = "SELECT
                     rek_".$sek_title."
                  FROM
                     " . $dbtp . "record_search_key
                  WHERE
                     rek_pid = ".$db->quote($pid);
-//			$log->debug($stmt);
       try {
         $res = $db->fetchOne($stmt);
       }
@@ -4013,9 +4010,17 @@ class Record
         $temp[$res] = $temp_value;
         $res = $temp;
       }
-      return $res;
     }
-
+    if(is_array($getTop)){
+        $accValues = array();
+        foreach($res as $key => $value) {
+            if (in_array($value, $getTop)) {
+                $accValues[$key] =  $value;
+            }
+        }
+        $res = $accValues;
+    }
+    return $res;
   }
 
 //param $previousToDate will return the version previous

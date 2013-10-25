@@ -41,7 +41,11 @@ function createRecord(f, xdis_id_sel)
 	<input type="hidden" name="collection_pid" value="{$APP_MY_RESEARCH_NEW_ITEMS_COLLECTION}" />
 
 	<select id="xdis_id_top">
-		{html_options options=$childXDisplayOptions}	
+		{if $childXDisplayOptionsTop}
+            {html_options options=$childXDisplayOptionsTop}
+            <option disabled="disabled">&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;</option>
+        {/if}
+        {html_options options=$childXDisplayOptions}
 	</select>
 	<input type="button" value="Next" onclick="javascript:createRecord();" class="button" /> 
 </div> 

@@ -80,6 +80,7 @@ $tpl->assign("isSuperAdministrator", $isSuperAdministrator);
 $tpl->assign("isUPO", $isUPO);
 
 $tpl->assign("active_nav", "my_fez");
+$tpl->assign("childXDisplayOptionsTop", Record::getSearchKeyIndexValue(APP_MY_RESEARCH_NEW_ITEMS_COLLECTION, "XSD Display Option", true, "", array('Book','Book Chapter','Journal Article','Conference Paper')));
 $tpl->assign("childXDisplayOptions", Record::getSearchKeyIndexValue(APP_MY_RESEARCH_NEW_ITEMS_COLLECTION, "XSD Display Option"));
 $tpl->assign("acting_user", $actingUserArray);
 $tpl->assign("actual_user", $username);
