@@ -686,11 +686,11 @@ abstract class RecordImport
     $state = 0;
 
     $queryMap = array(
-      'doi' => "AND doi.rek_doi = '" . $fields['_doi'] . "' ",
-      'spage' => "AND PREG_REPLACE('/[^0-9]/', '', startp.rek_start_page) = PREG_REPLACE('/[^0-9]/', '', '" . $fields['_startPage'] . "') ",
-      'volume' => "AND PREG_REPLACE('/[^0-9]/', '', volume.rek_volume_number) = PREG_REPLACE('/[^0-9]/', '', '" . $fields['_issueVolume'] . "') ",
-      'issue' => "AND PREG_REPLACE('/[^0-9]/', '', issue.rek_issue_number) = PREG_REPLACE('/[^0-9]/', '', '" . $fields['_issueNumber'] . "') ",
-      'epage' => "AND PREG_REPLACE('/[^0-9]/', '', endp.rek_end_page) = PREG_REPLACE('/[^0-9]/', '', '" . $fields['_endPage'] . "') "
+      'doi' => "AND rek_doi = '" . $fields['_doi'] . "' ",
+      'spage' => "AND PREG_REPLACE('/[^0-9]/', '', rek_start_page) = PREG_REPLACE('/[^0-9]/', '', '" . $fields['_startPage'] . "') ",
+      'volume' => "AND PREG_REPLACE('/[^0-9]/', '', rek_volume_number) = PREG_REPLACE('/[^0-9]/', '', '" . $fields['_issueVolume'] . "') ",
+      'issue' => "AND PREG_REPLACE('/[^0-9]/', '', rek_issue_number) = PREG_REPLACE('/[^0-9]/', '', '" . $fields['_issueNumber'] . "') ",
+      'epage' => "AND PREG_REPLACE('/[^0-9]/', '', rek_end_page) = PREG_REPLACE('/[^0-9]/', '', '" . $fields['_endPage'] . "') "
     );
 
 
