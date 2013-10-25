@@ -115,7 +115,15 @@
                   {include file="error_icon.tpl.html" field="cvo_image_filename"}
                 </td>
               </tr>
-              
+              <tr>
+                  <td style="width: 120px;" class="default cell-colour">
+                      <b>Order:</b>
+                  </td>
+                  <td style="background: {$light_color}">
+                      <input type="text" name="cvo_order" size="40" class="default" value="{$info.cvo_order}" />
+                      {include file="error_icon.tpl.html" field="cvo_order"}
+                  </td>
+              </tr>
               <tr>
                 <td style="width: 120px;" class="default cell-colour">
                   <b>Hide:</b>
@@ -161,6 +169,7 @@
                       <td style="width: 5px; background: {$cell_color}; text-align: center; white-space: nowrap"><input type="button" value="All" class="shortcut" onclick="javascript:toggleSelectAll(this.form, 'items[]');" /></td>
                       <td class="default cell-colour">&nbsp;<b>Title</b>&nbsp;</td>
                       <td class="default cell-colour">&nbsp;<b>Desc</b>&nbsp;</td>
+                      <td class="default cell-colour">&nbsp;<b>Order</b>&nbsp;&nbsp;&nbsp;</td>
                       <td class="default cell-colour">&nbsp;<b>Image Filename</b>&nbsp;</td>					  
                       <td class="default cell-colour">&nbsp;<b>External ID</b>&nbsp;</td>					  
                       <td class="default cell-colour">&nbsp;<b>Edit Children</b>&nbsp;</td>  
@@ -177,6 +186,9 @@
                       </td>
                       <td style="" class="default">
                         &nbsp;{$list[i].cvo_desc}
+                      </td>
+                      <td style="" class="default">
+                        &nbsp;{$list[i].cvo_order}
                       </td>
                       <td style="" class="default">
                         &nbsp;{$list[i].cvo_image_filename}

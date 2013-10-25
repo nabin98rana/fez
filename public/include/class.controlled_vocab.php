@@ -143,6 +143,9 @@ class Controlled_Vocab
 		if (is_numeric($_POST["cvo_hide"])) {
 			$stmt .= ", cvo_hide";
 		}
+        if (is_numeric($_POST["cvo_order"])) {
+            $stmt .= ", cvo_order";
+        }
 
 		$stmt .= "
                  ) VALUES (
@@ -154,6 +157,9 @@ class Controlled_Vocab
 		if (is_numeric($_POST["cvo_hide"])) {
 			$stmt .= "," . $db->quote(trim($_POST["cvo_hide"]));
 		}
+        if (is_numeric($_POST["cvo_order"])) {
+            $stmt .= "," . $db->quote(trim($_POST["cvo_order"]));
+        }
 		$stmt .=")";
 
 		try {
@@ -356,7 +362,8 @@ class Controlled_Vocab
                     cvo_title = " . $db->quote($_POST["cvo_title"]) . ",
                     cvo_external_id = " . $db->quote(trim($_POST["cvo_external_id"])). ",
                     cvo_desc = " . $db->quote($_POST["cvo_desc"]) . ",
-                    cvo_hide = " . $db->quote($_POST["cvo_hide"]) . "
+                    cvo_hide = " . $db->quote($_POST["cvo_hide"]) . ",
+                    cvo_order = " . $db->quote($_POST["cvo_order"]) . "
                  WHERE cvo_id = ".$db->quote($cvo_id, 'INTEGER');
 		try {
 			$db->exec($stmt);
@@ -541,7 +548,7 @@ class Controlled_Vocab
                     " . APP_TABLE_PREFIX . "controlled_vocab
 			     WHERE cvo_id not in (SELECT cvr_child_cvo_id from  " . APP_TABLE_PREFIX . "controlled_vocab_relationship)
                  ORDER BY
-                    cvo_title ASC";
+                    cvo_order, cvo_title ASC";
 		try {
 			$res = $db->fetchPairs($stmt);
 		}
@@ -600,7 +607,7 @@ class Controlled_Vocab
                  FROM
                     " . APP_TABLE_PREFIX . "controlled_vocab
 				 WHERE cvo_id not in (SELECT cvr_parent_cvo_id from  " . APP_TABLE_PREFIX . "controlled_vocab_relationship)
-				 ORDER BY cvo_id ASC";
+				 ORDER BY cvo_order, cvo_id ASC";
 		if (is_numeric($start) && is_numeric($max)) {
 			$stmt .= " LIMIT ".$db->quote($max, 'INTEGER')." OFFSET ".$db->quote($start, 'INTEGER');
 		}
@@ -700,7 +707,7 @@ class Controlled_Vocab
 		}
 		$stmt .= "
                  ORDER BY
-                    cvo_title ASC";
+                    cvo_order, cvo_title ASC";
 		try {
 			$res = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
 		}
@@ -751,7 +758,7 @@ class Controlled_Vocab
 		}
 		$stmt .= "
                  ORDER BY
-                    cvo_title ASC";
+                    cvo_order, cvo_title ASC";
 		try {
 			$res = $db->fetchPairs($stmt);
 		}
@@ -809,7 +816,7 @@ class Controlled_Vocab
 	                    " . APP_TABLE_PREFIX . "controlled_vocab ";
 		$stmt .=   "," . APP_TABLE_PREFIX . "controlled_vocab_relationship
 						     WHERE cvr_parent_cvo_id = cvo_id AND cvr_child_cvo_id = ".$db->quote($child_id, 'INTEGER');
-		$stmt .= " ORDER BY cvo_title ASC";
+		$stmt .= " ORDER BY cvo_order, cvo_title ASC";
 
 		try {
 			$res = $db->fetchPairs($stmt);
@@ -867,7 +874,7 @@ class Controlled_Vocab
     $stmt .= " FROM " . APP_TABLE_PREFIX . "controlled_vocab ";
 		$stmt .=   "," . APP_TABLE_PREFIX . "controlled_vocab_relationship
 					     WHERE cvr_parent_cvo_id = cvo_id AND cvr_child_cvo_id = ".$db->quote($child_id, 'INTEGER');
-		$stmt .= " ORDER BY cvo_title ASC";
+		$stmt .= " ORDER BY cvo_order, cvo_title ASC";
 
 		try {
 			$res = $db->fetchAll($stmt);
@@ -1131,7 +1138,7 @@ class Controlled_Vocab
 				"FROM " . APP_TABLE_PREFIX . "controlled_vocab_relationship) AS t2 " .
 				"ON t1.cvo_id = t2.cvr_child_cvo_id " .
 				$where .
-				"ORDER BY cvo_id ASC";
+				"ORDER BY cvo_order, cvo_id ASC";
 
 		try {
 			$res = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
@@ -1257,7 +1264,6 @@ class Controlled_Vocab
 
         return $children;
     }
-
 
 	function suggest($value, $parent_id)
 	{
