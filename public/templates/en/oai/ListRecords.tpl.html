@@ -134,6 +134,10 @@
             <electronic type="url">
               <value>http://dx.doi.org/{$list[i].rek_doi}</value>
             </electronic>
+            {else}
+            <electronic type="url">
+                <value>http://{$app_hostname}/view/{$list[i].rek_pid}</value>
+            </electronic>
             {/if}
         </address>
 			    </location>
@@ -167,11 +171,11 @@
 				{/if}
 				{if $list[i].rek_geographic_area}
 				      {if !is_array($list[i].rek_geographic_area)}
-					  <spatial type="text">{$list[i].rek_geographic_area}</spatial>
+					  <spatial type="gmlKmlPolyCoords">{$list[i].rek_geographic_area}</spatial>
 				      {else}
 					  {assign var="loop_geographic_area" value=$list[i].rek_geographic_area}
 					  {section name="s" loop=$loop_geographic_area}
-						<spatial type="text">{$list[i].rek_geographic_area[s]}</spatial>
+						<spatial type="gmlKmlPolyCoords">{$list[i].rek_geographic_area[s]}</spatial>
 					      {/section}
 				      {/if}
 				{/if}
@@ -327,8 +331,11 @@
 			     <description type="rights">&#xA9;{$list[i].rek_rights|trim}</description>
 			{/if}
 			{if $list[i].rek_access_conditions}
-			      <description type="accessRights">{$list[i].rek_access_conditions|strip_tags}</description>
-			 {/if}
+			     <description type="accessRights">{$list[i].rek_access_conditions_lookup|strip_tags}</description>
+			{/if}
+            {if $list[i].rek_license}
+                 <description type="accessRights">{$list[i].rek_license_lookup|strip_tags}</description>
+            {/if}
 			{if $list[i].rek_notes}
 			      {if !is_array($list[i].rek_notes)}
 				  <description type="note">{$list[i].rek_notes}</description>
