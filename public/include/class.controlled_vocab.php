@@ -1243,7 +1243,8 @@ class Controlled_Vocab
                    ON v.cvo_id = r.cvr_parent_cvo_id
                   LEFT JOIN " . APP_TABLE_PREFIX . "controlled_vocab c
                    ON r.cvr_child_cvo_id = c.cvo_id
-                  WHERE v.cvo_id IN (".$parentsList.")";
+                  WHERE v.cvo_id IN (".$parentsList.")
+                  ORDER BY parent_cvo_desc, c.cvo_order, cvo_title";
         try {
             $res = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
 
@@ -1253,15 +1254,14 @@ class Controlled_Vocab
                     $v .=  $r['parent_cvo_desc'] . ' - ';
                 }
                 $v .= $r['cvo_title'];
-                $children[$r['cvo_title']] = $v;
+                $children[$r['parent_cvo_desc']][$r['cvo_title']] = $v;
             }
         }
         catch(Exception $ex) {
             $log->err($ex);
             return $children;
         }
-        asort($children);
-
+       
         return $children;
     }
 
