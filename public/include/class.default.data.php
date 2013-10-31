@@ -336,6 +336,10 @@ class Default_Data
         $defaultData['altmetric_api_enabled']           = "false";
         $defaultData['altmetric_api_url']               = "";
         $defaultData['altmetric_api_key']               = "";
+        $defaultData['crossref_upload_service']         = "";
+        $defaultData['crossref_service_username']       = "";
+        $defaultData['crossref_service_password']       = "";
+        $defaultData['crossref_doi_prefix']             = "";
 		return $defaultData;
 	}
 

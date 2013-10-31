@@ -4634,7 +4634,7 @@ function getSearchKeyIndexValueShadow($pid, $searchKeyTitle, $getLookup=true, $s
           $temp_value = "";
           if (!empty($sekDetails)) {
               if ($sekDetails['sek_data_type'] == 'int' && $sekDetails['sek_lookup_id_function'] != '') {
-                  eval("\$temp_value = ".$sekDetails["sek_lookup_id_function"]."('".$lookups[2][$i]."');");
+                  eval("\$temp_value = ".$sekDetails["sek_lookup_id_function"]."('".addslashes($lookups[2][$i])."');");
                   if (!empty($temp_value)) {
                     $escapedInput = str_replace($lookups[0][$i], $lookups[1][$i].":".$temp_value, $escapedInput);
                   }

@@ -123,6 +123,7 @@ function restoreDefaultColours(el)
 		  <a href="#" onclick="javascript:showSubPage('handle');">Handle Settings</a><br />
 		  <a href="#" onclick="javascript:showSubPage('wok');">Web of Knowledge Settings</a><br />
           <a href="#" onclick="javascript:showSubPage('sherpa');">SHERPA/RoMEO Settings</a><br />
+          <a href="#" onclick="javascript:showSubPage('crossref');">Crossref Settings</a><br />
 		</td>
 	    <td style="width: 200px; vertical-align: top;">
 		  <a href="#" onclick="javascript:showSubPage('webstats');">Web Statistics/Analytics</a><br />
@@ -2393,6 +2394,51 @@ function restoreDefaultColours(el)
         </tbody>
       </table>
     </div>
+        <div id="crossref" style="display: none;">
+            <table width="100%" class="admin-edit">
+                <thead>
+                <tr>
+                    <th colspan="2">
+                        <h2>Crossref</h2>
+                    </th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <th>Crossref URL</th>
+                    <td>
+                        <input type="text" name="crossref_upload_service" value="{$config_settings.crossref_upload_service}" size="100" />
+                        <br />Crossref Upload Service URL
+                        {include file="error_icon.tpl.html" field="crossref_upload_service"}
+                    </td>
+                </tr>
+                <tr>
+                    <th>Crossref Service Username</th>
+                    <td>
+                        <input type="text" name="crossref_service_username" value="{$config_settings.crossref_service_username}" size="50" />
+                        <br />Your Service Username
+                        {include file="error_icon.tpl.html" field="crossref_service_username"}
+                    </td>
+                </tr>
+                <tr>
+                    <th>Crossref Service Password</th>
+                    <td>
+                        <input type="text" name="crossref_service_password" value="{$config_settings.crossref_service_password}" size="50" />
+                        <br />Your Service Password
+                        {include file="error_icon.tpl.html" field="crossref_service_username"}
+                    </td>
+                </tr>
+                <tr>
+                    <th>DOI Prefix</th>
+                    <td>
+                        <input type="text" name="crossref_doi_prefix" value="{$config_settings.crossref_doi_prefix}" size="50" />
+                        <br />Your DOI prefix, given and created standardised text
+                        {include file="error_icon.tpl.html" field="crossref_doi_prefix"}
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
 
         <div id="submit" style="display: none;">
 		<br />&nbsp;&nbsp;&nbsp;<input type="submit" name="button" value="Save changes" class="submit" /> &nbsp; <input type="reset" value="Discard changes" /><br /><br />
