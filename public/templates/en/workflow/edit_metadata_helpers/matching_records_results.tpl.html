@@ -36,7 +36,7 @@
 
 	    {if $scopusMatches[i]->record_exists}
           <br /><div class="matching_alert"><strong>Record {if ($scopusMatches[i]->record_exists && ($scopusMatches[i]->likenStatus == 'ST15' || $scopusMatches[i]->likenStatus == 'ST14'))} possibly {/if} already in {$app_name}:</strong>
-          {$scopusMatches[i]->likenStatus} - {$scopusMatches[i]->likenMessage|smarty:nodefaults}
+          {$scopusMatches[i]->likenMessage|smarty:nodefaults}
           </div>
       {/if}
 
@@ -82,7 +82,7 @@
 
 	{if $matches[i]->record_exists}
       <br /><div class="matching_alert"><strong>Record {if ($matches[i]->record_exists && ($matches[i]->likenStatus == 'ST15' || $matches[i]->likenStatus == 'ST14'))} possibly {/if} already in {$app_name}:</strong>
-        {$matches[i]->likenStatus} - {$matches[i]->likenMessage|smarty:nodefaults}
+        {$matches[i]->likenMessage|smarty:nodefaults}
       </div>
   {/if}
     </li>

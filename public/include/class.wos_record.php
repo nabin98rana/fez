@@ -510,7 +510,7 @@ class WosRecItem extends RecordImport
         } else {
           $this->record_exists = 1;
           //		            $fields->pid = $isInImportColl[0]['rek_scopus_id_pid'];
-          $this->likenCode = $likenResults[0];
+          $this->likenStatus = $likenResults[0];
           $this->likenMessage = preg_replace('/('.APP_PID_NAMESPACE.':[0-9]*)/', '<a href="'.APP_RELATIVE_URL.'view/$1">$1</a>', $likenResults[1]);
         }
 

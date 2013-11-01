@@ -686,7 +686,6 @@ abstract class RecordImport
     $state = 0;
 
     $queryMap = array(
-      'doi' => "AND rek_doi = '" . $fields['_doi'] . "' ",
       'spage' => "AND PREG_REPLACE('/[^0-9]/', '', rek_start_page) = PREG_REPLACE('/[^0-9]/', '', '" . $fields['_startPage'] . "') ",
       'volume' => "AND PREG_REPLACE('/[^0-9]/', '', rek_volume_number) = PREG_REPLACE('/[^0-9]/', '', '" . $fields['_issueVolume'] . "') ",
       'issue' => "AND PREG_REPLACE('/[^0-9]/', '', rek_issue_number) = PREG_REPLACE('/[^0-9]/', '', '" . $fields['_issueNumber'] . "') ",
@@ -696,21 +695,14 @@ abstract class RecordImport
 
 
     $searchSets = array();
-//      $searchSets[1] = array('doi', 'spage', 'volume', 'issue', 'epage'); //ST10/11
-//      $searchSets[2] = array('doi', 'spage', 'volume', 'issue'); //ST12/13
     $searchSets[1] = array('spage', 'volume', 'issue', 'epage'); //ST14/15, now 10/11
-//      $searchSets[4] = array('doi', 'spage', 'volume'); //ST16/17
-//      $searchSets[5] = array('doi', 'spage', 'issue');
     $searchSets[2] = array('spage', 'volume', 'issue'); //ST21/22, now 12/13
-//      $searchSets[7] = array('doi', 'spage');
-//      $searchSets[8] = array('doi');
 
     $fuzzyTitle = "WHERE PREG_REPLACE('/[^a-z]/', '', LOWER(rek_title)) = PREG_REPLACE('/[^a-z]/', '', '" . strtolower($fields['_title']) . "') ";
 
-    $sqlPre = "SELECT rek_pid, rek_title, rek_doi, rek_scopus_id, rek_isi_loc, rek_start_page, "
+    $sqlPre = "SELECT rek_pid, rek_title, rek_scopus_id, rek_isi_loc, rek_start_page, "
       . "rek_end_page, rek_volume_number, rek_issue_number "
       . "FROM ".$dbtp."record_search_key "
-      . "LEFT JOIN ".$dbtp."record_search_key_doi ON rek_pid = rek_doi_pid "
       . "LEFT JOIN ".$dbtp."record_search_key_scopus_id ON rek_pid = rek_scopus_id_pid "
       . "LEFT JOIN ".$dbtp."record_search_key_isi_loc ON rek_pid = rek_isi_loc_pid "
       . "LEFT JOIN ".$dbtp."record_search_key_start_page ON rek_pid = rek_start_page_pid "
@@ -724,7 +716,8 @@ abstract class RecordImport
     {
       $ssKey = $ct+1;
       $searchSet = $searchSets[$ssKey];
-      $sql = $sqlPre . $fuzzyTitle;
+      $sql = $sqlPre;
+//      $sql = $sqlPre . $fuzzyTitle;
 
       foreach($searchSet as $andSearch)
       {
@@ -735,7 +728,7 @@ abstract class RecordImport
       {
         $stmt = $db->query($sql);
         $res = $stmt->fetchAll();
-        $state = (!empty($res)) ? $ssKey : $state;
+        $tempState = (!empty($res)) ? $ssKey : $state;
       }
       catch(Exception $e)
       {
@@ -746,7 +739,7 @@ abstract class RecordImport
       $ct++;
     }
 
-    //Try just the title
+    //Try just the title in a REALLY fuzzy way
     if (empty($res))
     {
       $dupes = DuplicatesReport::similarTitlesQuery('dummy', trim($fields['_title']));
@@ -765,6 +758,13 @@ abstract class RecordImport
           $state = 9;
         }
 
+      } else { // other wise marry the earlier searches to fuzzy title search
+        //check each of the res's and confirm the tempState
+        if ($this->fuzzyTitleMatch($res[0]['rek_pid'])) {
+          $state = $tempState;
+        } else { //if couldn't get a fuzzy match, then clear the data value $res
+          $res = array();
+        }
       }
 //          try
 //          {
@@ -779,9 +779,10 @@ abstract class RecordImport
 //          }
     }
 
-    //Add doi and IVP without the title search
+
+    //DISABLED - Add doi and IVP without the title search
     //The base query will need to be sans the title where clause
-    if(empty($res))
+    /*if(empty($res))
     {
       $sql = $sqlPre;
       $conds = '';
@@ -805,7 +806,7 @@ abstract class RecordImport
         $log->err($e->getMessage());
         return false;
       }
-    }
+    } */
 
     return array('state' => $state, 'data' => $res);
   }
