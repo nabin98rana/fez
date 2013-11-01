@@ -275,7 +275,7 @@ class MatchingRecords
 		            $fields->record_exists = 0;
 		        } else {
 		            $fields->record_exists = 1;
-                $fields->likenCode = $likenResults[0];
+                $fields->likenStatus = $likenResults[0];
                 $fields->likenMessage = preg_replace('/('.APP_PID_NAMESPACE.':[0-9]*)/', '<a href="'.APP_RELATIVE_URL.'view/$1">$1</a>', $likenResults[1]);
 		        }
 
