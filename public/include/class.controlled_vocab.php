@@ -1261,7 +1261,7 @@ class Controlled_Vocab
             $log->err($ex);
             return $children;
         }
-       
+
         return $children;
     }
 
