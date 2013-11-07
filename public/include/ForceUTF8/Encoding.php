@@ -146,6 +146,7 @@ class Encoding {
     "\xc5\xb8"     => "\x9f"
   );
 
+    //This function also removes 4 bytes characters due to < 5.3 MySql support issues
   static function toUTF8($text){
     /**
      * Function Encoding::toUTF8
@@ -180,7 +181,7 @@ class Encoding {
       }
       return $text;
     } elseif(is_string($text)) {
-
+      $text = preg_replace('/[\xF0-\xF7].../s', '', $text);
       $max = strlen($text);
       $buf = "";
       for($i = 0; $i < $max; $i++){
