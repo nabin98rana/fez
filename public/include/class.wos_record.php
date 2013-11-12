@@ -331,7 +331,7 @@ class WosRecItem extends RecordImport
     $IdDL = ($this->ut) ? $this->ut : 'empty';
 
 //    foreach ($searchData as $localRecord) {
-      $localRecord = $searchData['data'];
+      $localRecord = $searchData['data'][0];
       $IdLocal = $localRecord['rek_isi_loc'];
 //      $IdLocal = (preg_match("/2\-s2\.0\-\d+/", $localRecord['rek_isi_loc_id'])) ? $localRecord['rek_isi_loc_id'] : 'empty';
 

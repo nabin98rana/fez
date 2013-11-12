@@ -91,7 +91,7 @@ class ScopusRecItem extends RecordImport
     $scopusIdDL = ($this->_scopusId) ? $this->_scopusId : 'empty';
 
 //    foreach ($searchData as $localRecord) {
-      $localRecord = $searchData['data'];
+      $localRecord = $searchData['data'][0];
       $scopusIdLocal = (preg_match("/2\-s2\.0\-\d+/", $localRecord['rek_scopus_id'])) ? $localRecord['rek_scopus_id'] : 'empty';
 
       if (is_null($localRecord['rek_scopus_id'])

@@ -73,8 +73,8 @@ abstract class RecordImport
 //      102 => 'ST13 - Matched on fuzzy title, DOI, start page, end page, volume and issue. ID in the downloaded record was %s. ID in the local record was %s',
 //      3 => 'ST14 - Matched on fuzzy title, start page, end page, volume and issue. ID in the downloaded record was %s. ID in the local record was null',
 //      103 => 'ST15 - Matched on fuzzy title, start page, end page, volume and issue. ID in the downloaded record was %s. ID in the local record was %s',
-      1 => 'ST10 - Matched on fuzzy title, start page, end page, volume and issue. ID in the downloaded record was %s. ID in the local record was missing',
-      102 => 'ST11 - Matched on fuzzy title, start page, end page, volume and issue. ID in the downloaded record was %s. ID in the local record was %s',
+      1 => 'ST10 - Matched on fuzzy title, start page, end page, volume and issue. ID in the downloaded record was %s. ID in the local record was missing.',
+      102 => 'ST11 - Matched on fuzzy title, start page, end page, volume and issue. ID in the downloaded record was %s. ID in the local record was %s.',
 
 //      4 => 'ST16 - Matched on fuzzy title, DOI, start page and volume. ID in the downloaded record was %s. ID in the local record was null',
 //      104 => 'ST17 - Matched on fuzzy title, DOI, start page and volume. ID in the downloaded record was %s. ID in the local record was %s',
@@ -82,8 +82,8 @@ abstract class RecordImport
 //      105 => 'ST19 - Matched on fuzzy title, DOI, start page issue. ID in the downloaded record was %s. ID in the local record was %s',
 //      6 => 'ST20 - Matched on fuzzy title, start page volume and issue. ID in the downloaded record was %s. ID in the local record was null',
 //      106 => 'ST21 - Matched on fuzzy title, start page volume and issue. ID in the downloaded record was %s. ID in the local record was %s',
-      2 => 'ST12 - Matched on fuzzy title, start page volume and issue. ID in the downloaded record was %s. ID in the local record was missing',
-      102 => 'ST13 - Matched on fuzzy title, start page volume and issue. ID in the downloaded record was %s. ID in the local record was %s',
+      2 => 'ST12 - Matched on fuzzy title, start page volume and issue. ID in the downloaded record was %s. ID in the local record was missing.',
+      102 => 'ST13 - Matched on fuzzy title, start page volume and issue. ID in the downloaded record was %s. ID in the local record was %s.',
 
 //      7 => 'ST22 - Matched on fuzzy title, DOI and start page. ID in the downloaded record was %s. ID in the local record was null.',
 //      107 => 'ST23 - Matched on fuzzy title, DOI and start page. ID in the downloaded record was %s. ID in the local record was %s.',
@@ -693,7 +693,6 @@ abstract class RecordImport
     );
 
 
-
     $searchSets = array();
     $searchSets[1] = array('spage', 'volume', 'issue', 'epage'); //ST14/15, now 10/11
     $searchSets[2] = array('spage', 'volume', 'issue'); //ST21/22, now 12/13
@@ -712,101 +711,61 @@ abstract class RecordImport
 
     $ct = 0;
 
-    while(empty($res) && $ct < count($searchSets))
-    {
-      $ssKey = $ct+1;
-      $searchSet = $searchSets[$ssKey];
-      $sql = $sqlPre;
-//      $sql = $sqlPre . $fuzzyTitle;
-
-      foreach($searchSet as $andSearch)
-      {
-        $sql .= $queryMap[$andSearch];
+    //First do a solr title fuzzy search, then check for each pid whether the combination of terms match. If only a stricter fuzzy title search matches, just go with fuzzy title ST14/15
+    $dupes = DuplicatesReport::similarTitlesQuery('dummy', trim($fields['_title']));
+    // change for format of the dupes into a re-keyed flat array of only things that start with the pid prefix above relevance 1
+    $cleanDupes = array();
+    foreach ($dupes as $dupe) {
+      if (is_numeric($dupe['relevance']) && $dupe['relevance'] > 1) {
+        array_push($cleanDupes, $dupe['pid']);
       }
-
-      try
-      {
-        $stmt = $db->query($sql);
-        $res = $stmt->fetchAll();
-        $tempState = (!empty($res)) ? $ssKey : $state;
-      }
-      catch(Exception $e)
-      {
-        $log->err($e->getMessage());
-        return false;
-      }
-
-      $ct++;
     }
 
-    //Try just the title in a REALLY fuzzy way
-    if (empty($res))
-    {
-      $dupes = DuplicatesReport::similarTitlesQuery('dummy', trim($fields['_title']));
+    if (count($cleanDupes) > 0) {
+      //Get the fuzzy title pids from cleaned dupes and query them on IVP to try to enhance them to a lower ST fuzzy code
 
-      if (count($dupes) > 0 && $dupes[0]['relevance'] > 1) {
-        if ($this->fuzzyTitleMatch($dupes[0]['pid'])) {
-          //          foreach ($dupes as $dupe) {
-//            $res['rek_pid'] = $dupe['pid'];
-//            $res['rek_isi_loc'] = Record::getSearchKeyIndexValue($dupe['pid'], 'ISI Loc');
-//            $res['rek_scopus_id'] = Record::getSearchKeyIndexValue($dupe['pid'], 'Scopus ID');
-//          }
-          $res['rek_pid'] = $dupes[0]['pid'];
-          $res['rek_isi_loc'] = Record::getSearchKeyIndexValue($dupes[0]['pid'], 'ISI Loc');
-          $res['rek_scopus_id'] = Record::getSearchKeyIndexValue($dupes[0]['pid'], 'Scopus ID');
+      while(empty($res) && $ct < count($searchSets)) {
+        $ssKey = $ct+1;
+        $searchSet = $searchSets[$ssKey];
+        $sql = $sqlPre;
+  //      $sql = $sqlPre . $fuzzyTitle;
 
-          $state = 9;
+        // just search the most likely one, unless we find it needs more later on
+        $sql .= " WHERE rek_pid = '".$cleanDupes[0]."' ";
+        foreach($searchSet as $andSearch) {
+          $sql .= $queryMap[$andSearch];
         }
 
-      } else { // other wise marry the earlier searches to fuzzy title search
+        try {
+          $stmt = $db->query($sql);
+          $res = $stmt->fetchAll();
+          $tempState = (!empty($res)) ? $ssKey : $state;
+        } catch(Exception $e) {
+          $log->err($e->getMessage());
+          return false;
+        }
+
+        $ct++;
+      }
+    }
+
+    //Try just the title in a REALLY fuzzy way if nothing was returned from the IVP matches above in $res
+    if (empty($res)) {
+
+        if ($this->fuzzyTitleMatch($cleanDupes[0])) {
+          $res['rek_pid'] = $cleanDupes[0];
+          $res['rek_isi_loc'] = Record::getSearchKeyIndexValue($cleanDupes[0], 'ISI Loc');
+          $res['rek_scopus_id'] = Record::getSearchKeyIndexValue($cleanDupes[0], 'Scopus ID');
+          $state = 9;
+        }
+    } else { // other wise marry the earlier searches to fuzzy title search
         //check each of the res's and confirm the tempState
         if ($this->fuzzyTitleMatch($res[0]['rek_pid'])) {
           $state = $tempState;
         } else { //if couldn't get a fuzzy match, then clear the data value $res
           $res = array();
         }
-      }
-//          try
-//          {
-//              $stmt = $db->query($sqlPre . $fuzzyTitle);
-//              $res = $stmt->fetchAll();
-//              $state = (!empty($res)) ? 9 : $state;
-//          }
-//          catch(Exception $e)
-//          {
-//              $log->err($e->getMessage());
-//              return false;
-//          }
     }
-
-
-    //DISABLED - Add doi and IVP without the title search
-    //The base query will need to be sans the title where clause
-    /*if(empty($res))
-    {
-      $sql = $sqlPre;
-      $conds = '';
-
-      foreach($searchSets[1] as $andSearch)
-      {
-        $conds .= $queryMap[$andSearch];
-      }
-
-      $conds = preg_replace("/^AND\s/", " WHERE ", $conds);
-      $sql .= $conds;
-
-      try
-      {
-        $stmt = $db->query($sql);
-        $res = $stmt->fetchAll();
-        $state = (!empty($res)) ? 10 : $state;
-      }
-      catch(Exception $e)
-      {
-        $log->err($e->getMessage());
-        return false;
-      }
-    } */
 
     return array('state' => $state, 'data' => $res);
   }
