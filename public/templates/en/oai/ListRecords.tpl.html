@@ -208,26 +208,26 @@
 					  <relatedObject>
 					      <key>{$app_hostname}/list/author_id/{$list[i].rek_author_id[a]}</key>
 					      <relation type="
-						  {if $list[i].rek_author_role[a] == "associate investigator" ||
-								$list[i].rek_author_role[a] == "author" ||
-								$list[i].rek_author_role[a] == "chief investigator" ||
-								$list[i].rek_author_role[a] == "investigator" ||
-								$list[i].rek_author_role[a] == "partner investigator" ||
-								$list[i].rek_author_role[a] == "team leader"}
+						  {if $list[i].rek_author_role[a]|lower == "associate investigator" ||
+								$list[i].rek_author_role[a]|lower == "author" ||
+								$list[i].rek_author_role[a]|lower == "chief investigator" ||
+								$list[i].rek_author_role[a]|lower == "investigator" ||
+								$list[i].rek_author_role[a]|lower == "partner investigator" ||
+								$list[i].rek_author_role[a]|lower == "team leader"}
 						      hasCollector
-						  {elseif $list[i].rek_author_role[a] == "case manager" ||
-								$list[i].rek_author_role[a] == "partnership manager" ||
-								$list[i].rek_author_role[a] == "project manager"}
+						  {elseif $list[i].rek_author_role[a]|lower == "case manager" ||
+								$list[i].rek_author_role[a]|lower == "partnership manager" ||
+								$list[i].rek_author_role[a]|lower == "project manager"}
 						      isManagedBy
-						  {elseif $list[i].rek_author_role[a] == "advisor" ||
-								$list[i].rek_author_role[a] == "interviewer" ||
-								$list[i].rek_author_role[a] == "laboratory manager" ||
-								$list[i].rek_author_role[a] == "research assistant" ||
-								$list[i].rek_author_role[a] == "software developer"}
+						  {elseif $list[i].rek_author_role[a]|lower == "advisor" ||
+								$list[i].rek_author_role[a]|lower == "interviewer" ||
+								$list[i].rek_author_role[a]|lower == "laboratory manager" ||
+								$list[i].rek_author_role[a]|lower == "research assistant" ||
+								$list[i].rek_author_role[a]|lower == "software developer"}
 						      isEnrichedBy
-						  {elseif $list[i].rek_author_role[a] == "academic advisor" ||
-								$list[i].rek_author_role[a] == "chair person" ||
-								$list[i].rek_author_role[a] == "supervisor"}
+						  {elseif $list[i].rek_author_role[a]|lower == "academic advisor" ||
+								$list[i].rek_author_role[a]|lower == "chair person" ||
+								$list[i].rek_author_role[a]|lower == "supervisor"}
 						      hasAssociationWith
 						   {else}
 							  hasAssociationWith
