@@ -2146,5 +2146,14 @@ class Author
         return $authors;
     }
 
+    //Attempts to guess first and last names given a fullname. Assumes last, first
+    //Returns as array[]
+    public function guessFirstLastName($fullname) {
+        $pieces = explode(', ',$fullname,  2);
+        $names['lastname'] = $pieces[0];
+        $names['firstname'] = $pieces[1];
+        return $names;
+    }
+
 
 }

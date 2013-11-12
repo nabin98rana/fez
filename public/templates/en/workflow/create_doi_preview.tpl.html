@@ -3,7 +3,7 @@
 <div class="outline">
     <div class="admin-header">Please check any information before proceeding</div>
     <div class="default admin-content">
-{$pid} - {$title}<br/><br/>
+        {$xdis_title} - {$pid} - {$title}<br/><br/>
 
 DOI will be :<br />
 {$doi} <br/>
@@ -13,5 +13,12 @@ DOI will be :<br />
 <b>Depositor info:</b><br/>
 {$depositor_full_name} <br/>
 {$depositor_email}  - Note: email needs to be correct as it will be where verification from Crossref will be emailed to<br/>
+        <br/>
+{if $xdis_title=="Thesis"}
+    Author First Name: {$author_firstname}<br />
+    Author Last Name: {$author_lastname}<br />
+    Publication Date: {$published_date|date_format:"%D"} <br />
+{/if}
+
 </div> </div> </div>
 </td></tr>

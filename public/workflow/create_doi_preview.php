@@ -57,29 +57,54 @@ if (empty($wfstatus)) {
 $crossref = new Crossref;
 $existingDoiIfExists = $crossref->hasDoi($pid);
 if ($crossref->hasDoi($pid)) {
-    $tpl->assign("existingDoi", "This pid already has the doi (".$crossref->hasDoi($pid).") allocated in the doi list, Crossref will be updated with any new meta information.");
+    $tpl->assign("existingDoi", "This pid already has the doi (".$crossref->hasDoi($pid).") allocated in the doi list, Crossref will be updated with any new meta information. Information may take a while to change");
 }
 
-$record = new RecordObject($pid);
-$doiCurrent = $record->getFieldValueBySearchKey("DOI");
+$record_obj = new RecordObject($pid);
+$doiCurrent = $record_obj->getFieldValueBySearchKey("DOI");
 if (!empty($doiCurrent[0]) && ($doiCurrent[0] != $existingDoiIfExists) ) {
     echo "This pid (".$pid.") already has a doi allocated in the record (".$doiCurrent[0].") which doesn't match our records  (".$existingDoiIfExists.") , please check if this is incorrect and remove it if so";
     FezLog::get()->close();
     exit;
 }
 
+$xdis_id = $wfstatus->getXDIS_ID();
+$xdis_id_name = XSD_Display::getTitle($xdis_id);
 
+if ($xdis_id_name != 'Thesis' && $xdis_id_name != 'Data Collection') {
+    echo "This records is the wrong type (".$xdis_id_name.") Thesis or Data Collection needed";
+    FezLog::get()->close();
+    exit;
+}
 
 $doi = ($existingDoiIfExists) ? $existingDoiIfExists : $crossref->getNextDoi();
 
 $wfstatus->setTemplateVars($tpl);
+$record = new Record($pid);
+$result[0]["rek_pid"] = $pid;
+$details = $record->getSearchKeysByPIDS($result, true);
 
-if (1) {
+if ($result[0]['rek_author_id'][0]) {
+    $author_firstname = Author::getFirstname($result[0]['rek_author_id'][0]);
+    $author_lastname = Author::getLastname($result[0]['rek_author_id'][0]);
+} else {
+    $names = Author::guessFirstLastName($result[0]['rek_author'][0]);
+    $author_firstname = $names['firstname'];
+    $author_lastname = $names['lastname'];
+}
+
+$publishedDate = $result[0]['rek_date'];
+
+if ($isAdministrator) {
     $tpl->assign("doi", $doi);
+    $tpl->assign("xdis_title", $xdis_id_name);
     $tpl->assign("depositor_full_name", Auth::getUserFullName());
     $tpl->assign("depositor_email", Auth::getUserEmail());
     $tpl->assign("pid", $pid);
-    $tpl->assign("title", $record->getTitle());
+    $tpl->assign("author_firstname", $author_firstname);
+    $tpl->assign("author_lastname", $author_lastname);
+    $tpl->assign("published_date",$publishedDate);
+    $tpl->assign("title", $record_obj->getTitle());
     $tpl->assign("link", 'http://'.APP_HOSTNAME.'/view/'.$pid);
 
     $tpl->displayTemplate();

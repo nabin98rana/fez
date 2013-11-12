@@ -45,12 +45,14 @@ if (empty($wfstatus)) {
 }
 
 if ($isAdministrator) {
+    $xdis_id = $wfstatus->getXDIS_ID();
+    $xdis_id_name = XSD_Display::getTitle($xdis_id);
     $pid = $this->pid;
     $crossref = new Crossref;
     $existingDoiIfExists = $crossref->hasDoi($pid);
     $username = Auth::getUsername();
     $doi = ($existingDoiIfExists) ? $existingDoiIfExists : $crossref->getNextDoi();
-    $crossref->upload($crossref->xmlForPid($pid, $doi));
+    $crossref->upload($crossref->xmlForPid($pid, $doi, $xdis_id_name));
     if (!$existingDoiIfExists) {
         $crossref->saveDoi($pid, $doi, $username);
     } else {

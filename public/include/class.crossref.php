@@ -33,7 +33,7 @@
 class Crossref
 {
     //Returns xml to upload or false if error
-    private function loadXML($details, $doi)
+    private function loadXML($details, $doi, $xdis_id_name)
     {
         //crossref Data
         //define(APP_ORG_ACRONYM, 'UQ');
@@ -48,12 +48,21 @@ class Crossref
             }
         }
 
+        $publishedDate = $details[0]['rek_date'];
+
         $tpl = new Template_API();
-        $tpl->setTemplate("workflow/crossref_4_3_3_dataset_xml.tpl.html");
+        if ($xdis_id_name == 'Thesis') {
+            $tpl->setTemplate("workflow/crossref_4_3_3_thesis_xml.tpl.html");
+        } else {
+            $tpl->setTemplate("workflow/crossref_4_3_3_dataset_xml.tpl.html");
+        }
         $tpl->assign("details", $details[0]);
         $uniqid = uniqid();
         $tpl->assign("uniqid", $uniqid);
         //$tpl->assign("org_acronym", APP_ORG_ACRONYM);
+        $tpl->assign("published_day",date('d', strtotime($publishedDate)));
+        $tpl->assign("published_month",date('m', strtotime($publishedDate)));
+        $tpl->assign("published_year",date('Y', strtotime($publishedDate)));
         $tpl->assign("timestamp", time());
         $tpl->assign("doi", $doi);
         $tpl->assign("link", 'http://'.APP_HOSTNAME.'/view/'.$details[0]['rek_pid']);
@@ -64,13 +73,13 @@ class Crossref
     }
 
     //Returns xml to upload or false if error
-    public function xmlForPid($pid, $doi)
+    public function xmlForPid($pid, $doi, $xdis_id_name)
     {
         $record = new Record($pid);
         $result[0]["rek_pid"] = $pid;
         $details = $record->getSearchKeysByPIDS($result, true);
 
-        return $this->loadXML($result, $doi);
+        return $this->loadXML($result, $doi, $xdis_id_name);
     }
 
     public function upload($xml)
