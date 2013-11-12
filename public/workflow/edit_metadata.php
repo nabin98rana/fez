@@ -170,6 +170,8 @@ if (isset($_POST['fileNamesOld']) && is_array($_POST['fileNamesOld'])) {
 if (isset($_POST['editedFilenames']) && is_array($_POST['editedFilenames'])) {
 	foreach($_POST['editedFilenames'] as $counter => $fileDetails) {
 		Record::renameDatastream($fileDetails['pid'], $fileDetails['originalFilename'], $fileDetails['newFilename']);
+        //We will check and rename the embargo file if it exists as well
+        Datastream::embargoFileRename($fileDetails['pid'], $fileDetails['originalFilename'], $fileDetails['newFilename']);
 	}
 }
 

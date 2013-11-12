@@ -198,4 +198,44 @@ class Datastream
         }
         return $res;
     }
+
+    static function setEmbargoProcessed($pid, $dsId)
+    {
+        $log = FezLog::get();
+        $db = DB_API::get();
+
+        $stmt = "
+			UPDATE " . APP_TABLE_PREFIX . "datastream_info SET dsi_embargo_processed = 1
+            WHERE dsi_pid = ".$db->quote($pid)." AND dsi_dsid = ".$db->quote($dsId);
+
+        try {
+            $res = $db->exec($stmt);
+        }
+        catch(Exception $ex) {
+            $log->err($ex);
+            return false;
+        }
+        return $res;
+    }
+
+    static function embargoFileRename($pid, $dsIdOld, $dsIdNew)
+    {
+        $log = FezLog::get();
+        $db = DB_API::get();
+
+        $stmt = "
+			UPDATE " . APP_TABLE_PREFIX . "datastream_info SET dsi_dsid = ".$db->quote($dsIdNew)."
+            WHERE dsi_pid = ".$db->quote($pid)." AND dsi_dsid = ".$db->quote($dsIdOld);
+
+        try {
+            $res = $db->exec($stmt);
+        }
+        catch(Exception $ex) {
+            $log->err($ex);
+            return false;
+        }
+        return $res;
+    }
+
+
 }
