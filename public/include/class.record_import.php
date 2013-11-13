@@ -307,7 +307,7 @@ abstract class RecordImport
       $log = FezLog::get();
       $db = DB_API::get();
       $stmt = "INSERT IGNORE INTO " . APP_TABLE_PREFIX . "scopus_import_stats (scs_pid, scs_contrib_id, scs_operation, scs_doc_type, scs_ag_type,scs_count,scs_title) "
-        ."VALUES ('" . $pid . "', '" . $contribId . "', '" . $operation . "', '" . $docType . "', '" . $agType . "',1,".$title.")";
+        ."VALUES ('" . $pid . "', '" . $contribId . "', '" . $operation . "', '" . $docType . "', '" . $agType . "',1,'".Misc::mysql_escape_mimic($title)."')";
 
 
       try {
