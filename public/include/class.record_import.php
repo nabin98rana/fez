@@ -404,7 +404,7 @@ abstract class RecordImport
           } elseif (!$this->_inTest) {
             $this->save($histMsg, $this->_insertCollection);
           } else {
-            $this->_log->err($histMsg);
+//            $this->_log->err($histMsg);
             $this->inTestSave($pids[0], $this->$primaryId, 'ST01',
               $this->$docTypeCode, $this->$aggregationType);
           }
@@ -455,7 +455,7 @@ abstract class RecordImport
             } elseif (!$this->_inTest) {
               $this->save($histMsg, $this->_insertCollection);
             } else {
-              $this->_log->err($histMsg);
+//              $this->_log->err($histMsg);
               $this->inTestSave($associations[$cit]['matchedPid'], $this->$primaryId, 'ST02', $this->$docTypeCode, $this->$aggregationType);
             }
             return false;
@@ -492,7 +492,7 @@ abstract class RecordImport
             } elseif (!$this->_inTest) {
               $this->save($histMsg, $this->_insertCollection);
             } else {
-              $this->_log->err($histMsg);
+//              $this->_log->err($histMsg);
               $this->inTestSave($authorativePid, $this->$primaryId, 'ST03', $this->$docTypeCode, $this->$aggregationType);
             }
 
@@ -517,7 +517,7 @@ abstract class RecordImport
             } elseif (!$this->_inTest) {
               $this->save($histMsg, $this->_insertCollection);
             } else {
-              $this->_log->err($histMsg);
+              //$this->_log->err($histMsg);
               $this->inTestSave($authorativePid, $this->$primaryId, 'ST04', $this->$docTypeCode, $this->$aggregationType);
             }
 
@@ -542,7 +542,7 @@ abstract class RecordImport
             } elseif (!$this->_inTest) {
               $this->save($histMsg, $this->_insertCollection);
             } else {
-              $this->_log->err($histMsg);
+              //$this->_log->err($histMsg);
               $this->inTestSave($authorativePid, $this->$primaryId, 'ST05', $this->$docTypeCode, $this->$aggregationType);
             }
 
@@ -564,7 +564,7 @@ abstract class RecordImport
         } elseif (!$this->_inTest) {
           $this->save($histMsg, $this->_insertCollection);
         } else {
-          $this->_log->err($histMsg);
+//          $this->_log->err($histMsg);
           $this->inTestSave($authorativePid, $this->$primaryId, 'ST06', $this->$docTypeCode, $this->$aggregationType);
         }
       }
@@ -616,7 +616,7 @@ abstract class RecordImport
       } elseif (!$this->_inTest) {
         $this->save(null, $this->_insertCollection);
       } else {
-        $this->_log->err($histMsg);
+//        $this->_log->err($histMsg);
         $this->inTestSave('', $this->$primaryId, 'ST08', $this->$docTypeCode, $this->$aggregationType);
       }
 
