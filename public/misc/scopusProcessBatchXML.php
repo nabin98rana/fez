@@ -24,20 +24,31 @@ $nameSpaces = array(
   'opensearch' => "http://a9.com/-/spec/opensearch/1.1/"
 );
 
+$stmt = "TRUNCATE " . APP_TABLE_PREFIX . "scopus_import_stats ";
+try {
+  $db->exec($stmt);
+} catch (Exception $ex) {
+  $log->err($ex->getMessage());
+  exit;
+}
+
 while($xr->read() && $xr->name !== 'abstracts-retrieval-response');
 
 $ct = 0;
 while($xr->name === 'abstracts-retrieval-response')
 {
-  $csr = new ScopusRecItem();
-  $csr->setInTest(true); //Make sure that $csr->setStatsFile() has a sane value before using this.
-  $csr->setLikenAction(true); //Make sure that $csr->setStatsFile() has a sane value before using this.
-  var_dump($xr->name);
   echo "\n";
   var_dump($ct);
   file_put_contents($process_dir.'scopuscount.txt', $ct);
-  echo "\n";
+  //echo "\n";
   ob_flush();
+
+  if (true == true) {
+//  if($ct == 259) { //$ct is an example of a record that it fails on.
+  $csr = new ScopusRecItem();
+  $csr->setInTest(true); //Make sure that $csr->setStatsFile() has a sane value before using this.
+  $csr->setLikenAction(true); //Make sure that $csr->setStatsFile() has a sane value before using this.
+  //var_dump($xr->name);
   $rec = $xr->expand();
 
   $xmlDoc = new DOMDocument();
@@ -46,14 +57,15 @@ while($xr->name === 'abstracts-retrieval-response')
   $csr->load($xmlDoc->saveXML(), $nameSpaces);
   //var_dump($csr->__get('_scopusId'));
   //$csr->setStatsFile('/var/www/scopusimptest/scopusDownloaded.s3db');
-//    if($ct == 686) //$ct == 686 is an example of a record that it fails on.
+
 //    {
   $csr->liken();
 //    }
-
+  unset($csr);
+  }
   $nx = $xr->next('abstracts-retrieval-response');
   //var_dump($nx);
-  unset($csr);
+
 
   $ct++;
 }

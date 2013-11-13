@@ -338,7 +338,11 @@ abstract class RecordImport
     if (in_array($this->$docTypeCode, $this->_doctypeExceptions)) {
       return false;
     }
-
+//    if ($this->$primaryId == '2-s2.0-37349064233') {
+//      echo "found it\n";
+//    } else {
+//      return;
+//    }
 
 
     //If the Scopus ID matches something that is already in the Scopus

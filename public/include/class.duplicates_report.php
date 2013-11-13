@@ -451,11 +451,13 @@ class DuplicatesReport {
 			$title =  preg_replace("/ +/", " ", $title);
 			$title = $index->solr->escape($title);
 			$title = $index->solr->escapeBooleans($title);
-      $title = preg_replace('/\s+/', '', $title);
+      //$title = preg_replace('/\s+/', '', $title);
       $title = preg_replace ("/[^a-zA-Z0-9 ]/", "", $title);
+      $title = preg_replace('!\s+!', ' ', $title);
+      $title = trim($title);
 			$titleOr = implode(" OR ", explode(" ", $title));
-			$titleOr = preg_replace("/( *OR *OR *)/i", " OR ", $titleOr);
-			$titleOr = preg_replace("/( *AND *AND *)/i", " AND ", $titleOr);
+			$titleOr = preg_replace("/( *OR *OR *)/", " OR ", $titleOr);
+			$titleOr = preg_replace("/( *AND *AND *)/", " AND ", $titleOr);
 			$queryString = "title_t:(".$titleOr.")";
 			$response = $index->solr->search($queryString, $start, $page_rows, $params);
 			$total_rows = $response->response->numFound;
