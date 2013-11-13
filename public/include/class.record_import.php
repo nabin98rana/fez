@@ -312,9 +312,8 @@ abstract class RecordImport
 
       try {
         $db->exec($stmt);
-      }
-      catch (Exception $ex) {
-        $log->err($ex);
+      } catch (Exception $ex) {
+        $log->err($ex->getMessage());
       }
     }
 
@@ -347,17 +346,23 @@ abstract class RecordImport
     if ($this->_inTest) {
 
         $db = DB_API::get();
+        $log = FezLog::get();
 
         $stmt = "SELECT * FROM " . APP_TABLE_PREFIX . "scopus_import_stats WHERE scs_contrib_id = '" . $this->$primaryId . "' LIMIT 1";
-        $res = $db->fetchAll($stmt);
+        try {
+          $res = $db->fetchAll($stmt);
+        } catch (Exception $ex) {
+          $log->err($ex->getMessage());
+        }
 
         if (!empty($res)) {
           $stmt = "UPDATE " . APP_TABLE_PREFIX . "scopus_import_stats SET scs_count = scs_count+1 WHERE scs_contrib_id = '" . $this->$primaryId . "'";
-          $db->exec($stmt);
-
-          return;
+          try {
+            $db->exec($stmt);
+          } catch (Exception $ex) {
+            $log->err($ex->getMessage());
+          }
         }
-
     }
 //TODO: don't restrict restrict search to just the scopus import collection, search the entire espace for pids with that scopus id
 //    } else {

@@ -68,7 +68,7 @@ class ScopusRecItem extends RecordImport
     public function __construct($recordData=null)
     {
         $this->_log = FezLog::get();
-        $this->_comparisonIdTypes = array('_doi', '_scopusId', '_pubmedId', '_title');
+        $this->_comparisonIdTypes = array('_scopusId', '_doi', '_pubmedId', '_title');
         $this->_doctypeExceptions = array('ip');
         $this->_primaryIdPrefix = 'scopus';
         $this->_insertCollection = APP_SCOPUS_IMPORT_COLLECTION;

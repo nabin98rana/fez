@@ -1450,8 +1450,7 @@ class Search_Key
 
         try {
             $res = $db->fetchRow($stmt, array(), Zend_Db::FETCH_ASSOC);
-        }
-        catch (Exception $ex) {
+        } catch (Exception $ex) {
             $log->err($ex);
             return '';
         }
