@@ -585,7 +585,7 @@ abstract class RecordImport
           $this->save($fuzzyMatchState[0], $this->_insertCollection);
         } else {
           //ST10-2x status
-          $this->inTestSave($fuzzyMatchResult[1][0]['rek_pid'], $this->$primaryId, $stCode, $this->$docTypeCode, $this->$aggregationType, $histMsg);
+          $this->inTestSave($fuzzyMatchResult['data'][0]['rek_pid'], $this->$primaryId, $stCode, $this->$docTypeCode, $this->$aggregationType, $histMsg);
           return $fuzzyMatchState;
         }
         return 'POSSIBLE MATCH';
