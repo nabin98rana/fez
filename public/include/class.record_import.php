@@ -293,34 +293,28 @@ abstract class RecordImport
     }
 
     /**
-     * Store stats in SQLite DB when running in test mode.
-     * $this->_statsFile should be set to the path of the SQLite DB.
+     * Store stats in scopus_import_stats table when running in test mode.
+     * @param string $pid
      * @param string $scopusId
      * @param string $operation
      * @param string $docType
      * @param string $agType
      * @return boolean
      */
-    protected function inTestSave($contribId, $operation, $docType=null, $agType=null)
+    protected function inTestSave($pid, $contribId, $operation, $docType=null, $agType=null)
     {
-        /*
-         * CREATE TABLE [records] (
-         * [contrib_id] TEXT  PRIMARY KEY NOT NULL,
-         * [operation] VARCHAR(8) DEFAULT 'NULL' NULL,
-         * [count] INTEGER DEFAULT '0' NOT NULL,
-         * [doc_type] VARCHAR(10) DEFAULT 'NULL' NULL,
-         * [ag_type] VARCHAR(100) DEFAULT 'NULL' NULL,
-         * [title] TEXT DEFAULT 'NULL' NULL
-		 * )
-         */
-        if(!is_file($this->_statsFile))
-        {
-            return false;
-        }
-        $db = new PDO('sqlite:'.$this->_statsFile);
-        $query = "INSERT OR IGNORE INTO records (contrib_id, operation, doc_type, ag_type) "
-        ."VALUES ('" . $contribId . "', '" . $operation . "', '" . $docType . "', '" . $agType . "')";
-        $db->query($query);
+      $log = FezLog::get();
+      $db = DB_API::get();
+      $stmt = "INSERT IGNORE INTO " . APP_TABLE_PREFIX . "scopus_import_stats (scs_pid, scs_contrib_id, scs_operation, scs_doc_type, scs_ag_type) "
+        ."VALUES ('" . $pid . "', '" . $contribId . "', '" . $operation . "', '" . $docType . "', '" . $agType . "')";
+
+
+      try {
+        $db->exec($stmt);
+      }
+      catch (Exception $ex) {
+        $log->err($ex);
+      }
     }
 
     public function isLoaded() {
@@ -350,20 +344,19 @@ abstract class RecordImport
     //If the Scopus ID matches something that is already in the Scopus
     //import collection, we need not go any further.
     if ($this->_inTest) {
-      if (is_file($this->_statsFile)) {
-        $db = new PDO('sqlite:' . $this->_statsFile);
 
-        $query = "SELECT * FROM records WHERE contrib_id = '" . $this->$primaryId . "' LIMIT 1";
-        $res = $db->query($query);
-        $rows = $res->fetchAll(PDO::FETCH_ASSOC);
+        $db = DB_API::get();
 
-        if (!empty($rows)) {
-          $query = "UPDATE records SET count = count+1 WHERE contrib_id = '" . $this->$primaryId . "'";
-          $db->query($query);
+        $stmt = "SELECT * FROM " . APP_TABLE_PREFIX . "scopus_import_stats WHERE scs_contrib_id = '" . $this->$primaryId . "' LIMIT 1";
+        $res = $db->fetchAll($stmt);
+
+        if (!empty($res)) {
+          $stmt = "UPDATE " . APP_TABLE_PREFIX . "scopus_import_stats SET count = count+1 WHERE contrib_id = '" . $this->$primaryId . "'";
+          $db->exec($stmt);
 
           return;
         }
-      }
+
     }
 //TODO: don't restrict restrict search to just the scopus import collection, search the entire espace for pids with that scopus id
 //    } else {
