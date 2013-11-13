@@ -405,7 +405,7 @@ abstract class RecordImport
             $this->save($histMsg, $this->_insertCollection);
           } else {
             $this->_log->err($histMsg);
-            $this->inTestSave($this->$primaryId, 'ST01',
+            $this->inTestSave($pids[0], $this->$primaryId, 'ST01',
               $this->$docTypeCode, $this->$aggregationType);
           }
           return false;
@@ -456,7 +456,7 @@ abstract class RecordImport
               $this->save($histMsg, $this->_insertCollection);
             } else {
               $this->_log->err($histMsg);
-              $this->inTestSave($this->$primaryId, 'ST02', $this->$docTypeCode, $this->$aggregationType);
+              $this->inTestSave($associations[$cit]['matchedPid'], $this->$primaryId, 'ST02', $this->$docTypeCode, $this->$aggregationType);
             }
             return false;
           }
@@ -493,7 +493,7 @@ abstract class RecordImport
               $this->save($histMsg, $this->_insertCollection);
             } else {
               $this->_log->err($histMsg);
-              $this->inTestSave($this->$primaryId, 'ST03', $this->$docTypeCode, $this->$aggregationType);
+              $this->inTestSave($authorativePid, $this->$primaryId, 'ST03', $this->$docTypeCode, $this->$aggregationType);
             }
 
             return false;
@@ -518,7 +518,7 @@ abstract class RecordImport
               $this->save($histMsg, $this->_insertCollection);
             } else {
               $this->_log->err($histMsg);
-              $this->inTestSave($this->$primaryId, 'ST04', $this->$docTypeCode, $this->$aggregationType);
+              $this->inTestSave($authorativePid, $this->$primaryId, 'ST04', $this->$docTypeCode, $this->$aggregationType);
             }
 
             return false;
@@ -543,7 +543,7 @@ abstract class RecordImport
               $this->save($histMsg, $this->_insertCollection);
             } else {
               $this->_log->err($histMsg);
-              $this->inTestSave($this->$primaryId, 'ST05', $this->$docTypeCode, $this->$aggregationType);
+              $this->inTestSave($authorativePid, $this->$primaryId, 'ST05', $this->$docTypeCode, $this->$aggregationType);
             }
 
             return false;
@@ -565,7 +565,7 @@ abstract class RecordImport
           $this->save($histMsg, $this->_insertCollection);
         } else {
           $this->_log->err($histMsg);
-          $this->inTestSave($this->$primaryId, 'ST06', $this->$docTypeCode, $this->$aggregationType);
+          $this->inTestSave($authorativePid, $this->$primaryId, 'ST06', $this->$docTypeCode, $this->$aggregationType);
         }
       }
     } elseif (empty($pidCollection)) {
@@ -584,7 +584,7 @@ abstract class RecordImport
           $this->save($fuzzyMatchState[0], $this->_insertCollection);
         } else {
           //ST10-2x status
-          $this->inTestSave($this->$primaryId, $stCode, $this->$docTypeCode, $this->$aggregationType);
+          $this->inTestSave($fuzzyMatchResult[1][0]['rek_pid'], $this->$primaryId, $stCode, $this->$docTypeCode, $this->$aggregationType);
           return $fuzzyMatchState;
         }
         return 'POSSIBLE MATCH';
@@ -599,7 +599,7 @@ abstract class RecordImport
       } elseif (!$this->_inTest) {
         $this->save($histMsg, $this->_insertCollection);
       } else {
-        $this->inTestSave($this->$primaryId, 'ST07', $this->$docTypeCode, $this->$aggregationType);
+        $this->inTestSave('', $this->$primaryId, 'ST07', $this->$docTypeCode, $this->$aggregationType);
       }
 
       return "SAVE";
@@ -617,7 +617,7 @@ abstract class RecordImport
         $this->save(null, $this->_insertCollection);
       } else {
         $this->_log->err($histMsg);
-        $this->inTestSave($this->$primaryId, 'ST08', $this->$docTypeCode, $this->$aggregationType);
+        $this->inTestSave('', $this->$primaryId, 'ST08', $this->$docTypeCode, $this->$aggregationType);
       }
 
       return false;
@@ -632,7 +632,7 @@ abstract class RecordImport
       } else {
         /*file_put_contents($this->_statsFile, "ST09 - Updating: ".$authorativePid.". Scopus ID: "
             . $this->_scopusId . "\n\n", FILE_APPEND);*/
-        $this->inTestSave($this->$primaryId, 'ST09', $this->$docTypeCode, $this->$aggregationType);
+        $this->inTestSave($authorativePid, $this->$primaryId, 'ST09', $this->$docTypeCode, $this->$aggregationType);
       }
       return "UPDATE";
     }
