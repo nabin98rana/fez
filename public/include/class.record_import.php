@@ -351,7 +351,7 @@ abstract class RecordImport
         $res = $db->fetchAll($stmt);
 
         if (!empty($res)) {
-          $stmt = "UPDATE " . APP_TABLE_PREFIX . "scopus_import_stats SET count = count+1 WHERE contrib_id = '" . $this->$primaryId . "'";
+          $stmt = "UPDATE " . APP_TABLE_PREFIX . "scopus_import_stats SET scs_count = count+1 WHERE scs_contrib_id = '" . $this->$primaryId . "'";
           $db->exec($stmt);
 
           return;
