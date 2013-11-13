@@ -753,9 +753,11 @@ abstract class RecordImport
     if (empty($res)) {
 
         if ($this->fuzzyTitleMatch($cleanDupes[0])) {
-          $res['rek_pid'] = $cleanDupes[0];
-          $res['rek_isi_loc'] = Record::getSearchKeyIndexValue($cleanDupes[0], 'ISI Loc');
-          $res['rek_scopus_id'] = Record::getSearchKeyIndexValue($cleanDupes[0], 'Scopus ID');
+          $res = array();
+          $res[0] = array();
+          $res[0]['rek_pid'] = $cleanDupes[0];
+          $res[0]['rek_isi_loc'] = Record::getSearchKeyIndexValue($cleanDupes[0], 'ISI Loc');
+          $res[0]['rek_scopus_id'] = Record::getSearchKeyIndexValue($cleanDupes[0], 'Scopus ID');
           $state = 9;
         }
     } else { // other wise marry the earlier searches to fuzzy title search
