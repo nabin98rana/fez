@@ -1515,7 +1515,7 @@ class Search_Key
                  FROM
                     " . APP_TABLE_PREFIX . "search_key
                  WHERE ";
-        $sek_title = str_replace('_', '', $sek_title);
+        $sek_title = str_replace('_', ' ', $sek_title);
         if (is_numeric(strpos(APP_SQL_DBTYPE, "pgsql"))) { //pgsql is case sensitive
             $stmt .= " sek_title ILIKE " . $db->quote($sek_title);
         } else {
