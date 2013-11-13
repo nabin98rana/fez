@@ -451,6 +451,7 @@ class DuplicatesReport {
 			$title =  preg_replace("/ +/", " ", $title);
 			$title = $index->solr->escape($title);
 			$title = $index->solr->escapeBooleans($title);
+      $title  = preg_replace('/\s+/', ' ', $title);
 			$titleOr = implode(" OR ", explode(" ", $title));
 			$titleOr = preg_replace("/( OR OR )/i", " OR ", $titleOr);
 			$titleOr = preg_replace("/( AND AND )/i", " AND ", $titleOr);
