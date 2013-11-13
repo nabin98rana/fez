@@ -3951,7 +3951,7 @@ class Record
     }
     $sek_title = Search_Key::makeSQLTableName($sek_details['sek_title']);
     if (empty($sek_title)) {
-        $log->err("No search key found: '{$sek_details['sek_title']}'");
+        $log->err("No search key found for pid ".$pid.": ".$searchKeyTitle);
         return false;
     }
 
@@ -4035,7 +4035,7 @@ function getSearchKeyIndexValueShadow($pid, $searchKeyTitle, $getLookup=true, $s
     }
     $sek_title = Search_Key::makeSQLTableName($sek_details['sek_title']);
     if (empty($sek_title)) {
-        $log->err("No search key found: '{$sek_details['sek_title']}'");
+        $log->err("No search key found for pid ".$pid.": ".$searchKeyTitle);
         return false;
     }
 
