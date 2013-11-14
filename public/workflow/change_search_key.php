@@ -85,6 +85,7 @@ if ($cat == 'submit') {
 
     $wfstatus->sek_value = $sek_value;
     $wfstatus->sek_id = $_REQUEST['sek_id'];
+    $wfstatus->reason_for_edit = $_REQUEST['reason_for_edit'];
 
 }
 $wfstatus->checkStateChange();
@@ -98,4 +99,4 @@ $tpl->assign('najax_header', NAJAX_Utilities::header(APP_RELATIVE_URL . 'include
 $tpl->registerNajax(NAJAX_Client::register('SelectSearchKey', 'change_search_key.php'));
 
 $tpl->displayTemplate();
-?>
+

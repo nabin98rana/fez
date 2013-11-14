@@ -42,6 +42,7 @@
             <li><a {if $smarty.server.SCRIPT_NAME == $smarty.const.APP_RELATIVE_URL|cat:'manage/rid_profile_uploads.php'}class="focus" {/if}href="{$rel_url}manage/rid_profile_uploads.php">RID Profile Uploads</a></li>
             <li><a {if $smarty.server.SCRIPT_NAME == $smarty.const.APP_RELATIVE_URL|cat:'manage/conferences_id.php'}class="focus" {/if}href="{$rel_url}manage/conferences_id.php">Conference master list</a></li>
             <li><a {if $smarty.server.SCRIPT_NAME == $smarty.const.APP_RELATIVE_URL|cat:'manage/publishers.php'}class="focus" {/if}href="{$rel_url}manage/publishers.php">Publisher master list</a></li>
+            <li><a  href="{$rel_url}misc/api_view_info.php">View raw XML from Scopus or WOK</a></li>
           </ul>
 
           {if $isSuperAdministrator}

@@ -39,14 +39,13 @@ include_once(APP_INC_PATH. 'class.error_handler.php');
 $pids           = $this->pids;  /* The Pids to copy */
 $sek_id    = $this->sek_id;
 $sek_value      = $this->sek_value;
+$history = $this->reason_for_edit;
 
 $regen          = false;
 
 if (!empty($pids) && is_array($pids)) { 
     
     $bgp = new BackgroundProcess_Bulk_Change_Search_Key; 
-    $bgp->register(serialize(compact('pids', 'sek_id', 'sek_value', 'regen')), Auth::getUserID());
+    $bgp->register(serialize(compact('pids', 'sek_id', 'sek_value', 'regen', 'history')), Auth::getUserID());
     
 }
-
-?>

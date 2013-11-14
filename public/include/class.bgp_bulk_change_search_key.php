@@ -65,7 +65,7 @@ class BackgroundProcess_Bulk_Change_Search_Key extends BackgroundProcess
 
             $sk = new Search_Key();
             $sekDetails = $sk->getDetails($sek_id);
-            $history = "changed ".$sekDetails['sek_title']." (".$sek_id.") to ".$sek_value;
+            $history = "changed ".$sekDetails['sek_title']." (".$sek_id.") to ".$sek_value." ".$history;
             $search_keys = array($sekDetails['sek_title']);
             $values = array($sek_value);
 
@@ -91,15 +91,11 @@ class BackgroundProcess_Bulk_Change_Search_Key extends BackgroundProcess
                                             "Expected Finish " . $eta['expected_finish'] . ")"
                                         );
 
-
 				$record = new RecordObject($pid);
 				if ($record->canEdit()) {
-
 					// TODO: Update search key function here
 
 					$record->addSearchKeyValueList($search_keys, $values, true, $history);
-					
-					// $res = $record->updateRELSEXT("rel:isMemberOf", $collection_pid, false);
 						
 					$this->setStatus("Changed '".$pid."'");
 					$this->pid_count++;

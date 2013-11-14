@@ -329,7 +329,9 @@ class WorkflowTrigger
 		if (!Misc::isInt($trigger)) {
 			$trigger = WorkflowTrigger::getTriggerId($trigger);
 		}
-		return WorkflowTrigger::getAssocList($pid, " AND wft_type_id=".$db->quote($trigger, 'INTEGER')." ");
+        $results = WorkflowTrigger::getAssocList($pid, " AND wft_type_id=".$db->quote($trigger, 'INTEGER')." ");
+        asort($results);
+		return $results;
 	}
 
 
