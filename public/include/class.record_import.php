@@ -304,6 +304,7 @@ abstract class RecordImport
      */
     protected function inTestSave($pid, $contribId, $operation, $docType=null, $agType=null, $title)
     {
+//      return;
       $log = FezLog::get();
       $db = DB_API::get();
       $stmt = "INSERT IGNORE INTO " . APP_TABLE_PREFIX . "scopus_import_stats (scs_pid, scs_contrib_id, scs_operation, scs_doc_type, scs_ag_type,scs_count,scs_title) "
@@ -759,6 +760,7 @@ abstract class RecordImport
           $res = array();
           $res[0] = array();
           $res[0]['rek_pid'] = $cleanDupes[0];
+          $res[0]['rek_title'] = Record::getSearchKeyIndexValue($cleanDupes[0], 'Title');
           $res[0]['rek_isi_loc'] = Record::getSearchKeyIndexValue($cleanDupes[0], 'ISI Loc');
           $res[0]['rek_scopus_id'] = Record::getSearchKeyIndexValue($cleanDupes[0], 'Scopus ID');
           $state = 9;

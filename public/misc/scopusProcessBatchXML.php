@@ -35,13 +35,18 @@ try {
 while($xr->read() && $xr->name !== 'abstracts-retrieval-response');
 
 $ct = 0;
+
+
+$time_started = Date_API::getSimpleDateUTC();
+$record_count = 32564;
+
 while($xr->name === 'abstracts-retrieval-response')
 {
-  echo "\n";
-  var_dump($ct);
-  file_put_contents($process_dir.'scopuscount.txt', $ct);
+//  echo "\n";
+//  var_dump($ct);
+  //file_put_contents($process_dir.'scopuscount.txt', $ct);
   //echo "\n";
-  ob_flush();
+//  ob_flush();
 
   if (true == true) {
 //  if($ct == 259) { //$ct is an example of a record that it fails on.
@@ -64,8 +69,28 @@ while($xr->name === 'abstracts-retrieval-response')
   unset($csr);
   }
   $nx = $xr->next('abstracts-retrieval-response');
+
+  $ct++;
+  $utc_date = Date_API::getSimpleDateUTC();
+  $record_counter = $ct;
+  $records_left = $record_count - $record_counter;
+
+  $time_per_object = Date_API::dateDiff("s", $time_started, $utc_date);
+  $time_per_object = round(($time_per_object / $record_counter), 2);
+//  $eta['time_per_object'] = $time_per_object;
+
+  $exp_finish_time = new Date($utc_date);
+  $exp_finish_time->addSeconds($time_per_object * $records_left);
+  $exp_finish_formatted = Date_API::getFormattedDate($exp_finish_time->getTime());
+//  $exp_finish_formatted = Date_API::getFormattedDate($exp_finish_time->getTime(), 'Brisbane/Australia');
+
+  $progress = intval(100 * $record_counter / $record_count);
+  echo   "\n(" . $record_counter . "/" . $record_count . ") ".
+    "(Avg " . $time_per_object . "s per Object. " .
+    "Expected Finish " . $exp_finish_formatted . ")\n";
+  ob_flush();
   //var_dump($nx);
 
 
-  $ct++;
+
 }

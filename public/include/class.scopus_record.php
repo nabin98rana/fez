@@ -103,7 +103,7 @@ class ScopusRecItem extends RecordImport
         $statusMessage = sprintf($this->fuzzySearchStatusMessages[$searchData['state'] + 100], $scopusIdDL, $scopusIdLocal);
       }
 
-      $statuses[] = $statusMessage . " Pid matched: " . $localRecord['rek_pid']. " - Title searched: ".$this->_title;
+      $statuses[] = $statusMessage . " Pid matched: " . $localRecord['rek_pid']. " - Title searched: ".$this->_title." vs Local Title: ".$localRecord['rek_title'];
 //    }
 
     return $statuses;
