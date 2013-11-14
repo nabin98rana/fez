@@ -458,6 +458,10 @@ class DuplicatesReport {
 			$titleOr = implode(" OR ", explode(" ", $title));
 			$titleOr = preg_replace("/( *OR *OR *)/", " OR ", $titleOr);
 			$titleOr = preg_replace("/( *AND *AND *)/", " AND ", $titleOr);
+      //make sure something is left to search for
+      if (trim($titleOr) == '') {
+        return array();
+      }
 			$queryString = "title_t:(".$titleOr.")";
 			$response = $index->solr->search($queryString, $start, $page_rows, $params);
 			$total_rows = $response->response->numFound;

@@ -39,6 +39,12 @@ $ct = 0;
 
 $time_started = Date_API::getSimpleDateUTC();
 $record_count = 32564;
+//$ri = new ScopusRecItem();
+
+//$xpath = $ri->getXPath(file_get_contents($process_dir.'scopusLiveData5.xml'));
+
+//$records_found = $xpath->query('/abstracts-retrieval-response');
+//echo "found count ".$records_found; exit;
 
 while($xr->name === 'abstracts-retrieval-response')
 {
@@ -48,8 +54,8 @@ while($xr->name === 'abstracts-retrieval-response')
   //echo "\n";
 //  ob_flush();
 
-  if (true == true) {
-//  if($ct == 259) { //$ct is an example of a record that it fails on.
+//  if (true == true) {
+//  if($ct >= 31601) { //$ct is an example of a record that it fails on.
   $csr = new ScopusRecItem();
   $csr->setInTest(true); //Make sure that $csr->setStatsFile() has a sane value before using this.
   $csr->setLikenAction(true); //Make sure that $csr->setStatsFile() has a sane value before using this.
@@ -67,30 +73,42 @@ while($xr->name === 'abstracts-retrieval-response')
   $csr->liken();
 //    }
   unset($csr);
-  }
+//  }
   $nx = $xr->next('abstracts-retrieval-response');
 
   $ct++;
+//  if($ct > 31601) {
   $utc_date = Date_API::getSimpleDateUTC();
   $record_counter = $ct;
   $records_left = $record_count - $record_counter;
-
   $time_per_object = Date_API::dateDiff("s", $time_started, $utc_date);
   $time_per_object = round(($time_per_object / $record_counter), 2);
-//  $eta['time_per_object'] = $time_per_object;
 
   $exp_finish_time = new Date($utc_date);
   $exp_finish_time->addSeconds($time_per_object * $records_left);
   $exp_finish_formatted = Date_API::getFormattedDate($exp_finish_time->getTime());
-//  $exp_finish_formatted = Date_API::getFormattedDate($exp_finish_time->getTime(), 'Brisbane/Australia');
 
   $progress = intval(100 * $record_counter / $record_count);
-  echo   "\n(" . $record_counter . "/" . $record_count . ") ".
-    "(Avg " . $time_per_object . "s per Object. " .
-    "Expected Finish " . $exp_finish_formatted . ")\n";
-  ob_flush();
-  //var_dump($nx);
+  if ($record_counter % 10 == 0 || $record_counter == $record_count) {
+    $msg =    "\n(" . $record_counter . "/" . $record_count . ") ".
+      "(Avg " . $time_per_object . "s per Object. " .
+      "Expected Finish " . $exp_finish_formatted . ")\n";
+    echo $msg;
+    ob_flush();
+  }
+//  } else {
+////    $ct++;
+//    var_dump($ct);
+//    ob_flush();
+//
+//  }
 
+  /*
+   // can be uncommented to do a speed run just to get the count of a very large file
+   $nx = $xr->next('abstracts-retrieval-response');
+  $ct++;
+  var_dump($ct);
+  ob_flush();*/
 
 
 }
