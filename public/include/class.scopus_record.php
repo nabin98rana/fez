@@ -95,8 +95,8 @@ class ScopusRecItem extends RecordImport
       $scopusIdLocal = (preg_match("/2\-s2\.0\-\d+/", $localRecord['rek_scopus_id'])) ? $localRecord['rek_scopus_id'] : 'empty';
 
       if (is_null($localRecord['rek_scopus_id'])
-        || strtolower($localRecord['rek_scopus_id']) == ''
-        || !preg_match("/2\-s2\.0\-\d+/", $localRecord['rek_scopus_id'])
+        || trim($localRecord['rek_scopus_id']) == ''
+//        || !preg_match("/2\-s2\.0\-\d+/", $localRecord['rek_scopus_id'])
       ) {
         $statusMessage = sprintf($this->fuzzySearchStatusMessages[$searchData['state']], $scopusIdDL);
       } else {
@@ -230,6 +230,13 @@ class ScopusRecItem extends RecordImport
             $this->_issueNumber = $this->extract('//prism:issueIdentifier', $xpath);
             $this->_startPage = $this->extract('//prism:startingPage', $xpath);
             $this->_endPage = $this->extract('//prism:endingPage', $xpath);
+            //sometimes scopus uses pagerange instead of startingpage/endingpage, so try that if you have to
+            if (empty($this->_startPage) || empty($this->_endPage)) {
+              $pageRange = $this->extract('//prism:pageRange', $xpath);
+              $this->_startPage = substr($pageRange, 0, strpos($pageRange, '-'));
+              $this->_endPage = substr($pageRange, strpos($pageRange, '-') + 1);
+            }
+
             $this->_totalPages = $this->extract('//pagecount', $xpath);
             if (!is_numeric($this->_totalPages)) {
               $this->_totalPages = ($this->_endPage - $this->_startPage) + 1;

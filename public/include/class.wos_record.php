@@ -336,7 +336,7 @@ class WosRecItem extends RecordImport
 //      $IdLocal = (preg_match("/2\-s2\.0\-\d+/", $localRecord['rek_isi_loc_id'])) ? $localRecord['rek_isi_loc_id'] : 'empty';
 
       if (is_null($localRecord['rek_isi_loc'])
-        || strtolower($localRecord['rek_isi_loc']) == ''
+        || trim($localRecord['rek_isi_loc']) == ''
       ) {
         $statusMessage = sprintf($this->fuzzySearchStatusMessages[$searchData['state']], $IdDL);
       } else {

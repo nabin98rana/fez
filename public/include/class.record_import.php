@@ -462,7 +462,7 @@ abstract class RecordImport
 
 
             if (!$this->_likenAction) {
-              $return = array('ST02', $histMsg);
+              return array('ST02', $histMsg);
             } elseif (!$this->_inTest) {
               $this->save($histMsg, $this->_insertCollection);
             } else {
@@ -588,6 +588,7 @@ abstract class RecordImport
 
         //extract the ST code..
         $stCode = preg_replace("/(^ST\d{2})*./", "$1", $fuzzyMatchState[0]);
+        $stCode = trim($stCode);
         $histMsg = $fuzzyMatchState[0];
         if (!$this->_likenAction) {
           return array($stCode, $histMsg);
