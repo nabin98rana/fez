@@ -168,7 +168,10 @@ class ScopusRecItem extends RecordImport
 //              return false;
 //            }
             if ($this->_scopusDocTypeCode == '') {
-              $this->_scopusDocTypeCode =  $xpath->query('//head/citation-info/citation-type')->item(0)->getAttribute('code');
+              $tmp = $xpath->query('//head/citation-info/citation-type');
+              if ($tmp->length > 0) {
+                $this->_scopusDocTypeCode = $tmp->item(0)->getAttribute('code');
+              }
             }
 
 
@@ -177,7 +180,15 @@ class ScopusRecItem extends RecordImport
             $this->_publisher = $this->extract('//publishername', $xpath);
             $this->_isbn = $this->extract('//isbn', $xpath);
 //            $this->_journalTitleAbbreviation = $this->extract('//prism:publicationName-abbrev', $xpath);
-            $this->_languageCode = $xpath->query('//head/citation-info/citation-language/@xml:lang')->item(0)->nodeValue;
+//            $this->_languageCode = $xpath->query('//head/citation-info/citation-language/@xml:lang');
+
+            $tmp = $xpath->query('//head/citation-info/citation-language/@xml:lang');
+            if ($tmp->length > 0) {
+              $this->_languageCode =- $tmp->item(0)->nodeValue;
+            }
+
+
+
 //            $this->_languageCode = $this->extract('/d:abstracts-retrieval-response/item/bibrecord/head/citation-info/citation-language', $xpath);
 
             $keywords = $xpath->query('//head/citation-info/author-keywords/author-keyword');
