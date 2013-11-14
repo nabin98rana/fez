@@ -73,8 +73,8 @@ abstract class RecordImport
 //      102 => 'ST13 - Matched on fuzzy title, DOI, start page, end page, volume and issue. ID in the downloaded record was %s. ID in the local record was %s',
 //      3 => 'ST14 - Matched on fuzzy title, start page, end page, volume and issue. ID in the downloaded record was %s. ID in the local record was null',
 //      103 => 'ST15 - Matched on fuzzy title, start page, end page, volume and issue. ID in the downloaded record was %s. ID in the local record was %s',
-      1 => 'ST10 - Matched on fuzzy title, start page, end page, volume and issue. ID in the downloaded record was %s. ID in the local record was missing.',
-      102 => 'ST11 - Matched on fuzzy title, start page, end page, volume and issue. ID in the downloaded record was %s. ID in the local record was %s.',
+      1 => 'ST10 - Matched on fuzzy title, start page, end page, volume and issue. ID  %s. Local ID missing.',
+      102 => 'ST11 - Matched on fuzzy title, start page, end page, volume and issue. ID %s. Local ID was %s.',
 
 //      4 => 'ST16 - Matched on fuzzy title, DOI, start page and volume. ID in the downloaded record was %s. ID in the local record was null',
 //      104 => 'ST17 - Matched on fuzzy title, DOI, start page and volume. ID in the downloaded record was %s. ID in the local record was %s',
@@ -82,8 +82,8 @@ abstract class RecordImport
 //      105 => 'ST19 - Matched on fuzzy title, DOI, start page issue. ID in the downloaded record was %s. ID in the local record was %s',
 //      6 => 'ST20 - Matched on fuzzy title, start page volume and issue. ID in the downloaded record was %s. ID in the local record was null',
 //      106 => 'ST21 - Matched on fuzzy title, start page volume and issue. ID in the downloaded record was %s. ID in the local record was %s',
-      2 => 'ST12 - Matched on fuzzy title, start page volume and issue. ID in the downloaded record was %s. ID in the local record was missing.',
-      102 => 'ST13 - Matched on fuzzy title, start page volume and issue. ID in the downloaded record was %s. ID in the local record was %s.',
+      2 => 'ST12 - Matched on fuzzy title, start page volume and issue. ID  %s. Local ID missing.',
+      102 => 'ST13 - Matched on fuzzy title, start page volume and issue. ID %s. Local ID was %s.',
 
 //      7 => 'ST22 - Matched on fuzzy title, DOI and start page. ID in the downloaded record was %s. ID in the local record was null.',
 //      107 => 'ST23 - Matched on fuzzy title, DOI and start page. ID in the downloaded record was %s. ID in the local record was %s.',
@@ -91,8 +91,8 @@ abstract class RecordImport
 //      108 => 'ST25 - Matched on fuzzy title, DOI. ID in the downloaded record was %s. ID in the local record was %s.',
 //      9 => 'ST26 - Matched on fuzzy title. ID in the downloaded record was %s. ID in the local record was null.',
 //      109 => 'ST27 - Matched on fuzzy title. ID in the downloaded record was %s. ID in the local record was %s.',
-      9 => 'ST14 - Matched on fuzzy title. ID in the downloaded record was %s. ID in the local record was missing.',
-      109 => 'ST15 - Matched on fuzzy title. ID in the downloaded record was %s. ID in the local record was %s.',
+      9 => 'ST14 - Matched on fuzzy title. ID  %s. Local ID missing.',
+      109 => 'ST15 - Matched on fuzzy title. ID %s. Local ID was %s.',
 
 //      10 => 'ST28 - Matched on DOI, start page, end page, issue, volume. ID in the downloaded record was %s. ID in the local record was null.',
 //      110 => 'ST29 - Matched on DOI, start page, end page, issue, volume. ID in the downloaded record was %s. ID in the local record was %s.',
@@ -400,7 +400,7 @@ abstract class RecordImport
           $associations[$id]['status'] = 'MATCHED';
           $associations[$id]['matchedPid'] = $pids[0];
           // Add the history message if this flows all the way to ST09
-          $histMsg = 'ST09 - Found '.$associations[$id]['matchedPid'].' based on match on '.$this->formatMatchID($id);
+          $histMsg = 'ST09 - Found '.$associations[$id]['matchedPid'].' based on match on '.$this->formatMatchID($id).': '.$this->$id;
         } elseif (!$this->$id) {
           $associations[$id]['status'] = 'EMPTY';
         } elseif ($pidCount > 1) {
@@ -602,7 +602,7 @@ abstract class RecordImport
 
       $histMsg = "ST07 - No matches, saving a new PID for ID "
         . $formattedPrimaryId ." "
-        . $this->$primaryId . "'" . $this->_title;
+        . $this->$primaryId . " - " . $this->_title;
 
       if (!$this->_likenAction) {
         return array('ST07', $histMsg);
