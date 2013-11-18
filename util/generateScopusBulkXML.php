@@ -1,5 +1,8 @@
 <?php
 
+// This is an example script of how you would download everything affliatied with an institution
+// in Scopus with a given time period for later bulk processing/deduping.
+
 //This is the final script used to download the live scopus data on 1/3/2013
 //A second run done with this script on 07/03/2013 with the 60087457 afid
 

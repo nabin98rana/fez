@@ -1,4 +1,6 @@
 <?
+//This is an example script of how you could create a dedupe report on a bulk scopus xml file
+
 ini_set("display_errors", 1);
 
 include_once dirname(dirname(__FILE__)).DIRECTORY_SEPARATOR.'config.inc.php';
