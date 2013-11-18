@@ -13,11 +13,14 @@ DOI will be :<br />
 <b>Depositor info:</b><br/>
 {$depositor_full_name} <br/>
 {$depositor_email}  - Note: email needs to be correct as it will be where verification from Crossref will be emailed to<br/>
-        <br/>
+<br/>
+Author First Name: {$author_firstname}<br />
+Author Last Name: {$author_lastname}<br />
 {if $xdis_title=="Thesis"}
-    Author First Name: {$author_firstname}<br />
-    Author Last Name: {$author_lastname}<br />
-    Publication Date: {$published_date|date_format:"%D"} <br />
+    Publication Date: {$published_date|date_format:"%D"}<br />
+{else}
+    Publication Date: {$published_date|date_format:"%Y"}<br />
+    Description: {$details.rek_description}<br />
 {/if}
 
 </div> </div> </div>
