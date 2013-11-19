@@ -3,10 +3,10 @@
  * This class is used for persistent queues that tracks objects to be added
  * or removed from the enrichment queue. It is implemented with the singleton
  * pattern and will only commit the results when an explicit commit is called.
- * 
+ *
  * Subclasses exist to implement specific queuing requirements.
- * 
- * This class was derived from the FulltextQueue class. 
+ *
+ * This class was derived from the FulltextQueue class.
  *
  * @author Andrew Martlew <a.martlew@library.uq.edu.au>
  * @version 1.0, February 2011
@@ -16,7 +16,7 @@ abstract class Queue
 {
   const ACTION_ADD = 'A';
   const ACTION_REMOVE = 'R';
-  
+
   // in-memory array
   protected $_ids;
   // Database table prefix for the locks and queue
@@ -33,26 +33,32 @@ abstract class Queue
   public function __construct()
   {
     $this->_ids = array();
-    $this->_use_locking = TRUE;    
+    $this->_use_locking = TRUE;
   }
-  
+
   /**
    * Abstracted function to process the queue
    */
   abstract protected function process();
 
   /**
-   * Adds a document to the queue. The results of this functions are committed 
+   * Adds a document to the queue. The results of this functions are committed
    * to the database when a commit() is called, or the thread ends.
    *
    * @param String $id ID of the object to add to the queue
    */
-  public function add($id) 
+  public function add($id)
   {
     $log = FezLog::get();
     if (!array_key_exists($id,$this->_ids) || !$this->_ids[$id]) {
       $this->_ids[$id] = self::ACTION_ADD;
       $log->debug("Added $id to queue");
+
+    }
+    // Register the commit shutdown
+    if (! $this->_commit_shutdown_registered) {
+      register_shutdown_function(array($this,"commit"));
+      $this->_commit_shutdown_registered = TRUE;
     }
   }
 
@@ -61,31 +67,31 @@ abstract class Queue
    *
    * @param String $id ID of the object to remove from the queue
    */
-  public function remove($id) 
+  public function remove($id)
   {
     $log = FezLog::get();
-    
+
     if (array_key_exists($id, $this->_ids)) {
       $this->_ids[$id] = self::ACTION_REMOVE;
       $log->debug("Removed $id from queue");
     }
   }
-  
+
   /**
    * Attempts to trigger an update by acquiring a lock and starting
    * the update process
    */
-  public function triggerUpdate() 
+  public function triggerUpdate()
   {
     $log = FezLog::get();
     $db = DB_API::get();
-    
+
     if (!$this->_use_locking) {
       $log->debug("not using locking - starting background process directly");
       $this->process();
       return;
     }
-      
+
     /**
      * CHECK PROCESS MUTEX
      * 1. Check lock state
@@ -100,10 +106,10 @@ abstract class Queue
 
     $sql = "SELECT ".$this->_dblp."value, ".$this->_dblp."pid FROM ".$this->_dbtp."locks ".
            "WHERE ".$this->_dblp."name=?";
-    
+
     try {
       $res = $db->fetchRow($sql, $this->_lock, Zend_Db::FETCH_ASSOC);
-    
+
       $pid = $res[$this->_dblp.'pid'];
       $lock_value = $res[$this->_dblp.'value'];
       $acquire_lock = true;
@@ -112,7 +118,7 @@ abstract class Queue
           " with ".$sql." and ".print_r($res, true)
       );
 
-      if ($lock_value > 0 && !empty($pid) && is_numeric($pid)) {       
+      if ($lock_value > 0 && !empty($pid) && is_numeric($pid)) {
         // check if process is still running or if this is an invalid lock
         $psinfo = $this->getProcessInfo($pid);
         $log->debug(array("psinfo",$psinfo));
@@ -123,14 +129,14 @@ abstract class Queue
           $log->debug("overriding existing lock ".$psinfo);
         }
       }
-          
+
       // worst case: a background process is started, but the queue already
       // empty at this point (very fast indexer)
       if ($acquire_lock) {
-        // acquired lock        
+        // acquired lock
         $sql = "DELETE FROM ".$this->_dbtp."locks WHERE ".$this->_dblp."name=?";
         $db->query($sql, $this->_lock);
-          
+
         $invalid_pid = -2;
         $sql = "INSERT INTO ".$this->_dbtp."locks (".$this->_dblp."name,".$this->_dblp."value,".$this->_dblp."pid) ".
                "VALUES (?,?,?)";
@@ -138,7 +144,7 @@ abstract class Queue
         // If all succeed, commit the transaction and all changes
         // are committed at once.
         $db->commit();
-        $ok = true;      
+        $ok = true;
       } else {
         $db->rollBack();
         $ok = false;
@@ -148,11 +154,11 @@ abstract class Queue
       $log->err($ex);
       $ok = false;
     }
-      
+
     if (! $ok) {
       // setting lock failed because another process was faster
       $log->debug("Queue::triggerUpdate - lock value has been taken");
-      
+
     } else {
       // create new background update process
       $log->debug("Queue::triggerUpdate - created new background process!");
@@ -166,23 +172,23 @@ abstract class Queue
    *
    * @return mixed
    */
-  public function commit() 
+  public function commit()
   {
     $log = FezLog::get();
     $db = DB_API::get();
-    
+
     if (!$this->_ids || count($this->_ids) == 0) {
       if ($this->size() == 0) {
-        return;  
+        return;
       }
     }
-    
+
     foreach ($this->_ids as $id => $action) {
       try {
         $db->beginTransaction();
         $sql = "DELETE FROM ".$this->_dbtp."queue WHERE ".$this->_dbqp."id=? ".
                "AND ".$this->_dbqp."op=?";
-        $db->query($sql, array($id, $action));      
+        $db->query($sql, array($id, $action));
         $sql = "INSERT INTO ".$this->_dbtp."queue (".$this->_dbqp."id,".$this->_dbqp."op) VALUES (?,?)";
         $db->query($sql, array($id, $action));
         $db->commit();
@@ -197,17 +203,17 @@ abstract class Queue
 
     // reset cached object ids
     $this->_ids = array();
-    $this->triggerUpdate(); 
+    $this->triggerUpdate();
     return true;
   }
-  
+
   /**
    * Cleans up the queue and removes redundant objects (I,I / D,D / D,I / I,D).
    * Not implemented yet.
-   * 
+   *
    * @return true
    */
-  public function cleanup() 
+  public function cleanup()
   {
     return true;
   }
@@ -221,16 +227,16 @@ abstract class Queue
    * @return null, if queue is empty or if there is an error
    *
    */
-  public function pop() 
+  public function pop()
   {
     $log = FezLog::get();
     $db = DB_API::get();
-    
+
     // fetch first row
     $sql = "SELECT * FROM ".$this->_dbtp."queue ".
            "ORDER BY ".$this->_dbqp."key ASC";
     $db->limit($sql, 1, 0);
-    
+
     try {
       $res = $db->fetchRow($sql, array(), Zend_Db::FETCH_ASSOC);
     }
@@ -243,9 +249,9 @@ abstract class Queue
       $log->debug("Queue is empty.");
       return null;
     }
-      
+
     // delete row
-    $sql = "DELETE FROM ".$this->_dbtp."queue WHERE ".$this->_dbqp."key=?";    
+    $sql = "DELETE FROM ".$this->_dbtp."queue WHERE ".$this->_dbqp."key=?";
     try {
       $db->query($sql, $res[$this->_dbqp.'key']);
     }
@@ -253,7 +259,7 @@ abstract class Queue
       $log->err($ex);
       return null;
     }
-      
+
     $log->debug("Queue pop success!");
     return $res;
   }
@@ -263,13 +269,13 @@ abstract class Queue
    *
    * @return unknown
    */
-  public function size() 
+  public function size()
   {
     $log = FezLog::get();
     $db = DB_API::get();
 
     $sql  = "SELECT count(*) FROM ".$this->_dbtp."queue ";
-    
+
     try {
       $res = $db->fetchOne($sql);
     }
@@ -279,16 +285,16 @@ abstract class Queue
     }
     return $res;
   }
-  
+
   /**
    * Releases lock held by this thread.
    *
    */
-  protected function releaseLock() 
+  protected function releaseLock()
   {
     $log = FezLog::get();
     $db = DB_API::get();
-    
+
     $sql = "DELETE FROM ".$this->_dbtp."locks WHERE ".$this->_dblp."name=?";
     try {
       $db->query($sql, $this->_lock);
@@ -296,7 +302,7 @@ abstract class Queue
     catch(Exception $ex) {
       $log->err($ex);
       $log->err(array("Queue releaseLock failed", $res));
-    }   
+    }
   }
 
   /**
@@ -305,11 +311,11 @@ abstract class Queue
    * not exist anymore.
    *
    */
-  protected function updateLock() 
+  protected function updateLock()
   {
     $log = FezLog::get();
     $db = DB_API::get();
-    
+
     $my_process = $this->getProcessInfo();
     $my_pid = $my_process['pid'];
 
@@ -321,17 +327,17 @@ abstract class Queue
 
     $stmt = "SELECT ".$this->_dblp."value, ".$this->_dblp."pid FROM ".$this->_dbtp."locks ".
             "WHERE ".$this->_dblp."name=?";
-    
+
     try {
       $res = $db->fetchRow($stmt, $this->_lock, Zend_Db::FETCH_ASSOC);
-    
+
       $pid = $res[$this->_dblp.'pid'];
       $lock_value = $res[$this->_dblp.'value'];
       $acquire_lock = true;
       $log->debug(
           "Queue got lockValue=".$lock_value.", pid=".$pid." with ".$stmt." and ".print_r($res, true)
       );
-    
+
       if ($lock_value != -1 && (!empty($pid)) && is_numeric($pid)) {
         // check if process is still running or if this is an invalid lock
         $psinfo = $this->getProcessInfo($pid);
@@ -343,12 +349,12 @@ abstract class Queue
           $log->debug("overriding existing lock ".$psinfo);
         }
       }
-          
+
       // worst case: a background process is started, but the queue already
       // empty at this point
       if ($acquire_lock) {
         $sql =  "UPDATE ".$this->_dbtp."locks SET ".$this->_dblp."pid=? ".
-                "WHERE ".$this->_dblp."name=?";    
+                "WHERE ".$this->_dblp."name=?";
         $db->query($sql, array($my_pid, $this->_lock));
         $db->commit();
       } else {
@@ -356,24 +362,24 @@ abstract class Queue
       }
     }
     catch(Exception $ex) {
-      $db->rollBack();      
+      $db->rollBack();
       $log->err($ex);
       return false;
     }
     return true;
   }
-  
+
   /**
    * Get the current process ID
    *
    * @param string $pid (optional) Search for this process ID
-   * 
+   *
    * @return mixed
    */
-  private function getProcessInfo($pid='') 
+  private function getProcessInfo($pid='')
   {
     $log = FezLog::get();
-    
+
     if (empty($pid)) {
       return array(
         'pid' => getmypid(),

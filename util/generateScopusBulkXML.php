@@ -37,7 +37,7 @@ $record_count = 32564; // this is a guestimate..
   {
     foreach(array('NOT doctype(ar)', 'doctype(ar)') as $dt)
     {
-      foreach (range(2007, 2013) as $year)
+      foreach (range(2007, 2014) as $year)
       {
         $i=0;
         while($i < 5030)

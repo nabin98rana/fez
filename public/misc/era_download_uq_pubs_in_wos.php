@@ -35,50 +35,56 @@ include_once(APP_INC_PATH . 'class.esti_search_service.php');
 include_once(APP_INC_PATH . 'class.wok_service.php');
 include_once(APP_INC_PATH . 'class.wok_queue.php');
 include_once(APP_INC_PATH . "class.record.php");
+include_once(APP_INC_PATH . "class.user.php");
 
-$query = 'OG=(Univ Queensland)';
-$depth = '4week';
-$timeSpan = array();
-$databaseID = "WOS";
+if ((php_sapi_name()==="cli") || (User::isUserSuperAdministrator($isUser))) {
 
-//Edition set to "" should default to all
-$editions = array();
-$sort = '';
-$first_rec = 1;
-$num_recs = WOK_BATCH_SIZE;
-$wok_ws = new WokService(FALSE);
+  $query = 'OG=(Univ Queensland)';
+  $depth = '4week';
+  $timeSpan = array();
+  $databaseID = "WOS";
 
-// Do an initial sleep just in something else ran just before this..
-sleep(WOK_SECONDS_BETWEEN_CALLS);
-$response = $wok_ws->search($databaseID, $query, $editions, $timeSpan, $depth, "en", $num_recs);
-if (is_soap_fault($response)) {
-  $log = FezLog::get();
-  $log->err($response->getMessage());
-  exit;
-}
-$queryId = $response->return->queryId;
-$records_found = $response->return->recordsFound;
+  //Edition set to "" should default to all
+  $editions = array();
+  $sort = '';
+  $first_rec = 1;
+  $num_recs = WOK_BATCH_SIZE;
+  $wok_ws = new WokService(FALSE);
 
-$result = $response->return->records;
-$pages = ceil(($records_found/$num_recs));
-$wq = WokQueue::get();
-for($i=0; $i<$pages; $i++) {
-	if($i>0) {
-        sleep(WOK_SECONDS_BETWEEN_CALLS);
-        $response = $wok_ws->retrieve($queryId, $first_rec, $num_recs);
-        $result = $response->return->records;
+  // Do an initial sleep just in something else ran just before this..
+  sleep(WOK_SECONDS_BETWEEN_CALLS);
+  $response = $wok_ws->search($databaseID, $query, $editions, $timeSpan, $depth, "en", $num_recs);
+  if (is_soap_fault($response)) {
+    $log = FezLog::get();
+    $log->err($response->getMessage());
+    exit;
+  }
+  $queryId = $response->return->queryId;
+  $records_found = $response->return->recordsFound;
+
+  $result = $response->return->records;
+  $pages = ceil(($records_found/$num_recs));
+  $wq = WokQueue::get();
+  for($i=0; $i<$pages; $i++) {
+    if($i>0) {
+          sleep(WOK_SECONDS_BETWEEN_CALLS);
+          $response = $wok_ws->retrieve($queryId, $first_rec, $num_recs);
+          $result = $response->return->records;
+      }
+      $first_rec += $num_recs;
+      $records = @simplexml_load_string($result);
+
+    if($records) {
+      foreach($records->REC as $record) {
+        if(@$record->UID) {
+                  $ut = (string) $record->UID;
+                  $ut = str_ireplace("WOS:", "", $ut );
+                  $wq->add($ut);
+        }
+      }
     }
-    $first_rec += $num_recs;
-    $records = @simplexml_load_string($result);
-
-	if($records) {
-		foreach($records->REC as $record) {
-			if(@$record->UID) {
-                $ut = (string) $record->UID;
-                $ut = str_ireplace("WOS:", "", $ut );
-                $wq->add($ut);
-			}
-		}
-	}
+  }
+} else {
+  echo "Access Denied";
 }
 
