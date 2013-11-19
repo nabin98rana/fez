@@ -268,11 +268,11 @@ abstract class RecordImport
      */
     protected function fuzzyTitleMatch($authorativePid)
     {
-        //Fuzzy title matching. Title must be at least 15 chars long and
+        //Fuzzy title matching. Title must be at least 20 chars long and
         //have a match of better than 80%
         $titleIsFuzzyMatched = false;
 
-        if($authorativePid && strlen($this->_title) > 15)
+        if($authorativePid && strlen($this->_title) > 20)
         {
             $rec = new Record();
             $title = $rec->getTitleFromIndex($authorativePid);
@@ -464,7 +464,7 @@ abstract class RecordImport
             if (!$this->_likenAction) {
               return array('ST02', $histMsg);
             } elseif (!$this->_inTest) {
-//              $this->save($histMsg, $this->_insertCollection);
+//             return $this->save($histMsg, $this->_insertCollection);
             } else {
 //              $this->_log->err($histMsg);
               $this->inTestSave($associations[$cit]['matchedPid'], $this->$primaryId, 'ST02', $this->$docTypeCode, $this->$aggregationType, $histMsg);
@@ -501,7 +501,7 @@ abstract class RecordImport
             if (!$this->_likenAction) {
               return array('ST03', $histMsg);
             } elseif (!$this->_inTest) {
-//              $this->save($histMsg, $this->_insertCollection);
+//             return $this->save($histMsg, $this->_insertCollection);
             } else {
 //              $this->_log->err($histMsg);
               $this->inTestSave($authorativePid, $this->$primaryId, 'ST03', $this->$docTypeCode, $this->$aggregationType, $histMsg);
@@ -526,7 +526,7 @@ abstract class RecordImport
             if (!$this->_likenAction) {
               return array('ST04', $histMsg);
             } elseif (!$this->_inTest) {
-//              $this->save($histMsg, $this->_insertCollection);
+//             return $this->save($histMsg, $this->_insertCollection);
             } else {
               //$this->_log->err($histMsg);
               $this->inTestSave($authorativePid, $this->$primaryId, 'ST04', $this->$docTypeCode, $this->$aggregationType, $histMsg);
@@ -551,7 +551,7 @@ abstract class RecordImport
             if (!$this->_likenAction) {
               return array('ST05', $histMsg);
             } elseif (!$this->_inTest) {
-//              $this->save($histMsg, $this->_insertCollection);
+//             return $this->save($histMsg, $this->_insertCollection);
             } else {
               //$this->_log->err($histMsg);
               $this->inTestSave($authorativePid, $this->$primaryId, 'ST05', $this->$docTypeCode, $this->$aggregationType, $histMsg);
@@ -573,7 +573,7 @@ abstract class RecordImport
         if (!$this->_likenAction) {
           return array('ST06', $histMsg);
         } elseif (!$this->_inTest) {
-//          $this->save($histMsg, $this->_insertCollection);
+//         return $this->save($histMsg, $this->_insertCollection);
         } else {
 //          $this->_log->err($histMsg);
           $this->inTestSave($authorativePid, $this->$primaryId, 'ST06', $this->$docTypeCode, $this->$aggregationType, $histMsg);
@@ -593,7 +593,7 @@ abstract class RecordImport
         if (!$this->_likenAction) {
           return array($stCode, $histMsg);
         } elseif (!$this->_inTest) {
-//          $this->save($fuzzyMatchState[0], $this->_insertCollection);
+//         return $this->save($fuzzyMatchState[0], $this->_insertCollection);
         } else {
           //ST10-15 status
           $this->inTestSave($fuzzyMatchResult['data'][0]['rek_pid'], $this->$primaryId, $stCode, $this->$docTypeCode, $this->$aggregationType, $histMsg);
@@ -609,7 +609,7 @@ abstract class RecordImport
       if (!$this->_likenAction) {
         return array('ST07', $histMsg);
       } elseif (!$this->_inTest) {
-        $this->save($histMsg, $this->_insertCollection);
+        return $this->save($histMsg, $this->_insertCollection); //save needs to use return as calling functions expect a pid back to do more with it
       } else {
         $this->inTestSave('', $this->$primaryId, 'ST07', $this->$docTypeCode, $this->$aggregationType, $histMsg);
       }
@@ -626,7 +626,7 @@ abstract class RecordImport
       if (!$this->_likenAction) {
         return array('ST08', $histMsg);
       } elseif (!$this->_inTest) {
-//        $this->save(null, $this->_insertCollection);
+//      return $this->save(null, $this->_insertCollection);
       } else {
 //        $this->_log->err($histMsg);
         $this->inTestSave('', $this->$primaryId, 'ST08', $this->$docTypeCode, $this->$aggregationType, $histMsg);
