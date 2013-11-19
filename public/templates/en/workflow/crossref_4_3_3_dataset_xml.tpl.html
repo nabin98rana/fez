@@ -22,7 +22,19 @@ http://www.crossref.org/schema/deposit/crossref4.3.0.xsd">
             </institution>
         </database_metadata>
         <dataset dataset_type="collection">
+            <contributors>
+                <person_name sequence = "first" contributor_role = "author">
+                    <given_name>{$details.rek_author_firstname[0]}</given_name>
+                    <surname>{$details.rek_author_lastname[0]}</surname>
+                </person_name>
+            </contributors>
             <titles><title>{$details.rek_title}</title></titles>
+            <database_date>
+                <publication_date>
+                    <year>{$published_year}</year>
+                </publication_date>
+            </database_date>
+            <description>{$details.rek_description}</description>
             <doi_data>
                 <doi>{$doi}</doi>
                 <resource>{$link}</resource>
