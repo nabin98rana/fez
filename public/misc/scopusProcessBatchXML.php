@@ -44,6 +44,7 @@ if ((php_sapi_name()==="cli") || (User::isUserSuperAdministrator($isUser))) {
 
   $time_started = Date_API::getSimpleDateUTC();
   $record_count = 32564;
+  //37510
   //$ri = new ScopusRecItem();
 
   //$xpath = $ri->getXPath(file_get_contents($process_dir.'scopusLiveData5.xml'));

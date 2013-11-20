@@ -37,20 +37,11 @@ include_once(APP_INC_PATH . "class.record.php");
 
 if ((php_sapi_name()==="cli") || (User::isUserSuperAdministrator($isUser))) {
 
-//  $query = 'OG=(Univ Queensland)';
-//  $depth = '4week';
-//  $timeSpan = array();
-//  $databaseID = "WOS";
+
   ini_set("display_errors", 1);
   error_reporting(E_ALL & ~E_NOTICE & ~E_STRICT);
   $afids = array('60031004', '60087457');
 
-
-  //Edition set to "" should default to all
-  $editions = array();
-  $sort = '';
-  $first_rec = 1;
-  $num_recs = WOK_BATCH_SIZE;
   $scopusService = new ScopusService();
   $sq = ScopusQueue::get();
   $i=0;

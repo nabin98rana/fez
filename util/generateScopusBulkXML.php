@@ -16,7 +16,7 @@ error_reporting(E_ALL & ~E_NOTICE & ~E_STRICT);
 if ((php_sapi_name()==="cli") || (User::isUserSuperAdministrator($isUser))) {
 $dbFile = dirname(__FILE__).'/scopusData.s3db';
 //$outputFile = dirname(__FILE__).'/scopusLiveData_181113.xml';
-$outputFile = '/espace_san/dev/scopusLiveData_181113.xml';
+$outputFile = '/espace_san/dev/scopusLiveData_201113.xml';
 
 //echo $dbFile; exit;
 $db = new PDO('sqlite:'.$dbFile);
@@ -31,16 +31,17 @@ $scopusService = new ScopusService(APP_SCOPUS_API_KEY);
 $afids = array('60031004', '60087457');  // change these to your universities scopus affiliation ids
 $rc = 0;
 $time_started = Date_API::getSimpleDateUTC();
-$record_count = 32564; // this is a guestimate..
+$record_count = 4000; // this is a guestimate..
 
   foreach($afids as $afid)
   {
     foreach(array('NOT doctype(ar)', 'doctype(ar)') as $dt)
     {
-      foreach (range(2007, 2014) as $year)
+      foreach (range(2014, 2014) as $year)
       {
+        $foundMax = false;
         $i=0;
-        while($i < 5030)
+        while($i < 5030 && !$foundMax)
         {
           $query = array('query' => 'af-id(' . $afid . ') AND pubyear IS ' . $year . ' AND ' . $dt,
             'count' => 30,
@@ -54,7 +55,9 @@ $record_count = 32564; // this is a guestimate..
           $doc = new DOMDocument();
           $doc->loadXML($resp);
           $records = $doc->getElementsByTagName('identifier');
-
+          if (count($records) != 30) {
+            $foundMax = true;
+          }
 
 
   //        echo "\nRecords: ";
