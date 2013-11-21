@@ -103,26 +103,26 @@ class ScopusQueue extends Queue
             if($scopRec)
             {
 
+                $scopusService = new ScopusService(APP_SCOPUS_API_KEY);
 
-              // first query the main service to get the doc type (only place to get it)
-              $query = array('query' => "(scopus-id(".$scopusId."))",
-                'count' => 1,
-                'start' => 0,
-                'view' => 'STANDARD'
-              );
+                $record = $scopusService->getRecordByScopusId($scopusId);
 
-              $scopusService = new ScopusService(APP_SCOPUS_API_KEY);
-              $xml = $scopusService->getNextRecordSet($query);
+                $sri = new ScopusRecItem();
+                // DONT NEED TO DO THIS ANYMORE, MAY REMOVE get the subtype from the search results as the main service doesn't return it
+  //        $sri->_scopusDocTypeCode = $doc->getElementsByTagName('subtype')->item(0)->nodeValue;
+                $sri->load($record);
 
-              $doc = new DOMDocument();
-              $doc->loadXML($xml);
+                if($sri->isLoaded())
+                {
+                  $history = "Imported from Scopus";
+                  $pid = $sri->save($history, APP_SCOPUS_IMPORT_COLLECTION);
+                  $this->_bgp->setStatus("Added ".$pid);
+                } else {
+                  $this->_bgp->setStatus("Failed getting ".$scopusId);
+                }
 
 
 
-              $csr = new ScopusRecItem();
-                $rec = $this->_service->getRecordByScopusId($scopusId);
-                $csr->load($rec, $nameSpaces);
-                $csr->liken();
                 $recCount++;
             }
         }

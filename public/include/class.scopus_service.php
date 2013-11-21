@@ -205,6 +205,8 @@ class ScopusService
 
     public function getRecordByScopusId($scopusId)
     {
+        $scopusId = str_ireplace('2-s2.0-', '', $scopusId);
+        $scopusId = str_ireplace('SCOPUS_ID:', '', $scopusId);
         $query = array('view' => 'FULL');
 //        $query = array();
         $params = array(
