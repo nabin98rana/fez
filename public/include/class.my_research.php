@@ -473,9 +473,9 @@ class MyResearch
         }
         if (!empty($listFiles)) {
             $body .= "\n\n And the following files were attached:\n\n" . $listFiles;
-            $subject = "My Research :: Claimed Publication :: " . $jobID . " :: " . $pid . " :: " . $publishedDate . " :: " . $author;
+            $subject = "My Research :: Claimed Publication with File Uploads ".$accessMessage." :: " . $jobID . " :: " . $pid . " :: " . $publishedDate . " :: " . $author;
         } else {
-          $subject = "My Research :: Claimed Publication with File Uploads (".$accessMessage.") :: " . $jobID . " :: " . $pid . " :: " . $publishedDate . " :: " . $author;
+          $subject = "My Research :: Claimed Publication :: " . $jobID . " :: " . $pid . " :: " . $publishedDate . " :: " . $author;
         }
 
         // If this record is claimed and it is in the WoS import collection, strip it from there and put it into the provisional HERDC collection as long as it is in the last 6 years
