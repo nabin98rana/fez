@@ -1,0 +1,2 @@
+ALTER TABLE %TABLE_PREFIX%scopus_locks CHANGE scl_value scl_value INT(10) NOT NULL, CHANGE scl_pid scl_pid INT(10) NULL;
+ALTER TABLE %TABLE_PREFIX%wok_locks CHANGE wkl_value wkl_value INT(10) NOT NULL, CHANGE wkl_pid wkl_pid INT(10) NULL;

@@ -1,7 +1,7 @@
 CREATE TABLE IF NOT EXISTS %TABLE_PREFIX%wok_locks (
   wkl_name varchar(8) NOT NULL,
-  wkl_value int(10) unsigned NOT NULL,
-  wkl_pid int(10) unsigned DEFAULT NULL,
+  wkl_value int(10) NOT NULL,
+  wkl_pid int(10) DEFAULT NULL,
   PRIMARY KEY (wkl_name)
 );
 

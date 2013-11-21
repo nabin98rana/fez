@@ -15,7 +15,7 @@ CREATE TABLE IF NOT EXISTS %TABLE_PREFIX%scopus_session (
 
 CREATE TABLE IF NOT EXISTS %TABLE_PREFIX%scopus_locks (
   scl_name varchar(8) NOT NULL,
-  scl_value int(10) unsigned NOT NULL,
-  scl_pid int(10) unsigned DEFAULT NULL,
+  scl_value int(10) NOT NULL,
+  scl_pid int(10) DEFAULT NULL,
   PRIMARY KEY (scl_name)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
