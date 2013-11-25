@@ -403,6 +403,7 @@ class WokQueue extends Queue
           } else {
 //            $pid = $rec->save();
             //Instead of saving, now use the new liken/dedupe method to compare with existing content missing the ISI Loc
+            $rec->setLikenAction(true);
             $pid = $rec->liken();
 
             if ($pid) {

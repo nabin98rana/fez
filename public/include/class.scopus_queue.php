@@ -114,8 +114,10 @@ class ScopusQueue extends Queue
 
                 if($sri->isLoaded())
                 {
-                  $history = "Imported from Scopus";
-                  $pid = $sri->save($history, APP_SCOPUS_IMPORT_COLLECTION);
+//                  $history = "Imported from Scopus";
+//                  $pid = $sri->save($history, APP_SCOPUS_IMPORT_COLLECTION);
+                  $sri->setLikenAction(true);
+                  $pid = $sri->liken();
                   $this->_bgp->setStatus("Added ".$pid);
                 } else {
                   $this->_bgp->setStatus("Failed getting ".$scopusId);
