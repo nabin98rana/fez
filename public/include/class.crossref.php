@@ -53,9 +53,16 @@ class Crossref
         $tpl = new Template_API();
         if ($xdis_id_name == 'Thesis') {
             $tpl->setTemplate("workflow/crossref_4_3_3_thesis_xml.tpl.html");
-        } else {
+        } else if ($xdis_id_name == 'Working Paper'){
+            $tpl->setTemplate("workflow/crossref_4_3_3_working_paper_xml.tpl.html");
+        } else if ($xdis_id_name == 'Conference Paper'){
+        $tpl->setTemplate("workflow/crossref_4_3_3_conference_proceeding_xml.tpl.html");
+        } else if ($xdis_id_name == 'Data Collection'){
             $tpl->setTemplate("workflow/crossref_4_3_3_dataset_xml.tpl.html");
+        } else {
+            return false;
         }
+
         $tpl->assign("details", $details[0]);
         $uniqid = uniqid();
         $tpl->assign("uniqid", $uniqid);

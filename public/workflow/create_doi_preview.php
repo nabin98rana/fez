@@ -71,7 +71,7 @@ if (!empty($doiCurrent[0]) && ($doiCurrent[0] != $existingDoiIfExists) ) {
 $xdis_id = $wfstatus->getXDIS_ID();
 $xdis_id_name = XSD_Display::getTitle($xdis_id);
 
-if ($xdis_id_name != 'Thesis' && $xdis_id_name != 'Data Collection') {
+if ($xdis_id_name != 'Thesis' && $xdis_id_name != 'Data Collection' && $xdis_id_name != 'Working Paper'&& $xdis_id_name != 'Conference Paper') {
     echo "This records is the wrong type (".$xdis_id_name.") Thesis or Data Collection needed";
     FezLog::get()->close();
     exit;
@@ -97,6 +97,7 @@ $publishedDate = $result[0]['rek_date'];
 
 if ($isAdministrator) {
     $tpl->assign("doi", $doi);
+    $tpl->assign("details", $result[0]);
     $tpl->assign("xdis_title", $xdis_id_name);
     $tpl->assign("depositor_full_name", Auth::getUserFullName());
     $tpl->assign("depositor_email", Auth::getUserEmail());

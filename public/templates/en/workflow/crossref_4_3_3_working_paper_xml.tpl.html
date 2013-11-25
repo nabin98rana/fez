@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<doi_batch version="4.3.0"
+           xmlns="http://www.crossref.org/schema/4.3.0"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://www.crossref.org/schema/4.3.0
+http://www.crossref.org/schema/deposit/crossref4.3.0.xsd">
+    <head>
+        <doi_batch_id>{$uniqid}</doi_batch_id>
+        <timestamp>{$timestamp}</timestamp>
+        <depositor>
+            <name>{$depositor_full_name}</name>
+            <email_address>{$depositor_email}</email_address>
+        </depositor>
+        <registrant>{$org_name}</registrant>
+    </head>
+    <body>
+        <report-paper>
+            <report-paper_metadata language = "en">
+                <contributors>
+                    <person_name sequence = "first" contributor_role = "author">
+                        <given_name>{$details.rek_author_firstname[0]}</given_name>
+                        <surname>{$details.rek_author_lastname[0]}</surname>
+                    </person_name>
+                </contributors>
+                <titles>
+                    <title>{$details.rek_title}</title>
+                </titles>
+                <publication_date>
+                    <month>{$published_month}</month>
+                    <day>{$published_day}</day>
+                    <year>{$published_year}</year>
+                </publication_date>
+                <publisher>
+                    <publisher_name>{$details.rek_publisher}</publisher_name>
+                </publisher>
+                <institution>
+                    <institution_name>{$org_name}</institution_name>
+                    <institution_department>{$details.rek_org_unit_name}</institution_department>
+                </institution>
+                <doi_data>
+                    <doi>{$doi}</doi>
+                    <resource>{$link}</resource>
+                </doi_data>
+            </report-paper_metadata>
+        </report-paper>
+    </body>
+</doi_batch>

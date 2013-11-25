@@ -269,8 +269,7 @@ class Configuration
    * saveConf
    *
    * This method examines all core configuration values that the system already knows about, and 
-   * updates them all in turn with the POST data from the configuration page. It is important to
-   * ensure that a HTML input field exists for every value in the config table!
+   * updates them all in turn with the POST data from the configuration page.
    * 
    * Returns NULL if success
    * Returns array of error tokens if problem.

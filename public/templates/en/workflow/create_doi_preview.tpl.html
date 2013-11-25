@@ -14,13 +14,23 @@ DOI will be :<br />
 {$depositor_full_name} <br/>
 {$depositor_email}  - Note: email needs to be correct as it will be where verification from Crossref will be emailed to<br/>
 <br/>
+Institution: {$org_name} <br />
 Author First Name: {$author_firstname}<br />
 Author Last Name: {$author_lastname}<br />
 {if $xdis_title=="Thesis"}
-    Publication Date: {$published_date|date_format:"%D"}<br />
-{else}
+    Publication Date: {$published_date|date_format:"%d/%m/%y"}<br />
+    Degree: {$details.rek_genre_type}<br />
+    Department: {$details.rek_org_unit_name}<br />
+{else $xdis_title=="Data Collection"}
     Publication Date: {$published_date|date_format:"%Y"}<br />
     Description: {$details.rek_description}<br />
+{else $xdis_title=="Conference paper"}
+    Publication Date: {$published_date|date_format:"%Y"}<br />
+    Description: {$details.rek_description}<br />
+{else $xdis_title=="Working Paper"}
+    Publisher: {$details.rek_publisher}}<br />
+    Publication Date: {$published_date|date_format:"%d/%m/%y"}<br />
+    Department: {$details.rek_org_unit_name}<br /
 {/if}
 
 </div> </div> </div>
