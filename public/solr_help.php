@@ -35,10 +35,26 @@
 include_once("config.inc.php");
 include_once(APP_INC_PATH . "class.template.php");
 
+
+$log = FezLog::get();
+$db = DB_API::get();
+
+$stmt = "SELECT LOWER(REPLACE(sek_title,' ','_')) FROM " . APP_TABLE_PREFIX . "search_key";
+
+try {
+    $res = $db->fetchCol($stmt);
+}
+catch (Exception $ex) {
+    $log->err($ex);
+    return false;
+}
+$res = implode(', ', $res);
+
 $tpl = new Template_API();
 $isUser = Auth::getUsername();
 $isAdministrator = User::isUserAdministrator($isUser);
 $isUPO = User::isUserUPO($isUser);
 $tpl->setTemplate("solr_help.tpl.html");
 $tpl->assign("active_nav", "help");
+$tpl->assign("search_keys", $res);
 $tpl->displayTemplate();
