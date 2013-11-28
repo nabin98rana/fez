@@ -109,24 +109,12 @@ class MatchingRecords
             // Title query param
             $query = 'TI=("'.$title.'")';
 
-// Requested by eSpace team to not restrict the search by org unit anymore
-//            if(APP_ARTICLE_SEARCH_WOS_ADDRESS != '' ) {
-//
-//                // Specify the Organisation query param for Journal Article only
-//                if ( $doc_type == '@' ){
-//                    $query .= ' AND OG=('.APP_ARTICLE_SEARCH_WOS_ADDRESS.') ';
-//                }
-//            }
-
             // Doc type query param
             if ( !empty($doc_type) ){
                 $query .= ' AND DT=('.$doc_type.')';
             }
 
 	        $depth = ''; // All subscribed years
-			$editions = '';
-			$sort = 'Relevance';
-			$first_rec = 1;
 			$num_recs = 3;
             $timeSpan = '';
 
@@ -134,7 +122,6 @@ class MatchingRecords
             if ( defined('WOK_PASSWORD') && WOK_PASSWORD != '') {
 
                 $databaseID = "WOS";
-                //$editions = array("collection" => $databaseID, "edition" => $edition);
                 $editions = array();
                 $wok_ws = new WokService(FALSE);
                 $response = $wok_ws->search($databaseID, $query, $editions, $timeSpan, $depth, "en", $num_recs);
@@ -411,12 +398,10 @@ class MatchingRecords
 		if(Fedora_API::objectExists($collection)) {
 
             // Retrieve record from Wok web service
-	    	//$records = EstiSearchService::retrieve($ut);
             $wok_ws = new WokService(FALSE);
             $records = $wok_ws->retrieveById($ut);
 
 			if($records) {
-                //$pid = $this->_addFedoraBypass($records);
                 // Param $record should only contain one publication.
                 // However we set $pid as array just in case, and implode the pid as string on the return.
                 $pid = array();
@@ -449,7 +434,18 @@ class MatchingRecords
                 $pid = implode(",", $pid);
 			}
 		}
-		return $pid;
+
+        //We will auto link the Author to the record if possible
+        $username = Auth::getUsername();
+        $isUPO = User::isUserUPO($username);
+        $isAdministrator = User::isUserAdministrator($username);
+        $actingUser = Auth::getActingUsername();
+
+        //We won't automatch admins and upos if they are not acting as someone
+        if (!(($isAdministrator || $isUPO) && $actingUser == $username)) {
+            Author::matchToPid($pid);
+        }
+        return $pid;
     }
 
     /**
@@ -481,14 +477,23 @@ class MatchingRecords
         $record = $scopusService->getRecordByScopusId($scopusId);
 
         $sri = new ScopusRecItem();
-        // DONT NEED TO DO THIS ANYMORE, MAY REMOVE get the subtype from the search results as the main service doesn't return it
-//        $sri->_scopusDocTypeCode = $doc->getElementsByTagName('subtype')->item(0)->nodeValue;
         $sri->load($record);
 
         if($sri->isLoaded())
         {
             $history = "Imported from Scopus";
             $pid = $sri->save($history, APP_SCOPUS_IMPORT_COLLECTION);
+        }
+
+        //We will auto link the Author to the record if possible
+        $username = Auth::getUsername();
+        $isUPO = User::isUserUPO($username);
+        $isAdministrator = User::isUserAdministrator($username);
+        $actingUser = Auth::getActingUsername();
+
+        //We won't automatch admins and upos if they are not acting as someone
+        if (!(($isAdministrator || $isUPO) && $actingUser == $username)) {
+            Author::matchToPid($pid);
         }
 
         return $pid;
@@ -506,8 +511,7 @@ class MatchingRecords
             return "";
         }
 
-        // Escape " double quote from user entered query,
-        // as we are using double quote to wrap the query string sent to SOAP
+        //Escape " double quote from user entered query, as we are using double quote to wrap the query string sent to SOAP
         //Also remove some special characters http://images.webofknowledge.com/WOKRS56B5/help/WOK/hs_wildcards.html
         $search = array("\"", "?", "*");
         $replace = array("", "", " ");

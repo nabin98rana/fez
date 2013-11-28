@@ -928,7 +928,9 @@
                                         dojo.byId(container_id_wos).innerHTML = 'WoS API services currently appear to be offline, please try again later. If the problem persists please report it to your system administrators.';
                                     }
                                     else {
-                                        dojo.byId(container_id_wos).innerHTML = '<h3 style="text-decoration:underline; color: #333333">Record successfully added</h3><br /><h3>Click <a href="{/literal}{$app_base_url}{literal}view/'+msg+'" id="pub_link">here</a> to view the new record.</h3>';
+                                        dojo.byId(container_id_wos).innerHTML = '<h3 style="text-decoration:underline; color: #333333">Record successfully added</h3><br />' +
+                                                '<h3>Click <a href="{/literal}{$app_base_url}{literal}view/'+msg+'" id="pub_link">here</a> to view the new record.</h3><br />' +
+                                                '<h3>Click <a href="/my_research_claimed.php" id="pub_link">here</a> to view my research claimed</h3>';
                                     }
                                 });
                             }
@@ -944,7 +946,9 @@
                                         dojo.byId(container_id_scopus).innerHTML = 'Oops! Something unexpected happened. Please try again later..';
                                     }
                                     else {
-                                        dojo.byId(container_id_scopus).innerHTML = '<h3 style="text-decoration:underline; color: #333333">Record successfully added</h3><br /><h3>Click <a href="{/literal}{$app_base_url}{literal}view/'+msg+'" id="scopus_link">here</a> to view the new record.</h3>';
+                                        dojo.byId(container_id_scopus).innerHTML = '<h3 style="text-decoration:underline; color: #333333">Record successfully added</h3><br />' +
+                                                '<h3>Click <a href="{/literal}{$app_base_url}{literal}view/'+msg+'" id="scopus_link">here</a> to view the new record.</h3><br />' +
+                                                '<h3>Click <a href="/my_research_claimed.php" id="scopus_link">here</a> to view my research claimed</h3>';
                                     }
                                 });
                             }

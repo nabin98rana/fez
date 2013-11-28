@@ -209,6 +209,10 @@ class Author
     $log = FezLog::get();
     $db = DB_API::get();
 
+    if (empty($username)) {
+        return false;
+    }
+
     $stmt = "SELECT
                 aut_id
              FROM
@@ -2153,6 +2157,81 @@ class Author
         $names['lastname'] = $pieces[0];
         $names['firstname'] = $pieces[1];
         return $names;
+    }
+
+
+    //This function matches the currently acting person to this pid if possible else it emails Eventum with the details
+    function matchToPid($pid)
+    {
+        $log = FezLog::get();
+
+        // 1. Mark the publication claimed in the database
+        $publishedDate = Record::getSearchKeyIndexValue($pid, "Date", true);
+        $publishedDate = strftime("%Y", strtotime($publishedDate));
+        $author = Auth::getActingUsername();
+        $user = Auth::getUsername();
+        $jobID = MyResearch::markPossiblePubAsMine($pid, $author, $user);
+
+        // 2. Send an email to Eventum about it
+        $sendEmail = true;
+        $authorDetails = Author::getDetailsByUsername($author);
+        $userDetails = User::getDetails($user);
+        $authorID = $authorDetails['aut_id'];
+        $authorName = $authorDetails['aut_display_name'];
+        $userName = $userDetails['usr_full_name'];
+        $userEmail = $userDetails['usr_email'];
+
+        // Attempt to link author ID to author on the pub
+        $record = new RecordObject($pid);
+        $result = $record->matchAuthor($authorID, TRUE, TRUE, 1, FALSE);
+        if ((is_array($result)) && $result[0] === true) {
+            $sendEmail = false;
+        }
+
+        $body = "Record: http://" . APP_HOSTNAME . APP_RELATIVE_URL . "view/" . $pid . "\n\n";
+        if ($author == $user) {
+            $body .= $authorName . " (" . $authorID . ") has added this publication.\n\n";
+        } else {
+            $body .= "User " . $userName . " has added this publication for " . $authorName . " (" . $authorID
+                . ").\n\n";
+        }
+
+        $subject = "Add Publication From Matching Record :: Failed Auto Author Assign :: " . $jobID . " :: " . $pid . " :: " . $publishedDate . " :: " . $author;
+
+        // If this record is claimed and it is in the WoS/Scopus import collection, strip it from there and put it into the provisional HERDC collection as long as it is in the last 6 years
+        $currentYear = date("Y");
+        $wos_collection = trim(APP_WOS_COLLECTIONS, "'");
+        $scopus_collection = APP_SCOPUS_IMPORT_COLLECTION;
+        $isMemberOf = Record::getSearchKeyIndexValue($pid, "isMemberOf", false);
+        $pubDate = Record::getSearchKeyIndexValue($pid, "Date", false);
+        $pubYear = date("Y", strtotime($pubDate));
+        if (is_numeric($pubYear) && is_numeric($currentYear)) {
+            if (in_array($wos_collection, $isMemberOf) && (($currentYear - $pubYear) < 7)) {
+                $res = $record->updateRELSEXT("rel:isMemberOf", APP_MY_RESEARCH_NEW_ITEMS_COLLECTION, false);
+                if ($res < 1) {
+                    $log->err( "Copy of '" . $pid . "' into the Provisional HERDC Collection " . APP_MY_RESEARCH_NEW_ITEMS_COLLECTION . " Failed" );
+                }
+                $res = $record->removeFromCollection($wos_collection);
+                if (!$res) {
+                    $log->err("ERROR Removing '" . $pid . "' from collection '" . $wos_collection . "'");
+                }
+            } else if (in_array($scopus_collection, $isMemberOf) && (($currentYear - $pubYear) < 7)) {
+                $res = $record->updateRELSEXT("rel:isMemberOf", APP_MY_RESEARCH_NEW_ITEMS_COLLECTION, false);
+                if ($res < 1) {
+                    $log->err( "Copy of '" . $pid . "' into the Provisional HERDC Collection " . APP_MY_RESEARCH_NEW_ITEMS_COLLECTION . " Failed" );
+                }
+                $res = $record->removeFromCollection($scopus_collection);
+                if (!$res) {
+                    $log->err("ERROR Removing '" . $pid . "' from collection '" . $scopus_collection . "'");
+                }
+            }
+        }
+
+        if ($sendEmail) {
+            Eventum::lodgeJob($subject, $body, $userEmail);
+        }
+
+        return;
     }
 
 

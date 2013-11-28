@@ -8,7 +8,14 @@ $isUser = Auth::getUsername();
 if (User::isUserAdministrator($isUser)) {
 
     $id = @$_REQUEST["id"];
-    if ($id) {
+    $id_sherpa = @$_REQUEST["id_sherpa"];
+
+    if (!empty($id_sherpa)) {
+        $sr = new SherpaRomeo();
+        $result = $sr::loadXMLData($id_sherpa);
+        header("Content-type: text/xml; charset=utf-8");
+        print_r($result);
+    } else if ($id) {
         $id = str_ireplace('WOS:', '', $id);
         $id = str_ireplace('2-s2.0-', '', $id);
         if (strlen($id) == 15) {
@@ -28,6 +35,13 @@ if (User::isUserAdministrator($isUser)) {
             <br />
             Scopus/Wok ID: <input type="text" name="id">
             <input type="submit" value="Submit">
+        </form>
+        <br />
+        <form name="sherpa" method="get">
+            <h2>Raw output we recieve for Sherpa/Romeo via their API's</h2>
+            <br />
+            Sherpa/Romeo - Journal ISSN: <input type="text" name="id_sherpa">
+            <input type="submit" value="Submit Sherpa ISSN">
         </form>
 <?php
     }
