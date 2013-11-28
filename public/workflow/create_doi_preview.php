@@ -84,13 +84,26 @@ $record = new Record($pid);
 $result[0]["rek_pid"] = $pid;
 $details = $record->getSearchKeysByPIDS($result, true);
 
-if ($result[0]['rek_author_id'][0]) {
-    $author_firstname = Author::getFirstname($result[0]['rek_author_id'][0]);
-    $author_lastname = Author::getLastname($result[0]['rek_author_id'][0]);
-} else {
-    $names = Author::guessFirstLastName($result[0]['rek_author'][0]);
-    $author_firstname = $names['firstname'];
-    $author_lastname = $names['lastname'];
+$dslist = $record_obj->getDatastreams();
+$warning = "<div style = 'color:red'>No open access datastreams are attached</div>";
+foreach ($dslist as $datastream) {
+    if ($datastream['controlGroup'] == 'M' && $datastream['state'] == 'A') {
+        $pidPermisisons = Auth::getAuthPublic($pid, $datastream['ID']);
+        if ($pidPermisisons['lister'] && $pidPermisisons['viewer']) {
+            $warning = "";
+        }
+    }
+}
+
+foreach($result[0]['rek_author'] as $i => $author ) {
+    if ($result[0]['rek_author_id'][$i]) {
+        $result[0]['rek_author_firstname'][$i] = Author::getFirstname($result[0]['rek_author_id'][$i]);
+        $result[0]['rek_author_lastname'][$i] = Author::getLastname($result[0]['rek_author_id'][$i]);
+    } else {
+        $names = Author::guessFirstLastName($author);
+        $result[0]['rek_author_firstname'][$i] = $names['firstname'];
+        $result[0]['rek_author_lastname'][$i] = $names['lastname'];
+    }
 }
 
 $publishedDate = $result[0]['rek_date'];
@@ -107,6 +120,7 @@ if ($isAdministrator) {
     $tpl->assign("published_date",$publishedDate);
     $tpl->assign("title", $record_obj->getTitle());
     $tpl->assign("link", 'http://'.APP_HOSTNAME.'/view/'.$pid);
+    $tpl->assign("warning", $warning);
 
     $tpl->displayTemplate();
 } else {

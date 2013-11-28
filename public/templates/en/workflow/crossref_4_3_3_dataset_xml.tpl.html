@@ -23,10 +23,12 @@ http://www.crossref.org/schema/deposit/crossref4.3.0.xsd">
         </database_metadata>
         <dataset dataset_type="collection">
             <contributors>
-                <person_name sequence = "first" contributor_role = "author">
-                    <given_name>{$details.rek_author_firstname[0]}</given_name>
-                    <surname>{$details.rek_author_lastname[0]}</surname>
+                {section name="j" loop=$details.rek_author}
+                <person_name sequence = "{if $smarty.section.j.index==0}first{else}additional{/if}" contributor_role = "author">
+                    <given_name>{$details.rek_author_firstname[j]}</given_name>
+                    <surname>{$details.rek_author_lastname[j]}</surname>
                 </person_name>
+                {/section}
             </contributors>
             <titles><title>{$details.rek_title}</title></titles>
             <database_date>

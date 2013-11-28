@@ -4,7 +4,7 @@
     <div class="admin-header">Please check any information before proceeding</div>
     <div class="default admin-content">
         {$xdis_title} - {$pid} - {$title}<br/><br/>
-
+<h1>{$warning|smarty:nodefaults}</h1>
 DOI will be :<br />
 {$doi} <br/>
 <b>{$existingDoi}</b> <br/><br/>
@@ -15,22 +15,34 @@ DOI will be :<br />
 {$depositor_email}  - Note: email needs to be correct as it will be where verification from Crossref will be emailed to<br/>
 <br/>
 Institution: {$org_name} <br />
-Author First Name: {$author_firstname}<br />
-Author Last Name: {$author_lastname}<br />
+First Author First Name: {$details.rek_author_firstname[0]}<br />
+First Author Last Name: {$details.rek_author_lastname[0]}<br />
+
+{section name="j" loop=$details.rek_author}
+    {if $smarty.section.j.index!=0}
+        Additional Author First Name: {$details.rek_author_firstname[j]}<br />
+        Additional Author Last Name: {$details.rek_author_lastname[j]}<br />
+    {/if}
+{/section}
+
 {if $xdis_title=="Thesis"}
     Publication Date: {$published_date|date_format:"%d/%m/%y"}<br />
     Degree: {$details.rek_genre_type}<br />
     Department: {$details.rek_org_unit_name}<br />
-{else $xdis_title=="Data Collection"}
+{elseif $xdis_title=="Data Collection"}
     Publication Date: {$published_date|date_format:"%Y"}<br />
     Description: {$details.rek_description}<br />
-{else $xdis_title=="Conference paper"}
+{elseif $xdis_title=="Conference Paper"}
+    Conference_name: {$details.rek_conference_name}<br />
+    Conference_location: {$details.rek_conference_location}<br />
     Publication Date: {$published_date|date_format:"%Y"}<br />
     Description: {$details.rek_description}<br />
-{else $xdis_title=="Working Paper"}
+    First page: {$details.rek_start_page}<br />
+    Last page: {$details.rek_end_page}<br />
+{elseif $xdis_title=="Working Paper"}
     Publisher: {$details.rek_publisher}}<br />
     Publication Date: {$published_date|date_format:"%d/%m/%y"}<br />
-    Department: {$details.rek_org_unit_name}<br /
+    Department: {$details.rek_org_unit_name}<br />
 {/if}
 
 </div> </div> </div>
