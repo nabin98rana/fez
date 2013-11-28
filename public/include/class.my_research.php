@@ -478,34 +478,32 @@ class MyResearch
           $subject = "My Research :: Claimed Publication :: " . $jobID . " :: " . $pid . " :: " . $publishedDate . " :: " . $author;
         }
 
-        // If this record is claimed and it is in the WoS import collection, strip it from there and put it into the provisional HERDC collection as long as it is in the last 6 years
+        // If this record is claimed and it is in the WoS/Scopus import collection, strip it from there and put it into the provisional HERDC collection as long as it is in the last 6 years
         $currentYear = date("Y");
         $wos_collection = trim(APP_WOS_COLLECTIONS, "'");
+        $scopus_collection = APP_SCOPUS_IMPORT_COLLECTION;
         $isMemberOf = Record::getSearchKeyIndexValue($pid, "isMemberOf", false);
         $pubDate = Record::getSearchKeyIndexValue($pid, "Date", false);
         $pubYear = date("Y", strtotime($pubDate));
         if (is_numeric($pubYear) && is_numeric($currentYear)) {
             if (in_array($wos_collection, $isMemberOf) && (($currentYear - $pubYear) < 7)) {
                 $res = $record->updateRELSEXT("rel:isMemberOf", APP_MY_RESEARCH_NEW_ITEMS_COLLECTION, false);
-                if ($res >= 1) {
-                    $log->debug(
-                        "Copied '" . $pid . "' into the Provisional HERDC Collection "
-                            . APP_MY_RESEARCH_NEW_ITEMS_COLLECTION
-                    );
-                } else {
-                    $log->err(
-                        "Copy of '" . $pid . "' into the Provisional HERDC Collection "
-                            . APP_MY_RESEARCH_NEW_ITEMS_COLLECTION . " Failed"
-                    );
+                if ($res < 1) {
+                    $log->err( "Copy of '" . $pid . "' into the Provisional HERDC Collection " . APP_MY_RESEARCH_NEW_ITEMS_COLLECTION . " Failed" );
                 }
-
                 $res = $record->removeFromCollection($wos_collection);
-                if ($res) {
-                    $log->debug("Removed record '" . $pid . "' from collection '" . $wos_collection . "'");
-                } else {
+                if (!$res) {
                     $log->err("ERROR Removing '" . $pid . "' from collection '" . $wos_collection . "'");
                 }
-
+            } else if (in_array($scopus_collection, $isMemberOf) && (($currentYear - $pubYear) < 7)) {
+                $res = $record->updateRELSEXT("rel:isMemberOf", APP_MY_RESEARCH_NEW_ITEMS_COLLECTION, false);
+                if ($res < 1) {
+                    $log->err( "Copy of '" . $pid . "' into the Provisional HERDC Collection " . APP_MY_RESEARCH_NEW_ITEMS_COLLECTION . " Failed" );
+                }
+                $res = $record->removeFromCollection($scopus_collection);
+                if (!$res) {
+                    $log->err("ERROR Removing '" . $pid . "' from collection '" . $scopus_collection . "'");
+                }
             }
         }
         // If this record is in the APP_HERDC_TRIAL_COLLECTION list and it has been claimed by a new author,
@@ -903,7 +901,9 @@ class MyResearch
                 $historyComment .= $file.' - "'.Datastream::$file_options[$filePermsNumber].'"; ';
             }
         }
-        History::addHistory($pid, null, '', '', true, 'User File Uploads', $historyComment);
+        if(!empty($historyComment)) {
+            History::addHistory($pid, null, '', '', true, 'User File Uploads', $historyComment);
+        }
         return $listFiles;
     }
 
