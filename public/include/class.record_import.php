@@ -412,7 +412,7 @@ abstract class RecordImport
 
           if (!$this->_likenAction) {
             return array('ST01', $histMsg);
-          } elseif (!$this->_inTest) {
+//          } elseif (!$this->_inTest) {
 //            $this->save($histMsg, $this->_insertCollection);
           } else {
 //            $this->_log->err($histMsg);
@@ -463,7 +463,7 @@ abstract class RecordImport
 
             if (!$this->_likenAction) {
               return array('ST02', $histMsg);
-            } elseif (!$this->_inTest) {
+//            } elseif (!$this->_inTest) {
 //             return $this->save($histMsg, $this->_insertCollection);
             } else {
 //              $this->_log->err($histMsg);
@@ -500,7 +500,7 @@ abstract class RecordImport
 
             if (!$this->_likenAction) {
               return array('ST03', $histMsg);
-            } elseif (!$this->_inTest) {
+//            } elseif (!$this->_inTest) {
 //             return $this->save($histMsg, $this->_insertCollection);
             } else {
 //              $this->_log->err($histMsg);
@@ -525,7 +525,7 @@ abstract class RecordImport
 
             if (!$this->_likenAction) {
               return array('ST04', $histMsg);
-            } elseif (!$this->_inTest) {
+//            } elseif (!$this->_inTest) {
 //             return $this->save($histMsg, $this->_insertCollection);
             } else {
               //$this->_log->err($histMsg);
@@ -572,7 +572,7 @@ abstract class RecordImport
 
         if (!$this->_likenAction) {
           return array('ST06', $histMsg);
-        } elseif (!$this->_inTest) {
+//        } elseif (!$this->_inTest) {
 //         return $this->save($histMsg, $this->_insertCollection);
         } else {
 //          $this->_log->err($histMsg);
@@ -592,7 +592,7 @@ abstract class RecordImport
         $histMsg = $fuzzyMatchState[0];
         if (!$this->_likenAction) {
           return array($stCode, $histMsg);
-        } elseif (!$this->_inTest) {
+//        } elseif (!$this->_inTest) {
 //         return $this->save($fuzzyMatchState[0], $this->_insertCollection);
         } else {
           //ST10-15 status
@@ -610,7 +610,7 @@ abstract class RecordImport
         return array('ST07', $histMsg);
       } elseif (!$this->_inTest) {
         return $this->save($histMsg, $this->_insertCollection); //save needs to use return as calling functions expect a pid back to do more with it
-      } else {
+//      } else {
         $this->inTestSave('', $this->$primaryId, 'ST07', $this->$docTypeCode, $this->$aggregationType, $histMsg);
       }
 
@@ -625,7 +625,7 @@ abstract class RecordImport
 
       if (!$this->_likenAction) {
         return array('ST08', $histMsg);
-      } elseif (!$this->_inTest) {
+//      } elseif (!$this->_inTest) {
 //      return $this->save(null, $this->_insertCollection);
       } else {
 //        $this->_log->err($histMsg);
@@ -641,7 +641,7 @@ abstract class RecordImport
       } elseif (!$this->_inTest) {
         //ST09 - updating
         $this->update($authorativePid);
-      } else {
+//      } else {
         /*file_put_contents($this->_statsFile, "ST09 - Updating: ".$authorativePid.". Scopus ID: "
             . $this->_scopusId . "\n\n", FILE_APPEND);*/
         $this->inTestSave($authorativePid, $this->$primaryId, 'ST09', $this->$docTypeCode, $this->$aggregationType, $histMsg);
