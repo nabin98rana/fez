@@ -448,10 +448,6 @@ function disableFields()
 						{if $showEdit}
 							&nbsp;&nbsp;<a href='update.php?pid={$list[i].rek_pid}'><img title="Edit" alt="Edit" style="vertical-align: middle;" src="{$rel_url}images/edit.gif" /></a>
 						{/if}
-						{if $isAdministrator}
-							 <a href='javascript:void(null);' onClick="javascript:purgeObject('{$list[i].rek_pid}');"><img title="Delete" alt="Delete" style="vertical-align: middle;" src="{$rel_url}images/delete.gif" /></a>
-						{/if}
-
 					  {/if}
 
 					</td>
