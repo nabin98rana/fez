@@ -73,7 +73,7 @@
 		<registryObject group="{$org_name}">
 			<key>{$app_hostname}/view/{$list[i].rek_pid}</key>
 			<originatingSource>{$app_hostname}</originatingSource>
-			<collection type="{$list[i].rek_ands_collection_type|strip_tags}" dateAccessioned="{$list[i].rek_created_date}" dateModified="{$list[i].rek_updated_date}">
+			<collection type="{$list[i].rek_ands_collection_type_lookup|strip_tags}" dateAccessioned="{$list[i].rek_created_date}" dateModified="{$list[i].rek_updated_date}">
       {if $list[i].rek_handle}
 			<identifier type="handle">hdl.handle.net/{$list[i].rek_handle}</identifier>
       {/if}
@@ -207,32 +207,7 @@
 				    {if !$list[i].rek_author_id[a] == 0}
 					  <relatedObject>
 					      <key>{$app_hostname}/list/author_id/{$list[i].rek_author_id[a]}</key>
-					      <relation type="
-						  {if $list[i].rek_author_role[a]|lower == "associate investigator" ||
-								$list[i].rek_author_role[a]|lower == "author" ||
-								$list[i].rek_author_role[a]|lower == "chief investigator" ||
-								$list[i].rek_author_role[a]|lower == "investigator" ||
-								$list[i].rek_author_role[a]|lower == "partner investigator" ||
-								$list[i].rek_author_role[a]|lower == "team leader"}
-						      hasCollector
-						  {elseif $list[i].rek_author_role[a]|lower == "case manager" ||
-								$list[i].rek_author_role[a]|lower == "partnership manager" ||
-								$list[i].rek_author_role[a]|lower == "project manager"}
-						      isManagedBy
-						  {elseif $list[i].rek_author_role[a]|lower == "advisor" ||
-								$list[i].rek_author_role[a]|lower == "interviewer" ||
-								$list[i].rek_author_role[a]|lower == "laboratory manager" ||
-								$list[i].rek_author_role[a]|lower == "research assistant" ||
-								$list[i].rek_author_role[a]|lower == "software developer"}
-						      isEnrichedBy
-						  {elseif $list[i].rek_author_role[a]|lower == "academic advisor" ||
-								$list[i].rek_author_role[a]|lower == "chair person" ||
-								$list[i].rek_author_role[a]|lower == "supervisor"}
-						      hasAssociationWith
-						   {else}
-							  hasAssociationWith
-						   {/if}
-							">
+					      <relation type="author">
 					      <description>{$list[i].rek_author_role[a]}</description></relation>
 					  </relatedObject>
 				    {/if}
