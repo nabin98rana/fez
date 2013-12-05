@@ -76,6 +76,9 @@
 
         function validateForm() {
         {/literal}
+        for(var instanceName in FCKeditorAPI.Instances) {
+            FCKeditorAPI.GetInstance(instanceName).UpdateLinkedField();
+        }
         {section name="i" loop=$xsd_display_fields}
         {if (($xsd_display_fields[i].xsdmf_html_input == 'contvocab_selector' && $xsd_display_fields[i].xsdmf_cvo_min_level != 3) || $xsd_display_fields[i].xsdmf_html_input == 'dual_multiple' || $xsd_display_fields[i].xsdmf_html_input == 'pid_selector') && $xsd_display_fields[i].xsdmf_enabled == 1}
         {literal}
