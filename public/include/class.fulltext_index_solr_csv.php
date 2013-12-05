@@ -133,9 +133,7 @@ class FulltextIndex_Solr_CSV extends FulltextIndex
       $this->bgpDetails = $this->bgp->getDetails();
     }
 
-    /*
-     * Loop through queue and index a number of records set in APP_SOLR_COMMIT_LIMIT config var at a time into solr
-     */
+     // Loop through queue and index a number of records set in APP_SOLR_COMMIT_LIMIT config var at a time into solr
     while (($chunk = $queue->popChunk($singleColumns)) != false) {
       $csv = array();
       $pids_arr = array();
@@ -154,23 +152,16 @@ class FulltextIndex_Solr_CSV extends FulltextIndex
 
       $pids = "'" . implode("','", $pids_arr) . "'";
 
-      /*
-       * Rebuild any empty citations so
-       * they are cached in solr
-       */
+
+      //Rebuild any empty citations so they are cached in solr
       $this->preBuildCitations($pids);
 
-      /*
-       * Cache any datastreams that have text
-       * files
-       */
+      // Cache any datastreams that have text files
       if (APP_SOLR_INDEX_DATASTREAMS == 'ON') {
         $this->preCacheDatastreams($pids);
       }
 
-      /*
-       * Add the authlister rules to the csv array
-       */
+      // Add the authlister rules to the csv array
       $rulesGroups = $this->getRuleGroupsChunk($pids, $roleIDs);
       foreach ($csv as $rek_pid => $rek_line) {
 
@@ -198,9 +189,7 @@ class FulltextIndex_Solr_CSV extends FulltextIndex
 
       }
 
-      /*
-       * Add multi-valued search keys to the csv array, including 1-1 and 1-M cardinality multiple relationships
-       */
+      // Add multi-valued search keys to the csv array, including 1-1 and 1-M cardinality multiple relationships
       foreach ($mtColumns as $mtColumn) {
         if ($mtColumn['type'] == FulltextIndex::FIELD_TYPE_DATE) {
           if (is_numeric(strpos(APP_SQL_DBTYPE, "pgsql"))) {
@@ -326,7 +315,7 @@ class FulltextIndex_Solr_CSV extends FulltextIndex
             }
           }
         } // close if check for date types
-        $sVal = "";
+
         // add additional lookup fields (one lookup plus exact lookup) for integer search keys with non-empty sek_lookup_functions
         if (!empty($mtColumn['sek_lookup_function'])) {
           //setup $lookupArr
@@ -342,23 +331,21 @@ class FulltextIndex_Solr_CSV extends FulltextIndex
           if (is_array($lookupArr)) {
             if (count($lookupArr) != 0) {
               foreach ($lookupArr as $tmpPid => $tmpVal) {
-                $splitVals = array();
                 $splitVals = preg_split('/\t/', $tmpVal);
                 $csv[$tmpPid] .= ',"';
 
                 foreach ($splitVals as $sVal) {
                   if (!empty($sVal)) {
-                    $csv[$tmpPid] .= "\t" . Record::getLookup($sVal, $mtColumn['sek_lookup_function'], $cacheEval) . '';
+                    $csv[$tmpPid] .= "\t" . str_replace('"', '""', Record::getLookup($sVal, $mtColumn['sek_lookup_function'], $cacheEval)) . '';
                   } elseif ($sVal == 0 && count($splitVals) > 1) {
                     $csv[$tmpPid] .= "\t0";
                   }
                 }
-                $sVal = "";
                 $csv[$tmpPid] .= '","';
                 // save it again for the exact too (fast because cached)
                 foreach ($splitVals as $sVal) {
                   if (!empty($sVal)) {
-                    $csv[$tmpPid] .= "\t" . Record::getLookup($sVal, $mtColumn['sek_lookup_function'], $cacheEval) . '';
+                    $csv[$tmpPid] .= "\t" . str_replace('"', '""', Record::getLookup($sVal, $mtColumn['sek_lookup_function'], $cacheEval)) . '';
                   } elseif ($sVal == 0 && count($splitVals) > 1) {
                     $csv[$tmpPid] .= "\t0";
                   }
@@ -423,9 +410,7 @@ class FulltextIndex_Solr_CSV extends FulltextIndex
         $this->bgp->setStatus("Sending CSV file " . $tmpfname . " to Solr");
       }
 
-      /*
-       * Use cURL to tell solr it has a CSV file to process
-       */
+      // Use cURL to tell solr it has a CSV file to process
       $raw_response = Misc::processURL($url, null, null, $postFields, null, 30);
       $uploaded = false;
       if ($raw_response[1]["http_code"] != "200") {
@@ -474,8 +459,6 @@ class FulltextIndex_Solr_CSV extends FulltextIndex
 
     $this->connectToSolr();
     if ($deletePids) {
-
-
       if ($this->bgp) {
         $this->bgp->setStatus("Deleting " . count($deletePids) . " from Solr Index");
       }
