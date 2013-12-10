@@ -1,0 +1,1 @@
+ALTER TABLE %TABLE_PREFIX%datastream_info ADD COLUMN dsi_embargo_processed INT DEFAULT 0 NULL AFTER dsi_embargo_date;
