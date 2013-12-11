@@ -917,7 +917,6 @@ public function afterScenario($event)
      */
     public function iSeeIdOrWaitForSeconds($see, $wait)
     {
-        echo $wait.' '."dojo.byId('$see')";
         $this->getSession()->wait($wait*1000, "dojo.byId('$see')");
     }
 
