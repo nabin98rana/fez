@@ -27,7 +27,8 @@
 // | 59 Temple Place - Suite 330                                          |
 // | Boston, MA 02111-1307, USA.                                          |
 // +----------------------------------------------------------------------+
-// | Authors: Chris Maj <c.maj@library.uq.edu.au>                |
+// | Authors: Chris Maj <c.maj@library.uq.edu.au>                         |
+// | Authors: Aaron Brown <a.brown@library.uq.edu.au>                     |
 // +----------------------------------------------------------------------+
 //
 //
@@ -37,6 +38,7 @@
  *
  * @version 0.1
  * @author Chris Maj <c.maj@library.uq.edu.au>
+ * @author Aaron Brown <a.brown@library.uq.edu.au>
  *
  */
 
@@ -86,16 +88,16 @@ class ScopusService
 
         //If the token is less than two hours old return it
         $token = ($tokenData && ((time() - $tokenData['ts']) < 7200))
-                ? $tokenData['scs_tok']
-                : false;
+            ? $tokenData['scs_tok']
+            : false;
 
         return $token;
     }
 
     /**
-    * Getter overload
-    * @param string $propName
-    */
+     * Getter overload
+     * @param string $propName
+     */
     public function __get($propName)
     {
         return $this->$propName;
@@ -110,21 +112,15 @@ class ScopusService
         $sqlTruncate = "TRUNCATE TABLE " . APP_TABLE_PREFIX . "scopus_session";
         $sqlInsert = "INSERT INTO " . APP_TABLE_PREFIX . "scopus_session (scs_tok) VALUES (?)";
 
-        try
-        {
+        try {
             $tr = $this->_db->query($sqlTruncate);
-        }
-        catch(Exception $e)
-        {
+        } catch (Exception $e) {
             $this->_log->err($e->getMessage());
         }
 
-        try
-        {
+        try {
             $in = $this->_db->query($sqlInsert, array($token));
-        }
-        catch(Exception $e)
-        {
+        } catch (Exception $e) {
             $this->_log->err($e->getMessage());
         }
 
@@ -144,8 +140,7 @@ class ScopusService
 
         $token = $this->getSavedToken();
 
-        if(!$token)
-        {
+        if (!$token) {
             $curlRes = $this->doCurl($params);
             $xpath = $this->getXPath($curlRes);
             $tokens = $xpath->query("//authenticate-response/authtoken");
@@ -163,8 +158,7 @@ class ScopusService
      */
     public function search(array $query)
     {
-        if(!$this->_authToken)
-        {
+        if (!$this->_authToken) {
             //Run the auth method instead of throwing an exception??
             $this->_log->err("No authtoken is set for ScopusAPI access:"
                 . __FILE__ . ":" . __LINE__);
@@ -186,14 +180,13 @@ class ScopusService
      * there is one to grab
      * @return mixed
      */
-    public function getNextRecordSet($query=null)
+    public function getNextRecordSet($query = null)
     {
-        if(!$query)
-        {
+        if (!$query) {
             $query = array('query' => 'affil(University+of+Queensland)+rr=30',
-                                'count' => $this->_recSetSize,
-                                'start' => $this->_recSetStart,
-                                'view' => 'STANDARD',
+                'count' => $this->_recSetSize,
+                'start' => $this->_recSetStart,
+                'view' => 'STANDARD',
             );
         }
 
@@ -208,14 +201,45 @@ class ScopusService
         $scopusId = str_ireplace('2-s2.0-', '', $scopusId);
         $scopusId = str_ireplace('SCOPUS_ID:', '', $scopusId);
         $query = array('view' => 'FULL');
-//        $query = array();
         $params = array(
-                'action' => 'abstract',
-                'db' => 'SCOPUS_ID:' . $scopusId,
-                'qs' => $query
+            'action' => 'abstract',
+            'db' => 'SCOPUS_ID:' . $scopusId,
+            'qs' => $query
         );
 
         return $this->doCurl($params, 'content');
+    }
+
+    // Test it out on  http://www.scopus.com/search/form.url?display=advanced
+    // Return false for error, 0 for no results found else return the raw $xml
+    public function getRecordsBySearchQuery($search, $view = 'STANDARD', $numRecs = 5, $start = 0)
+    {
+        $query = array('query' => $search,
+            'count' => $numRecs,
+            'start' => $start,
+            'view' => $view,
+        );
+        $xml = $this->getNextRecordSet($query);
+        $xmlDoc = new DOMDocument();
+        $xmlDoc->preserveWhiteSpace = false;
+        $xmlDoc->loadXML($xml);
+
+        $xpath = new DOMXPath($xmlDoc);
+
+        if ($xpath->query("/service-error")->length > 0) {
+            echo $xml;
+            return false;
+        }
+
+        $doc = new DOMDocument();
+        $doc->loadXML($xml);
+
+        $records = $doc->getElementsByTagName('identifier');
+        if ($records->length == 0) {
+            return 0;
+        }
+
+        return $xml;
     }
 
     /**
@@ -237,8 +261,7 @@ class ScopusService
      */
     public function getNextRecStart($recordSet)
     {
-        if($this->_lastSet)
-        {
+        if ($this->_lastSet) {
             return false;
         }
 
@@ -246,24 +269,20 @@ class ScopusService
         $links = $xpath->query('//default:feed/default:link');
         $nextRecStart = false;
 
-        foreach($links as $link)
-        {
+        foreach ($links as $link) {
             $ref = $link->getAttribute('ref');
-            if($ref == "next")
-            {
+            if ($ref == "next") {
                 $nextLink = $link->getAttribute('href');
                 $matches = array();
                 preg_match("/start=(\d+)&/", $nextLink, $matches);
 
-                if(array_key_exists(1, $matches))
-                {
+                if (array_key_exists(1, $matches)) {
                     $nextRecStart = $matches[1];
                 }
             }
         }
 
-        if(!$nextRecStart)
-        {
+        if (!$nextRecStart) {
             $this->_lastSet = true;
             $nextRecStart = $this->_recSetStart + $this->_recSetSize;
         }
@@ -272,31 +291,29 @@ class ScopusService
     }
 
     /**
-    * Download records from Scopus, perform
-    * de-duping and enter into database.
-    * This method bypasses the queueing mechanism
-    * and performs deduping straight away.
-    */
+     * Download records from Scopus, perform
+     * de-duping and enter into database.
+     * This method bypasses the queueing mechanism
+     * and performs deduping straight away.
+     */
     public function downloadRecords()
     {
         $xml = $this->getNextRecordSet();
 
         $nameSpaces = array(
-                    'd' => 'http://www.elsevier.com/xml/svapi/abstract/dtd',
-                    'ce' => 'http://www.elsevier.com/xml/ani/common',
-                    'prism' => "http://prismstandard.org/namespaces/basic/2.0/",
-                    'dc' => "http://purl.org/dc/elements/1.1/",
-                    'opensearch' => "http://a9.com/-/spec/opensearch/1.1/"
+            'd' => 'http://www.elsevier.com/xml/svapi/abstract/dtd',
+            'ce' => 'http://www.elsevier.com/xml/ani/common',
+            'prism' => "http://prismstandard.org/namespaces/basic/2.0/",
+            'dc' => "http://purl.org/dc/elements/1.1/",
+            'opensearch' => "http://a9.com/-/spec/opensearch/1.1/"
         );
 
-        while($this->_recSetStart)
-        {
+        while ($this->_recSetStart) {
             $doc = new DOMDocument();
             $doc->loadXML($xml);
             $records = $doc->getElementsByTagName('identifier');
 
-            foreach($records as $record)
-            {
+            foreach ($records as $record) {
                 $csr = new ScopusRecItem();
 
                 $scopusId = $record->nodeValue;
@@ -324,35 +341,33 @@ class ScopusService
      * @param array $params
      * @param string $utility
      */
-    public function doCurl(array $params, $utility="authenticate")
+    public function doCurl(array $params, $utility = "authenticate")
     {
-        if(!array_key_exists('qs', $params) || !is_array($params['qs']))
-        {
+        if (!array_key_exists('qs', $params) || !is_array($params['qs'])) {
             $this->_log->err("Scopus query is not a parameter item or not an array:"
                 . __FILE__ . ":" . __LINE__);
             return false;
         }
 
-        $uri = (preg_match('/.*\/$/', SCOPUS_WS_BASE_URL)) ? $utility : '/'.$utility;
-        $uri .= (array_key_exists('action', $params)) ? "/".$params['action'] : '';
-        $uri .= (array_key_exists('db', $params) ? "/".$params['db'] : '');
+        $uri = (preg_match('/.*\/$/', SCOPUS_WS_BASE_URL)) ? $utility : '/' . $utility;
+        $uri .= (array_key_exists('action', $params)) ? "/" . $params['action'] : '';
+        $uri .= (array_key_exists('db', $params) ? "/" . $params['db'] : '');
         $uri .= '?' . http_build_query($params['qs']);
 
         $curlHandle = curl_init(SCOPUS_WS_BASE_URL . $uri);
         curl_setopt($curlHandle, CURLOPT_SSL_VERIFYPEER, FALSE);
         curl_setopt($curlHandle, CURLOPT_SSL_VERIFYHOST, FALSE);
         curl_setopt($curlHandle, CURLOPT_HTTPHEADER, array(
-                'X-ELS-APIKey: ' . $this->_apiKey,
-                'Accept: text/xml, application/atom+xml'
+            'X-ELS-APIKey: ' . $this->_apiKey,
+            'Accept: text/xml, application/atom+xml'
         ));
         curl_setopt($curlHandle, CURLOPT_RETURNTRANSFER, true);
         $curlResponse = curl_exec($curlHandle);
 
-        if(!$curlResponse)
-        {
+        if (!$curlResponse) {
             $this->_log->err(curl_errno($curlHandle));
         } elseif (is_numeric(strpos($curlResponse, 'service-error'))) {
-          $this->_log->err($curlResponse);
+            $this->_log->err($curlResponse);
         }
 
         curl_close($curlHandle);

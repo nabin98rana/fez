@@ -37,6 +37,8 @@ include_once(APP_INC_PATH . "class.misc.php");
 include_once(APP_INC_PATH . "class.author.php");
 include_once(APP_INC_PATH . "class.record_import.php");
 include_once(APP_INC_PATH . "class.thomson_doctype_mappings.php");
+include_once(APP_INC_PATH . "class.scopus_service.php");
+include_once(APP_INC_PATH . "class.scopus_record.php");
 
 /**
  * Class for working with the ISI WoS REC item object
@@ -718,8 +720,31 @@ class WosRecItem extends RecordImport
      */
     public function save($history = null)
     {
+        $log = FezLog::get();
         $pid = null;
 
+        // First we see, is this in Scopus? If so, it's our base. We'll add it in, then update the record with any missing wok info like isi_loc
+        if ($this->articleNos[0]) {
+            $scopusService = new ScopusService(APP_SCOPUS_API_KEY);
+            $xml = $scopusService->getRecordsBySearchQuery('DOI('.$this->articleNos[0].')');
+            $pregMatches = array();
+            preg_match('/<dc:identifier>SCOPUS_ID\:(\d+)<\/dc:identifier>/', $xml, $pregMatches);
+            $scopusId = (array_key_exists(1, $pregMatches)) ? $pregMatches[1] : null;
+        }
+        if ($scopusId) {
+            $record = $scopusService->getRecordByScopusId($scopusId);
+            $sri = new ScopusRecItem();
+            $sri->load($record);
+            if($sri->isLoaded())
+            {
+                $history = "Importing a Scopus base record before saving a new wos record";
+                $pid = $sri->save($history, APP_SCOPUS_IMPORT_COLLECTION);
+                $this->update($pid);
+                return $pid;
+            }
+        }
+
+        //We only continue on from here if we haven't successfully imported from scopus
         if (APP_FEDORA_BYPASS == 'ON') {
 
             // save WOS data to Record Search Keys
@@ -847,6 +872,7 @@ class WosRecItem extends RecordImport
     $xdis_id = $dTMap[$this->docTypeCode][2];
 
     $searchKeyTargets = array(
+      "ISI LOC" => $this->ut,
       "Date" => $this->date_issued,
       "ISSN" => $this->issn,
       "ISBN" => $this->isbn,
