@@ -57,8 +57,10 @@ Scenario: Delete WOS imports
     Given I am on "/misc/process_wok_queue.php"
     And I am on "/"
     And I turn on waiting checks
+    And I wait for "10" seconds
     And I fill in "Search Entry" with "title:(\"Influence of malt roasting on the oxidative stability of sweet wort\")"
     And I press "search_entry_submit"
+    And I follow "Influence of malt roasting on the oxidative stability of sweet wort"
     And I should see "Influence of malt roasting on the oxidative stability of sweet wort"
     And I should see "Journal of Agricultural and Food Chemistry"
     And I should see "2012-06"
