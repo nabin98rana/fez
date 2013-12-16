@@ -1036,7 +1036,9 @@ abstract class BackgroundService {
     // Store the output of the background service and it's pid in temporary
     // files in the system tmp directory.
     $directory = sys_get_temp_dir() . '/background-services';
-    mkdir($directory);
+    if (!is_dir($directory)) {
+        mkdir($directory);
+    }
     $unique_file = tempnam($directory, 'background-service-');
     $this->pid_file_name =  $unique_file . '.pid';
     $this->output_file_name = $unique_file . '.out';
