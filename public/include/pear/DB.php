@@ -467,7 +467,7 @@ class DB
             return $tmp;
         }
 
-        @$obj = new $classname;
+        $obj = new $classname;
 
         foreach ($options as $option => $value) {
             $test = $obj->setOption($option, $value);
@@ -544,7 +544,7 @@ class DB
             return $tmp;
         }
 
-        @$obj = new $classname;
+        $obj = new $classname;
 
         foreach ($options as $option => $value) {
             $test = $obj->setOption($option, $value);

@@ -698,6 +698,9 @@ class RecordGeneral
      * @param boolean $removeCurrent Flag on whether to remove current value
      * @param string $history Message on the PID history
      * @return string
+     *
+     * @bug Cannot change searchkey title
+     *
      */
     function addSearchKeyValueList(
     $search_keys=array(), $values=array(), $removeCurrent=true, $history="was added based on Links AMR Service data")

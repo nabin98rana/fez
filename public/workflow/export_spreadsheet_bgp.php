@@ -41,6 +41,3 @@ $bgp_csv = new BackgroundProcess_Export_Spreadsheet;
 $inputs = compact('pid');
 $inputs_str = serialize($inputs);
 $bgp_csv->register($inputs_str, Auth::getUserID());
-
-
-?>
