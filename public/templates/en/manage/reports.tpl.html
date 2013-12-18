@@ -1,0 +1,37 @@
+<div class="admin-box">
+
+<h1>Available Reports</h1>
+
+<table style="width: 100%;">
+  <tr class="table_heading_row">
+    <td>Title</td>
+    <td>Query</td>
+    <td>Description</td>
+    <td>Download</td>
+</tr>
+{section name="i" loop=$reports}
+			  {assign var="report" value=$reports[i]|smarty:nodefaults}
+			  {cycle values=$cycle assign="row_color"}
+                    <tr onmouseover="this.style.background='#{$smarty.const.APP_HIGHLIGHT_COLOR}';" onmouseout="this.style.background='{$row_color}';" style="background: {$row_color}">
+                        <td style="width: 15%;" class="default">
+                            &nbsp;{$report.sel_title}
+                        </td>
+                        <td style="width: 40%;" class="default">
+                          &nbsp;{$report.sel_query}
+                        </td>
+                        <td style="width: 40%;" class="default">
+                          &nbsp;{$report.sel_description}
+                        </td>
+                        <td style="width: 5%;" class="default">
+                        <a href="{$smarty.server.PHP_SELF}?download_id={$report.sel_id}"><image src="/images/filemanager/file_folder_icon/fileExcel.png"/></a>
+                        </td>
+                    </tr>
+{sectionelse}
+                    <tr>
+                      <td colspan="7" style="text-align: center" class="default">
+                        No displays could be found.
+                      </td>
+                    </tr>
+{/section}
+</table>
+</div>
