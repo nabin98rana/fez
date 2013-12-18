@@ -19,6 +19,18 @@ http://www.crossref.org/schema/deposit/crossref4.3.0.xsd">
                 <conference_name>{$details.rek_conference_name}</conference_name>
                 <conference_location>{$details.rek_conference_location}</conference_location>
             </event_metadata>
+            <proceedings_metadata>
+                <proceedings_title>{$details.rek_proceedings_title}</proceedings_title>
+                    <publisher>
+                        <publisher_name>{$details.rek_publisher}</publisher_name>
+                    </publisher>
+                <publication_date>
+                    <month>{$published_month}</month>
+                    <day>{$published_day}</day>
+                    <year>{$published_year}</year>
+                </publication_date>
+                <isbn>{$details.rek_isbn[0]}</isbn>
+            </proceedings_metadata>
             <conference_paper publication_type="full_text">
                 <contributors>
                     {section name="j" loop=$details.rek_author}
@@ -36,10 +48,14 @@ http://www.crossref.org/schema/deposit/crossref4.3.0.xsd">
                     <day>{$published_day}</day>
                     <year>{$published_year}</year>
                 </publication_date>
-                <pages>
-                    <first_page>{$details.rek_start_page}</first_page>
-                    <last_page>{$details.rek_end_page}</last_page>
-                </pages>
+                {if $details.rek_start_page}
+                    <pages>
+                        <first_page>{$details.rek_start_page}</first_page>
+                        {if $details.rek_end_page}
+                            <last_page>{$details.rek_end_page}</last_page>
+                        {/if}
+                    </pages>
+                {/if}
                 <doi_data>
                     <doi>{$doi}</doi>
                     <resource>{$link}</resource>

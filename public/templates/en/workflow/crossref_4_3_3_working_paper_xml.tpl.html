@@ -37,7 +37,7 @@ http://www.crossref.org/schema/deposit/crossref4.3.0.xsd">
                 </publisher>
                 <institution>
                     <institution_name>{$org_name}</institution_name>
-                    <institution_department>{$details.rek_org_unit_name}</institution_department>
+                    {if $details.rek_org_unit_name}<institution_department>{$details.rek_org_unit_name}</institution_department>{/if}
                 </institution>
                 <doi_data>
                     <doi>{$doi}</doi>
