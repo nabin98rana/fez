@@ -268,7 +268,7 @@ if (!empty($pid) && $record->checkExists()) {
       }
       array_push($parent_relationships[$parent['rek_pid']], $parent['rek_display_type']);
       //Check if the order form should be displayed
-        $displayOrderForm =  $displayOrderForm || in_array($parent['rek_pid'], array('UQ:183974','UQ:130846','UQ:210175','UQ:155729', 'UQ:151710'));
+        $displayOrderForm =  $displayOrderForm || in_array($parent['rek_pid'], explode(',',THESIS_COLLECTIONS_ORDERABLE));
 
     }
     $displayOrderForm = (empty($username) && $displayOrderForm);
