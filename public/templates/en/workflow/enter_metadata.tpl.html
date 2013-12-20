@@ -613,7 +613,6 @@
                       <td>
                     <input class="default" type="text" id="xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_{$loop_num}" name="xsd_display_fields[{$xsd_display_fields[i].xsdmf_id}]{if ($xsdmf.xsdmf_multiple_limit > 1)}[]{/if}" onkeyup="javascript:unhideRow('xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}', 'choicexsd_display_fields_{$xsd_display_fields[i].xsdmf_id}');" onfocus="javascript:unhideRow('xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}', 'choicexsd_display_fields_{$xsd_display_fields[i].xsdmf_id}');" onchange="javascript:unhideRow('xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}', 'choicexsd_display_fields_{$xsd_display_fields[i].xsdmf_id}');" size="50" value="{if $loop_num == 0}{if $xsd_display_fields[i].xsdmf_dynamic_text != ""}{assign var='temp_dynamic_var' value=$xsd_display_fields[i].xsdmf_dynamic_text}{eval var=$temp_dynamic_var}{else}{$xsd_display_fields[i].xsdmf_static_text}{/if}{/if}" {if $xsd_display_fields[i].xsdmf_validation_maxlength != null && $xsd_display_fields[i].xsdmf_validation_maxlength > 0}maxlength="{$xsd_display_fields[i].xsdmf_validation_maxlength}"{/if} />
                     {* if $smarty.section.z.last *}
-                    {if (is_numeric($xsdmf.xsdmf_multiple_limit))} {assign var ="multiple_limit" value =$xsdmf.xsdmf_multiple_limit} {else} {assign var = "multiple_limit" value = "1"} {/if}
                     <script type="text/javascript">
                     var field = document.getElementById('xsd_display_fields_{$xsdmf.xsdmf_id}_{$loop_num}');
                     field.onchange = {literal}function () {{/literal}createTextBox({$xsdmf.xsdmf_id},{$loop_num},'{$xsdmf.xsdmf_title}',{if $xsdmf.xsdmf_multiple_limit}{math equation="0+y-1" y=$xsdmf.xsdmf_multiple_limit}{else}0{/if},
@@ -880,7 +879,7 @@
                           <br/><i>{$xsd_display_fields[i].xsdmf_description}</i>
                         {/if}
                         <br />
-                        <i>Additional boxes will appear for more {$xsd_display_fields[i].xsdmf_title|lower}s.</i>
+						<i>(More {$xsd_display_fields[i].xsdmf_title} input boxes will appear as you type)</i>
                         {/if}
                       </th>
                       <td>
@@ -1090,7 +1089,7 @@
                     {assign var="loop_num" value=$smarty.section.z.index}
                     <tr id="tr_xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_{$loop_num}" style="display:none">
                       <th>
-                        <b>{$xsd_display_fields[i].xsdmf_title} {math equation="x + 1" x=$loop_num} {if $xsd_display_fields[i].xsdmf_required == 1} * {/if}</b><br />{if $loop_num == 0}<i>Additional boxes will appear for more {$xsd_display_fields[i].xsdmf_title|lower}s.</i>{/if}
+						<b>{$xsd_display_fields[i].xsdmf_title} {math equation="x + 1" x=$loop_num} {if $xsd_display_fields[i].xsdmf_required == 1} * {/if}</b><br />{if $loop_num == 0}<i>(More {$xsd_display_fields[i].xsdmf_title} input boxes will appear as you type)</i>{/if}
                       </th>
                       <td>
                         <input type="hidden" id="xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_{$loop_num}" name="xsd_display_fields[{$xsd_display_fields[i].xsdmf_id}][]" />
@@ -1198,7 +1197,7 @@
                     {assign var="loop_num" value=$smarty.section.z.index}
                     <tr id="tr_xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_{$loop_num}" {if $loop_num != 0 || ($isApprover != 1 && $xsd_display_fields[i].xsdmf_show_simple_create == 0 && ($xsd_display_fields[i].xsdmf_required != 1 || $xsd_display_fields[i].selected_option != '')) || $xsd_display_fields[i].xsdmf_invisible == 1}style="display:none"{/if} valign="top">
                       <th>
-                        <b><label for="xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_{$loop_num}">{$xsd_display_fields[i].xsdmf_title}</label> {math equation="x + 1" x=$loop_num} {if $xsd_display_fields[i].xsdmf_required == 1} * {/if}</b><br />{if $loop_num == 0}<i>Additional boxes will appear for more {$xsd_display_fields[i].xsdmf_title|lower}s.</i>{/if}
+						<b><label for="xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_{$loop_num}">{$xsd_display_fields[i].xsdmf_title}</label> {math equation="x + 1" x=$loop_num} {if $xsd_display_fields[i].xsdmf_required == 1} * {/if}</b><br />{if $loop_num == 0}<i>(More {$xsd_display_fields[i].xsdmf_title} input boxes will appear as you type)</i>{/if}
                         {if $xsd_display_fields[i].xsdmf_description != ""}
                             <br /><i>{$xsd_display_fields[i].xsdmf_description}</i>
                         {/if}

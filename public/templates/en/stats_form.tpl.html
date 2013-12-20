@@ -492,7 +492,7 @@ function disableFields()
         <tr>
           <td align="left" >
 			{if $list_type == 'community_list' && $isAdministrator}
-			<br /> <a class="default" target="_top" title="Create New Community" href="{$rel_url}new.php?xdis_id={$xdis_id}"><img src="{$rel_url}images/folder_new.gif" alt="" style="vertical-align: middle;" /><b>Create New Community</b></a>&nbsp;
+			<br /> <a class="default" target="_top" title="Create a new community" href="{$rel_url}new.php?xdis_id={$xdis_id}"><img src="{$rel_url}images/folder_new.gif" alt="" style="vertical-align: middle;" /><b>Create New Community</b></a>&nbsp;
 			{elseif $list_type == 'collection_list' && ($isAdministrator || $isCreator)}
 			<br /> <a class="default" target="_top" title="create a new collection" href="{$rel_url}new.php?xdis_id={$xdis_id}{if $community_pid}&amp;community_pid={$community_pid}{/if}"><img src="{$rel_url}images/folder_new.gif" alt="" style="vertical-align: middle;" /><b>Create New Collection</b></a>&nbsp;
 			{elseif ($list_type == 'collection_records_list' && ($isAdministrator || $isCreator)) && $browse_type == ""}

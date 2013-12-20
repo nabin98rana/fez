@@ -432,9 +432,9 @@
               {assign var="snip_width" value=380}
               {if $icon != ""}
                 {if $icon_width == ""}
-                    {assign var="snip_width" value=$snip_width-$smarty.const.APP_THUMBNAIL_WIDTH}
+                    {assign var="snip_width" value=$snip_width-$smarty.const.APP_THUMBNAIL_WIDTH-20}
                 {else}
-                    {assign var="snip_width" value=$snip_width-$icon_width}
+                    {assign var="snip_width" value=$snip_width-$icon_width-20}
                 {/if}
               {/if}
               <br /><br /><div class='snip' style="max-width:{$snip_width}px">...{$snips[$pid]|smarty:nodefaults}...</div>

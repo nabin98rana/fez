@@ -65,8 +65,6 @@
 
 
 
-
-
 {* start of RIF-CS-specific output *}
 	{if $metadataPrefix == "rif"}   
 		{strip}
@@ -307,7 +305,7 @@
 			     <description type="rights">&#xA9;{$list[i].rek_rights|trim}</description>
 			{/if}
 			{if $list[i].rek_access_conditions}
-			      <description type="accessRights">{$list[i].rek_access_conditions|strip_tags}</description>
+			      <description type="accessRights">{$list[i].rek_access_conditions_lookup|strip_tags}</description>
 			 {/if}
 			{if $list[i].rek_notes}
 			      {if !is_array($list[i].rek_notes)}
@@ -514,8 +512,6 @@
 				{/section}
 			{/if}
 		{/if}
-		
-		
 {/if}  
 	{if $metadataPrefix == "oai_dc"}
       </oai_dc:dc>
