@@ -138,8 +138,6 @@ class Lister
       9 => array('file' => 'msword.tpl.html', 'title' => 'Word File'), //added for word out - heaphey
       10 => array('file' => 'grid.tpl.html', 'title' => 'Grid View')
     );
-    // disabled edit authors view until it can be looked again in the future
-    // 1 => array('file' => 'views/list/author_bulk_edit.tpl.html', 'title' => 'Edit Authors'),
 
     if (!empty($custom_view_pid)) {
       if (!is_numeric($params['tpl'])) {
