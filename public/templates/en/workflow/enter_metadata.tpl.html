@@ -423,7 +423,7 @@
                             <b><label for="xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_{$loop_num}">{$xsd_display_fields[i].xsdmf_title}</label> {math equation="x + 1" x=$loop_num}</b>{if $xsd_display_fields[i].xsdmf_required == 1} * {/if}
                             {if $loop_num == 0}
                             {if $xsd_display_fields[i].xsdmf_description != ""}
-                              <br /><i>{$xsd_display_fields[i].xsdmf_description}</i>
+                              <br /><i>{$xsd_display_fields[i].xsdmf_description|smarty:nodefaults}</i>
                             {/if}
                             <br />
                             <i>Additional boxes will appear for more {$xsd_display_fields[i].xsdmf_title|lower}s.</i>
@@ -446,7 +446,7 @@
                           <th>
                             <b><label for="xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_0">{$xsd_display_fields[i].xsdmf_title}</label>{if $xsd_display_fields[i].xsdmf_required == 1} * {/if}</b>
                             {if $xsd_display_fields[i].xsdmf_description != ""}
-                              <br/><i>{$xsd_display_fields[i].xsdmf_description}</i>
+                              <br/><i>{$xsd_display_fields[i].xsdmf_description|smarty:nodefaults}</i>
                             {/if}
                           </th>
                           <td>
@@ -467,7 +467,7 @@
             <tr id="tr_xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_0" {if ($isApprover != 1 && $xsd_display_fields[i].xsdmf_show_simple_create == 0 && $xsd_display_fields[i].xsdmf_required != 1) || $xsd_display_fields[i].xsdmf_invisible == 1}style="display:none"{/if}>
               <th>
                 <b><label for="xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_0">{$xsd_display_fields[i].xsdmf_title}</label> {if $xsdmf.xsdmf_required == 1} * {/if}</b>
-                {if $xsdmf.xsdmf_description != ""}<br />{$xsdmf.xsdmf_description}{/if}
+                {if $xsdmf.xsdmf_description != ""}<br />{$xsdmf.xsdmf_description|smarty:nodefaults}{/if}
               </th>
               <td style="background: {if $default_depositor_org_id == 1}yellow{/if}">
                 {assign var="field_name" value="xsd_display_fields["|cat:$xsdmf.xsdmf_id|cat:"]"}
@@ -499,7 +499,7 @@
                       <th colspan="2">
                         {if $image_file_string != ""}<img style="vertical-align: middle" src="{$rel_url}images/{$xsd_display_fields[i].xsdmf_image_location}" alt="" />{/if}<b>{$xsd_display_fields[i].xsdmf_static_text}</b>
                         {if $xsd_display_fields[i].xsdmf_description != ""}
-                            &nbsp;<i>{$xsd_display_fields[i].xsdmf_description}</i>
+                            &nbsp;<i>{$xsd_display_fields[i].xsdmf_description|smarty:nodefaults}</i>
                         {/if}
                       </th>
                     </tr>
@@ -512,7 +512,7 @@
                       <td style="background: {$heading_color}; white-space: nowrap" class="default_white" colspan="2">
                         {if $image_file_string != ""}<img style="vertical-align: middle" src="{$rel_url}images/{$xsd_display_fields[i].xsdmf_image_location}" alt="" />{/if}<b>{$xsd_display_fields[i].xsdmf_title}</b>
                         {if $xsd_display_fields[i].xsdmf_description != ""}
-                            &nbsp;<i>{$xsd_display_fields[i].xsdmf_description}</i>
+                            &nbsp;<i>{$xsd_display_fields[i].xsdmf_description|smarty:nodefaults}</i>
                         {/if}
                       </td>
                     </tr>
@@ -523,7 +523,7 @@
             <td width="200" bgcolor="{$cell_color}" class="default" valign="top">
                 <b><label for="xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_0">{$xsd_display_fields[i].xsdmf_title} {if $xsd_display_fields[i].xsdmf_required == 1} * {/if}</label></b>
                 {if $xsd_display_fields[i].xsdmf_description != ""}
-                <br /><i>{$xsd_display_fields[i].xsdmf_description}</i>
+                <br /><i>{$xsd_display_fields[i].xsdmf_description|smarty:nodefaults}</i>
                 {/if}
             </td>
             <td bgcolor="{$value_color}">
@@ -782,7 +782,7 @@
                     <b><label for="xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_0">{$xsd_display_fields[i].xsdmf_title}
                                       {if $xsd_display_fields[i].xsdmf_required == 1} * {/if}</label></b>
                                       {if $xsd_display_fields[i].xsdmf_description != ""}
-                                        <br/><i>{$xsd_display_fields[i].xsdmf_description}</i>
+                                        <br/><i>{$xsd_display_fields[i].xsdmf_description|smarty:nodefaults}</i>
                                       {/if}
                       </th>
                       <td>
@@ -876,7 +876,7 @@
                         <b><label for="xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_{$loop_num}">{$xsd_display_fields[i].xsdmf_title}</label> {math equation="x + 1" x=$loop_num} {if $xsd_display_fields[i].xsdmf_required == 1} * {/if}</b>
                         {if $loop_num == 0}
                         {if $xsd_display_fields[i].xsdmf_description != ""}
-                          <br/><i>{$xsd_display_fields[i].xsdmf_description}</i>
+                          <br/><i>{$xsd_display_fields[i].xsdmf_description|smarty:nodefaults}</i>
                         {/if}
                         <br />
 						<i>(More {$xsd_display_fields[i].xsdmf_title} input boxes will appear as you type)</i>
@@ -896,7 +896,7 @@
                       <th>
                         <b><label for='xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_0'>{$xsd_display_fields[i].xsdmf_title}</label> {if $xsd_display_fields[i].xsdmf_required == 1} * {/if}</b>
                         {if $xsd_display_fields[i].xsdmf_description != ""}
-                          <br/><i>{$xsd_display_fields[i].xsdmf_description}</i>
+                          <br/><i>{$xsd_display_fields[i].xsdmf_description|smarty:nodefaults}</i>
                         {/if}
                       </th>
                       <td>
@@ -1199,7 +1199,7 @@
                       <th>
 						<b><label for="xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_{$loop_num}">{$xsd_display_fields[i].xsdmf_title}</label> {math equation="x + 1" x=$loop_num} {if $xsd_display_fields[i].xsdmf_required == 1} * {/if}</b><br />{if $loop_num == 0}<i>(More {$xsd_display_fields[i].xsdmf_title} input boxes will appear as you type)</i>{/if}
                         {if $xsd_display_fields[i].xsdmf_description != ""}
-                            <br /><i>{$xsd_display_fields[i].xsdmf_description}</i>
+                            <br /><i>{$xsd_display_fields[i].xsdmf_description|smarty:nodefaults}</i>
                         {/if}
                       </th>
                       <td>
@@ -1219,7 +1219,7 @@
                       <th>
                         <b><label for="xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_0">{$xsd_display_fields[i].xsdmf_title}</label> {if $xsd_display_fields[i].xsdmf_required == 1} * {/if}</b>
                         {if $xsd_display_fields[i].xsdmf_description != ""}
-                            <br /><i>{$xsd_display_fields[i].xsdmf_description}</i>
+                            <br /><i>{$xsd_display_fields[i].xsdmf_description|smarty:nodefaults}</i>
                         {/if}
                       </th>
                       <td>
@@ -1239,7 +1239,7 @@
             <tr id="tr_xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_0" {if ($isApprover != 1 && $xsd_display_fields[i].xsdmf_show_simple_create == 0 && $xsd_display_fields[i].xsdmf_required != 1) || $xsd_display_fields[i].xsdmf_invisible == 1}style="display:none"{/if}>
                 <th>
                     <b><label for="xsd_display_fields[{$xsd_display_fields[i].xsdmf_id}][Year]">{$xsd_display_fields[i].xsdmf_title}</label> {if $xsd_display_fields[i].xsdmf_required == 1} * {/if}</b><br />
-                    <i>{$xsd_display_fields[i].xsdmf_description}</i>
+                    <i>{$xsd_display_fields[i].xsdmf_description|smarty:nodefaults}</i>
                 </th>
                 <td>
                     {assign var="temp_xsdmf_id" value=$xsd_display_fields[i].xsdmf_id}
@@ -1271,7 +1271,7 @@
                                                                         || ($xsd_display_fields[i].cvo_hide == 1 && $xsd_display_fields[i].xsdmf_cvo_min_level == 3 && !$isAdmin)}style="display:none"{/if}>
                   <th>
                     <b><label for="xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}">{$xsd_display_fields[i].xsdmf_title}</label>{if $xsd_display_fields[i].xsdmf_required == 1} * {/if}</b>
-                      {if $xsd_display_fields[i].xsdmf_description != ""}<br /><i>{$xsd_display_fields[i].xsdmf_description}</i>{/if}
+                      {if $xsd_display_fields[i].xsdmf_description != ""}<br /><i>{$xsd_display_fields[i].xsdmf_description|smarty:nodefaults}</i>{/if}
             {if $xsd_display_fields[i].xsdmf_long_description != ""}
               <span class="default">{$xsd_display_fields[i].xsdmf_long_description|smarty:nodefaults}</span>
             {/if}

@@ -5,7 +5,7 @@
 		{if $xsdmf.xsdmf_multiple == 1}<img id="xsd_display_fields_{$xsdmf.xsdmf_id}_{$loop_num}_arrow" src="{$rel_url}images/downarrow.png" onclick="javascript:swapDropDownValues(document.getElementById('xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_{$loop_num}'),document.getElementById('xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_{$loop_num+1}'));" style="cursor: pointer;{if $details[$temp_fld_id][$loop_num] == ''}display: none;{/if}" />{if $loop_num != 0 }<img src="{$rel_url}images/uparrow.png" onclick="javascript:swapDropDownValues(document.getElementById('xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_{$loop_num}'),document.getElementById('xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_{$loop_num-1}'));" style="cursor: pointer" />{/if}{/if}
 		{if $xsdmf.xsdmf_required == 1 && $loop_num == 0} * {/if}
 		{if $xsdmf.xsdmf_description != "" && $loop_num == 0}
-			<br /><i>{$xsdmf.xsdmf_description}</i>
+			<br /><i>{$xsdmf.xsdmf_description|smarty:nodefaults}</i>
 		{/if}				
 		{if $xsdmf.xsdmf_multiple == 1 && $loop_num == 0}<br /><i>(More {$xsdmf.xsdmf_title} input boxes will appear as they are used up)</i>{/if}
 	</td>

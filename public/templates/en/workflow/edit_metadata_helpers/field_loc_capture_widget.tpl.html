@@ -2,7 +2,7 @@
     <td width="200" bgcolor="{$cell_color}" class="default" valign="top">
 	   <b><label for="xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_0">{$xsd_display_fields[i].xsdmf_title} {if $xsd_display_fields[i].xsdmf_required == 1} * {/if}</label></b>
 		{if $xsd_display_fields[i].xsdmf_description != ""}
-		  <br /><i>{$xsd_display_fields[i].xsdmf_description}</i>
+		  <br /><i>{$xsd_display_fields[i].xsdmf_description|smarty:nodefaults}</i>
 		{/if}
 	</td>
 	<td bgcolor="{$value_color}">

@@ -891,7 +891,7 @@
                   <b>Label Description:</b>
                 </td>
                 <td bgcolor="{$light_color}">
-                  <input type="text" name="description" size="50" class="default" value="{$info.xsdmf_description}">
+                  <input type="text" name="description" size="50" class="default" value="{$info.xsdmf_description|smarty:nodefaults}">
                   <span class="small_default">(it will show up by the side of the title)</span>
                 </td>
               </tr>
