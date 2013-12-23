@@ -341,7 +341,7 @@ class RecordView {
 		}
 		foreach ($details as $dkey => $dvalue) { // turn any array values into a comma seperated string value
 			if (is_array($dvalue)) {
-				$details[$dkey] = implode("<br /> ", $dvalue);
+				$details[$dkey] = implode(", ", $dvalue);
 			}
 		}
 
