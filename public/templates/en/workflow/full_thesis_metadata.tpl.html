@@ -18,11 +18,11 @@
         </th>
     </tr>
 
-    {foreach from=$display_data key=key item=data}
+    {foreach from=$display_data|smarty:nodefaults key=key item=data}
         <tr valign="top">
             <th align="right">{$data.xsdmf_title}: </th>
             <td align="left">
-                {foreach from=$data.value item=value}
+                {foreach from=$data.value|smarty:nodefaults item=value}
                     {$value|smarty:nodefaults}
                     <br>
                 {foreachelse}
