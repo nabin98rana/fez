@@ -51,7 +51,6 @@ require_once(APP_INC_PATH . "class.user.php");
 require_once(APP_INC_PATH . "class.masquerade.php");
 require_once(APP_INC_PATH . "class.my_research.php");
 require_once(APP_INC_PATH . "class.setup.php");
-//require_once(APP_INC_PATH . "najax_classes.php");
 require_once(APP_INC_PATH . "najax/najax.php");
 include_once(APP_INC_PATH . "najax_objects/class.session.php");
 include_once(APP_INC_PATH . 'najax_objects/class.background_process_list.php');
@@ -108,7 +107,6 @@ class Template_API
 	 */
 	function setTemplate($tpl_name)
 	{
-
 		$_curr_path = $this->smarty->template_dir;
         if (isset($this->smarty->custom_view_dir)) {
             $_fullpath = $_curr_path . "/". $this->smarty->custom_view_dir. "/" .  $tpl_name;
@@ -178,7 +176,6 @@ class Template_API
 	{
 		$this->processTemplateRecord($record_id);
 		// finally display the parsed template
-
 		$this->smarty->display($this->tpl_name);
 		FezLog::get()->close();
 	}

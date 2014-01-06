@@ -229,9 +229,9 @@ class Lister
     $cookie_key = Pager::getParam('form_name', $params);
     $options = Pager::saveSearchParams($params, $cookie_key);
 
-    if ($tpl_idx == 0 || $tpl_idx == 4 || $tpl_idx == 5 || $tpl_idx == 6 || $tpl_idx == 8 || $tpl_idx == 9) {
+    if ($tpl_idx == 0 || $tpl_idx == 4 || $tpl_idx == 5 || $tpl_idx == 6 || $tpl_idx == 8) {
       $tpl->setTemplate('header.tpl.html');
-    } else {
+    } else if ($tpl_idx != 2 && $tpl_idx != 3) {
       // prevent escaping when not using html templates
       $tpl->smarty->default_modifiers = array();
     }
