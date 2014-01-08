@@ -2577,7 +2577,7 @@ class Record
                   }
 
                   $func = $sekData['sek_lookup_function'].'('. $param .');';
-                  if (!is_callable($func)) {
+                  if (!is_callable(preg_replace('/\(.*\);/', '', $func))) {
                     $result[$i]["rek_".$sek_sql_title."_lookup"] = "";
                   } elseif (array_key_exists($func, $cache_eval)) {
                     $result[$i]["rek_".$sek_sql_title."_lookup"] = $cache_eval[$func];
