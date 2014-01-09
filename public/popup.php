@@ -60,21 +60,15 @@ $usr_id = Auth::getUserID();
 
 //Perform some input validation.
 
-if(array_key_exists('cat', $_REQUEST) &&
-    !$cat = Fez_Validate::run('Fez_Validate_Simpleparam', $_REQUEST["cat"]))
-{
+if (array_key_exists('cat', $_REQUEST) && !$cat = Fez_Validate::run('Fez_Validate_Simpleparam', $_REQUEST["cat"])) {
     exit;
 }
 
-if(array_key_exists('dsID', $_GET) &&
-    !$dsID = Fez_Validate::run('Fez_Validate_Filename', $_GET["dsID"]))
-{
+if (array_key_exists('dsID', $_GET) && !$dsID = Fez_Validate::run('Fez_Validate_Dsid', $_GET["dsID"]) ) {
     exit;
 }
 
-if(array_key_exists('pid', $_GET) &&
-    !$pid = Fez_Validate::run('Fez_Validate_Pid', $_GET['pid']))
-{
+if (array_key_exists('pid', $_GET) && !$pid = Fez_Validate::run('Fez_Validate_Pid', $_GET['pid'])) {
     exit;
 }
 
@@ -101,8 +95,6 @@ switch ($cat)
         }
     case 'purge_datastream':
         {
-            /*$dsID = $_GET["dsID"];
-            $pid = $_GET["pid"];*/
 			$record = new RecordObject($pid);
 			if ($record->canEdit()) {
 	            $res = Fedora_API::callPurgeDatastream($pid, $dsID);
@@ -146,8 +138,6 @@ switch ($cat)
             }
             else
             {
-                /*$dsID = $_GET["dsID"];
-                $pid = $_GET["pid"];*/
     			$record = new RecordObject($pid);
     			if ($record->canEdit()) {
     	            $res = Fedora_API::deleteDatastream($pid, $dsID);
@@ -210,38 +200,6 @@ switch ($cat)
             $wfstatus->checkStateChange(true);
             break;
         }
-    case 'purge_object':
-        {
-			if ($isAdministrator) {
-	            // first delete all indexes about this pid
-	            $id = $_REQUEST['id'];
-	            $wfstatus = WorkflowStatusStatic::getSession($id); // restores WorkflowStatus object from the session
-	            $pid = $wfstatus->pid;
-	            Record::removeIndexRecord($pid);
-	            $res = Fedora_API::callPurgeObject($pid);
-	            $tpl->assign("purge_object_result", $res);
-	            $wfstatus->checkStateChange(true);
-			}
-            break;
-        }
-
-    case 'delete_object':
-        {
-            $rec_obj = new RecordObject($pid);
-			if ($rec_obj->canDelete()) {
-				$rec_obj->markAsDeleted();
-				History::addHistory($pid, null, '', '', true, 'Deleted');
-	            $tpl->assign("delete_object_result", 1);
-
-				if ( APP_SOLR_INDEXER == "ON" ) {
-					FulltextQueue::singleton()->remove($pid);
-					FulltextQueue::singleton()->commit();
-					FulltextQueue::singleton()->triggerUpdate();
-	            }
-			}
-            break;
-        }
-
     case 'delete_objects':
         {
 			// add a history comment if one has been included
@@ -256,45 +214,24 @@ switch ($cat)
 	            $items = $_REQUEST['pids'];
             }
             foreach ($items as $pid) {
-                $rec_obj = new RecordObject($pid);
-				if ($rec_obj->canDelete()) {
-					$rec_obj->markAsDeleted();
-					History::addHistory($pid, null, '', '', true, 'Bulk Deleted', $historyComment);
+                $doi = Record::getSearchKeyIndexValue($pid, 'DOI', false);
+                if (stripos($doi, CROSSREF_DOI_PREFIX) === false) {
+                    $rec_obj = new RecordObject($pid);
+                    if ($rec_obj->canDelete()) {
+                        $rec_obj->markAsDeleted();
+                        History::addHistory($pid, null, '', '', true, 'Bulk Deleted', $historyComment);
 
-					if ( APP_SOLR_INDEXER == "ON" ) {
-	                    FulltextQueue::singleton()->remove($pid);
-	                }
-				}
+                        if ( APP_SOLR_INDEXER == "ON" ) {
+                            FulltextQueue::singleton()->remove($pid);
+                        }
+                    }
+                }
             }
 			if ( APP_SOLR_INDEXER == "ON" ) {
 				FulltextQueue::singleton()->commit();
 				FulltextQueue::singleton()->triggerUpdate();
 			}
             $tpl->assign("delete_object_result", 1);
-            break;
-        }
-
-    case 'new_workflow_triggers':
-        {
-            $tpl->assign("generic_result",WorkflowTrigger::insert());
-            $tpl->assign("generic_action",'add');
-            $tpl->assign("generic_type",'workflow trigger');
-            break;
-        }
-    case 'edit_workflow_triggers':
-        {
-            $tpl->assign("generic_result",WorkflowTrigger::update());
-            $tpl->assign("generic_action",'update');
-            $tpl->assign("generic_type",'workflow trigger');
-            break;
-        }
-    case 'list_action_workflow_triggers':
-        {
-            if (Misc::GETorPOST('delete')) {
-                $tpl->assign("generic_result",WorkflowTrigger::remove());
-                $tpl->assign("generic_action",'delete');
-            }
-            $tpl->assign("generic_type",'workflow trigger');
             break;
         }
     case 'delete_background_processes':
@@ -347,11 +284,6 @@ switch ($cat)
         $wfstatus = WorkflowStatusStatic::getSession($id); // restores WorkflowStatus object from the session
         $pid = $wfstatus->pid;
         $saveResult = author_era_affiliations::save($_POST['aae_id'], $pid, $_POST['aae_status_id_lookup'], $_POST['af_era_comment'], $_POST['staff_id']);
-  		//if ($saveResult != -1) {
-  		//	Auth::redirect(APP_BASE_URL.'workflow/edit_era_affiliation.php?id='.$wf_id);
-  		//} else {
-        //      $tpl->assign("error_message", "Error on save of author affiliation");
-  		//}
         $tpl->assign('update_form_result', $saveResult);
         $wfstatus->checkStateChange(true);
         break;

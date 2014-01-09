@@ -1,10 +1,6 @@
 <?php
 
-/**
- * Validator to check for valid PIDS
- * @author Chris Maj <c.maj@library.uq.edu.au>
- *
- */
+//Pid check as per https://wiki.duraspace.org/display/FEDORA34/Fedora+Identifiers
 class Fez_Validate_Pid extends Zend_Validate_Abstract
 {
     protected $_messageTemplates = array(
@@ -14,7 +10,7 @@ class Fez_Validate_Pid extends Zend_Validate_Abstract
     {
         $this->_setValue($value);
         
-        if(!preg_match("/^[a-zA-Z]{2,60}\:[0-9]+$/", $value)) {
+        if (!preg_match("/^([A-Za-z0-9]|-|\.)+:(([A-Za-z0-9])|-|\.|~|_|(%[0-9A-F]{2}))+$/", $value)) {
             $this->_error();
             return false;
         }

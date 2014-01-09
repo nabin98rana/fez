@@ -54,13 +54,17 @@ $tpl->assign("pid", $pid);
 $wfstatus->setTemplateVars($tpl);
 // get the xdis_id of what we're creating
 $xdis_id = $wfstatus->getXDIS_ID();
+$doi = Record::getSearchKeyIndexValue($pid, 'DOI', false);
 
 $community_pid = $pid;
 $collection_pid = $pid;
 $record = new RecordObject($pid);
 $access_ok = $record->canDelete();
 
-if ($access_ok) {
+if (stripos($doi, CROSSREF_DOI_PREFIX) !== false) {
+    $message = "This pid (".$pid.") cannot be deleted as it has a UQ DOI attached. It must be de-activated on Crossref and deleted from the PID before this record can be deleted.";
+    $tpl->assign('show_not_allowed_msg', $message);
+} else if ($access_ok) {
     if (@$_POST["cat"] == "submit") {
 	
 		// save the history item to the workflow (to be included in next step)

@@ -16,11 +16,6 @@
 {elseif $update_form_result == 1}
   <b>Thank you, the record was updated successfully.</b>
 {/if}
-{if $purge_object_result == -1}
-  <b>An error occurred while trying to purge the object</b>
-{elseif $purge_object_result == 1}
-  <b>Thank you, the object was purged successfully.</b>
-{/if}
 {if $delete_object_result == -1}
   <b>An error occurred while trying to delete the object</b>
 {elseif $delete_object_result == 1}

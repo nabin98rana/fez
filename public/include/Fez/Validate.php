@@ -15,12 +15,9 @@ class Fez_Validate
     {
         $valObj = new $validator();
         $log = FezLog::get();
-        if($valObj->isValid($data))
-        {
+        if ($valObj->isValid($data)) {
             return $data;
-        }
-        else 
-        {
+        } else {
             $msg = $valObj->getMessages();
             $log->err($msg['msg'] . __FILE__ . ':' . __LINE__);
             return false;
