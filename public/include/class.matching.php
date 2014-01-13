@@ -129,8 +129,6 @@ class matching
 		);
 	}
 
-
-
 	/**
 	 * Get a list of all PIDs that are not to be mapped.
 	 */
@@ -167,8 +165,6 @@ class matching
 		return $result;
 	}
 
-
-
 	/**
 	 * Save an existing mapping.
 	 */
@@ -192,10 +188,6 @@ class matching
             $suffix = "_cnf_id";
 		}
 
-		if ($status == 'B') {
-			$eraid = 'N/A';
-		}
-
 		$stmt = "UPDATE
                     " . APP_TABLE_PREFIX . "matched_" . $table . "
                  SET
@@ -203,7 +195,6 @@ class matching
                     " . $prefix . "_status = " . $db->quote($status) . "
                  WHERE
                     " . $prefix . "_pid = " . $db->quote($pid) . ";";
-
 		try {
 			$db->exec($stmt);
 		}
@@ -225,19 +216,17 @@ class matching
 		$log = FezLog::get();
 		$db = DB_API::get();
 
-
 		$type = $_POST['type'];
 		$pid = $_POST['pid'];
 		$matching_id = $_POST['matching_id'];
 		$status = $_POST['status'];
 		$suffix = "";
 
-    if (is_array($matching_id) && count($matching_id) > 2) { //catch users bypassing javascript or however triple entries for a pid are getting in
-      return false;
-    }
+        if (is_array($matching_id) && count($matching_id) > 2) { //catch users bypassing javascript or however triple entries for a pid are getting in
+          return false;
+        }
 
-
-    if ($type == 'J') {
+        if ($type == 'J') {
 			$table = "journals";
 			$prefix = "mtj";
             $suffix = "_jnl_id";
@@ -247,10 +236,6 @@ class matching
 			$prefix = "mtc";
             $suffix = "_cnf_id";
             RCL::removeMatchByPID($pid);
-		}
-
-		if ($status == 'B') {
-			$eraid = 'N/A';
 		}
 
 		foreach ($matching_id as $mid) {
@@ -272,6 +257,11 @@ class matching
                 $log->err($ex);
                 return -1;
             }
+        }
+
+        if( APP_FILECACHE == "ON" ) {
+            $cache = new fileCache($pid, 'pid='.$pid);
+            $cache->poisonCache();
         }
 
 		header("Location: http://" . APP_HOSTNAME . "/manage/matching.php");
