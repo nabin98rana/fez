@@ -148,5 +148,3 @@ if ($isAdministrator) {
 }
 
 $tpl->displayTemplate();
-
-?>

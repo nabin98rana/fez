@@ -147,18 +147,10 @@ class RecordEditForm
         $isAdministrator = User::isUserAdministrator(Auth::getUsername());
 
         $show_delete = false;
-        $show_purge = false;
-        if( $isAdministrator ) {
-            $show_purge = true;
-            if( APP_VERSION_UPLOADS_AND_LINKS == "ON")
-                $show_delete = true;
-        } else {
-            if( APP_VERSION_UPLOADS_AND_LINKS != "ON")
-                $show_purge = true;
-            else
+        if ( APP_VERSION_UPLOADS_AND_LINKS == "ON") {
                 $show_delete = true;
         }
-        $tpl->assign("showPurge", $show_purge);
+
         $tpl->assign("showDelete", $show_delete);
         $tpl->assign("APP_FEDORA_BYPASS", APP_FEDORA_BYPASS);
 
