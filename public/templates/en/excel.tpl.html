@@ -10,7 +10,8 @@
     <td bgcolor="#CCCCCC"><b>Scopus citations</b></td>
     <td bgcolor="#CCCCCC"><b>Google Scholar citations</b></td>
     <td bgcolor="#CCCCCC"><b>Altmetric Score</b></td>
-    <td bgcolor="#CCCCCC"><b>ERA Journal ranking</b></td>
+    <td bgcolor="#CCCCCC"><b>ERA 2010 Journal ranking</b></td>
+    <td bgcolor="#CCCCCC"><b>ERA 2012 Journal listed</b></td>
     <td bgcolor="#CCCCCC"><b>HERDC code</b></td>
     <td bgcolor="#CCCCCC"><b>HERDC status</b></td>
     <td bgcolor="#CCCCCC"><b>HERDC affiliation</b></td>
@@ -20,14 +21,15 @@
     <td>{$list[i].rek_pid}</td>
     <td>{$list[i].rek_title}</td>
     <td>{$list[i].rek_genre}</td>
-    <td>{$list[i].rek_citation_stripped|smarty:nodefaults}</td>
+    <td>{$list[i].rek_citation_stripped}</td>
     <td>{$list[i].rek_views}</td>
     <td>{$list[i].rek_file_downloads}</td>
     <td>{$list[i].rek_thomson_citation_count}</td>
     <td>{$list[i].rek_scopus_citation_count}</td>
     <td>{$list[i].rek_gs_citation_count}</td>
     <td>{$list[i].rek_altmetric_score}</td>
-    <td>{$list[i].rj_rank}</td>
+    <td>{$list[i].rj_2010_rank}</td>
+    <td>{if $list[i].rj_2012_title}Y{else}N{/if}</td>
     <td>{$list[i].rek_herdc_code_lookup}</td>
     <td>{$list[i].rek_herdc_status_lookup}</td>
     <td>{$list[i].rek_institutional_status_lookup}</td>

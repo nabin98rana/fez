@@ -1454,7 +1454,7 @@ function restoreDefaultColours(el)
                     <input type="radio" name="app_analytics_switch" value="ON" {if $config_settings.app_analytics_switch == "ON"}checked="checked"{/if}/> Enabled &nbsp;
                     <input type="radio" name="app_analytics_switch" value="OFF" {if $config_settings.app_analytics_switch == "OFF"}checked="checked"{/if}/> Disabled  &nbsp; &nbsp;
                     <input type="text" name="app_analytics_id" value="{$config_settings.app_analytics_id}" size="20" />
-                    Format: <strong><i>xxxxxx-x</i></strong><br />
+                    Format: <strong><i>UA-xxxxxx-x</i></strong><br />
                     {include file="error_icon.tpl.html" field="app_analytics_id"}
                 </td>
             </tr>
