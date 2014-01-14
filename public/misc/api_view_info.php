@@ -3,12 +3,14 @@
 include_once dirname(dirname(__FILE__)) . DIRECTORY_SEPARATOR . 'config.inc.php';
 include_once APP_INC_PATH.'class.wok_service.php';
 include_once(APP_INC_PATH . 'class.scopus_service.php');
+include_once(APP_INC_PATH . 'class.ulrichs.php');
 
 $isUser = Auth::getUsername();
 if (User::isUserAdministrator($isUser)) {
 
     $id = @$_REQUEST["id"];
     $id_sherpa = @$_REQUEST["id_sherpa"];
+    $id_ulrichs = @$_REQUEST["id_ulrichs"];
 
     if (!empty($id_sherpa)) {
         $sr = new SherpaRomeo();
@@ -28,6 +30,11 @@ if (User::isUserAdministrator($isUser)) {
         }
         header("Content-type: text/xml; charset=utf-8");
         print_r($result);
+    } else if ($id_ulrichs) {
+        $ulrichs = new Ulrichs();
+        $result = $ulrichs::getXMLFromUlrichs('issn:'.$id_ulrichs);
+        header("Content-type: text/xml; charset=utf-8");
+        print_r($result);
     } else {
 ?>
         <form name="input" method="get">
@@ -42,6 +49,13 @@ if (User::isUserAdministrator($isUser)) {
             <br />
             Sherpa/Romeo - Journal ISSN: <input type="text" name="id_sherpa">
             <input type="submit" value="Submit Sherpa ISSN">
+        </form>
+        <br />
+        <form name="ulrichs" method="get">
+            <h2>Raw output we recieve for Ulrichs via their API's</h2>
+            <br />
+            Ulrichs - ISSN: <input type="text" name="id_ulrichs">
+            <input type="submit" value="Submit Ulrichs Title">
         </form>
 <?php
     }
