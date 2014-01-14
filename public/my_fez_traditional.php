@@ -190,7 +190,7 @@ if ($sortOnAttachmentFlag) {
     $assigned_items['info'] = $info;
 }
 
-$tpl->assign("show_my_pubs", 	       	  $show_my_pubs);
+$tpl->assign("show_my_pubs", 	       	$show_my_pubs);
 
 $tpl->assign("bulk_workflows",          $bulk_workflows);
 $tpl->assign("bulk_search_workflows",   $bulk_search_workflows);
@@ -207,4 +207,5 @@ $tpl->assign('my_assigned_items_list',  $assigned_items['list']);
 $tpl->assign('items_info',              $assigned_items['info']);
 $tpl->assign('isApprover',              $_SESSION['auth_is_approver']);
 $tpl->assign("active_nav", 				"my_fez");
+$tpl->assign("assignedSearchTerms",          $assigned_items['info']['search_info']);
 $tpl->displayTemplate();
