@@ -1,0 +1,1 @@
+ALTER TABLE %TABLE_PREFIX%wok_queue_aut CHANGE wka_aut_id wka_aut_id VARCHAR(11) CHARSET utf8 COLLATE utf8_general_ci DEFAULT '' NOT NULL; 
