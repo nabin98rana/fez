@@ -5820,8 +5820,7 @@ function getSearchKeyIndexValueShadow($pid, $searchKeyTitle, $getLookup=true, $s
         // if we have no details, ignore this rename
         if (!count($oldDatastream)) {
           $log->err(
-              "Could not rename datastream '{$oldName}' to '{$newName}' in {$pid} ".
-              "because the original datastream doesn't exist"
+              "Could not rename datastream '{$oldName}' to '{$newName}' in {$pid} "."because the original datastream doesn't exist"
           );
           return false;
         }
@@ -5829,7 +5828,7 @@ function getSearchKeyIndexValueShadow($pid, $searchKeyTitle, $getLookup=true, $s
         // do actual rename
         $renameResult = self::renameDatastreamInternal($pid, $oldDatastream, $ncNewName);
         if (!$renameResult) {
-          $log->err("Could not rename {$oldName} to {$newName} in {$pid}");
+          $log->err("Could not rename {$oldName} to {$newName} in {$pid} - renameDatastream");
           return;
         }
 
@@ -5897,11 +5896,11 @@ function getSearchKeyIndexValueShadow($pid, $searchKeyTitle, $getLookup=true, $s
   {
     $log = FezLog::get();
     if (!Fedora_API::datastreamExists($pid, $ds['ID'])) {
-      $log->err("Could not rename datastream '{$ds['ID']}' to '{$newName}' in {$pid} because it doesn't exist");
+      $log->err("Could not rename datastream '{$ds['ID']}' to '{$newName}' in {$pid} because it doesn't exist - renameDatastreamInternal");
       return false;
     }
 
-    /*// get the details
+    // get the details
     $result = false;
     switch ($ds['controlGroup']) {
       case 'M':
@@ -5940,7 +5939,7 @@ function getSearchKeyIndexValueShadow($pid, $searchKeyTitle, $getLookup=true, $s
       );
     }
 
-    return $result;*/
+    return $result;
   }
 
   /**
