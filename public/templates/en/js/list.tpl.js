@@ -12,7 +12,6 @@ var basic_element = getPageElement('basic_filter_form' + '1');
 {if (($browse_type == "" && $list_type <> "all_records_list") || $browse_type != "")}
 	{literal}
 	if (isElementVisible(custom_filter_element)) {
-	if (isElementVisible(custom_filter_element)) {
 		toggleVisibility('custom_filter_form');
 	}
 	{/literal}
