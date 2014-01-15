@@ -1,6 +1,6 @@
 <script type="text/javascript">
 <!--
-var page_url = '{$page_url}';
+var page_url = '{$page_url|replace:'&amp;':'&'}';
 var last_page = {if $items_info.last_page != ""}{$items_info.last_page}{else}0{/if};
 {literal}
 function checkDeleteRecords(f)
