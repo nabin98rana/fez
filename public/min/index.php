@@ -9,6 +9,10 @@
 
 define('MINIFY_MIN_DIR', dirname(__FILE__));
 
+if (isset($_GET['f'])) {
+    $_GET['f'] = str_replace("\x00", '', (string)$_GET['f']);
+}
+
 // load config
 require MINIFY_MIN_DIR . '/config.php';
 
