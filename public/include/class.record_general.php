@@ -899,7 +899,7 @@ class RecordGeneral
         $sekID = $sekDetails['sek_id'];
         $lookup_value = "";
         if ($sekDetails['sek_lookup_function'] != "") {
-            eval("\$lookup_value = " . $sekDetails["sek_lookup_function"] . "(" . $value . ");");
+            eval("\$lookup_value = " . $sekDetails["sek_lookup_function"] . "('" . $value . "');");
         }
 
         if (empty($value)) {

@@ -2547,9 +2547,7 @@ class Record
 
     foreach ($sek_details as $sekKey => $sekData) {
       $sek_sql_title = Search_Key::makeSQLTableName($sekData['sek_title']);
-
       if ($sekData['sek_relationship'] == 0) { //already have the data, just need to do any required lookups for 1-1
-//        if ($sekData['sek_lookup_function'] != "") {
           for ($i = 0; $i < count($result); $i++) {
             // Solr already returns all this data, just need the lookups, unless called from somewhere other than solr
             if ($forceGetExtra == true) {
@@ -2642,7 +2640,6 @@ class Record
         }
         // now populate the $result variable again
         for ($i = 0; $i < count($result); $i++) {
-//          if (array_key_exists("rek_".$sek_sql_title, $result[$i])) {
               if (!isset($result[$i]["rek_".$sek_sql_title]) && ($sekData['sek_cardinality'] == 1)) {
                 $result[$i]["rek_".$sek_sql_title] = array();
               }
@@ -2653,9 +2650,7 @@ class Record
                 $result[$i]["rek_".$sek_sql_title."_lookup"] = $p[$result[$i]["rek_pid"]]["rek_".$sek_sql_title."_lookup"];
               }
           }
-//        }
       }
-
     }
   }
 
