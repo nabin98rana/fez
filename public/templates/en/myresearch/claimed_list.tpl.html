@@ -159,39 +159,7 @@ function correctionRequired(pid)
                 {if $isAdministrator || $isUPO}
 				{if $list[i].rek_display_type_lookup == "Book" || $list[i].rek_display_type_lookup == "Book Chapter" || $list[i].rek_display_type_lookup == "Journal Article" || $list[i].rek_display_type_lookup == "Conference Paper"}
 				<a class="form_note" href="#">
-					<span class="form_note">
-						<strong>PID:</strong> {$list[i].rek_pid}<br />
-						<strong>Display Type:</strong> {$list[i].rek_display_type_lookup}<br />
-						{if $list[i].rek_subtype != ''}
-							<strong>Sub Type:</strong> {$list[i].rek_subtype}<br />
-						{elseif $list[i].rek_genre_type != ''}
-							<strong>Sub Type:</strong> {$list[i].rek_genre_type}<br />
-						{/if}
-						<strong>HERDC Status:</strong> {$list[i].rek_herdc_status_lookup}<br />
-						<strong>HERDC Code:</strong> {$list[i].rek_herdc_code_lookup}<br />
-						<strong>Institutional Status:</strong> {$list[i].rek_institutional_status_lookup}<br /><br />
-						<strong>eSpace Follow up Flag:</strong> {$list[i].rek_follow_up_flags_lookup}<br />
-						<strong>IMU Follow up Flag:</strong> {$list[i].rek_follow_up_flags_imu_lookup}<br /><br />
-						{if $list[i].rek_display_type_lookup == "Book" || $list[i].rek_display_type_lookup == "Book Chapter"}
-							<strong>Edition:</strong> {$list[i].rek_edition}<br />
-              <strong>ISBN:</strong> {if is_array($list[i].rek_isbn)}{", "|implode:$list[i].rek_isbn}{/if}<br />
-						{elseif $list[i].rek_display_type_lookup == "Journal Article"}
-							<strong>ERA 2012 Journal Listed :</strong> {if $list[i].rj_2012_title} Yes{else}No {/if}<br />
-							{if $list[i].rj_2010_rank} <strong>ERA 2010 Rank:</strong> {$list[i].rj_2010_rank} ({$list[i].rj_2010_title})<br />{/if}
-							{if $list[i].rek_refereed == '0'} <strong>Refereed:</strong> No<br /> {/if}
-							{if $list[i].rek_refereed == '1'} <strong>Refereed:</strong> Yes<br /> {/if}
-							<strong>ISSN:</strong> {if is_array($list[i].rek_issn)}{", "|implode:$list[i].rek_issn}{/if}<br />
-						{elseif $list[i].rek_display_type_lookup == "Conference Paper"}
-							{if $list[i].rc_2010_rank}<strong>ERA 2010 Rank:</strong> {$list[i].rc_2010_rank} ({$list[i].rc_2010_title})<br />{/if}
-							{if $list[i].rek_refereed == '0'} <strong>Refereed:</strong> No<br /> {/if}
-							{if $list[i].rek_refereed == '1'} <strong>Refereed:</strong> Yes<br /> {/if}
-						{/if}
-						<strong>Thomson ISI Loc:</strong> {$list[i].rek_isi_loc}<br />
-						<strong>Scopus ID:</strong> {$list[i].rek_scopus_id}<br />
-                        <strong>Total Pages:</strong> {$list[i].rek_total_pages}<br /><br /><br />
-						<strong>HERDC Notes:</strong> {$list[i].rek_herdc_notes|smarty:nodefaults}<br /><br />
-                        <strong>Internal Notes:</strong> {$list[i].rek_internal_notes}<br /><br />
-					</span>
+                    {include file='form_note.tpl.html'}
 					<img src="{$rel_url}images/views_16.png" alt="" />
 				</a>
 				{/if}
