@@ -27,12 +27,12 @@
 						{/if}
 						<strong>Thomson ISI Loc:</strong> {$list[i].rek_isi_loc}<br />
 						<strong>Scopus ID:</strong> {$list[i].rek_scopus_id}<br />
-                        <strong>Total Pages:</strong> {$list[i].rek_total_pages}<br /><br />
+                        <strong>Total Pages:</strong> {$list[i].rek_total_pages}<br />
                         <strong>Scopus Doc Type:</strong> {$list[i].rek_scopus_doc_type}<br />
 					    <strong>Wok Doc Type:</strong> {$list[i].rek_wok_doc_type}<br /><br />
-						<strong>HERDC Notes:</strong> {$list[i].rek_herdc_notes|smarty:nodefaults}<br /><br />
-                        <strong>Internal Notes:</strong> {$list[i].rek_internal_notes}<br /><br />
-                        <strong>OA Compliance field:</strong> {$list[i].rek_oa_compliance_lookup}<br /><br />
+						<strong>HERDC Notes:</strong> {$list[i].rek_herdc_notes|smarty:nodefaults}<br />{if $list[i].rek_herdc_notes}<br />{/if}
+                        <strong>Internal Notes:</strong> {$list[i].rek_internal_notes}<br />{if $list[i].rek_internal_notes}<br />{/if}
+                        <strong>OA Compliance field:</strong> {$list[i].rek_oa_compliance_lookup}<br />
                         <strong>OA Notes:</strong> {$list[i].rek_oa_notes}<br /><br />
 
 
