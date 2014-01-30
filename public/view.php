@@ -59,6 +59,12 @@ include_once(APP_INC_PATH . "class.sherpa_romeo.php");
 
 
 $pid = @$_REQUEST["pid"];
+
+//Test if using the wrong case on the pid
+if (strpos($pid, APP_PID_NAMESPACE) === FALSE && stripos($pid, APP_PID_NAMESPACE) !== FALSE) {
+    header("Location: ". APP_BASE_URL."view/".strtoupper($pid), TRUE, 301);
+    exit;
+}
 $flushCache = false;
 if (array_key_exists('flushcache', $_GET) && $_GET['flushcache'] == true) {
     $flushCache = true;

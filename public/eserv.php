@@ -59,6 +59,10 @@ $bookpage     = @$_REQUEST["bookpage"];
 $bookreaderui = "full";
 $bookreaderui    = @$_REQUEST["ui"];
 
+if (strpos($pid, APP_PID_NAMESPACE) === FALSE && stripos($pid, APP_PID_NAMESPACE) !== FALSE) {
+    $pid = strtoupper($pid);
+}
+
 $SHOW_STATUS_PARM = @$_REQUEST["status"];
 $SHOW_STATUS = @($SHOW_STATUS_PARM == "true") ? true : false;
 $ALLOW_SECURITY_REDIRECT = @$SHOW_STATUS ? false : true;
