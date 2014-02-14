@@ -2804,7 +2804,7 @@ class RecordGeneral
     {
 
         // List of display fields title in ORDER.
-        $searchFields = array('ISI LOC', 'Scopus ID', 'Scopus Doc Type', 'WoK Doc Type', 'Refereed?', 'HERDC Notes', 'eSpace Follow-up Flags', 'IMU Follow-up Flags');
+        $searchFields = array('ISI LOC', 'Scopus ID', 'Scopus Doc Type', 'WoK Doc Type', 'Refereed?', 'HERDC Notes', 'eSpace Follow-up Flags', 'IMU Follow-up Flags', 'Open Access Notes');
 
         $spyglassFields = array();
 
