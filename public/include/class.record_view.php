@@ -89,6 +89,18 @@ class RecordView {
 						}
 					}
 				}
+
+                if ($dis_field['sek_title'] == "Geographic Area" && !empty($details[$dis_field['xsdmf_id']])) {
+                    $details[$dis_field['xsdmf_id']] =  "
+                        <script type='text/javascript' src='https://maps.googleapis.com/maps/api/js?libraries=drawing&amp;sensor=false'></script>
+                        <div id='spatial_coverage_map' style='margin-bottom: 0px;'></div>
+                        <p class='coverage hide' style='margin-bottom: 0px;'>".$details[$dis_field['xsdmf_id']]."</p><script type='text/javascript'>
+                        $(document).ready(function() {
+                            drawMap();
+                            });
+                        </script>";
+                }
+
 				if ($dis_field['xsdmf_data_type'] == 'date' || $dis_field['xsdmf_html_input'] == 'date') {
 					if (!empty($details[$dis_field['xsdmf_id']])) {
 						if (is_array($details[$dis_field['xsdmf_id']])) {
