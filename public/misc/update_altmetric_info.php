@@ -39,7 +39,7 @@ $sleep = 1;
 $filter = array();
 $filter["searchKey".Search_Key::getID("Status")] = 2;      // published only
 $filter["searchKey".Search_Key::getID("Object Type")] = 3; // records only
-$filter["manualFilter"] = "doi_t_s:[* TO *] AND date_dt:[2011-06-01T00:00:00Z TO *]"; // data only available since mid 2011
+$filter["manualFilter"] = "doi_t_s:[* TO *]"; // data only available since mid 2011
 
 $page_rows = 100;
 $listing = Record::getListing(array(), array(9,10), 0, $page_rows, 'Created Date', false, false, $filter);
