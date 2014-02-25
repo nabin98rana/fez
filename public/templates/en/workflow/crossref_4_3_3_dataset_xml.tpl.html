@@ -36,7 +36,7 @@ http://www.crossref.org/schema/deposit/crossref4.3.0.xsd">
                     <year>{$published_year}</year>
                 </publication_date>
             </database_date>
-            <description>{$details.rek_description}</description>
+            <description>{$details.rek_description|smarty:nodefaults|strip_tags:false|escape:"html"}</description>
             <doi_data>
                 <doi>{$doi}</doi>
                 <resource>{$link}</resource>
