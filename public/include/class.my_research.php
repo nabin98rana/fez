@@ -147,6 +147,7 @@ class MyResearch
                 $tpl->assign("citation", $recordDetails[0]['rek_citation']);
                 $tpl->assign("qindex_meta", Record::getQindexMeta($recordDetails[0]['rek_pid']));
                 $tpl->assign("wos_collection", Record::isInWOScollection($recordDetails[0]['rek_pid']));
+                $tpl->assign("direct_link", Misc::GETorPOST('direct_link'));
                 $list = false;
             } elseif ($action == 'duplication-add') {
                 MyResearch::claimedPubsDuplicate(Misc::GETorPOST('pid'));
