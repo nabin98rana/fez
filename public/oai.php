@@ -453,6 +453,17 @@ if (!empty($verb)) {
 						$list = OAI::ListRecords($set, $identifier, $start, $rows, $order_by, $from, $until, $setType, $filter);
 						$list_info = $list["info"];
 						$list = $list["list"];
+
+                        //Lookup titles of isdatasetof
+                        foreach($list as $i => $list_record) {
+                            if (!empty($list_record['rek_isdatasetof'])) {
+                                foreach($list_record['rek_isdatasetof'] as $j => $dataset_of_pid) {
+                                    $record_dataset_of = new RecordObject($dataset_of_pid);
+                                    $list[$i]['rek_isdatasetoftitle'][$j] = $record_dataset_of->getTitle();
+                                }
+                            }
+                        }
+
 						$tpl->assign("list", $list);
 						$tpl->assign("list_count", count($list));
 						$tpl->assign("resumptionToken", $resumptionToken);
