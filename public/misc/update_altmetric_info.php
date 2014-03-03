@@ -39,7 +39,7 @@ $sleep = 1;
 $filter = array();
 $filter["searchKey".Search_Key::getID("Status")] = 2;      // published only
 $filter["searchKey".Search_Key::getID("Object Type")] = 3; // records only
-$filter["manualFilter"] = "doi_t_s:[* TO *]"; // data only available since mid 2011
+$filter["manualFilter"] = "doi_t_s:[* TO *]";
 
 $page_rows = 100;
 $listing = Record::getListing(array(), array(9,10), 0, $page_rows, 'Created Date', false, false, $filter);
@@ -52,7 +52,7 @@ if (! $altmetric->isSafeToRun()) {
 
 // In-memory cache of DOIs already processed
 $doiCache = array();
-
+$lastAltmetricCallTime = microtime(TRUE);
 for ($i = 0; $i < ((int)$listing['info']['total_pages']+1); $i++) {
 
     // Skip first loop - we have called getListing once already
@@ -69,20 +69,22 @@ for ($i = 0; $i < ((int)$listing['info']['total_pages']+1); $i++) {
             $doi = $record['rek_doi'];
             if (! empty($doi)) {
                 if (! in_array($doi, $doiCache)) {
+                    $currentTime = microtime(TRUE);
+                    if (($currentTime - $lastAltmetricCallTime) < 1000000) {
+                        usleep(round(1000000 - ($currentTime - $lastAltmetricCallTime))); //Don't call more than once per second
+                    }
                     $altmetric->fetchInformation($doi);
+                    $lastAltmetricCallTime = microtime(TRUE);
                     $doiCache[] = $doi;
                 }
                 Record::updateAltmetricScoreFromHistory($pid);
                 if ( APP_SOLR_INDEXER == "ON" ) {
                     FulltextQueue::singleton()->add($pid);
                 }
-                if (APP_FILECACHE == "ON") {
-                    $cache = new fileCache($pid, 'pid='.$pid);
-                    $cache->poisonCache();
-                }
-
             }
-            sleep($sleep);
+            flush();
+            ob_flush();
+            echo $pid;
         }
 
         if ( APP_SOLR_INDEXER == "ON" ) {
