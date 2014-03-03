@@ -353,7 +353,7 @@ class ScopusService
         $uri .= (array_key_exists('action', $params)) ? "/" . $params['action'] : '';
         $uri .= (array_key_exists('db', $params) ? "/" . $params['db'] : '');
         $uri .= '?' . http_build_query($params['qs']);
-
+        $uri = str_replace('%2B', '+', $uri); //Currently scopus can't handle %2B it has to be +
         $curlHandle = curl_init(SCOPUS_WS_BASE_URL . $uri);
         curl_setopt($curlHandle, CURLOPT_SSL_VERIFYPEER, FALSE);
         curl_setopt($curlHandle, CURLOPT_SSL_VERIFYHOST, FALSE);
