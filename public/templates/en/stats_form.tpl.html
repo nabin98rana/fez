@@ -197,7 +197,7 @@ function disableFields()
 				  <tr>
 					  <td align="right" style="border-top:1px dashed #be87e9; width: 10px;"><strong>{$smarty.section.i.index+1}</strong></td>
 					  <td align="left" style="border-top:1px dashed #be87e9;">
-							{$list[i].citation}
+							{$list[i].citation|smarty:nodefaults}
 					  </td>
 					  <td align="right" style="border-top:1px dashed #be87e9; white-space: nowrap;">&nbsp;{if $list[i].downloads}<a class="author_link" title="View detailed statistics for this object" href="{$rel_url}stat_details.php?action=show_detail&amp;pid={$list[i].pid}">{$list[i].downloads}</a>{/if} </td>
 				  </tr>
@@ -238,7 +238,7 @@ function disableFields()
 
 				<td align="right" style="border-top:1px dashed #be87e9; width: 10px;"><strong>{$smarty.section.i.index+1}</strong></td>
 				<td align="left" style="border-top:1px dashed #be87e9;">
-				  {$list[i].spa_citation}
+				  {$list[i].spa_citation|smarty:nodefaults}
 				</td>
 				<td align="right" style="border-top:1px dashed #be87e9; white-space: nowrap;">{if $list[i].spa_downloads}<a class="author_link" title="View detailed statistics for this object" href="{$rel_url}stat_details.php?action=show_detail&amp;pid={$list[i].spa_pid}">{$list[i].spa_downloads}</a>{else}&nbsp;{/if}</td>
 
