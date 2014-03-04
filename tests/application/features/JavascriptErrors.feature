@@ -20,6 +20,9 @@ Feature: Test pages for javascript errors
     Given I am on "news.php"
     Given I go to the test collection list page
     Given I go to the test journal article view page
+    Given I am on "/stats_map.php"
+    Given I am on "/stats.php?browse=top50papers"
+    Given I am on "/stat_details.php?action=cumulative_usage&range=all"
 
   @now2
   Scenario: I go to heaps of pages Then see if there are javascript errors present as super administrator
