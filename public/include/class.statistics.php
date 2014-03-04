@@ -3034,10 +3034,10 @@ class Statistics
 
 	function mergeUsers($aa, &$ad)
 	// reference parameter $ad for efficiency, not changed,
-	//	however the $aa value parameter is altered and is not prapogated back
+	//	however the $aa value parameter is altered and is not propagated back
 	{
 		$merged = array();
-		// Copy acrosss the download array, adding counts from the abstract array as needed.
+		// Copy across the download array, adding counts from the abstract array as needed.
 		for ($i=0; $i<count($ad); $i++) {
 			$merged[$i] = array(
 				"usr_full_name"      => $ad[$i]["usr_full_name"],
@@ -3063,9 +3063,9 @@ class Statistics
 			if ($aa[$j]["usr_full_name"] != '==') {
 				// user with only abstract views, so copy
 				$merged[$i] = array(
-						"usr_full_name"      => $aa[$i]["usr_full_name"],
+						"usr_full_name"      => $aa[$j]["usr_full_name"],
 						"abstracts" => 0,
-						"abstracts" => $aa[$i]["abstracts"]
+						"abstracts" => $aa[$j]["abstracts"]
 				);
 				// and increment $i
 				$i++;
