@@ -403,6 +403,9 @@
                     <tr id="tr_xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_0" {if ($isApprover != 1 && $xsd_display_fields[i].xsdmf_show_simple_create == 0 && $xsd_display_fields[i].xsdmf_required != 1) || $xsd_display_fields[i].xsdmf_invisible == 1}style="display:none"{/if} valign="top">
                       <th>
                         <b><label for="xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_0">{$xsd_display_fields[i].xsdmf_title}{if $xsd_display_fields[i].xsdmf_required == 1} * {/if}</label></b>
+                        {if $xsd_display_fields[i].xsdmf_description != ""}
+                            <br /><i>{$xsd_display_fields[i].xsdmf_description|smarty:nodefaults}</i>
+                        {/if}
                       </th>
                       <td>
                     <input class="default" type="checkbox" id="xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_0" name="xsd_display_fields[{$xsd_display_fields[i].xsdmf_id}]" {if $xsd_display_fields[i].xsdmf_cso_value == 'checked'}checked="checked"{/if} />
@@ -616,21 +619,49 @@
                     <script type="text/javascript">
                     var field = document.getElementById('xsd_display_fields_{$xsdmf.xsdmf_id}_{$loop_num}');
                     field.onchange = {literal}function () {{/literal}createTextBox({$xsdmf.xsdmf_id},{$loop_num},'{$xsdmf.xsdmf_title}',{if $xsdmf.xsdmf_multiple_limit}{math equation="0+y-1" y=$xsdmf.xsdmf_multiple_limit}{else}0{/if},
-                        '{$xsdmf.xsdmf_attached_xsdmf_id}', '{$attached_xsdmf.xsdmf_title}', {if $xsd_display_fields[i].sek_suggest_function != ""}1{else}''{/if}, {$isCreator}){literal}}{/literal};
-                    field.onfocus  = {literal}function () {{/literal}createTextBox({$xsdmf.xsdmf_id},{$loop_num},'{$xsdmf.xsdmf_title}',{if $xsdmf.xsdmf_multiple_limit}{math equation="0+y-1" y=$xsdmf.xsdmf_multiple_limit}{else}0{/if},
-                        '{$xsdmf.xsdmf_attached_xsdmf_id}', '{$attached_xsdmf.xsdmf_title}', {if $xsd_display_fields[i].sek_suggest_function != ""}1{else}''{/if}, {$isCreator}){literal}}{/literal};
-                    field.onkeyup  = {literal}function () {{/literal}createTextBox({$xsdmf.xsdmf_id},{$loop_num},'{$xsdmf.xsdmf_title}',{if $xsdmf.xsdmf_multiple_limit}{math equation="0+y-1" y=$xsdmf.xsdmf_multiple_limit}{else}0{/if},
-                        '{$xsdmf.xsdmf_attached_xsdmf_id}','{$attached_xsdmf.xsdmf_title}', {if $xsd_display_fields[i].sek_suggest_function != ""}1{else}''{/if}, {$isCreator}){literal}}{/literal};
+                        {if $isApprover != 1 && $attached_xsdmf.xsdmf_show_simple_create == 0 && $attached_xsdmf.xsdmf_required != 1}''{else}'{$xsdmf.xsdmf_attached_xsdmf_id}'{/if},
+                                '{$attached_xsdmf.xsdmf_title}', {if $xsd_display_fields[i].sek_suggest_function != ""}1{else}''{/if}, {$isCreator}){literal}}{/literal};
+                    field.onfocus  = {literal}function () {{/literal}createTextBox({$xsd_display_fields[i].xsdmf_id},{$loop_num},'{$xsd_display_fields[i].xsdmf_title}',{if $xsdmf.xsdmf_multiple_limit}{math equation="0+y-1" y=$xsdmf.xsdmf_multiple_limit}{else}0{/if},
+                        {if $isApprover != 1 && $attached_xsdmf.xsdmf_show_simple_create == 0 && $attached_xsdmf.xsdmf_required != 1}''{else}'{$xsdmf.xsdmf_attached_xsdmf_id}'{/if},
+                                '{$attached_xsdmf.xsdmf_title}', {if $xsd_display_fields[i].sek_suggest_function != ""}1{else}''{/if}, {$isCreator}){literal}}{/literal};
+                    field.onkeyup  = {literal}function () {{/literal}createTextBox({$xsd_display_fields[i].xsdmf_id},{$loop_num},'{$xsd_display_fields[i].xsdmf_title}',{if $xsdmf.xsdmf_multiple_limit}{math equation="0+y-1" y=$xsdmf.xsdmf_multiple_limit}{else}0{/if},
+                        {if $isApprover != 1 && $attached_xsdmf.xsdmf_show_simple_create == 0 && $attached_xsdmf.xsdmf_required != 1}''{else}'{$xsdmf.xsdmf_attached_xsdmf_id}'{/if},
+                                '{$attached_xsdmf.xsdmf_title}', {if $xsd_display_fields[i].sek_suggest_function != ""}1{else}''{/if}, {$isCreator}){literal}}{/literal};
                     </script>
                     {* /if *}
                     {include file="error_icon.tpl.html" field="xsd_display_fields["|cat:$xsd_display_fields[i].xsdmf_id|cat:"][]"}
+                    {if $xsd_display_fields[i].sek_comment_function != ""}
+                    <span id="{$xsd_display_fields[i].xsdmf_id}_comment"></span>
+                    <script type="text/javascript">
+                      {literal}
+                      $("#xsd_display_fields_{/literal}{$xsd_display_fields[i].xsdmf_id}{literal}_0").blur(function() {
+                          $.ajax({
+                              url: "/comment_proxy.php",
+                              data: { query: $("#xsd_display_fields_{/literal}{$xsd_display_fields[i].xsdmf_id}_0").val(), xsd_display_fields: {$xsd_display_fields[i].xsdmf_id}, xdis_id: {$xdis_id}{literal}},
+                      }).done(function(result) {
+                          obj = JSON.parse(result);
+                          $('#{/literal}{$xsd_display_fields[i].xsdmf_id}{literal}_comment').html(obj.comment);
+                          //hack for Urlichs we'll enter in info if relevent
+                          var intRegex = /^\d+$/;
+                          if( intRegex.test(obj.embargo_xsdmf_id) && intRegex.test(obj.oastatus_xsdmf_id)) {
+                              $('#xsd_display_fields_'+obj.oastatus_xsdmf_id+'_0').prop('checked', true);
+                              $('#xsd_display_fields_'+obj.embargo_xsdmf_id+'_0').val('0');
+                          }
+                          if(intRegex.test(obj.title_id) && typeof ulrichs_link === 'undefined') {
+                              $('#xsd_display_fields_'+obj.oastatus_xsdmf_id+'_0').after(" <a href='http://ezproxy.library.uq.edu.au/login?url=http://ulrichsweb.serialssolutions.com/title/" + obj.title_id + "' target='_blank'>Ulrichs information</a>");
+                              var ulrichs_link = true;
+                          }
+                        });
+                      });
+                      {/literal}
+                    </script>
+                    {/if}
                     {if $xsd_display_fields[i].sek_suggest_function != ""}
                     <div id="generalsuggest" style="width:25em;position:relative;z-index:{math equation="2000 - x - y" y=0 x=$smarty.section.i.index};">
                       <div id="{$xsd_display_fields[i].xsdmf_id}_{$loop_num}_container"></div>
                     </div>
                     {literal}
                     <script type="text/javascript">
-
                     // Instantiate first JS Array DataSource
                     var myServer = "/suggest_proxy.php";
                     var mySchema = ["Result","name"];
@@ -806,8 +837,9 @@
                                                           url: "/comment_proxy.php",
                                                           data: { query: $("#xsd_display_fields_{/literal}{$xsd_display_fields[i].xsdmf_id}_0").val(), xsd_display_fields: {$xsd_display_fields[i].xsdmf_id}{literal}},
                                                       }).done(function(result) {
-                                                                  $('#{/literal}{$xsd_display_fields[i].xsdmf_id}{literal}_comment').html(result);
-                                                              });
+                                                            var obj = JSON.parse(result);
+                                                            $('#{/literal}{$xsd_display_fields[i].xsdmf_id}{literal}_comment').html(obj.comment);
+                                                      });
                                                   });
                                                 {/literal}
                                             </script>
