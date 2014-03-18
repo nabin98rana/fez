@@ -323,7 +323,6 @@ if (!empty($pid) && !empty($dsID)) {
             exit;
 
          } elseif($bookpage == true) {
-             //$_SERVER['REQUEST_URI'] = "/pidimages/UQ_5403/../../../Arianrhod_Chapte/Arianrhod_Chapte-0002.jpg?bookpage=true";
              $uri = $_SERVER['REQUEST_URI'];
 
              //Don't try to peek into our tree.
@@ -422,7 +421,6 @@ if (!empty($pid) && !empty($dsID)) {
     		$urldata = APP_FEDORA_GET_URL."/".$pid."/".$dsID.$requestedVersionDate;
     		$urlpath = $urldata;
     	    if (!empty($header)) {
-    	    	//echo $header; exit;
     	        header($header);
     	    } elseif (!empty($info['content_type'])) {
     	        header("Content-type: {$info['content_type']}");
@@ -432,7 +430,6 @@ if (!empty($pid) && !empty($dsID)) {
 
     	    // PDF? > 7MB? Firefox? Force download.
     	    if (is_numeric(strpos($ctype, "pdf")) && $info['download_content_length'] > 7000000 && Misc::is_firefox()) {
-    	    	//header('Content-Type: application/download');
     	    	header("Content-Type: application/force-download");
     	    }
 
@@ -477,9 +474,8 @@ $tpl->assign("not_exists", $not_exists);
 if ($not_exists) {
     header("Status: 404 Not Found");
 }
-//$tpl->assign("show_not_allowed_msg", true);  // prefer non_exists message
-$tpl->displayTemplate();
 
+$tpl->displayTemplate();
 
 
 function extractQS()

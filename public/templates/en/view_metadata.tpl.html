@@ -33,18 +33,8 @@
 						<td>
 							{if $xsd_display_fields[i].xsdmf_title == 'Handle'}
 								<a href="{$xsd_display_fields[i].xsdmf_value_prefix|smarty:nodefaults|escape:url}{$details[$temp_fld_id]|smarty:nodefaults|escape:url}">{$xsd_display_fields[i].xsdmf_value_prefix}{$details[$temp_fld_id]}</a>
-              {elseif ($xsd_display_fields[i].sek_title == "Author" || $xsd_display_fields[i].sek_title == "Contributor" || $xsd_display_fields[i].sek_title == "Keywords"
-              || $xsd_display_fields[i].sek_title == "DOI" || $xsd_display_fields[i].sek_title == "Subject" || $xsd_display_fields[i].sek_title == "Language"
-              || $xsd_display_fields[i].sek_title == "Journal Name" || $xsd_display_fields[i].sek_title == "Proceedings Title"
-              || $xsd_display_fields[i].sek_title == "Conference Name" || $xsd_display_fields[i].sek_title == "Subject"
-              || $xsd_display_fields[i].sek_title == "Faculty" || $xsd_display_fields[i].sek_title == "Org Unit Name"
-              || $xsd_display_fields[i].xsdmf_html_input == "contvocab" || $xsd_display_fields[i].xsdmf_html_input == "contvocab_selector"
-              || $xsd_display_fields[i].sek_title == "xsdmf_id_ref" || $xsd_display_fields[i].sek_title == "Supervisor" )}
-                {$xsd_display_fields[i].xsdmf_value_prefix}{$details[$temp_fld_id]|smarty:nodefaults}
-              {elseif ($xsd_display_fields[i].xsdmf_html_input == "rich_text")}
-                {$xsd_display_fields[i].xsdmf_value_prefix}{$details[$temp_fld_id]|smarty:nodefaults}
 							{else}
-								{$xsd_display_fields[i].xsdmf_value_prefix}{$details[$temp_fld_id]}
+								{$xsd_display_fields[i].xsdmf_value_prefix}{$details[$temp_fld_id]|smarty:nodefaults}
 							{/if}
 						</td>
 					</tr>

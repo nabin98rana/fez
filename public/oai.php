@@ -73,11 +73,6 @@ if (!empty($custom_view_pid)) {
 	}
 }
 
-/*$test = base64_decode("Jm1ldGFkYXRhUHJlZml4PW9haV9kYw==");
-$test = ltrim($test, "&");
-$test = Misc::parse_str_ext($test);
-print_r($test);
-exit;*/
 if (empty($_GET)) {
 	$querystring= $_POST;
 } else {
@@ -114,9 +109,6 @@ $tpls = array(
     'GetRecord' => array('file' => 'oai/GetRecord.tpl.html', 'title' => 'GetRecord'),
     'Identify' => array('file' => 'oai/Identify.tpl.html', 'title' => 'Identify')
 );
-//if ($metadataPrefix == "rif") {
-//    $tpls['ListRecords'] = array('file' => 'oai/ListRecords_ands.tpl.html', 'title' => 'ListRecords');
-//}
 
 if (array_key_exists($verb, $tpls)) {
 	$tpl_file = $tpls[$verb]['file'];
@@ -166,19 +158,13 @@ if ($resumptionToken != "") {
 			$start = trim($start);
 			$resumptionToken = "";
 		}
-//		$metadataPrefix = substr($start, strrpos($start, "/")+1);
-
 	}
-//} elseif ($resumptionToken != 0) {
-//	$start = substr($start, 0, strpos($start, "/"));
-//	$start = 0;
 } else {
 	$start = 0;
 	$resumptionToken = "";
 	foreach ($querystring as $rname => $rvalue) {
 		if (in_array($rname, $resumption_acceptable_vars)) {
 			$resumptionToken .= "&".$rname."=".$rvalue[0];
-//			eval("$".$rname."=".$rvalue.";");
 		}
 	}
 }
@@ -207,8 +193,6 @@ if ($metadataPrefix == "rif") {
   }
 }
 
-//echo $resumptionToken;
-//exit;
 $collection_pid = "";
 $order_by = "Created Date";
 
@@ -224,11 +208,7 @@ if (!empty($verb)) {
 				}
 				if ($identifier != "") {
 // old regex was too prohibitive on pid namespaces
-//					if (preg_match("/^oai:[a-zA-Z][a-zA-Z0-9\-]*(\.[a-zA-Z][a-zA-Z0-9\-]+)+:[a-zA-Z0-9\-_\.!~\*'\(\);\/\?:\@\&=\+\$,\%]+$/", $originalIdentifier)) {
 					if (preg_match("/^oai\:.+\:.+\:.+$/", $originalIdentifier)) {
-
-//					if (preg_match("/^oai:(.*:[a-zA-Z0-9\-_\.!~\*'\(\);\/\?:\@\&=\+\$,\%])+$/", $originalIdentifier)) {
-
 						// then check the record exists
 						$list = OAI::ListRecords($set, $identifier, $start, $rows, $order_by, $from, $until, $setType, $filter);
 						$list = $list["list"];
@@ -275,7 +255,6 @@ if (!empty($verb)) {
 				if ($metadataPrefix != "") {
 					if (($metadataPrefix == "oai_dc") || ($metadataPrefix == "pa") || ($metadataPrefix == "rif")) {
 						if ($identifier != "") {
-//							if (preg_match("/^oai:[a-zA-Z][a-zA-Z0-9\-]*(\.[a-zA-Z][a-zA-Z0-9\-]+)+:[a-zA-Z0-9\-_\.!~\*'\(\);\/\?:\@\&=\+\$,\%]+$/", $originalIdentifier)) {
 							if (preg_match("/^oai\:.+\:.+\:.+$/", $originalIdentifier)) {
 								$list = OAI::ListRecords($set, $identifier, $start, $rows, $order_by, $from, $until, $setType, $filter);
 								$list_info = $list["info"];
@@ -344,8 +323,6 @@ if (!empty($verb)) {
 							}
 						}
 						if (!empty($from)) {
-							//24/11/2008  bh made TIME part of string optional
-							//if (!preg_match("/^(\d\d\d\d)-(\d\d)-(\d\d)T(\d\d):(\d\d):(\d\d(\.\d+)?)Z?$/", $from)) {
 							if (!preg_match("/^(\d\d\d\d)-(\d\d)-(\d\d)(T(\d\d):(\d\d):(\d\d(\.\d+)?)Z?)?$/", $from)) {
 								$errors["code"][] = "badArgument";
 								$errors["message"][] = "not valid datetime: ".$from;
@@ -356,8 +333,6 @@ if (!empty($verb)) {
 							}
 						}
 						if (!empty($until)) {
-							//24/11/2008  bh made TIME part of string optional
-							//if (!preg_match("/^(\d\d\d\d)-(\d\d)-(\d\d)((\d\d):(\d\d):(\d\d(\.\d+)?)Z?$/", $until)) {
 							if (!preg_match("/^(\d\d\d\d)-(\d\d)-(\d\d)(T(\d\d):(\d\d):(\d\d(\.\d+)?)Z?)?$/", $until)) {
 								$errors["code"][] = "badArgument";
 								$errors["message"][] = "not valid datetime: ".$until;
@@ -422,8 +397,6 @@ if (!empty($verb)) {
 							}
 						}
 						if (!empty($from)) {
-							//24/11/2008  bh made TIME part of string optional
-							//if (!preg_match("/^(\d\d\d\d)-(\d\d)-(\d\d)T(\d\d):(\d\d):(\d\d(\.\d+)?)Z?$/", $from)) {
 							if (!preg_match("/^(\d\d\d\d)-(\d\d)-(\d\d)(T(\d\d):(\d\d):(\d\d(\.\d+)?)Z?)?$/", $from)) {
 								$errors["code"][] = "badArgument";
 								$errors["message"][] = "not valid datetime: ".$from;
@@ -434,8 +407,6 @@ if (!empty($verb)) {
 							}
 						}
 						if (!empty($until)) {
-							//24/11/2008  bh made TIME part of string optional
-							//if (!preg_match("/^(\d\d\d\d)-(\d\d)-(\d\d)T(\d\d):(\d\d):(\d\d(\.\d+)?)Z?$/", $until)) {
 							if (!preg_match("/^(\d\d\d\d)-(\d\d)-(\d\d)(T(\d\d):(\d\d):(\d\d(\.\d+)?)Z?)?$/", $until)) {
 								$errors["code"][] = "badArgument";
 								$errors["message"][] = "not valid datetime: ".$until;
@@ -501,6 +472,7 @@ if (count($errors) == 0) {
 		}
 	}
 }
+
 $tpl->assign("start", $start);
 $tpl->assign("rows", $rows);
 $tpl->assign("verb", $verb);
