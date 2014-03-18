@@ -79,6 +79,7 @@ include_once(APP_INC_PATH . "class.validation.php");
 include_once(APP_INC_PATH . "class.links_amr_queue.php");
 include_once(APP_INC_PATH . "class.internal_notes.php");
 include_once(APP_INC_PATH . "ForceUTF8/Encoding.php");
+include_once(APP_INC_PATH . "class.ulrichs.php");
 
 
 define('SK_JOIN', 0);

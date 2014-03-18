@@ -21,6 +21,9 @@
 		<tr id="tr_xsd_display_fields_{$xsdmf.xsdmf_id}_0" valign="top" {if $xsdmf.xsdmf_invisible == 1}style="display:none;"{/if}>
 		  <td width="200" bgcolor="{$cell_color}" class="default">
 			<b><label for="xsd_display_fields_{$xsdmf.xsdmf_id}_0">{$xsdmf.xsdmf_title} {if $xsdmf.xsdmf_required == 1} * {/if}</label></b>
+            {if $xsd_display_fields[i].xsdmf_description != ""}
+                <br /><i>{$xsd_display_fields[i].xsdmf_description|smarty:nodefaults}</i>
+            {/if}
 		  </td>
 		  <td bgcolor="{$value_color}">
 		<input class="default" type="checkbox" id="xsd_display_fields_{$xsdmf.xsdmf_id}_0"

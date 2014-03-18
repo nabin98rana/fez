@@ -50,9 +50,10 @@
                 $.ajax({
                     url: "/comment_proxy.php",
                     data: { query: $("#xsd_display_fields_{/literal}{$xsd_display_fields[i].xsdmf_id}_0").val(), xsd_display_fields: {$xsd_display_fields[i].xsdmf_id}{literal}},
-            }).done(function(result) {
-                $('#{/literal}{$xsd_display_fields[i].xsdmf_id}{literal}_comment').html(result);
-            });
+              }).done(function(result) {
+                  obj = JSON.parse(result);
+                  $('#{/literal}{$xsd_display_fields[i].xsdmf_id}{literal}_comment').html(obj.comment);
+              });
             });
             {/literal}
         </script>

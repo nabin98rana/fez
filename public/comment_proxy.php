@@ -36,6 +36,7 @@ include_once("config.inc.php");
 include_once(APP_INC_PATH . "class.misc.php");
 include_once(APP_INC_PATH . "class.setup.php");
 include_once(APP_INC_PATH . "class.sherpa_romeo.php");
+include_once(APP_INC_PATH . "class.ulrichs.php");
 
 $query = $_GET['query'];
 $xsdmf_id = $_GET['xsd_display_fields'];
@@ -48,7 +49,12 @@ if(strlen($_GET['query']) > 2) {
     eval('$comment = '.$sek_comment_function.'("'.$query.'");');
 }
 
+//This is a hack for adding in Ulrichs data on top of Sherpa Romeo
+if ($sek_comment_function = "SherpaRomeo::getJournalColourFromISSNComment") {
+    $return = Ulrichs::getEmbarboStatusInfo($xsdmf_id,$query);
 
+}
 
+$return['comment'] = $comment;
 
-echo $comment;
+echo json_encode($return);
