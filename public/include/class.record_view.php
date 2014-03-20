@@ -264,7 +264,7 @@ class RecordView {
 					}
 				}
 
-				if (($dis_field['sek_title'] == "Subject"  || $dis_field['sek_title'] == "Fields of Research" || $dis_field['sek_title'] == "SEO Code") && (($dis_field['xsdmf_html_input'] != "contvocab_selector")) ) {
+				if (($dis_field['sek_title'] == "Subject"  || $dis_field['sek_title'] == "Fields of Research" || $dis_field['sek_title'] == "SEO Code" || $dis_field['sek_title'] == "Book Title") && (($dis_field['xsdmf_html_input'] != "contvocab_selector")) ) {
 					if (!empty($details[$dis_field['xsdmf_id']])) {
 						if (is_array($details[$dis_field['xsdmf_id']])) {
 							foreach ($details[$dis_field['xsdmf_id']] as $ckey => $cdata) {
