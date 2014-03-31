@@ -238,7 +238,7 @@ class Ulrichs
     //returns the Embargo and OA Status info given a issn. It returns the info with xsdmf_id so it can be inserted as values on the enter page.
     function getEmbarboStatusInfo($xsdmf_id, $issn) {
         $status = Ulrichs::openAccessStatus($issn);
-        if (!$status) {
+        if (!$status || $status == 'false') {
             return null;
         } else {
             $xsdmf_idOAStatus = XSD_HTML_Match::getXSDMFIDByTitleXDIS_ID('Open Access Status', XSD_HTML_Match::getXDIS_IDByXSDMF_ID($xsdmf_id));
