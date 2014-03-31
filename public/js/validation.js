@@ -4,7 +4,7 @@ function isWhitespace(s)
 {
     var whitespace = " \t\n\r";
 
-    if (s == null || s.length == 0 || s == '<br />') {
+    if (s == null || s.length == 0 || s == '<br />' || s == '&nbsp;') {
         // empty field!
         return true;
     } else {

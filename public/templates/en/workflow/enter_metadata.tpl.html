@@ -609,7 +609,8 @@
                                             ($isApprover != 1 && $xsd_display_fields[i].xsdmf_show_simple_create == 0 && $xsd_display_fields[i].xsdmf_required != 1) ||
                                             $xsd_display_fields[i].xsdmf_invisible == 1}style="display:none"{/if} valign="top">
                       <th>
-                        <b><label for="xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_{$loop_num}">{$xsd_display_fields[i].xsdmf_title} {if ($xsdmf.xsdmf_multiple_limit > 1)}{math equation="x + 1" x=$loop_num}{/if}</label>
+                        <b><label for="xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_{$loop_num}">
+                            {$xsd_display_fields[i].xsdmf_title} {if ($xsdmf.xsdmf_multiple_limit > 1)}{math equation="x + 1" x=$loop_num}{else}{if $xsd_display_fields[i].xsdmf_required == 1} * {/if}{/if}</label>
                                                 </b>
                         <img id="xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_{$loop_num}_arrow" src="{$rel_url}images/downarrow.png" onclick="javascript:swapTextBox('xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}','{$xsd_display_fields[i].xsdmf_attached_xsdmf_id}','{$loop_num}', 1);" style="cursor: pointer;{if $details[$temp_fld_id][$loop_num] == ''}display: none;{/if}" alt="" />{if $loop_num != 0 }<img src="{$rel_url}images/uparrow.png" onclick="javascript:swapTextBox('xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}','{$xsd_display_fields[i].xsdmf_attached_xsdmf_id}','{$loop_num}', -1);" style="cursor: pointer" alt="" />{/if}
                       </th>
