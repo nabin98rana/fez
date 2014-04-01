@@ -10,8 +10,8 @@ INNER JOIN " . APP_TABLE_PREFIX . "ulrichs
 ON ulr_issn = rek_issn
 LEFT JOIN " . APP_TABLE_PREFIX . "record_search_key_oa_status
 ON rek_oa_status_pid = rek_issn_pid
-GROUP BY rek_issn_pid, ulr_open_access
-HAVING  ulr_open_access = 'true' AND 'rek_oa_status' != 1";
+WHERE ulr_open_access = 'true' AND (rek_oa_status != '1' OR rek_oa_status IS NULL)
+GROUP BY rek_issn_pid";
 
 $db = DB_API::get();
 $log = FezLog::get();
