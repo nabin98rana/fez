@@ -1328,7 +1328,7 @@ class Auth
 
         // if no lister rules are found, then this pid is publically listable
         $publicPerms['lister'] = !$has_list_rules;
-        // if no viewer rules are found, then this pid is publically listable
+        // if no viewer rules are found, then this pid is publically viewable
         $publicPerms['viewer'] = !$has_view_rules;
         return $publicPerms;
     }

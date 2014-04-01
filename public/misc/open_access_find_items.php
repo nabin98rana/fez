@@ -53,29 +53,30 @@ include_once(APP_INC_PATH . "class.auth.php");
 error_reporting(E_ALL & !E_NOTICE);
 
 //We'll only allow this to be run from the command line, if it's run from the web it will find all  accessiable by the person currently logged in.
-if ((php_sapi_name()==="cli")) {
+if ((php_sapi_name()==="cli") || 1) {
     set_time_limit(0);
     echo "Script started: " . date('Y-m-d H:i:s') . "\n";
     echo "--------------------------\n";
 
     $db = DB_API::get();
     $log = FezLog::get();
+    $isUser = Auth::getUsername();
 
-    $query = "DELETE FROM " . APP_TABLE_PREFIX . "open_access_items";
+    /*$query = "DELETE FROM " . APP_TABLE_PREFIX . "open_access_items";
     try {
         $db->exec($query);
     }
     catch (Exception $ex) {
         null; // don't do anything here.
-    }
+    }*/
 
     $fedoraPids = Fedora_Direct_Access::fetchAllFedoraPIDs('','');
     //$fedoraPids[] = array('pid' => 'UQ:3875');
     $status = Status::getID("Published");
     foreach ($fedoraPids as $pid) {
         $pid = $pid['pid'];
-        $documentType = Record::getSearchKeyIndexValue($pid, "Genre", false);
         if ($status == Record::getSearchKeyIndexValue($pid, "Status", false)) {
+            $documentType = Record::getSearchKeyIndexValue($pid, "Genre", false);
             $datastreams = Fedora_API::callGetDatastreams($pid);
             foreach ($datastreams as $datastream) {
                 if ($datastream['controlGroup'] == "M"
@@ -85,11 +86,13 @@ if ((php_sapi_name()==="cli")) {
                         && !Misc::hasPrefix($datastream['ID'], 'stream_')
                         && !Misc::hasPrefix($datastream['ID'], 'presmd_'))) {
 
-                    $userPIDAuthGroups = Auth::getAuthorisationGroups($pid, $datastream['ID']);
-                    if (in_array('Viewer', $userPIDAuthGroups)) {
-                        saveOpenAccessItemInfo($pid, $datastream['ID'], $documentType);
-                        $open = true;
+                    if (!inDatabase($pid, $datastream['ID'])) {
+                        $userPIDAuthGroups = Auth::getAuthorisationGroups($pid, $datastream['ID']);
+                        if (in_array('Viewer', $userPIDAuthGroups)) {
+                            saveOpenAccessItemInfo($pid, $datastream['ID'], $documentType, $datastream['createDate'], $datastream['label'], $isUser);
+                            $open = true;
 
+                        }
                     }
                 }
             }
@@ -108,11 +111,11 @@ if ((php_sapi_name()==="cli")) {
     echo "Must be run from the command line";
 }
 
-function saveOpenAccessItemInfo($pid, $dsID, $documentType) {
+function saveOpenAccessItemInfo($pid, $dsID, $documentType, $created, $label, $isUser) {
     $log = FezLog::get();
     $db = DB_API::get();
-    $stmt = "INSERT INTO ".APP_TABLE_PREFIX."open_access_items  (oai_pid, oai_dsid, oai_document_type)
-                VALUES (".$db->quote($pid).", ".$db->quote($dsID).", ".$db->quote($documentType).")";
+    $stmt = "INSERT INTO ".APP_TABLE_PREFIX."open_access_items  (oai_pid, oai_dsid, oai_document_type, oai_created, oai_label, oai_user)
+                VALUES (".$db->quote($pid).", ".$db->quote($dsID).", ".$db->quote($documentType).", ".$db->quote($created).", ".$db->quote($label).", ".$db->quote($isUser).")";
     try {
         $res = $db->exec($stmt);
     }
@@ -120,4 +123,18 @@ function saveOpenAccessItemInfo($pid, $dsID, $documentType) {
         echo $ex;
     }
     echo $pid." ". $dsID . " ". $documentType."\n";
+}
+
+function inDatabase($pid, $dsID) {
+    $log = FezLog::get();
+    $db = DB_API::get();
+    $stmt = "SELECT oai_pid FROM ".APP_TABLE_PREFIX."open_access_items WHERE oai_pid = ".$db->quote($pid)." AND oai_dsid = ".$db->quote($dsID);
+    try {
+        $res = $db->fetchOne($stmt);
+    }
+    catch(Exception $ex) {
+        echo $ex;
+    }
+    return !empty($res);
+
 }
