@@ -4525,7 +4525,7 @@ function getSearchKeyIndexValueShadow($pid, $searchKeyTitle, $getLookup=true, $s
       $solr_titles = Search_Key::getSolrTitles();
       $solr_titles["citation"] = "citation_t";
       $solr_titles["content"] = "content";
-      $solr_titles["all"] = "all";
+      $solr_titles["text"] = "text";
 
 			$solr_titles_temp = $solr_titles;
       foreach ($solr_titles_temp as $skey => $svalue) {
