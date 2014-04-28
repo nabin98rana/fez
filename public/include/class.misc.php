@@ -884,18 +884,40 @@ public static function multi_implode($glue, $pieces)
     return $return;
   }
 
-  function isAllowedDatastream($dsID)
+  //This is only used by oai for publically accessible datastreams.
+  function isAllowedDatastream($dsID, $pid)
   {
     if (
         (is_numeric(strpos($dsID, "thumbnail_"))) ||
-        (is_numeric(strpos($dsID, "web_"))) ||
+        //(is_numeric(strpos($dsID, "web_"))) ||
         (is_numeric(strpos($dsID, "preview_"))) ||
         (is_numeric(strpos($dsID, "presmd_"))) ||
         (is_numeric(strpos($dsID, "FezACML_")))
     ) {
       return false;
     } else {
-      return true;
+        $exif_array = Exiftool::getDetails($pid, $dsID);
+        $ctype = $exif_array['exif_mime_type'];
+
+        //exception for webm
+        if (substr($dsID, -5) == ".webm") {
+            $ctype = "isvideo";
+        }
+
+        if (is_numeric(strpos($ctype, "video"))) {
+            $is_video = 1;
+        } elseif (is_numeric(strpos($ctype, "image"))) {
+            $is_image = 1;
+        }
+
+        if (($is_video == 1) && (!is_numeric(strpos($dsID, "stream_")) && (!is_numeric(strpos($ctype, "flv"))))) {
+            return false;
+        }
+        if (($is_image == 1) && (!is_numeric(strpos($dsID, "web_"))) && (!is_numeric(strpos($dsID, "preview_"))) && (!is_numeric(strpos($dsID, "thumbnail_"))) ) {
+            return false;
+        }
+
+        return true;
     }
   }
 
@@ -908,8 +930,6 @@ public static function multi_implode($glue, $pieces)
    */
   function cleanDatastreamListLite($dsList, $pid)
   {
-    /*if(!APP_FEDORA_BYPASS =='ON')
-    {*/
         $original_dsList = $dsList;
         $return = array();
         foreach ($dsList as $key => $ds) {
@@ -996,7 +1016,6 @@ public static function multi_implode($glue, $pieces)
         }
         $return = array_values($return);
         return $return;
-    //}
   }
 
   function addDeletedDatastreams( $datastreams,$pid,$requestedVersionDate )

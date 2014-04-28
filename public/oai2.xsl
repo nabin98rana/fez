@@ -50,6 +50,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
     version="1.0"
     xmlns:xsl="http://www.w3.org/1999/XSL/Transform" 
     xmlns:oai="http://www.openarchives.org/OAI/2.0/"
+    xmlns:dcterms="http://purl.org/dc/terms/"
 >
 
 <xsl:output method="html"/>
@@ -586,6 +587,9 @@ p.intro {
 
 <xsl:template match="dc:identifier" xmlns:dc="http://purl.org/dc/elements/1.1/">
 <tr><td class="key">Resource Identifier</td><td class="value"><xsl:value-of select="."/></td></tr></xsl:template>
+
+<xsl:template match="dcterms:bibliographicCitation" xmlns:dc="http://purl.org/dc/terms/">
+<tr><td class="key">Citation</td><td class="value"><xsl:value-of select="."/></td></tr></xsl:template>
 
 <xsl:template match="dc:source" xmlns:dc="http://purl.org/dc/elements/1.1/">
 <tr><td class="key">Source</td><td class="value"><xsl:value-of select="."/></td></tr></xsl:template>

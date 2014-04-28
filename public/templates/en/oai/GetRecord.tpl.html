@@ -26,7 +26,7 @@
 	  </header>
 	  <metadata>
 		{if $metadataPrefix == "oai_dc"}
-	      <oai_dc:dc xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd" xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/">
+	      <oai_dc:dc xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd" xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:dcterms='http://purl.org/dc/terms/'>
 		{elseif $metadataPrefix == "pa"}
 		  <pa:picture xmlns:pa="http://www.pictureaustralia.org/schemas/pa/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.pictureaustralia.org/schemas/pa/ http://www.pictureaustralia.org/schemas/pa/picture.xsd">
 		{/if}
@@ -110,16 +110,29 @@
 					{/section}
 				{/if}
 			{/if}
-			{if $list[0].rek_file_attachment_name}
-				{if !is_array($list[0].rek_file_attachment_name)}
-		        	<dc:relation>{$app_base_url}eserv/{$list[0].rek_pid}/{$list[0].rek_file_attachment_name}</dc:relation>
-				{else}
-					{assign var="loop_format" value=$list[0].rek_file_attachment_name}
-					{section name="f" loop=$loop_format}
-				        <dc:relation>{$app_base_url}eserv/{$list[0].rek_pid}/{$list[0].rek_file_attachment_name[f]}</dc:relation>
-					{/section}
-				{/if}
+            {* For Trove, to replace pa:thumbnail required by now-defunct Picture Australia, and resolve duplication issue their end *}
+            {if $list[0].thumbnail}
+                  {if !is_array($list[0].thumbnail)}
+                    <dc:identifier linktype="thumbnail">{$app_base_url}eserv/{$list[0].rek_pid}/{$loop_thumbnail[0]}</dc:identifier>
+                  {else}
+                  {assign var="loop_thumbnail" value=$list[0].thumbnail}
+                  {section name="s" loop=$loop_thumbnail}
+                    <dc:identifier linktype="thumbnail">{$app_base_url}eserv/{$list[0].rek_pid}/{$loop_thumbnail[s]}</dc:identifier>
+                  {/section}
+              {/if}
+            {/if}
+
+            {if $list[0].rek_file_attachment_name}
+                {assign var="loop_format" value=$list[0].rek_file_attachment_name}
+                {section name="f" loop=$loop_format}
+                    {if $list[0].rek_datastream_is_public[f]}
+                        <dc:identifier linktype="fulltext">{$app_base_url}eserv/{$list[0].rek_pid}/{$list[0].rek_file_attachment_name[f]}</dc:identifier>
+                    {elseif ($list[0].pid_type == "restricted")}
+                        <dc:identifier linktype="restricted">{$app_base_url}eserv/{$list[0].rek_pid}/{$list[0].rek_file_attachment_name[f]}</dc:identifier>
+                    {/if}
+                {/section}
 			{/if}
+            <dc:identifier linktype="{$list[0].pid_type}">{$app_base_url}view/{$list[0].rek_pid}</dc:identifier>
 			{if $list[0].rek_rights}
 				{if !is_array($list[0].rek_rights)}
 		        	<dc:rights>{$list[0].rek_rights}</dc:rights>
@@ -130,7 +143,13 @@
 					{/section}
 				{/if}
 			{/if}
-		{if $metadataPrefix == "oai_dc"}
+            {if  ($list[0].display_citation && $list[0].rek_citation_stripped) }
+                <dcterms:bibliographicCitation>
+                    {$list[0].rek_citation_stripped}
+                </dcterms:bibliographicCitation>
+            {/if}
+
+              {if $metadataPrefix == "oai_dc"}
 	      </oai_dc:dc>
 		{elseif $metadataPrefix == "pa"}
 		  </pa:picture>

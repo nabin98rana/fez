@@ -37,7 +37,7 @@
     </header>
     <metadata>
 	{if $metadataPrefix == "oai_dc"}
-      <oai_dc:dc xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd" xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/">
+      <oai_dc:dc xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd" xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:dcterms='http://purl.org/dc/terms/' >
 	{elseif $metadataPrefix == "pa"}
 	  <pa:picture xmlns:pa="http://www.pictureaustralia.org/schemas/pa/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.pictureaustralia.org/schemas/pa/ http://www.pictureaustralia.org/schemas/pa/picture.xsd">
 	{elseif $metadataPrefix == "rif"}
@@ -73,7 +73,7 @@
 		<registryObject group="{$org_name}">
 			<key>{$app_hostname}/view/{$list[i].rek_pid}</key>
 			<originatingSource>{$app_hostname}</originatingSource>
-			<collection type="{$list[i].rek_ands_collection_type_lookup|strip_tags}" dateAccessioned="{$list[i].rek_created_date}" dateModified="{$list[i].rek_updated_date}">
+			<collection type="{$list[i].rek_ands_collection_type_lookup|smarty:nodefaults|strip_tags:false|escape:'html'}" dateAccessioned="{$list[i].rek_created_date}" dateModified="{$list[i].rek_updated_date}">
       {if $list[i].rek_handle}
 			<identifier type="handle">hdl.handle.net/{$list[i].rek_handle}</identifier>
       {/if}
@@ -194,14 +194,24 @@
 			{if $list[i].rek_link}
 				  {assign var="loop_link" value=$list[i].rek_link}
 				  {section name="s" loop=$loop_link}
-				      <relatedInfo type="website">
+				      <relatedInfo type="publication">
 							<identifier type="uri">{$list[i].rek_link[s]}</identifier>
 							<title>{$list[i].rek_link_description[s]}</title>
 				      </relatedInfo>
 				  {/section}
 			{/if}
 
-			{if $list[i].rek_author}
+            {if $list[i].rek_isdatasetof}
+                {assign var="loop_link" value=$list[i].rek_isdatasetof}
+                {section name="s" loop=$loop_link}
+                    <relatedInfo type="publication">
+                      <identifier type="uri">http://{$app_hostname}/view/{$list[i].rek_isdatasetof[s]}</identifier>
+                       <title>{$list[i].rek_isdatasetoftitle[s]}</title>
+                    </relatedInfo>
+                {/section}
+            {/if}
+
+      {if $list[i].rek_author}
 				{assign var="loop_authors" value=$list[i].rek_author}
 				{section name="a" loop=$loop_authors}
 				    {if !$list[i].rek_author_id[a] == 0}
@@ -297,19 +307,19 @@
 			      {/if}
 			{/if}
 			{if $list[i].rek_description}
-			      <description type="full">{$list[i].rek_description|strip_tags}</description>
+			      <description type="full">{$list[i].rek_description|smarty:nodefaults|strip_tags:false|escape:"html"}</description>
 			{/if}
 			{if $list[i].rek_extent}
-			      <description type="brief">{$list[i].rek_extent|strip_tags}</description>
+			      <description type="brief">{$list[i].rek_extent|smarty:nodefaults|strip_tags:false|escape:"html"}</description>
 			{/if}
 			{if $list[i].rek_rights}
 			     <description type="rights">&#xA9;{$list[i].rek_rights|trim}</description>
 			{/if}
 			{if $list[i].rek_access_conditions}
-			     <description type="accessRights">{$list[i].rek_access_conditions_lookup|strip_tags}</description>
+			      <description type="accessRights">{$list[i].rek_access_conditions_lookup|smarty:nodefaults|strip_tags:false|escape:"html"}</description>
 			{/if}
             {if $list[i].rek_license}
-                 <description type="accessRights">{$list[i].rek_license_lookup|strip_tags}</description>
+                 <description type="accessRights">{$list[i].rek_license_lookup|smarty:nodefaults|strip_tags:false|escape:"html"}</description>
             {/if}
 			{if $list[i].rek_notes}
 			      {if !is_array($list[i].rek_notes)}
@@ -351,6 +361,12 @@
 		{/if}
 	{/if}
 
+    {if $list[i].display_citation && $list[i].rek_citation}
+    <dcterms:bibliographicCitation>
+        {$list[i].rek_citation_stripped}
+    </dcterms:bibliographicCitation>
+    {/if}
+
 	{if $list[i].rek_handle && !$list[i].rek_file_attachment_name}
 		{if !is_array($list[i].rek_handle)}
 			<dc:identifier linktype="notonline">http://hdl.handle.net/{$list[i].rek_handle}</dc:identifier>
@@ -378,9 +394,9 @@
 	{if $list[i].rek_long_description || $list[i].rek_description}
 		<dc:description>
 		{if $list[i].rek_long_description}
-			{$list[i].rek_long_description|strip_tags}
+			{$list[i].rek_long_description|smarty:nodefaults|strip_tags:false|escape:"html"}
 		{else}
-			{$list[i].rek_description|strip_tags}
+			{$list[i].rek_description|smarty:nodefaults|strip_tags:false|escape:"html"}
 		{/if}
 		</dc:description>
 	{/if}
@@ -497,15 +513,17 @@
 
 
 		{if $list[i].rek_file_attachment_name}
-			{if !is_array($list[i].rek_file_attachment_name)}
-	        	<dc:relation>{$app_base_url}eserv/{$list[i].rek_pid}/{$list[i].rek_file_attachment_name}</dc:relation>
-			{else}
-				{assign var="loop_format" value=$list[i].rek_file_attachment_name}
-				{section name="f" loop=$loop_format}
-			        <dc:relation>{$app_base_url}eserv/{$list[i].rek_pid}/{$list[i].rek_file_attachment_name[f]}</dc:relation>
-				{/section}
-			{/if}
+            {assign var="loop_format" value=$list[i].rek_file_attachment_name}
+            {section name="f" loop=$loop_format}
+            {if $list[i].rek_datastream_is_public[f]}
+                <dc:identifier linktype="fulltext">{$app_base_url}eserv/{$list[i].rek_pid}/{$list[i].rek_file_attachment_name[f]}</dc:identifier>
+            {elseif ($list[i].pid_type == "restricted")}
+                <dc:identifier linktype="restricted">{$app_base_url}eserv/{$list[i].rek_pid}/{$list[i].rek_file_attachment_name[f]}</dc:identifier>
+            {/if}
+            {/section}
 		{/if}
+        <dc:identifier linktype="{$list[i].pid_type}">{$app_base_url}view/{$list[i].rek_pid}</dc:identifier>
+
 		{if $list[i].rek_rights}
 			{if !is_array($list[i].rek_rights)}
 	        	<dc:rights>{$list[i].rek_rights}</dc:rights>
@@ -516,7 +534,6 @@
 				{/section}
 			{/if}
 		{/if}
-
 
 {/if}
 	{if $metadataPrefix == "oai_dc"}

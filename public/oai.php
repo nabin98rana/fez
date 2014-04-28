@@ -259,13 +259,42 @@ if (!empty($verb)) {
 								$list = OAI::ListRecords($set, $identifier, $start, $rows, $order_by, $from, $until, $setType, $filter);
 								$list_info = $list["info"];
 								$list = $list["list"];
-								$tpl->assign("list", $list);
 								$tpl->assign("list_count", count($list));
 								$tpl->assign("resumptionToken", $resumptionToken);
 								if (count($list) < 1) {
 									$errors["code"][] = "idDoesNotExist";
 									$errors["message"][] = "ID: ".$identifier." does not exist in this archive (at least at your security level).";
-								}
+								} else {
+                                    //Lookup titles of isdatasetof and check access on datastreams
+                                    if (!empty($list[0]['rek_isdatasetof'])) {
+                                        foreach($list[0]['rek_isdatasetof'] as $j => $dataset_of_pid) {
+                                            $record_dataset_of = new RecordObject($dataset_of_pid);
+                                            $list[0]['rek_isdatasetoftitle'][$j] = $record_dataset_of->getTitle();
+                                        }
+                                    }
+
+                                    $pid_type = "citation";
+                                    if (!empty($list[0]['rek_file_attachment_name'])) {
+                                        foreach($list[0]['rek_file_attachment_name'] as $j => $datastream_of_pid) {
+                                            $perms = Auth::getAuthPublic($list[0]['rek_pid'], $datastream_of_pid);
+                                            $list[0]['rek_datastream_is_public'][$j] = $perms['viewer'];
+                                            if ($perms['viewer']) {
+                                                $pid_type = "fulltext";
+                                            }
+                                        }
+                                        if ($pid_type == "citation") {
+                                            $orderable = explode(',',THESIS_COLLECTIONS_ORDERABLE);
+                                            foreach ($list[0]['rek_ismemberof'] as $parent) {
+                                                if (in_array($parent, $orderable)) {
+                                                    $pid_type = "restricted";
+                                                }
+                                            }
+                                        }
+                                    }
+                                    $list[0]['pid_type'] = $pid_type;
+                                    $list[0]['display_citation'] = ($list[0]['rek_display_type_lookup'] == "Journal Article" || $list[0]['rek_display_type_lookup'] == "Conference Paper" || $list[0]['rek_display_type_lookup'] == "Book Chapter");
+                                }
+                                $tpl->assign("list", $list);
 							} else {
 								$errors["code"][] = "badArgument";
 								$errors["message"][] = "identifier does not match regexp: ".$originalIdentifier;
@@ -425,7 +454,7 @@ if (!empty($verb)) {
 						$list_info = $list["info"];
 						$list = $list["list"];
 
-                        //Lookup titles of isdatasetof
+                        //Lookup titles of isdatasetof and check access on datastreams and test if to display citation
                         foreach($list as $i => $list_record) {
                             if (!empty($list_record['rek_isdatasetof'])) {
                                 foreach($list_record['rek_isdatasetof'] as $j => $dataset_of_pid) {
@@ -433,6 +462,27 @@ if (!empty($verb)) {
                                     $list[$i]['rek_isdatasetoftitle'][$j] = $record_dataset_of->getTitle();
                                 }
                             }
+
+                            $pid_type = "citation";
+                            if (!empty($list_record['rek_file_attachment_name'])) {
+                                foreach($list_record['rek_file_attachment_name'] as $j => $datastream_of_pid) {
+                                    $perms = Auth::getAuthPublic($list[$i]['rek_pid'], $datastream_of_pid);
+                                    $list[$i]['rek_datastream_is_public'][$j] = $perms['viewer'];
+                                    if ($perms['viewer']) {
+                                        $pid_type = "fulltext";
+                                    }
+                                }
+                                if ($pid_type == "citation") {
+                                    $orderable = explode(',',THESIS_COLLECTIONS_ORDERABLE);
+                                    foreach ($list[$i]['rek_ismemberof'] as $parent) {
+                                        if (in_array($parent, $orderable)) {
+                                            $pid_type = "restricted";
+                                        }
+                                    }
+                                }
+                            }
+                            $list[$i]['pid_type'] = $pid_type;
+                            $list[$i]['display_citation'] = ($list[$i]['rek_display_type_lookup'] == "Journal Article" || $list[$i]['rek_display_type_lookup'] == "Conference Paper" || $list[$i]['rek_display_type_lookup'] == "Book Chapter");
                         }
 
 						$tpl->assign("list", $list);
@@ -472,6 +522,7 @@ if (count($errors) == 0) {
 		}
 	}
 }
+
 
 $tpl->assign("start", $start);
 $tpl->assign("rows", $rows);

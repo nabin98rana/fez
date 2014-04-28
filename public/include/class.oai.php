@@ -74,12 +74,6 @@ class OAI
 	 */
 	function ListRecords($set, $identifier="", $current_row = 0, $max = 100, $order_by = 'Created Date', $from="", $until="", $setType, $filter=array())
 	{
-		/*		$from = str_replace("T", " ", $from);
-		 $from = str_replace("Z", " ", $from);
-		 $until = str_replace("Z", " ", $until);
-		 $until = str_replace("Z", " ", $until);
-		 */
-		$order_dir = 'ASC';
 		$options = array();
 		if ($max == "ALL") {
 			$max = 9999999;
@@ -117,16 +111,16 @@ class OAI
 
 		$return = Record::getListing($options, array(9,10), $current_row, $max, $order_by, false, false, $filter);
 		$return['list'] = Record::getParentTitlesByPIDS($return['list']);
-    $usr_id = Auth::getUserID();
-    if (!is_numeric($usr_id)) {
-      Record::getSearchKeysByPIDS($return['list'], true);
-    }
+        $usr_id = Auth::getUserID();
+        if (!is_numeric($usr_id)) {
+          Record::getSearchKeysByPIDS($return['list'], true);
+        }
 		if (is_array($return['list'])) {
 			foreach ($return['list'] as $rkey => $res) {
 				$fans = array();
 				if (is_array($res['rek_file_attachment_name'])) {
 					foreach($res['rek_file_attachment_name'] as $fan) {
-						if (Misc::isAllowedDatastream($fan)) {
+						if (Misc::isAllowedDatastream($fan, $res['rek_pid'])) {
 							array_push($fans, $fan);
 						}
 					}
@@ -148,7 +142,6 @@ class OAI
 
 	function makeReturnList($res, $statsFlag = 0)
 	{
-		$securityfields = Auth::getAllRoles();
 		$return = array();
 
 		foreach ($res as $result) {
@@ -206,8 +199,6 @@ class OAI
 				$return[$result['rek_pid']][$search_var])) {
 					array_push($return[$result['rek_pid']][$search_var],
 					$result['rek_'.$result['xsdmf_data_type']]);
-					//					sort($return[$result['rek_pid']][$search_var]);
-
 				}
 			}
 			// get thumbnails
@@ -237,7 +228,6 @@ class OAI
 			}
 
 		}
-		//		$return = array_values($return);
 		return $return;
 	}
 
