@@ -28,8 +28,7 @@
 			<author>
 			{section name="author_loop" loop=$list[i].rek_author}
 				{assign var="next_author" value=$smarty.section.author_loop.index+1}
-						{$list[i].rek_author[author_loop]}
-				{if $list[i].rek_author[$next_author] != ""} og {/if}
+						{$list[i].rek_author[author_loop]}{if $list[i].rek_author[$next_author] != ""};{/if}
 			{/section}
 			</author>
 		{/if}
