@@ -405,7 +405,7 @@ function checkRequiredFieldsExt(f, required_fields, required_fields_titles)
                 errors[errors.length] = new Option(getFieldTitle(required_fields_titles,required_fields[i].text), required_fields[i].text);
             }
         } else if (required_fields[i].value == 'multiple') {
-            if (!hasOneSelected(f, field.name)) {
+            if (!hasOneSelectedValue(f, field.name)) {
                 errors[errors.length] = new Option(getFieldTitle(required_fields_titles,required_fields[i].text), required_fields[i].text);
 			}
         } else if (required_fields[i].value == 'checkbox') {
@@ -433,7 +433,7 @@ function checkRequiredCustomFields(f, required_fields)
                 errors[errors.length] = new Option(getFieldTitle(custom_fields,required_fields[i].text), required_fields[i].text);
             }
         } else if (required_fields[i].value == 'multiple') {
-            if (!hasOneSelected(f, field.name)) {
+            if (!hasOneSelectedValue(f, field.name)) {
                 errors[errors.length] = new Option(getFieldTitle(custom_fields,required_fields[i].text), required_fields[i].text);
             }
         } else if (required_fields[i].value == 'checkbox') {
@@ -490,7 +490,7 @@ function checkRequiredFields(f, required_fields)
                 errors[errors.length] = new Option(getFieldTitle(xsd_display_fields,required_fields[i].text), required_fields[i].text);
             }
         } else if (required_fields[i].value == 'multiple') {
-            if (!hasOneSelected(f, field.name)) {
+            if (!hasOneSelectedValue(f, field.name)) {
                 errors[errors.length] = new Option(getFieldTitle(xsd_display_fields,required_fields[i].text), required_fields[i].text);
             }
         } else if (required_fields[i].value == 'checkbox') {
@@ -600,7 +600,7 @@ function checkRequiredInstantCustomFields(f, required_fields)
                 errors[errors.length] = new Option(getFieldTitle(instant_custom_fields,required_fields[i].text), required_fields[i].text);
             }
         } else if (required_fields[i].value == 'multiple') {
-            if (!hasOneSelected(f, field.name)) {
+            if (!hasOneSelectedValue(f, field.name)) {
                 errors[errors.length] = new Option(getFieldTitle(instant_custom_fields,required_fields[i].text), required_fields[i].text);
             }
         } else if (required_fields[i].value == 'whitespace') {
@@ -624,7 +624,7 @@ function checkErrorCondition(form_name, field_name)
             errorDetails(f, field_name, false);
         }
     } else if (field.type == 'select-multiple') {
-        if (hasOneSelected(f, field_name)) {
+        if (hasOneSelectedValue(f, field_name)) {
             errorDetails(f, field_name, false);
         }
     }
