@@ -109,7 +109,7 @@ class FulltextQueue
 	 */
 	public function remove($pid)
 	{
-		if (!$this->pids[$pid]) {
+		if (!isset($this->pids[$pid]) || !$this->pids[$pid]) {
 			$this->pids[$pid] = FulltextQueue::ACTION_DELETE;
 		}
 	}
