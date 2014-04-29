@@ -50,44 +50,15 @@ Scenario: I login as admin and create communities, collections and pids and see 
 
 @destructive @purge @insulated
   Scenario: Delete old Communities
-    Given I login as administrator
-    And I fill in "Search Entry" with "title:(\"Test Community for list view\")"
-    And I press "search_entry_submit"
-    And I wait for "3" seconds
-    And I press "Select All"
-    And I turn off waiting checks
-    And I press "Delete"
-    And I confirm the popup
-    And I fill "automated test data cleanup" in popup
-    And I confirm the popup
-    And I turn on waiting checks
-    And I follow "Logout"
+    Given I am on "/"
+    Then I clean up title "Test Community for list view"
 
   @destructive @purge @insulated
   Scenario: Delete old Collections
-    Given I login as administrator
-    And I fill in "Search Entry" with "title:(\"Test Collection for list view\")"
-    And I press "search_entry_submit"
-    And I wait for "3" seconds
-    And I press "Select All"
-    And I turn off waiting checks
-    And I press "Delete"
-    And I confirm the popup
-    And I fill "automated test data cleanup" in popup
-    And I confirm the popup
-    And I turn on waiting checks
-    And I follow "Logout"
+    Given I am on "/"
+    Then I clean up title "Test Collection for list view"
 
   @destructive @purge @insulated
   Scenario: Delete old pids
-    Given I login as administrator
-    And I fill in "Search Entry" with "title:(\"Test Pid for list view\")"
-    And I press "search_entry_submit"
-    And I wait for "3" seconds
-    And I press "Select All"
-    And I turn off waiting checks
-    And I press "Delete"
-    And I confirm the popup
-    And I fill "automated test data cleanup" in popup
-    And I confirm the popup
-    And I turn on waiting checks
+    Given I am on "/"
+    Then I clean up title "Test Pid for list view"

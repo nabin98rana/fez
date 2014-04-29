@@ -58,8 +58,8 @@ Feature: Check Clone Records works correctly
     And I go to the test journal article view page
     And I should not see "Clone Test Title 2 Journal Article (deposited"
 
-
-  @destructive @purge
+  #This is also test delete pid functionality
+  @destructive
   Scenario: Delete old cloned pids
     Given I login as administrator
     And I fill in "Search Entry" with "title:(\"Clone Test Title\")"

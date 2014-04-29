@@ -108,15 +108,6 @@ Feature: Pid security
 
    @destructive @now
   Scenario: Delete old pids
-    Given I login as administrator
-    And I fill in "Search Entry" with "title:(\"Security Test Journal Title2012\")"
-    And I press "search_entry_submit"
-    And I wait for "2" seconds
-    And I press "Select All"
-    And I turn off waiting checks
-    And I press "Delete"
-    And I confirm the popup
-    And I fill "automated test data cleanup" in popup
-    And I confirm the popup
-    And I turn on waiting checks
+    Given I am on "/"
+    Then I clean up title "Security Test Journal Title2012"
 

@@ -41,14 +41,5 @@ Feature: Test that the history for pids is working
 
   @destructive @purge
   Scenario: Delete old pids
-    Given I login as administrator
-    And I fill in "search_entry" with "title:(\"Test History Journal Title\")"
-    And I press "search_entry_submit"
-    And I press "Select All"
-    And I turn off waiting checks
-    And I press "Delete"
-    And I confirm the popup
-    And I fill "automated test data cleanup" in popup
-    And I confirm the popup
-    And I switch to window ""
-    And I turn on waiting checks
+    Given I am on "/"
+    Then I clean up title "Test History Journal Title"

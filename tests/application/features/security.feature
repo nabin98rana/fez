@@ -147,6 +147,7 @@ Feature: Security
   Then I should see "(0 results found)"
 
 
+#also test delete collection functionality
 @destructive @core @purge
   Scenario: Delete Security Test Collections
     Given I login as administrator
@@ -174,7 +175,7 @@ Feature: Security
 #  And I put a breakpoint
 #  Then I should see "(0 results found)"
 
-
+#also test delete community functionality
   @destructive @core @purge
 Scenario: Delete Security Test Communities
   Given I login as administrator

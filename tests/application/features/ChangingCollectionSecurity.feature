@@ -76,45 +76,15 @@ Feature: Changing Collection Security
 
   @destructive @purge
   Scenario: Delete old Communities
-    Given I login as administrator
-    And I fill in "Search Entry" with "title:(\"Test Community Security to be changed after pid created\")"
-    And I press "search_entry_submit"
-    And I wait for "3" seconds
-    And I press "Select All"
-    And I turn off waiting checks
-    And I press "Delete"
-    And I confirm the popup
-    And I fill "automated test data cleanup" in popup
-    And I confirm the popup
-    And I switch to window ""
-    And I turn on waiting checks
+    Given I am on "/"
+    Then I clean up title "Test Community Security to be changed after pid created"
 
   @destructive @purge @insulated
   Scenario: Delete old Collections
-    Given I login as administrator
-    And I fill in "Search Entry" with "title:(\"Test Collection Security to be changed after pid created\")"
-    And I press "search_entry_submit"
-    And I wait for "3" seconds
-    And I press "Select All"
-    And I turn off waiting checks
-    And I press "Delete"
-    And I confirm the popup
-    And I fill "automated test data cleanup" in popup
-    And I confirm the popup
-    And I switch to window ""
-    And I turn on waiting checks
+    Given I am on "/"
+    Then I clean up title "Test Collection Security to be changed after pid created"
 
   @destructive @purge @insulated
   Scenario: Delete old pids
-    Given I login as administrator
-    And I fill in "Search Entry" with "title:(\"Test Pid Security to be changed after pid created\")"
-    And I press "search_entry_submit"
-    And I wait for "3" seconds
-    And I press "Select All"
-    And I turn off waiting checks
-    And I press "Delete"
-    And I confirm the popup
-    And I fill "automated test data cleanup" in popup
-    And I confirm the popup
-    And I switch to window ""
-    And I turn on waiting checks
+    Given I am on "/"
+    Then I clean up title "Test Pid Security to be changed after pid created"

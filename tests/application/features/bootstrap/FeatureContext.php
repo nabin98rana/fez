@@ -979,6 +979,25 @@ public function afterScenario($event)
         return;
     }
 
+    /**
+     * @Then /^I clean up title "([^"]*)"$/
+     */
+    public function iCleanUpTitle($title)
+    {
+        $db = DB_API::get();
+        $stmt = "SELECT rek_pid FROM " . APP_TABLE_PREFIX . "record_search_key WHERE rek_title = '".$title."' AND rek_status = 2";
+        try {
+            $res = $db->fetchCol($stmt);
+        }
+        catch(Exception $ex) {
+            throw new Exception("Error with database ".$stmt);
+        }
+        foreach ($res as $pid) {
+            Record::markAsDeleted($pid);
+        }
+        return;
+    }
+
     //Returns a randomish pid. It concentrates on recent pids and grabs them in reverse chronological order
     //It's going further back as the day progresses relative the the test,  to make sure any newly created pids don't overrun the random ones
     private function _returnRandomPid()

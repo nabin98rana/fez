@@ -39,15 +39,8 @@ Feature: WOS imports. Check imports from wos work correctly
 
   @destructive @core @purge
 Scenario: Delete WOS imports
-  Given I login as administrator
-  And I fill in "Search Entry" with "title:(\"Influence of malt roasting on the oxidative stability of sweet wort\")"
-  And I press "search_entry_submit"
-  And I press "Select All"
-  And I turn off waiting checks
-  And I press "Delete"
-  And I confirm the popup
-  And I fill "automated test data cleanup" in popup
-  And I confirm the popup
+    Given I am on "/"
+    Then I clean up title "Influence of malt roasting on the oxidative stability of sweet wort"
 
   @destructive @now2
   Scenario: Add to WOS queue and make sure it imports
@@ -79,14 +72,5 @@ Scenario: Delete WOS imports
 
   @destructive @core @now2
 Scenario: Delete WOS imports
-  Given I login as administrator
-  And I fill in "Search Entry" with "title:(\"Influence of malt roasting on the oxidative stability of sweet wort\")"
-  And I press "search_entry_submit"
-  And I press "Select All"
-  And I turn off waiting checks
-  And I press "Delete"
-  And I confirm the popup
-  And I fill "automated test data cleanup" in popup
-  And I confirm the popup
-  And I turn on waiting checks
-  And I am on "/"
+  Given I am on "/"
+  Then I clean up title "Influence of malt roasting on the oxidative stability of sweet wort"
