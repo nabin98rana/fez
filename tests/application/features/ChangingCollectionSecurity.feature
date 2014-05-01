@@ -78,13 +78,5 @@ Feature: Changing Collection Security
   Scenario: Delete old Communities
     Given I am on "/"
     Then I clean up title "Test Community Security to be changed after pid created"
-
-  @destructive @purge @insulated
-  Scenario: Delete old Collections
-    Given I am on "/"
     Then I clean up title "Test Collection Security to be changed after pid created"
-
-  @destructive @purge @insulated
-  Scenario: Delete old pids
-    Given I am on "/"
     Then I clean up title "Test Pid Security to be changed after pid created"

@@ -49,16 +49,8 @@ Scenario: I login as admin and create communities, collections and pids and see 
   Then I should see "(2010)"
 
 @destructive @purge @insulated
-  Scenario: Delete old Communities
+  Scenario: Delete old Communities, collections and pids
     Given I am on "/"
     Then I clean up title "Test Community for list view"
-
-  @destructive @purge @insulated
-  Scenario: Delete old Collections
-    Given I am on "/"
     Then I clean up title "Test Collection for list view"
-
-  @destructive @purge @insulated
-  Scenario: Delete old pids
-    Given I am on "/"
     Then I clean up title "Test Pid for list view"
