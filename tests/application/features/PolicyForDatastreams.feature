@@ -209,16 +209,11 @@ Feature: Check datastream policy works correctly
     And I should see text "/thornhill_gillie.pdf" in code
 
   @destructive @purge @insulated
-Scenario: Delete old Communities
+Scenario: Delete old Communities, Collections and Pids
     Given I am on "/"
     Then I clean up title "Test Community Datastream policy"
-
-@destructive @purge @insulated
-Scenario: Delete old Collections
-    Given I am on "/"
     Then I clean up title "Test Collection Datastream policy"
-
-@destructive @purge @insulated
-Scenario: Delete old pids
-    Given I am on "/"
-    Then I clean up title "Test Title Datastream policy"
+    Then I clean up title "Test Title Datastream policy 1"
+    Then I clean up title "Test Title Datastream policy 2"
+    Then I clean up title "Test Title Datastream policy 3"
+    Then I clean up title "Test Title Datastream policy 4"
