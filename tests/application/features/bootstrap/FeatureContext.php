@@ -1042,6 +1042,20 @@ public function afterScenario($event)
         $this->getSession()->executeScript($javascript);
     }
 
+    /**
+     * @Given /^I check the current page is valid XML$/
+     */
+    public function iCheckTheCurrentPageisValidXML()
+    {
+        $xml = file_get_contents($this->getSession()->getCurrentUrl());
+        $result = simplexml_load_string ($xml, 'SimpleXmlElement', LIBXML_DTDVALID + LIBXML_NOWARNING + LIBXML_NOERROR );
+        //echo $xml;
+        if ($result == false) {
+            throw new Exception("XML not valid");
+        }
+        return;
+    }
+
 } // FeatureContext
 
 /**

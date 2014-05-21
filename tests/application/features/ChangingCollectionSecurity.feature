@@ -75,7 +75,7 @@ Feature: Changing Collection Security
     Then I should see "No records could be found"
 
   @destructive @purge
-  Scenario: Delete old Communities
+  Scenario: Delete old Communities, collections and pids
     Given I am on "/"
     Then I clean up title "Test Community Security to be changed after pid created"
     Then I clean up title "Test Collection Security to be changed after pid created"
