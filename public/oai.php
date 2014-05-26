@@ -273,7 +273,7 @@ if (!empty($verb)) {
                                         }
                                     }
 
-                                    $pid_type = "citation";
+                                    $pid_type = "notonline";
                                     if (!empty($list[0]['rek_file_attachment_name'])) {
                                         foreach($list[0]['rek_file_attachment_name'] as $j => $datastream_of_pid) {
                                             $perms = Auth::getAuthPublic($list[0]['rek_pid'], $datastream_of_pid);
@@ -282,7 +282,7 @@ if (!empty($verb)) {
                                                 $pid_type = "fulltext";
                                             }
                                         }
-                                        if ($pid_type == "citation") {
+                                        if ($pid_type == "notonline") {
                                             $orderable = explode(',',THESIS_COLLECTIONS_ORDERABLE);
                                             foreach ($list[0]['rek_ismemberof'] as $parent) {
                                                 if (in_array($parent, $orderable)) {
@@ -463,7 +463,7 @@ if (!empty($verb)) {
                                 }
                             }
 
-                            $pid_type = "citation";
+                            $pid_type = "notonline";
                             if (!empty($list_record['rek_file_attachment_name'])) {
                                 foreach($list_record['rek_file_attachment_name'] as $j => $datastream_of_pid) {
                                     $perms = Auth::getAuthPublic($list[$i]['rek_pid'], $datastream_of_pid);
@@ -472,7 +472,7 @@ if (!empty($verb)) {
                                         $pid_type = "fulltext";
                                     }
                                 }
-                                if ($pid_type == "citation") {
+                                if ($pid_type == "notonline") {
                                     $orderable = explode(',',THESIS_COLLECTIONS_ORDERABLE);
                                     foreach ($list[$i]['rek_ismemberof'] as $parent) {
                                         if (in_array($parent, $orderable)) {

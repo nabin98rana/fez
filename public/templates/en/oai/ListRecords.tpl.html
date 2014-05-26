@@ -194,7 +194,7 @@
 			{if $list[i].rek_link}
 				  {assign var="loop_link" value=$list[i].rek_link}
 				  {section name="s" loop=$loop_link}
-				      <relatedInfo type="publication">
+				      <relatedInfo type="website">
 							<identifier type="uri">{$list[i].rek_link[s]}</identifier>
 							<title>{$list[i].rek_link_description[s]}</title>
 				      </relatedInfo>
@@ -210,6 +210,11 @@
                     </relatedInfo>
                 {/section}
             {/if}
+          {if $list[i].rek_related_publications}
+              <relatedInfo type="publication">
+                  <note>{$list[i].rek_related_publications}</note>
+              </relatedInfo>
+          {/if}
 
       {if $list[i].rek_author}
 				{assign var="loop_authors" value=$list[i].rek_author}
