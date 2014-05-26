@@ -442,7 +442,7 @@ class MatchingRecords
         $actingUser = Auth::getActingUsername();
 
         //We won't automatch admins and upos if they are not acting as someone
-        if (!(($isAdministrator || $isUPO) && $actingUser == $username)) {
+        if (!(($isAdministrator || $isUPO) && $actingUser == $username) && !empty($pid)) {
             Author::matchToPid($pid);
         }
         return $pid;
@@ -492,7 +492,7 @@ class MatchingRecords
         $actingUser = Auth::getActingUsername();
 
         //We won't automatch admins and upos if they are not acting as someone
-        if (!(($isAdministrator || $isUPO) && $actingUser == $username)) {
+        if (!(($isAdministrator || $isUPO) && $actingUser == $username) && !empty($pid)) {
             Author::matchToPid($pid);
         }
 
