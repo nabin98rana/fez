@@ -43,8 +43,6 @@ class LinksAmrQueue extends Queue
    */
   public static function get()
   {
-    $log = FezLog::get();
-
     try {
       $instance = Zend_Registry::get('LinksAmrQueue');
     }
@@ -122,7 +120,6 @@ class LinksAmrQueue extends Queue
    */
   public function remove($id)
   {
-    $log = FezLog::get();
     $db = DB_API::get();
 
     // Remove from in-memory array
@@ -145,8 +142,6 @@ class LinksAmrQueue extends Queue
    */
   protected function process()
   {
-    $log = FezLog::get();
-
     $bgp = new BackgroundProcess_LinksAmr();
     // TODO: maybe take something other than admin
     $bgp->register(serialize(array()), APP_SYSTEM_USER_ID);
@@ -168,8 +163,6 @@ class LinksAmrQueue extends Queue
    */
   public function bgProcess()
   {
-    $log = FezLog::get();
-
     // Don't process the queue until we have reached the batch size
     // This is so we at least attempt to play nicely with the
     // Links AMR service.
@@ -224,7 +217,6 @@ class LinksAmrQueue extends Queue
     if (count($pids) > 0) {
       // Process remainder of pids
       $this->sendToLinksAmr($pids);
-      $pids = array(); // reset
       sleep($this->_time_between_calls); // same as above
     }
 
@@ -244,8 +236,9 @@ class LinksAmrQueue extends Queue
    * Steps through each of the phases for sending this batch of records to the Links AMR service
    *
    * @param array $pids the array of PIDS to send
+   * @param boolean $doNotProcess just return the XML if true.
    */
-  function sendToLinksAmr($pids)
+  function sendToLinksAmr($pids, $doNotProcess = false)
   {
     $log = FezLog::get();
     $details = Record::getDetailsLite($pids);
@@ -321,12 +314,8 @@ class LinksAmrQueue extends Queue
       }
 
       $map['year'] = date('Y', strtotime($record['rek_date']));
-      // Don't send journal title if you have an ISSN // Actually this is a really bad idea to not send journal title because TR need it
-//      if (!empty($record['rek_issn'])) {
-//        $map['stitle'] = null;
-//      } else {
-        $map['stitle'] = $record['rek_journal_name'];
-//      }
+      $map['stitle'] = $record['rek_journal_name'];
+
 
       if (isset($record['rek_volume_number']) && is_numeric($record['rek_volume_number'])) {
         $map['vol'] = $record['rek_volume_number'];
@@ -376,7 +365,6 @@ class LinksAmrQueue extends Queue
       $response = LinksAmrService::retrieve($maps);
     } catch(Exception $ex) {
       $response = FALSE;
-//      print_r($ex->getMessage()); exit;
       $log->err($ex);
     }
 
@@ -390,6 +378,10 @@ class LinksAmrQueue extends Queue
         $this->add($pid, FALSE);
       }
       return;
+    }
+
+    if ($doNotProcess === true) {
+        return $response;
     }
 
     $xpath = new DOMXPath($response);
