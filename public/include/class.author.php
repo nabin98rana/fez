@@ -1751,9 +1751,11 @@ class Author
     $log = FezLog::get();
     $db = DB_API::get();
 
-    $query = "SELECT rek_author, count(*) as paper_count FROM " . APP_TABLE_PREFIX . "record_search_key_author aut ";
+    $query = "SELECT rek_author, count(rek_pid) as paper_count FROM " . APP_TABLE_PREFIX . "record_search_key_author aut ";
     $query .= "JOIN " . APP_TABLE_PREFIX . "record_search_key_author_id autid ";
     $query .= "ON (rek_author_pid = rek_author_id_pid AND aut.rek_author_order = autid.rek_author_id_order) ";
+    $query .= "LEFT JOIN fez_record_search_key ";
+    $query .= "ON rek_pid = rek_author_id_pid AND rek_status = '2' ";
     $query .= "WHERE autid.rek_author_id = ".$db->quote($authorId, 'INTEGER');
     $query .= " GROUP BY rek_author ";
     $query .= "ORDER BY 2 desc ";

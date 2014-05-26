@@ -84,13 +84,6 @@ function correctionRequired(pid)
         {/foreach}
         <li>&nbsp;</li>
     {/foreach}
-	{if is_array($alternativeAuthorNamesList) && count($alternativeAuthorNamesList) > 1}
-		<li><strong>Names this author has published as</strong></li>
-		{foreach from=$alternativeAuthorNamesList item=authorLink}
-		<li class="facetarrow">{$authorLink}</li>
-		{/foreach}
-		<li>&nbsp;</li>
-	{/if}
     </ul>
 
     </div>
