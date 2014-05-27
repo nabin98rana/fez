@@ -842,9 +842,6 @@ td.checkbox_column {
 
 /************************* Header Tags *************************/
 
-td.header {background-image: url("/images/2003/header_background.gif"); background-repeat: repeat; }
-td.toplinks {background-color: #367FCC;}
-
 #intro-text {
   color: #2a2a2a;
   padding: 0px 0px 30px 0px;
