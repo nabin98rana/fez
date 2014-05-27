@@ -68,7 +68,6 @@ $tpl->setTemplate("myresearch/index.tpl.html");
 
 MyResearch::addDatasetLink($tpl);
 
-
 Auth::checkAuthentication(APP_SESSION, $_SERVER['PHP_SELF']."?".$_SERVER['QUERY_STRING']);
 $username = Auth::getUsername();
 $actingUser = Auth::getActingUsername();
@@ -88,9 +87,7 @@ $zf = new Fez_Filter_RichTextHtmlpurifyWithLinks();
 $page = $zf->filter($page);
 
 $tpl->assign("headerContent", $page['content']);
-
 $tpl->assign("type", "upo");
-
 $tpl->assign("isUser", $isUser);
 $tpl->assign("isAdministrator", $isAdministrator);
 $tpl->assign("isSuperAdministrator", $isSuperAdministrator);
@@ -117,5 +114,3 @@ if (MyResearch::getHRorgUnit($username) == "" && !$isUPO) {
 $tpl->assign("active_nav", "my_fez");
 
 $tpl->displayTemplate();
-
-?>

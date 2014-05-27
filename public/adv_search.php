@@ -95,8 +95,6 @@ foreach ($list as $list_key => $list_field) {
 		}
 	} 
 }
-//    echo "<pre>". print_r($list,1) ."</pre>";
-//    exit;
 
 $tpl->assign("options", $options);
 $tpl->assign("search_keys", $list);

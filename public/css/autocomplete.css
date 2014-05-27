@@ -11,8 +11,7 @@ version: 2.4.1
 }
 
 .yui-ac-input{
-    /*position:absolute;*/
-     position:relative;  display: inline;
+    position:relative;  display: inline;
     width:90%;
 }
 

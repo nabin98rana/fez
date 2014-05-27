@@ -48,7 +48,6 @@ $tpl->assign("type", "search_favourites");
 $isUser = Auth::getUsername();
 $tpl->assign("isUser", $isUser);
 
-
 $issues = array();
 if ($isUser) {
     if (@count($_POST) > 0) {
@@ -57,8 +56,7 @@ if ($isUser) {
         }
         $issues = Favourites::saveSearchFavourites();
     }
-    //$issues['34']['issue']="taken";
-    //$issues['34']['alias']="stuff";
+
     $favourite_list = Favourites::getStarredSearches();
     $tpl->assign("list", $favourite_list);
     $tpl->assign("issues", $issues);
@@ -68,5 +66,3 @@ if ($isUser) {
 }
 
 $tpl->displayTemplate();
-
-?>

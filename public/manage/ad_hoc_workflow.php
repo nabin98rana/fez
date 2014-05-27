@@ -33,7 +33,7 @@
 // +----------------------------------------------------------------------+
 //
 //
-//include_once("../config.inc.php");
+
 include_once(dirname(dirname(__FILE__)).DIRECTORY_SEPARATOR."config.inc.php");
 include_once(APP_INC_PATH . "class.template.php");
 include_once(APP_INC_PATH . "class.auth.php");
@@ -46,7 +46,6 @@ include_once(APP_INC_PATH . "class.misc.php");
 include_once(APP_INC_PATH . "class.status.php");
 include_once(APP_INC_PATH . "class.db_api.php");
 include_once(APP_INC_PATH . "class.pager.php");
-//include_once(APP_INC_PATH . "class.ad_hoc_workflow.php");
 include_once(APP_INC_PATH . "class.ad_hoc_sql.php");
 include_once(APP_INC_PATH . "class.workflow_trigger.php");
 include_once(APP_INC_PATH . "class.bgp_index_object.php");
@@ -99,9 +98,7 @@ if (is_numeric($ahs_id)) {
 		$ahs_id = $ahs_temp[0];
 	}
 }
-$list = array();
-$list[list_info] = array();
-$list[list_info][current_page] = 0;
+
 $list = Ad_Hoc_SQL::getResultSet($ahs_id, $pagerRow, $rows);
 
 $tpl->assign("ahs_id", $ahs_id);
@@ -111,5 +108,3 @@ $tpl->assign("list_info", $list['info']);
 
 
 $tpl->displayTemplate();
-
-?>

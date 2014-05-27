@@ -105,7 +105,6 @@ $sortParams  = getSortParams($tpl);
 // Search params
 $searchParams = getSearchParams($tpl);
 
-
 // Load RID Jobs list
 $ridjobs_list = ResearcherID::getJobs($currentPage, $rowsPerPage, $sortParams, $searchParams);
 
