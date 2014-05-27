@@ -38,7 +38,7 @@
  * of the application.
  *
  * @version 1.0
- * @author Jo�o Prado Maia <jpm@mysql.com>
+ * @author João Prado Maia <jpm@mysql.com>
  */
 
 // this will eventually be used to support more than one language

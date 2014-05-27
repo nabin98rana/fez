@@ -91,7 +91,6 @@ class Uploader
 				$counter++;
 			}
 		}
-		
 		return $returnArray;
 	}
 } // END class Uploader

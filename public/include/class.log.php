@@ -173,30 +173,6 @@ class FezLog
     	return $this->_stopwatch->elapsed();
     }
 
-//  public function addSolrQueryTime($time) {
-//    if (empty($this->solr_query_time)) {
-//      $this->solr_query_time = array();
-//    }
-//    array_push($this->solr_query_time, $time);
-//  }
-//
-//  public function addSolrQueryTime($time) {
-//    if (empty($this->solr_query_time)) {
-//      $this->solr_query_time = array();
-//    }
-//    array_push($this->solr_query_time, $time);
-//  }
-//
-//  public function getSolrQueryTimes()
-//  {
-//    if(! empty($this->solr_query_time)) {
-//      return $this->solr_query_time;
-//    } else {
-//      return false;
-//    }
-//  }
-
-
   private function format_message($type, $message)
     {
     	$user_message = array();
@@ -291,4 +267,4 @@ class StopWatch
     {
         $this->total=$this->time=microtime(true);
     }
-}
+} 

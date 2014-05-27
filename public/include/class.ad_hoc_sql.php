@@ -173,7 +173,7 @@ class Ad_Hoc_SQL {
                 "prev_page" 	=> ($page == 0) ? "-1" : ($page - 1),
                 "next_page"     => ($page == $last_page) ? "-1" : ($page + 1),
                 "last_page"     => $last_page
-		)
+		    )
 		);
 	}
 

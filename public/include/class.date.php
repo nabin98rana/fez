@@ -41,7 +41,7 @@
  * pages.
  *
  * @version 1.0
- * @author Jo�o Prado Maia <jpm@mysql.com>
+ * @author João Prado Maia <jpm@mysql.com>
  */
 
 // this line needed to make sure PEAR knows all Fez dates are stored as UTC (GMT).

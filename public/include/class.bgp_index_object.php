@@ -132,7 +132,6 @@ class BackgroundProcess_Index_Object extends BackgroundProcess
 				$source_pids = array();
 				$parent_pids = array($pid);
 				for ($ii = 0; $ii < count($parent_pids); $ii++) {
-					//        			$record = new RecordObject($pid);
 					$pid = $parent_pids[$ii];
 					$record = new RecordObject($pid);
 					if ($record->isCollection()) {

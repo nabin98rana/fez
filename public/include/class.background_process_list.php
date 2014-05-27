@@ -83,6 +83,7 @@ class BackgroundProcessList
 		return $res;
 	}
 
+  //Used in testing
   function isFinishedProcessing()
   {
     $log = FezLog::get();
