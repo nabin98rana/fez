@@ -246,23 +246,6 @@ switch ($cat)
 			}
             break;
         }
-    case 'purge_objects':
-        {
-            // first delete all indexes about this pid
-            $items = $_REQUEST['items'];
-            if (empty($items)) { // is named pids on the list form
-	            $items = $_REQUEST['pids'];
-            }
-            foreach ($items as $pid) {
-                $rec_obj = new RecordObject($pid);
-				if ($rec_obj->canDelete()) {
-	                Record::removeIndexRecord($pid);
-	                $res = Fedora_API::callPurgeObject($pid);
-				}
-            }
-            $tpl->assign("purge_object_result", $res);
-            break;
-        }
     case 'publish_objects':
         {
             $items = $_REQUEST['pids'];
