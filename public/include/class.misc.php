@@ -3453,14 +3453,6 @@ public static function multi_implode($glue, $pieces)
                             $ematch['xsdsel_title'].'<br/>Order: '.$ematch['xsdmf_order'].'<br/>XSDMF ID: '.
                             $ematch['xsdmf_id'].'</span><img src="'.APP_RELATIVE_URL.'images/depositor_org_16.png" />';
                           break;
-                      case "open_access_suggest":
-                         $node_label .= '</a> <a target="basefrm" href="'.$match_form_url.$ehref.'&xsdsel_id='.
-                            $ematch["xsdmf_xsdsel_id"].'" class="form_note"> <span class="form_note">'.$disabled_msg.
-                            '<b>Open Access Suggestor:</b> '.$ematch['xsdmf_title'].'<br/>Loop: '.
-                            $ematch['xsdsel_title'].'<br/>Order: '.$ematch['xsdmf_order'].'<br/>XSDMF ID: '.
-                            $ematch['xsdmf_id'].'</span><img src="'.APP_RELATIVE_URL.
-                            'images/open_access_suggest_16.png" />';
-                          break;
                       case "loc_capture_widget":
                           $node_label .= '</a> <a target="basefrm" href="'.$match_form_url.$ehref.'&xsdsel_id='.
                             $ematch["xsdmf_xsdsel_id"].'" class="form_note"> <span class="form_note">'.$disabled_msg.
