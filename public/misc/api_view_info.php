@@ -49,7 +49,8 @@ if (User::isUserAdministrator($isUser)) {
             header("Content-type: text/xml; charset=utf-8");
             echo $response->saveXML();
         } else {
-            echo "No response. You may be missing enough info for the data to be submitted you need -  (title vol issue page) or (title vol issue an) or (first_author issn vol issue page) or (first_author issn vol issue an)";
+            echo "No response. It may already be assigned a ISI Loc, in the Temporary Duplicates collection or you may be missing ";
+            echo "enough info for the data to be submitted .You need -  DOI or (title vol issue page) or (title vol issue an) or (first_author issn vol issue page) or (first_author issn vol issue an). (an - article number, mostly unused)";
         }
     }else {
 ?>

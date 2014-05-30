@@ -284,22 +284,18 @@ class LinksAmrQueue extends Queue
         'an' => null
       );
 
-      $map['pid'] = $record['rek_pid'];
-      if ($record['rek_link'] && is_array($record['rek_link'])) {
-        foreach ($record['rek_link'] as $link) {
-          if (stripos($link, $doi_prefix) !== FALSE) {
+      if (!empty($record['rek_doi'])) {
             // Send record twice since we have an identifier
             // A match using this method takes precedence over a
             // bib data match
-            $doi = str_replace($doi_prefix, '', $link);
+            $doi = $record['rek_doi'];
             $imap = array();
             $imap['pid'] = $record['rek_pid'].':identifier';
             $imap['doi'] = $doi;
             $maps[] = $imap;
           }
-        }
-      }
 
+      $map['pid'] = $record['rek_pid'];
       // Remove subtitle from journal title if one exists
       $title = $record['rek_title'];
       if (strpos($title, '-') !== FALSE) {
@@ -316,24 +312,23 @@ class LinksAmrQueue extends Queue
       $map['year'] = date('Y', strtotime($record['rek_date']));
       $map['stitle'] = $record['rek_journal_name'];
 
-
-      if (isset($record['rek_volume_number']) && is_numeric($record['rek_volume_number'])) {
+      if (isset($record['rek_volume_number'])) {
         $map['vol'] = $record['rek_volume_number'];
       } else {
         $map['vol'] = null;
       }
-      if (isset($record['rek_issue_number']) && is_numeric($record['rek_issue_number'])) {
+      if (isset($record['rek_issue_number'])) {
         $map['issue'] = $record['rek_issue_number'];
       } else {
         $map['issue'] = null;
       }
-      if (isset($record['rek_start_page']) && is_numeric($record['rek_start_page'])) {
+      if (isset($record['rek_start_page'])) {
         $map['spage'] = $record['rek_start_page'];
       } else {
         $map['spage'] = null;
       }
 
-      $map['an'] = null; // We don't store this yet
+      $map['an'] = null; // We don't store this yet (article number)
       // Only the first author
       if ($record['rek_author'] && is_array($record['rek_author'])) {
         $map['first_author'] = $record['rek_author'][0];
@@ -398,7 +393,7 @@ class LinksAmrQueue extends Queue
         if (!is_null($_node_list)) {
           if ($_node_list->length > 0) {
             $ut = $_node_list->item(0)->nodeValue;
-            if (strpos($pid, ':identifier') !== FALSE) {
+            if (strpos($pid, ':identifier') !== FALSE) {   //Returned values can be any order
               $pid = str_replace(':identifier', '', $pid);
               // UTs found using identifiers take precedence
               $pid_updates[$pid] = $ut;
