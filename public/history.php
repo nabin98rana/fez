@@ -44,7 +44,7 @@ if (!$isUser) {
     $tpl->assign("exists", 2);
 } else {
     $pid = $_GET["pid"];
-    $record = new RecordGeneral($pid);
+    $record = new RecordObject($pid);
     if (!$record->checkExists()) {
 	$tpl->assign("exists", 0);
     } else {

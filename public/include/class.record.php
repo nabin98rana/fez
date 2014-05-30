@@ -1519,7 +1519,7 @@ class Record
 //    $genreType = Record::getSearchKeyIndexValue($pid, "Genre Type");
       $existingHERDCcode = Record::getSearchKeyIndexValue($pid, "HERDC code");
     } else {
-      $record = new RecordGeneral($pid);
+      $record = new RecordObject($pid);
       $docType = $record->getDocumentType();
       $subType = $record->getFieldValueBySearchKey("Subtype");
       $subType = $subType[0];
@@ -6001,7 +6001,7 @@ function getSpeculativeHERDCcode($pid)
   $status = Record::getIntERActStatus($pid); // Get the IntERAct status.
 
   // Get the content type (and possibly subtype) of the record in question.
-  $record = New RecordGeneral($pid);
+  $record = New RecordObject($pid);
   $docType = $record->getDocumentType();
   $subType = Record::getSearchKeyIndexValue($pid, "Subtype");
 
