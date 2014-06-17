@@ -938,9 +938,6 @@ class Fedora_API {
 			if (is_numeric(strpos($dsID, "Link"))) {
 			  $isLink = true;
 			}
-			if ($dsLocation != "" && $isLink != true) {
-				$xmlContent = file_get_contents($dsLocation);
-			}
 
 			if ($dsLocation != "" && $isLink == true) {
 				$log->err("sending this as a link => got a location of ".$dsLocation);
