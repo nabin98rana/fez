@@ -47,7 +47,7 @@ $limit = $argv[1];
 $list = array();
 $list = Statistics::getRecentPopularItems($limit);
 
-if( count($list) > 0 )
+if( !empty($list) )
 {
     Record::deleteRecentDLRecords();
     Record::insertRecentDLRecords($list);
