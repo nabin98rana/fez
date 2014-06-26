@@ -170,7 +170,7 @@ class MatchingRecords
      */
     public function search_scopus($title)
     {
-    $log = FezLog::get();
+        $log = FezLog::get();
 		$db = DB_API::get();
 		$num_recs = 5;
 		$matches = array();
@@ -189,27 +189,27 @@ class MatchingRecords
 		$scopusService = new ScopusService(APP_SCOPUS_API_KEY);
 		$xml = $scopusService->getNextRecordSet($query);
 
-    // check for errors in the api, if found return that to the gui
+        // check for errors in the api, if found return that to the gui
 
-    $xmlDoc = new DOMDocument();
-    $xmlDoc->preserveWhiteSpace = false;
-    $xmlDoc->loadXML($xml);
+        $xmlDoc = new DOMDocument();
+        $xmlDoc->preserveWhiteSpace = false;
+        $xmlDoc->loadXML($xml);
 
-    $xpath = new DOMXPath($xmlDoc);
-
-
-
-    if ($xpath->query("/service-error")->length > 0) {
-
-      $statusCode = $xpath->query("//statusCode")->item(0)->nodeValue;
-      $statusText = $xpath->query("//statusText")->item(0)->nodeValue;
-      return '<span style="color:#fff;" id="ctScopus">- ERROR</span>
-        <ol><li>Error: '.$statusCode.'<br />'.$statusText.'</li></ol>';
-    }
+        $xpath = new DOMXPath($xmlDoc);
 
 
 
-    $doc = new DOMDocument();
+        if ($xpath->query("/service-error")->length > 0) {
+
+          $statusCode = $xpath->query("//statusCode")->item(0)->nodeValue;
+          $statusText = $xpath->query("//statusText")->item(0)->nodeValue;
+          return '<span style="color:#fff;" id="ctScopus">- ERROR</span>
+            <ol><li>Error: '.$statusCode.'<br />'.$statusText.'</li></ol>';
+        }
+
+
+
+        $doc = new DOMDocument();
 		$doc->loadXML($xml);
 
 		$records = $doc->getElementsByTagName('identifier');
@@ -220,30 +220,25 @@ class MatchingRecords
 		while(($nodeItem < $records->length) && (count($matches) < $num_recs)) {
 		    $record = $records->item($nodeItem);
 
-        $recordXML = $this->stripOtherChildren($xml, '//atom:feed/atom:entry', $nodeItem);
+            $recordXML = $this->stripOtherChildren($xml, '//atom:feed/atom:entry', $nodeItem);
 
 		    $csr = new ScopusRecItem();
 
-        $subtype = $doc->getElementsByTagName('subtype')->item($nodeItem)->nodeValue;
-        $csr->_scopusDocTypeCode = $subtype;
+            $subtype = $doc->getElementsByTagName('subtype')->item($nodeItem)->nodeValue;
+            $csr->_scopusDocTypeCode = $subtype;
 		    $scopusId = $record->nodeValue;
 
 		    $pregMatches = array();
 		    preg_match("/^SCOPUS_ID\:(\d+)$/", $scopusId, $pregMatches);
 		    $scopusIdExtracted = (array_key_exists(1, $pregMatches)) ? $pregMatches[1] : null;
 
-
-//		    $iscop = new ScopusService(APP_SCOPUS_API_KEY);
-//		    $rec = $iscop->getRecordByScopusId($scopusIdExtracted);
-//        $rec = $record;
-
 		    $csr->load($recordXML, null);
-        $csr_fields = $csr->getFields();
+            $csr_fields = $csr->getFields();
 		    //If the record has a UQ affiliation (ie, it's loaded), then continue
 		    if($csr->isLoaded())
 		    {
 		        $fields = new stdClass();
-            $fields->docTypeCode = $csr_fields['_scopusDocTypeCode'];
+                $fields->docTypeCode = $csr_fields['_scopusDocTypeCode'];
 		        $fields->authors = $csr_fields['_authors'];
 		        $fields->title = $csr_fields['_title'];
 		        $fields->sourceTitle = $csr_fields['_journalTitle'];
@@ -255,15 +250,15 @@ class MatchingRecords
 		        $fields->scopusId = $scopusIdExtracted;
 		        $fields->pid = null;
 
-            $csr->setLikenAction(false);
-            $likenResults = $csr->liken();
+                $csr->setLikenAction(false);
+                $likenResults = $csr->liken();
 
 		        if($likenResults[0] == 'ST07') {
 		            $fields->record_exists = 0;
 		        } else {
 		            $fields->record_exists = 1;
-                $fields->likenStatus = $likenResults[0];
-                $fields->likenMessage = preg_replace('/('.APP_PID_NAMESPACE.':[0-9]*)/', '<a href="'.APP_RELATIVE_URL.'view/$1">$1</a>', $likenResults[1]);
+                    $fields->likenStatus = $likenResults[0];
+                    $fields->likenMessage = preg_replace('/('.APP_PID_NAMESPACE.':[0-9]*)/', '<a href="'.APP_RELATIVE_URL.'view/$1">$1</a>', $likenResults[1]);
 		        }
 
 		        $matches[] = $fields;
@@ -340,9 +335,6 @@ class MatchingRecords
      */
     public function search_repo($title)
     {
-    	$log = FezLog::get();
-		$db = DB_API::get();
-
     	$dupe_records = array();
     	$max_results = 5;
     	$count = 0;
@@ -389,51 +381,39 @@ class MatchingRecords
      */
     public function add($ut)
     {
-    	$log = FezLog::get();
-		$db = DB_API::get();
-
 		$pid = '';
-		$collection = APP_ARTICLE_ADD_TO_COLLECTION;
+        // Retrieve record from Wok web service
+        $wok_ws = new WokService(FALSE);
+        $records = $wok_ws->retrieveById($ut);
 
-		if(Fedora_API::objectExists($collection)) {
+        if($records) {
+            // Param $record should only contain one publication.
+            // However we set $pid as array just in case, and implode the pid as string on the return.
+            $pid = array();
+            $doc = new DOMDocument();
+            $doc->loadXML($records);
+            $xmlRecords = $doc->getElementsByTagName('REC');
 
-            // Retrieve record from Wok web service
-            $wok_ws = new WokService(FALSE);
-            $records = $wok_ws->retrieveById($ut);
+            foreach ($xmlRecords as $_record){
+                // Instantiate WosRecItem object with our DOMElement $_record
+                $rec = new WosRecItem($_record);
 
-			if($records) {
-                // Param $record should only contain one publication.
-                // However we set $pid as array just in case, and implode the pid as string on the return.
-                $pid = array();
-                $doc = new DOMDocument();
-                $doc->loadXML($records);
-                $xmlRecords = $doc->getElementsByTagName('REC');
-
-                foreach ($xmlRecords as $_record){
-                    // Instantiate WosRecItem object with our DOMElement $_record
-                    $rec = new WosRecItem($_record);
-
-                    // Get collections
-                    $wos_collection = trim(APP_WOS_COLLECTIONS, "'");
-                    if (!defined('APP_WOS_COLLECTIONS') || trim(APP_WOS_COLLECTIONS) == "") {
-                        $rec->collections = array(RID_DL_COLLECTION);
-                    } else {
-//                        if ($aut_ids) {
-//                            $rec->collections = array(RID_DL_COLLECTION);
-//                        } else {
-                            $rec->collections = array($wos_collection);
-//                        }
-                    }
-
-                    $history = "Imported from WoS";
-
-                    // Save WosRecItem
-                    $pid[] = $rec->save($history);
+                // Get collections
+                $wos_collection = trim(APP_WOS_COLLECTIONS, "'");
+                if (!defined('APP_WOS_COLLECTIONS') || trim(APP_WOS_COLLECTIONS) == "") {
+                    $rec->collections = array(RID_DL_COLLECTION);
+                } else {
+                   $rec->collections = array($wos_collection);
                 }
 
-                $pid = implode(",", $pid);
-			}
-		}
+                $history = "Imported from WoS";
+
+                // Save WosRecItem
+                $pid[] = $rec->save($history);
+            }
+
+            $pid = implode(",", $pid);
+        }
 
         //We will auto link the Author to the record if possible
         $username = Auth::getUsername();
@@ -455,24 +435,9 @@ class MatchingRecords
      */
     public function addScopusRec($scopusId)
     {
-        $log = FezLog::get();
-        $db = DB_API::get();
         $pid = false;
 
-        // first query the main service to get the doc type (only place to get it)
-//        $query = array('query' => "(scopus-id(".$scopusId."))",
-//          'count' => 1,
-//          'start' => 0,
-//          'view' => 'STANDARD'
-//        );
-
         $scopusService = new ScopusService(APP_SCOPUS_API_KEY);
-//        $xml = $scopusService->getNextRecordSet($query);
-//
-//        $doc = new DOMDocument();
-//        $doc->loadXML($xml);
-
-
 
         $record = $scopusService->getRecordByScopusId($scopusId);
 

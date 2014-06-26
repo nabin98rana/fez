@@ -1565,7 +1565,7 @@ class Record
         $provHERDCcode = "AX";
       } elseif ($subType == "Other") {
         $provHERDCcode = "AX";
-      } elseif ($subType == "Reference work, encyclopaedia, manual or book") {
+      } elseif ($subType == "Reference work, encyclopaedia, manual or handbook") {
         $provHERDCcode = "AX";
       } elseif ($subType == "Textbook") {
         $provHERDCcode = "AX";
@@ -5858,7 +5858,10 @@ function getSearchKeyIndexValueShadow($pid, $searchKeyTitle, $getLookup=true, $s
           foreach ($prefixes as $prefix) {
             $oldSubDatastreamName = "{$prefix}{$ncOldName}";
             $newSubDatastreamName = "{$prefix}{$ncNewName}";
-            if ($prefix == 'FezACML_') {
+            if ($prefix != 'FezACML_') {
+                $oldSubDatastreamName = substr($oldSubDatastreamName, 0, strrpos($oldSubDatastreamName, '.')) . '.jpg';
+                $newSubDatastreamName = substr($newSubDatastreamName, 0, strrpos($newSubDatastreamName, '.')) . '.jpg';
+            } else {
               $oldSubDatastreamName .= ".xml";
               $newSubDatastreamName .= ".xml";
             }
