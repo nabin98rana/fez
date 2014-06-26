@@ -538,11 +538,8 @@ function restoreDefaultColours(el)
 			    <option value="OFF"{if $config_settings.app_use_article_title_search == "OFF"} selected="selected"{/if}>Off</option>
 				<option value="ON"{if $config_settings.app_use_article_title_search == "ON"} selected="selected"{/if}>On</option>
 			  </select>
-			  &nbsp; Collection : <input type="text" name="app_article_add_to_collection" value="{$config_settings.app_article_add_to_collection}" size="20" />
-			  &nbsp; OG=(<input type="text" name="app_article_search_wos_address" value="{$config_settings.app_article_search_wos_address}" size="20" />)
-			  {include file="error_icon.tpl.html" field="app_article_add_to_collection"} {include file="error_icon.tpl.html" field="app_article_search_wos_address"}
 			  <br />If 'ON', will search matching articles in both ISI Web of Science<sup>&#174;</sup> and the repository based on Article Title when creating a new record.
-			  The collection should be set to the PID of the parent collection new articles will be added to. OG is optional, and is used in the WoS search query to filter on address.
+              {include file="error_icon.tpl.html" field="app_use_article_title_search"}
 			</td>
   		  </tr>
   		  <tr>

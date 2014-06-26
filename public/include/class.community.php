@@ -198,7 +198,6 @@ class Community
      * of all communities available in the system.
      *
      * @access  public
-     * @internal param int $usr_id The user ID
      * @return  array The list of collections
      */
 	function getAssocList()

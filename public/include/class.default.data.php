@@ -269,7 +269,6 @@ class Default_Data
 		$defaultData['app_use_google_citation_counts']		= "OFF";
 		$defaultData['app_use_article_title_search']		= "OFF";
 		$defaultData['app_article_add_to_collection']		= "";
-		$defaultData['app_article_search_wos_address']		= "";
 		$defaultData['app_template_compile_path']			= dirname(dirname(__FILE__)) . "/templates_c/";
 		$defaultData['app_internal_notes']					= "ON";
 		$defaultData['app_session_timeout']					= "10800";
