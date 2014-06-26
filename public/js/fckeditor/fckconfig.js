@@ -119,7 +119,7 @@ FCKConfig.ToolbarSets["Basic"] = [
 	['Bold','Italic','-','OrderedList','UnorderedList','-','Link','Unlink','-','About']
 ] ;
 FCKConfig.ToolbarSets["FezBasic"] = [
-	['Bold','Italic','Underline','Subscript','Superscript','SpecialChar','-','SelectAll','RemoveFormat']
+	['Bold','Italic','Underline','Subscript','Superscript','SpecialChar','-','SelectAll','RemoveFormat', 'FitWindow']
 ] ;
 FCKConfig.ToolbarSets['FezNewsEditor'] = [
 	['Bold','Italic','Underline','-','Image','Link','Unlink','Anchor','-','OrderedList','UnorderedList','-','Outdent','Indent']
