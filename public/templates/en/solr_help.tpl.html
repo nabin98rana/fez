@@ -8,7 +8,8 @@ Searching all fields is the default when using the front page or upper right sea
 <h1>Advanced Search</h1>
 Select SEARCH in the navigation bar above for advanced search options.  <a href="/adv_search.php">(Link)</a><BR />
 <BR />
-{if $isAdministrator || $isUPO}
+
+{if $isUser}
 <h1>Expert Search Box Search</h1>
 From the search box you may also type advanced options using Solr style search terms.<BR />
 <BR />
@@ -30,10 +31,14 @@ Ranges are placed in []<BR />
 An even more advanced examples is <BR />
 <code>!ismemberof:UQ:237156 AND !ismemberof:UQ:247259 AND herdc_code:("C1") AND date_year:(2011) AND institutional_status:("UQ") AND updated_date:[NOW/DAY-10DAY TO *]</code><BR />
 <BR />
-Quick tip -<BR />
+<b>Quick tips -</b><BR />
 To find all records that have a field with anything in it we use <code>["" TO *]</code><BR />
 <code>phonetic_conference_name:["" TO *]</code><BR />
 <BR />
+{if $isAdministrator}
+To view raw Solr data for an idea of what’s available check out Solrs data directly <a href="/misc/api_view_info.php">Raw API output</a>
+  <BR />
+{/if}
 <BR />
 <h2>Common search fields</h2><BR />
 <code>title	pid	author	description	display_type	date

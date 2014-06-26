@@ -57,4 +57,5 @@ $isUPO = User::isUserUPO($isUser);
 $tpl->setTemplate("solr_help.tpl.html");
 $tpl->assign("active_nav", "help");
 $tpl->assign("search_keys", $res);
+$tpl->assign("isUser", $isUser);
 $tpl->displayTemplate();
