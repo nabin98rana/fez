@@ -580,12 +580,7 @@ function toggleVisibility(title, keep_basic_filter_form, create_cookie)
 
 function getDisplayStyle()
 {
-    // kind of hackish, but it works perfectly with IE6 and Mozilla 1.1
-    if (is_ie5up) {
         return 'block';
-    } else if (is_nav6up) {
-        return '';
-    }
 }
 
 function getCookie(name)
