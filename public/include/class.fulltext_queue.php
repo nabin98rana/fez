@@ -31,7 +31,6 @@
 
 include_once(dirname(dirname(__FILE__)).DIRECTORY_SEPARATOR."config.inc.php");
 include_once(APP_INC_PATH . "class.bgp_fulltext_index.php");
-include_once(APP_INC_PATH . "class.logger.php");
 include_once(APP_INC_PATH . "class.sherpa_romeo.php");
 
 class FulltextQueue
@@ -280,13 +279,11 @@ class FulltextQueue
 
 			if (! $ok) {
 				// setting lock failed because another process was faster
-				//Logger::debug("FulltextQueue::triggerUpdate - lock value has been taken");
 				$log->debug("FulltextQueue::triggerUpdate - lock value has been taken");
 
 			} else {
 
 				// create new background update process
-				//Logger::debug("FulltextQueue::triggerUpdate create new background process!");
 				$log->debug("FulltextQueue::triggerUpdate create new background process!");
 				self::createUpdateProcess();
 			}
@@ -303,16 +300,13 @@ class FulltextQueue
 		$log = FezLog::get();
 		$db = DB_API::get();
 
-		//Logger::debug("FulltextQueue::commit() commit results to database");
 		$log->debug("FulltextQueue::commit() commit results to database");
 
 		if (!$this->pids || count($this->pids) == 0) {
 			$log->debug("FulltextQueue::commit() Nothing found to commit (pidcount=0)");
 			return;
 		}
-		//Logger::debug(Logger::str_r($this->pids));
 		foreach ($this->pids as $pid => $action) {
-			//Logger::debug("FulltextQueue::commit() queing ". Misc::escapeString($pid).", ".Misc::escapeString($action));
       if (!is_numeric(strpos(APP_SQL_DBTYPE, "mysql"))) {
 
         $db->beginTransaction();
@@ -407,7 +401,7 @@ class FulltextQueue
 			return null;
 		}
 
-		$log->debug("FulltextQueue::pop() success! ".Logger::str_r($res));
+		$log->debug("FulltextQueue::pop() success! ".$res);
 		return $res;
 	}
 

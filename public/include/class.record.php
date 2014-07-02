@@ -5371,7 +5371,6 @@ function getSearchKeyIndexValueShadow($pid, $searchKeyTitle, $getLookup=true, $s
             }
 
             if ($currentXML == $cleanXML) {
-              // Logger::debug($pid." ".$datastreamID." xml is the SAME! so not UPDATING! \n");
             } else {
               Fedora_API::callModifyDatastreamByValue(
                   $pid, $datastreamID, $dsTitle['STATE'], $dsTitle['LABEL'],
@@ -5431,8 +5430,6 @@ function getSearchKeyIndexValueShadow($pid, $searchKeyTitle, $getLookup=true, $s
     if (is_numeric($xmlObjNum) && $xmlObjNum != "-1" && $xmlObjNum != -1) {
       $xmlObj = FezACML::getQuickTemplateValue($xmlObjNum);
       if ($xmlObj != false) {
-        //  $dsID = $short_ds;
-        //  Logger::debug("Record::checkQuickAuthFezACML IN ".$pid." ");
         $FezACML_dsID = FezACML::getFezACMLDSName($dsID);
         if (Fedora_API::datastreamExists($pid, $FezACML_dsID)) {
           Fedora_API::callModifyDatastreamByValue(
@@ -5458,11 +5455,7 @@ function getSearchKeyIndexValueShadow($pid, $searchKeyTitle, $getLookup=true, $s
    */
   function getDatastreamQuickAuthTemplate($pid)
   {
-    // Logger::debug("Record::getDatastreamQuickAuthTemplate IN ".$pid." ");
     $userPIDAuthGroups = Auth::getAuthorisationGroups($pid);
-    // Logger::debug(print_r($userPIDAuthGroups, true));
-    // Logger::debug("Record::getDatastreamQuickAuthTemplate WITH VALUE ".
-    //      $userPIDAuthGroups['datastreamQuickAuth']." ");
     return $userPIDAuthGroups['datastreamQuickAuth'];
   }
 

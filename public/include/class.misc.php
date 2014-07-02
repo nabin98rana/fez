@@ -46,7 +46,6 @@
 
 //You cannot include classes here that depend on any config values or depend on classes that depend on config values etc
 //since class.misc.php is called before config values are set. This is many classes.
-include_once(APP_INC_PATH . 'common.inc.php');
 include_once(APP_INC_PATH . 'class.fezacml.php');
 include_once(APP_INC_PATH . "class.error_handler.php");
 include_once(APP_INC_PATH . "class.thomson_doctype_mappings.php");

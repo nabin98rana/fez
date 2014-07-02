@@ -231,10 +231,7 @@ abstract class FulltextIndex {
 	{
 
 		if (($this->countDocs % self::COMMIT_COUNT) == 0) {
-
-			Logger::debug($this->countDocs . " / " . self::COMMIT_COUNT);
 			$this->optimizeIndex();
-
 		}
 
 	}
@@ -266,18 +263,14 @@ abstract class FulltextIndex {
 
 		do {
 			$empty = false;
-
-			//Logger::debug("processQueue: start indexing mem_used=".memory_get_usage());
 			$result = $queue->pop();
 
 			if (is_array($result)) {
 				extract($result, EXTR_REFS);
 
 				if ($ftq_op == FulltextQueue::ACTION_DELETE) {
-					//Logger::debug("FulltextIndex::processQueue - calling removeByPid for $ftq_pid");
 					$this->removeByPid($ftq_pid);
 				} else {
-					//Logger::debug("FulltextIndex::processQueue - calling indexRecord for $ftq_pid");
 					$this->indexRecord($ftq_pid);
 				}
 
@@ -536,10 +529,8 @@ abstract class FulltextIndex {
 		// test for cached content
 		$pid = $rec->getPid();
 		$res = $this->checkCachedContent($pid, $dsitem['ID']);
-		//Logger::debug("---------------> cached content res is: ".$res['pid']);
 
 		if (!empty($res) && $res['cnt'] > 0) {
-			//Logger::debug("- use cached content for $pid/".$dsitem['ID']);
 			return;
 		}
 
@@ -555,13 +546,11 @@ abstract class FulltextIndex {
 		unlink($filename);
 
 		if (!empty($textfilename) && is_file($textfilename)) {
-			//Logger::debug("- got converted text in file ".$textfilename);
 			$plaintext = file_get_contents($textfilename);
 			unlink($textfilename);
 
 			// index the plaintext
 			if (!empty($plaintext)) {
-				//Logger::debug("calling indexPlaintext for datastream ".$dsitem['ID']);
 				$this->indexPlaintext($rec, $dsitem['ID'], $plaintext);
 				unset($plaintext);
 			}
@@ -767,7 +756,6 @@ abstract class FulltextIndex {
 	 */
 	public function removeByDS($pid, $dsID)
 	{
-		//Logger::debug("FulltextIndex::removeByDS");
 		// delete fulltext cache for this datastream
 		$this->deleteFulltextCache($pid, $dsID);
 
@@ -917,7 +905,6 @@ abstract class FulltextIndex {
 		catch(Exception $ex) {
 			$log->err($ex);
 		}
-		//Logger::debug("deleted existing content for ($pid, $dsID)");
 	}
 
 	/**
@@ -934,9 +921,6 @@ abstract class FulltextIndex {
     } else {
       $db = DB_API::get();
     }
-
-
-    //Logger::debug("FulltextIndex::indexPlaintext inserting fulltext for ($pid,$dsID) into database");
 
 		// prepare ids
 

@@ -60,8 +60,6 @@ class FulltextIndex_Solr extends FulltextIndex
     $log = FezLog::get();
 
     try {
-      //Logger::debug("Solr Ping = ".$solr->ping());
-      //Logger::debug("FulltextIndex::updateFulltextIndex start mem_usage=".memory_get_usage());
       $doc = new Apache_Solr_Document();
 
       // set solr id to object pid of
@@ -70,7 +68,6 @@ class FulltextIndex_Solr extends FulltextIndex
       foreach ($fields as $key => $value) {
         if (is_array($value) && $fieldTypes) {
           foreach ($value as $v) {
-            //Logger::debug($key."=".$v);
             // too much utf8_encode for fields already encoded...
             if ($v != "") {
               $doc->setMultiValue($key, $v); // TODO: utf8_encode needed??
@@ -103,8 +100,6 @@ class FulltextIndex_Solr extends FulltextIndex
       $log->debug(array("$pid added to queue (again)."));
 
     }
-
-    //Logger::debug("FulltextIndex::updateFulltextIndex finished mem_usage=".memory_get_usage());
   }
 
 
@@ -606,8 +601,6 @@ class FulltextIndex_Solr extends FulltextIndex
     $log = FezLog::get();
 
     try {
-      //Logger::debug("solr ping ".$solr->ping());
-
       // Solr search params
       $params = array();
 

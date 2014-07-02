@@ -63,8 +63,6 @@ class Origami {
 		$mimetype == 'image/jpg' ||
 		$mimetype == 'image/tif' ||
 		$mimetype == 'image/tiff')) {
-
-			//Logger::debug($pid . " " . $filename ." didnt have correct mimetype - ". $mimetype);
 			return;
 		}
 
@@ -102,9 +100,7 @@ class Origami {
 			if ($return_status <> 0) {
 				$log->err(array("Origami Error: ".implode(",", $return_array).", return status = $return_status, for command $command \n", __FILE__,__LINE__));
 			}
-      if (is_file($tmpFile)) {
         unlink($tmpFile);
-      }
 		} else {
 			exec(Origami::getTitleAppPath() . " $tmpFile $path", $return_array, $return_status);
 			if ($return_status <> 0) {
