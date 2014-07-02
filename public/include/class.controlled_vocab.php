@@ -363,7 +363,7 @@ class Controlled_Vocab
                     cvo_external_id = " . $db->quote(trim($_POST["cvo_external_id"])). ",
                     cvo_desc = " . $db->quote($_POST["cvo_desc"]) . ",
                     cvo_hide = " . $db->quote($_POST["cvo_hide"]) . ",
-                    cvo_order = " . $db->quote($_POST["cvo_order"]) . "
+                    cvo_order = " . (is_numeric($_POST["cvo_order"]) ? $_POST["cvo_order"] : "NULL") . "
                  WHERE cvo_id = ".$db->quote($cvo_id, 'INTEGER');
 		try {
 			$db->exec($stmt);
