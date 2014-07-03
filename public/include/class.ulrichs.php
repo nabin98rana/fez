@@ -82,6 +82,7 @@ class Ulrichs
             $issn = $xmlDoc->getElementsByTagName("issn")->item(0)->nodeValue;
             $openAccess = $xmlDoc->getElementsByTagName("openAccess")->item(0)->nodeValue;
             $reviewed = $xmlDoc->getElementsByTagName("reviewed")->item(0)->nodeValue;
+            $refereed = $xmlDoc->getElementsByTagName("refereed")->item(0)->nodeValue;
             $country = $xmlDoc->getElementsByTagName("country")->item(0)->nodeValue;
             $publisher = $xmlDoc->getElementsByTagName("publisher")->item(0)->nodeValue;
 
@@ -93,6 +94,7 @@ class Ulrichs
                         ulr_issn,
                         ulr_open_access,
                         ulr_reviewed,
+                        ulr_refereed,
                         ulr_country,
                         ulr_publisher,
                         ulr_xml,
@@ -103,6 +105,7 @@ class Ulrichs
                         " . $db->quote($issn) . ",
                         " . $db->quote($openAccess) . ",
                         " . $db->quote($reviewed) . ",
+                        " . $db->quote($refereed) . ",
                         " . $db->quote($country) . ",
                         " . $db->quote($publisher) . ",
                         " . $db->quote($xml) . ",
@@ -112,6 +115,7 @@ class Ulrichs
                      ulr_title_id = " . $db->quote($titleId) . ",
                      ulr_open_access = " . $db->quote($openAccess) . ",
                      ulr_reviewed = " . $db->quote($reviewed) . ",
+                     ulr_refereed = " . $db->quote($refereed) . ",
                      ulr_country = " . $db->quote($country) . ",
                      ulr_publisher = " . $db->quote($publisher) . ",
                      ulr_xml = " . $db->quote($xml) . ",
