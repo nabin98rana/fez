@@ -95,7 +95,6 @@ class MyResearch
         $tpl->assign("isUPO", $isUPO);
         $tpl->assign("active_nav", "my_fez");
         $tpl->assign("jqueryUI", true);
-        $tpl->assign("jquery", true);
         $tpl->assign('isApprover', $_SESSION['auth_is_approver']);
 
         //We allow admins to edit this page header, if it exits

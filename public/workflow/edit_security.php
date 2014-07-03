@@ -101,7 +101,6 @@ if (APP_FEDORA_BYPASS == 'ON') {
 
     $acceptable_roles = array("Community_Admin", "Editor", "Creator", "Community_Admin");
     if (Auth::checkAuthorisation($pid, $dsID, $acceptable_roles, $_SERVER['PHP_SELF']."?".$_SERVER['QUERY_STRING']) == true) {
-        $tpl->assign("jquery", true);
         $internal_user_list = User::getAssocList();
         $internal_group_list = Group::getAssocListAll();
         $tpl->assign("internal_user_list", $internal_user_list);

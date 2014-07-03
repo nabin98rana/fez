@@ -99,7 +99,6 @@ if($_GET)
 $tpl = new Template_API();
 $tpl->setTemplate("workflow/index.tpl.html");
 $tpl->assign("type", "edit_metadata");
-$tpl->assign('jquery', true);
 $tpl->assign("jqueryUI", true);
 $tpl->assign('file_options', Datastream::$file_options);
 

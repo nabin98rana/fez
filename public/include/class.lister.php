@@ -160,7 +160,6 @@ class Lister
     $isAdministrator = User::isUserAdministrator($username);
 
     if ($isAdministrator == true) {
-      $tpl->assign("jquery", true);
       $tpl->assign("jqueryUI", true);
     }
 

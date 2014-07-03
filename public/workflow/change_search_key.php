@@ -60,7 +60,6 @@ $tpl->setTemplate("workflow/index.tpl.html");
 $tpl->assign("type", "change_search_key_form");
 $tpl->assign("type_name", "Select Search Key");
 
-$tpl->assign("jquery", true);
 $tpl->assign("jqueryUI", true);
 
 

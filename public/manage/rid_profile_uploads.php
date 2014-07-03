@@ -39,9 +39,6 @@ include_once(APP_INC_PATH . "class.pager.php");
 $tpl = new Template_API();
 $tpl->setTemplate("manage/index.tpl.html");
 
-// Load jQuery library
-$tpl->assign("jquery", true);
-
 $tpl->assign("type", "rid_profile_uploads");
 $tpl->assign("active_nav", "admin");
 

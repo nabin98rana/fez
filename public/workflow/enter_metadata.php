@@ -100,8 +100,6 @@ $tpl->assign('type', 'enter_metadata');
 $tpl->assign('enter_metadata', '1');
 $tpl->assign("jqueryUI", true);
 
-$tpl->assign('jquery', true);
-
 if (strtolower($_SERVER['HTTPS']) == 'on' || $_SERVER['SERVER_PORT'] == 443 || strtolower(substr($_SERVER['SCRIPT_URI'], 0, 5)) == 'https') {
 	$tpl->assign('http_protocol', 'https');
 } else {
