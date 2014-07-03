@@ -51,7 +51,7 @@ $filter["searchKey".Search_Key::getID("Created Date")] = array();
 $filter["searchKey".Search_Key::getID("Created Date")]["filter_type"] = "greater";
 $filter["searchKey".Search_Key::getID("Created Date")]["filter_enabled"] = 1;
 $filter["searchKey".Search_Key::getID("Created Date")]["start_date"] = 
-    Date_API::getFedoraFormattedDateUTC(strtotime("-3 months"));
+    Date_API::getFedoraFormattedDateUTC(strtotime("-6 months"));
 // .. without a UT ..
 $filter["manualFilter"] = " -isi_loc_t_s:[* TO *] AND ";
 // ..and optionally enforce published records only
@@ -74,8 +74,7 @@ for ($i=0; $i<((int)$listing['info']['total_pages']); $i++) {
   }
   
   if (is_array($listing['list'])) {
-    for ($j=0; $j<count($listing['list']); $j++) {      
-//      LinksAmrQueue::get()->add($listing['list'][$j]['rek_pid']);
+    for ($j=0; $j<count($listing['list']); $j++) {
       $laq->add($listing['list'][$j]['rek_pid']);
     }
   }
