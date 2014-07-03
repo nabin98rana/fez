@@ -33,8 +33,10 @@ An even more advanced examples is <BR />
 <BR />
 <b>Quick tips -</b><BR />
 To find all records that have a field with anything in it we use <code>["" TO *]</code><BR />
-<code>phonetic_conference_name:["" TO *]</code><BR />
+<code>phonetic_conference_name:["" TO *]</code>
 <BR />
+Due to some id fields having 0 when a nothing is assigned you may have to use a interger range to find only assigned values i.e. author_id:[1 TO 99999999] since ["" TO *] includes 0.
+<BR /><BR />
 {if $isAdministrator}
 To view raw Solr data for an idea of what’s available check out Solrs data directly <a href="/misc/api_view_info.php">Raw API output</a>
   <BR />

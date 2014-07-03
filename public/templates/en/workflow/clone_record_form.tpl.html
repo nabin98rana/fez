@@ -3,20 +3,12 @@
 <script type="text/javascript" src="{$rel_url}js/autosuggest.js"></script>
 <script type="text/javascript" src="{$rel_url}js/global.js"></script>
 <script type="text/javascript">
-<!-- 
+<!--
 {literal}
-function validateForm(f) 
+//This needs to be here as it's automatically called
+function validateForm(f)
 {
-	if (isWhitespace(f.collection_pid.value)) {
-	  errors[errors.length] = new Option('Destination Collection', 'record_search');
-	}
-	if (isWhitespace(f.record_search.value)) {
-	  errors[errors.length] = new Option('Destination Collection', 'record_search');
-	}
 }
-
-
-
 {/literal}
 // -->
 </script>
