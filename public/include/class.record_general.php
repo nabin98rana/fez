@@ -1961,7 +1961,6 @@ class RecordGeneral
    */
   function getDetails($dsID = "", $xdis_id = "")
   {
-
     $log = FezLog::get();
     $db = DB_API::get();
 
@@ -2378,8 +2377,6 @@ class RecordGeneral
             }
             // Looks like a regular fully-formed date.
             $xsdmf_value = strtotime($xsdmf_value);
-            $utc_date = Date_API::getSimpleDateUTC();
-            //$xsdmf_value = date('Y-m-d T', $xsdmf_value);
             $xsdmf_value = date('Y-m-d H:i:s', $xsdmf_value);
 
             if (
@@ -2804,7 +2801,7 @@ class RecordGeneral
     {
 
         // List of display fields title in ORDER.
-        $searchFields = array('ISI LOC', 'Scopus ID', 'Scopus Doc Type', 'WoK Doc Type', 'Refereed?', 'HERDC Notes', 'eSpace Follow-up Flags', 'IMU Follow-up Flags', 'Open Access Notes');
+        $searchFields = array('ISI LOC', 'Scopus ID', 'Scopus Doc Type', 'WoK Doc Type', 'Refereed?', 'Refereed Source', 'HERDC Notes', 'eSpace Follow-up Flags', 'IMU Follow-up Flags', 'Open Access Notes');
 
         $spyglassFields = array();
 
