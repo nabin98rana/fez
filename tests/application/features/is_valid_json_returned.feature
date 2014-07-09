@@ -74,6 +74,10 @@ Feature: Check that valid json is being returned
     Given I am on "/conference_suggest_proxy.php?query=a:4$%@})']\%22({["
     Then should see valid JSON
 
+  Scenario: Check JSON is valid
+    Given I am on "/list/?cat=quick_filter&sort_by=searchKey0&&tpl=2"
+    Then should see valid JSON
+
   @broken   
   Scenario: Check JSON is valid
     Given I am on "/oembed.php?format=json"
