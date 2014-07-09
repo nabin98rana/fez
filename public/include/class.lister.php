@@ -125,6 +125,12 @@ class Lister
     } else {
       $tpl_idx = 0;
     }
+
+    //if the template is 11 we'll treat it as XML then json convert it
+    if ($tpl_idx == 11 ) {
+        $tpl_idx = 3;
+        $jsonIt = true;
+    }
     $tpls = array(
       0 => array('file' => 'list.tpl.html', 'title' => 'Default'),
       2 => array('file' => 'rss.tpl.html', 'title' => 'RSS Feed'),
@@ -136,7 +142,8 @@ class Lister
       7 => array('file' => 'endnote.tpl.html', 'title' => 'Export for Endnote'), //added for endnote - heaphey
       8 => array('file' => 'js.tpl.html', 'title' => 'HTML Code'), //added for js - heaphey
       9 => array('file' => 'msword.tpl.html', 'title' => 'Word File'), //added for word out - heaphey
-      10 => array('file' => 'grid.tpl.html', 'title' => 'Grid View')
+      10 => array('file' => 'grid.tpl.html', 'title' => 'Grid View'),
+      11 => array('file' => 'xml_feed.tpl.html', 'title' => 'JSON') //This will convert XML to json before displaying
     );
 
     if (!empty($custom_view_pid)) {
@@ -172,8 +179,8 @@ class Lister
       $citationCache = true;
     }
     $getSimple = false;
-    if ($tpl_idx == 2 || $tpl_idx == 3) {
-      $header = "Content-type: application/xml\n";
+    if ($tpl_idx == 2 || ($tpl_idx == 3 && !$jsonIt)) {
+      $header = "Content-type: application/xml";
       header($header);
     } elseif ($tpl_idx == 1) {
       header("Content-type: application/vnd.ms-excel");
@@ -183,11 +190,12 @@ class Lister
       header("Content-type: application/vnd.endnote");
       header("Content-Disposition: attachment; filename=endnote.enw");
       header("Content-Description: PHP Generated Endnote Data");
-
     } elseif ($tpl_idx == 9) { //heaphey - added for word
       header("Content-type: application/vnd.ms-word");
       header("Content-Disposition: attachment; filename=word.doc");
       header("Content-Description: PHP Generated Word Data");
+    } else if ($jsonIt) {
+        header('Content-Type: application/json');
     }
 
     // for the html code output, we want to output the search params, so clean them up first
@@ -1129,7 +1137,13 @@ class Lister
     $tpl->assign("template_mode", $tpl_idx);
 
     if ($display) {
-      $tpl->displayTemplate();
+      if ($jsonIt) {
+          $xml = $tpl->getTemplateContents();
+          $xml = simplexml_load_string($xml);
+          echo  json_encode($xml);
+      } else {
+        $tpl->displayTemplate();
+      }
     }
 
     return compact('list', 'list_info');
