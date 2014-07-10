@@ -67,6 +67,19 @@ Feature: Check that valid json is being returned
     Then should see valid JSON
 
   Scenario: Check JSON is valid
+    Given I am on "/pid_suggest_proxy.php"
+    Then should see valid JSON
+
+  Scenario: Check JSON is valid
+    Given I am on "/pid_suggest_proxy.php?query=a:4$%@})']\%22({["
+    Then should see valid JSON
+
+  Scenario: Check JSON is valid
+    Given I am on "/pid_suggest_proxy.php?query=water"
+    Then I should see "water"
+    Then should see valid JSON
+
+  Scenario: Check JSON is valid
     Given I am on "/conference_suggest_proxy.php"
     Then should see valid JSON
 
@@ -75,7 +88,7 @@ Feature: Check that valid json is being returned
     Then should see valid JSON
 
   Scenario: Check JSON is valid
-    Given I am on "/list/?cat=quick_filter&sort_by=searchKey0&&tpl=2"
+    Given I am on "/list/?cat=quick_filter&sort_by=searchKey0&&tpl=11"
     Then should see valid JSON
 
   @broken   
