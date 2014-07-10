@@ -42,6 +42,18 @@
                       returnValue = false;
                   }
 
+                  if (!isWhitespace(f.org_staff_id.value) && (!isNumberOnly(f.org_staff_id.value) || f.org_staff_id.value > 9999999)) {
+                      alert('Staff ID is is a 7 digit number usually preceded by a 0');
+                      selectField(f, 'org_staff_id');
+                      returnValue = false;
+                  }
+
+                  if (!isWhitespace(f.org_student_id.value) && (!isNumberOnly(f.org_student_id.value) || f.org_student_id.value > 99999999 || f.org_student_id.value < 30000000)) {
+                      alert('Student ID is is a 8 digit number usually preceded by a 3 or 4');
+                      selectField(f, 'org_student_id');
+                      returnValue = false;
+                  }
+
                   if (!isWhitespace(f.scopus_id.value) && !isScopusID(f.scopus_id.value)) {
                       alert('ScopusID incorrect');
                       selectField(f, 'scopus_id');
@@ -311,9 +323,18 @@
                   <b>Organisation Staff ID: </b>
                 </td>
                 <td style="background: {$light_color}; width: 80%">
-                  <input type="text" name="org_staff_id" size="40" class="default" value="{$info.aut_org_staff_id}" />
+                  <input type="text" name="org_staff_id" size="40" class="default" value="{$info.aut_org_staff_id}" /><span style="font-size: 0.8em;">This is a 7 digit number, usually preceded by a 0.</span>
                   {include file="error_icon.tpl.html" field="org_staff_id"}
                 </td>
+              </tr>
+              <tr>
+                  <td style="width: 120px" class="default cell-colour">
+                      <b>Organisation Student ID: </b>
+                  </td>
+                  <td style="background: {$light_color}; width: 80%">
+                      <input type="text" name="org_student_id" size="40" class="default" value="{$info.aut_org_student_id}" /><span style="font-size: 0.8em;">This is a 8 digit number, usually preceded by a 3 or 4.</span>
+                      {include file="error_icon.tpl.html" field="org_student_id"}
+                  </td>
               </tr>
               <tr>
                 <td style="width: 120px" class="default cell-colour">

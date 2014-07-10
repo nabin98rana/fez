@@ -463,6 +463,11 @@ class Author
     } else {
       $stmt .= ",aut_org_staff_id=null ";
     }
+    if (trim($_POST["org_student_id"] !== "")) {
+      $stmt .= ",aut_org_student_id=" . $db->quote(trim($_POST["org_student_id"])) . " ";
+    } else {
+      $stmt .= ",aut_org_student_id=null ";
+    }
     if (trim($_POST["org_username"] !== "")) {
       $stmt .= ",aut_org_username=" . $db->quote(trim($_POST["org_username"])) . " ";
     } else {
@@ -612,6 +617,9 @@ class Author
     if (trim($_POST["org_staff_id"] !== "")) {
       $insert .= ", aut_org_staff_id ";
     }
+    if (trim($_POST["org_student_id"] !== "")) {
+      $insert .= ", aut_org_student_id ";
+    }
     if (trim($_POST["org_username"] !== "")) {
       $insert .= ", aut_org_username ";
     }
@@ -670,6 +678,9 @@ class Author
 
     if (trim($_POST["org_staff_id"] !== "")) {
       $values .= ", " . $db->quote(trim($_POST["org_staff_id"]));
+    }
+    if (trim($_POST["org_student_id"] !== "")) {
+      $values .= ", " . $db->quote(trim($_POST["org_student_id"]));
     }
     if (trim($_POST["org_username"] !== "")) {
       $values .= ", " . $db->quote(trim($_POST["org_username"]));
