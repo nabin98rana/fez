@@ -306,10 +306,15 @@
 			{if $isUser && ($useGoogleCitationCounts == 'ON')}
             <td align="center">
             {if $list_info.total_rows > 0 && ($list_type !== 'collection_list' && $list_type !== 'community_list')}
-              <img src="{$rel_url}images/altmetric.png" width="21px" title="Altmetric Score" alt="Altmetric Score" />
+            	<img src="{$rel_url}images/favicon_googlescholar.png" title="Google Scholar Citation Count" alt="Google Scholar Citation Count" />            
             {/if}
           </td>
 			{/if}
+          <td align="center">
+            {if $list_info.total_rows > 0 && ($list_type !== 'collection_list' && $list_type !== 'community_list')}
+            <img src="{$rel_url}images/altmetric.png" width="21px" title="Altmetric Score" alt="Altmetric Score" />
+            {/if}
+          </td>
         </tr>
 
         {section name="i" loop=$list}
