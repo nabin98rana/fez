@@ -15,10 +15,12 @@
 							<strong>Edition:</strong> {$list[i].rek_edition}<br />
                         <strong>ISBN:</strong> {if is_array($list[i].rek_isbn)}{", "|implode:$list[i].rek_isbn}{/if}<br />
                         {elseif $list[i].rek_display_type_lookup == "Journal Article"}
+                        {if $list[i].rj_2014_rank} <strong>2014 Rank:</strong> {$list[i].rj_2014_rank} ({$list[i].rj_2014_title})<br />{/if}
                             <strong>ERA 2012 Journal Listed :</strong> {if $list[i].rj_2012_title} Yes{else}No {/if}<br />
                             {if $list[i].rj_2010_rank} <strong>ERA 2010 Rank:</strong> {$list[i].rj_2010_rank} ({$list[i].rj_2010_title})<br />{/if}
                             {if $list[i].rek_refereed == '0'} <strong>Refereed:</strong> No<br /> {/if}
                             {if $list[i].rek_refereed == '1'} <strong>Refereed:</strong> Yes<br /> {/if}
+                            {if $list[i].rek_refereed_source_lookup}<strong>Refereed Source:</strong> {$list[i].rek_refereed_source_lookup}<br /> {/if}
                             <strong>ISSN:</strong> {if is_array($list[i].rek_issn)}{", "|implode:$list[i].rek_issn}{/if}<br />
                         {elseif $list[i].rek_display_type_lookup == "Conference Paper"}
                             {if $list[i].rc_2010_rank}<strong>ERA 2010 Rank:</strong> {$list[i].rc_2010_rank} ({$list[i].rc_2010_title})<br />{/if}

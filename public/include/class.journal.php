@@ -403,7 +403,7 @@ class Journal
 	/**
 	 * Get the complete list of journals.
 	 */
-	function getJournals()
+	function getJournals($year = '')
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
@@ -417,6 +417,7 @@ class Journal
 				jnl_journal_name AS title
 			FROM
 				" . APP_TABLE_PREFIX . "journal
+	        WHERE jnl_era_year LIKE '%".$year."%'
 			ORDER BY
 				jnl_journal_name ASC, jnl_era_year ASC;
 		";

@@ -222,7 +222,7 @@ class matching
 		$status = $_POST['status'];
 		$suffix = "";
 
-        if (is_array($matching_id) && count($matching_id) > 2) { //catch users bypassing javascript or however triple entries for a pid are getting in
+        if (is_array($matching_id) && ((count($matching_id) > 3 && $type == 'J') || (count($matching_id) > 2 && $type == 'C'))) { //catch users bypassing javascript
           return false;
         }
 

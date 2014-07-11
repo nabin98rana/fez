@@ -88,7 +88,7 @@ if ($isAdministrator) {
             $listing = Conference::getConferences();
         } elseif ($type == 'J') {
             $mapping = Record::getRankedJournal($pid);
-            $listing = Journal::getJournals();
+            $listing = Journal::getJournals('2014');
         }
         $tpl->assign("mapping", $mapping);
         $tpl->assign("list", $listing);
@@ -112,7 +112,7 @@ if ($isAdministrator) {
             $listing = Conference::getConferences();
         } elseif ($type == 'J') {
             $mapping = Record::getRankedJournal($pid);
-            $listing = Journal::getJournals();
+            $listing = Journal::getJournals('2014');
         }
         
         if (isset($mapping['status'])) {

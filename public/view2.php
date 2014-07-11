@@ -60,6 +60,22 @@ $isUPO = User::isUserUPO($username);
 $tpl->assign("isSuperAdministrator", $isSuperAdministrator);
 
 if ($isAdministrator || $isUPO) {
+
+    //get ranked journals for 2010/12 for spyglass
+    $rjl_spyglass = '';
+    $rjinfo = Record::getRankedJournalInfo($pid);
+    if (is_array($rjinfo)) {
+        if (array_key_exists('rj_2010_rank', $rjinfo) && $rjinfo['rj_2010_rank'] == '') {
+            $rjinfo['rj_2010_rank'] = "N/R";
+        }
+        if (array_key_exists('rj_2012_title', $rjinfo)) {
+            $rjl_spyglass .= "(ERA 2012: ".$rjinfo['rj_2012_title'].")";
+        }
+        if (array_key_exists('rj_2010_rank', $rjinfo)) {
+            $rjl_spyglass .= "(ERA 2010: ".$rjinfo['rj_2010_title'].", ranked ".$rjinfo['rj_2010_rank'].")";
+        }
+    }
+
   if (APP_FEDORA_SETUP == 'sslall' || APP_FEDORA_SETUP == 'sslapim') {
     $get_url = APP_FEDORA_APIM_PROTOCOL_TYPE . APP_FEDORA_SSL_LOCATION . "/get" . "/" . $pid;
   } else {
@@ -70,6 +86,7 @@ if ($isAdministrator || $isUPO) {
   $affilliations = AuthorAffiliations::getListAll($pid);
   $tpl->assign('affilliations', $affilliations);
   $tpl->assign("internal_notes", InternalNotes::readNote($pid));
+  $tpl->assign("rjl_spyglass", $rjl_spyglass);
 } else {
   $tpl->assign("fedora_get_view", 0);
 }

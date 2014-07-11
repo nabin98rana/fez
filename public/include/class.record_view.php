@@ -62,13 +62,13 @@ class RecordView {
 						} else {
 							if ($dis_field['sek_title'] == "Subject" || $dis_field['sek_title'] == "Fields of Research" || $dis_field['sek_title'] == "SEO Code") {
 								$details[$dis_field['xsdmf_id']] = "<a class='silent_link' href='".APP_BASE_URL."list/subject/".$details[$dis_field['xsdmf_id']]."/'>".Controlled_Vocab::getTitle($details[$dis_field['xsdmf_id']])."</a>";
-              } elseif ($dis_field['sek_title'] == "License") { // add icon and url for creative commons badge
-                $cv_details = Controlled_Vocab::getDetails($details[$dis_field['xsdmf_id']]);
-                $details[$dis_field['xsdmf_id']] = "<a title=".'"'."Search the repository for more like this".'"'." class='silent_link' href=".'"'.APP_RELATIVE_URL."list/?cat=quick_filter&amp;search_keys%5B".$dis_field['xsdmf_sek_id']."%5D=".urlencode($details[$dis_field['xsdmf_id']]).'"'.">".Controlled_Vocab::getTitle($details[$dis_field['xsdmf_id']])."</a><br /><br />"."<a href=".'"'.$cv_details['cvo_desc'].'"'."><img src=".'"'.APP_RELATIVE_URL.'images/'.$cv_details['cvo_image_filename'].'" alt="View License Details" title="View License Details" width="88" height="31" />'."</a>";
-              } else {
+                            } elseif ($dis_field['sek_title'] == "License") { // add icon and url for creative commons badge
+                                    $cv_details = Controlled_Vocab::getDetails($details[$dis_field['xsdmf_id']]);
+                                    $details[$dis_field['xsdmf_id']] = "<a title=".'"'."Search the repository for more like this".'"'." class='silent_link' href=".'"'.APP_RELATIVE_URL."list/?cat=quick_filter&amp;search_keys%5B".$dis_field['xsdmf_sek_id']."%5D=".urlencode($details[$dis_field['xsdmf_id']]).'"'.">".Controlled_Vocab::getTitle($details[$dis_field['xsdmf_id']])."</a><br /><br />"."<a href=".'"'.$cv_details['cvo_desc'].'"'."><img src=".'"'.APP_RELATIVE_URL.'images/'.$cv_details['cvo_image_filename'].'" alt="View License Details" title="View License Details" width="88" height="31" />'."</a>";
+                            } else {
 								$details[$dis_field['xsdmf_id']] = "<a title=".'"'."Search the repository for more like this".'"'." class='silent_link' href=".'"'.APP_RELATIVE_URL."list/?cat=quick_filter&amp;search_keys%5B".$dis_field['xsdmf_sek_id']."%5D=".urlencode($details[$dis_field['xsdmf_id']]).'"'.">".Controlled_Vocab::getTitle($details[$dis_field['xsdmf_id']])."</a>";
 							}
-            }
+                       }
 					}
 				}
 				if ($dis_field['xsdmf_html_input'] == "xsdmf_id_ref") {
@@ -139,9 +139,9 @@ class RecordView {
 						}
 					}
 				}
-        if ($dis_field['xsdmf_html_input'] == "rich_text") {
-          $details[$dis_field['xsdmf_id']] = strip_tags($details[$dis_field['xsdmf_id']], '<p><br><b><i><u><strong><sub><sup><em>');
-        }
+                if ($dis_field['xsdmf_html_input'] == "rich_text") {
+                  $details[$dis_field['xsdmf_id']] = strip_tags($details[$dis_field['xsdmf_id']], '<p><br><b><i><u><strong><sub><sup><em>');
+                }
 				if ($dis_field['xsdmf_html_input'] == "author_selector") {
 					if (!empty($details[$dis_field['xsdmf_id']])) {
 						if (is_array($details[$dis_field['xsdmf_id']])) {
@@ -160,7 +160,7 @@ class RecordView {
                                 "<a href='http://dx.doi.org/".htmlspecialchars($details[$xsd_display_fields[$dis_key]['xsdmf_id']])."'>".htmlspecialchars($details[$xsd_display_fields[$dis_key]['xsdmf_id']])."</a>";
                     }
                 }
-				if ($dis_field['sek_title'] == "Author") {
+				if ($dis_field['sek_title'] == "Author" || $dis_field['sek_title'] == "Contributor") {
 					if (!empty($details[$dis_field['xsdmf_id']])) {
 						if (is_array($details[$dis_field['xsdmf_id']])) {
 							foreach ($details[$dis_field['xsdmf_id']] as $ckey => $cdata) {
@@ -204,21 +204,19 @@ class RecordView {
 						}
 					}
 				}
+                $logged_in = Auth::isValidSession($_SESSION);
 				if ($dis_field['sek_title'] == "Journal Name" || $dis_field['sek_title'] == "Proceedings Title") {
 					if (!empty($details[$dis_field['xsdmf_id']])) {
 						//Check for Ranked Journal Rank
 						$rjl = "";
-						if (APP_MY_RESEARCH_MODULE == 'ON') {
+						if (APP_MY_RESEARCH_MODULE == 'ON' && $logged_in) {
 							$rjinfo = Record::getRankedJournalInfo($this->record->pid);
                             if (is_array($rjinfo)) {
-                                if (array_key_exists('rj_2010_rank', $rjinfo) && $rjinfo['rj_2010_rank'] == '') {
-                                    $rjinfo['rj_2010_rank'] = "N/R";
+                                if (array_key_exists('rj_2014_rank', $rjinfo) && $rjinfo['rj_2014_rank'] == '') {
+                                    $rjinfo['rj_2014_rank'] = "N/R";
                                 }
-                                if (array_key_exists('rj_2012_title', $rjinfo)) {
-                                    $rjl .= "&nbsp; (<a href='#' title='ERA 2012 Listed Journal: ".$rjinfo['rj_2012_title']."'>ERA 2012 Listed</a>)";
-                                }
-                                if (array_key_exists('rj_2010_rank', $rjinfo)) {
-                                    $rjl .= "&nbsp;&nbsp;&nbsp; (<a href='#' title='ERA 2010 Ranked Journal: ".$rjinfo['rj_2010_title'].", ranked ".$rjinfo['rj_2010_rank']."'>ERA 2010 Rank ".$rjinfo['rj_2010_rank']."</a>)";
+                                if (array_key_exists('rj_2014_rank', $rjinfo)) {
+                                    $rjl .= "&nbsp;&nbsp;&nbsp; (<a href='#' title='UQ Tiered Journal 2014: ".$rjinfo['rj_2014_title'].", ranked ".$rjinfo['rj_2014_rank']."'>2014 ".$rjinfo['rj_2014_rank']."</a>)";
                                 }
                             }
                         }
@@ -240,7 +238,7 @@ class RecordView {
 					if (!empty($details[$dis_field['xsdmf_id']])) {
 						//Check for Ranked Conference Rank
 						$rcl = "";
-						if (APP_MY_RESEARCH_MODULE == 'ON') {
+						if (APP_MY_RESEARCH_MODULE == 'ON' && $logged_in) {
 							$rcinfo = Record::getRankedConferenceInfo($this->record->pid);
                             if (is_array($rcinfo)) {
                                 if (array_key_exists('rc_2010_rank', $rcinfo) && $rcinfo['rc_2010_rank'] == '') {
@@ -353,7 +351,7 @@ class RecordView {
 		}
 		foreach ($details as $dkey => $dvalue) { // turn any array values into a comma seperated string value
 			if (is_array($dvalue)) {
-				$details[$dkey] = implode(", ", $dvalue);
+				$details[$dkey] = implode("<br />", $dvalue);
 			}
 		}
 
