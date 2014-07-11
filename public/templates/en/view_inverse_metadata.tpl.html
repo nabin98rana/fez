@@ -16,6 +16,16 @@
         {assign var="temp_fld_id" value=$spyglassFields[i].xsdmf_id}
         {assign var="attached_temp_fld_id" value=$spyglassFields[i].xsdmf_attached_xsdmf_id}
 
+        {if $spyglassFields[i].xsdmf_title == 'HERDC Notes' && $rjl_spyglass}
+        <tr>
+            <th>
+                ERA Rankings:
+            </th>
+            <td>
+                {$rjl_spyglass}
+            </td>
+        </tr>
+        {/if}
         {* Date fields display *}
         {if $spyglassFields[i].xsdmf_data_type == 'date'}
             <tr>
