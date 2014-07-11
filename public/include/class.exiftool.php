@@ -187,11 +187,8 @@ class Exiftool
 
 
 
-	function saveExif($pid, $dsID, $location = null)
+	function saveExif($pid, $dsID) 
 	{
-    if (!is_null($location)) {
-
-    }
 		if (APP_EXIFTOOL_SWITCH == "ON") {
 			$exif_array = Exiftool::extractMetadata(APP_TEMP_DIR.$dsID);
 			if (!is_array($exif_array)) {
@@ -251,5 +248,49 @@ class Exiftool
 			$db->query($sql, array($newDsID, $pid, $oldDsID));
 		}
 	}
+
+    //Get all the details for a given pid
+    function getPidDetails($pid)
+    {
+        $log = FezLog::get();
+        $db = DB_API::get();
+
+        $stmt = "SELECT
+                    * FROM
+                    " . APP_TABLE_PREFIX . "exif
+                 WHERE
+                    exif_pid = " . $db->quote($pid);
+
+        try {
+            $res = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
+        }
+        catch(Exception $ex) {
+            $log->err($ex);
+            return '';
+        }
+        return $res;
+    }
+
+    //Get all the details for a given pid minus exifdata
+    function getPidFileDetails($pid)
+    {
+        $log = FezLog::get();
+        $db = DB_API::get();
+
+        $stmt = "SELECT
+                    exif_pid, exif_dsid, exif_file_type FROM
+                    " . APP_TABLE_PREFIX . "exif
+                 WHERE
+                    exif_pid = " . $db->quote($pid);
+
+        try {
+            $res = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
+        }
+        catch(Exception $ex) {
+            $log->err($ex);
+            return '';
+        }
+        return $res;
+    }
 
 }
