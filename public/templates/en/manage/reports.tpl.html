@@ -8,6 +8,7 @@
     <td>Query</td>
     <td>Description</td>
     <td>Download</td>
+    <td>Text</td>
 </tr>
 {section name="i" loop=$reports}
 			  {assign var="report" value=$reports[i]|smarty:nodefaults}
@@ -24,6 +25,9 @@
                         </td>
                         <td style="width: 5%;" class="default">
                         <a href="{$smarty.server.PHP_SELF}?download_id={$report.sel_id}"><image src="/images/filemanager/file_folder_icon/fileExcel.png"/></a>
+                        </td>
+                        <td style="width: 5%;" class="default">
+                            <a href="{$smarty.server.PHP_SELF}?text_id={$report.sel_id}">T</a>
                         </td>
                     </tr>
 {sectionelse}

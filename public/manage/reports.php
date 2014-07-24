@@ -57,6 +57,9 @@ if (!isAdministrator) {
     if (is_numeric($_GET['download_id'])) {
         $reports->returnCSVFromId($_GET['download_id']);
         exit;
+    } else if (is_numeric($_GET['text_id'])) {
+        echo $reports->returnHTMLFromId($_GET['text_id']);
+        exit;
     }
 
     $reportsList = $reports->getReportList();

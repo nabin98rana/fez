@@ -97,6 +97,40 @@ class Reports
 
     }
 
+    function returnHTMLFromId($queryID)
+    {
+        $log = FezLog::get();
+        $db = DB_API::get();
+
+        if (!is_numeric($queryID)) {
+            return false;
+        }
+
+        $stmt = "SELECT * FROM
+                    " . APP_TABLE_PREFIX . "reports
+                 WHERE
+                    sel_id=".$db->quote($queryID);
+        try {
+            $resQuery = $db->fetchRow($stmt);
+        }
+        catch(Exception $ex) {
+            $log->err($ex);
+            return false;
+        }
+
+        try {
+            $res = $db->fetchAll($resQuery['sel_query']);
+        }
+        catch(Exception $ex) {
+            $log->err($ex);
+            return false;
+        }
+
+        $this->outputHTML($res);
+
+    }
+
+
     function outputCSV(&$data, $filename = 'Report', $dateTime = true)
     {
         if ($dateTime) {
@@ -118,5 +152,25 @@ class Reports
             fputcsv($outputBuffer, $val);
         }
         fclose($outputBuffer);
+    }
+
+    function outputHTML(&$data)
+    {
+        if (count($data) > 0) { ?>
+            <table>
+                <thead>
+                <tr>
+                    <th><?php echo implode('</th><th>', array_keys(current($data))); ?></th>
+                </tr>
+                </thead>
+                <tbody>
+                <?php foreach ($data as $row): array_map('htmlentities', $row); ?>
+                    <tr>
+                        <td><?php echo implode('</td><td>', $row); ?></td>
+                    </tr>
+                <?php endforeach; ?>
+                <tbody>
+            </table>
+        <?php }
     }
 }
