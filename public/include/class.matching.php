@@ -38,7 +38,7 @@ class matching
 	/**
 	 * Returns all matches (automatic, manual, and black-listed items).
 	 */
-	function getAllMatches($current_row = 0, $max = 25, $filter = "")
+	function getAllMatches($current_row = 0, $max = 25, $filter = "", $filterYear = '')
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
@@ -81,8 +81,13 @@ class matching
 
 
 		if ($filter != '') {
-			$stmtFrom .= "WHERE Q0.pid = " . $db->quote($filter) . "";
+			$stmtFrom .= "WHERE Q0.pid = " . $db->quote($filter);
 		}
+
+        if ($filterYear != '') {
+            $stmtFrom .= (strpos($stmtFrom, 'WHERE') === FALSE) ? ' WHERE ' : ' AND ';
+            $stmtFrom .= APP_TABLE_PREFIX . "journal.jnl_era_year = " . $db->quote($filterYear) . " OR " . APP_TABLE_PREFIX . "conference.cnf_era_year = " . $db->quote($filterYear);
+        }
 
 		$stmtLimit = "
 			ORDER BY pid ASC

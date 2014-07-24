@@ -35,7 +35,7 @@ include_once(APP_INC_PATH . "class.fulltext_queue.php");
 
 define("TEST", false); // Limit to 50 records only if TRUE
 define("TEST_WHERE_MC",				""); // Adds this condition to the where statement for eg testing single pids
-define("WINDOW_START_MC",				'2005-01-01 00:00:00');
+define("WINDOW_START_MC",				'2008-01-01 00:00:00');
 define("WINDOW_END_MC",				'2099-01-01 00:00:00');
 
 class RCL
@@ -243,9 +243,9 @@ class RCL
 				WHERE
 					cnf_acronym != ''
 				GROUP BY
-					cnf_acronym
+					cnf_acronym, cnf_era_year
 				) Q1
-			WHERE acronym_count < 2
+			WHERE acronym_count < 3
 			ORDER BY
 				acronym ASC;
 		";

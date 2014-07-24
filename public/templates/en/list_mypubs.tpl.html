@@ -128,28 +128,40 @@
                 <img src="{$rel_url}images/downloads_16.png" title="File Downloads" alt="File Downloads" />
             {/if}
             </td>
-            <td style="text-align: center; padding: 2px;">
+            {if $isUser}
+                <td style="text-align: center; padding: 2px;">
+                    {if $list_info.total_rows > 0}
+                    <img src="{$rel_url}images/journal_listed_b_16.png" title="ERA 2015 Journal Listed" alt="ERA 2015 Journal Listed" />
+                    {/if}
+                </td>
+                <td style="text-align: center; padding: 2px;">
+                   {if $list_info.total_rows > 0}
+                     <img src="{$rel_url}images/conference_listed_16.png" title="ERA 2015 Conference Listed" alt="ERA 2015 Conference Listed" />
+                   {/if}
+                </td>
+                <td style="text-align: center; padding: 2px;">
+                    {if $list_info.total_rows > 0}
+                    <img src="{$rel_url}images/journal_listed_16.png" title="ERA 2012 Journal Listed" alt="ERA 2012 Journal Listed" />
+                    {/if}
+                </td>
+                <td style="text-align: center; padding: 2px;">
                 {if $list_info.total_rows > 0}
-                <img src="{$rel_url}images/tiered_journal_list_16.png" title="UQ Tiered Journal 2014" alt="UQ Tiered Journal 2014" />
+                    <img src="{$rel_url}images/journal_ranking_16.png" title="ERA 2010 Ranking" alt="ERA 2010 Ranked Journal List Ranking" />
                 {/if}
-            </td>
-{*
-            <td style="text-align: center; padding: 2px;">
-			{if $list_info.total_rows > 0}
-				<img src="{$rel_url}images/journal_ranking_16.png" title="ERA 2010 Ranking" alt="ERA 2010 Ranked Journal List Ranking" />
-			{/if}
-			</td>
-			<td style="text-align: center; padding: 2px;">
-				{if $list_info.total_rows > 0}
-					<img src="{$rel_url}images/conference_ranking_16.png" title="ERA 2010 Ranked Conference List Ranking" alt="ERA 2010 Ranked Conference List Ranking" />
-				{/if}
-			</td>
-*}
-			<td style="text-align: center; padding: 2px;">
-				{if $list_info.total_rows > 0}
-					<img src="{$rel_url}images/herdc_code_16.png" title="HERDC Code" alt="HERDC Code" />
-				{/if}
-			</td>
+                </td>
+
+                <td style="text-align: center; padding: 2px;">
+                    {if $list_info.total_rows > 0}
+                        <img src="{$rel_url}images/conference_ranking_16.png" title="ERA 2010 Ranked Conference List Ranking" alt="ERA 2010 Ranked Conference List Ranking" />
+                    {/if}
+                </td>
+
+                <td style="text-align: center; padding: 2px;">
+                    {if $list_info.total_rows > 0}
+                        <img src="{$rel_url}images/herdc_code_16.png" title="HERDC Code" alt="HERDC Code" />
+                    {/if}
+                </td>
+            {/if}
 			<td style="text-align: center; padding: 2px;">
 				{if $list_info.total_rows > 0 && ($list_type !== 'collection_list' && $list_type !== 'community_list')}
 					<img src="{$rel_url}images/thomson_16.gif" title="Thomson Reuters Web of Science Citation Count" alt="Thomson Reuters Web of Science Citation Count" />
@@ -286,24 +298,30 @@
 				{else}
 					<tdstyle="border-top:1px dashed #be87e9;">&nbsp;</td>
 				{/if}
-                <td style="vertical-align: middle; text-align: center; border-top:1px dashed #be87e9;">
-                  {if $list[i].rj_2014_rank}<a href="#" title="{$list[i].rj_2014_title}">{$list[i].rj_2014_rank}</a>{else}<a href="#" title="This publication is not identified as being in the 2014 UQ Tiered Journal list.">-</a>{/if}
-                </td>
-{*				<td style="vertical-align: middle; text-align: center; border-top:1px dashed #be87e9;">
-					{if $list[i].rj_2010_rank}<a href="#" title="{$list[i].rj_2010_title}">{$list[i].rj_2010_rank}</a>{else}<a href="#" title="This publication is outside the ERA 2010 window (pre-2003) and/or not identified as being in a 2010 ERA Ranked Journal.">-</a>{/if}
-				</td>
-				<td style="vertical-align: middle; text-align: center; border-top:1px dashed #be87e9;">
-					{if $list[i].rc_2010_rank}<a href="#" title="{$list[i].rc_2010_title}">{$list[i].rc_2010_rank}</a>{else}<a href="#" title="This is outside the ERA 2010 window (pre-2003) and/or not identified as being in a 2010 ERA Ranked Conference.">-</a>{/if}
-				</td>
-*}
-				<td style="vertical-align: middle; text-align: center; border-top:1px dashed #be87e9;">
-					{if $list[i].rek_herdc_code_lookup != ''}
-						<a href="#" title="{if $list[i].rek_herdc_status_lookup == 'Provisional Code'}PROVISIONAL {elseif $list[i].rek_herdc_status_lookup == 'Confirmed Code'}CONFIRMED {/if}{$list[i].rek_herdc_code_lookup}">{$list[i].rek_herdc_code_lookup}{if $list[i].rek_herdc_status_lookup == 'Provisional Code'}P{elseif $list[i].rek_herdc_status_lookup == 'Confirmed Code'}&#10003;{/if}</a>
-					{else}
-						-
-					{/if}
-				</td>
-
+                {if $isUser}
+                    <td style="vertical-align: middle; text-align: center; border-top:1px dashed #be87e9;">
+                        {if $list[i].rj_2015_title}<a href="#" title="{$list[i].rj_2015_title}">Y</a>{else}<a href="#" title="This publication is outside the ERA 2015 window (pre-2008) and/or not identified as being in a 2015 ERA Listed Journal.">-</a>{/if}
+                    </td>
+                    <td style="vertical-align: middle; text-align: center; border-top:1px dashed #be87e9;">
+                        {if $list[i].rc_2015_title}<a href="#" title="{$list[i].rc_2015_title}">Y</a>{else}<a href="#" title="This publication is outside the ERA 2015 window (pre-2008) and/or not identified as being in a 2015 ERA Listed Conference.">-</a>{/if}
+                    </td>
+                    <td style="vertical-align: middle; text-align: center; border-top:1px dashed #be87e9;">
+                        {if $list[i].rj_2012_title}<a href="#" title="{$list[i].rj_2012_title}">Y</a>{else}<a href="#" title="This publication is outside the ERA 2012 window (pre-2005) and/or not identified as being in a 2012 ERA Listed Journal.">-</a>{/if}
+                    </td>
+                    <td style="vertical-align: middle; text-align: center; border-top:1px dashed #be87e9;">
+                        {if $list[i].rj_2010_rank}<a href="#" title="{$list[i].rj_2010_title}">{$list[i].rj_2010_rank}</a>{else}<a href="#" title="This publication is outside the ERA 2010 window (pre-2003) and/or not identified as being in a 2010 ERA Ranked Journal.">-</a>{/if}
+                    </td>
+                    <td style="vertical-align: middle; text-align: center; border-top:1px dashed #be87e9;">
+                        {if $list[i].rc_2010_rank}<a href="#" title="{$list[i].rc_2010_title}">{$list[i].rc_2010_rank}</a>{else}<a href="#" title="This is outside the ERA 2010 window (pre-2003) and/or not identified as being in a 2010 ERA Ranked Conference.">-</a>{/if}
+                    </td>
+                    <td style="vertical-align: middle; text-align: center; border-top:1px dashed #be87e9;">
+                        {if $list[i].rek_herdc_code_lookup != ''}
+                            <a href="#" title="{if $list[i].rek_herdc_status_lookup == 'Provisional Code'}PROVISIONAL {elseif $list[i].rek_herdc_status_lookup == 'Confirmed Code'}CONFIRMED {/if}{$list[i].rek_herdc_code_lookup}">{$list[i].rek_herdc_code_lookup}{if $list[i].rek_herdc_status_lookup == 'Provisional Code'}P{elseif $list[i].rek_herdc_status_lookup == 'Confirmed Code'}&#10003;{/if}</a>
+                        {else}
+                            -
+                        {/if}
+                    </td>
+                {/if}
 				<td style="vertical-align: middle; text-align: center; border-top:1px dashed #be87e9;">
 					{if $list[i].rek_thomson_citation_count != ""}
 						<a href="{$rel_url}rid_citation_count_history_{$list[i].rek_pid}" title="Cited {$list[i].rek_thomson_citation_count} times in Thomson Reuters Researcher ID">{$list[i].rek_thomson_citation_count}</a>
@@ -343,11 +361,11 @@
 	<div class="result-box clearfix" style="margin-top: 20px;">
 	  <div class="clearfix sub-box">
 		<div class="order-element" style="padding: 10px 0px 10px 10px;">
-			<input type="button" value="Select All" class="shortcut" onclick="javascript:toggleSelectAll(this.form, 'pids[]');" />
+			<input type="button" value="Select All" class="button" onclick="javascript:toggleSelectAll(this.form, 'pids[]');" />
 			<select name="wft_id" class="default">
 			  {html_options options=$bulk_workflows}
 			</select>
-			<input type="button" value="Run Workflow" class="shortcut" onclick="javascript:workflowItems(this.form, '{$rel_url}');" />
+			<input type="button" value="Run Workflow" class="button" onclick="javascript:workflowItems(this.form, '{$rel_url}');" />
 			<input type="button" value="Delete" onclick="javascript:return checkDeleteRecords(this.form);" class="button" />
 			{include file="error_icon.tpl.html" field="users"}
 		</div>

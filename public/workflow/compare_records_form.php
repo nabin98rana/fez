@@ -38,7 +38,6 @@ include_once(APP_INC_PATH . "class.record_edit_form.php");
 include_once(APP_INC_PATH . "class.record_view.php");
 include_once(APP_INC_PATH . "class.sherpa_romeo.php");
 
-
 $tpl = new Template_API();
 $tpl->setTemplate("workflow/index.tpl.html");
 $tpl->assign('type',"compare_records_form");

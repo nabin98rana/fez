@@ -36,55 +36,64 @@
 include_once dirname(dirname(__FILE__)).DIRECTORY_SEPARATOR.'config.inc.php';
 include_once(APP_INC_PATH . 'class.scopus.php');
 include_once(APP_INC_PATH . "class.record.php");
+include_once(APP_INC_PATH . 'class.scopus_queue.php');
 
 $max = 100; 	// Max number of primary key IDs to send with each service request call
-$sleep = 0; 	// Number of seconds to wait for between successive service calls
+$sleep = 1; 	// Number of seconds to wait for between successive service calls
 
-$filter = array();
-$filter["searchKey".Search_Key::getID("Status")] = 2; // enforce published records only
-$filter["searchKey".Search_Key::getID("Object Type")] = 3; // records only
+$isUser = Auth::getUsername();
+if ((php_sapi_name()==="cli") || (User::isUserSuperAdministrator($isUser))) {
+    echo "Script started: " . date('Y-m-d H:i:s') . "\n";
 
-$listing = Record::getListing(array(), array(9,10), 0, $max, 'Created Date', false, false, $filter);
+    $stmt = "SELECT rek_pid, rek_doi FROM " . APP_TABLE_PREFIX . "record_search_key
+            LEFT JOIN " . APP_TABLE_PREFIX . "record_search_key_scopus_id
+            ON rek_scopus_id_pid = rek_pid
+            INNER JOIN " . APP_TABLE_PREFIX . "record_search_key_doi
+            ON rek_doi_pid = rek_pid
+            WHERE rek_scopus_id_pid IS NULL";
 
-for($i=0; $i<((int)$listing['info']['total_pages']+1); $i++) {
+    //Add a second argument to run over all published dates
+    if (empty($argv[1])) {
+        $stmt .= " AND rek_date >= '2008-01-01 00:00:00'";
+    }
+    try {
+        $res = $db->fetchAll($stmt);
+    } catch (Exception $ex) {
+        $log->err($ex);
+        echo "Failed to find pids: " . $ex;
+    }
 
-	// Skip first loop - we have called getListing once already
-	if($i>0) {
-		$listing = Record::getListing(array(), array(9,10), $listing['info']['next_page'], $max, 'Created Date', false, false, $filter);
-	}
-	$input_keys = array();
+    echo "======================================\n";
+    echo "Scopus from DOI start\n";
+    echo date('d/m/Y H:i:s') . "\n";
+    ob_flush();
 
-	if (is_array($listing['list'])) {
-	 	for($j=0; $j<count($listing['list']); $j++) {
-	 		$record = $listing['list'][$j];
-	 		$key = $record['rek_pid'];
-	 		$eid = $record['rek_scopus_id'];	// We store the EID as the Scopus ID
-	 		if(empty($eid)) {
-		 		// Get DOI if one exists
-		 		if(is_array($record['rek_link'])) {
-		 			foreach($record['rek_link'] as $link) {
-		 				if(strpos($link, 'http://dx.doi.org/') !== FALSE) {
-		 					$doi = str_replace('http://dx.doi.org/', '', $link);
-		 					$input_keys[$key] = array('doi' => $doi);
-		 				}
-		 			}
-		 		}
-	 		}
-	 	}
-	}
+    $input_keys = array();
+    foreach($res as $row) {
+        $input_keys_all[$row['rek_pid']] = array('doi' => $row['rek_doi']);
+    }
 
-	if(count($input_keys) > 0) {
-		$result = Scopus::getCitedByCount($input_keys);
-		foreach($result as $pid => $link_data) {
-			print "$pid: {$link_data['eid']}<br />";
+    $sq = ScopusQueue::get();
+    for($i=0; $i< ((int)(count($res)/$max) +1); $i++) {
+        echo "Loop ".$i. "\n";
+        $input_keys = array_splice($input_keys_all, $i*$max, 100);
+        if(count($input_keys) > 0 ) {
+            $result = Scopus::getCitedByCount($input_keys);
+            foreach($result as $pid => $link_data) {
+                echo "$pid: ". $link_data['eid']. "\n";
+                ob_flush();
+                // Update record with new Scopus ID
+                $record = new RecordObject($pid);
+                $search_keys = array("Scopus ID");
+                $values = array($link_data['eid']);
+                $record->addSearchKeyValueList($search_keys, $values, true, ' was added based on Scopus Service data given current doi');
+                $sq->add($link_data['eid']);
+            }
 
-			// Update record with new Scopus ID
-			/*$record = new RecordObject($pid);
-			$search_keys = array("Scopus ID");
-        	$values = array($link_data['eid']);*/
-        	//$record->addSearchKeyValueList($search_keys, $values, true, ' was added based on Scopus Service data');
-		}
-
-		sleep($sleep); // Wait before using the service again
-	}
+            sleep($sleep); // Wait before using the service again
+        }
+    }
+    echo " done. ".date('d/m/Y H:i:s') . "\n";
+} else {
+    echo "Admin only";
 }

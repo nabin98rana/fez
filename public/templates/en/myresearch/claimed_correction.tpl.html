@@ -184,16 +184,35 @@ $(document).ready(function(){
 
 <table id="research-q-index-details">
     <tr>
-        <td><img src="{$rel_url}images/tiered_journal_list_16.png" title="UQ Tiered Journal 2014" alt="UQ Tiered Journal 2014" /> UQ Tiered Journal 2014</td>
+        <td><img src="{$rel_url}images/journal_listed_b_16.png" title="ERA 2015 Journal Listed" alt="ERA 2015 Journal Listed" /> ERA 2015 Journal Listed</td>
         <td>
-            {if $qindex_meta.rj.rj_2014_rank == ''}
-            This publication is not identified as being in the 2014 UQ Tiered Journal list.
+            {if $qindex_meta.rj.rj_2015_title == ''}
+                This publication is outside the ERA window (pre-2008) and/or not identified as being in a 2015 ERA Listed Journal.
             {else}
-            <b>{$qindex_meta.rj.rj_2014_rank}</b> &nbsp; ({$qindex_meta.rj.rj_2014_title})
+            <b>{if $qindex_meta.rj.rj_2015_title}YES{else}NO</b> &nbsp; ({$qindex_meta.rj.rj_2015_title}){/if}
             {/if}
         </td>
     </tr>
-{*
+    <tr>
+        <td><img src="{$rel_url}images/conference_listed_16.png" title="ERA 2015 Conference Listed" alt="ERA 2015 Conference Listed" /> ERA 2015 Conference Listed</td>
+        <td>
+            {if $qindex_meta.rc.rc_2015_title == ''}
+            This publication is outside the ERA window (pre-2008) and/or not identified as being in a 2015 ERA Listed Conference.
+            {else}
+            <b>{if $qindex_meta.rc.rc_2015_title}YES{else}NO</b> &nbsp; ({$qindex_meta.rc.rc_2015_title}){/if}
+            {/if}
+        </td>
+    </tr>
+    <tr>
+        <td><img src="{$rel_url}images/journal_listed_16.png" title="ERA 2012 Journal Listed" alt="ERA 2012 Journal Listed" /> ERA 2012 Journal Listed</td>
+        <td>
+            {if $qindex_meta.rj.rj_2012_title == ''}
+            This publication is outside the ERA window (pre-2005) and/or not identified as being in a 2012 ERA Listed Journal.
+            {else}
+            <b>{if $qindex_meta.rj.rj_2012_title}YES{else}NO</b> &nbsp; ({$qindex_meta.rj.rj_2012_title}){/if}
+            {/if}
+        </td>
+    </tr>
 	<tr>
 		<td><img src="{$rel_url}images/journal_ranking_16.png" title="Ranked Journal List Ranking" alt="Ranked Journal List Ranking" /> ERA 2010 Journal Rank</td>
 		<td>
@@ -214,7 +233,6 @@ $(document).ready(function(){
 			{/if}
 		</td>
 	</tr>
-*}
 	<tr>
 		<td><img src="{$rel_url}images/herdc_code_16.png" title="HERDC Code" alt="HERDC Code" /> HERDC Code</td>
 		<td>

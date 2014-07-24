@@ -33,7 +33,7 @@ include_once(APP_INC_PATH . "class.auth.php");
 include_once(APP_INC_PATH . "class.mail.php");
 include_once(APP_INC_PATH . "class.filecache.php");
 include_once(APP_INC_PATH . "class.fulltext_queue.php");
-define("TEST", false); // limit to 250 records only if TRUE
+define("TEST",   		 			false); // limit to 250 records only if TRUE
 define("TEST_WHERE", ""); // Adds this condition to the where statement for eg testing single pids
 define("SIMILARITY_THRESHOLD", 80); // These similarity functions aren't currently invoked
 define("WINDOW_START", '2008-01-01 00:00:00');
@@ -51,122 +51,122 @@ class RJL
     {
         $userDetails = User::getDetailsByID(APP_SYSTEM_USER_ID);
         Auth::createLoginSession($userDetails['usr_username'], $userDetails['usr_full_name'], $userDetails['usr_email'], '');
-        echo "======================================\n";
-        echo "RJL Matching Utility\n";
-        echo date('d/m/Y H:i:s') . "\n";
+            echo "======================================\n";
+            echo "RJL Matching Utility\n";
+            echo date('d/m/Y H:i:s') . "\n";
 
-        $matches = array(); // All matches
+            $matches = array(); // All matches
 
-        $matchingExceptions = matching::getMatchingExceptions("J");
+    $matchingExceptions = matching::getMatchingExceptions("J");
 
-        $candidateJournals = RJL::getCandidateJournals();
+            $candidateJournals = RJL::getCandidateJournals();
 
-        $candidateISSNs = RJL::getCandidateISSNs();
+            $candidateISSNs = RJL::getCandidateISSNs();
 
-        $candidateConferences = RJL::getCandidateConfs();
+            $candidateConferences = RJL::getCandidateConfs();
 
-        $rankedJournals = RJL::getRankedJournals();
-        $rankedJournalISSNs = RJL::getISSNsRJL();
-        $manualMatches = RJL::getManualMatches();
-        $this->userManualMatches = RJL::getUserManualMatches();
+		$rankedJournals = RJL::getRankedJournals();
+		$rankedJournalISSNs = RJL::getISSNsRJL();
+		$manualMatches = RJL::getManualMatches();
+		$this->userManualMatches = RJL::getUserManualMatches();
 
-        /* Perform normalisation */
-        $normalisedCandidateJournals = RJL::normaliseListOfTitles($candidateJournals);
-        $normalisedCandidateISSNs = RJL::normaliseListOfISSNs($candidateISSNs);
-        $normalisedCandidateConferences = RJL::normaliseListOfTitles($candidateConferences);
-        $normalisedRankedJournals = RJL::normaliseListOfTitles($rankedJournals);
-        $normalisedRankedJournalISSNs = $rankedJournalISSNs;
+            /* Perform normalisation */
+            $normalisedCandidateJournals = RJL::normaliseListOfTitles($candidateJournals);
+            $normalisedCandidateISSNs = RJL::normaliseListOfISSNs($candidateISSNs);
+            $normalisedCandidateConferences = RJL::normaliseListOfTitles($candidateConferences);
+		$normalisedRankedJournals = RJL::normaliseListOfTitles($rankedJournals);
+		$normalisedRankedJournalISSNs = $rankedJournalISSNs;
 
-        /* See how many unique records we're really talking about here */
-        $master = array_merge($candidateJournals, $candidateISSNs, $candidateConferences);
-        $master = RJL::keyMasterList($master);
+            /* See how many unique records we're really talking about here */
+            $master = array_merge($candidateJournals, $candidateISSNs, $candidateConferences);
+            $master = RJL::keyMasterList($master);
 
-        /* Print some information about the number of items found */
-        echo "Number of candidate journal titles: " . sizeof($candidateJournals) . "\n";
-        echo "Number of candidate ISSNs: " . sizeof($normalisedCandidateISSNs) . "\n";
-        echo "Number of candidate conferences: " . sizeof($normalisedCandidateConferences) . "\n";
-        echo "Total number of candidate records: " . sizeof($master) . "\n";
-        echo "Number of ranked journals: " . sizeof($rankedJournals) . "\n";
-        echo "Number of ranked ISSNs: " . sizeof($normalisedRankedJournalISSNs) . "\n";
-        ob_flush();
+            /* Print some information about the number of items found */
+            echo "Number of candidate journal titles: " . sizeof($candidateJournals) . "\n";
+            echo "Number of candidate ISSNs: " . sizeof($normalisedCandidateISSNs) . "\n";
+            echo "Number of candidate conferences: " . sizeof($normalisedCandidateConferences) . "\n";
+            echo "Total number of candidate records: " . sizeof($master) . "\n";
+            echo "Number of ranked journals: " . sizeof($rankedJournals) . "\n";
+            echo "Number of ranked ISSNs: " . sizeof($normalisedRankedJournalISSNs) . "\n";
+            ob_flush();
 
-        /* Look for manual matches first because it should be authoritative over any dupe pid/year era id combos */
-        RJL::lookForManualMatches($normalisedCandidateJournals, $manualMatches, $matches);
-        echo "Number after manual matches: " . sizeof($matches) . "\n";
-        ob_flush();
+            /* Look for manual matches first because it should be authoritative over any dupe pid/year era id combos */
+            RJL::lookForManualMatches($normalisedCandidateJournals, $manualMatches, $matches);
+            echo "Number after manual matches: " . sizeof($matches) . "\n";
+            ob_flush();
 
-        /* Look for ISSN matches */
-        RJL::lookForMatchesByISSN($normalisedCandidateISSNs, $normalisedRankedJournalISSNs, $matches);
-        echo "Number after ISSN matches: " . sizeof($matches) . "\n";
-        ob_flush();
-        /* Look for title matches (string normalisation and comparison) */
-        RJL::lookForMatchesByStringComparison($normalisedCandidateJournals, $normalisedRankedJournals, $matches, "T");
-        echo "Number after normalised string matches (journal): " . sizeof($matches) . "\n";
-        ob_flush();
-        /* Look for conference matches (string normalisation and comparison) */
-        RJL::lookForMatchesByStringComparison($normalisedCandidateConferences, $normalisedRankedJournals, $matches, "C");
-        echo "Number after normalised string matches (conference): " . sizeof($matches) . "\n";
-        ob_flush();
+            /* Look for ISSN matches */
+            RJL::lookForMatchesByISSN($normalisedCandidateISSNs, $normalisedRankedJournalISSNs, $matches);
+            echo "Number after ISSN matches: " . sizeof($matches) . "\n";
+            ob_flush();
+            /* Look for title matches (string normalisation and comparison) */
+            RJL::lookForMatchesByStringComparison($normalisedCandidateJournals, $normalisedRankedJournals, $matches, "T");
+            echo "Number after normalised string matches (journal): " . sizeof($matches) . "\n";
+            ob_flush();
+            /* Look for conference matches (string normalisation and comparison) */
+            RJL::lookForMatchesByStringComparison($normalisedCandidateConferences, $normalisedRankedJournals, $matches, "C");
+            echo "Number after normalised string matches (conference): " . sizeof($matches) . "\n";
+            ob_flush();
 
-        echo "Total number of matches: " . sizeof($matches) . "\n";
-        ob_flush();
+            echo "Total number of matches: " . sizeof($matches) . "\n";
+            ob_flush();
 
-        echo "Total number of matches: " . sizeof($matches) . "\n";
-        echo "Total number of user matches excluded: " . $this->userManualMatchCount . "\n";
-        ob_flush();
-        echo "Dupe list:\n\n" . $this->dupeList . "\n";
+            echo "Total number of matches: " . sizeof($matches) . "\n";
+            echo "Total number of user matches excluded: " . $this->userManualMatchCount . "\n";
+            ob_flush();
+            echo "Dupe list:\n\n" . $this->dupeList . "\n";
 
-        // Email the dupes list to the espace admin email address
-        if ($this->dupeList != '') {
-            $mail = new Mail_API;
-            $mail->setTextBody(stripslashes($this->dupeList));
-            $subject = '[' . APP_NAME . '] - Duplicate Journal Matches found, please resolve manually using manual matching';
-            $from = APP_EMAIL_SYSTEM_FROM_ADDRESS;
-            $to = APP_ADMIN_EMAIL;
-            $mail->send($from, $to, $subject, false);
-        }
-
-        $okMatches = array();
-        /* Subtract from any match results those PIDs that are either black-listed, or manually mapped */
-        foreach ($matches as $match) {
-            if (!in_array($match['pid'], $matchingExceptions)) {
-                $okMatches[] = $match;
+            // Email the dupes list to the espace admin email address
+            if ($this->dupeList != '') {
+                $mail = new Mail_API;
+                $mail->setTextBody(stripslashes($this->dupeList));
+                $subject = '[' . APP_NAME . '] - Duplicate Journal Matches found, please resolve manually using manual matching';
+                $from = APP_EMAIL_SYSTEM_FROM_ADDRESS;
+                $to = APP_ADMIN_EMAIL;
+                $mail->send($from, $to, $subject, false);
             }
-        }
-        $matches = $okMatches;
-        echo "Total number of OK matches (not black-listed or manually mapped): " . sizeof($matches) . "\n";
-        ob_flush();
-        /* Find match results that linked to duplicate Journals and replace it with replacement Journal
-         * Query to get the JNL_ID: SELECT jnl_id FROM {TABLE_PREFIX}journal WHERE jnl_era_id = {ERA_ID}
-         * The replacement value are:
-         *
-         *          ERAID JNL_ID Title
-           Search = 44512 41029  Allergy and Clinical Immunology International
-           Replace= 15451 30537  Allergy and Clinical Immunology International: journal of the World Allergy Organization
 
-           Search = 15844 30828  British Journal of Urology (BJU) International
-           Replace= 15843 30827  BJU International
-
-           Search = 16520 31371  Journal of National Cancer Institute
-           Replace= 16434 31298  Journal of the National Cancer Institute
-
-           Search = 45090 41506  Electronic Journal of Combinatorics
-           Replace= 138   20810  Journal of Combinatorics (year 2012)
-         *
-         */
-        $dupeJournalSearchJNLID = array('41029', '30828', '31371', '41506');
-        $dupeJournalReplaceJNLID = array('30537', '30827', '31298', '20810');
-        foreach ($matches as $key => $match) {
-            if (in_array($match['matching_id'], $dupeJournalSearchJNLID) === true) {
-                $matches[$key]['matching_id'] = str_replace($dupeJournalSearchJNLID, $dupeJournalReplaceJNLID, $match['matching_id']);
+            $okMatches = array();
+            /* Subtract from any match results those PIDs that are either black-listed, or manually mapped */
+            foreach ($matches as $match) {
+                if (!in_array($match['pid'], $matchingExceptions)) {
+                    $okMatches[] = $match;
+                }
             }
-        }
+            $matches = $okMatches;
+            echo "Total number of OK matches (not black-listed or manually mapped): " . sizeof($matches) . "\n";
+            ob_flush();
+            /* Find match results that linked to duplicate Journals and replace it with replacement Journal
+             * Query to get the JNL_ID: SELECT jnl_id FROM {TABLE_PREFIX}journal WHERE jnl_era_id = {ERA_ID}
+             * The replacement value are:
+             *
+             *          ERAID JNL_ID Title
+               Search = 44512 41029  Allergy and Clinical Immunology International
+               Replace= 15451 30537  Allergy and Clinical Immunology International: journal of the World Allergy Organization
 
-        echo " About to run inserts \n";
-        ob_flush();
-        /* Insert all the found matches */
-        RJL::runInserts($matches);
-        return;
+               Search = 15844 30828  British Journal of Urology (BJU) International
+               Replace= 15843 30827  BJU International
+
+               Search = 16520 31371  Journal of National Cancer Institute
+               Replace= 16434 31298  Journal of the National Cancer Institute
+
+               Search = 45090 41506  Electronic Journal of Combinatorics
+               Replace= 138   20810  Journal of Combinatorics (year 2012)
+             *
+             */
+            $dupeJournalSearchJNLID = array('41029', '30828', '31371', '41506');
+            $dupeJournalReplaceJNLID = array('30537', '30827', '31298', '20810');
+            foreach ($matches as $key => $match) {
+                if (in_array($match['matching_id'], $dupeJournalSearchJNLID) === true) {
+                    $matches[$key]['matching_id'] = str_replace($dupeJournalSearchJNLID, $dupeJournalReplaceJNLID, $match['matching_id']);
+                }
+            }
+
+            echo " About to run inserts \n";
+            ob_flush();
+            /* Insert all the found matches */
+            RJL::runInserts($matches);
+		return;
     }
 
 
@@ -295,7 +295,7 @@ class RJL
             rek_date >= '" . WINDOW_START . "'
             AND xdis_title IN ('Conference Paper', 'Conference Item', 'Journal Article', 'RQF 2006 Journal Article', 'RQF 2006 Conference Paper', 'RQF 2007 Journal Article', 'RQF 2007 Conference Paper', 'Online Journal Article')
             GROUP BY rek_pid, rek_issn
-            HAVING COUNT(rek_pid) = 1
+      HAVING COUNT(rek_pid) = 1 OR COUNT(rek_pid) = 2
             ";
 
         }
@@ -376,7 +376,7 @@ class RJL
       rek_date >= '" . WINDOW_START . "'
       AND xdis_title IN ('Conference Paper', 'Conference Item', 'Journal Article', 'RQF 2006 Journal Article', 'RQF 2006 Conference Paper', 'RQF 2007 Journal Article', 'RQF 2007 Conference Paper', 'Online Journal Article')
       GROUP BY rek_pid, rek_proceedings_title
-      HAVING COUNT(rek_pid) = 1
+      HAVING COUNT(rek_pid) = 1 OR COUNT(rek_pid) = 2
       ";
         }
         if (TEST) {
@@ -653,7 +653,7 @@ class RJL
             /* Attempt to match it against each target item */
             foreach ($against as $targetVal) {
                 /* Look for the target strng inside the source */
-                if (substr_count($sourceVal, $targetVal['jni_issn']) > 0) { //haystack, needle
+                if (strpos($sourceVal, $targetVal['jni_issn']) !== FALSE) { //haystack, needle
                     $existsAlready = false;
                     foreach ($this->userManualMatches as $userMatch) {
                         if ($userMatch['jnl_era_year'] == $targetVal['jnl_era_year'] && $userMatch['mtj_pid'] == $sourceKey) {
@@ -969,32 +969,20 @@ class RJL
                 die('There was a problem with the query ' . $stmt);
             }
 
-            if ($year = 2010) {
-                Refereed::saveIfHigher($match['pid'],'ERA Ranked Journal List 2010' ,'Automated Journal Matching');
-            } else if ($year = 2012) {
-                Refereed::saveIfHigher($match['pid'],'ERA Ranked Journal List 2012' ,'Automated Journal Matching');
-            } else if ($year = 2015) {
-                Refereed::saveIfHigher($match['pid'],'ERA Ranked Journal List 2015' ,'Automated Journal Matching');
-            }
-
             if (APP_SOLR_INDEXER == "ON") {
                 FulltextQueue::singleton()->add($match['pid']);
             }
 
-            if (APP_FILECACHE == "ON") {
+            /*if (APP_FILECACHE == "ON") {
                 $cache = new fileCache($match['pid'], 'pid=' . $match['pid']);
                 $cache->poisonCache();
-            }
-
-
+            }*/
         }
 
         echo "done.\n";
 
         return;
     }
-
-
 
     function getJournalIDsByPIDYear($pid, $year)
     {

@@ -210,14 +210,19 @@ class RecordView {
 						//Check for Ranked Journal Rank
 						$rjl = "";
 						if (APP_MY_RESEARCH_MODULE == 'ON' && $logged_in) {
-							$rjinfo = Record::getRankedJournalInfo($this->record->pid);
-                            if (is_array($rjinfo)) {
-                                if (array_key_exists('rj_2014_rank', $rjinfo) && $rjinfo['rj_2014_rank'] == '') {
-                                    $rjinfo['rj_2014_rank'] = "N/R";
-                                }
-                                if (array_key_exists('rj_2014_rank', $rjinfo)) {
-                                    $rjl .= "&nbsp;&nbsp;&nbsp; (<a href='#' title='UQ Tiered Journal 2014: ".$rjinfo['rj_2014_title'].", ranked ".$rjinfo['rj_2014_rank']."'>2014 ".$rjinfo['rj_2014_rank']."</a>)";
-                                }
+                            $rjinfo = Record::getRankedJournalInfo($this->record->pid);
+                            if (array_key_exists('rj_2010_rank', $rjinfo) && $rjinfo['rj_2010_rank'] == '') {
+                                $rjinfo['rj_2010_rank'] = "N/R";
+                            }
+
+                            if (array_key_exists('rj_2015_title', $rjinfo)) {
+                                $rjl .= "&nbsp; (ERA 2015 Listed)";
+                            }
+                            if (array_key_exists('rj_2012_title', $rjinfo)) {
+                                $rjl .= "&nbsp;&nbsp;&nbsp; (ERA 2012 Listed)";
+                            }
+                            if (array_key_exists('rj_2010_rank', $rjinfo)) {
+                                $rjl .= "&nbsp;&nbsp;&nbsp; (ERA 2010 Rank ".$rjinfo['rj_2010_rank'].")";
                             }
                         }
                         $sRdetails = SherpaRomeo::getJournalColourFromPid($this->record->pid);
@@ -244,11 +249,14 @@ class RecordView {
                                 if (array_key_exists('rc_2010_rank', $rcinfo) && $rcinfo['rc_2010_rank'] == '') {
                                     $rcinfo['rc_2010_rank'] = "N/R";
                                 }
+                                if (array_key_exists('rc_2015_title', $rcinfo)) {
+                                    $rcl .= "&nbsp; (ERA 2015 Listed)";
+                                }
                                 if (array_key_exists('rc_2012_title', $rcinfo)) {
-                                    $rcl .= "&nbsp; (<a href='#' title='ERA 2012 Listed Conference: ".$rcinfo['rc_2012_title']."'>ERA 2012 Listed</a>)";
+                                    $rcl .= "&nbsp; (ERA 2012 Listed)";
                                 }
                                 if (array_key_exists('rc_2010_rank', $rcinfo)) {
-                                    $rcl .= "&nbsp;&nbsp;&nbsp; (<a href='#' title='ERA 2010 Ranked Conference: ".$rcinfo['rc_2010_title'].", ranked ".$rcinfo['rc_2010_rank']."'>ERA 2010 Rank ".$rcinfo['rc_2010_rank']."</a>)";
+                                    $rcl .= "&nbsp;&nbsp;&nbsp; (ERA 2010 Rank ".$rcinfo['rc_2010_rank'].")";
                                 }
                             }
 						}

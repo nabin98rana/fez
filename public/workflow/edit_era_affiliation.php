@@ -82,19 +82,7 @@ if ($access_ok) {
     foreach ($datastreams as $ds_key => $ds) {
         if (!empty($datastreams[$ds_key]['location'])) {
             $datastreams[$ds_key]['location'] = trim($datastreams[$ds_key]['location']);
-            /*// Check for APP_LINK_PREFIX and add if not already there add it to a special ezyproxy link for it
-                        if (APP_LINK_PREFIX != "") {
-                            if (!is_numeric(strpos($datastreams[$ds_key]['location'], APP_LINK_PREFIX))) {
-                                $datastreams[$ds_key]['prefix_location'] = APP_LINK_PREFIX.$datastreams[$ds_key]['location'];
-                                $datastreams[$ds_key]['location'] = str_replace(APP_LINK_PREFIX, "", $datastreams[$ds_key]['location']);
-                            } else {
-                                $datastreams[$ds_key]['prefix_location'] = "";
-                            }
-                        } else {
-                            $datastreams[$ds_key]['prefix_location'] = "";
-                        } */
             array_push($datastreamLinks,$datastreams[$ds_key]);
-
         }
     }
     $tpl->assign('links', $datastreamLinks);

@@ -50,7 +50,6 @@ include_once(APP_INC_PATH . "class.author_affiliations.php");
 include_once(APP_INC_PATH . "class.xsd_display.php");
 include_once(APP_INC_PATH . "class.links.php");
 include_once(APP_INC_PATH . 'class.sherpa_romeo.php');
-//include_once(APP_INC_PATH . 'najax_objects/class.background_process_list.php');
 
 $username = Auth::getUsername();
 $isAdministrator = Auth::isAdministrator();
@@ -64,12 +63,22 @@ if ($isAdministrator || $isUPO) {
     //get ranked journals for 2010/12 for spyglass
     $rjl_spyglass = '';
     $rjinfo = Record::getRankedJournalInfo($pid);
-    if (is_array($rjinfo)) {
+    $rcinfo = Record::getRankedConferenceInfo($pid);
+    if (is_array($rjinfo) || is_array($rcinfo)) {
         if (array_key_exists('rj_2010_rank', $rjinfo) && $rjinfo['rj_2010_rank'] == '') {
             $rjinfo['rj_2010_rank'] = "N/R";
         }
+        if (array_key_exists('rj_2015_title', $rjinfo)) {
+            $rjl_spyglass .= "(ERA 2015: ".$rjinfo['rj_2015_title'].")</br>";
+        }
+        if (array_key_exists('rc_2015_title', $rcinfo)) {
+            $rjl_spyglass .= "(ERA 2015: ".$rcinfo['rc_2015_title'].")</br>";
+        }
         if (array_key_exists('rj_2012_title', $rjinfo)) {
-            $rjl_spyglass .= "(ERA 2012: ".$rjinfo['rj_2012_title'].")";
+            $rjl_spyglass .= "(ERA 2012: ".$rjinfo['rj_2012_title'].")</br>";
+        }
+        if (array_key_exists('rc_2010_title', $rcinfo)) {
+            $rjl_spyglass .= "(ERA 2010: ".$rcinfo['rc_2010_title'].", ranked ".$rcinfo['rc_2010_rank'].")</br>";
         }
         if (array_key_exists('rj_2010_rank', $rjinfo)) {
             $rjl_spyglass .= "(ERA 2010: ".$rjinfo['rj_2010_title'].", ranked ".$rjinfo['rj_2010_rank'].")";
@@ -96,8 +105,6 @@ $spyglassclick = ($isSuperAdministrator) ? "javascript:window.open('$get_url'); 
 
 $tpl->assign('spyglasshref', $spyglasshref);
 $tpl->assign('spyglassclick', $spyglassclick);
-
-//$tpl->registerNajax( NAJAX_Client::register('NajaxBackgroundProcessList', APP_RELATIVE_URL.'najax_services/generic.php'));
 
 $tpl->assign("fez_root_dir", APP_PATH);
 $tpl->assign("eserv_url", APP_BASE_URL . "eserv/" . $pid . "/");
@@ -127,7 +134,6 @@ if (!empty($pid)) {
 if (!empty($pid) && $record->checkExists()) {
 
   $canViewVersions = $record->canViewVersions(false);
-  //$canRevertVersions = $record->canRevertVersions(false);
   $useVersions = false;
   if ($requestedVersionDate != null && !$canViewVersions) {
     // user not allowed to see other versions,
@@ -251,7 +257,6 @@ if (!empty($pid) && $record->checkExists()) {
     $tpl->assign("workflows", $workflows);
     $tpl->assign("isEditor", $canEdit);
     $tpl->assign("canViewVersions", $canViewVersions);
-//		$tpl->assign("canRevertVersions", $canRevertVersions);
 
     if ($requestedVersionDate != null) {
       $tpl->assign("viewingPreviousVersion", true);
@@ -262,7 +267,6 @@ if (!empty($pid) && $record->checkExists()) {
     }
 
     $record->getDisplay();
-    //$display = new XSD_DisplayObject($xdis_id);
     $xsd_display_fields = $record->display->getMatchFieldsList(array("FezACML"), array()); // XSD_DisplayObject
 
     $tpl->assign("sta_id", $record->getPublishedStatus());
@@ -512,9 +516,6 @@ if (!empty($pid) && $record->checkExists()) {
     $datastreamsAll = $datastreams;
     $datastreams = Misc::cleanDatastreamListLite($datastreams, $pid);
 
-//Error_Handler::logError("view2.php datastreams (after cleanDatastreamListLite)=__SEE_NEXT__", __FILE__,__LINE__);
-//Error_Handler::logError($datastreams, __FILE__,__LINE__);
-
     $doi = Record::getSearchKeyIndexValue($pid, 'DOI');
     $tpl->assign(altmetricDOI, $doi);
     //if fedora bypass is on need to get from mysql else it datastreams as down below
@@ -550,10 +551,8 @@ if (!empty($pid) && $record->checkExists()) {
       $dob = new DSResource();
       $streams = $dob->listStreams($pid);
       foreach ($streams as &$stream) {
-        //$stream = array_merge($stream, Exiftool::getDetails($pid, $stream['filename']));
         $stream['downloads'] = Statistics::getStatsByDatastream($pid, $stream['filename']);
         $stream['base64ID'] = base64_encode($stream['filename']);
-        //$stream['label'] = $stream['label'];
         $fileCount++;
       }
 
@@ -561,7 +560,6 @@ if (!empty($pid) && $record->checkExists()) {
     }
 
     if ($datastreams) {
-//		if($datastreams && (APP_FEDORA_BYPASS != 'ON')) {
 
       $links = array();
 
@@ -692,14 +690,14 @@ if (!empty($pid) && $record->checkExists()) {
     //what does this record succeed?
     $hasVersions = 0;
     $derivations = Record::getParentsAll($pid, 'isDerivationOf', true);
-    //print_r($derivations); exit;
+
     if (count($derivations) == 0) {
       $derivations[0]['rek_title'] = Record::getSearchKeyIndexValue($pid, "Title");
       $derivations[0]['rek_pid'] = $pid;
     } else {
       $hasVersions = 1;
     }
-//		print_r($derivations);
+
     //are there any other records that also succeed this parent
     foreach ($derivations as $devkey => $dev) { // gone all the way up, now go back down getting ALL the children as we ride the spiral
       $child_devs = Record::getChildrenAll($derivations[$devkey]['rek_pid'], "isDerivationOf", false);
@@ -708,7 +706,7 @@ if (!empty($pid) && $record->checkExists()) {
       }
       $derivations[$devkey]['children'] = $child_devs;
     }
-//		print_r($derivations);
+
     $derivationTree = "";
     if ($hasVersions == 1) {
       Record::generateDerivationTree($pid, $derivations, $derivationTree);
@@ -718,14 +716,13 @@ if (!empty($pid) && $record->checkExists()) {
     //what does this record isDatasetOf?
     $hasDatasets = 0;
     $datasets = Record::getParentsAll($pid, 'isDatasetOf', true);
-    //print_r($derivations); exit;
+
     if (count($datasets) == 0) {
       $datasets[0]['rek_title'] = Record::getSearchKeyIndexValue($pid, "Title");
       $datasets[0]['rek_pid'] = $pid;
     } else {
       $hasDatasets = 1;
     }
-//		print_r($derivations);
     //are there any other records that also succeed this parent
     foreach ($datasets as $devkey => $dev) { // gone all the way up, now go back down getting ALL the children as we ride the spiral
       $child_devs = Record::getChildrenAll($datasets[$devkey]['rek_pid'], "isDatasetOf", false);

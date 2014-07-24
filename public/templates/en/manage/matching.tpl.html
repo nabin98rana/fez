@@ -51,7 +51,7 @@ function save()
     var found_2010 = false;
     var found_2012 = false;
     for (var y = 0; y < field.options.length; y++) {
-        var re = new RegExp('\((201[0|2|4])\)');
+        var re = new RegExp('\((201[0|2|5])\)');
         var m = re.exec(field.options[y].text);
           if (m == null) {
             window.alert("A match without a year found. Please report this to the system administrator.");
@@ -315,7 +315,7 @@ function setPage(new_page)
 			<tr>
 				<td class="default cell-colour"><b>PID</b></td>
                 <td class="default cell-colour"><b>ERA Year</b></td>
-				<td class="default cell-colour" style="padding-top: 4px"><img src="{$rel_url}images/journal_ranking_16.png" alt="Ranked Journal Match" title="Ranked Journal Match" /> <b>Journal Match</b></td>
+				<td class="default cell-colour" style="padding-top: 4px"><img src="{$rel_url}images/journal_listed_b_16.png" alt="Ranked Journal Match" title="Ranked Journal Match" /> <b>Journal Match</b></td>
 				<td class="default cell-colour" style="padding-top: 4px"><img src="{$rel_url}images/conference_ranking_16.png" alt="Ranked Conference Match" title="Ranked Conference Match" /> <b>Conference Match</b></td>
 			</tr>
 			{section name="j" loop=$matches}

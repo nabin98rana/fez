@@ -538,13 +538,23 @@ class FulltextQueue
       //Also add the internal notes
       $res[$rkey]['row'] .= ',"' .$row['ain_detail'] .'"';
       // Add the ranked journal and conference codes
-      if (array_key_exists('rj_2014_rank', $row)) {
-          $res[$rkey]['row'] .= ',"' .$row['rj_2014_rank'] .'"';
+      if (array_key_exists('rj_2015_rank', $row)) {
+          $res[$rkey]['row'] .= ',"' .$row['rj_2015_rank'] .'"';
       } else {
           $res[$rkey]['row'] .= ',""';
       }
-      if (array_key_exists('rj_2014_title', $row)) {
-        $res[$rkey]['row'] .= ',"' .$row['rj_2014_title'] .'"';
+      if (array_key_exists('rj_2015_title', $row)) {
+        $res[$rkey]['row'] .= ',"' .$row['rj_2015_title'] .'"';
+      } else {
+        $res[$rkey]['row'] .= ',""';
+      }
+      if (array_key_exists('rc_2015_rank', $row)) {
+        $res[$rkey]['row'] .= ',"' .$row['rc_2015_rank'] .'"';
+      } else {
+        $res[$rkey]['row'] .= ',""';
+      }
+      if (array_key_exists('rc_2015_title', $row)) {
+        $res[$rkey]['row'] .= ',"' .$row['rc_2015_title'] .'"';
       } else {
         $res[$rkey]['row'] .= ',""';
       }

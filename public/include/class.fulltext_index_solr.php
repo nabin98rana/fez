@@ -375,7 +375,7 @@ class FulltextIndex_Solr extends FulltextIndex
       $params['fq'] = $query['filter'];
       $queryString = $query['query'];
       $solr_titles = Search_Key::getSolrTitles();
-      $params['fl'] = implode(",", $solr_titles) . ',sherpa_colour_t,ain_detail_t,rj_2014_rank_t,rj_2014_title_t,rj_2010_rank_t,rj_2010_title_t,rj_2012_rank_t,rj_2012_title_t,rc_2010_rank_t,rc_2010_title_t,herdc_code_description_t,score,citation_t';
+      $params['fl'] = implode(",", $solr_titles) . ',sherpa_colour_t,ain_detail_t,rj_2015_rank_t,rj_2015_title_t,rc_2015_rank_t,rc_2015_title_t,rj_2010_rank_t,rj_2010_title_t,rj_2012_rank_t,rj_2012_title_t,rc_2010_rank_t,rc_2010_title_t,herdc_code_description_t,score,citation_t';
 
       // sorting
       if (empty($searchKey_join[SK_SORT_ORDER])) {
@@ -416,7 +416,7 @@ class FulltextIndex_Solr extends FulltextIndex
                 $docs[$i][$sek_id] = $field;
               }
               // check for herdc code desc
-            } elseif (in_array($solrID, array('sherpa_colour_t', 'ain_detail_t', 'rj_2014_rank_t','rj_2014_title_t', 'rj_2010_rank_t', 'rj_2010_title_t', 'rj_2012_rank_t', 'rj_2012_title_t', 'rc_2010_rank_t', 'rc_2010_title_t', 'herdc_code_description_t'))) {
+            } elseif (in_array($solrID, array('sherpa_colour_t', 'ain_detail_t', 'rj_2015_rank_t','rj_2015_title_t', 'rj_2010_rank_t', 'rj_2010_title_t', 'rj_2012_rank_t', 'rj_2012_title_t', 'rc_2015_rank_t', 'rc_2015_title_t', 'rc_2010_rank_t', 'rc_2010_title_t', 'herdc_code_description_t'))) {
 
               $sek_id = substr($solrID, 0, -2);
               if (is_array($field)) {

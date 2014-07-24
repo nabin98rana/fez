@@ -70,6 +70,8 @@ if (empty($rows)) {
 $options = Pager::saveSearchParams($params);
 $tpl->assign("options", $options);
 
+$yearFilter = Misc::GETorPOST('year');
+
 if ($isAdministrator) {
 
     $type = Misc::GETorPOST('type');
@@ -88,7 +90,7 @@ if ($isAdministrator) {
             $listing = Conference::getConferences();
         } elseif ($type == 'J') {
             $mapping = Record::getRankedJournal($pid);
-            $listing = Journal::getJournals('2014');
+            $listing = Journal::getJournals('2015');
         }
         $tpl->assign("mapping", $mapping);
         $tpl->assign("list", $listing);
@@ -112,7 +114,7 @@ if ($isAdministrator) {
             $listing = Conference::getConferences();
         } elseif ($type == 'J') {
             $mapping = Record::getRankedJournal($pid);
-            $listing = Journal::getJournals('2014');
+            $listing = Journal::getJournals('2015');
         }
         
         if (isset($mapping['status'])) {
@@ -131,12 +133,12 @@ if ($isAdministrator) {
     } elseif ($action == 'search') {
         $filter = Pager::getParam('search_filter',$params);
         $tpl->assign("search_filter", $filter);
-        $matches = Matching::getAllMatches($pagerRow, $rows, $filter);
+        $matches = Matching::getAllMatches($pagerRow, $rows, $filter, $yearFilter);
         $tpl->assign("matches", $matches['list']);
         $tpl->assign("list_info", $matches['list_info']);
         
     } else {
-        $matches = Matching::getAllMatches($pagerRow, $rows);
+        $matches = Matching::getAllMatches($pagerRow, $rows, '', $yearFilter);
         $tpl->assign("matches", $matches['list']);
         $tpl->assign("list_info", $matches['list_info']);
     }
