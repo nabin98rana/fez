@@ -42,7 +42,7 @@
                       returnValue = false;
                   }
 
-                  if (!isWhitespace(f.org_staff_id.value) && (!isNumberOnly(f.org_staff_id.value) || f.org_staff_id.value > 9999999)) {
+                  if (!isWhitespace(f.org_staff_id.value) && (!isInteger(f.org_staff_id.value) || f.org_staff_id.value > 9999999)) {
                       alert('Staff ID is is a 7 digit number usually preceded by a 0');
                       selectField(f, 'org_staff_id');
                       returnValue = false;
@@ -208,7 +208,7 @@
             {
                 var total_selected = getTotalCheckboxesChecked(f, 'items[]');
                 var total = getTotalCheckboxes(f, 'items[]');
-                if (total == total_selected) {
+                if ((total == total_selected) && (total != 1)) {
                     alert('You cannot remove all of the authors in the system.');
                     return false;
                 }
@@ -338,7 +338,7 @@
               </tr>
               <tr>
                 <td style="width: 120px" class="default cell-colour">
-                  <b>Author Reference Number: </b>
+                  <b>Author Non-Aurion Reference ID: </b>
                 </td>
                 <td style="background: {$light_color}; width: 80%">
                   <input type="text" name="aut_ref_num" size="40" class="default" value="{$info.aut_ref_num}" />

@@ -1362,10 +1362,15 @@ class Author
     $stmt .= " FROM ".$dbtp."author";
 
     if (is_numeric($term)) {
-      $stmt .= " WHERE (aut_id=".$db->quote($term, 'INTEGER');
+        if (($term[0]) == 0) {
+            $stmt .= " WHERE (aut_org_staff_id=".$db->quote($term, 'INTEGER');
+        } else {
+            $stmt .= " WHERE (aut_id=".$db->quote($term, 'INTEGER')." OR aut_org_student_id=".$db->quote($term, 'INTEGER');
+        }
+
     } else if (is_numeric(strpos(APP_SQL_DBTYPE, "mysql"))) {
       $stmt .= " WHERE ( aut_lname = ".$db->quote($term)." OR MATCH (aut_display_name) AGAINST (".$db->quote(''.$term.'*')." IN BOOLEAN MODE)
-                 OR MATCH (aut_org_username) AGAINST (".$db->quote($term)." IN BOOLEAN MODE)";
+                 OR MATCH (aut_org_username) AGAINST (".$db->quote($term)." IN BOOLEAN MODE) OR aut_ref_num = ".$db->quote($term);
     } else {
       $stmt .= " WHERE (";
       $names = explode(" ", $term);
@@ -2243,9 +2248,6 @@ class Author
         if ($sendEmail) {
             Eventum::lodgeJob($subject, $body, $userEmail);
         }
-
         return;
     }
-
-
 }

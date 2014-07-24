@@ -173,7 +173,7 @@
           {
               var total_selected = getTotalCheckboxesChecked(f, 'items[]');
               var total = getTotalCheckboxes(f, 'items[]');
-              if (total == total_selected) {
+              if ((total == total_selected) && (total != 1)) {
                   alert('You cannot remove all of the groups in the system.');
                   return false;
               }
