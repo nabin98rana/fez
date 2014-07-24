@@ -125,7 +125,7 @@
 
 		return;
 	}
-    {/literal} {if $isAdministrator}{literal}
+    {/literal} {if $isAdministrator || $isUPO}{literal}
     $(function() {
     		var search_description = $( "#search_description" ),
     			allFields = $( [] ).add( search_description ),
@@ -175,7 +175,7 @@
 
 <div style="margin: -30px 0px 0px 0px; width: 980px;">
 
-{if $isAdministrator}
+{if $isAdministrator || $isUPO}
     <div id="dialog-form" title="Favourite this search" style="font-size:.8em">
         <p class="validateTips"></p>
         <form id="search_description_dialog_form">

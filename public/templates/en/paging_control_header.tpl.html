@@ -13,7 +13,7 @@
           <a href="{$rel_url}list/author/"><img title="Browse by all authors" alt="Browse by all authors" src="{$rel_url}images/browse_32.jpg" class="page_master_icon" /></a>
         {/if}
         {$list_heading|smarty:nodefaults}
-        {if ($isAdministrator && !$browse_type &&$list_type == "all_records_list" ) }
+        {if (($isAdministrator || $isUPO) && !$browse_type &&$list_type == "all_records_list" ) }
             {$browse_type}
               &nbsp;&nbsp;&nbsp;&nbsp; <img src="{$rel_url}images/star_22{if !$search_favourited}_grey{/if}.png" alt="Favourite this search" title="Favourite this search" id="star_search" onclick="javascript:starSearchToggle();"/>
         {/if}

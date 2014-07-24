@@ -108,9 +108,13 @@
                     {if $isAdministrator}
                         <li{if $active_nav == 'admin'} id="nav-focus"{/if}><a id="Admin" href="{$rel_url}manage/">Admin</a></li>
                         <li{if $active_nav == 'favourites'} id="nav-focus"{/if}>
-                            <a id="Favourites" href="{$rel_url}favourites"><img src="{$rel_url}images/star_16.png" width="16" height="16" alt="View starred records" /></a>
+                            <a id="Favourites" href="{$rel_url}favourites"><img src="{$rel_url}images/star_16.png" width="16" height="16" alt="View starred records"  title="Starred Records"/></a>
                         </li>
-                        <li{if $active_nav == 'saved_search'} id="nav-focus"{/if}><a href="{$rel_url}search_favourites.php"><img src="{$rel_url}images/saved_search.png" width="16" height="16" alt="View saved search" /></a></li>
+                     {/if}
+                     {if $isAdministrator || $isUPO}
+                        <li{if $active_nav == 'saved_search'} id="nav-focus"{/if}><a href="{$rel_url}search_favourites.php"><img src="{$rel_url}images/saved_search.png" width="16" height="16" alt="View saved search" title="Saved Search"/></a></li>
+                     {/if}
+                     {if $isAdministrator}
                         <li id="bgps">
                             <span id="bgpsReceptacle">&nbsp;</span>
                             <a href="#" id="bgpsstat"><img src="/images/icons/bgps_load.gif" alt="" /></a>

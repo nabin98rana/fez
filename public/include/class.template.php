@@ -254,6 +254,8 @@ class Template_API
 
 		$isAdministrator = Auth::isAdministrator();
 		$this->assign("isAdministrator", $isAdministrator);
+        $isUPO = User::isUserUPO($username);
+        $this->assign("isUPO", $isUPO);
 		$canMasquerade = Masquerade::canUserMasquerade($username);
 		$this->assign("canMasquerade", $canMasquerade);
         $prefs = Prefs::get(Auth::getUserID());

@@ -165,13 +165,13 @@ class Lister
 
     $username = Auth::getUsername();
     $isAdministrator = User::isUserAdministrator($username);
+    $isUPO = User::isUserUPO($username);
+    $tpl->assign("isUPO", $isUPO);
 
-    if ($isAdministrator == true) {
+    if ($isAdministrator == true || $isUPO) {
       $tpl->assign("jqueryUI", true);
     }
 
-    $isUPO = User::isUserUPO($username);
-    $tpl->assign("isUPO", $isUPO);
 
     if (($tpl_idx != 0 && $tpl_idx != 10 && $tpl_idx != 4) || $isAdministrator || $isUPO) {
       $citationCache = false;
