@@ -53,6 +53,8 @@ class RCL
 		$candidateConferences = RCL::getCandidateConferences();
 		$rankedConferences = RCL::getRankedConferences();
 		$rankedConferencesAcronyms = RCL::getRankedConferenceAcronyms();
+
+        //We'll assume if and matching is done on a pid, it'll need to be done by had for other years.
     $matchingExceptions = matching::getMatchingExceptions("C");
 		/* Print some information about the number of items found */
 		echo "Number of candidate conferences: " . sizeof($candidateConferences) . "\n";
@@ -147,11 +149,12 @@ class RCL
       " . APP_TABLE_PREFIX . "record_search_key_conference_name ON rek_pid = rek_conference_name_pid INNER JOIN
       " . APP_TABLE_PREFIX . "xsd_display ON rek_display_type = xdis_id
       LEFT JOIN " . APP_TABLE_PREFIX . "matched_conferences ON rek_pid = mtc_pid
-      WHERE rek_status = 2 AND mtc_pid IS NULL AND ".TEST_WHERE_MC."
+      WHERE rek_status = 2  AND ".TEST_WHERE_MC."
       rek_date >= '" . WINDOW_START_MC . "'
 			AND rek_date < '" . WINDOW_END_MC . "'
       AND xdis_title IN ('Conference Paper', 'Conference Item', 'Journal Article', 'RQF 2006 Journal Article', 'RQF 2006 Conference Paper', 'RQF 2007 Journal Article', 'RQF 2007 Conference Paper', 'Online Journal Article')
       GROUP BY rek_pid, rek_conference_name
+      HAVING COUNT(mtc_pid) < 2
       ORDER BY rek_conference_name
       ";
     }
@@ -193,7 +196,8 @@ class RCL
 		$stmt = "
 			SELECT
 				cnf_id,
-				cnf_conference_name AS title
+				cnf_conference_name AS title,
+				cnf_era_year
 			FROM
 				" . APP_TABLE_PREFIX . "conference
 			ORDER BY
@@ -201,17 +205,11 @@ class RCL
 		";
 
 		try {
-			$result = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
+            $rankedConferences = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
 		}
 		catch(Exception $ex) {
 			$log->err($ex);
 			return '';
-		}
-
-		if (count($result) > 0) {
-			foreach ($result as $key => $row) {
-				$rankedConferences[$row['cnf_id']] = $row['title'];
-			}
 		}
 
 		echo "done.\n";
@@ -232,11 +230,13 @@ class RCL
 		$stmt = "
 			SELECT
 				cnf_id,
-				acronym
+				acronym,
+				cnf_era_year
 			FROM (
 				SELECT
 					cnf_id,
 					cnf_acronym AS acronym,
+					cnf_era_year,
 					COUNT(cnf_acronym) AS acronym_count
 				FROM
 					" . APP_TABLE_PREFIX . "conference
@@ -251,18 +251,18 @@ class RCL
 		";
 
 		try {
-			$result = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
+            $rankedConferencesAcronyms = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
 		}
 		catch(Exception $ex) {
 			$log->err($ex);
 			return '';
 		}
 
-		if (count($result) > 0) {
+		/*if (count($result) > 0) {
 			foreach ($result as $key => $row) {
 				$rankedConferencesAcronyms[$row['cnf_id']] = $row['acronym'];
 			}
-		}
+		}*/
 
 		echo "done.\n";
 
@@ -274,7 +274,11 @@ class RCL
 	function normaliseListOfTitles($titles)
 	{
 		foreach ($titles as &$title) {
-			$title = RCL::normaliseTitle($title);
+            if (is_string($title)) {
+                $title = RJL::normaliseTitle($title);
+            } elseif (isset($title['title']) && is_string($title['title'])) {
+                $title['title'] = RJL::normaliseTitle($title['title']);
+            }
 		}
 
 		return $titles;
@@ -311,7 +315,11 @@ class RCL
 	function crushListOfTitles($titles)
 	{
 		foreach ($titles as &$title) {
+            if (is_string($title)) {
 			$title = RCL::crushTitle($title);
+            } elseif (isset($title['title']) && is_string($title['title'])) {
+                $title['title'] = RCL::crushTitle($title['title']);
+            }
 		}
 
 		return $titles;
@@ -342,18 +350,20 @@ class RCL
 		foreach ($check as $sourceKey => $sourceVal) {
 
 			/* Attempt to match it against each target item */
-			foreach ($against as $targetKey => $targetVal) {
+			foreach ($against as $target) {
 
 				/* Test for exact string match */
-				if ($sourceVal == $targetVal) {
-//					$matches[$sourceKey] = $targetKey;
+				if ($sourceVal == $target['title']) {
           foreach ($matches as $match) {
-            if ($match['pid'] == $sourceKey) {
+                        if ($match['pid'] == $sourceKey && $match['matching_year'] == $target['cnf_era_year']) {
                 $existsAlready = true;
+                            break;
             }
           }
-          if ($existsAlready !== true) {
-            $matches[] = array('pid' => $sourceKey, 'matching_id' => $targetKey);
+                    if ($existsAlready && $match['matching_id'] != $target['cnf_id'] ) {
+                        echo "~DOUBLE MATCH~ ".$sourceKey." ". $match['matching_id']." ".$target['cnf_id']; // This is probably bad news.
+                    } else {
+                        $matches[] = array('pid' => $sourceKey, 'matching_id' => $target['cnf_id'], 'matching_year' => $target['cnf_era_year']);
           }
 				}
 			}
@@ -369,23 +379,25 @@ class RCL
 	function lookForMatchesByStringCrush($check, $against, &$matches)
 	{
 		echo "Running normalised string match ... ";
-		$existsAlready = false;
 		/* Step through each source item */
 		foreach ($check as $sourceKey => $sourceVal) {
 
 			/* Attempt to match it against each target item */
-			foreach ($against as $targetKey => $targetVal) {
+			foreach ($against as $target) {
 
 				/* Test for exact string match */
-				if ($sourceVal == $targetVal) {
-//					$matches[$sourceKey] = $targetKey;
+                if ($sourceVal == $target['title']) {
+                    $existsAlready = false;
           foreach ($matches as $match) {
-            if ($match['pid'] == $sourceKey) {
+                        if ($match['pid'] == $sourceKey && $match['matching_year'] == $target['cnf_era_year']) {
                 $existsAlready = true;
+                            break;
             }
           }
-          if ($existsAlready !== true) {
-            $matches[] = array('pid' => $sourceKey, 'matching_id' => $targetKey);
+                    if ($existsAlready && $match['matching_id'] != $target['cnf_id'] ) {
+                        echo "~DOUBLE MATCH~ ".$sourceKey." ". $match['matching_id']." ".$target['cnf_id']; // This is probably bad news.
+                    } else {
+                        $matches[] = array('pid' => $sourceKey, 'matching_id' => $target['cnf_id'], 'matching_year' => $target['cnf_era_year']);
           }
 				}
 			}
@@ -406,40 +418,47 @@ class RCL
 		foreach ($check as $sourceKey => $sourceVal) {
 
 			/* Attempt to match it against each target item */
-			foreach ($against as $targetKey => $targetVal) {
+			foreach ($against as $target) {
 
-				$targetVal = str_replace('/', '', $targetVal); // Get rid of slashes ... these cause us headaches.
+                $target['acronym'] = str_replace('/', '', $target['acronym']); // Get rid of slashes ... these cause us headaches.
                 //First we quickly see if it might be a match
-                  if ((strpos($sourceVal, $targetVal) !== false) &&  !empty($targetVal)) {
+                  if ((strpos($sourceVal, $target['acronym']) !== false) &&  !empty($target['acronym'])) {
 
                       //Now we check that the acronym is in isolation.
-                      $regexp1 = '/[^A-Za-z0-9](' . $targetVal . ')[^A-Za-z0-9]/';
-                      $regexp2 = '/^(' . $targetVal . ')[^A-Za-z0-9]/';
-                      $regexp3 = '/[^A-Za-z0-9](' . $targetVal . ')$/';
-                      $regexp4 = '/^(' . $targetVal . ')$/';
+                      $regexp1 = '/[^A-Za-z0-9](' . $target['acronym'] . ')[^A-Za-z0-9]/';
+                      $regexp2 = '/^(' . $target['acronym'] . ')[^A-Za-z0-9]/';
+                      $regexp3 = '/[^A-Za-z0-9](' . $target['acronym'] . ')$/';
+                      $regexp4 = '/^(' . $target['acronym'] . ')$/';
                       if (preg_match($regexp1, $sourceVal) || preg_match($regexp2, $sourceVal) || preg_match($regexp3, $sourceVal) || preg_match($regexp4, $sourceVal)) {
                         /* Rule out any values we know we don't want to match on */
                         if (
-                            $targetVal != "Complex"
-                            && $targetVal != "Group"
-                            && $targetVal != "Information Processing"
-                            && $targetVal != "Interaction"
-                            && $targetVal != "Coordination"
-                            && $targetVal != "Complexity"
-                            && $targetVal != "IV"
-                            && $targetVal != "VI"
-                            && $targetVal != "e-Science"
-                            && $targetVal != "Sensor Networks"
-                            && $targetVal != "Interact"
-                            && $targetVal != "Middleware"
-                            && $targetVal != "PRIMA"
-                            && $targetVal != "Agile"
-                            && $targetVal != "DNA"
+                            $target['acronym'] != "Complex"
+                            && $target['acronym'] != "Group"
+                            && $target['acronym'] != "Information Processing"
+                            && $target['acronym'] != "Interaction"
+                            && $target['acronym'] != "Coordination"
+                            && $target['acronym'] != "Complexity"
+                            && $target['acronym'] != "IV"
+                            && $target['acronym'] != "VI"
+                            && $target['acronym'] != "e-Science"
+                            && $target['acronym'] != "Sensor Networks"
+                            && $target['acronym'] != "Interact"
+                            && $target['acronym'] != "Middleware"
+                            && $target['acronym'] != "PRIMA"
+                            && $target['acronym'] != "Agile"
+                            && $target['acronym'] != "DNA"
                             ) {
-                                if (array_key_exists($sourceKey, $matches)) {
-                                    //echo "~DOUBLE MATCH~"; // This is probably bad news.
+                                $existsAlready = false;
+                                foreach ($matches as $match) {
+                                    if ($match['pid'] == $sourceKey && $match['matching_year'] == $target['cnf_era_year']) {
+                                        $existsAlready = true;
+                                        break;
+                                    }
+                                }
+                                if ($existsAlready && $match['matching_id'] != $target['cnf_id'] ) {
+                                    echo "~DOUBLE MATCH~ ".$sourceKey." ". $match['matching_id']." ".$target['cnf_id']; // This is probably bad news.
                                 } else {
-                                    $matches[] = array('pid' => $sourceKey, 'matching_id' => $targetKey);
+                                    $matches[] = array('pid' => $sourceKey, 'matching_id' => $target['cnf_id'], 'matching_year' => $target['cnf_era_year']);
                                 }
                             }
                       }
@@ -462,7 +481,9 @@ class RCL
 		echo "Running insertion queries on eSpace database ... ";
 
 		foreach ($matches as $match) {
-			RCL::removeMatchByPID($match['pid']);
+
+            //Now we have two possible matches, we won't remove the previous and rely on previous checks to not double up
+			//RCL::removeMatchByPID($match['pid']);
 			$stmt = "INSERT INTO " . APP_TABLE_PREFIX . "matched_conferences (mtc_pid, mtc_cnf_id, mtc_status) VALUES ('" . $match['pid'] . "', '" . $match['matching_id'] . "', 'A') ON DUPLICATE KEY UPDATE mtc_pid = mtc_pid, mtc_cnf_id = mtc_cnf_id;";
 
 			try {
@@ -476,10 +497,10 @@ class RCL
         FulltextQueue::singleton()->add($match['pid']);
       }
 
-      if( APP_FILECACHE == "ON" ) {
+            /*if( APP_FILECACHE == "ON" ) {
         $cache = new fileCache($match['pid'], 'pid='.$match['pid']);
         $cache->poisonCache();
-      }
+            }*/
 		}
 
 		echo "done.\n";
@@ -487,6 +508,7 @@ class RCL
 		return;
 	}
 
+    //Redundant
     function removeMatchByPID($pid)
    	{
    		$log = FezLog::get();

@@ -659,12 +659,14 @@ class RJL
                         if ($userMatch['jnl_era_year'] == $targetVal['jnl_era_year'] && $userMatch['mtj_pid'] == $sourceKey) {
                             $existsAlready = true;
                             $this->userManualMatchCount++;
+                            break;
                         }
                     }
                     if ($existsAlready !== true) {
                         foreach ($matches as $match) {
                             if ($match['year'] == $targetVal['jnl_era_year'] && $match['pid'] == $sourceKey && $match['matching_id'] == $targetVal['jnl_id']) {
                                 $existsAlready = true;
+                                break;
                             }
                             if ($match['year'] == $targetVal['jnl_era_year'] && $match['pid'] == $sourceKey && $match['matching_id'] != $targetVal['jnl_id']) {
                                 $existsAlready = true;
@@ -672,6 +674,7 @@ class RJL
                                     "PID Journal name: " . $sourceVal . "\n" .
                                     "Existing Match jnl_id: " . $match['matching_id'] . " - Year: " . $match['year'] . "\n" .
                                     "New Candidate Match: " . $targetVal['jnl_id'] . " - Year: " . $targetVal['jnl_era_year'] . "\n\n";
+                                break;
                             }
                         }
                     }
@@ -728,12 +731,14 @@ class RJL
                         if ($userMatch['jnl_era_year'] == $targetVal['jnl_era_year'] && $userMatch['mtj_pid'] == $sourceKey) {
                             $existsAlready = true;
                             $this->userManualMatchCount++;
+                            break;
                         }
                     }
                     if ($existsAlready !== true) {
                         foreach ($matches as $match) {
                             if ($match['year'] == $targetVal['jnl_era_year'] && $match['pid'] == $sourceKey && $match['matching_id'] == $targetVal['jnl_id']) {
                                 $existsAlready = true;
+                                break;
                             }
                             if ($match['year'] == $targetVal['jnl_era_year'] && $match['pid'] == $sourceKey && $match['matching_id'] != $targetVal['jnl_id']) {
                                 $existsAlready = true;
@@ -741,6 +746,7 @@ class RJL
                                     "PID Journal name: " . $sourceVal . "\n" .
                                     "Existing Match jnl_id: " . $match['matching_id'] . " - Year: " . $match['year'] . "\n" .
                                     "New Candidate Match: " . $targetVal['jnl_id'] . " - Year: " . $targetVal['jnl_era_year'] . "\n\n";
+                                    break;
                             }
                         }
                     }
@@ -799,6 +805,7 @@ class RJL
                         if ($userMatch['jnl_era_year'] == $targetVal['jnl_era_year'] && $userMatch['mtj_pid'] == $sourceKey) {
                             $existsAlready = true;
                             $this->userManualMatchCount++;
+                            break;
                         }
                     }
                     if ($existsAlready !== true) {

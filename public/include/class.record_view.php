@@ -216,13 +216,13 @@ class RecordView {
                             }
 
                             if (array_key_exists('rj_2015_title', $rjinfo)) {
-                                $rjl .= "&nbsp; (ERA 2015 Listed)";
+                                $rjl .= "&nbsp; <span style='color: #1e88ce' title= '".$rjinfo['rj_2015_title']."'>(ERA 2015 Listed)</span>";
                             }
                             if (array_key_exists('rj_2012_title', $rjinfo)) {
-                                $rjl .= "&nbsp;&nbsp;&nbsp; (ERA 2012 Listed)";
+                                $rjl .= "&nbsp;&nbsp;&nbsp; <span style='color: #1e88ce' title= '".$rjinfo['rj_2012_title']."'>(ERA 2012 Listed)</span>";
                             }
                             if (array_key_exists('rj_2010_rank', $rjinfo)) {
-                                $rjl .= "&nbsp;&nbsp;&nbsp; (ERA 2010 Rank ".$rjinfo['rj_2010_rank'].")";
+                                $rjl .= "&nbsp;&nbsp;&nbsp; <span style='color: #1e88ce' title= '".$rjinfo['rj_2010_title']."'>(ERA 2010 Rank ".$rjinfo['rj_2010_rank'].")</span>";
                             }
                         }
                         $sRdetails = SherpaRomeo::getJournalColourFromPid($this->record->pid);
@@ -250,13 +250,13 @@ class RecordView {
                                     $rcinfo['rc_2010_rank'] = "N/R";
                                 }
                                 if (array_key_exists('rc_2015_title', $rcinfo)) {
-                                    $rcl .= "&nbsp; (ERA 2015 Listed)";
+                                    $rcl .= "&nbsp; <span style='color: #1e88ce' title= '".$rcinfo['rc_2015_title']."'>(ERA 2015 Listed)</span>";
                                 }
                                 if (array_key_exists('rc_2012_title', $rcinfo)) {
-                                    $rcl .= "&nbsp; (ERA 2012 Listed)";
+                                    $rcl .= "<span style='color: #1e88ce' title= '".$rcinfo['rc_2012_title']."'>&nbsp; (ERA 2012 Listed)</span>";
                                 }
                                 if (array_key_exists('rc_2010_rank', $rcinfo)) {
-                                    $rcl .= "&nbsp;&nbsp;&nbsp; (ERA 2010 Rank ".$rcinfo['rc_2010_rank'].")";
+                                    $rcl .= "&nbsp;&nbsp;&nbsp; <span style='color: #1e88ce' title= '".$rcinfo['rc_2014_title']."'>(ERA 2010 Rank ".$rcinfo['rc_2010_rank'].")</span>";
                                 }
                             }
 						}
