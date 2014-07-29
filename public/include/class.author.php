@@ -1395,7 +1395,7 @@ class Author
     $stmt .= " ) ";
 
     if (APP_AUTHOR_SUGGEST_MODE == 2) {
-      $stmt .= " AND ((aut_org_username IS NOT NULL AND aut_org_username != '') OR (aut_org_staff_id IS NOT NULL AND aut_org_staff_id != ''))";
+      $stmt .= " AND ((aut_org_username IS NOT NULL AND aut_org_username != '') OR (aut_org_staff_id IS NOT NULL AND aut_org_staff_id != '') OR (aut_ref_num IS NOT NULL AND aut_ref_num != ''))";
     }
 
     if (is_numeric($term)) {
