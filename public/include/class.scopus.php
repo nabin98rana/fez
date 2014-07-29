@@ -162,7 +162,7 @@ GROUP BY rek_pid
 		foreach($input_keys as $k => $v) {			
 			$params .= '<inputKey><clientCRF xmlns="">'.trim($k).'</clientCRF>';
 			foreach($v as $_k => $_v) {
-				$params .= '<'.trim($_k).' xmlns="">'.trim($_v).'</'.trim($_k).'>';
+				$params .= '<'.trim($_k).' xmlns="">'.htmlspecialchars(trim($_v)).'</'.trim($_k).'>';
 			}
 			$params .= '</inputKey>';
 		}
