@@ -42,6 +42,7 @@ class RCL
 {
   var $unMatched = "0";
   var $runType = "0";
+  var $dupeList = "";
 
 	function matchAll()
 	{
@@ -54,8 +55,8 @@ class RCL
 		$rankedConferences = RCL::getRankedConferences();
 		$rankedConferencesAcronyms = RCL::getRankedConferenceAcronyms();
 
-        //We'll assume if and matching is done on a pid, it'll need to be done by had for other years.
-    $matchingExceptions = matching::getMatchingExceptions("C");
+        //We'll assume if and matching is done on a pid, it'll need to be done by hand for other years.
+        $matchingExceptions = matching::getMatchingExceptions("C");
 		/* Print some information about the number of items found */
 		echo "Number of candidate conferences: " . sizeof($candidateConferences) . "\n";
 		echo "Number of ranked conferences: " . sizeof($rankedConferences) . "\n";
@@ -86,18 +87,29 @@ class RCL
 		//RCL::lookForManualMatches($normalisedCandidateJournals, $manualMatches, $matches); // -- this looks like it was never implemented?
 
 		/* Subtract from any match results those PIDs that are either black-listed, or manually mapped */
-    $okMatches = array();
-    /* Subtract from any match results those PIDs that are either black-listed, or manually mapped */
-    foreach ($matches as $match) {
-      if (!in_array($match['pid'], $matchingExceptions)) {
-        $okMatches[] = $match;
-      }
-    }
-    $matches = $okMatches;
-    echo "Total number of OK matches (not black-listed or manually mapped): " . sizeof($matches) . "\n";
-    ob_flush();
+        $okMatches = array();
+        /* Subtract from any match results those PIDs that are either black-listed, or manually mapped */
+        foreach ($matches as $match) {
+          if (!in_array($match['pid'], $matchingExceptions)) {
+            $okMatches[] = $match;
+          }
+        }
+        $matches = $okMatches;
+        echo "Total number of OK matches (not black-listed or manually mapped): " . sizeof($matches) . "\n";
+        ob_flush();
 
 		echo "Total number of matches: " . sizeof($matches) . "\n";
+
+        echo "Dupe list:\n\n" . $this->dupeList . "\n";
+        // Email the dupes list to the espace admin email address
+        if ($this->dupeList != '') {
+            $mail = new Mail_API;
+            $mail->setTextBody(stripslashes($this->dupeList));
+            $subject = '[' . APP_NAME . '] - Duplicate Journal Matches found, please resolve manually using manual matching';
+            $from = APP_EMAIL_SYSTEM_FROM_ADDRESS;
+            $to = 'a.brown@library.uq.edu.au'; //APP_ADMIN_EMAIL;
+            $mail->send($from, $to, $subject, false);
+        }
 
 		RCL::runInserts($matches);
 
@@ -136,6 +148,7 @@ class RCL
 				AND rek_status = 2
 				AND rek_date >= '" . WINDOW_START_MC . "'
 				AND rek_date < '" . WINDOW_END_MC . "'
+				AND rek_subtype = 'Fully published paper'
 			ORDER BY
 				conference_name ASC;
 		";
@@ -153,6 +166,7 @@ class RCL
       rek_date >= '" . WINDOW_START_MC . "'
 			AND rek_date < '" . WINDOW_END_MC . "'
       AND xdis_title IN ('Conference Paper', 'Conference Item', 'Journal Article', 'RQF 2006 Journal Article', 'RQF 2006 Conference Paper', 'RQF 2007 Journal Article', 'RQF 2007 Conference Paper', 'Online Journal Article')
+      AND rek_subtype = 'Fully published paper'
       GROUP BY rek_pid, rek_conference_name
       HAVING COUNT(mtc_pid) < 2
       ORDER BY rek_conference_name
@@ -354,17 +368,17 @@ class RCL
 
 				/* Test for exact string match */
 				if ($sourceVal == $target['title']) {
-          foreach ($matches as $match) {
+                    foreach ($matches as $match) {
                         if ($match['pid'] == $sourceKey && $match['matching_year'] == $target['cnf_era_year']) {
-                $existsAlready = true;
+                            $existsAlready = true;
                             break;
-            }
-          }
+                        }
+                    }
                     if ($existsAlready && $match['matching_id'] != $target['cnf_id'] ) {
-                        echo "~DOUBLE MATCH~ ".$sourceKey." ". $match['matching_id']." ".$target['cnf_id']; // This is probably bad news.
+                        $this->dupeList .= "Double Match: String Comparison: ".$sourceKey." on existing conf id ". $match['matching_id']." with conf id ".$target['cnf_id']. " - " .$target['title']." Year: ".$target['cnf_era_year']. "\n";
                     } else {
                         $matches[] = array('pid' => $sourceKey, 'matching_id' => $target['cnf_id'], 'matching_year' => $target['cnf_era_year']);
-          }
+                    }
 				}
 			}
 		}
@@ -388,17 +402,17 @@ class RCL
 				/* Test for exact string match */
                 if ($sourceVal == $target['title']) {
                     $existsAlready = false;
-          foreach ($matches as $match) {
+                    foreach ($matches as $match) {
                         if ($match['pid'] == $sourceKey && $match['matching_year'] == $target['cnf_era_year']) {
-                $existsAlready = true;
+                            $existsAlready = true;
                             break;
-            }
-          }
+                        }
+                    }
                     if ($existsAlready && $match['matching_id'] != $target['cnf_id'] ) {
-                        echo "~DOUBLE MATCH~ ".$sourceKey." ". $match['matching_id']." ".$target['cnf_id']; // This is probably bad news.
+                        $this->dupeList .= "Double Match: String Crush stage: ".$sourceKey." on proposed conf id ". $match['matching_id']." with conf id ".$target['cnf_id']. " - " .$target['title']." Year: ".$target['cnf_era_year']. "\n";
                     } else {
                         $matches[] = array('pid' => $sourceKey, 'matching_id' => $target['cnf_id'], 'matching_year' => $target['cnf_era_year']);
-          }
+                    }
 				}
 			}
 		}
@@ -456,7 +470,7 @@ class RCL
                                     }
                                 }
                                 if ($existsAlready && $match['matching_id'] != $target['cnf_id'] ) {
-                                    echo "~DOUBLE MATCH~ ".$sourceKey." ". $match['matching_id']." ".$target['cnf_id']; // This is probably bad news.
+                                    $this->dupeList .= "Double Match: acronym stage: ".$sourceKey." on proposed conf id ". $match['matching_id']." with conf id ".$target['cnf_id']. " - " .$sourceVal." vs ".$target['acronym']." Year: ".$target['cnf_era_year']. "\n";
                                 } else {
                                     $matches[] = array('pid' => $sourceKey, 'matching_id' => $target['cnf_id'], 'matching_year' => $target['cnf_era_year']);
                                 }
@@ -482,42 +496,46 @@ class RCL
 
 		foreach ($matches as $match) {
 
-            //Now we have two possible matches, we won't remove the previous and rely on previous checks to not double up
-			//RCL::removeMatchByPID($match['pid']);
-			$stmt = "INSERT INTO " . APP_TABLE_PREFIX . "matched_conferences (mtc_pid, mtc_cnf_id, mtc_status) VALUES ('" . $match['pid'] . "', '" . $match['matching_id'] . "', 'A') ON DUPLICATE KEY UPDATE mtc_pid = mtc_pid, mtc_cnf_id = mtc_cnf_id;";
+            //If matched by year already we won't remove it to keep things stable (Unless we are redoing all)
+            $exists = RCL::getConferenceIDsByPIDYear($match['pid'], $match['matching_year']);
+            if (($this->unMatched != true) || empty($exists)) {
+                RCL::removeMatchByPID($match['pid']);
+                $stmt = "INSERT INTO " . APP_TABLE_PREFIX . "matched_conferences (mtc_pid, mtc_cnf_id, mtc_status) VALUES ('" . $match['pid'] . "', '" . $match['matching_id'] . "', 'A') ON DUPLICATE KEY UPDATE mtc_pid = mtc_pid, mtc_cnf_id = mtc_cnf_id;";
 
-			try {
-				$db->exec($stmt);
-			}
-			catch(Exception $ex) {
-				$log->err($ex);
-				die('There was a problem with the query ' . $stmt);
-			}
-      if ( APP_SOLR_INDEXER == "ON" ) {
-        FulltextQueue::singleton()->add($match['pid']);
-      }
+                try {
+                    $db->exec($stmt);
+                }
+                catch(Exception $ex) {
+                    $log->err($ex);
+                    die('There was a problem with the query ' . $stmt);
+                }
+                  if ( APP_SOLR_INDEXER == "ON" ) {
+                    FulltextQueue::singleton()->add($match['pid']);
+                  }
 
-            /*if( APP_FILECACHE == "ON" ) {
-        $cache = new fileCache($match['pid'], 'pid='.$match['pid']);
-        $cache->poisonCache();
-            }*/
-		}
+		    }
+        }
 
 		echo "done.\n";
 
 		return;
 	}
 
-    //Redundant
-    function removeMatchByPID($pid)
+
+    function removeMatchByPID($pid, $year = '%')
    	{
    		$log = FezLog::get();
    		$db = DB_API::get();
 
+        $existingIDs = RCL::getConferenceIDsByPIDYear($pid, $year);
+        if (count($existingIDs) == 0) {
+            return true;
+        }
+
    		$stmt = "DELETE FROM
                        " . APP_TABLE_PREFIX . "matched_conferences
                     WHERE
-                       mtc_pid = ?";
+                       mtc_pid = ? AND mtc_cnf_id IN ('" . implode("','", $existingIDs) . "')";
    		try {
    			$db->query($stmt, $pid);
    		}
@@ -527,5 +545,29 @@ class RCL
    		}
    		return true;
    	}
+
+    function getConferenceIDsByPIDYear($pid, $year = '%')
+    {
+        $log = FezLog::get();
+        $db = DB_API::get();
+
+        $stmt = "
+  			SELECT
+  				cnf_id
+  			FROM
+  				" . APP_TABLE_PREFIX . "conference INNER JOIN
+  				" . APP_TABLE_PREFIX . "matched_conferences ON cnf_id = mtc_cnf_id
+  			WHERE cnf_era_year LIKE '" . $year . "' AND mtc_pid = '" . $pid . "'
+  		";
+
+        try {
+            $result = $db->fetchCol($stmt);
+        } catch (Exception $ex) {
+            $log->err($ex);
+            return array();
+        }
+
+        return $result;
+    }
 
 }

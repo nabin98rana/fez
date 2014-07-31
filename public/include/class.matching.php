@@ -86,7 +86,7 @@ class matching
 
         if ($filterYear != '') {
             $stmtFrom .= (strpos($stmtFrom, 'WHERE') === FALSE) ? ' WHERE ' : ' AND ';
-            $stmtFrom .= APP_TABLE_PREFIX . "journal.jnl_era_year = " . $db->quote($filterYear) . " OR " . APP_TABLE_PREFIX . "conference.cnf_era_year = " . $db->quote($filterYear);
+            $stmtFrom .= " ( ".APP_TABLE_PREFIX . "journal.jnl_era_year = " . $db->quote($filterYear) . " OR " . APP_TABLE_PREFIX . "conference.cnf_era_year = " . $db->quote($filterYear)." ) ";
         }
 
 		$stmtLimit = "
@@ -157,6 +157,8 @@ class matching
 				fez_matched_" . $table . "
 			WHERE
 				" . $prefix . "_status != 'A'
+		    GROUP BY
+				pid
 		";
 
 		try {
@@ -272,5 +274,39 @@ class matching
 		header("Location: http://" . APP_HOSTNAME . "/manage/matching.php");
 		exit;
 	}
+
+    function suggest($term, $type, $year = null)
+    {
+        $log = FezLog::get();
+        $db = DB_API::get();
+        $term = str_replace(' ', '%', $term);
+        if($type == 'C') {
+            $stmt = "SELECT cnf_id, CONCAT(cnf_conference_name, ' (', cnf_era_year,')')  AS 'conference_name'
+                    FROM " . APP_TABLE_PREFIX . "conference
+                    WHERE
+                    ( cnf_conference_name LIKE ".$db->quote("%".$term."%")."
+                            OR cnf_id = ".$db->quote($term)." ) ";
+            $stmt .= empty($year) ? " LIMIT 30" : " AND cnf_era_year = ".$db->quote($year)." LIMIT 30";
+        } else {
+            $stmt = "SELECT jnl_id, CONCAT(jnl_journal_name, ' (', jnl_era_year,')')  AS 'journal_name'
+                    FROM " . APP_TABLE_PREFIX . "journal
+                    WHERE
+                    ( jnl_journal_name LIKE ".$db->quote("%".$term."%")."
+                            OR jnl_id = ".$db->quote($term)." ) ";
+            $stmt .= empty($year) ? " LIMIT 30" : " AND jnl_era_year = ".$db->quote($year)." LIMIT 30";
+
+        }
+
+        try {
+            $res = $db->fetchAll($stmt);
+        }
+        catch(Exception $ex) {
+            $log->err($ex);
+            return false;
+        }
+
+        return $res;
+
+    }
 
 }
