@@ -58,7 +58,7 @@ $cat = $_REQUEST['cat'];
 if ($cat == 'submit') {
     $wfstatus->pid = $_REQUEST['community_pid'];
     $wfstatus->xdis_id = $_REQUEST['xdis_id'];
-    $wfstatus->parent_pid = $_REQUEST['-1'];
+    $wfstatus->parent_pid = $_REQUEST['community_pid'];
 }
 $wfstatus->checkStateChange();
 $communities_list = Community::getCreatorListAssoc();
@@ -67,4 +67,4 @@ $tpl->assign('communities_list_selected', $communities_list['rek_pid']);
 $tpl->registerNajax( NAJAX_Client::register('SelectCreateInfo', APP_RELATIVE_URL.'ajax.php'));
 
 $tpl->displayTemplate();
-?>
+

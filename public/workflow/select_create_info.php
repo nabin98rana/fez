@@ -71,4 +71,4 @@ $tpl->assign('najax_header', NAJAX_Utilities::header(APP_RELATIVE_URL.'include/n
 $tpl->registerNajax( NAJAX_Client::register('SelectCreateInfo', 'select_create_info.php'));
 
 $tpl->displayTemplate();
-?>
+
