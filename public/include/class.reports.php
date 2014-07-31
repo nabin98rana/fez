@@ -156,8 +156,17 @@ class Reports
 
     function outputHTML(&$data)
     {
-        if (count($data) > 0) { ?>
-            <table>
+
+        if (count($data) > 0) {
+            foreach($data as &$row) {
+                foreach($row as &$cell) {
+                    if (stripos($cell, 'http') === 0) {
+                        $cell = "<a href = '".$cell."'>link</a>";
+                    }
+                }
+            }
+
+            ?> <table>
                 <thead>
                 <tr>
                     <th><?php echo implode('</th><th>', array_keys(current($data))); ?></th>
