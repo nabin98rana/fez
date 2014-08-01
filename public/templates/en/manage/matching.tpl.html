@@ -149,7 +149,10 @@ function setPage(new_page)
 
 	{if $show == "edit-screen"}
 
-		<h1>Edit {if $match_type == 'C'}Conference{elseif $match_type == 'J'}Journal{/if} Mapping for {$pid}</h1>
+		<h1>Edit {if $match_type == 'C'}Conference{elseif $match_type == 'J'}Journal{/if} Mapping for {$pid}
+            {if $match_type == 'J'} - Match for years <a href = "/manage/matching.php?type=J&action=edit&pid={$pid}&year=2010"> (2010)</a> <a href = "/manage/matching.php?type=J&action=edit&pid={$pid}&year=2012"> (2012)</a>
+            <a href = "/manage/matching.php?type=J&action=edit&pid={$pid}&year=2015"> (2015)</a>{/if}
+        </h1>
 
 		<div id="research-solo-citation">
 			{$citation|smarty:nodefaults}

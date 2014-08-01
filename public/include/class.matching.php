@@ -266,11 +266,6 @@ class matching
             }
         }
 
-        if( APP_FILECACHE == "ON" ) {
-            $cache = new fileCache($pid, 'pid='.$pid);
-            $cache->poisonCache();
-        }
-
 		header("Location: http://" . APP_HOSTNAME . "/manage/matching.php");
 		exit;
 	}
@@ -305,6 +300,76 @@ class matching
             return false;
         }
 
+        return $res;
+
+    }
+
+    function addJournalMapping($pid, $eraJournalId, $year) {
+        $log = FezLog::get();
+        $db = DB_API::get();
+
+        $JournalId = Matching:: getJournalIdFromEraId($eraJournalId, $year);
+
+        if(empty($JournalId)) {
+            return false;
+        }
+
+        $stmt = "INSERT INTO " . APP_TABLE_PREFIX . "matched_journals (mtj_pid, mtj_jnl_id, mtj_status) VALUES (" . $db->quote($pid) . ", $db->quote($JournalId), 'M') ON DUPLICATE KEY UPDATE mtj_jnl_id = ".$db->quote($JournalId);
+        try {
+            $db->query($stmt);
+        } catch (Exception $ex) {
+            $log->err($ex);
+            return false;
+        }
+        return true;
+    }
+
+    function getJournalIdFromEraId($eraJournalId, $year) {
+        $log = FezLog::get();
+        $db = DB_API::get();
+
+        $stmt = "SELECT jnl_id FROM " . APP_TABLE_PREFIX . "journal WHERE jnl_era_id = " . $db->quote($eraJournalId) . " AND jnl_era_year = " . $db->quote($year) . "";
+        try {
+            $res = $db->fetchOne($stmt);
+        } catch (Exception $ex) {
+            $log->err($ex);
+            return false;
+        }
+        return $res;
+
+    }
+
+    function addConferenceMapping($pid, $eraConferenceId, $year) {
+        $log = FezLog::get();
+        $db = DB_API::get();
+
+        $ConferenceId = Matching:: getConferenceIdFromEraId($eraConferenceId, $year);
+
+        if(empty($ConferenceId)) {
+            return false;
+        }
+
+        $stmt = "INSERT INTO " . APP_TABLE_PREFIX . "matched_conferences (mtc_pid, mtc_cnf_id, mtc_status) VALUES (" . $db->quote($pid) . ", $db->quote($ConferenceId), 'M') ON DUPLICATE KEY UPDATE mtc_cnf_id = ".$db->quote($ConferenceId);
+        try {
+            $db->query($stmt);
+        } catch (Exception $ex) {
+            $log->err($ex);
+            return false;
+        }
+        return true;
+    }
+
+    function getConferenceIdFromEraId($eraConferenceId, $year) {
+        $log = FezLog::get();
+        $db = DB_API::get();
+
+        $stmt = "SELECT cnf_id FROM " . APP_TABLE_PREFIX . "conference WHERE cnf_era_id = " . $db->quote($eraConferenceId) . " AND cnf_era_year = " . $db->quote($year) . "";
+        try {
+            $res = $db->fetchOne($stmt);
+        } catch (Exception $ex) {
+            $log->err($ex);
+            return false;
+        }
         return $res;
 
     }

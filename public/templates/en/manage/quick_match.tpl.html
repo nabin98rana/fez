@@ -1,0 +1,15 @@
+<div class="admin-box">
+
+    {if $previous_pid && $worked} Just Matched {$previous_pid} to {$previous_match} {/if}
+    {if !$worked} Failed to match {$previous_pid} to {$previous_match} {/if}
+
+<h1>Quick match <span style="color:red">{$match_type}</span> 2015</h1>
+    <form method="post">
+    PID: <input name='pid' type="text" />
+    ERA {$match_type} id: <input name='matching_id' type="text" />
+        <input name="submit" type="submit" value ="Save" />
+        <input type="hidden" name="type" value ="J"/>
+        <input type="hidden" name="status" value ="M"/>
+    </form>
+</div>
+

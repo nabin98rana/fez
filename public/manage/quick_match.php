@@ -35,13 +35,14 @@ include_once(dirname(dirname(__FILE__)).DIRECTORY_SEPARATOR."config.inc.php");
 include_once(APP_INC_PATH . "class.db_api.php");
 include_once(APP_INC_PATH . "class.template.php");
 include_once(APP_INC_PATH . "class.reports.php");
+include_once(APP_INC_PATH . "class.matching.php");
 
 $tpl = new Template_API();
 $tpl->setTemplate("manage/index.tpl.html");
 
 Auth::checkAuthentication(APP_SESSION);
 
-$tpl->assign("type", "reports");
+$tpl->assign("type", "quick_match");
 $tpl->assign("active_nav", "admin");
 $isUser = Auth::getUsername();
 $isAdministrator = User::isUserAdministrator($isUser);
@@ -50,23 +51,30 @@ $tpl->assign("isUser", $isUser);
 $tpl->assign("isAdministrator", $isAdministrator);
 $tpl->assign("isSuperAdministrator", $isSuperAdministrator);
 
+$worked = true;
+
 if (!isAdministrator) {
     $tpl->assign("show_not_allowed_msg", true);
 } else {
-    $reports = new Reports;
-    if (is_numeric($_GET['download_id'])) {
-        $reports->returnCSVFromId($_GET['download_id']);
-        exit;
-    } else if (is_numeric($_GET['text_id'])) {
-        echo $reports->returnHTMLFromId($_GET['text_id']);
-        exit;
-    } else if (is_numeric($_GET['json_id'])) {
-        echo $reports->returnJSONFromId($_GET['json_id'], $_GET['callback']);
-        exit;
+    if($_POST['submit'] == 'Save') {
+        if ( strtolower($_GET['match_type']) == 'conference') {
+            $worked = Matching::addConferenceMapping($_POST['pid'], $_POST['matching_id'], '2015');
+        } else if (strtolower($_GET['match_type']) == 'journal') {
+            $worked = Matching::addJournalMapping($_POST['pid'], $_POST['matching_id'], '2015');
+        }
+        $tpl->assign("previous_pid", $_POST['pid']);
+        $tpl->assign("previous_match", $_POST['matching_id']);
     }
-
-    $reportsList = $reports->getReportList();
-    $tpl->assign("reports", $reportsList);
 }
 
+$match_type = "none!!!!";
+
+if ( strtolower($_GET['match_type']) == 'conference') {
+    $match_type = "Conference";
+} else if (strtolower($_GET['match_type']) == 'journal') {
+    $match_type = "Journal";
+}
+
+$tpl->assign("match_type", $match_type);
+$tpl->assign("worked", $worked);
 $tpl->displayTemplate();

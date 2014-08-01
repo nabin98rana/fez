@@ -7,7 +7,8 @@
     <td>Title</td>
     <td>Query</td>
     <td>Description</td>
-    <td>Download</td>
+    <td>Excel</td>
+    <td>Fancy View</td>
     <td>Text</td>
 </tr>
 {section name="i" loop=$reports}
@@ -25,6 +26,9 @@
                         </td>
                         <td style="width: 5%;" class="default">
                         <a href="{$smarty.server.PHP_SELF}?download_id={$report.sel_id}"><image src="/images/filemanager/file_folder_icon/fileExcel.png"/></a>
+                        </td>
+                        <td style="width: 5%;" class="default">
+                            <a href="https://app.library.uq.edu.au/#/espace/report/{$report.sel_id}"><img src="/images/angularjs.ico"></a>
                         </td>
                         <td style="width: 5%;" class="default">
                             <a href="{$smarty.server.PHP_SELF}?text_id={$report.sel_id}">T</a>

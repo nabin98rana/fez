@@ -403,11 +403,15 @@ class Journal
 	/**
 	 * Get the complete list of journals.
 	 */
-	function getJournals($year = '')
+	function getJournals($year = '2015')
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
+        if (empty($year)) {
+            $year = 2015;
+        }
+
 		$stmt = "
 			SELECT
 			    jnl_id as matching_id,

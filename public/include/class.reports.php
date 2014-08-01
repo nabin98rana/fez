@@ -159,9 +159,9 @@ class Reports
 
         if (count($data) > 0) {
             foreach($data as &$row) {
-                foreach($row as &$cell) {
+                foreach($row as $title => &$cell) {
                     if (stripos($cell, 'http') === 0) {
-                        $cell = "<a href = '".$cell."'>link</a>";
+                        $row[$title] = "<a href = '".$cell."'>".$title."</a>";
                     }
                 }
             }
@@ -181,5 +181,43 @@ class Reports
                 <tbody>
             </table>
         <?php }
+    }
+
+    function returnJSONFromId($queryID, $callback = null)
+    {
+        $log = FezLog::get();
+        $db = DB_API::get();
+
+        if (!is_numeric($queryID)) {
+            return false;
+        }
+
+        $stmt = "SELECT * FROM
+                    " . APP_TABLE_PREFIX . "reports
+                 WHERE
+                    sel_id=".$db->quote($queryID);
+        try {
+            $resQuery = $db->fetchRow($stmt);
+        }
+        catch(Exception $ex) {
+            $log->err($ex);
+            return false;
+        }
+
+        try {
+            $res = $db->fetchAll($resQuery['sel_query']);
+        }
+        catch(Exception $ex) {
+            $log->err($ex);
+            return false;
+        }
+
+        header('Access-Control-Allow-Origin: *');
+
+        $callback = !empty($callback) ? preg_replace('/[^a-z0-9\.$_]/si', '', $callback) : false;
+        header('Content-Type: ' . ($callback ? 'application/javascript' : 'application/json') . ';charset=UTF-8');
+
+        echo ($callback ? '/**/'.$callback . '(' : '') . json_encode($res) . ($callback ? ');' : '');
+
     }
 }
