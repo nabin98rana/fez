@@ -67,6 +67,9 @@ $confirmation = new Fez_Workflow_Sfa_Confirm($pid);
 // Get display data to be used by smarty template
 $display_data = $confirmation->getDisplayData();
 
+// Get the attached files
+$attached_files = $confirmation->getAttachedFiles();
+
 // Assigns the record title
 $record_title = $confirmation->getRecordTitle();
 
@@ -81,6 +84,7 @@ $tpl->assign('application_name', APP_NAME);
 $tpl->assign('record_title', $record_title);
 $tpl->assign('title', $record_title);
 $tpl->assign("display_data", $display_data);
+$tpl->assign("attached_files", $attached_files);
 
 $tpl->displayTemplate();
 
