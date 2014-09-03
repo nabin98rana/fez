@@ -51,7 +51,7 @@ class RCL
 		echo date('d/m/Y H:i:s') . "\n";
 
 		$matches = array();
-		$candidateConferences = RCL::getCandidateConferences();
+		$candidateConferences = RCL::getCandidateConferences(2015);
 		$rankedConferences = RCL::getRankedConferences();
 		$rankedConferencesAcronyms = RCL::getRankedConferenceAcronyms();
 
@@ -82,6 +82,10 @@ class RCL
 		/* Look for title matches (string normalisation and comparison) */
 		RCL::lookForMatchesByStringComparison($normalisedCandidateConferences, $normalisedRankedConferences, $matches);
 		echo "Number of normalised string matches: " . sizeof($matches) . "\n";
+
+        /* Look for similar matches (string normalisation and comparison on %) */
+        RCL::findBestApproxMatch($normalisedCandidateConferences, $normalisedRankedConferences, $matches);
+        echo "Number of similar string matches: " . sizeof($matches) . "\n";
 
 		/* Look for manual matches */
 		//RCL::lookForManualMatches($normalisedCandidateJournals, $manualMatches, $matches); // -- this looks like it was never implemented?
@@ -127,9 +131,7 @@ class RCL
 		return;
 	}
 
-
-
-	function getCandidateConferences()
+	function getCandidateConferences($year = null)
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
@@ -171,6 +173,32 @@ class RCL
       HAVING COUNT(mtc_pid) < 2
       ORDER BY rek_conference_name
       ";
+    }
+
+    if ($year == 2015) {
+        $stmt = "SELECT rek_pid AS record_pid,
+			rek_conference_name AS conference_name FROM fez_record_search_key_herdc_code
+        INNER JOIN fez_controlled_vocab AS A
+        ON cvo_id = rek_herdc_code
+        LEFT JOIN fez_record_search_key_herdc_status
+        ON rek_herdc_code_pid = rek_herdc_status_pid
+        LEFT JOIN fez_controlled_vocab AS B
+        ON rek_herdc_status = B.cvo_id
+        LEFT JOIN fez_record_search_key
+        ON rek_herdc_code_pid = rek_pid
+        LEFT JOIN fez_matched_conferences
+        ON mtc_pid = rek_herdc_code_pid
+        LEFT JOIN fez_conference
+        ON cnf_id = mtc_cnf_id
+        LEFT JOIN fez_record_search_key_conference_name
+        ON rek_conference_name_pid = rek_herdc_code_pid
+        WHERE rek_date > '2008'
+        AND (mtc_cnf_id > 1952 OR mtc_cnf_id IS NULL)
+        AND (      (A.cvo_title = 'E1'  AND B.cvo_title = 'Confirmed Code')
+            OR (A.cvo_title = 'E1' AND B.cvo_title = 'Provisional Code' AND rek_subtype = 'Fully published paper' )
+            OR (rek_genre = 'Conference Paper' AND B.cvo_title = 'Confirmed Code' AND (A.cvo_title = 'B1' OR A.cvo_title = 'C1'))
+            OR (rek_genre = 'Conference Paper' AND rek_subtype = 'Fully published paper' AND (A.cvo_title = 'B1' OR A.cvo_title = 'C1') AND (B.cvo_title = 'Provisional Code' OR B.cvo_title IS NULL)))
+        LIMIT 1000000;";
     }
 
     ob_flush();
@@ -570,4 +598,54 @@ class RCL
         return $result;
     }
 
-}
+    function findBestApproxMatch($check, $against, &$matches) {
+            echo "Running similarity string match ... ";
+            foreach($against as &$conference) {
+                $normalised = $conference['title'];
+                $normalised = preg_replace('/[0-9]+th/', '', $normalised);
+                $normalised = str_replace('1st', '', $normalised);
+                $normalised = str_replace('2nd', '', $normalised);
+                $conference['conference_name_normalised'] = preg_replace('/[.()!?\\ 0-9]+/', '', $normalised);
+            }
+            /* Step through each source item */
+            foreach ($check as $sourceKey => $sourceVal) {
+
+                $normalised = $sourceVal;
+                $normalised = preg_replace('/[0-9]+th/', '', $normalised);
+                $normalised = str_replace('1st', '', $normalised);
+                $normalised = str_replace('2nd', '', $normalised);
+                $normalised = preg_replace('/[.()!?\\ 0-9]+/', '', $normalised);
+
+                $similarityBest = 0;
+                foreach($against as $conference) {
+                    similar_text($normalised, $conference['conference_name_normalised'], $similarity);
+                        if ($similarity > $similarityBest) {
+                            $similarityBest = $similarity;
+                            $best = $conference;
+                        }
+                }
+                if ($similarityBest > SIMILARITY_THRESHOLD+5 && $similarityBest != 100) {
+                    $existsAlready = false;
+                    foreach ($matches as $match) {
+                        if ($match['pid'] == $sourceKey && $match['matching_year'] == $best['cnf_era_year']) {
+                            $existsAlready = true;
+                            break;
+                        }
+                    }
+                    if ($existsAlready && $match['matching_id'] != $best['cnf_id'] ) {
+                        $this->dupeList .= "Double Match: Similarity string match: ".$sourceKey." on proposed conf id ". $match['matching_id']." with conf id ".$best['cnf_id']. " - " .$best['title']." Year: ".$best['cnf_era_year']. "\n";
+                    } else {
+                        $matches[] = array('pid' => $sourceKey, 'matching_id' => $best['cnf_id'], 'matching_year' => $best['cnf_era_year']);
+                        echo '"'.$best['title'].'","'.$sourceVal.'","'.$sourceKey.'","'.$similarityBest.'"'."\n";
+                        //echo '"'.$best['rek_herdc_code_pid'].'","'.$best['cvo_title'].'","'.$best['confirmed'].'","'.$best['rek_title'].'","'.$best['rek_genre'].'","'.$best['rek_subtype'].'","'.$best['mtc_status'].'","'.$best['rek_conference_name'].'","'.$best['cnf_conference_name'].'"'."\n";
+                    }
+                }
+            }
+
+            echo " done.\n";
+
+            return;
+    }
+
+
+  }
