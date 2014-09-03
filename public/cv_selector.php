@@ -91,7 +91,10 @@ if (!is_numeric($cvo_id)) {
 	$show_add = 0;
 }
 
-if (is_numeric($parent_id)) {
+$isUser = Auth::getUsername();
+
+//Admins need to chose non-traditional on all records so we'll give them all choices for now.
+if (is_numeric($parent_id) && !(User::isUserAdministrator($isUser))) {
 	$cv_tree = Controlled_Vocab::renderCVtree(Controlled_Vocab::buildCVtree($parent_id, true));
 } else {
 	$cv_tree = Controlled_Vocab::renderCVtree(Controlled_Vocab::buildCVtree());
