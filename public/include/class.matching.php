@@ -32,6 +32,7 @@
 
 include_once(APP_INC_PATH . "class.matching_journals.php");
 include_once(APP_INC_PATH . "class.matching_conferences.php");
+include_once(APP_INC_PATH . "class.fulltext_queue.php");
 
 class matching
 {
@@ -210,6 +211,11 @@ class matching
 			return -1;
 		}
 
+
+        if (APP_SOLR_INDEXER == "ON") {
+            FulltextQueue::singleton()->add($pid);
+        }
+
 		header("Location: http://" . APP_HOSTNAME . "/manage/matching.php");
 		exit;
 	}
@@ -264,6 +270,10 @@ class matching
                 $log->err($ex);
                 return -1;
             }
+        }
+
+        if (APP_SOLR_INDEXER == "ON") {
+            FulltextQueue::singleton()->add($pid);
         }
 
 		header("Location: http://" . APP_HOSTNAME . "/manage/matching.php");
@@ -321,6 +331,10 @@ class matching
             $log->err($ex);
             return false;
         }
+        if (APP_SOLR_INDEXER == "ON") {
+            FulltextQueue::singleton()->add($pid);
+        }
+
         return true;
     }
 
@@ -356,6 +370,11 @@ class matching
             $log->err($ex);
             return false;
         }
+
+        if (APP_SOLR_INDEXER == "ON") {
+            FulltextQueue::singleton()->add($pid);
+        }
+
         return true;
     }
 
