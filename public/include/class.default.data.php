@@ -309,27 +309,9 @@ class Default_Data
         $defaultData['app_fedora_sendfile_direct']         = "OFF";
         $defaultData['app_herdc_trial_collection']         = "";
         $defaultData['app_scopus_import_collection']       = "";
-		//$defaultData['app_portfolios_collection']           = "";
 		$defaultData['app_link_resolver_base_url']          = "";
 		$defaultData['app_link_resolver_button_url']        = "";
 		$defaultData['app_link_resolver_referrer_id']       = "";
-		$defaultData['app_input_filters']					= 'Fez_Filter_Alnum, '.
-			    									'Fez_Filter_Basicstring, '.
-			    									'Fez_Filter_Datearray, '.
-			    									'Fez_Filter_Htmlpurify, '.
-			    									'Fez_Filter_Pid, '.
-			    									'Zend_Filter_Alnum, ' .
-			    									'Zend_Filter_Alpha ,' .
-													'Zend_Filter_Boolean,'.
-													'Zend_Filter_Digits,'.
-													'Zend_Filter_HtmlEntities,'.
-													'Zend_Filter_Int,'.
-													'Zend_Filter_Null,'.
-													'Zend_Filter_StringToLower,'.
-													'Zend_Filter_StringToUpper,'.
-													'Zend_Filter_StringTrim,'.
-													'Zend_Filter_StripNewlines,'.
-													'Zend_Filter_StripTags,';
         $defaultData['sherpa_romeo_url']                = "";
         $defaultData['sherpa_romeo_api']                = "";
         $defaultData['altmetric_api_enabled']           = "false";

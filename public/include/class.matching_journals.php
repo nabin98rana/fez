@@ -979,11 +979,6 @@ class RJL
             if (APP_SOLR_INDEXER == "ON") {
                 FulltextQueue::singleton()->add($match['pid']);
             }
-
-            /*if (APP_FILECACHE == "ON") {
-                $cache = new fileCache($match['pid'], 'pid=' . $match['pid']);
-                $cache->poisonCache();
-            }*/
         }
 
         echo "done.\n";

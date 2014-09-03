@@ -57,7 +57,6 @@ if (NAJAX_Server::runServer()) {
 
 $tpl = new Template_API();
 $tpl->setTemplate("manage/xsd_tree_match_form.tpl.html");
-$tpl->assign("filter_class", XSD_Display::getFilterClasses());
 
 Auth::checkAuthentication(APP_SESSION);
 $anchor = "";
@@ -81,7 +80,6 @@ $xml_element = @$_POST["xml_element"] ? $_POST["xml_element"] : @$_GET["xml_elem
 $xml_element_clean = str_replace("!", " -> ", $xml_element);
 $xml_element_clean = str_replace("^", " ", $xml_element_clean);
 $xml_element_clean = substr($xml_element_clean, 4);
-$filterAdmin = new Fez_Filter_Admin_XSDMF();
 
 $tpl->assign("controlled_vocab_list", Controlled_Vocab::getAssocList());
 
@@ -89,16 +87,13 @@ $tpl->assign("controlled_vocab_list", Controlled_Vocab::getAssocList());
 		if (is_numeric(strpos(@$_POST["submit"], "Delete"))) {
 			$form_cat = "delete";
 			$tpl->assign("cat", $form_cat);
-			$filterAdmin->delete($xsdmf_id);
 		} else { 
 			$form_cat = @$_POST["form_cat"];
 		}
 		
 		if ($form_cat == "new") {
-			$filterAdmin->save(array(@$_POST['filter_class']), $xsdmf_id);
 			$tpl->assign("result", XSD_HTML_Match::insert($xdis_id, $xml_element));
 		} elseif ($form_cat == "update") {
-			$filterAdmin->save(array(@$_POST['filter_class']), $xsdmf_id);
 //			$tpl->assign("result", XSD_HTML_Match::update($xdis_id, $xml_element));
             if (isset($_POST['update_children'])) {
                 $tpl->assign("result", XSD_HTML_Match::update($xsdmf_id, true));
@@ -107,7 +102,6 @@ $tpl->assign("controlled_vocab_list", Controlled_Vocab::getAssocList());
             }
 
 		} elseif ($form_cat == "delete") { // is this actually used? no I don't think so - CK - yes it is 3/8/06 CK
-//			$tpl->assign("result", XSD_HTML_Match::remove($xdis_id, $xml_element));
 			$tpl->assign("result", XSD_HTML_Match::remove($xsdmf_id));
 		}
 
@@ -197,12 +191,8 @@ $tpl->assign("controlled_vocab_list", Controlled_Vocab::getAssocList());
 	$tpl->assign("checkbox_options_list", $checkbox_options_list);
 
 	if (is_array($info_array)) {
-		$currentFilter = $filterAdmin->inputExists($info_array['xsdmf_id']);
-		$tpl->assign('current_filter', $currentFilter[0]);
-		
 	    $tpl->assign("form_cat", "edit");
 		$tpl->assign("xsdmf_id", $info_array['xsdmf_id']);
-		
 		$xsd_display_ref_list = XSD_Relationship::getListByXSDMF($info_array['xsdmf_id']);
 		$xsd_display_att_list = XSD_Display_Attach::getListByXSDMF($info_array['xsdmf_id']);
 		$xsd_loop_subelement_list = XSD_Loop_Subelement::getListByXSDMF($info_array['xsdmf_id']);
@@ -257,4 +247,4 @@ $tpl->assign("controlled_vocab_list", Controlled_Vocab::getAssocList());
 $tpl->assign('najax_header', NAJAX_Utilities::header(APP_RELATIVE_URL.'include/najax'));
 $tpl->registerNajax(NAJAX_Client::register('SelectXSDDisplay', 'xsd_tree_match_form.php'));
 $tpl->displayTemplate();
-?>
+

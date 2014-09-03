@@ -42,6 +42,3 @@ if (!empty($new_pid)) {
     $this->assign('outcome', "Success");
     $this->assign('outcome_details', "Change display type in $pid from $xdis_id to $new_xdis_id");
 }
-
-    
-?>

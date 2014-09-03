@@ -96,7 +96,7 @@ if ($isAdministrator) {
         $tpl->assign("list", $listing);
         $tpl->assign("citation", $recordDetails[0]['rek_citation']);
         $tpl->assign("show", "edit-screen");
-        
+
     } elseif ($action == 'add') {
         Matching::add();
         

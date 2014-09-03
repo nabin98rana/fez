@@ -58,10 +58,4 @@ $xdis_id = $record->getXmlDisplayId();
 $tpl->assign(compact('xdis_id','xdis_list'));
 $tpl->assign("title", $record->getTitle());
 
-
-
-//$tpl->registerNajax(NAJAX_Client::register('Suggestor', APP_RELATIVE_URL.'ajax.php'));
-
-
 $tpl->displayTemplate();
-?>

@@ -73,17 +73,6 @@ if(APP_FEDORA_BYPASS == 'ON')
     Zend_Registry::set('version', Date_API::getCurrentDateGMT());
 }
 
-$filterProc = new Fez_Filter_Process_Request();
-
-if($_POST)
-{
-	$_POST = $filterProc->process($_POST);
-}
-
-if($_GET)
-{
-	$_GET = $filterProc->process($_GET);
-}
 
 // if we have uploaded files using the flash uploader, then generate $_FILES array entries for them
 if (isset($_POST['uploader_files_uploaded']) && APP_FEDORA_BYPASS != 'ON')
