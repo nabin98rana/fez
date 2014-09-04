@@ -40,6 +40,16 @@ include_once(APP_INC_PATH . "class.error_handler.php");
 class FezACML
 {
 
+  /**
+   * Generate a minimal fezACML template that sets security to be
+   * inherited from parent.
+   *
+   * @return  string FezACML xml document
+   */
+  static function makeQuickTemplateInherit()
+  {
+      return "<FezACML><inherit_security>on</inherit_security></FezACML>";
+  }
 
 
 	/**
