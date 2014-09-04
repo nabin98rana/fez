@@ -47,6 +47,7 @@ include_once(APP_INC_PATH . "class.fulltext_queue.php");
 include_once(APP_INC_PATH . 'class.digitalobject.php');
 include_once(APP_INC_PATH . "class.dsresource.php");
 include_once(APP_INC_PATH . "class.author_era_affiliations.php");
+include_once(APP_INC_PATH . "class.exiftool.php");
 
 Auth::checkAuthentication(APP_SESSION, 'index.php?err=5', true);
 
@@ -123,6 +124,8 @@ switch ($cat)
 	                Fedora_API::callPurgeDatastream($pid, $PresMD_DS);
 				}
 				Record::setIndexMatchingFields($pid);
+                // Remove details from the exif table
+                Exiftool::remove($pid, $dsID);
 	            if (count($res) == 1) { $res = 1; } else { $res = -1; }
 	            $tpl->assign("purge_datastream_result", $res);
 			} else {
@@ -166,6 +169,8 @@ switch ($cat)
     	                Fedora_API::deleteDatastream($pid, $PresMD_DS);
     				}
     				Record::setIndexMatchingFields($pid);
+                    // Remove details from the exif table
+                    Exiftool::remove($pid, $dsID);
     	            if (count($res) == 1) { $res = 1; } else { $res = -1; }
     	            $tpl->assign("delete_datastream_result", $res);
     			} else {
