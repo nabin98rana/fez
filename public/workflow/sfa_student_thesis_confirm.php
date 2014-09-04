@@ -78,7 +78,13 @@ $usrDetails = User::getDetailsByID($confirmation->record->depositor);
 
 // Display Submission confirmation
 $tpl = new Template_API();
-$tpl->setTemplate("workflow/index.tpl.html");
+
+if (APP_API) {
+    $wfstatus->theend();
+} else {
+    $tpl->setTemplate("workflow/index.tpl.html");
+}
+
 $tpl->assign("type", 'sfa_student_thesis_confirm');
 $tpl->assign('application_name', APP_NAME);
 $tpl->assign('record_title', $record_title);

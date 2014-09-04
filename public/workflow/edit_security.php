@@ -53,22 +53,41 @@ include_once(APP_INC_PATH . "class.workflow_trigger.php");
 include_once(APP_INC_PATH . "class.auth_no_fedora_datastreams.php");
 
 
-if (APP_FEDORA_BYPASS == 'ON') {
-    Auth::checkAuthentication(APP_SESSION, $_SERVER['PHP_SELF']."?".$_SERVER['QUERY_STRING']);
+Auth::checkAuthentication(APP_SESSION, $_SERVER['PHP_SELF']."?".$_SERVER['QUERY_STRING']);
+$tpl = new Template_API();
 
-    $tpl = new Template_API();
+if (APP_API) {
+    $tpl->setTemplate("workflow/workflow.tpl.xml");
+} else {
     $tpl->setTemplate("workflow/index.tpl.html");
+}
+
+
+$wfstatus = &WorkflowStatusStatic::getSession(); // restores WorkflowStatus object from the session
+if (empty($wfstatus)) {
+    echo "This workflow has finished and cannot be resumed";
+    exit;
+}
+
+$pid = $wfstatus->pid;
+$dsID = $wfstatus->dsID;
+$wfstatus->setTemplateVars($tpl);
+
+$tpl->assign("pid", $pid);
+$tpl->assign("dsID", $dsID);
+$record = new RecordObject($pid);
+$record->getDisplay();
+
+$xdis_id = $record->getXmlDisplayId();
+
+$xdis_title = XSD_Display::getTitle($xdis_id);
+$tpl->assign("xdis_title", $xdis_title);
+$tpl->assign("extra_title", "Edit Security for ".$pid_title." (".$xdis_title.")");
+$tpl->assign("cat", "update_security");
+
+if (APP_FEDORA_BYPASS == 'ON') {
+
     $tpl->assign("type", "edit_security_no_fedora");
-
-    $wfstatus = &WorkflowStatusStatic::getSession(); // restores WorkflowStatus object from the session
-    if (empty($wfstatus)) {
-    	echo "This workflow has finished and cannot be resumed";
-    	exit;
-    }
-
-    $pid = $wfstatus->pid;
-    $dsID = $wfstatus->dsID;
-    $wfstatus->setTemplateVars($tpl);
 
     $tpl->assign("submit_to_popup", true);
     $wfstatus->checkStateChange();
@@ -76,13 +95,7 @@ if (APP_FEDORA_BYPASS == 'ON') {
     $internal_user_list = User::getAssocList();
     $internal_group_list = Group::getAssocListAll();
 
-    $tpl->assign("pid", $pid);
-    $tpl->assign("dsID", $dsID);
     $tpl->assign("datastream_policy", FezACML::getQuickTemplateAssocListNoFedora());
-    $record = new RecordObject($pid);
-    $record->getDisplay();
-
-    $xdis_id = $record->getXmlDisplayId();
 
     $xdis_title = XSD_Display::getTitle($xdis_id);
     $tpl->assign("xdis_title", $xdis_title);
@@ -126,21 +139,7 @@ if (APP_FEDORA_BYPASS == 'ON') {
     $tpl->displayTemplate();
 } else {
 
-    Auth::checkAuthentication(APP_SESSION, $_SERVER['PHP_SELF']."?".$_SERVER['QUERY_STRING']);
-
-    $tpl = new Template_API();
-    $tpl->setTemplate("workflow/index.tpl.html");
     $tpl->assign("type", "edit_security");
-
-    $wfstatus = &WorkflowStatusStatic::getSession(); // restores WorkflowStatus object from the session
-    if (empty($wfstatus)) {
-    	echo "This workflow has finished and cannot be resumed";
-    	exit;
-    }
-
-    $pid = $wfstatus->pid;
-    $dsID = $wfstatus->dsID;
-    $wfstatus->setTemplateVars($tpl);
 
     $tpl->assign("submit_to_popup", true);
     $wfstatus->checkStateChange();
@@ -165,16 +164,6 @@ if (APP_FEDORA_BYPASS == 'ON') {
         $extra_redirect.="&community_pid=".$community_pid;
     }
 
-    $tpl->assign("pid", $pid);
-    $tpl->assign("dsID", $dsID);
-    $record = new RecordObject($pid);
-    $record->getDisplay();
-
-    $xdis_id = $record->getXmlDisplayId();
-
-    $xdis_title = XSD_Display::getTitle($xdis_id);
-    $tpl->assign("xdis_title", $xdis_title);
-    $tpl->assign("extra_title", "Edit Security for ".$pid_title." (".$xdis_title.")");
     //$xdis_list = XSD_Display::getAssocListDocTypes(); // @@@ CK - 24/8/05 added for collections to be able to select their child document types/xdisplays
 
     $acceptable_roles = array("Community_Admin", "Editor", "Creator", "Community_Admin");
@@ -354,5 +343,6 @@ if (APP_FEDORA_BYPASS == 'ON') {
     } else {
         $tpl->assign("show_not_allowed_msg", true);
     }
+
     $tpl->displayTemplate();
 }

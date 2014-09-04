@@ -12,6 +12,7 @@ phpinfo.php
 behat.yml
 LoginHelper.php
 Thumbs.db
+tests/api/conf.ini
 
 cache
 secure

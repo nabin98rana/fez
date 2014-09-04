@@ -34,11 +34,12 @@
 //
 
 ini_set('allow_url_fopen', 0);
-ini_set("display_errors", 1);
+// ini_set("display_errors", 1);
 //error_reporting(1);
+// error_reporting(E_ALL ^ E_NOTICE);
 //error_reporting(E_ALL | E_STRICT); //Use this to show all errs. E_ERROR used by default because otherwise PHP4 style code in this code base causes Strict Standards warnings.
 //error_reporting(E_ALL);
-//error_reporting(E_ERROR);
+// error_reporting(E_ERROR);
 error_reporting(E_ALL & ~E_NOTICE & ~E_STRICT);
 set_time_limit(0);
 date_default_timezone_set("Australia/Brisbane");
@@ -296,3 +297,76 @@ $_POST =& Misc::dispelMagicQuotes($_POST);
 
 // Handle the language preferences
 Language::setPreference();
+
+define('HTTP_METHOD', $_SERVER['REQUEST_METHOD']);
+
+//------------------------------------------------------------
+// APP_API
+//
+// * basic_auth webservice over https
+// * allows us to do a number of the same things done via
+//   browser
+
+$app_api = false;
+$app_api_json = false;
+// Basic auth credentials:
+$app_api_username = NULL;
+$app_api_password = NULL;
+$format = NULL;
+
+// What triggers the API?
+// 1) Look at the content type of the request.
+// 2) If not that, look if the $format parameter is passed explicitly.
+//    eg when someone tests GET in the browser...
+
+$ctype = $_SERVER['CONTENT_TYPE'];
+$check1 = ( ($ctype == 'application/xml') || ($ctype == 'application/json') );
+if (!$check1) {
+    $check2 = (Misc::sanity_check($_REQUEST['format'], 'string') !== false);
+    $format = $_REQUEST['format'];
+} else {
+    switch ($ctype)
+    {
+    case 'application/xml':
+        $format = 'xml';
+        break;
+    case 'application/json':
+        $format = 'json';
+        break;
+    default:
+        throw new Exception('Internal error.');
+    }
+}
+
+if ($check1 || $check2) {
+    if ($format == 'xml' || $format == 'json') {
+        $app_api_username = $_SERVER['PHP_AUTH_USER'];
+        $app_api_password = $_SERVER['PHP_AUTH_PW'];
+        if ($format == 'json') {
+            $header = "Content-Type: application/json";
+            $app_api = 'json';
+            $app_api_json = 'json';
+        } else {
+            $header = "Content-Type: application/xml";
+            $app_api = 'xml';
+        }
+        header($header);
+    }
+}
+
+define('APP_API', $app_api);
+// Json is tricker to do because of the way fez is written.
+define('APP_API_JSON',$app_api_json);
+// Note: these are the crendentials we received but they are not
+// necessarily valid:
+
+define('APP_API_USERNAME', $app_api_username);
+define('APP_API_PASSWORD', $app_api_password);
+
+if (APP_API) {
+    // Don't display things like warnings and errors as these will
+    // disrupt the format (xml or json).
+    // http://stackoverflow.com/questions/9729000/setting-display-errors-0-and-log-errors-1-without-php-ini
+    ini_set("display_errors", 0);
+    ini_set("log_errors", 1);
+}

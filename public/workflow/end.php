@@ -41,53 +41,61 @@ include_once(APP_INC_PATH . "class.user.php");
 include_once(APP_INC_PATH . 'class.background_process_list.php');
 include_once(APP_INC_PATH . 'class.auth.php');
 
-
-$pid = $_REQUEST['pid'];
-$href = $_REQUEST['href'];
-$wfl_title = $_REQUEST['wfl_title'];
-$wft_type = $_REQUEST['wft_type'];
+if (!APP_API) {
+    $pid = $_REQUEST['pid'];
+    $href = $_REQUEST['href'];
+    $wfl_title = $_REQUEST['wfl_title'];
+    $wft_type = $_REQUEST['wft_type'];
+} else {
+    $pid = $args['pid'];
+    $href = $args['href'];
+    $wfl_title = $args['wfl_title'];
+    $wft_type = $args['wft_type'];
+}
 
 $isAdministrator = Auth::isAdministrator();
 
-if ($isAdministrator && $wft_type == "Create") {
-  if (Misc::isValidPid($pid)) {
-      $record = new RecordObject($pid);
-      if ($record->isCommunity()) {
-          $redirect = APP_RELATIVE_URL . "community/" . $pid;
-      } elseif ($record->isCollection()) {
-          $redirect = APP_RELATIVE_URL . "collection/" . $pid;
-      } else {
-          $redirect = APP_RELATIVE_URL . "view/" . $pid;
+if (!APP_API) {
+    if ($isAdministrator && $wft_type == "Create") {
+      if (Misc::isValidPid($pid)) {
+          $record = new RecordObject($pid);
+          if ($record->isCommunity()) {
+              $redirect = APP_RELATIVE_URL . "community/" . $pid;
+          } elseif ($record->isCollection()) {
+              $redirect = APP_RELATIVE_URL . "collection/" . $pid;
+          } else {
+              $redirect = APP_RELATIVE_URL . "view/" . $pid;
+          }
       }
-  }
-} elseif ($href) {
-    $redirect = APP_RELATIVE_URL . substr($_REQUEST['href'], strlen(APP_RELATIVE_URL));
-} else {
-    if ($wft_type != 'Delete') {
-        if (Misc::isValidPid($pid)) {
-            $record = new RecordObject($pid);
-            if ($record->isCommunity()) {
-                $redirect = APP_RELATIVE_URL . "community/" . $pid;
-            } elseif ($record->isCollection()) {
-                $redirect = APP_RELATIVE_URL . "collection/" . $pid;
-            } else {
-                $redirect = APP_RELATIVE_URL . "view/" . $pid;
-            }
-        } else { 
-			$redirect = APP_RELATIVE_URL . "list.php";
-		}
+    } elseif ($href) {
+        $redirect = APP_RELATIVE_URL . substr($_REQUEST['href'], strlen(APP_RELATIVE_URL));
     } else {
-        // Take a stab at a parent URL.
-        $parents_list = unserialize(stripslashes($_REQUEST['parents_list']));
-        foreach ($parents_list as &$item) {
-            if (Misc::isValidPid($item)) {
-                $precord = new RecordObject($item);
-                if ($precord->isCommunity()) {
-                    $redirect = APP_RELATIVE_URL . "community/" . $item;
+        if ($wft_type != 'Delete') {
+            if (Misc::isValidPid($pid)) {
+                $record = new RecordObject($pid);
+                if ($record->isCommunity()) {
+                    $redirect = APP_RELATIVE_URL . "community/" . $pid;
+                } elseif ($record->isCollection()) {
+                    $redirect = APP_RELATIVE_URL . "collection/" . $pid;
                 } else {
-                    $redirect = APP_RELATIVE_URL . "collection/" . $item;
+                    $redirect = APP_RELATIVE_URL . "view/" . $pid;
                 }
-                break;
+            } else {
+    			$redirect = APP_RELATIVE_URL . "list.php";
+    		}
+        } else {
+            // Take a stab at a parent URL.
+            $parents_list = unserialize(stripslashes($_REQUEST['parents_list']));
+            foreach ($parents_list as &$item) {
+                if (Misc::isValidPid($item)) {
+                    $precord = new RecordObject($item);
+                    if ($precord->isCommunity()) {
+                        $redirect = APP_RELATIVE_URL . "community/" . $item;
+                    } else {
+                        $redirect = APP_RELATIVE_URL . "collection/" . $item;
+                    }
+                    break;
+                }
             }
         }
     }
@@ -98,6 +106,28 @@ Session::setMessage($message, 'ok');
 $bgp_list = new BackgroundProcessList;
 $bgp_list->autoDeleteOld(Auth::getUserID());
 
-header('Location: ' . $redirect);
+if (APP_API) {
+    $outcome = null;
+    // Extract some information from the workflow in the event of
+    // something failing...
+    if (isset($this->vars['outcome'])) {
+        $outcome = isset($this->vars['outcome']);
+        if (isset($this->vars['outcome_details'])) {
+            $message = $this->vars['outcome_details'];
+        }
+    }
+    switch ($outcome) {
+        case 'notCreated':
+            $httpcode = 500;
+            break;
+        default:
+            $httpcode = 202; // 202 = accepted
+            break;
+    }
+    $arr = API::makeResponse($httpcode, $message, array('pid' => $pid));
+    API::reply($httpcode, $arr, APP_API);
+    exit;
+} else {
+    header('Location: ' . $redirect);
+}
 
-?>

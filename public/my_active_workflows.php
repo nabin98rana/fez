@@ -33,19 +33,25 @@
 // +----------------------------------------------------------------------+
  
 include_once("config.inc.php");
+include_once(APP_INC_PATH . "class.api.php");
 include_once(APP_INC_PATH . "class.template.php");
 
 Auth::checkAuthentication(APP_SESSION);
 
 $list = WorkflowStatusStatic::getList(Auth::getUserID());
 
-$tpl = new Template_API();
-$tpl->assign("yui_autosuggest", '1');
-$tpl->setTemplate("my_fez.tpl.html");
+if (APP_API) {
+    API::reply(200, array('workflows' => $list), APP_API);
+} else {
+    $tpl = new Template_API();
+    $tpl->assign("yui_autosuggest", '1');
+    $tpl->setTemplate("my_fez.tpl.html");
 
-$tpl->assign('myFezView', "MWF");
-$tpl->assign('isApprover', Auth::isUserApprover(Auth::getUserID()));
-$tpl->assign("active_nav", "my_fez");
-$tpl->assign(compact('list'));
+    $tpl->assign('myFezView', "MWF");
+    $tpl->assign('isApprover', Auth::isUserApprover(Auth::getUserID()));
+    $tpl->assign("active_nav", "my_fez");
+    $tpl->assign(compact('list'));
 
-$tpl->displayTemplate();
+    $tpl->displayTemplate();
+}
+

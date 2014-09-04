@@ -81,7 +81,18 @@ if(!$logged_in && APP_FILECACHE == "ON") {
 }
 $tpl = new Template_API();
 
-include_once('view2.php');
+try {
+    include_once('view2.php');
+} catch (Exception $e) {
+    if (APP_API) {
+        // If this is a broken API feature return 404 and a message
+        $arr = API::makeResponse('FAIL', $e->getMessage());
+        API::reply(404, $arr, APP_API);
+    } else {
+        throw $e;
+    }
+}
+
 $tpl->displayTemplateRecord($pid);
 
 if(!$logged_in && APP_FILECACHE == "ON") {

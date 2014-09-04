@@ -1,0 +1,130 @@
+{*
+<![CDATA[
+{$xsd_display_fields|print_r}
+]]>
+*}
+{*
+<![CDATA[
+{$details|print_r}
+]]>
+*}
+
+{if $new_record_id != "" and $smarty.post.report_stays != "yes"}
+    <message>Thank you, the new record was created successfully. Please choose
+            from one of the options</message>
+
+    <view_uri>{$rel_url}view/{$new_record_id}</view_uri>
+    <list_uri>{$rel_url}list.php</list_uri>
+    {if $app_setup.support_email == 'enabled' and $current_role > $roles.viewer}
+        <emails_uri>{$rel_url}emails.php</emails_uri>
+    {/if}
+    <new_uri>{$rel_url}new.php</new_uri>
+{/if}
+
+{* Same as hidden values in html version *}
+<cat>update_security</cat>
+<xdis_id>{$xdis_id}</xdis_id>
+<sta_id>{$sta_id}</sta_id>
+<pid>{$pid}</pid>
+<pid_title>{$pid_title}</pid_title>
+<datastream_id>{$dsID}</datastream_id>
+<id>{$id}</id>
+
+{* is this needed? *}
+{section name="i" loop=$xsd_display_fields}
+    {if $xsd_display_fields[i].xsdmf_title == 'state'}
+        <state>{$xsd_display_fields[i].xsdmf_static_text}</state>
+    {/if}
+{/section}
+
+{* Ex. Edit 'Thesis' Security *}
+<xdis_title>{$xdis_title}</xdis_title>
+
+<xsd_display_fields>
+{foreach from=$xsd_display_fields item=field}
+
+    {assign var="temp_fld_id" value=$field.xsdmf_id}
+    {if (   $field.xsdmf_html_input != 'xsdmf_id_ref'
+        and $field.xsdmf_html_input != 'xsd_ref'
+        and $field.xsdmf_html_input != '')}
+
+        {if ((( $field.xsdmf_html_input == 'static'
+            &&  $field.xsdmf_show_in_view == 1
+            &&  $field.xsdmf_static_text != '')
+            && ($field.xsdmf_show_in_view == 1))
+            || ($field.xsdmf_html_input != 'static'))}
+
+            {if ((( $field.xsdmf_html_input == 'xsd_loop_subelement')
+                && ($field.xsdmf_show_in_view == 1))
+                || ($field.xsdmf_html_input != 'xsd_loop_subelement'))
+                &&  $field.xsdmf_enabled == 1}
+            <xsd_display_field>
+
+                    <xsdmf_id>{$field.xsdmf_id}</xsdmf_id>
+                    <xsdmf_title>{$field.xsdmf_title}</xsdmf_title>
+                    <xsdel_title>{$field.xsdsel_title}</xsdel_title>
+                    <xsdmf_invsible>{$field.xsdmf_invisible}</xsdmf_invsible>
+                    <xsdmf_required>{$field.xsdmf_required}</xsdmf_required>
+                    <xsdmf_html_input>
+                        {* For dates we need to specify the type of date eg. year (date_type = 0) or a full date 01/01/2014 (date_type = 1) *}
+                        {if $field.xsdmf_html_input == 'date'}
+                            {if ($field.xsdmf_date_type == 0) or ($field.xsdmf_date_type == '')}
+                                date-full
+                            {else}
+                                date-year
+                            {/if}
+                        {else}
+                            {$field.xsdmf_html_input}
+                        {/if}
+                    </xsdmf_html_input>
+                    <xsdmf_enabled>{$field.xsdmf_enabled}</xsdmf_enabled>
+                    <field_options>
+                        {if ($field.xsdmf_html_input == 'contvocab_selector')}
+                            <uri>
+                                <![CDATA[
+                                    {$rel_url}cv_selector.php?parent_id={$field.xsdmf_cvo_id}&form=wfl_form1&element=xsd_display_fields_{$field.xsdmf_id}_0&xsdmf_cvo_min_level={$field.xsdmf_cvo_min_level}
+                                ]]>
+                            </uri>
+                        {/if}
+                        {if ($field.xsdmf_html_input == 'file_input' && $field.xsdmf_title == 'File Upload')}
+                            <uri>
+                                <![CDATA[
+                                    {$rel_url}uploader_upload_files.php?workflowId={$id}&xsdmf_id={$field.xsdmf_id}&fileNumber=0
+                                ]]>
+                            </uri>
+                        {/if}
+                        {foreach from=$field.field_options item=option key=value}
+                            {if ($option != '')}
+                                <option>
+                                    <name>{$option}</name>
+                                    <value>{$value}</value>
+                                </option>
+                            {/if}
+                        {/foreach}
+                    </field_options>
+                    {* <selected_option>{$field.selected_option}</selected_option> *}
+                    <xsdmf_show_in_view>{$field.xsdmf_show_in_view}</xsdmf_show_in_view>
+                    <xsdmf_description><![CDATA[{$field.xsdmf_description}]]></xsdmf_description>
+                    <xsdmf_long_description><![CDATA[{$field.xsdmf_long_description}]]></xsdmf_long_description>
+                    <xsdmf_multiple>{$field.xsdmf_multiple}</xsdmf_multiple>
+                    <xsdmf_cso_value>{$field.xsdmf_cso_value}</xsdmf_cso_value>{*checkbox value*}
+                    <xsdmf_static_text>{$field.xsdmf_static_text}</xsdmf_static_text>
+                    <multiple_array_input>
+                        {if $field.xsdmf_multiple == 1}
+                            {section name="z" loop=$field.multiple_array}
+                                <input>
+                                    {assign var="temp_fld_id" value=$field.xsdmf_id}
+                                    {assign var="loop_num" value=$smarty.section.z.index}
+                                    <id>tr_xsd_display_fields_{$field.xsdmf_id}_{$loop_num}</id>
+                                    <name>{$field.xsdmf_title} {math equation="x + 1" x=$loop_num}</name>
+                                    <value>{$details[$temp_fld_id][z]}</value>
+                                </input>
+                            {/section}
+                        {/if}
+                    </multiple_array_input>
+            </xsd_display_field>
+            {/if}
+        {/if}
+    {/if}
+{/foreach}
+</xsd_display_fields>

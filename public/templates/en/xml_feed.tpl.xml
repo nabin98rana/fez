@@ -1,10 +1,24 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xmlfeed>
+  {if $create_actions}
+    <actions>
+    {section name="i" loop=$create_actions}
+      <action>
+        <uri><![CDATA[{$create_actions[i].url|smarty:nodefaults}]]></uri>
+        <name>{$create_actions[i].name}</name>
+        <xdis_id>{$create_actions[i].xdis_id}</xdis_id>
+      </action>
+    {/section}
+    </actions>
+  {/if}
+
 <title>{if $list_heading != ""}{$list_heading} - {/if}{$application_title}</title>
 <link>{$app_base_url}</link>
 <description>{$org_name}</description>
 <language>{$lang}</language>
 <generator>Fez {$application_version}</generator>
+<rows>{$rows}</rows>
+<pager_row>{$pager_row}</pager_row>
 {section name="i" loop=$list}
 {if $list[i].rek_object_type == '1'}
 {assign var="href_view" value="community/"|cat:$list[i].rek_pid}
@@ -19,14 +33,14 @@
 	<pid>{$list[i].rek_pid}</pid>
         <citation><![CDATA[{$list[i].rek_citation|smarty:nodefaults}]]></citation>
 	<identifier>{$app_base_url}{$href_view}</identifier>
-	<description>{$list[i].rek_description}</description>
+	<description><![CDATA[{$list[i].rek_description}]]></description>
 	<genre>{$list[i].rek_genre}</genre>
 	<created_date>{$list[i].rek_created_date}</created_date>
 
 	<updated_date>{$list[i].rek_updated_date}</updated_date>
 	<publication_date>{$list[i].rek_date}</publication_date>
 	<formatted_title>{$list[i].rek_formatted_title}</formatted_title>
-	<formatted_abstract>{$list[i].rek_formatted_abstract}</formatted_abstract>
+	<formatted_abstract><![CDATA[{$list[i].rek_formatted_abstract}]]></formatted_abstract>
 
 	{if $list[i].rek_report_number}
 		<report_numbers>
@@ -886,7 +900,7 @@
 		{assign var="loop_format" value=$list[i].rek_file_attachment_name}
 		<datastream_links>
 		{section name="f" loop=$loop_format}
-			<datastream_link>{$app_base_url}basiceserv.php?pid={$list[i].rek_pid}&amp;dsID={$list[i].rek_file_attachment_name[f]}</datastream_link>
+			<datastream_link><![CDATA[{$app_base_url}eserv.php?pid={$list[i].rek_pid}&dsID={$list[i].rek_file_attachment_name[f]}]]></datastream_link>
 		{sectionelse}
 			<datastream_link />
 		{/section}

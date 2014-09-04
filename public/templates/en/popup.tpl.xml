@@ -1,0 +1,41 @@
+<response>
+  {if $purge_datastream_result == -1}
+    <msg>An error occurred while trying to purge the datastream</msg>
+    <status>500</status>
+  {elseif $purge_datastream_result == 1}
+    <msg>The datastream was purged successfully.</msg>
+    <status>200</status>
+  {/if}
+  {if $update_form_result == -1}
+    <msg>An error occurred while trying to update the record</msg>
+    <status>500</status>
+  {elseif $update_form_result == 1}
+    <msg>The record was updated successfully.</msg>
+    <status>200</status>
+  {/if}
+  {if $delete_object_result == -1}
+    <msg>An error occurred while trying to delete the object</msg>
+    <status>500</status>
+  {elseif $delete_object_result == 1}
+    <msg>The object was deleted successfully.</msg>
+    <status>200</status>
+  {/if}
+  {if $delete_datastream_result == -1}
+    <msg>An error occurred while trying to delete the datastream</msg>
+    <status>500</status>
+  {elseif $delete_datastream_result == 1}
+    <msg>The datastream was deleted successfully.</msg>
+    <status>200</status>
+  {/if}
+  {if $generic_result==-1}
+    <msg>An error occurred while performing {$generic_action} on the {$generic_type}</msg>
+    <status>500</status>
+  {elseif $generic_result==1}
+    <msg>Succesfully performed {$generic_action} on the {$generic_type}</msg>
+    <status>200</status>
+  {/if}
+  {if $file_manager_result == 1}
+    <msg>Your file selections have been saved</msg>
+    <status>200</status>
+  {/if}
+</response>

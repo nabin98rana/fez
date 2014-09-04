@@ -21,17 +21,24 @@ RewriteRule ^logs/.*\.log$ - [F]
 # Robots.txt
 RewriteRule ^robots.txt$         robots.php [L]
 
-#REWRITE RULES APPLYING TO BASE FEZ CODE 
+#REWRITE RULES APPLYING TO BASE FEZ CODE
 RewriteRule     ^errors/([0-9]+)$                                   errors/index.php?code=$1 [L]
-RewriteRule     ^view/([A-Za-z]+):([0-9]+)(\?.*)*$                  view.php?pid=$1:$2$3 [L]
+RewriteRule     ^view/([A-Za-z]+):([0-9]+)(\?.*)*$                  view.php?pid=$1:$2$3 [L,QSA]
 RewriteRule     ^eserv/([A-Za-z]+):([0-9]+)/(.+?)(/.*)*$            eserv.php?pid=$1:$2&dsID=$3&qs=$4 [L,QSA]
-RewriteRule     ^community/([A-Za-z]+):([0-9]+)$	                list.php?community_pid=$1:$2 [L,QSA]
-RewriteRule     ^community/([A-Za-z]+):([0-9]+)/(.+)$	            list.php?community_pid=$1:$2&$3 [L,QSA]
+RewriteRule     ^community/([A-Za-z]+):([0-9]+)(\?.*)*$	                list.php?community_pid=$1:$2&$3 [L,QSA]
 RewriteRule     ^collection/([A-Za-z]+):([0-9]+)$                   list.php?collection_pid=$1:$2 [L,QSA]
 RewriteRule     ^collection/([A-Za-z]+):([0-9]+)/(.+)$              list.php?collection_pid=$1:$2&$3 [L,QSA]
 RewriteRule     ^list/([^/]*)/([^/]*)(/?)$                          list.php?browse=$1&value=$2 [L,QSA]
 RewriteRule     ^favourites$                                        list.php?browse=favourites [L,QSA]
 RewriteRule     ^list/(.*)$                                         list.php?$1 [L,QSA]
+RewriteRule     ^rss/(.*)$                                          list.php?$1&tpl=2 [L,QSA]
+RewriteRule     ^xmlfeed/(.*)$                                      list.php?$1&tpl=3 [L,QSA]
+RewriteRule     ^jsonfeed/(.*)$                                     list.php?$1&tpl=11 [L,QSA]
+
+RewriteRule     ^xml/(.*)$                                          list.php?$1&format=xml [L,QSA]
+RewriteRule     ^json/(.*)$                                         list.php?$1&format=json [L,QSA]
+
+# Add other rewrite rules
 RewriteRule     ^faq(/?)$                                           faq.php
 RewriteRule     ^(about|contact)(\.php|/)?$                         page.php?page=$1 [L,QSA]
 RewriteRule     ^rid_citation_count_history_([A-Za-z]+):([0-9]+)$              rid_citation_count_history.php?pid=$1:$2 [L,QSA]

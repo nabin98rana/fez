@@ -1,0 +1,216 @@
+{*
+<![CDATA[
+{$xsd_display_fields|print_r}
+]]>
+*}
+
+{* Filter out some fields in the display: *}
+
+{*
+<![CDATA[
+{$datastreams|print_r}
+]]>
+*}
+
+<xsd_display_fields>
+{foreach from=$xsd_display_fields item=field}
+    {if (   $field.xsdmf_html_input != 'xsdmf_id_ref'
+        and $field.xsdmf_html_input != 'xsd_ref'
+        and $field.xsdmf_html_input != 'conference_suggestor'
+        and $field.xsdmf_html_input != 'author_suggestor'
+        and $field.xsdmf_html_input != 'publisher_suggestor'
+        and $field.xsdmf_html_input != 'dynamic'
+        and $field.xsdmf_html_input != '')}
+
+        {if (((   $field.xsdmf_html_input == 'static'
+               && $field.xsdmf_show_in_view == 1
+               && $field.xsdmf_static_text != '') && ($field.xsdmf_show_in_view == 1))
+            || ($field.xsdmf_html_input != 'static'))}
+
+            {if ((($field.xsdmf_html_input == 'xsd_loop_subelement')
+                && ($field.xsdmf_show_in_view == 1))
+                ||
+                ($field.xsdmf_html_input != 'xsd_loop_subelement')
+                && $field.xsdmf_enabled == 1)}
+                {assign var="temp_fld_id" value=$field.xsdmf_id}
+
+                <xsd_display_field>
+                    <xsdmf_id>{$field.xsdmf_id}</xsdmf_id>
+                    <xsdmf_title>{$field.xsdmf_title}</xsdmf_title>
+                    <xsdmf_invsible>{$field.xsdmf_invisible}</xsdmf_invsible>
+                    <xsdmf_required>{$field.xsdmf_required}</xsdmf_required>
+                    <xsdmf_html_input>
+                        {* For dates we need to specify the type of date eg. year (date_type = 0) or a full date 01/01/2014 (date_type = 1) *}
+                        {if $field.xsdmf_html_input == 'date'}
+                            {if ($field.xsdmf_date_type == 0) or ($field.xsdmf_date_type == '')}
+                                date-full
+                            {else}
+                                date-year
+                            {/if}
+                        {else}
+                            {$field.xsdmf_html_input}
+                        {/if}
+                    </xsdmf_html_input>
+                    <xsdmf_enabled>{$field.xsdmf_enabled}</xsdmf_enabled>
+                    <field_options>
+                        {if ($field.xsdmf_html_input == 'contvocab_selector')}
+                            <uri>
+                                <![CDATA[
+                                    {$rel_url}cv_selector.php?parent_id={$field.xsdmf_cvo_id}&form=wfl_form1&element=xsd_display_fields_{$field.xsdmf_id}_0&xsdmf_cvo_min_level={$field.xsdmf_cvo_min_level}
+                                ]]>
+                            </uri>
+                        {/if}
+                        {if ($field.xsdmf_html_input == 'file_input' && $field.xsdmf_title == 'File Upload')}
+                            <uri>
+                                <![CDATA[
+                                    {$rel_url}uploader_upload_files.php?format=xml&workflowId={$id}&xsdmf_id={$field.xsdmf_id}&fileNumber=0
+                                ]]>
+                            </uri>
+                        {/if}
+                        {foreach from=$field.field_options item=option key=value}
+                            {if ($option != '')}
+                                <option>
+                                    <name>{$option}</name>
+                                    <value>{$value}</value>
+                                </option>
+                            {/if}
+                        {/foreach}
+                    </field_options>
+                    {* selected_option refers to the default selection if present *}
+                    {* <selected_option>{$field.selected_option}</selected_option> *}
+                    <xsdmf_show_in_view>{$field.xsdmf_show_in_view}</xsdmf_show_in_view>
+                    <xsdmf_description><![CDATA[{$field.xsdmf_description}]]></xsdmf_description>
+                    <xsdmf_multiple>{$field.xsdmf_multiple}</xsdmf_multiple>
+                    {if is_array($details[$temp_fld_id])}
+                        {section loop=$details[$temp_fld_id] name=i}
+                        <xsdmf_value><![CDATA[{$details[$temp_fld_id][i]}]]></xsdmf_value>
+                        {/section}
+                    {else}
+                        {* We should return this as an iso 8601 timestamp, but because date is used to represent all kinds of dates we cannot.
+                        {if $field.xsdmf_html_input == 'date'}
+                            <xsdmf_value><![CDATA[{$details[$temp_fld_id]|date_format:"%c"}]]></xsdmf_value>
+                        {/if}
+                        *}
+                        <xsdmf_value><![CDATA[{$details[$temp_fld_id]}]]></xsdmf_value>
+                    {/if}
+                </xsd_display_field>
+                {/if}
+            {/if}
+        {/if}
+
+{/foreach}
+</xsd_display_fields>
+{assign var="filecounter" value=0}
+<datastreams>
+    {* WARNING: This is actually hardcoded into swfuploader.js - We'll just hardcode it in here too, although there is also a static code version in class.datastream.php *}
+    <available_permissions>
+        <field_options>
+            <field_option>
+                <name>Accepted version (author final draft  post-refereeing)</name>
+                <value>1</value>
+            </field_option>
+            <field_option>
+                <name>Submitted version (author version pre-refereeing)</name>
+                <value>2</value>
+            </field_option>
+            <field_option>
+                <name>Publishers Copy (Open Access)</name>
+                <value>3</value>
+            </field_option>
+            <field_option>
+                <name>Working/Technical Paper</name>
+                <value>4</value>
+            </field_option>
+            <field_option>
+                <name>HERDC evidence (not open access- admin only)</name>
+                <value>5</value>
+            </field_option>
+            <field_option>
+                <name>Data Collection (Open Access)</name>
+                <value>6</value>
+            </field_option>
+            <field_option>
+                <name>Other (any files not included in any of the above)</name>
+                <value>7</value>
+            </field_option>
+        </field_options>
+    </available_permissions>
+
+
+
+{section name="d" loop=$datastreams}
+    {if $datastreams[d].controlGroup == "M"
+        && ($datastreams[d].isLister == 1 || $isAdministrator)}
+
+        <datastream>
+            <id>{$datastreams[d].ID}</id>
+            <mimetype>{$datastreams[d].MIMEType}</mimetype>
+            <embargo_date>{$datastreams[d].embargoDate}</embargo_date>
+            <description>
+                {if $datastreams[d].label == ""}
+                    (empty)
+                {else}
+                    {$datastreams[d].label}
+                {/if}
+            </description>
+
+            {* Consideration: Possibly include if we can't view things? *}
+            {if $datastreams[d].isViewer == 1 || $isAdministrator}
+                <href>{$rel_url}eserv/{$pid}/{$datastreams[d].ID}</href>
+            {/if}
+            {if ($datastreams[d].isArchivalViewer == 1 || $isAdministrator) && $datastreams[d].thumbnail != "0"}
+                <href>{$rel_url}eserv/{$pid}/{$datastreams[d].ID}</href>
+            {/if}
+            {if $datastreams[d].presmd != "0" && $datastreams[d].isViewer == 1 || $isAdministrator}
+                <preservation_metadata>{$rel_url}eserv/{$pid}/{$datastreams[d].presmd}</preservation_metadata>
+            {/if}
+
+            {if ( ($datastreams[d].isEditor == 1) || $isAdministrator ) }
+                <delete_uri>
+                    <![CDATA[
+                        {$rel_url}popup.php?cat=delete_datastream&pid={$pid}&dsID={$datastreams[d].ID}
+                    ]]>
+                </delete_uri>
+            {/if}
+            {if ($isSuperAdministrator)}
+                <purge_uri>
+                    <![CDATA[
+                        {$rel_url}popup.php?cat=purge_datastream&pid={$pid}&dsID={$datastreams[d].ID}
+                    ]]>
+                </purge_uri>
+            {/if}
+            <permission>
+                {*
+                    Commenting out available_permissions options here. Fairly certain it is universal.
+                <field_options>
+                    {foreach from=$file_options item=option key=value}
+                        {if ($option != '')}
+                            <option>
+                                <name>{$option}</name>
+                                <value>{$value}</value>
+                            </option>
+                        {/if}
+                    {/foreach}
+                </field_options>
+                *}
+                {$datastreams[d].classification}
+            </permission>
+            {section name="w" loop=$datastreams[d].workflows}
+                {if $datastreams[d].isEditor == 1 || $isAdministrator}
+                    <edit_permission_uri>
+                        <![CDATA[
+                            {$rel_url}workflow/update.php?pid={$pid}&dsID={$datastreams[d].ID}&cat=select_workflow&wft_id={$datastreams[d].workflows[w].wft_id}&href={$smarty.server.REQUEST_URI}
+                        ]]>
+                    </edit_permission_uri>
+                {/if}
+            {/section}
+         </datastream>
+     {/if}
+{/section}
+</datastreams>
+
+<internal_notes>
+    <![CDATA[
+        {$internal_notes}
+    ]]>
+</internal_notes>

@@ -44,7 +44,6 @@ include_once(APP_INC_PATH . "class.controlled_vocab.php");
 include_once(APP_INC_PATH . "class.workflow_trigger.php");
 
 $tpl = new Template_API();
-$tpl->setTemplate("cv_selector.tpl.html");
 
 $cvo_id = @$_GET["cvo_id"] ? @$_GET["cvo_id"] : @$_POST["cvo_id"];
 $parent_id = @$_GET["parent_id"] ? @$_GET["parent_id"] : @$_POST["parent_id"];
@@ -53,51 +52,58 @@ $element = @$_GET["element"] ? @$_GET["element"] : @$_POST["element"];
 $form = @$_GET["form"] ? @$_GET["form"] : @$_POST["form"];
 // get one level of the selected cvo_id
 if (!is_numeric($cvo_id)) {
-	$cvo_id = $_GET['cv_fields'];
+    $cvo_id = $_GET['cv_fields'];
 }
 
 if(!empty($cvo_id)) {
     $cvo_details = Controlled_Vocab::getDetails($cvo_id);
 }
 
-$breadcrumb = Controlled_Vocab::getParentAssocListFullDisplay($cvo_id);
-$breadcrumb = Misc::array_merge_preserve($breadcrumb, Controlled_Vocab::getAssocListByID($cvo_id));
+if (APP_API) {
+    $tpl->setTemplate("cv_selector.tpl.xml");
+} else {
+    $tpl->setTemplate("cv_selector.tpl.html");
 
-$newcrumb = array();
-foreach ($breadcrumb as $key => $data) {
-	array_push($newcrumb, array("cvo_id" => $key, "cvo_title" => $data));
+    $breadcrumb = Controlled_Vocab::getParentAssocListFullDisplay($cvo_id);
+    $breadcrumb = Misc::array_merge_preserve($breadcrumb, Controlled_Vocab::getAssocListByID($cvo_id));
+
+    $newcrumb = array();
+    foreach ($breadcrumb as $key => $data) {
+        array_push($newcrumb, array("cvo_id" => $key, "cvo_title" => $data));
+    }
+    $max_breadcrumb = (count($newcrumb) -1);
+
+    $tpl->assign("max_subject_breadcrumb", $max_breadcrumb);
+    $tpl->assign("subject_breadcrumb", $newcrumb);
 }
-$max_breadcrumb = (count($newcrumb) -1);
 
-$tpl->assign("max_subject_breadcrumb", $max_breadcrumb);
-$tpl->assign("subject_breadcrumb", $newcrumb);
 
 if (is_numeric($cvo_id)) {
-	$cvo_list = Controlled_Vocab::getAssocListFullDisplay($cvo_id, "", 0, 1);
+    $cvo_list = Controlled_Vocab::getAssocListFullDisplay($cvo_id, "", 0, 1);
 } else {
-	$cvo_list = Controlled_Vocab::getAssocList();
+    $cvo_list = Controlled_Vocab::getAssocList();
 }
 $parent_list = Controlled_Vocab::getList();
 
 $show_add = 1;
 if ($xsdmf_cvo_min_level == 1) {
-	foreach ($parent_list as $pdata) {
-		if ($pdata['cvo_id'] == $cvo_id) {
-			$show_add = 0;
-		}
-	}
-} 
+    foreach ($parent_list as $pdata) {
+        if ($pdata['cvo_id'] == $cvo_id) {
+            $show_add = 0;
+        }
+    }
+}
 if (!is_numeric($cvo_id)) {
-	$show_add = 0;
+    $show_add = 0;
 }
 
 $isUser = Auth::getUsername();
 
 //Admins need to chose non-traditional on all records so we'll give them all choices for now.
 if (is_numeric($parent_id) && !(User::isUserAdministrator($isUser))) {
-	$cv_tree = Controlled_Vocab::renderCVtree(Controlled_Vocab::buildCVtree($parent_id, true));
+    $cv_tree = Controlled_Vocab::renderCVtree(Controlled_Vocab::buildCVtree(APP_API, $parent_id, true), APP_API, $parent_id);
 } else {
-	$cv_tree = Controlled_Vocab::renderCVtree(Controlled_Vocab::buildCVtree());
+    $cv_tree = Controlled_Vocab::renderCVtree(Controlled_Vocab::buildCVtree(APP_API), APP_API);
 }
 
 $tpl->assign("cvo_details", $cvo_details);

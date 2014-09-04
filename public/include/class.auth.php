@@ -50,6 +50,7 @@ include_once(APP_INC_PATH . "class.fedora_api.php");
 include_once(APP_INC_PATH . "class.date.php");
 include_once(APP_INC_PATH . "class.masquerade.php");
 include_once(APP_INC_PATH . "class.auth_no_fedora_datastreams.php");
+include_once(APP_INC_PATH . "class.api.php");
 
 global $NonRestrictedRoles;
 $NonRestrictedRoles = array("Viewer","Lister","Comment_Viewer");
@@ -62,9 +63,13 @@ $defaultRoleIDs = array(8, 7, 5, 9, 2, 6, 1, 5, 4, 3);
 
 global $auth_isBGP;
 global $auth_bgp_session;
+// For use with the API web service client which uses basic auth.
+// Probably similar to auth_bgp_session:
+global $auth_api_session;
 
 $auth_isBGP = false;
 $auth_bgp_session = array();
+$auth_api_session = array();
 
 class Auth
 {
@@ -99,13 +104,36 @@ class Auth
 	 */
 	function checkAuthentication($session_name, $failed_url = NULL, $is_popup = false)
 	{
+      global $auth_api_session;
+      if (APP_API) {
+          $ses =& $auth_api_session;
+          if (!$ses['api_authenticated']) {
+          $username = APP_API_USERNAME;
+          $password = APP_API_PASSWORD;
+          if (Auth::isCorrectPassword($username, $password)) {
+              $loginres = Auth::LoginAuthenticatedUser($username, $password, false, $masquerade);
+              if ($loginres > 0) {
+                  API::reply(401, API::makeResponse('Unauthorized'));
+                  exit;
+              }
+          } else {
+              // The assumption is that checkAuthentication is called
+              // when we want an authenticated user, not a public
+              // user.
+              API::reply(401, API::makeResponse('Unauthorized'));
+              exit;
+          }
+          }
+      }
 		$log = FezLog::get();
 		$db = DB_API::get();
 
 
 		global $auth_isBGP, $auth_bgp_session;
 
-		if ($auth_isBGP) {
+		if (APP_API) {
+			$ses =& $auth_api_session;
+		} else if ($auth_isBGP) {
 			$ses =& $auth_bgp_session;
 		} else {
 			session_name(APP_SESSION);
@@ -126,9 +154,15 @@ class Auth
 			}
 
 		}
-		Auth::checkRuleGroups();
-		// if the current session is still valid, then renew the expiration
-		Auth::createLoginSession($ses['username'], $ses['fullname'], $ses['email'], $ses['distinguishedname'], $ses['autologin'], $ses['acting_username']);
+    if (APP_API && $ses['api_authenticated']) {
+    } else {
+        Auth::checkRuleGroups();
+        // if the current session is still valid, then renew the expiration
+        Auth::createLoginSession($ses['username'], $ses['fullname'], $ses['email'], $ses['distinguishedname'], $ses['autologin'], $ses['acting_username']);
+        if (APP_API) {
+            $ses['api_authenticated'] = true;
+        }
+    }
 	}
 
 
@@ -566,8 +600,10 @@ class Auth
 	{
 		$log = FezLog::get();
 
-		global $auth_isBGP, $auth_bgp_session;
-		if ($auth_isBGP) {
+		global $auth_isBGP, $auth_bgp_session, $auth_api_session;
+		if (APP_API) {
+			$session =& $auth_api_session;
+		} else if ($auth_isBGP) {
 			$session =& $auth_bgp_session;
 		} else {
 			session_name(APP_SESSION);
@@ -630,6 +666,15 @@ class Auth
 			}
 		}
 		if ($auth_ok != true) {
+
+        if (APP_API) {
+            if ($redirect) {
+                API::reply(401, API::makeResponse('Unauthorized'));
+                exit;
+            } else {
+                return false;
+            }
+        }
 
 			// Perhaps the user hasn't logged in
 			if (!Auth::isValidSession($session)) {
@@ -760,8 +805,11 @@ class Auth
         } else {
             $log = FezLog::get();
 
-            global $auth_isBGP, $auth_bgp_session;
-            if ($auth_isBGP) {
+            global $auth_isBGP, $auth_bgp_session, $auth_api_session;
+            if (APP_API) {
+                $session =& $auth_api_session;
+            }
+            else if ($auth_isBGP) {
                 $session =& $auth_bgp_session;
             } else {
                 session_name(APP_SESSION);
@@ -1460,7 +1508,18 @@ class Auth
 		. $session["username"]))
 		) {
 //		|| ($session['ipaddress'] != @$_SERVER['REMOTE_ADDR'])) {
-			return false;
+			if (APP_API) {
+				// Auth::isAdministrator uses this function to check if administrator
+				// which assumes a logged in session has been set.  So, for
+				// the api, we may have to authenticate here.
+				if (!$session['api_authenticated']) {
+					self::checkAuthentication(APP_SESSION);
+				}
+				// checkAuthentication should die if we're not ok.
+				return true;
+			} else {
+				return false;
+			}
 		} else {
 			if ($session['ipaddress'] != @$_SERVER['REMOTE_ADDR']) {
 				$log = FezLog::get();
@@ -1484,9 +1543,11 @@ class Auth
 	 */
 	function createLoginSession($username, $fullname,  $email, $distinguishedname, $autologin = 0, $actingUsername = '')
 	{
-		global $auth_bgp_session, $auth_isBGP;
+		global $auth_bgp_session, $auth_isBGP, $auth_api_session;
 
-		if ($auth_isBGP) {
+		if (APP_API) {
+			$ses =& $auth_api_session;
+		} else if ($auth_isBGP) {
 			$ses =& $auth_bgp_session;
 		} else {
 			$ses =& $_SESSION;
@@ -1663,7 +1724,10 @@ class Auth
 		global $auth_bgp_session, $auth_isBGP;
 		static $usr_id;
 		$log = FezLog::get();
-
+		if (APP_API) {
+				$usr_id = @User::getUserIDByUsername(APP_API_USERNAME);
+				return $usr_id;
+		}
 		if ($auth_isBGP) {
 			$session =& $auth_bgp_session;
 		} else {
@@ -1693,6 +1757,9 @@ class Auth
 	function getUsername()
 	{
 		global $auth_bgp_session, $auth_isBGP;
+		if (APP_API) {
+				return APP_API_USERNAME;
+		}
 		if ($auth_isBGP) {
 			$session =& $auth_bgp_session;
 		} else {
@@ -1970,8 +2037,11 @@ class Auth
         // Value will be changed depending on the Disable Password Checking setting and Masquerading
         $getLDAPDetails = true;
 
-        global $auth_bgp_session, $auth_isBGP;
-        if ($auth_isBGP) {
+        global $auth_bgp_session, $auth_isBGP, $auth_api_session;
+        if (APP_API) {
+            $session =& $auth_api_session;
+        }
+        else if ($auth_isBGP) {
             $session =& $auth_bgp_session;
         } else {
             $session =& $_SESSION;
@@ -2172,8 +2242,11 @@ class Auth
 	{
 		$log = FezLog::get();
 
-		global $auth_bgp_session, $auth_isBGP;
-		if ($auth_isBGP) {
+		global $auth_bgp_session, $auth_isBGP, $auth_api_session;
+		if (APP_API) {
+			$session =& $auth_api_session;
+		}
+		else if ($auth_isBGP) {
 			$session =& $auth_bgp_session;
 		} else {
 			$session =& $_SESSION;
@@ -2582,11 +2655,13 @@ class Auth
 	 * NOTE:  There seems to be a bug that means that the session is not updated if you just set a key in the
 	 * reference to the $_SESSION returned from the function.  So use Auth::setSession to make it do the right thing.
 	 */
-	function getSession()
+	function &getSession()
 	{
-		global $auth_isBGP, $auth_bgp_session;
+		global $auth_isBGP, $auth_bgp_session, $auth_api_session;
 
-		if ($auth_isBGP) {
+		if (APP_API) {
+			$ses =& $auth_api_session;
+		} else if ($auth_isBGP) {
 			$ses =& $auth_bgp_session;
 		} else {
 			session_name(APP_SESSION);
@@ -2626,7 +2701,6 @@ class Auth
 		}
 		return $ips;
 	}
-
 
 	/**
 	 * Determine if we need to redirect the user to the Baic Authentication URL,

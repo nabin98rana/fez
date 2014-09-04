@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- example -->
+<FezACML xmlns:xsi="http://www.w3.org/2001/XMLSchema">
+  <rule>
+    <role name="Creator">
+      <AD_Group></AD_Group>
+      <AD_User></AD_User>
+      <AD_DistinguishedName></AD_DistinguishedName>
+      <Fez_Group>24</Fez_Group>
+      <Fez_User></Fez_User>
+      <eduPersonTargetedID></eduPersonTargetedID>
+      <eduPersonAffiliation></eduPersonAffiliation>
+      <eduPersonScopedAffiliation></eduPersonScopedAffiliation>
+      <eduPersonPrimaryAffiliation></eduPersonPrimaryAffiliation>
+      <eduPersonPrincipalName></eduPersonPrincipalName>
+      <eduPersonOrgUnitDN></eduPersonOrgUnitDN>
+      <eduPersonPrimaryOrgUnitDN></eduPersonPrimaryOrgUnitDN>
+    </role>
+    <role name="Editor">
+      <AD_Group></AD_Group>
+      <AD_User></AD_User>
+      <AD_DistinguishedName></AD_DistinguishedName>
+      <Fez_Group>26</Fez_Group>
+      <Fez_User></Fez_User>
+      <eduPersonTargetedID></eduPersonTargetedID>
+      <eduPersonAffiliation></eduPersonAffiliation>
+      <eduPersonScopedAffiliation></eduPersonScopedAffiliation>
+      <eduPersonPrimaryAffiliation></eduPersonPrimaryAffiliation>
+      <eduPersonPrincipalName></eduPersonPrincipalName>
+      <eduPersonOrgUnitDN></eduPersonOrgUnitDN>
+      <eduPersonPrimaryOrgUnitDN></eduPersonPrimaryOrgUnitDN>
+    </role>
+    <role name="Approver">
+      <AD_Group></AD_Group>
+      <AD_User></AD_User>
+      <AD_DistinguishedName></AD_DistinguishedName>
+      <Fez_Group>27</Fez_Group>
+      <Fez_User></Fez_User>
+      <eduPersonTargetedID></eduPersonTargetedID>
+      <eduPersonAffiliation></eduPersonAffiliation>
+      <eduPersonScopedAffiliation></eduPersonScopedAffiliation>
+      <eduPersonPrimaryAffiliation></eduPersonPrimaryAffiliation>
+      <eduPersonPrincipalName></eduPersonPrincipalName>
+      <eduPersonOrgUnitDN></eduPersonOrgUnitDN>
+      <eduPersonPrimaryOrgUnitDN></eduPersonPrimaryOrgUnitDN>
+    </role>
+    <role name="Viewer">
+      <AD_Group></AD_Group>
+      <AD_User></AD_User>
+      <AD_DistinguishedName></AD_DistinguishedName>
+      <in_Fez>off</in_Fez>
+      <Fez_Group>22</Fez_Group>
+      <Fez_Group>21</Fez_Group>
+      <Fez_User></Fez_User>
+      <eduPersonTargetedID></eduPersonTargetedID>
+      <eduPersonAffiliation></eduPersonAffiliation>
+      <eduPersonScopedAffiliation></eduPersonScopedAffiliation>
+      <eduPersonPrimaryAffiliation></eduPersonPrimaryAffiliation>
+      <eduPersonPrincipalName></eduPersonPrincipalName>
+      <eduPersonOrgUnitDN></eduPersonOrgUnitDN>
+      <eduPersonPrimaryOrgUnitDN></eduPersonPrimaryOrgUnitDN>
+    </role>
+    <role name="Lister">
+      <AD_Group></AD_Group>
+      <AD_User></AD_User>
+      <AD_DistinguishedName></AD_DistinguishedName>
+      <in_Fez>off</in_Fez>
+      <Fez_Group>22</Fez_Group>
+      <Fez_User></Fez_User>
+      <eduPersonTargetedID></eduPersonTargetedID>
+      <eduPersonAffiliation></eduPersonAffiliation>
+      <eduPersonScopedAffiliation></eduPersonScopedAffiliation>
+      <eduPersonPrimaryAffiliation></eduPersonPrimaryAffiliation>
+      <eduPersonPrincipalName></eduPersonPrincipalName>
+      <eduPersonOrgUnitDN></eduPersonOrgUnitDN>
+      <eduPersonPrimaryOrgUnitDN></eduPersonPrimaryOrgUnitDN>
+    </role>
+    <role name="Commentor">
+      <AD_Group></AD_Group>
+      <AD_User></AD_User>
+      <Fez_Group></Fez_Group>
+      <Fez_User></Fez_User>
+    </role>
+    <role name="Comment_Viewer">
+      <AD_Group></AD_Group>
+      <AD_User></AD_User>
+      <Fez_Group></Fez_Group>
+      <Fez_User></Fez_User>
+    </role>
+    <role name="Annotator">
+      <AD_Group></AD_Group>
+      <AD_User></AD_User>
+      <Fez_Group></Fez_Group>
+      <Fez_User></Fez_User>
+    </role>
+  </rule>
+  <inherit_security>off</inherit_security>
+</FezACML>

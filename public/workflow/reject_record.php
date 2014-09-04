@@ -35,6 +35,7 @@
 include_once(dirname(dirname(__FILE__)).DIRECTORY_SEPARATOR."config.inc.php");
 include_once(APP_INC_PATH . "class.template.php");
 include_once(APP_INC_PATH . "class.auth.php");
+include_once(APP_INC_PATH . "class.api.php");
 
 Auth::checkAuthentication(APP_SESSION, $_SERVER['PHP_SELF']."?".$_SERVER['QUERY_STRING']);
 
@@ -51,7 +52,17 @@ $record->getObjectAdminMD();
 $usrDetails = User::getDetailsByID($record->depositor);
 
 $tpl = new Template_API();
-$tpl->setTemplate("workflow/index.tpl.html");
+
+if (APP_API) {
+    // If there is a workflow specified honour that and try to populate the email finalisation message.
+    if ($_REQUEST['workflow_val'] == 'Reject Finalise' && (HTTP_METHOD == 'POST')) {
+        API::populateRejectionEmail();
+    } else {
+        $tpl->setTemplate("workflow/reject.tpl.xml");
+    }
+} else {
+    $tpl->setTemplate("workflow/index.tpl.html");
+}
 $tpl->assign("type", "reject_record");
 
 $wfstatus->setTemplateVars($tpl);

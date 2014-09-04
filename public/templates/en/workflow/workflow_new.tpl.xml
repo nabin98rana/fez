@@ -1,0 +1,31 @@
+<workflow>
+    {if $message}
+        <msg>
+            {$message|smarty:nodefaults}
+        </msg>     
+    {/if}
+
+    {if $workflows}
+    <actions>
+        {section name="i" loop=$workflows}
+            <action>
+                {assign var="wfl_id" value=$workflows[i].wft_wfl_id}
+                {assign var="xdis_id1" value=$workflows[i].wft_xdis_id}
+                <name>{$wfl_list[$wfl_id].wfl_title}</name>
+                <uri>
+                    <![CDATA[
+                        {$smarty.server.SCRIPT_NAME}?pid={$pid}&cat=select_workflow&xdis_id={$xdis_id}&wft_id={$workflows[i].wft_id}&href={$href}
+                    ]]>
+                </uri>
+                {if $wfl_list[$wfl_id].wfl_description}
+                    <description>
+                        <![CDATA[
+                            {$wfl_list[$wfl_id].wfl_description}
+                        ]]>
+                    </description>
+                {/if}
+            </action>
+        {/section}
+    </actions>
+    {/if}
+</workflow>

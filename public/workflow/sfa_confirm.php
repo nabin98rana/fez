@@ -83,19 +83,25 @@ if(is_numeric($record->depositor)) {
 }
 $wfstatus->checkStateChange();
 
-$tpl = new Template_API();
+if (APP_API) {
+    $wfstatus->theend(false);
+    API::reply(200, API::makeResponse(200, "Pid $pid submitted for approval", array('pid' => $pid)), APP_API);
+    exit;
+} else {
+    $tpl = new Template_API();
 
-$tpl->setTemplate("workflow/index.tpl.html");
-$tpl->assign("type", 'sfa_confirm');
-$tpl->assign('view_record_url', $view_record_url);
-$tpl->assign('record_title', $record_title);
-$tpl->assign('application_name', APP_NAME);
-$tpl->assign('title', $record->getTitle());
-$tpl->assign('name', $usrDetails['usr_full_name']);
-MyResearch::addDatasetLink($tpl);
+    $tpl->setTemplate("workflow/index.tpl.html");
+    $tpl->assign("type", 'sfa_confirm');
+    $tpl->assign('view_record_url', $view_record_url);
+    $tpl->assign('record_title', $record_title);
+    $tpl->assign('application_name', APP_NAME);
+    $tpl->assign('title', $record->getTitle());
+    $tpl->assign('name', $usrDetails['usr_full_name']);
+    MyResearch::addDatasetLink($tpl);
 
-$tpl->displayTemplate();
+    $tpl->displayTemplate();
+    // This is a special ending workflow state -> so end the workflow manually rather than goto the redirect screen (to prevent users clicking back the browser and causing all sorts of trouble)
+    $wfstatus->theend(false);
+}
 
-// This is a special ending workflow state -> so end the workflow manually rather than goto the redirect screen (to prevent users clicking back the browser and causing all sorts of trouble)
-$wfstatus->theend(false);
 ?>

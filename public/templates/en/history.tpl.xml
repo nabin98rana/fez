@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<changes_made>
+    {if $exists == 1}
+        {section name="i" loop=$changes}
+            <change>
+                <date>
+                    {$changes[i].pre_date}
+                </date>
+                <outcome>
+                {if $changes[i].pre_outcome}
+                    {$changes[i].pre_outcome}
+                {/if}
+                </outcome>
+                <detail>
+                    {$changes[i].pre_detail|replace:"no value set":"no value set"}
+                </detail>
+                <outcome_detail>
+                    {if $changes[i].pre_outcomedetail}
+                        {$changes[i].pre_outcomedetail|smarty:nodefaults}
+                    {/if}
+                </outcome_detail>
+            </change>
+        {/section}
+    {elseif $exists == 0}
+        <msg>The requested object does not exist.</msg>
+    {else}
+        <msg>Please login to view history</msg>
+    {/if}
+</changes_made>

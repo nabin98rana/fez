@@ -1,0 +1,9 @@
+{
+    "require": {
+        "nategood/httpful": "*"
+    },
+
+    "config": {
+        "bin-dir": "bin/"
+    }
+}

@@ -205,6 +205,14 @@ class RecordGeneral
   {
     if (!$this->checked_auth) {
       $this->getXmlDisplayId();
+
+      // We need internal fez groups and the roles set up eg so that a
+      // user with the lister role for a closed collection can access
+      // it.  We are not using sessions.
+      if (APP_API) {
+          Auth::checkAuthentication(APP_SESSION);
+      }
+
       $this->auth_groups = Auth::getAuthorisationGroups($this->pid);
       $this->checked_auth = true;
     }

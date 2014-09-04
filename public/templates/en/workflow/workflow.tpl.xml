@@ -1,0 +1,64 @@
+<workflow>
+{if $show_not_allowed_msg}
+    <error>
+        You don't have permission to access this function
+    </error>
+{else}
+    {if $wfl_title}
+        <wfl_title>{$wfl_title}</wfl_title>
+        <wfs_title>{$wfs_title}</wfs_title>
+    {/if}
+    {if $wfs_description}
+        <wfs_description>
+            {$wfs_description}
+        </wfs_description>
+    {/if}
+    <wfses_id>{$id}</wfses_id>
+    {if $states_done}
+        <wfl_progress>
+            {section name="i" loop=$states_done}
+                <wfl_state>{$states_done[i].wfs_auto}</wfl_state>
+                <wfl_url><![CDATA[
+                    {$rel_url}workflow/{$states_done[i].wfb_script_name}?id={$id}&wfs_id={$states_done[i].wfs_id}
+                ]]></wfl_url>
+            {/section}
+        </wfl_progress>
+    {/if}
+    <xdis_id>{$xdis_id}</xdis_id>
+    {if $workflow_buttons}
+        <actions>
+                {*
+                <![CDATA[
+                {$workflow_buttons|print_r}
+                ]]>
+                *}
+                {section name="i" loop=$workflow_buttons}
+                    {if !$disable_workflow}
+                        <action>
+                            <name>{$workflow_buttons[i].wfs_title|default:'Done'}</name>
+                            {if $submit_to_popup}
+                                {if $dsID}
+                                    <uri><![CDATA[{$rel_url}popup.php?id={$id}&xdis_id={$xdis_id}&dsID={$dsID}&sta_id={$sta_id}&workflow={$workflow_buttons[i].wfs_id}&cat={$cat}&pid={$pid}&workflow_val={$workflow_buttons[i].wfs_title|urlencode}]]></uri>
+                                {else}
+                                    <uri><![CDATA[{$rel_url}popup.php?id={$id}&xdis_id={$xdis_id}&sta_id={$sta_id}&workflow={$workflow_buttons[i].wfs_id}&cat={$cat}&pid={$pid}&workflow_val={$workflow_buttons[i].wfs_title|urlencode}]]></uri>
+                                {/if}
+                            {else}
+                                <uri><![CDATA[{$rel_url}workflow/{$type}.php?id={$id}&xdis_id={$xdis_id}&sta_id={$sta_id}&workflow={$workflow_buttons[i].wfs_id}&workflow_val={$workflow_buttons[i].wfs_title|urlencode}]]></uri>
+                            {/if}
+                        </action>
+                    {/if}
+                {/section}
+                <action>
+                    <name>Abandon Workflow</name>
+                    <uri><![CDATA[{$rel_url}workflow/abandon.php?id={$id}&href={$href|smarty:nodefaults|escape:url}]]></uri>
+                </action>
+        </actions>
+    {/if}
+    {* These two templates are very similar and I believe can be handled in one place *}
+    {if $type == "edit_metadata"}
+        {include file="workflow/enter_metadata.tpl.xml"}
+    {else}
+        {include file="workflow/$type.tpl.xml"}
+    {/if}
+{/if}
+</workflow>

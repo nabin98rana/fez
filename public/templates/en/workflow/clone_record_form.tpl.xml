@@ -1,0 +1,29 @@
+{* TODO - check validation on this. Think it is only enforced in javascript *}
+<clone>
+    <destination_collection>
+        {foreach from=$collection_list item=option key=value}
+            {if ($option != '')}
+                <option>
+                    <name>{$option}</name>
+                    <value>{$value}</value>
+                </option>
+            {/if}
+        {/foreach}
+        <default_value>{$collection_list_selected}</default_value>
+    </destination_collection>
+    <successor>{$smarty.request.is_succession}</successor>
+    <clone_attached_datastreams>
+        {$smarty.request.clone_attached_datastreams}
+    </clone_attached_datastreams>
+    <display_type>
+        {foreach from=$xdis_list item=option key=value}
+            {if ($option != '')}
+                <option>
+                    <name>{$option}</name>
+                    <value>{$value}</value>
+                </option>
+            {/if}
+        {/foreach}
+        <default_value>{$smarty.request.new_xdis_id|default:$xdis_id}</default_value>
+    </display_type>
+</clone>

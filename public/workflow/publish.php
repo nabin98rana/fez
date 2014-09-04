@@ -42,9 +42,10 @@ if ($this->wft_details['wft_type_id'] == WorkflowTrigger::getTriggerId('Bulk Cha
 	$this->getRecordObject();
 	if ($this->rec_obj->canApprove()) {
 		$sta_id = Status::getID("Published");
-		$this->rec_obj->setStatusId($sta_id);	
+		$this->rec_obj->setStatusId($sta_id);
 		$historyExtra = $this->getHistoryDetail();
 		History::addHistory($this->rec_obj->getPid(), null, '', '', true, 'Published', $historyExtra);
 	}
+	// Consideration: The default functionality is to fail silently if the role can not publish. For API work we may want to return an error or clean up the session through theend here.
 	$this->rec_obj->releaseLock();
 }

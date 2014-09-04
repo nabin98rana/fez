@@ -1,0 +1,27 @@
+<workflow>
+    {if $workflow_buttons}
+        <actions>
+                {* See workflow.tpl.xml --- This was partially taken from there *}
+                {section name="i" loop=$workflow_buttons}
+                    {if !$disable_workflow}
+                        <action>
+                            <name>{$workflow_buttons[i].wfs_title|default:'Done'}</name>
+                            {if $submit_to_popup}
+                                <uri><![CDATA[{$rel_url}popup.php?id={$id}&workflow={$workflow_buttons[i].wfs_id}&cat={$cat}&pid={$pid}&workflow_val={$workflow_buttons[i].wfs_title|urlencode}]]></uri>
+                            {else}
+                                <uri><![CDATA[{$rel_url}workflow/{$type}.php?id={$id}&workflow={$workflow_buttons[i].wfs_id}&workflow_val={$workflow_buttons[i].wfs_title|urlencode}]]></uri>
+                            {/if}
+                        </action>
+                    {/if}
+                {/section}
+                <action>
+                    <name>Abandon Workflow</name>
+                    <uri><![CDATA[{$rel_url}workflow/abandon.php?id={$id}&href={$href|smarty:nodefaults|escape:url}]]></uri>
+                </action>
+        </actions>
+    {/if}
+    <reject>
+        <name>Reject</name>
+        <email_body><![CDATA[{$email_body}]]></email_body>
+    </reject>
+</workflow>

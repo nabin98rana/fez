@@ -36,12 +36,26 @@ include_once('../config.inc.php');
 include_once(APP_INC_PATH . 'class.background_process.php');
 include_once(APP_INC_PATH . 'class.background_process_list.php');
 include_once(APP_INC_PATH . 'class.auth.php');
+include_once(APP_INC_PATH . 'class.api.php');
 include_once(APP_INC_PATH . 'class.record_general.php');
 include_once(APP_INC_PATH.'class.workflow_status.php');
 include_once(APP_INC_PATH.'najax_classes.php');
 
 $id = $_REQUEST['id'];
 $res = WorkflowStatusStatic::remove($id);
+
+if (APP_API) {
+    if ($res > 0) {
+        $arr = API::makeResponse('OK', "Removed workflow (result: $res).");
+        $httpcode = 200;
+    } else {
+        $arr = API::makeResponse('FAIL', "Failed to remove workflow (result: $res).");
+        $httpcode = 417;
+    }
+    API::reply($httpcode, $arr, APP_API);
+    exit;
+}
+
 if ($res > 0) {
     Session::setMessage("Abandoned workflow");
     $bgp_list = new BackgroundProcessList;
