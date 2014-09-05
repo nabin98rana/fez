@@ -227,12 +227,6 @@ if (!empty($pid) && $record->checkExists()) {
   $tpl->assign("isViewer", $canView);
   if ($canView) {
     list($prev, $next) = RecordView::getNextPrevNavigation($pid);
-    $tpl->setTemplate('header.tpl.html');
-    $header = $tpl->getTemplateContents();
-    echo $header;
-    ob_flush();
-    flush();
-
     $tpl->setTemplate("view.tpl.html");
 
     $ret_id = 3;
