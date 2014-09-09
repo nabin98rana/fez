@@ -82,20 +82,39 @@ class Datastream
         }
     }
 
-    static function setfezACML($pid, $dsID, $fezACMLTemplateNum)
+    /**
+     * Set the security on the datastream directly using fezACML xml.
+     *
+     * @param string $xml A valid fezACML xml document
+     */
+    static function setfezACMLXml($pid, $dsID, $xml)
     {
-        $xmlObj = FezACML::getQuickTemplateValue($fezACMLTemplateNum);
-        if ($xmlObj != false) {
             $FezACML_dsID = FezACML::getFezACMLDSName($dsID);
             if (Fedora_API::datastreamExists($pid, $FezACML_dsID)) {
                 Fedora_API::callModifyDatastreamByValue($pid, $FezACML_dsID, "A", "FezACML security for datastream - ".$dsID,
-                    $xmlObj, "text/xml", "true");
+                                                    $xml, "text/xml", "true");
             } else {
-                Fedora_API::getUploadLocation($pid, $FezACML_dsID, $xmlObj, "FezACML security for datastream - ".$dsID,
+            Fedora_API::getUploadLocation($pid, $FezACML_dsID, $xml, "FezACML security for datastream - ".$dsID,
                     "text/xml", "X",null,"true");
             }
         }
 
+    static function setfezACML($pid, $dsID, $fezACMLTemplateNum)
+    {
+        $xmlObj = FezACML::getQuickTemplateValue($fezACMLTemplateNum);
+        if ($xmlObj != false) {
+            return self::setfezACMLXml($pid, $dsID, $xmlObj);
+        }
+
+    }
+
+    /**
+     * Set the security on the datastream to inherit from parent.
+     */
+    static function setfezACMLInherit($pid, $dsID)
+    {
+        $xml = FezACML::makeQuickTemplateInherit();
+        return self::setfezACMLXml($pid, $dsID, $xml);
     }
 
     //Removes permissions on datastream which makes it open access if the pid is accessible.

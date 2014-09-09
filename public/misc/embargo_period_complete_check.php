@@ -41,14 +41,6 @@ include_once(APP_INC_PATH . "class.filecache.php");
 set_time_limit(0);
 $log = FezLog::get();
 
-//This needs to be changed if the templates are rearranged.
-$templateNumber = 7;
-if (str_replace(array("\n", "\r", "\t", " "), '', FezACML::getQuickTemplateValue($templateNumber)) != "<FezACML><inherit_security>on</inherit_security></FezACML>") {
-    $log->err("!!!!!!! Possible error with template in embargo Cron job !!!!!!!!!");
-    echo "Error with template";
-    exit;
-}
-
 $isUser = Auth::getUsername();
 if ((php_sapi_name()==="cli") || (User::isUserSuperAdministrator($isUser))) {
     echo "Script started: " . date('Y-m-d H:i:s') . "\n";
@@ -64,7 +56,7 @@ if ((php_sapi_name()==="cli") || (User::isUserSuperAdministrator($isUser))) {
     foreach ($res as $pidInfo) {
         $pidPermisisons = Auth::getAuthPublic($pidInfo['dsi_pid'], $pidInfo['dsi_dsid']);
         if (!($pidPermisisons['lister'] && $pidPermisisons['viewer'])) {
-            Datastream::setfezACML($pidInfo['dsi_pid'], $pidInfo['dsi_dsid'], $templateNumber);
+            Datastream::setfezACMLInherit($pidInfo['dsi_pid'], $pidInfo['dsi_dsid']);
             echo $pidInfo['dsi_pid']." ".$pidInfo['dsi_dsid']." \n";
             if (APP_FILECACHE == "ON") {
                 $cache = new fileCache($pidInfo['dsi_pid'], 'pid='.$pidInfo['dsi_pid']);
