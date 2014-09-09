@@ -1,0 +1,1449 @@
+<?xml version="1.0"?>
+
+<workflow>
+  <wfl_title>Create Generic Record In Selected Collection</wfl_title>
+  <wfs_title>Enter Metadata</wfs_title>
+  <wfses_id>3261</wfses_id>
+  <wfl_progress>
+    <wfl_state>0</wfl_state>
+    <wfl_url><![CDATA[
+    /workflow/enter_metadata.php?id=3261&wfs_id=897
+    ]]></wfl_url>
+  </wfl_progress>
+  <actions>
+    <action>
+      <xdis_id>179</xdis_id>
+      <name>Submit for Approval </name>
+      <uri><![CDATA[/workflow/enter_metadata.php?id=3261&xdis_id=179&sta_id=4&workflow=896&workflow_val=Submit+for+Approval]]></uri>
+    </action>
+    <action>
+      <xdis_id>179</xdis_id>
+      <name>Publish </name>
+      <uri><![CDATA[/workflow/enter_metadata.php?id=3261&xdis_id=179&sta_id=4&workflow=898&workflow_val=Publish]]></uri>
+    </action>
+    <action>
+      <xdis_id>179</xdis_id>
+      <name>Save </name>
+      <uri><![CDATA[/workflow/enter_metadata.php?id=3261&xdis_id=179&sta_id=4&workflow=-1&workflow_val=Save]]></uri>
+    </action>
+    <action>
+      <name>Abandon Workflow</name>
+      <uri><![CDATA[/workflow/abandon.php?id=3261&href=]]></uri>
+    </action>
+  </actions>
+  <xsd_display_fields>
+    <xsd_display_field>
+      <![CDATA[$collection_pid]]>
+      <xsdmf_id>23284</xsdmf_id>
+      <xsdmf_title>Member of Collections:</xsdmf_title>
+      <xsdmf_invsible>0</xsdmf_invsible>
+      <xsdmf_required>1</xsdmf_required>
+      <xsdmf_html_input>multiple</xsdmf_html_input>
+      <xsdmf_enabled>1</xsdmf_enabled>
+      <field_options>
+        <option>
+          <name>Anindilyakwa</name>
+          <value>cdu:29713</value>
+        </option>
+        <option>
+          <name>Anindilyakwa - Closed Access</name>
+          <value>cdu:29181</value>
+        </option>
+        <option>
+          <name>ANU digitised works</name>
+          <value>cdu:9444</value>
+        </option>
+        <option>
+          <name>AraDA East Timor Special Collection</name>
+          <value>cdu:30223</value>
+        </option>
+        <option>
+          <name>Arrente</name>
+          <value>cdu:29714</value>
+        </option>
+        <option>
+          <name>Arrente - Closed Access</name>
+          <value>cdu:29180</value>
+        </option>
+        <option>
+          <name>Barunga</name>
+          <value>cdu:29715</value>
+        </option>
+        <option>
+          <name>Barunga - Closed Access</name>
+          <value>cdu:23977</value>
+        </option>
+        <option>
+          <name>Campuses</name>
+          <value>cdu:24669</value>
+        </option>
+        <option>
+          <name>CDU digitised works</name>
+          <value>cdu:9446</value>
+        </option>
+        <option>
+          <name>CDU Photographs--Ledwidge</name>
+          <value>cdu:30225</value>
+        </option>
+        <option>
+          <name>CDU Photographs--Shewring</name>
+          <value>cdu:30226</value>
+        </option>
+        <option>
+          <name>CDU Photographs--Vesteys</name>
+          <value>cdu:30227</value>
+        </option>
+        <option>
+          <name>CDU Press Publications</name>
+          <value>cdu:30245</value>
+        </option>
+        <option>
+          <name>CDU Researchers - External Publications</name>
+          <value>cdu:30228</value>
+        </option>
+        <option>
+          <name>CDU Theses - Master</name>
+          <value>cdu:30242</value>
+        </option>
+        <option>
+          <name>CDU Theses - Master of Engineering</name>
+          <value>cdu:38788</value>
+        </option>
+        <option>
+          <name>CDU Theses - Master of (Tropical) Environmental Management (MTEM) (MEM)</name>
+          <value>cdu:30241</value>
+        </option>
+        <option>
+          <name>CDU Theses - PhD</name>
+          <value>cdu:30243</value>
+        </option>
+        <option>
+          <name>CDU Theses - Selected Honours</name>
+          <value>cdu:30244</value>
+        </option>
+        <option>
+          <name>Confucius Institute</name>
+          <value>cdu:30018</value>
+        </option>
+        <option>
+          <name>Data Collections</name>
+          <value>cdu:38508</value>
+        </option>
+        <option>
+          <name>Datasets: Burnt Area Maps</name>
+          <value>cdu:29856</value>
+        </option>
+        <option>
+          <name>Duplicate Records</name>
+          <value>cdu:3765</value>
+        </option>
+        <option>
+          <name>ERA 2010</name>
+          <value>cdu:9284</value>
+        </option>
+        <option>
+          <name>ERA 2010 Book Chapters</name>
+          <value>cdu:23648</value>
+        </option>
+        <option>
+          <name>ERA 2010 Books</name>
+          <value>cdu:23649</value>
+        </option>
+        <option>
+          <name>ERA 2010 Conference Papers</name>
+          <value>cdu:23650</value>
+        </option>
+        <option>
+          <name>ERA 2010 Creative Works</name>
+          <value>cdu:23651</value>
+        </option>
+        <option>
+          <name>ERA 2010 Journal Articles</name>
+          <value>cdu:23652</value>
+        </option>
+        <option>
+          <name>ERA 2012</name>
+          <value>cdu:9502</value>
+        </option>
+        <option>
+          <name>ERA 2012 Book Chapters</name>
+          <value>cdu:9498</value>
+        </option>
+        <option>
+          <name>ERA 2012 Books</name>
+          <value>cdu:9497</value>
+        </option>
+        <option>
+          <name>ERA 2012 Conference Papers</name>
+          <value>cdu:9499</value>
+        </option>
+        <option>
+          <name>ERA 2012 Creative Works</name>
+          <value>cdu:9500</value>
+        </option>
+        <option>
+          <name>ERA 2012 Journal Articles</name>
+          <value>cdu:9501</value>
+        </option>
+        <option>
+          <name>eReadings</name>
+          <value>cdu:23608</value>
+        </option>
+        <option>
+          <name>eReadings Archives</name>
+          <value>cdu:22606</value>
+        </option>
+        <option>
+          <name>eReadings (in process)</name>
+          <value>cdu:23830</value>
+        </option>
+        <option>
+          <name>eReserve NTLIER</name>
+          <value>cdu:13336</value>
+        </option>
+        <option>
+          <name>eTitles Collection</name>
+          <value>cdu:29757</value>
+        </option>
+        <option>
+          <name>eTitles Collection (Archives and in process)</name>
+          <value>cdu:34565</value>
+        </option>
+        <option>
+          <name>Galiwinku</name>
+          <value>cdu:29744</value>
+        </option>
+        <option>
+          <name>Galiwinku - Closed Access</name>
+          <value>cdu:29743</value>
+        </option>
+        <option>
+          <name>Graduate School for Health Practice</name>
+          <value>cdu:30230</value>
+        </option>
+        <option>
+          <name>Graduate School for Health Practice Preprints</name>
+          <value>cdu:6624</value>
+        </option>
+        <option>
+          <name>Gunbalanya</name>
+          <value>cdu:29999</value>
+        </option>
+        <option>
+          <name>Gunbalanya - Closed Access</name>
+          <value>cdu:29998</value>
+        </option>
+        <option>
+          <name>HERDC 2008</name>
+          <value>cdu:7243</value>
+        </option>
+        <option>
+          <name>HERDC 2009</name>
+          <value>cdu:8126</value>
+        </option>
+        <option>
+          <name>HERDC 2010</name>
+          <value>cdu:38513</value>
+        </option>
+        <option>
+          <name>HERDC 2010 (in process)</name>
+          <value>cdu:36700</value>
+        </option>
+        <option>
+          <name>HERDC 2010 (old)</name>
+          <value>cdu:8757</value>
+        </option>
+        <option>
+          <name>HERDC 2011</name>
+          <value>cdu:38514</value>
+        </option>
+        <option>
+          <name>HERDC 2011 (in process)</name>
+          <value>cdu:36701</value>
+        </option>
+        <option>
+          <name>HERDC 2012</name>
+          <value>cdu:38515</value>
+        </option>
+        <option>
+          <name>HERDC 2012 (in process)</name>
+          <value>cdu:36702</value>
+        </option>
+        <option>
+          <name>HERDC (duplicate)</name>
+          <value>cdu:38481</value>
+        </option>
+        <option>
+          <name>Information Technology Management and Support Publications</name>
+          <value>cdu:30247</value>
+        </option>
+        <option>
+          <name>LAAL items (testing collection)</name>
+          <value>cdu:13177</value>
+        </option>
+        <option>
+          <name>Learnlink Publications</name>
+          <value>cdu:80</value>
+        </option>
+        <option>
+          <name>Libraries Australia records</name>
+          <value>cdu:9496</value>
+        </option>
+        <option>
+          <name>Library Theses - CDU Higher Degree Theses (Citation Only)</name>
+          <value>cdu:9208</value>
+        </option>
+        <option>
+          <name>Library Theses - checked (no Deposit Agreement) - Master</name>
+          <value>cdu:34585</value>
+        </option>
+        <option>
+          <name>Library Theses - checked (no Deposit agreement) - PhD</name>
+          <value>cdu:5234</value>
+        </option>
+        <option>
+          <name>Library Theses - checked (no Deposit agreement) - Selected Honours</name>
+          <value>cdu:34586</value>
+        </option>
+        <option>
+          <name>Library Theses - checked (no Deposit agreement ; Third-party copyright?)</name>
+          <value>cdu:5233</value>
+        </option>
+        <option>
+          <name>Library Theses - pending</name>
+          <value>cdu:6563</value>
+        </option>
+        <option>
+          <name>Library Theses - test</name>
+          <value>cdu:9198</value>
+        </option>
+        <option>
+          <name>Library Theses - working</name>
+          <value>cdu:13180</value>
+        </option>
+        <option>
+          <name>Library Theses - working MTEM</name>
+          <value>cdu:13213</value>
+        </option>
+        <option>
+          <name>Maningrida</name>
+          <value>cdu:29716</value>
+        </option>
+        <option>
+          <name>Maningrida - Closed Access</name>
+          <value>cdu:29179</value>
+        </option>
+        <option>
+          <name>Maung</name>
+          <value>cdu:29717</value>
+        </option>
+        <option>
+          <name>Maung - Closed Access</name>
+          <value>cdu:23789</value>
+        </option>
+        <option>
+          <name>Menzies School of Health Research</name>
+          <value>cdu:30252</value>
+        </option>
+        <option>
+          <name>Milingimbi</name>
+          <value>cdu:29718</value>
+        </option>
+        <option>
+          <name>Milingimbi - Closed Access</name>
+          <value>cdu:29178</value>
+        </option>
+        <option>
+          <name>MSHR</name>
+          <value>cdu:62</value>
+        </option>
+        <option>
+          <name>Multimedia Test Collection</name>
+          <value>cdu:10148</value>
+        </option>
+        <option>
+          <name>Murrinh-Patha</name>
+          <value>cdu:29792</value>
+        </option>
+        <option>
+          <name>Murrinh-Patha - Closed Access</name>
+          <value>cdu:29789</value>
+        </option>
+        <option>
+          <name>Nancy Giese Archives Collection</name>
+          <value>cdu:38851</value>
+        </option>
+        <option>
+          <name>Northern Institute (Formerly: School for Social and Policy Research)</name>
+          <value>cdu:30231</value>
+        </option>
+        <option>
+          <name>Numbulwar</name>
+          <value>cdu:29793</value>
+        </option>
+        <option>
+          <name>Numbulwar - Closed Access</name>
+          <value>cdu:29790</value>
+        </option>
+        <option>
+          <name>OA - Admin only</name>
+          <value>cdu:24101</value>
+        </option>
+        <option>
+          <name>OA - Embargo</name>
+          <value>cdu:38632</value>
+        </option>
+        <option>
+          <name>OA - Restricted</name>
+          <value>cdu:38631</value>
+        </option>
+        <option>
+          <name>Office of Learning and Teaching</name>
+          <value>cdu:38638</value>
+        </option>
+        <option>
+          <name>Office of Library Services Publications and Presentations</name>
+          <value>cdu:30246</value>
+        </option>
+        <option>
+          <name>Open Access Week Presentations</name>
+          <value>cdu:34563</value>
+        </option>
+        <option>
+          <name>Past Exam Papers Collection</name>
+          <value>cdu:29758</value>
+        </option>
+        <option>
+          <name>Past Exam Papers Collection Archives</name>
+          <value>cdu:29759</value>
+        </option>
+        <option>
+          <name>Pintupi-Luritja</name>
+          <value>cdu:29719</value>
+        </option>
+        <option>
+          <name>Pintupi-Luritja - Closed Access</name>
+          <value>cdu:23798</value>
+        </option>
+        <option>
+          <name>Pitjantjatjara</name>
+          <value>cdu:29720</value>
+        </option>
+        <option>
+          <name>Pitjantjatjara - Closed Access</name>
+          <value>cdu:24147</value>
+        </option>
+        <option>
+          <name>Research</name>
+          <value>cdu:24670</value>
+        </option>
+        <option>
+          <name>Research Institute for Environment &amp;amp; Livelihoods (Formerly: School for Environmental Research)</name>
+          <value>cdu:30232</value>
+        </option>
+        <option>
+          <name>Research Publications</name>
+          <value>cdu:61</value>
+        </option>
+        <option>
+          <name>RQF Nominated Research Outputs 2007</name>
+          <value>cdu:3761</value>
+        </option>
+        <option>
+          <name>SCAH Creative Works for ERA</name>
+          <value>cdu:7971</value>
+        </option>
+        <option>
+          <name>School of Australian Indigenous Knowledge Systems</name>
+          <value>cdu:30233</value>
+        </option>
+        <option>
+          <name>School of Creative Arts and Humanities</name>
+          <value>cdu:30234</value>
+        </option>
+        <option>
+          <name>School of Education</name>
+          <value>cdu:30235</value>
+        </option>
+        <option>
+          <name>School of Engineering and Information Technology</name>
+          <value>cdu:30236</value>
+        </option>
+        <option>
+          <name>School of Environment and Life Sciences</name>
+          <value>cdu:30237</value>
+        </option>
+        <option>
+          <name>School of Health (Formerly: School of Health Sciences)</name>
+          <value>cdu:30238</value>
+        </option>
+        <option>
+          <name>School of Law and Business</name>
+          <value>cdu:30251</value>
+        </option>
+        <option>
+          <name>School of Psychological and Clinical Sciences</name>
+          <value>cdu:38526</value>
+        </option>
+        <option>
+          <name>Self Submission</name>
+          <value>cdu:38528</value>
+        </option>
+        <option>
+          <name>Test</name>
+          <value>cdu:38541</value>
+        </option>
+        <option>
+          <name>test collection</name>
+          <value>cdu:35915</value>
+        </option>
+        <option>
+          <name>Thomson NCI Journal Articles</name>
+          <value>cdu:63</value>
+        </option>
+        <option>
+          <name>Tiwi</name>
+          <value>cdu:29721</value>
+        </option>
+        <option>
+          <name>Tiwi - Closed Access</name>
+          <value>cdu:23788</value>
+        </option>
+        <option>
+          <name>Tourism and Hospitality Publications</name>
+          <value>cdu:81</value>
+        </option>
+        <option>
+          <name>University Executive Publications</name>
+          <value>cdu:30248</value>
+        </option>
+        <option>
+          <name>viewer collection</name>
+          <value>cdu:39082</value>
+        </option>
+        <option>
+          <name>Vocational Education &amp;amp; Training</name>
+          <value>cdu:30240</value>
+        </option>
+        <option>
+          <name>Warlpiri</name>
+          <value>cdu:29727</value>
+        </option>
+        <option>
+          <name>Warlpiri - Closed Access</name>
+          <value>cdu:29728</value>
+        </option>
+        <option>
+          <name>Yipirinya</name>
+          <value>cdu:29794</value>
+        </option>
+        <option>
+          <name>Yipirinya - Closed Access</name>
+          <value>cdu:29791</value>
+        </option>
+        <option>
+          <name>Yirrkala</name>
+          <value>cdu:29722</value>
+        </option>
+        <option>
+          <name>Yirrkala - Closed Access</name>
+          <value>cdu:23790</value>
+        </option>
+        <option>
+          <name>Yol&#x14B;u Aboriginal Consultants Initiative</name>
+          <value>cdu:38863</value>
+        </option>
+      </field_options>
+      <selected_option>cdu:9501</selected_option>
+      <xsdmf_show_in_view/>
+      <xsdmf_description><![CDATA[]]></xsdmf_description>
+      <xsdmf_multiple/>
+      <xsdmf_value><![CDATA[]]></xsdmf_value>
+    </xsd_display_field>
+    <xsd_display_field>
+      <xsdmf_id>10797</xsdmf_id>
+      <xsdmf_title>ISI LOC</xsdmf_title>
+      <xsdmf_invsible/>
+      <xsdmf_required/>
+      <xsdmf_html_input>hidden</xsdmf_html_input>
+      <xsdmf_enabled>1</xsdmf_enabled>
+      <field_options>
+      </field_options>
+      <selected_option/>
+      <xsdmf_show_in_view/>
+      <xsdmf_description><![CDATA[]]></xsdmf_description>
+      <xsdmf_multiple/>
+      <xsdmf_value><![CDATA[123]]></xsdmf_value>
+      <xsdmf_value><![CDATA[456]]></xsdmf_value>
+    </xsd_display_field>
+    <xsd_display_field>
+      <xsdmf_id>10798</xsdmf_id>
+      <xsdmf_title>RM PRN</xsdmf_title>
+      <xsdmf_invsible/>
+      <xsdmf_required/>
+      <xsdmf_html_input>hidden</xsdmf_html_input>
+      <xsdmf_enabled>1</xsdmf_enabled>
+      <field_options>
+      </field_options>
+      <selected_option/>
+      <xsdmf_show_in_view/>
+      <xsdmf_description><![CDATA[]]></xsdmf_description>
+      <xsdmf_multiple/>
+      <xsdmf_value><![CDATA[]]></xsdmf_value>
+    </xsd_display_field>
+    <xsd_display_field>
+      <xsdmf_id>13004</xsdmf_id>
+      <xsdmf_title>IRMA ID</xsdmf_title>
+      <xsdmf_invsible>0</xsdmf_invsible>
+      <xsdmf_required>0</xsdmf_required>
+      <xsdmf_html_input>text</xsdmf_html_input>
+      <xsdmf_enabled>1</xsdmf_enabled>
+      <field_options>
+      </field_options>
+      <selected_option/>
+      <xsdmf_show_in_view>1</xsdmf_show_in_view>
+      <xsdmf_description><![CDATA[]]></xsdmf_description>
+      <xsdmf_multiple>0</xsdmf_multiple>
+      <xsdmf_value><![CDATA[]]></xsdmf_value>
+    </xsd_display_field>
+    <xsd_display_field>
+      <xsdmf_id>23509</xsdmf_id>
+      <xsdmf_title>NHMRC Grant No.</xsdmf_title>
+      <xsdmf_invsible>0</xsdmf_invsible>
+      <xsdmf_required>0</xsdmf_required>
+      <xsdmf_html_input>text</xsdmf_html_input>
+      <xsdmf_enabled>1</xsdmf_enabled>
+      <field_options>
+      </field_options>
+      <selected_option/>
+      <xsdmf_show_in_view>1</xsdmf_show_in_view>
+      <xsdmf_description><![CDATA[]]></xsdmf_description>
+      <xsdmf_multiple>1</xsdmf_multiple>
+      <xsdmf_value><![CDATA[]]></xsdmf_value>
+    </xsd_display_field>
+    <xsd_display_field>
+      <xsdmf_id>6351</xsdmf_id>
+      <xsdmf_title>Author(s)</xsdmf_title>
+      <xsdmf_invsible>0</xsdmf_invsible>
+      <xsdmf_required>0</xsdmf_required>
+      <xsdmf_html_input>text</xsdmf_html_input>
+      <xsdmf_enabled>1</xsdmf_enabled>
+      <field_options>
+      </field_options>
+      <selected_option/>
+      <xsdmf_show_in_view>1</xsdmf_show_in_view>
+      <xsdmf_description><![CDATA[]]></xsdmf_description>
+      <xsdmf_multiple>1</xsdmf_multiple>
+      <xsdmf_value><![CDATA[]]></xsdmf_value>
+    </xsd_display_field>
+    <xsd_display_field>
+      <xsdmf_id>10588</xsdmf_id>
+      <xsdmf_title>Title</xsdmf_title>
+      <xsdmf_invsible/>
+      <xsdmf_required>1</xsdmf_required>
+      <xsdmf_html_input>textarea</xsdmf_html_input>
+      <xsdmf_enabled>1</xsdmf_enabled>
+      <field_options>
+      </field_options>
+      <selected_option/>
+      <xsdmf_show_in_view>1</xsdmf_show_in_view>
+      <xsdmf_description><![CDATA[]]></xsdmf_description>
+      <xsdmf_multiple/>
+      <xsdmf_value><![CDATA[]]></xsdmf_value>
+    </xsd_display_field>
+    <xsd_display_field>
+      <xsdmf_id>10586</xsdmf_id>
+      <xsdmf_title>Phonetic title</xsdmf_title>
+      <xsdmf_invsible>1</xsdmf_invsible>
+      <xsdmf_required/>
+      <xsdmf_html_input>text</xsdmf_html_input>
+      <xsdmf_enabled>1</xsdmf_enabled>
+      <field_options>
+      </field_options>
+      <selected_option/>
+      <xsdmf_show_in_view>1</xsdmf_show_in_view>
+      <xsdmf_description><![CDATA[]]></xsdmf_description>
+      <xsdmf_multiple/>
+      <xsdmf_value><![CDATA[]]></xsdmf_value>
+    </xsd_display_field>
+    <xsd_display_field>
+      <xsdmf_id>11438</xsdmf_id>
+      <xsdmf_title>Formatted title</xsdmf_title>
+      <xsdmf_invsible/>
+      <xsdmf_required/>
+      <xsdmf_html_input>rich_text</xsdmf_html_input>
+      <xsdmf_enabled>1</xsdmf_enabled>
+      <field_options>
+      </field_options>
+      <selected_option/>
+      <xsdmf_show_in_view>1</xsdmf_show_in_view>
+      <xsdmf_description><![CDATA[]]></xsdmf_description>
+      <xsdmf_multiple/>
+      <xsdmf_value><![CDATA[]]></xsdmf_value>
+    </xsd_display_field>
+    <xsd_display_field>
+      <xsdmf_id>10590</xsdmf_id>
+      <xsdmf_title>Translated title</xsdmf_title>
+      <xsdmf_invsible>1</xsdmf_invsible>
+      <xsdmf_required/>
+      <xsdmf_html_input>text</xsdmf_html_input>
+      <xsdmf_enabled>1</xsdmf_enabled>
+      <field_options>
+      </field_options>
+      <selected_option/>
+      <xsdmf_show_in_view>1</xsdmf_show_in_view>
+      <xsdmf_description><![CDATA[]]></xsdmf_description>
+      <xsdmf_multiple/>
+      <xsdmf_value><![CDATA[]]></xsdmf_value>
+    </xsd_display_field>
+    <xsd_display_field>
+      <xsdmf_id>11071</xsdmf_id>
+      <xsdmf_title>Journal name</xsdmf_title>
+      <xsdmf_invsible/>
+      <xsdmf_required/>
+      <xsdmf_html_input>text</xsdmf_html_input>
+      <xsdmf_enabled>1</xsdmf_enabled>
+      <field_options>
+      </field_options>
+      <selected_option/>
+      <xsdmf_show_in_view>1</xsdmf_show_in_view>
+      <xsdmf_description><![CDATA[]]></xsdmf_description>
+      <xsdmf_multiple/>
+      <xsdmf_value><![CDATA[]]></xsdmf_value>
+    </xsd_display_field>
+    <xsd_display_field>
+      <xsdmf_id>11072</xsdmf_id>
+      <xsdmf_title>Phonetic journal name</xsdmf_title>
+      <xsdmf_invsible>1</xsdmf_invsible>
+      <xsdmf_required/>
+      <xsdmf_html_input>text</xsdmf_html_input>
+      <xsdmf_enabled>1</xsdmf_enabled>
+      <field_options>
+      </field_options>
+      <selected_option/>
+      <xsdmf_show_in_view>1</xsdmf_show_in_view>
+      <xsdmf_description><![CDATA[]]></xsdmf_description>
+      <xsdmf_multiple/>
+      <xsdmf_value><![CDATA[]]></xsdmf_value>
+    </xsd_display_field>
+    <xsd_display_field>
+      <xsdmf_id>11073</xsdmf_id>
+      <xsdmf_title>Translated journal name</xsdmf_title>
+      <xsdmf_invsible>1</xsdmf_invsible>
+      <xsdmf_required/>
+      <xsdmf_html_input>text</xsdmf_html_input>
+      <xsdmf_enabled>1</xsdmf_enabled>
+      <field_options>
+      </field_options>
+      <selected_option/>
+      <xsdmf_show_in_view>1</xsdmf_show_in_view>
+      <xsdmf_description><![CDATA[]]></xsdmf_description>
+      <xsdmf_multiple/>
+      <xsdmf_value><![CDATA[]]></xsdmf_value>
+    </xsd_display_field>
+    <xsd_display_field>
+      <xsdmf_id>6386</xsdmf_id>
+      <xsdmf_title>Publication date</xsdmf_title>
+      <xsdmf_invsible>0</xsdmf_invsible>
+      <xsdmf_required>0</xsdmf_required>
+      <xsdmf_html_input>date</xsdmf_html_input>
+      <xsdmf_enabled>1</xsdmf_enabled>
+      <field_options>
+      </field_options>
+      <selected_option/>
+      <xsdmf_show_in_view>1</xsdmf_show_in_view>
+      <xsdmf_description><![CDATA[]]></xsdmf_description>
+      <xsdmf_multiple>0</xsdmf_multiple>
+      <xsdmf_value><![CDATA[]]></xsdmf_value>
+    </xsd_display_field>
+    <xsd_display_field>
+      <xsdmf_id>10571</xsdmf_id>
+      <xsdmf_title>Year available</xsdmf_title>
+      <xsdmf_invsible/>
+      <xsdmf_required/>
+      <xsdmf_html_input>date</xsdmf_html_input>
+      <xsdmf_enabled>1</xsdmf_enabled>
+      <field_options>
+      </field_options>
+      <selected_option/>
+      <xsdmf_show_in_view>1</xsdmf_show_in_view>
+      <xsdmf_description><![CDATA[(if different)]]></xsdmf_description>
+      <xsdmf_multiple/>
+      <xsdmf_value><![CDATA[]]></xsdmf_value>
+    </xsd_display_field>
+    <xsd_display_field>
+      <xsdmf_id>6379</xsdmf_id>
+      <xsdmf_title>Volume number</xsdmf_title>
+      <xsdmf_invsible/>
+      <xsdmf_required/>
+      <xsdmf_html_input>text</xsdmf_html_input>
+      <xsdmf_enabled>1</xsdmf_enabled>
+      <field_options>
+      </field_options>
+      <selected_option/>
+      <xsdmf_show_in_view>1</xsdmf_show_in_view>
+      <xsdmf_description><![CDATA[]]></xsdmf_description>
+      <xsdmf_multiple/>
+      <xsdmf_value><![CDATA[]]></xsdmf_value>
+    </xsd_display_field>
+    <xsd_display_field>
+      <xsdmf_id>6377</xsdmf_id>
+      <xsdmf_title>Issue number</xsdmf_title>
+      <xsdmf_invsible/>
+      <xsdmf_required/>
+      <xsdmf_html_input>text</xsdmf_html_input>
+      <xsdmf_enabled>1</xsdmf_enabled>
+      <field_options>
+      </field_options>
+      <selected_option/>
+      <xsdmf_show_in_view>1</xsdmf_show_in_view>
+      <xsdmf_description><![CDATA[]]></xsdmf_description>
+      <xsdmf_multiple/>
+      <xsdmf_value><![CDATA[]]></xsdmf_value>
+    </xsd_display_field>
+    <xsd_display_field>
+      <xsdmf_id>10795</xsdmf_id>
+      <xsdmf_title>ISBN</xsdmf_title>
+      <xsdmf_invsible/>
+      <xsdmf_required/>
+      <xsdmf_html_input>text</xsdmf_html_input>
+      <xsdmf_enabled>1</xsdmf_enabled>
+      <field_options>
+      </field_options>
+      <selected_option/>
+      <xsdmf_show_in_view>1</xsdmf_show_in_view>
+      <xsdmf_description><![CDATA[]]></xsdmf_description>
+      <xsdmf_multiple/>
+      <xsdmf_value><![CDATA[]]></xsdmf_value>
+    </xsd_display_field>
+    <xsd_display_field>
+      <xsdmf_id>10796</xsdmf_id>
+      <xsdmf_title>ISSN</xsdmf_title>
+      <xsdmf_invsible/>
+      <xsdmf_required/>
+      <xsdmf_html_input>text</xsdmf_html_input>
+      <xsdmf_enabled>1</xsdmf_enabled>
+      <field_options>
+      </field_options>
+      <selected_option/>
+      <xsdmf_show_in_view>1</xsdmf_show_in_view>
+      <xsdmf_description><![CDATA[]]></xsdmf_description>
+      <xsdmf_multiple/>
+      <xsdmf_value><![CDATA[]]></xsdmf_value>
+    </xsd_display_field>
+    <xsd_display_field>
+      <xsdmf_id>23309</xsdmf_id>
+      <xsdmf_title>Scopus ID</xsdmf_title>
+      <xsdmf_invsible>0</xsdmf_invsible>
+      <xsdmf_required>0</xsdmf_required>
+      <xsdmf_html_input>text</xsdmf_html_input>
+      <xsdmf_enabled>1</xsdmf_enabled>
+      <field_options>
+      </field_options>
+      <selected_option/>
+      <xsdmf_show_in_view>1</xsdmf_show_in_view>
+      <xsdmf_description><![CDATA[]]></xsdmf_description>
+      <xsdmf_multiple>0</xsdmf_multiple>
+      <xsdmf_value><![CDATA[]]></xsdmf_value>
+    </xsd_display_field>
+    <xsd_display_field>
+      <xsdmf_id>6383</xsdmf_id>
+      <xsdmf_title>Start page</xsdmf_title>
+      <xsdmf_invsible/>
+      <xsdmf_required/>
+      <xsdmf_html_input>text</xsdmf_html_input>
+      <xsdmf_enabled>1</xsdmf_enabled>
+      <field_options>
+      </field_options>
+      <selected_option/>
+      <xsdmf_show_in_view>1</xsdmf_show_in_view>
+      <xsdmf_description><![CDATA[]]></xsdmf_description>
+      <xsdmf_multiple/>
+      <xsdmf_value><![CDATA[]]></xsdmf_value>
+    </xsd_display_field>
+    <xsd_display_field>
+      <xsdmf_id>6384</xsdmf_id>
+      <xsdmf_title>End page</xsdmf_title>
+      <xsdmf_invsible/>
+      <xsdmf_required/>
+      <xsdmf_html_input>text</xsdmf_html_input>
+      <xsdmf_enabled>1</xsdmf_enabled>
+      <field_options>
+      </field_options>
+      <selected_option/>
+      <xsdmf_show_in_view>1</xsdmf_show_in_view>
+      <xsdmf_description><![CDATA[]]></xsdmf_description>
+      <xsdmf_multiple/>
+      <xsdmf_value><![CDATA[]]></xsdmf_value>
+    </xsd_display_field>
+    <xsd_display_field>
+      <xsdmf_id>9623</xsdmf_id>
+      <xsdmf_title>Total pages</xsdmf_title>
+      <xsdmf_invsible>0</xsdmf_invsible>
+      <xsdmf_required>0</xsdmf_required>
+      <xsdmf_html_input>text</xsdmf_html_input>
+      <xsdmf_enabled>1</xsdmf_enabled>
+      <field_options>
+      </field_options>
+      <selected_option/>
+      <xsdmf_show_in_view>1</xsdmf_show_in_view>
+      <xsdmf_description><![CDATA[]]></xsdmf_description>
+      <xsdmf_multiple>0</xsdmf_multiple>
+      <xsdmf_value><![CDATA[]]></xsdmf_value>
+    </xsd_display_field>
+    <xsd_display_field>
+      <xsdmf_id>6359</xsdmf_id>
+      <xsdmf_title>Editor(s)</xsdmf_title>
+      <xsdmf_invsible/>
+      <xsdmf_required/>
+      <xsdmf_html_input>text</xsdmf_html_input>
+      <xsdmf_enabled>1</xsdmf_enabled>
+      <field_options>
+      </field_options>
+      <selected_option/>
+      <xsdmf_show_in_view>1</xsdmf_show_in_view>
+      <xsdmf_description><![CDATA[]]></xsdmf_description>
+      <xsdmf_multiple>1</xsdmf_multiple>
+      <xsdmf_value><![CDATA[]]></xsdmf_value>
+    </xsd_display_field>
+    <xsd_display_field>
+      <xsdmf_id>9625</xsdmf_id>
+      <xsdmf_title>Place of publication</xsdmf_title>
+      <xsdmf_invsible/>
+      <xsdmf_required/>
+      <xsdmf_html_input>text</xsdmf_html_input>
+      <xsdmf_enabled>1</xsdmf_enabled>
+      <field_options>
+      </field_options>
+      <selected_option/>
+      <xsdmf_show_in_view>1</xsdmf_show_in_view>
+      <xsdmf_description><![CDATA[]]></xsdmf_description>
+      <xsdmf_multiple/>
+      <xsdmf_value><![CDATA[]]></xsdmf_value>
+    </xsd_display_field>
+    <xsd_display_field>
+      <xsdmf_id>9626</xsdmf_id>
+      <xsdmf_title>Publisher</xsdmf_title>
+      <xsdmf_invsible/>
+      <xsdmf_required/>
+      <xsdmf_html_input>text</xsdmf_html_input>
+      <xsdmf_enabled>1</xsdmf_enabled>
+      <field_options>
+      </field_options>
+      <selected_option/>
+      <xsdmf_show_in_view>1</xsdmf_show_in_view>
+      <xsdmf_description><![CDATA[]]></xsdmf_description>
+      <xsdmf_multiple/>
+      <xsdmf_value><![CDATA[]]></xsdmf_value>
+    </xsd_display_field>
+    <xsd_display_field>
+      <xsdmf_id>9627</xsdmf_id>
+      <xsdmf_title>Collection year</xsdmf_title>
+      <xsdmf_invsible/>
+      <xsdmf_required/>
+      <xsdmf_html_input>date</xsdmf_html_input>
+      <xsdmf_enabled>1</xsdmf_enabled>
+      <field_options>
+      </field_options>
+      <selected_option/>
+      <xsdmf_show_in_view>1</xsdmf_show_in_view>
+      <xsdmf_description><![CDATA[]]></xsdmf_description>
+      <xsdmf_multiple/>
+      <xsdmf_value><![CDATA[]]></xsdmf_value>
+    </xsd_display_field>
+    <xsd_display_field>
+      <xsdmf_id>10570</xsdmf_id>
+      <xsdmf_title>Language</xsdmf_title>
+      <xsdmf_invsible/>
+      <xsdmf_required/>
+      <xsdmf_html_input>text</xsdmf_html_input>
+      <xsdmf_enabled>1</xsdmf_enabled>
+      <field_options>
+      </field_options>
+      <selected_option/>
+      <xsdmf_show_in_view>1</xsdmf_show_in_view>
+      <xsdmf_description><![CDATA[]]></xsdmf_description>
+      <xsdmf_multiple/>
+      <xsdmf_value><![CDATA[]]></xsdmf_value>
+    </xsd_display_field>
+    <xsd_display_field>
+      <xsdmf_id>6364</xsdmf_id>
+      <xsdmf_title>Subject</xsdmf_title>
+      <xsdmf_invsible/>
+      <xsdmf_required/>
+      <xsdmf_html_input>contvocab_selector</xsdmf_html_input>
+      <xsdmf_enabled>1</xsdmf_enabled>
+      <field_options>
+        <uri>
+          <![CDATA[
+                   /cv_selector.php?parent_id=1&form=wfl_form1&element=xsd_display_fields_6364_0&xsdmf_cvo_min_level=
+          ]]>
+        </uri>
+      </field_options>
+      <selected_option/>
+      <xsdmf_show_in_view>1</xsdmf_show_in_view>
+      <xsdmf_description><![CDATA[]]></xsdmf_description>
+      <xsdmf_multiple/>
+      <xsdmf_value><![CDATA[]]></xsdmf_value>
+    </xsd_display_field>
+    <xsd_display_field>
+      <xsdmf_id>11441</xsdmf_id>
+      <xsdmf_title>Abstract</xsdmf_title>
+      <xsdmf_invsible/>
+      <xsdmf_required/>
+      <xsdmf_html_input>textarea</xsdmf_html_input>
+      <xsdmf_enabled>1</xsdmf_enabled>
+      <field_options>
+      </field_options>
+      <selected_option/>
+      <xsdmf_show_in_view>1</xsdmf_show_in_view>
+      <xsdmf_description><![CDATA[]]></xsdmf_description>
+      <xsdmf_multiple/>
+      <xsdmf_value><![CDATA[]]></xsdmf_value>
+    </xsd_display_field>
+    <xsd_display_field>
+      <xsdmf_id>11442</xsdmf_id>
+      <xsdmf_title>Formatted abstract</xsdmf_title>
+      <xsdmf_invsible/>
+      <xsdmf_required/>
+      <xsdmf_html_input>rich_text</xsdmf_html_input>
+      <xsdmf_enabled>1</xsdmf_enabled>
+      <field_options>
+      </field_options>
+      <selected_option/>
+      <xsdmf_show_in_view>1</xsdmf_show_in_view>
+      <xsdmf_description><![CDATA[]]></xsdmf_description>
+      <xsdmf_multiple/>
+      <xsdmf_value><![CDATA[]]></xsdmf_value>
+    </xsd_display_field>
+    <xsd_display_field>
+      <xsdmf_id>7956</xsdmf_id>
+      <xsdmf_title>Keyword(s)</xsdmf_title>
+      <xsdmf_invsible/>
+      <xsdmf_required/>
+      <xsdmf_html_input>text</xsdmf_html_input>
+      <xsdmf_enabled>1</xsdmf_enabled>
+      <field_options>
+      </field_options>
+      <selected_option/>
+      <xsdmf_show_in_view>1</xsdmf_show_in_view>
+      <xsdmf_description><![CDATA[]]></xsdmf_description>
+      <xsdmf_multiple>1</xsdmf_multiple>
+      <xsdmf_value><![CDATA[]]></xsdmf_value>
+    </xsd_display_field>
+    <xsd_display_field>
+      <xsdmf_id>11944</xsdmf_id>
+      <xsdmf_title>DOI</xsdmf_title>
+      <xsdmf_invsible>0</xsdmf_invsible>
+      <xsdmf_required>0</xsdmf_required>
+      <xsdmf_html_input>text</xsdmf_html_input>
+      <xsdmf_enabled>1</xsdmf_enabled>
+      <field_options>
+      </field_options>
+      <selected_option/>
+      <xsdmf_show_in_view>1</xsdmf_show_in_view>
+      <xsdmf_description><![CDATA[]]></xsdmf_description>
+      <xsdmf_multiple>0</xsdmf_multiple>
+      <xsdmf_value><![CDATA[]]></xsdmf_value>
+    </xsd_display_field>
+    <xsd_display_field>
+      <xsdmf_id>11950</xsdmf_id>
+      <xsdmf_title>Thomson NCI#</xsdmf_title>
+      <xsdmf_invsible>0</xsdmf_invsible>
+      <xsdmf_required>0</xsdmf_required>
+      <xsdmf_html_input>text</xsdmf_html_input>
+      <xsdmf_enabled>1</xsdmf_enabled>
+      <field_options>
+      </field_options>
+      <selected_option/>
+      <xsdmf_show_in_view>0</xsdmf_show_in_view>
+      <xsdmf_description><![CDATA[]]></xsdmf_description>
+      <xsdmf_multiple>0</xsdmf_multiple>
+      <xsdmf_value><![CDATA[]]></xsdmf_value>
+    </xsd_display_field>
+    <xsd_display_field>
+      <xsdmf_id>11948</xsdmf_id>
+      <xsdmf_title>CDU Research RID#</xsdmf_title>
+      <xsdmf_invsible>0</xsdmf_invsible>
+      <xsdmf_required>0</xsdmf_required>
+      <xsdmf_html_input>text</xsdmf_html_input>
+      <xsdmf_enabled>1</xsdmf_enabled>
+      <field_options>
+      </field_options>
+      <selected_option/>
+      <xsdmf_show_in_view>0</xsdmf_show_in_view>
+      <xsdmf_description><![CDATA[]]></xsdmf_description>
+      <xsdmf_multiple>0</xsdmf_multiple>
+      <xsdmf_value><![CDATA[]]></xsdmf_value>
+    </xsd_display_field>
+    <xsd_display_field>
+      <xsdmf_id>10901</xsdmf_id>
+      <xsdmf_title>RQF output availability</xsdmf_title>
+      <xsdmf_invsible>1</xsdmf_invsible>
+      <xsdmf_required/>
+      <xsdmf_html_input>combo</xsdmf_html_input>
+      <xsdmf_enabled>1</xsdmf_enabled>
+      <field_options>
+        <option>
+          <name>C</name>
+          <value>563</value>
+        </option>
+        <option>
+          <name>C</name>
+          <value>732</value>
+        </option>
+        <option>
+          <name>C</name>
+          <value>733</value>
+        </option>
+        <option>
+          <name>C</name>
+          <value>734</value>
+        </option>
+        <option>
+          <name>C</name>
+          <value>735</value>
+        </option>
+        <option>
+          <name>C</name>
+          <value>566</value>
+        </option>
+        <option>
+          <name>C</name>
+          <value>565</value>
+        </option>
+        <option>
+          <name>C</name>
+          <value>564</value>
+        </option>
+        <option>
+          <name>C</name>
+          <value>615</value>
+        </option>
+        <option>
+          <name>C</name>
+          <value>84</value>
+        </option>
+        <option>
+          <name>C</name>
+          <value>232</value>
+        </option>
+        <option>
+          <name>C</name>
+          <value>231</value>
+        </option>
+        <option>
+          <name>P</name>
+          <value>570</value>
+        </option>
+        <option>
+          <name>P</name>
+          <value>737</value>
+        </option>
+        <option>
+          <name>P</name>
+          <value>736</value>
+        </option>
+        <option>
+          <name>P</name>
+          <value>85</value>
+        </option>
+        <option>
+          <name>P</name>
+          <value>616</value>
+        </option>
+        <option>
+          <name>P</name>
+          <value>569</value>
+        </option>
+        <option>
+          <name>P</name>
+          <value>568</value>
+        </option>
+        <option>
+          <name>P</name>
+          <value>567</value>
+        </option>
+        <option>
+          <name>P</name>
+          <value>233</value>
+        </option>
+        <option>
+          <name>P</name>
+          <value>234</value>
+        </option>
+        <option>
+          <name>P</name>
+          <value>738</value>
+        </option>
+        <option>
+          <name>P</name>
+          <value>739</value>
+        </option>
+        <option>
+          <name>R</name>
+          <value>741</value>
+        </option>
+        <option>
+          <name>R</name>
+          <value>740</value>
+        </option>
+        <option>
+          <name>R</name>
+          <value>743</value>
+        </option>
+        <option>
+          <name>R</name>
+          <value>742</value>
+        </option>
+        <option>
+          <name>R</name>
+          <value>83</value>
+        </option>
+        <option>
+          <name>R</name>
+          <value>235</value>
+        </option>
+        <option>
+          <name>R</name>
+          <value>571</value>
+        </option>
+        <option>
+          <name>R</name>
+          <value>572</value>
+        </option>
+        <option>
+          <name>R</name>
+          <value>573</value>
+        </option>
+        <option>
+          <name>R</name>
+          <value>574</value>
+        </option>
+        <option>
+          <name>R</name>
+          <value>617</value>
+        </option>
+        <option>
+          <name>R</name>
+          <value>236</value>
+        </option>
+        <option>
+          <name>S</name>
+          <value>86</value>
+        </option>
+        <option>
+          <name>S</name>
+          <value>744</value>
+        </option>
+        <option>
+          <name>S</name>
+          <value>745</value>
+        </option>
+        <option>
+          <name>S</name>
+          <value>746</value>
+        </option>
+        <option>
+          <name>S</name>
+          <value>237</value>
+        </option>
+        <option>
+          <name>S</name>
+          <value>238</value>
+        </option>
+        <option>
+          <name>S</name>
+          <value>578</value>
+        </option>
+        <option>
+          <name>S</name>
+          <value>576</value>
+        </option>
+        <option>
+          <name>S</name>
+          <value>618</value>
+        </option>
+        <option>
+          <name>S</name>
+          <value>575</value>
+        </option>
+        <option>
+          <name>S</name>
+          <value>577</value>
+        </option>
+        <option>
+          <name>S</name>
+          <value>747</value>
+        </option>
+      </field_options>
+      <selected_option/>
+      <xsdmf_show_in_view/>
+      <xsdmf_description><![CDATA[R=Available in repository&lt;br /&gt;C=Unavailable for copyright reason&lt;br ]]></xsdmf_description>
+      <xsdmf_multiple/>
+      <xsdmf_value><![CDATA[]]></xsdmf_value>
+    </xsd_display_field>
+    <xsd_display_field>
+      <xsdmf_id>10902</xsdmf_id>
+      <xsdmf_title>RQF unavailable-in-repository explanation</xsdmf_title>
+      <xsdmf_invsible>1</xsdmf_invsible>
+      <xsdmf_required/>
+      <xsdmf_html_input>textarea</xsdmf_html_input>
+      <xsdmf_enabled>1</xsdmf_enabled>
+      <field_options>
+      </field_options>
+      <selected_option/>
+      <xsdmf_show_in_view/>
+      <xsdmf_description><![CDATA[]]></xsdmf_description>
+      <xsdmf_multiple/>
+      <xsdmf_value><![CDATA[]]></xsdmf_value>
+    </xsd_display_field>
+    <xsd_display_field>
+      <xsdmf_id>10903</xsdmf_id>
+      <xsdmf_title>RQF sensitivity explanation</xsdmf_title>
+      <xsdmf_invsible>1</xsdmf_invsible>
+      <xsdmf_required/>
+      <xsdmf_html_input>textarea</xsdmf_html_input>
+      <xsdmf_enabled>1</xsdmf_enabled>
+      <field_options>
+      </field_options>
+      <selected_option/>
+      <xsdmf_show_in_view/>
+      <xsdmf_description><![CDATA[]]></xsdmf_description>
+      <xsdmf_multiple/>
+      <xsdmf_value><![CDATA[]]></xsdmf_value>
+    </xsd_display_field>
+    <xsd_display_field>
+      <xsdmf_id>23276</xsdmf_id>
+      <xsdmf_title>Refereed?</xsdmf_title>
+      <xsdmf_invsible>0</xsdmf_invsible>
+      <xsdmf_required/>
+      <xsdmf_html_input>checkbox</xsdmf_html_input>
+      <xsdmf_enabled>1</xsdmf_enabled>
+      <field_options>
+      </field_options>
+      <selected_option/>
+      <xsdmf_show_in_view/>
+      <xsdmf_description><![CDATA[]]></xsdmf_description>
+      <xsdmf_multiple/>
+      <xsdmf_value><![CDATA[]]></xsdmf_value>
+    </xsd_display_field>
+    <xsd_display_field>
+      <xsdmf_id>23272</xsdmf_id>
+      <xsdmf_title>Copyright Agreement</xsdmf_title>
+      <xsdmf_invsible>0</xsdmf_invsible>
+      <xsdmf_required>1</xsdmf_required>
+      <xsdmf_html_input>checkbox</xsdmf_html_input>
+      <xsdmf_enabled>1</xsdmf_enabled>
+      <field_options>
+      </field_options>
+      <selected_option/>
+      <xsdmf_show_in_view>0</xsdmf_show_in_view>
+      <xsdmf_description><![CDATA[]]></xsdmf_description>
+      <xsdmf_multiple>0</xsdmf_multiple>
+      <xsdmf_value><![CDATA[]]></xsdmf_value>
+    </xsd_display_field>
+    <xsd_display_field>
+      <xsdmf_id>6385</xsdmf_id>
+      <xsdmf_title>Additional Notes</xsdmf_title>
+      <xsdmf_invsible/>
+      <xsdmf_required/>
+      <xsdmf_html_input>textarea</xsdmf_html_input>
+      <xsdmf_enabled>1</xsdmf_enabled>
+      <field_options>
+      </field_options>
+      <selected_option/>
+      <xsdmf_show_in_view>1</xsdmf_show_in_view>
+      <xsdmf_description><![CDATA[]]></xsdmf_description>
+      <xsdmf_multiple/>
+      <xsdmf_value><![CDATA[]]></xsdmf_value>
+    </xsd_display_field>
+    <xsd_display_field>
+      <xsdmf_id>6447</xsdmf_id>
+      <xsdmf_title>Link - datastream -&gt; datastreamVersion -&gt; ID</xsdmf_title>
+      <xsdmf_invsible/>
+      <xsdmf_required/>
+      <xsdmf_html_input>static</xsdmf_html_input>
+      <xsdmf_enabled>1</xsdmf_enabled>
+      <field_options>
+      </field_options>
+      <selected_option/>
+      <xsdmf_show_in_view>1</xsdmf_show_in_view>
+      <xsdmf_description><![CDATA[]]></xsdmf_description>
+      <xsdmf_multiple/>
+      <xsdmf_value><![CDATA[]]></xsdmf_value>
+    </xsd_display_field>
+    <xsd_display_field>
+      <xsdmf_id>6448</xsdmf_id>
+      <xsdmf_title>Description for Link</xsdmf_title>
+      <xsdmf_invsible/>
+      <xsdmf_required/>
+      <xsdmf_html_input>text</xsdmf_html_input>
+      <xsdmf_enabled>1</xsdmf_enabled>
+      <field_options>
+      </field_options>
+      <selected_option/>
+      <xsdmf_show_in_view/>
+      <xsdmf_description><![CDATA[]]></xsdmf_description>
+      <xsdmf_multiple>1</xsdmf_multiple>
+      <xsdmf_value><![CDATA[]]></xsdmf_value>
+    </xsd_display_field>
+    <xsd_display_field>
+      <xsdmf_id>6449</xsdmf_id>
+      <xsdmf_title>URL</xsdmf_title>
+      <xsdmf_invsible/>
+      <xsdmf_required/>
+      <xsdmf_html_input>text</xsdmf_html_input>
+      <xsdmf_enabled>1</xsdmf_enabled>
+      <field_options>
+      </field_options>
+      <selected_option/>
+      <xsdmf_show_in_view/>
+      <xsdmf_description><![CDATA[]]></xsdmf_description>
+      <xsdmf_multiple>1</xsdmf_multiple>
+      <xsdmf_value><![CDATA[]]></xsdmf_value>
+    </xsd_display_field>
+    <xsd_display_field>
+      <xsdmf_id>6435</xsdmf_id>
+      <xsdmf_title>File_Attachment - datastream -&gt; datastreamVersion -&gt; ID</xsdmf_title>
+      <xsdmf_invsible/>
+      <xsdmf_required/>
+      <xsdmf_html_input>static</xsdmf_html_input>
+      <xsdmf_enabled>1</xsdmf_enabled>
+      <field_options>
+      </field_options>
+      <selected_option/>
+      <xsdmf_show_in_view>1</xsdmf_show_in_view>
+      <xsdmf_description><![CDATA[]]></xsdmf_description>
+      <xsdmf_multiple/>
+      <xsdmf_value><![CDATA[]]></xsdmf_value>
+    </xsd_display_field>
+    <xsd_display_field>
+      <xsdmf_id>6441</xsdmf_id>
+      <xsdmf_title>File Upload</xsdmf_title>
+      <xsdmf_invsible/>
+      <xsdmf_required/>
+      <xsdmf_html_input>file_input</xsdmf_html_input>
+      <xsdmf_enabled>1</xsdmf_enabled>
+      <field_options>
+        <uri>
+          <![CDATA[
+                   /uploader_upload_files.php?format=xml&workflowId=3261&xsdmf_id=6441&fileNumber=0
+          ]]>
+        </uri>
+      </field_options>
+      <selected_option/>
+      <xsdmf_show_in_view/>
+      <xsdmf_description><![CDATA[]]></xsdmf_description>
+      <xsdmf_multiple>1</xsdmf_multiple>
+      <xsdmf_value><![CDATA[]]></xsdmf_value>
+    </xsd_display_field>
+  </xsd_display_fields>
+  <datastreams>
+  </datastreams>
+  <internal_notes>
+    <![CDATA[
+    ]]>
+  </internal_notes>
+</workflow>
+

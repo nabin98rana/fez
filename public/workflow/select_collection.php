@@ -45,18 +45,36 @@ include_once(APP_INC_PATH . "class.community.php");
 include_once(APP_INC_PATH . "class.doc_type_xsd.php");
 include_once(APP_INC_PATH . "class.workflow_trigger.php");
 include_once(APP_INC_PATH . "class.xsd_html_match.php");
-include_once(APP_INC_PATH . "najax/najax.php");
 include_once(APP_INC_PATH . "najax_objects/class.select_collection.php");
-
-NAJAX_Server::allowClasses('SelectCollection');
-if (NAJAX_Server::runServer()) {
-	exit;
-}
 
 Auth::checkAuthentication(APP_SESSION);
 
+if (!APP_API) {
+    include_once(APP_INC_PATH . "najax/najax.php");
+    NAJAX_Server::allowClasses('SelectCollection');
+    if (NAJAX_Server::runServer()) {
+        exit;
+    }
+} else {
+    // If an API call for the collections list return that.
+    $collection_call = $_GET['pid'];
+    if ($collection_call) {
+        $collections = SelectCollection::getCollections($collection_call);
+        $tpl = new Template_API();
+        $tpl->setTemplate("select_collection.tpl.xml");
+        $tpl->assign("collections", $collections);
+        $tpl->displayTemplate();
+        exit;
+    }
+}
+
 $tpl = new Template_API();
-$tpl->setTemplate("workflow/index.tpl.html");
+if (APP_API) {
+    $tpl->setTemplate("workflow/workflow.tpl.xml");
+} else {
+    $tpl->setTemplate("workflow/index.tpl.html");
+}
+
 $tpl->assign("type", "select_collection");
 $tpl->assign("type_name", "Select Collection");
 
@@ -75,7 +93,6 @@ $tpl->assign('communities_list', $communities_list);
 $tpl->assign('communities_list_selected', $communities_list[0]['rek_pid']);
 
 $tpl->assign('najax_header', NAJAX_Utilities::header(APP_RELATIVE_URL.'include/najax'));
-$tpl->registerNajax( NAJAX_Client::register('SelectCollection', 'select_collection.php'));
+$tpl->registerNajax(NAJAX_Client::register('SelectCollection', 'select_collection.php'));
 
 $tpl->displayTemplate();
-?>

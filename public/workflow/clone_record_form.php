@@ -36,7 +36,14 @@ include_once(dirname(dirname(__FILE__)).DIRECTORY_SEPARATOR."config.inc.php");
 include_once(APP_INC_PATH . "class.template.php");
 
 $tpl = new Template_API();
-$tpl->setTemplate("workflow/index.tpl.html");
+
+// Set template for xml
+if (APP_API) {
+    $tpl->setTemplate("workflow/workflow.tpl.xml");
+} else {
+    $tpl->setTemplate("workflow/index.tpl.html");
+}
+
 $tpl->assign("type", 'clone_record_form');
 
 Auth::checkAuthentication(APP_SESSION);
@@ -78,4 +85,3 @@ $collection_list = Collection::getAssocList();
 $tpl->assign('collection_list', $collection_list);
 $tpl->assign(compact('collection_pid','collection_title'));
 $tpl->displayTemplate();
-?>

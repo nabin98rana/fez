@@ -36,6 +36,7 @@ include_once(dirname(dirname(__FILE__)).DIRECTORY_SEPARATOR."config.inc.php");
 include_once(APP_INC_PATH . "class.template.php");
 include_once(APP_INC_PATH . "class.db_api.php");
 include_once(APP_INC_PATH . "class.auth.php");
+include_once(APP_INC_PATH . "class.api.php");
 include_once(APP_INC_PATH . "class.user.php");
 include_once(APP_INC_PATH . "class.record.php");
 include_once(APP_INC_PATH . "class.object_type.php");
@@ -44,7 +45,15 @@ include_once(APP_INC_PATH . "class.community.php");
 include_once(APP_INC_PATH . "class.collection.php");
 
 $tpl = new Template_API();
-$tpl->setTemplate("workflow/index.tpl.html");
+
+if (APP_API) {
+    $tpl->setTemplate("workflow/workflow_new.tpl.xml");
+} else {
+    $tpl->setTemplate("workflow/index.tpl.html");
+    $tpl->assign("jqueryUI", true);
+    $tpl->assign('header_include_flash_uploader_files', 1); // we want to set the header to include the files if possible
+}
+
 $tpl->assign("trigger", 'Create');
 $tpl->assign("type", 'new');
 
@@ -183,6 +192,12 @@ if ($pid == -1) {
 
 if (empty($workflows)) {
     $message .= "<br />Error: No workflows defined for Create. This may be because you are logging in with an account with no rights to run this workflow.<br /><br />For example for depositing your Thesis you may be logging in with your staff username when you must login with your student username.<br /><br />Please logout and login with the correct user account.<br /><br />";
+    if (APP_API) {
+        // var_export(ini_get('display_errors'));
+        $message = strip_tags($message);
+        API::reply(417, API::makeResponse(417, $message), APP_API);
+        exit;
+    }
 } elseif (count($workflows) == 1) {
     // no need for user to select a workflow - just start the only one available
 	$wft_id = $workflows[0]['wft_id'];

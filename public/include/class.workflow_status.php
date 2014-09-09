@@ -44,7 +44,7 @@ include_once(APP_INC_PATH.'class.template.php');
 include_once(APP_INC_PATH.'class.mail.php');
 
 /**
- * for tracking status of objects in workflows.  This is like the runtime 
+ * for tracking status of objects in workflows.  This is like the runtime
  * part of the workflows.
  */
 class WorkflowStatus
@@ -70,7 +70,7 @@ class WorkflowStatus
   var $parent_pid;
   var $sek_id;
   var $sek_value;
-  var $vars = array(); // associative array for storing workflow 
+  var $vars = array(); // associative array for storing workflow
                        // variables between states
   var $rec_obj;
   var $href;
@@ -85,7 +85,7 @@ class WorkflowStatus
    * of the workflow lik ehwen the user clicks 'create' on the My_Fez page.
    */
   function WorkflowStatus(
-    $pid=null, $wft_id=null, $xdis_id=null, $dsInfo=null, $dsID='', 
+    $pid=null, $wft_id=null, $xdis_id=null, $dsInfo=null, $dsID='',
     $pids=array(), $custom_view_pid=null
   )
   {
@@ -172,7 +172,7 @@ class WorkflowStatus
     $this->wfl_details = null;
     $this->wfb_details = null;
     $this->rec_obj = null;
-    $blob = serialize($this);    
+    $blob = serialize($this);
     $dbtp =  APP_TABLE_PREFIX;
     $stmt = "UPDATE ".$dbtp."workflow_sessions " .
                 "SET wfses_object=?, wfses_listing=?, wfses_date=?, ".
@@ -320,7 +320,7 @@ class WorkflowStatus
 
 
   /**
-   * Move to the next state from an automatic state.  Automatic states can 
+   * Move to the next state from an automatic state.  Automatic states can
    * only go to one proceeding state.
    */
   function auto_next()
@@ -347,7 +347,7 @@ class WorkflowStatus
   {
     $history_end = Misc::array_last($this->states_done);
     if (
-        empty($history_end) || 
+        empty($history_end) ||
         $history_end['wfs_id'] != $this->wfs_details['wfs_id']
     ) {
       $this->states_done[] = array_merge(
@@ -375,18 +375,29 @@ class WorkflowStatus
       $this->auto_next();
     } else {
       if (!$GLOBALS['auth_isBGP']) {
+        $formatparam = "";
+        if (APP_API) {
+            $formatparam = "&format=" . APP_API;
+            // If wfb_details is bad, they are supplying a bad workflow id. We need to 400 them here
+            // if you don't zend will catch the error and return html
+            if (!$this->wfb_details) {
+                API::reply(400, API::makeResponse(400, "Your browser sent a request that this server could not understand."), APP_API);
+                exit;
+            }
+        }
         header(
             "Location: ".APP_RELATIVE_URL.'workflow/'.
             $this->wfb_details['wfb_script_name']
             ."?id=".$this->id."&wfs_id=".$this->wfs_id
-        );
+            .$formatparam );
       }
+      ob_flush();
       exit;
     }
   }
 
   /**
-   * The end of the workflow has been reached.  Tidy up some variables and 
+   * The end of the workflow has been reached.  Tidy up some variables and
    * display a summary page.
    */
   function theend($redirect=true)
@@ -415,30 +426,36 @@ class WorkflowStatus
     foreach ($args as $key => $arg) {
       $argstrs[] = $key."=".urlencode($arg);
     }
-    $querystr=implode('&', $argstrs);
+
     if (($wft_type != 'Delete') && !empty($this->pid)) {
       History::addHistory(
-          $pid, $this->wfl_details['wfl_id'], $outcome, 
+          $pid, $this->wfl_details['wfl_id'], $outcome,
           $outcome_details, true, "", $this->extra_history_detail
       );
     } elseif (!empty($this->parents_list)) {
       foreach ($this->parents_list as $parent_pid) {
         History::addHistory(
-            $parent_pid, $this->wfl_details['wfl_id'], "", 
+            $parent_pid, $this->wfl_details['wfl_id'], "",
             "Deleted child ".$pid, true, "", $this->extra_history_detail
         );
       }
     }
     $this->clearSession();
-    
+
     // Return true if script executed from command line.
     if (php_sapi_name() == 'cli'){
         return true;
     }
 
     if (($wft_type != 'Ingest') && ($redirect == true)) {
-      header("Location: ".APP_RELATIVE_URL."workflow/end.php?".$querystr);
-      exit;
+        // if APP_API - don't redirect. Execute whatever is in this workflow/end.php
+        if (APP_API) {
+            include_once dirname(__FILE__) . '/../workflow/end.php';
+        } else {
+            $querystr=implode('&', $argstrs);
+            header("Location: ".APP_RELATIVE_URL."workflow/end.php?".$querystr);
+            exit;
+        }
     }
   }
 
@@ -447,9 +464,9 @@ class WorkflowStatus
    */
   function setCreatedPid($pid)
   {
-    // commented out assigned the parent pid to the pid of object in question 
+    // commented out assigned the parent pid to the pid of object in question
     // cause why would you ever want to do this? - CK 23/10/2008
-    /*		
+    /*
     if (empty($this->parent_pid)) {
       $this->parent_pid = $pid;
     }
@@ -458,7 +475,7 @@ class WorkflowStatus
   }
 
   /**
-   * Set the extended PREMIS logging detail. This will be used when writing 
+   * Set the extended PREMIS logging detail. This will be used when writing
    * to the event log.
    */
   function setHistoryDetail($detail = null)
@@ -471,9 +488,9 @@ class WorkflowStatus
   }
 
   /**
-   * When the current page refreshes, the workflow state should go to a new 
-   * state. This is used when the workflow form has done soemthing in a popup 
-   * and needs to make the workflow progress.  When the popup finishes, it 
+   * When the current page refreshes, the workflow state should go to a new
+   * state. This is used when the workflow form has done soemthing in a popup
+   * and needs to make the workflow progress.  When the popup finishes, it
    * refreshes the main window and the workflow state changes.
    */
   function setStateChangeOnRefresh($end=false)
@@ -486,7 +503,7 @@ class WorkflowStatus
   }
 
   /**
-   * Check if a button to move to the next state has been clicked or in the 
+   * Check if a button to move to the next state has been clicked or in the
    * case of a refresh, whether there is to be a state change on refresh.
    * This method causes the next state to run.
    */
@@ -504,7 +521,7 @@ class WorkflowStatus
         }
       } else {
         // have reached the end of the workflow
-        if (!$ispopup) {
+        if (!$ispopup || APP_API) {
           $this->theend();
         } else {
           $this->setStateChangeOnRefresh(true);
@@ -525,8 +542,8 @@ class WorkflowStatus
   }
 
   /**
-   * Gets the list of next states as a list of wfs_id and label pairs.  
-   * The list is used to make buttons that will allow the user to choose 
+   * Gets the list of next states as a list of wfs_id and label pairs.
+   * The list is used to make buttons that will allow the user to choose
    * the next state in the workflow
    */
   function getButtons()
@@ -536,8 +553,8 @@ class WorkflowStatus
     $next_states = Workflow_State::getDetailsNext($this->wfs_id);
     $button_list = array();
 
-    // If this is a create form, there is no pid yet, so use the parent pids 
-    // security runs for testing what states can be entered, and therefore 
+    // If this is a create form, there is no pid yet, so use the parent pids
+    // security runs for testing what states can be entered, and therefore
     // which buttons can be shown (eg publish button, approver only).
     if (empty($this->pid)) {
       $auth_pid = $this->parent_pid;
@@ -548,13 +565,13 @@ class WorkflowStatus
     foreach ($next_states as $next) {
       if (Workflow_State::canEnter($next['wfs_id'], $auth_pid)) {
         // transparent states are hidden from the user so we make the button
-        // have the text of the next non-transparent state.  Only auto states 
+        // have the text of the next non-transparent state.  Only auto states
         // can be transparent.
         if ($next['wfs_auto'] && $next['wfs_transparent']) {
           $next2 = $next;
           while (
-              !$next2['wfs_end'] == 1 
-              && $next2['wfs_auto'] == 1 
+              !$next2['wfs_end'] == 1
+              && $next2['wfs_auto'] == 1
               && $next2['wfs_transparent'] == 1
           ) {
             $next2_list = Workflow_State::getDetailsNext($next2['wfs_id']);
@@ -636,7 +653,7 @@ class WorkflowStatus
   }
 
   /**
-   * Set a standard set of variables used by the workflow template. 
+   * Set a standard set of variables used by the workflow template.
    * This includes the next state buttons progress lists.
    */
   function setTemplateVars(&$tpl)
@@ -675,7 +692,7 @@ class WorkflowStatusStatic
    * Get an instance of a workflow runtime from the session.
    * @param integer $id The workflow id to be retrieved.
    * @param integer $usr_id The id of the user
-   * @param integer $wfs_id The workflow state to go to (e.g. when linking link 
+   * @param integer $wfs_id The workflow state to go to (e.g. when linking link
    *                         to a previous workflow step)
    * @return object WorkflowStatus object.
    */
@@ -745,7 +762,7 @@ class WorkflowStatusStatic
     }
     $stmt = "SELECT wfses_id,wfses_date, wfses_listing FROM ".$dbtp.
             "workflow_sessions "."WHERE ".$where_user .
-            " ORDER BY wfses_id ASC ";  
+            " ORDER BY wfses_id ASC ";
     try {
       $res = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
     }
@@ -779,7 +796,7 @@ class WorkflowStatusStatic
   }
 
   /**
-   * Gets details of the various workflows that are currently outstanding on 
+   * Gets details of the various workflows that are currently outstanding on
    * this pid
    *
    * @return void
@@ -803,19 +820,19 @@ class WorkflowStatusStatic
           // only users with a current session
 					if (!is_numeric(strpos(APP_SQL_DBTYPE, "mysql"))) { //eg if postgresql etc
 						$q .= "WHERE (sess.updated + INTERVAL '{$timeout} seconds') > ".
-	          "NOW() ". 
+	          "NOW() ".
 	          // and the workflow was started less than an hour ago
 	          "AND (wfses_date + INTERVAL '{$workflowTimeout} minutes') > ".
 	          "NOW() ";
 					} else {
 						$q .= "WHERE DATE_ADD(sess.updated, INTERVAL {$timeout} SECOND) > ".
-	          "NOW() ". 
+	          "NOW() ".
 	          // and the workflow was started less than an hour ago
 	          "AND DATE_ADD(wfses_date, INTERVAL {$workflowTimeout} MINUTE) > ".
 	          "NOW() ";
 					}
           // find only for the specified pid
-				$q .= 
+				$q .=
           "AND wfses_pid = ? ";
 
     $results = $db->fetchAll($q, $pid);

@@ -62,6 +62,7 @@ include_once(APP_INC_PATH . "class.workflow_trigger.php");
 include_once(APP_INC_PATH . "class.custom_view.php");
 include_once(APP_INC_PATH . "class.favourites.php");
 include_once(APP_INC_PATH . "najax_classes.php");
+include_once(APP_INC_PATH . "class.api.php");
 
 class Lister
 {
@@ -92,6 +93,7 @@ class Lister
       'operator' => 'string',
       'custom_view_pid' => 'string',
       'form_name' => 'string',
+      'format' => 'string'
     );
     $zf = new Fez_Filter_RichTextHtmlpurify();
     foreach ($args as $getName => $getType) {
@@ -119,22 +121,22 @@ class Lister
     $facets = array();
     $snips = array();
     $tpl = new Template_API();
-    $tpl->assign("use_json", true);
     if (is_numeric($params['tpl'])) {
       $tpl_idx = intval($params['tpl']);
     } else {
       $tpl_idx = 0;
     }
 
-    //if the template is 11 we'll treat it as XML then json convert it
-    if ($tpl_idx == 11 ) {
+    if (APP_API == 'xml') {
+        $tpl_idx = 3;
+    } elseif (APP_API == 'json') {
         $tpl_idx = 3;
         $jsonIt = true;
     }
     $tpls = array(
       0 => array('file' => 'list.tpl.html', 'title' => 'Default'),
       2 => array('file' => 'rss.tpl.html', 'title' => 'RSS Feed'),
-      3 => array('file' => 'xml_feed.tpl.html', 'title' => 'XML Feed'),
+      3 => array('file' => 'xml_feed.tpl.xml', 'title' => 'XML Feed'),
       1 => array('file' => 'excel.tpl.html', 'title' => 'Excel File'),
       4 => array('file' => 'citation_only_list.tpl.html', 'title' => 'Citations Only'),
       5 => array('file' => 'simple_list.tpl.html', 'title' => 'Classic Simple View'),
@@ -143,7 +145,7 @@ class Lister
       8 => array('file' => 'js.tpl.html', 'title' => 'HTML Code'), //added for js - heaphey
       9 => array('file' => 'msword.tpl.html', 'title' => 'Word File'), //added for word out - heaphey
       10 => array('file' => 'grid.tpl.html', 'title' => 'Grid View'),
-      11 => array('file' => 'xml_feed.tpl.html', 'title' => 'JSON') //This will convert XML to json before displaying
+      11 => array('file' => 'xml_feed.tpl.xml', 'title' => 'JSON') //This will convert XML to json before displaying
     );
 
     if (!empty($custom_view_pid)) {
@@ -180,8 +182,7 @@ class Lister
     }
     $getSimple = false;
     if ($tpl_idx == 2 || ($tpl_idx == 3 && !$jsonIt)) {
-      $header = "Content-type: application/xml";
-      header($header);
+      header("Content-type: application/xml");
     } elseif ($tpl_idx == 1) {
       header("Content-type: application/vnd.ms-excel");
       header("Content-Disposition: attachment; filename=export.xls");
@@ -195,7 +196,7 @@ class Lister
       header("Content-Disposition: attachment; filename=word.doc");
       header("Content-Description: PHP Generated Word Data");
     } else if ($jsonIt) {
-        header('Content-Type: application/json');
+      header('Content-Type: application/json');
     }
 
     // for the html code output, we want to output the search params, so clean them up first
@@ -218,11 +219,12 @@ class Lister
       $pager_row = 0;
     }
 
+    $session =& Auth::getSession();
 
     $rows = $params['rows'];
     if (empty($rows)) {
-      if (!empty($_SESSION['rows'])) {
-        $rows = $_SESSION['rows'];
+      if (!empty($session['rows'])) {
+        $rows = $session['rows'];
       } else {
         $rows = APP_DEFAULT_PAGER_SIZE;
       }
@@ -230,7 +232,7 @@ class Lister
       if ($rows < 0) {
         $rows = APP_DEFAULT_PAGER_SIZE;
       }
-      $_SESSION['rows'] = $rows;
+      $session['rows'] = $rows;
     }
 
     $cookie_key = Pager::getParam('form_name', $params);
@@ -294,7 +296,7 @@ class Lister
       $sort_by_list["searchKey".Search_Key::getID("Altmetric Score")] = "Altmetric Score";
     }
 
-    if (Auth::isValidSession($_SESSION)) {
+    if (Auth::isValidSession($session)) {
       $sort_by_list["searchKey" . Search_Key::getID("GS Citation Count")] = "Google Scholar Citation Count";
     }
 
@@ -382,6 +384,23 @@ class Lister
             $tpl->assign("childXDisplayOptions", 0);
           }
 
+          // Build a list of workflow entry uri's for the available
+          // display types that can be created for this collection:
+
+          $tpl->assign("create_actions", false);
+          if (APP_API) {
+            $actions = array();
+            foreach ($childXDisplayOptions as $xdis_id => $name) {
+              $url = "/workflow/new.php?collection_pid=$pid&xdis_id=$xdis_id&xdis_id_top=$xdis_id&wft_id=346";
+              $actions[] = array(
+                'url' => $url,
+                'name' => "Create $name",
+                'xdis_id' => $xdis_id,
+              );
+            }
+            $tpl->assign("create_actions", $actions);
+          }
+
           unset($params['collection_pid']);
 
           $tpl->assign('url', Misc::query_string_encode($params));
@@ -390,10 +409,15 @@ class Lister
           $tpl->assign("show_not_allowed_msg", true);
         }
       } else {
-        header("Status: 404 Not Found");
-        Lister::flushHead($tpl);
+        if (APP_API) {
+          API::reply(404, API::makeResponse(404, 'Not found'), APP_API);
+          exit;
+        } else {
+            header("Status: 404 Not Found");
+            Lister::flushHead($tpl);
 
-        $tpl->assign('not_exists', true);
+            $tpl->assign('not_exists', true);
+        }
       }
 
 
@@ -447,11 +471,16 @@ class Lister
           $tpl->assign("show_not_allowed_msg", true);
         }
       } else {
-        header("Status: 404 Not Found");
-        $tpl->displayTemplate();
-        ob_flush();
-        flush();
-        $tpl->assign('not_exists', true);
+        if (APP_API) {
+          API::reply(404, API::makeResponse(404, 'Not found'), APP_API);
+          exit;
+        } else {
+          header("Status: 404 Not Found");
+          $tpl->displayTemplate();
+          ob_flush();
+          flush();
+          $tpl->assign('not_exists', true);
+        }
       }
 
 
@@ -1125,7 +1154,7 @@ class Lister
         . NAJAX_Client::register('Suggestor', APP_RELATIVE_URL . 'ajax.php') . "\n");
     }
     // If most results have thumbnails and there is no template set in the querystring than force the image gallery template
-    if (!is_numeric($params['tpl'])) {
+    if (!is_numeric($params['tpl']) && $tpl_idx != 3) {
       if (array_key_exists('thumb_ratio', $list_info) && is_numeric($list_info['thumb_ratio'])) {
         if ($list_info['thumb_ratio'] > 0.5) {
           $tpl_idx = 6;
@@ -1136,8 +1165,13 @@ class Lister
     $tpl->setTemplate($tpl_file);
     $tpl->assign("template_mode", $tpl_idx);
 
+    if (APP_API) {
+        $tpl->assign("rows", $rows);
+        $tpl->assign("pager_row", $pager_row);
+    }
+
     if ($display) {
-      if ($jsonIt) {
+      if ($jsonIt || APP_API_JSON) {
           $xml = $tpl->getTemplateContents();
           $xml = simplexml_load_string($xml);
           echo  json_encode($xml);

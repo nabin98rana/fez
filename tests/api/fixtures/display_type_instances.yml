@@ -1,0 +1,34 @@
+---
+# Fixtures for creating specific instances of a display type.
+#
+# * top level names should match the top level names in display_types.yml.
+# * each document should match data for the given display type
+#   (at least for fixtures that aim to be valid)
+
+document1:
+  xdis_id: 179
+  fields:
+    collections:
+      - "cdu:38515"
+    title: my journal article
+    copyright: on
+
+# Has a controlled vocab
+doc-with-cont-vocab:
+  xdis_id: 187
+  wft_id: 393
+  fields:
+    collections:
+      - "cdu:38515"
+    title: my journal article 2
+    copyright: on
+    subjects:
+      - cvo_id: 230101
+        name: 230101 Mathematical logic
+
+edit_security:
+  xdis_id: 187
+  sta_id: 2
+  pid: "cdu:6522"
+  fields:
+

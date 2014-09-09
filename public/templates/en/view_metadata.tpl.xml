@@ -1,0 +1,51 @@
+{* This is sort of duplicated in a few places 
+    - edit_security.tpl.xml, enter_metadata.tpl.xml, edit_metadata.tpl.xml 
+    - MGS TODO: Use the xsd_display_fields render function in class api, but only show if show_in_view 
+*}
+
+{*
+<![CDATA[
+{$details|print_r}
+]]>
+*}
+<xsd_display_fields>
+{section name="i" loop=$xsd_display_fields}
+    {if $xsd_display_fields[i].xsdmf_html_input != 'static' 
+        and $xsd_display_fields[i].xsdmf_show_in_view == 1 
+        and $xsd_display_fields[i].xsdmf_html_input != 'xsdmf_id_ref' 
+        and $xsd_display_fields[i].xsdmf_html_input != 'xsd_ref' 
+        and $xsd_display_fields[i].xsdmf_html_input != ''}
+            {assign var="temp_fld_id" value=$xsd_display_fields[i].xsdmf_id}
+            {assign var="attached_temp_fld_id" value=$xsd_display_fields[i].xsdmf_attached_xsdmf_id}
+            {if $xsd_display_fields[i].xsdmf_show_in_view == 1 and $details[$temp_fld_id]}
+                <xsd_display_field>
+                    <xsdmf_title>
+                        {$xsd_display_fields[i].xsdmf_title}
+                        {if $debug == 1}
+                            {$xsd_display_fields[i].xsdmf_order}
+                        {/if}
+                    </xsdmf_title>
+                    {if $xsd_display_fields[i].xsdmf_data_type == 'date'}
+                            <xsdmf_value>
+                                {if $xsd_display_fields[i].xsdmf_html_input == 'date'}
+                                    {$details[$temp_fld_id]}
+                                {else}
+                                    {if $details[$attached_temp_fld_id] == 0}
+                                        {$details[$temp_fld_id]|date_format:"%A, %B %e, %Y"}
+                                    {else}
+                                        {$details[$temp_fld_id]}
+                                    {/if}
+                                {/if}
+                            </xsdmf_value>
+                    {else}
+                            <xsdmf_value>
+                                <![CDATA[
+                                    {$details[$temp_fld_id]|smarty:nodefaults}
+                                ]]>
+                            </xsdmf_value>
+                    {/if}
+                </xsd_display_field>
+            {/if}
+    {/if}
+{/section}
+</xsd_display_fields>

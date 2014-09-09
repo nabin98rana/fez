@@ -153,19 +153,28 @@ class Template_API
 	}
 
 
-	/**
-	 * Prints the actual parsed template.
-	 *
-	 * @access public
-	 */
-	function displayTemplate()
-	{
-		$this->processTemplate();
-		// finally display the parsed template
-		$this->smarty->display($this->tpl_name);
-
-		FezLog::get()->close();
-	}
+    /**
+     * Prints the actual parsed template.
+     *
+     * @access public
+     */
+    function displayTemplate()
+    {
+        // If we're making an API call, at the last second lets just make sure we're returning xml, if not 400.
+        if (APP_API && strpos($this->tpl_name, '.tpl.xml') == false) {
+            API::reply(400, API::makeResponse(400, "Your browser sent a request that this server could not understand."), APP_API);
+            exit;
+        }
+        if (APP_API_JSON) {
+            $xml = $tpl->getTemplateContents();
+            $xml = simplexml_load_string($xml);
+            echo json_encode($xml);
+        } else {
+            $this->processTemplate();
+            $this->smarty->display($this->tpl_name);
+            FezLog::get()->close();
+        }
+    }
 
 	/**
 	 * Prints the actual parsed template.
@@ -174,10 +183,7 @@ class Template_API
 	 */
 	function displayTemplateRecord($record_id)
 	{
-		$this->processTemplateRecord($record_id);
-		// finally display the parsed template
-		$this->smarty->display($this->tpl_name);
-		FezLog::get()->close();
+		$this->displayTemplate();
 	}
 
 
@@ -443,18 +449,6 @@ class Template_API
 	function onload($onload)
 	{
 		$this->headerscript .= "\n$onload\n";
-	}
-
-
-
-	/**
-	 * Processes the template and assigns common variables automatically.
-	 *
-	 * @access	private
-	 */
-	function processTemplateRecord($record_id)
-	{
-		$this->processTemplate();
 	}
 
 	/**

@@ -1092,14 +1092,15 @@ class Controlled_Vocab
 	}
 
 	/**
-	 * Method used to assemble the CV tree in YUI treeview form, as an array.
+     * Method used to assemble the CV tree data structure.
 	 *
 	 * @access  public
+     * @param   $asApi indicates if the tree data is returned for an api
 	 * @param   $parentID get a one level based on the parent
      * @param   $allLevels get all levels based on the parent
 	 * @return  array The JavaScript tree creation statements
 	 */
-	function buildCVtree($parentID = false, $allLevels = false)
+    function buildCVtree($asApi = false, $parentID = false, $allLevels = false)
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
@@ -1111,6 +1112,10 @@ class Controlled_Vocab
 		if ($isAdministrator) {
 			$cache_key .= "_admin";
 		}
+        if ($asApi) {
+            $cache_key .= "_" . $asApi;
+        }
+
 		$cache_key .= "_" . $parentID; // Make each cached CV tree unique!
 
 		$cvTree = array();
@@ -1122,8 +1127,6 @@ class Controlled_Vocab
 		else if(! $cache) {
 			$cache = array();
 		}
-
-		$visible_cv_ids = Controlled_Vocab::getVisibleCvs();
 
 		$where = '';
 		if (is_numeric($parentID)) {
@@ -1160,23 +1163,7 @@ class Controlled_Vocab
 		}
 
 		foreach ($res as $row) {
-			if (is_numeric($parentID)) {
-				if (is_null($row['cvo_parent_id'])) {
-					array_push($cvTree, "var tmpNode".$row['cvo_id']." = new YAHOO.widget.TextNode('" . addslashes($row['cvo_title']) . "', tree.getRoot(), false);");
-				} else {
-					array_push($cvTree, "var tmpNode".$row['cvo_id']." = new YAHOO.widget.TextNode('<a href=\"javascript:addItemToParent(" . $row['cvo_id'] . ", \'" . addslashes(addslashes($row['cvo_title_extended'])) . "\');\">" . addslashes($row['cvo_title_extended']) . "</a>', tmpNode" . $row['cvo_parent_id'] . ", false);");
-				}
-			} else {
-				if (is_null($row['cvo_parent_id'])) {
-					if(($row['cvo_hide'] != '1' || $isAdministrator == true) && (in_array($row['cvo_id'], $visible_cv_ids))) {
-						array_push($cvTree, "var tmpNode".$row['cvo_id']." = new YAHOO.widget.TextNode('" . addslashes($row['cvo_title']) . "', tree.getRoot(), false);");
-					}
-				} else {
-					if(($row['cvo_hide'] != '1' || $isAdministrator == true)  &&  (in_array($row['cvo_id'], $visible_cv_ids))) {
-						array_push($cvTree, "var tmpNode".$row['cvo_id']." = new YAHOO.widget.TextNode('<a href=\"javascript:addItemToParent(" . $row['cvo_id'] . ", \'" . addslashes(addslashes($row['cvo_title_extended'])) . "\');\">" . addslashes($row['cvo_title_extended']) . "</a>', tmpNode" . $row['cvo_parent_id'] . ", false);");
-					}
-				}
-			}
+            array_push($cvTree, array('cvo_id' => $row['cvo_id'], 'cvo_title' => $row['cvo_title'] , 'cvo_title_extended' => $row['cvo_title_extended'] , 'cvo_parent_id' => $row['cvo_parent_id']));
 		}
 
 		$cache[$cache_key] = $cvTree;
@@ -1186,7 +1173,45 @@ class Controlled_Vocab
 	}
 
     /**
-   	 * Recussive function to find all children of CVO.
+     * Method used to produce the YUI treeview-ready JavaScript as a printable string or returns data if required for api. Caches the treeview.
+	 *
+	 * @access  public
+     * @param   string Indicates if the tree should be returned as just data
+	 * @param   array The JavaScript tree creation statements
+	 * @return  string The JavaScript tree creation statements
+	 */
+    function renderCVtree($cvTreeArray, $asApi = false, $parentID = false)
+    {
+        if ($asApi) {
+            return $cvTreeArray; // return to be rendered by the template
+        }
+        $visible_cv_ids = Controlled_Vocab::getVisibleCvs();
+        $output = "";
+        foreach ($cvTreeArray as $cvTreeElement) {
+            if (is_numeric($parentID)) {
+                if (is_null($cvTreeElement['cvo_parent_id'])) {
+                    $cvThing = "var tmpNode".$cvTreeElement['cvo_id']." = new YAHOO.widget.TextNode('" . addslashes($cvTreeElement['cvo_title']) . "', tree.getRoot(), false);";
+                } else {
+                    $cvThing = "var tmpNode".$cvTreeElement['cvo_id']." = new YAHOO.widget.TextNode('<a href=\"javascript:addItemToParent(" . $cvTreeElement['cvo_id'] . ", \'" . addslashes(addslashes($cvTreeElement['cvo_title_extended'])) . "\');\">" . addslashes($cvTreeElement['cvo_title_extended']) . "</a>', tmpNode" . $cvTreeElement['cvo_parent_id'] . ", false);";
+                }
+            } else {
+                if (is_null($cvTreeElement['cvo_parent_id'])) {
+                    if (($cvTreeElement['cvo_hide'] != '1' || $isAdministrator == true) && (in_array($cvTreeElement['cvo_id'], $visible_cv_ids))) {
+                        $cvThing = "var tmpNode".$cvTreeElement['cvo_id']." = new YAHOO.widget.TextNode('" . addslashes($cvTreeElement['cvo_title']) . "', tree.getRoot(), false);";
+                    }
+                } else {
+                    if (($cvTreeElement['cvo_hide'] != '1' || $isAdministrator == true)  &&  (in_array($cvTreeElement['cvo_id'],  $visible_cv_ids))) {
+                        $cvThing = "var tmpNode".$cvTreeElement['cvo_id']." = new YAHOO.widget.TextNode('<a href=\"javascript:addItemToParent(" . $cvTreeElement['cvo_id'] . ", \'" . addslashes(addslashes($cvTreeElement['cvo_title_extended'])) . "\');\">" . addslashes($cvTreeElement['cvo_title_extended']) . "</a>', tmpNode" . $cvTreeElement['cvo_parent_id'] . ", false);";
+                    }
+                }
+            }
+            $output .= $cvThing . "\n";
+        }
+        return $output;
+    }
+
+    /**
+   	 * Recursive function to find all children of CVO.
    	 *
    	 * @access  public
    	 * @param   $cvo to start at
@@ -1299,23 +1324,4 @@ class Controlled_Vocab
 
 		return $res;
 	}
-
-
-	/**
-	 * Method used to produce the YUI treeview-ready JavaScript as a printable string.
-	 *
-	 * @access  public
-	 * @param   array The JavaScript tree creation statements
-	 * @return  string The JavaScript tree creation statements
-	 */
-	function renderCVtree($cvTreeArray)
-	{
-		$output = "";
-		foreach ($cvTreeArray as $cvThing) {
-			$output .= $cvThing . "\n";
-		}
-
-		return $output;
-	}
-
 }

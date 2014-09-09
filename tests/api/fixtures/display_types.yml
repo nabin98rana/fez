@@ -1,0 +1,28 @@
+---
+# Fixtures for defining display types.
+#
+# NOTE: xdis_id should be UNIQUE.  Don't have more than one entry with the same xdis_id!
+
+
+# Simple document type with 2 required fields.
+xdis_id_1:
+  xdis_id: 179
+  # The xsdmf fields (matching fields).
+  fielddefs:
+    # The xsdmf_id for collection membership:
+    collections:
+      xsdmf_id: 23284
+      type: collections
+      required: true
+    title:
+      xsdmf_id: 10588
+      type: string
+      required: true
+    copyright:
+      xsdmf_id: 23272
+      type: checkbox
+      required: true
+    subjects:
+      xsdmf_id: 6364
+      type: cvo
+      required: false

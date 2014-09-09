@@ -48,11 +48,11 @@ include_once(APP_INC_PATH . 'class.digitalobject.php');
 include_once(APP_INC_PATH . "class.dsresource.php");
 include_once(APP_INC_PATH . "class.author_era_affiliations.php");
 include_once(APP_INC_PATH . "class.exiftool.php");
+include_once(APP_INC_PATH . "class.api.php");
 
 Auth::checkAuthentication(APP_SESSION, 'index.php?err=5', true);
 
 $tpl = new Template_API();
-$tpl->setTemplate("popup.tpl.html");
 
 $log = FezLog::get();
 
@@ -62,15 +62,61 @@ $usr_id = Auth::getUserID();
 //Perform some input validation.
 
 if (array_key_exists('cat', $_REQUEST) && !$cat = Fez_Validate::run('Fez_Validate_Simpleparam', $_REQUEST["cat"])) {
+    if (APP_API) {
+        API::reply(400, API::makeResponse(400, "Parameter validation failed."), APP_API);
+    }
     exit;
 }
 
-if (array_key_exists('dsID', $_GET) && !$dsID = Fez_Validate::run('Fez_Validate_Dsid', $_GET["dsID"]) ) {
+if (array_key_exists('dsID', $_REQUEST) && !$dsID = Fez_Validate::run('Fez_Validate_Dsid', $_REQUEST["dsID"])) {
+    if (APP_API) {
+        API::reply(400, API::makeResponse(400, "Parameter validation failed."), APP_API);
+    }
     exit;
 }
 
-if (array_key_exists('pid', $_GET) && !$pid = Fez_Validate::run('Fez_Validate_Pid', $_GET['pid'])) {
+if (array_key_exists('pid', $_REQUEST) && !$pid = Fez_Validate::run('Fez_Validate_Pid', $_REQUEST['pid'])) {
+    if (APP_API) {
+        API::reply(400, API::makeResponse(400, "Parameter validation failed."), APP_API);
+    }
     exit;
+}
+
+if (APP_API) {
+    switch (HTTP_METHOD) {
+        case 'DELETE':
+        case 'POST':
+            // We're letting them to POST to delete, so only populate the POST if it's not a delete or purge
+            // Through the API we currently support deleting attachments, purging attachments
+            // this file also handles processing of 'update_security'.
+            $tpl->setTemplate("popup.tpl.xml");
+            if ($cat == 'update_security') {
+                $record = new RecordObject($pid);
+                $record->getDisplay();
+                if ($dsID != "") {
+                    $FezACML_xdis_id = XSD_Display::getID('FezACML for Datastreams');
+                    $xsd_display_fields = $record->display->getMatchFieldsList(array(), array("FezACML for Datastreams"));  // Specify FezACML as the only display needed for security
+                    $details = $record->getDetails($dsID, $FezACML_xdis_id);
+                    $record->clearDetails();
+                } else {
+                    $xsd_display_fields = $record->display->getMatchFieldsList(array(), array("FezACML"));  // Specify FezACML as the only display needed for security
+                    $FezACML_xdis_id = XSD_Display::getID('FezACML');
+                    $details = $record->getDetails("", $FezACML_xdis_id);
+                }
+                // Populate the POST variable based on the xsd display fields and details of the record (or datastream record)
+                API::populateThePOST($xsd_display_fields, $details, false);
+                // We'll also want to set the cat in POST. It is accessed directly when updating datastream details.
+                $_POST['cat'] = $_GET['cat'];
+            }
+            break;
+
+        default:
+            $arr = API::makeResponse('FAIL', "Method not allowed.");
+            API::reply(405, $arr, APP_API); //method not allowed
+            exit;
+    }
+} else {
+    $tpl->setTemplate("popup.tpl.html");
 }
 
 if(APP_FEDORA_BYPASS == 'ON')
@@ -201,8 +247,8 @@ switch ($cat)
              } else {
 	            $res = Record::update($pid, array(""), array("FezACML"));
 			}
-            $tpl->assign("update_form_result", $res);
-            $wfstatus->checkStateChange(true);
+			$wfstatus->checkStateChange(true);
+			$tpl->assign("update_form_result", $res);
             break;
         }
     case 'delete_objects':

@@ -1,0 +1,306 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xmlfeed>
+<title>{if $list_heading != ""}{$list_heading} - {/if}{$application_title}</title>
+<link>{$app_base_url}</link>
+<description>{$org_name}</description>
+<language>{$lang}</language>
+<generator>Fez {$application_version}</generator>
+{*------------------------------------------------------------------------------------------------------*}
+{*Title*}
+
+<title>{$title}</title>
+<citation>
+{if $citation != ""}
+    <![CDATA[{$citation|smarty:nodefaults}]]>
+{/if}
+</citation>
+
+{*------------------------------------------------------------------------------------------------------*}
+{*Info box just for admins*}
+<doc_title>{$xdis_title}</doc_title>
+<doc_subtype>
+    {if $sub_type}
+        {$sub_type}
+    {/if}
+</doc_subtype>
+<workflows>
+    {if $isUser && !$hide_edit}
+        {if $isEditor || $isAdministrator}
+            {if !$viewingPreviousVersion}
+                {section name="w" loop=$workflows}
+                    <workflow>
+                    {if $workflows[w].wft_id != ''}
+                        {if $workflows[w].wft_type_id == 6}
+                            {assign var='wf_url' value=$rel_url|cat:'workflow/export.php'}
+                        {else}
+                            {assign var='wf_url' value=$rel_url|cat:'workflow/update.php'}
+                        {/if}
+                        <w_title>
+                            {$workflows[w].wfl_title}
+                        </w_title>
+                        <w_url>
+                            {$wf_url}?pid={$pid}&amp;cat=select_workflow&amp;xdis_id={$xdis_id}&amp;wft_id={$workflows[w].wft_id}&amp;href={$smarty.server.REQUEST_URI}
+                        </w_url>
+                    {/if}
+                    </workflow>
+                {/section}
+                <workflow_option_url>
+                    {$rel_url}workflow/list_workflows2.php?pid={$pid}&amp;href={$smarty.server.REQUEST_URI|smarty:nodefaults|escape:url}
+                </workflow_option_url>
+            {/if}
+        {/if}
+    {/if}
+</workflows>
+<collection>
+    {if $isEditor || $isAdministrator && ($show_tombstone && !$deleted || !$show_tombstone)}
+        {if $parents}
+            {section name="i" loop=$parents}
+            <collection_uri>
+                <c_title>{$parents[i].rek_title}</c_title>
+                <c_uri>{$rel_url}collection/{$parents[i].rek_pid}</c_uri>
+            </collection_uri>
+            {/section}
+        {/if}
+    {/if}
+</collection>
+{* These two section headers are used by the filecache class to replace navigation bars *}
+{if $prev || $next}
+    <browse_collection>
+        <prev>
+        {if $prev}
+            <prev_title> {$prev.rek_title} </prev_title>
+            <prev_url> {$rel_url}view/{$prev.rek_pid} </prev_url>
+        {/if}
+        </prev>
+        <next>
+        {if $next}
+            <next_title> {$next.rek_title} </next_title>
+            <next_url> {$rel_url}view/{$next.rek_pid} </next_url>
+        {/if}
+        </next>
+    </browse_collection>
+{/if}
+<rec_version>
+{if $viewingPreviousVersion}
+    {$versionDatePretty}
+{/if}
+</rec_version>
+{*------------------------------------------------------------------------------------------------------*}
+{* Start main information *}
+{assign var="display_checksums" value="OFF"}
+    <datastreams>
+        {if $fileCount > 0}
+            {if !$isUser}
+                <msg>
+                    Some files may be inaccessible until you login with your {$app_name} credentials
+                </msg>
+            {/if}
+
+            {*
+            <![CDATA[
+            {$datastreams|print_r}
+            ]]>
+            *}
+
+            {section name="d" loop=$datastreams}
+                {if $datastreams[d].controlGroup == "M" and $datastreams[d].isLister == 1}
+                    <datastream>
+                        {assign var="ds_show" value=$datastreams[d].ID}
+                        <id>{$datastreams[d].ID}</id>
+
+                        {* Name of file *}
+                        {if $datastreams[d].isViewer == 1 || $isAdministrator}
+                            <href>
+                                {$rel_url}eserv/{$pid}/{$ds_show}{if $viewingPreviousVersion}?version_date={$versionDate}{/if}
+                            </href>
+                        {/if}
+
+                        {if ($datastreams[d].canPreview || $isAdministrator)
+                            && $datastreams[d].stream != "0"
+                            && $ds_show_extra != ''}
+                            <href>
+                                {$rel_url}eserv/{$pid}/{$ds_show_extra}{if $viewingPreviousVersion}?version_date={$versionDate}{/if}
+                            </href>
+                        {/if}
+
+                        {* Archival icon *}
+                        {if ($datastreams[d].isArchivalViewer == 1 || $isAdministrator)
+                            && $datastreams[d].thumbnail != "0"}
+                            <href>
+                                {$rel_url}eserv/{$pid}/{$datastreams[d].ID}{if $viewingPreviousVersion}?version_date={$versionDate}{/if}
+                            </href>
+                        {/if}
+
+                        {* preservation xml *}
+                        {if $datastreams[d].presmd != "0" && ($isAdministrator)}
+                            <preservation_metadata>
+                                {$rel_url}eserv/{$pid}/{$datastreams[d].presmd}{if $viewingPreviousVersion}?version_date={$versionDate}{/if}
+                            </preservation_metadata>
+                        {/if}
+
+                        {* Checksum *}
+                        {if $display_checksums == 'ON'}
+                            <checksum>({$datastreams[d].checksumType}) {$datastreams[d].checksum}</checksum>
+                        {/if}
+
+                        {* Everything else (Description, MIME, Size, D/Ls *}
+                        <file_description>{$datastreams[d].label}</file_description>
+                        <mimetype>{$datastreams[d].MIMEType|truncate:27}</mimetype>
+                        <archival_size>{$datastreams[d].archival_size}</archival_size>
+                        {if $isUser}
+                            <download_count>
+                                {* <!--fez:ds_{$datastreams[d].base64ID}--><!--/fez:ds_{$datastreams[d].base64ID}--> *}
+                                {$datastreams[d].downloads}
+                            </download_count>
+                        {/if}
+
+                    </datastream>
+                    {/if}
+            {/section}
+        {/if}
+    </datastreams>
+    {* Related Links *}
+    {if $linkCount > 0}
+        {if $doi}
+            <doi_url>
+                {$doi.rek_link}
+            </doi_url>
+            <doi_description>
+                {$doi.desciption}
+            </doi_description>
+        {/if}
+        {section name="d" loop=$links}
+            <related_link>
+               {$links[d].rek_link}
+            </related_link>
+            <related_link_desc>
+                {$links[d].rek_link_description}
+            </related_link_desc>
+        {/section}
+    {/if}
+    <publish_status>
+        {if $sta_id != 2}
+            NOTE: This record is not published.
+        {/if}
+        {if $retracted}
+            NOTE: This article has been retracted.
+        {/if}
+    </publish_status>
+    {if $hasDatasets == 1}
+        <dataset_tree>
+        {$datasetTree|smarty:nodefaults}
+        </dataset_tree>
+    {/if}
+
+{* The meat of the metadata *}
+{include file='view_metadata.tpl.xml'}
+
+{* Version information *}
+
+{if $canViewVersions}
+    <versions>
+        {section name="versions" loop=$created_dates_list}
+            {if $version_view_type == 'FULL' || !$created_dates_list[versions].filtered}
+                <version>
+                    {*<filtered>{$created_dates_list[versions].filtered}</filtered>*}
+                    {*<selected>{$created_dates_list[versions].selected}</selected>*}
+                    <date>{$created_dates_list[versions].fedoraDate}</date>
+                    <display_date>{$created_dates_list[versions].displayDate}</display_date>
+                    <view_uri>
+                        <![CDATA[
+                            {$rel_url}view/{$pid}?version_date={$created_dates_list[versions].fedoraDate}&version_view_type=FILTERED
+                        ]]>
+                    </view_uri>
+                </version>
+            {/if}
+        {/section}
+    </versions>
+{/if}
+
+{* Likely will need to add in versioning information *}
+
+{*------------------------------------------------------------------------------------------------------*}
+{*Citations and stats*}
+<citation_statistics>
+    {if $citationsThomson != ''}
+        <citation_thomson_history>
+            {$rel_url}rid_citation_count_history_{$pid}
+        </citation_thomson_history>
+        <citation_thomson_count>
+            {$citationsThomson}
+        </citation_thomson_count>
+        <citation_thomson_article>
+            {$app_link_prefix}http://gateway.isiknowledge.com/gateway/Gateway.cgi?GWVersion=2&SrcApp=resolve1&DestLinkType=FullRecord&DestApp=WOS_CPL&KeyUT={$ThomsonID}&SrcAuth={$WOK_USERNAME}
+        </citation_thomson_article>
+        <citation_thomson>
+            {if $citationsThomson != 0}
+                {$app_link_prefix}http://gateway.isiknowledge.com/gateway/Gateway.cgi?GWVersion=2&SrcApp=resolve1&DestLinkType=CitingArticles&DestApp=WOS_CPL&KeyUT={$ThomsonID}&SrcAuth={$WOK_USERNAME}
+            {/if}
+        </citation_thomson>
+        {/if}
+    {if $citationsScopus != ''}
+        <citation_scopus_history>
+            {$rel_url}scopus_citation_count_history_{$pid}
+        </citation_scopus_history>
+        <citation_scopus_count>
+            {$citationsScopus}
+        </citation_scopus_count>
+        <citation_scopus_article>
+            {$app_link_prefix}http://www.scopus.com/record/display.url?eid={$ScopusID}&origin=inward
+        </citation_scopus_article>
+        <citation_scopus>
+            {if $citationsScopus != 0}
+                {$app_link_prefix}http://www.scopus.com/results/citedbyresults.url?sort=plf-f&cite={$ScopusID}&src=s&sot=cite&sdt=a
+            {/if}
+        </citation_scopus>
+    {/if}
+    {if $isUser && ($useGoogleCitationCounts == "ON")}
+        <citation_google_url>
+            {if $citationsGoogle != ''}
+                {$citationsGoogleLink}
+            {/if}
+        </citation_google_url>
+        <citation_google_count>
+            {$citationsGoogle}
+        </citation_google_count>
+    {/if}
+    {if $WEBSERVER_LOG_STATISTICS == 'ON'}
+        <citation_access_stats>
+            <citation_access_abstract_views>
+                {* <!--fez:statsAbs--><!--/fez:statsAbs-->*}
+                {$statsAbstract}
+            </citation_access_abstract_views>
+            <citation_downloads>
+                {* <!--fez:statsDownloads--> <!--/fez:statsDownloads-->*}
+                {if $fileCount > 0}{$statsFiles}{/if}
+            </citation_downloads>
+            <access_details_url> {$rel_url}stat_details.php?action=show_detail&amp;pid={$pid} </access_details_url>
+        </citation_access_stats>
+    {/if}
+</citation_statistics>
+
+<created_date>
+    {$created_date}
+</created_date>
+{if $depositor != ""}
+    <depositor_url>{$rel_url}list/depositor/{$depositor_id}/</depositor_url>
+    <depositor_name>{$depositor}</depositor_name>
+    {if $depositor_org != ""}
+        <depositor_org>{$depositor_org}</depositor_org>
+    {/if}
+{/if}
+
+{if ($link_to_solr)}
+    <solr_url>
+        <![CDATA[
+            {$link_to_solr}
+        ]]>
+    </solr_url>
+{/if}
+<detailed_history_uri><![CDATA[{$rel_url}history.php?pid={$pid}]]></detailed_history_uri>
+{* Internal notes *}
+{if $internal_notes != ""}
+<internal_notes><![CDATA[{$internal_notes}]]></internal_notes>
+{/if}
+
+</xmlfeed>

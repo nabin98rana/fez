@@ -1,0 +1,10 @@
+<collections>
+    {foreach from=$collections item=option}
+        {if ($option != '')}
+            <option>
+                <name>{$option.text}</name>
+                <value>{$option.value}</value>
+            </option>
+        {/if}
+    {/foreach}
+</collections>

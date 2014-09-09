@@ -52,6 +52,7 @@ include_once(APP_INC_PATH . "class.org_structure.php");
 include_once(APP_INC_PATH . "class.uploader.php");
 include_once(APP_INC_PATH . "class.my_research.php");
 include_once(APP_INC_PATH . "class.datastream.php");
+include_once(APP_INC_PATH . "class.api.php");
 
 // Temporary solution for SWFUpload not working on HTTPS environment
 if ( $_SERVER["SERVER_PORT"] == 443)  {
@@ -59,12 +60,37 @@ if ( $_SERVER["SERVER_PORT"] == 443)  {
    header ("Location: http://".APP_HOSTNAME.APP_RELATIVE_URL."workflow/enter_metadata.php"."?".$_SERVER['QUERY_STRING']);
 }
 
+Auth::checkAuthentication(APP_SESSION, $failed_url = NULL, $is_popup = false);
 
-Auth::checkAuthentication(APP_SESSION);
-$wfstatus = &WorkflowStatusStatic::getSession(); // restores WorkflowStatus object from the session
+$wfstatus = &WorkflowStatusStatic::getSession($wfses_id); // restores WorkflowStatus object from the session
 if (empty($wfstatus)) {
-    echo "This workflow has finished and cannot be resumed";
-    exit;
+    if (APP_API) {
+        API::reply(500, API::makeResponse(500, "This workflow has finished and cannot be resumed"), APP_API);
+        exit;
+    } else {
+        echo "This workflow has finished and cannot be resumed";
+        FezLog::get()->close();
+        exit;
+    }
+}
+
+if (empty($wfstatus->parent_pid)) {
+    if (APP_API) {
+        API::reply(500, API::makeResponse(500, "The system is currently setup to only allow administrators to create objects without any communities/collections. Please go back and choose a community and collection."), APP_API);
+        exit;
+    } else {
+        echo "The system is currently setup to only allow administrators to create objects without any communities/collections. Please go back and choose a community and collection.";
+        FezLog::get()->close();
+        exit;
+    }
+}
+
+// API: Update $_POST as if using the browser.
+if (APP_API && (HTTP_METHOD == 'POST')) {
+    API::populateThePOST();
+    if (isset($_POST['edit_reason'])) {
+        $wfstatus->setHistoryDetail(trim(@$_POST['edit_reason']));
+    }
 }
 
 //Generate a version
@@ -72,6 +98,7 @@ if(APP_FEDORA_BYPASS == 'ON')
 {
     Zend_Registry::set('version', Date_API::getCurrentDateGMT());
 }
+
 
 
 // if we have uploaded files using the flash uploader, then generate $_FILES array entries for them
@@ -84,10 +111,25 @@ if (isset($_POST['uploader_files_uploaded']) && APP_FEDORA_BYPASS != 'ON')
 }
 
 $tpl = new Template_API();
-$tpl->setTemplate("workflow/index.tpl.html");
+
+if (APP_API) {
+    switch (HTTP_METHOD) {
+        case 'GET':
+            $tpl->setTemplate("workflow/workflow.tpl.xml");
+            break;
+
+        case 'POST':
+            // Results are returned via the workflow through end.php
+            break;
+    }
+} else {
+    $tpl->setTemplate("workflow/index.tpl.html");
+    $tpl->assign("jqueryUI", true);
+    $tpl->assign('header_include_flash_uploader_files', 1); // we want to set the header to include the files if possible
+}
+
 $tpl->assign('type', 'enter_metadata');
 $tpl->assign('enter_metadata', '1');
-$tpl->assign("jqueryUI", true);
 
 if (strtolower($_SERVER['HTTPS']) == 'on' || $_SERVER['SERVER_PORT'] == 443 || strtolower(substr($_SERVER['SCRIPT_URI'], 0, 5)) == 'https') {
 	$tpl->assign('http_protocol', 'https');
@@ -105,14 +147,7 @@ $tpl->assign("acting_user", $actingUserArray);
 $tpl->assign("actual_user", $username);
 $tpl->assign("isUPO", $isUPO);
 
-//CK commented this out as it is not needed in a entermetadata form anymore
-//$tpl->assign("pid", $pid);
-if (empty($wfstatus->parent_pid)) {
-	echo "The system is currently setup to only allow administrators to create objects without any communities/collections. Please go back and choose a community and collection.";
-	exit;
-}
 $wfstatus->setTemplateVars($tpl);
-$tpl->assign('header_include_flash_uploader_files', 1); // we want to set the header to include the files if possible
 
 // get the xdis_id of what we're creating
 $xdis_id = $wfstatus->getXDIS_ID();
@@ -153,9 +188,20 @@ if ($access_ok) {
             }
         }
 
-        $res = Record::insert();
-        $wfstatus->setCreatedPid($res);
-        $wfstatus->pid = $res;
+        $rec = Record::insert();
+
+        $wfstatus->setCreatedPid($rec->pid);
+        $wfstatus->pid = $rec->pid;
+
+        // Did we really ingest?
+        if (!$rec->ingested) {
+            $wfstatus->vars['outcome']= 'notCreated';
+            $wfstatus->vars['outcome_details']= 'Ingest into fedora (record creation) failed';
+            if (APP_API) {
+                $wfstatus->theend();
+                exit;
+            }
+        }
 
         if (!empty($_POST['filePermissionsNew'])) {
             $count = 0;
@@ -174,7 +220,7 @@ if ($access_ok) {
     // Record the Internal Note, if we've been handed one.
     if (isset($_POST['internal_notes']) && $isAdministrator) {
         $note = trim($_POST['internal_notes']);
-        InternalNotes::recordNote($res, $note);
+        InternalNotes::recordNote($rec->pid, $note);
     }
 
     $wfstatus->checkStateChange();
@@ -183,11 +229,11 @@ if ($access_ok) {
 	} else {
 		$tpl->assign("isEditor", 0);
 	}
-  if ($canApprove === true) {
-    $tpl->assign("isApprover", 1);
-  } else {
-    $tpl->assign("isApprover", 0);
-  }
+    if ($canApprove === true) {
+        $tpl->assign("isApprover", 1);
+    } else {
+        $tpl->assign("isApprover", 0);
+    }
 
     $tpl->assign("isCreator", 1);
     if (!is_numeric($xdis_id)) { // if still can't find the xdisplay id then ask for it
@@ -217,8 +263,7 @@ if ($access_ok) {
 		if ($item['isCreator'] != 1)
 		{
 			array_splice($communities['list'], $index,1);
-		}
-		else {
+		} else {
 			$index++;
 		}
 	}
@@ -368,4 +413,3 @@ if(!$isAdmin) {
 
 $tpl->assign("isAdmin", $isAdmin);
 $tpl->displayTemplate();
-

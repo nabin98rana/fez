@@ -52,6 +52,7 @@ include_once(APP_INC_PATH . "class.record_edit_form.php");
 include_once(APP_INC_PATH . "class.uploader.php");
 include_once(APP_INC_PATH . "class.internal_notes.php");
 include_once(APP_INC_PATH . "class.datastream.php");
+include_once(APP_INC_PATH . "class.api.php");
 
 // Temporary solution for SWFUpload not working on HTTPS environment
 if ( $_SERVER["SERVER_PORT"] == 443)  {
@@ -62,11 +63,30 @@ if ( $_SERVER["SERVER_PORT"] == 443)  {
 Auth::checkAuthentication(APP_SESSION, $_SERVER['PHP_SELF']."?".$_SERVER['QUERY_STRING']);
 $isAdministrator = Auth::isAdministrator();
 
-$wfstatus = &WorkflowStatusStatic::getSession(); // restores WorkflowStatus object from the session
+// Retrieve session/pid/record firstly...
+$wfstatus = &WorkflowStatusStatic::getSession();
 if (empty($wfstatus)) {
-    echo "This workflow has finished and cannot be resumed";
-    FezLog::get()->close();
-    exit;
+    if (APP_API) {
+        API::reply(500, API::makeResponse(500, "This workflow cannot be resumed."), APP_API);
+        exit;
+    } else {
+        echo "This workflow has finished and cannot be resumed";
+        FezLog::get()->close();
+        exit;
+    }
+}
+$pid = $wfstatus->pid;
+$record = new RecordObject($pid);
+$record->getDisplay();
+
+// API: Update $_POST as if using the browser.
+if (APP_API && (HTTP_METHOD == 'POST')) {
+    $xsd_df = $record->display->getMatchFieldsList(array("FezACML"), array());
+    $details = $record->getDetails();
+    API::populateThePOST($xsd_df, $details);
+    if (isset($_POST['edit_reason'])) {
+        $wfstatus->setHistoryDetail(trim(@$_POST['edit_reason']));
+    }
 }
 
 //Generate a version
@@ -85,9 +105,24 @@ if (isset($_POST['uploader_files_uploaded']) && APP_FEDORA_BYPASS != 'ON')
 }
 
 $tpl = new Template_API();
-$tpl->setTemplate("workflow/index.tpl.html");
+
+if (APP_API) {
+    switch (HTTP_METHOD) {
+
+        case 'GET':
+            $tpl->setTemplate("workflow/workflow.tpl.xml");
+            break;
+
+        case 'POST':
+            // Results are returned via the workflow through end.php
+            break;
+
+    }
+} else {
+    $tpl->setTemplate("workflow/index.tpl.html");
+    $tpl->assign("jqueryUI", true);
+}
 $tpl->assign("type", "edit_metadata");
-$tpl->assign("jqueryUI", true);
 $tpl->assign('file_options', Datastream::$file_options);
 
 $link_self = $_SERVER['PHP_SELF'].'?'.http_build_query(array('id' => $wfstatus->id));
@@ -101,8 +136,6 @@ if ((array_key_exists('HTTPS', $_SERVER) && strtolower($_SERVER['HTTPS'])) == 'o
 } else {
 	$tpl->assign('http_protocol', 'http');
 }
-
-$pid = $wfstatus->pid;
 
 // Determine if we are allow to display a link to Fedora Object Profile View
 if ($isAdministrator) {
@@ -128,7 +161,8 @@ foreach ($_SESSION[APP_INTERNAL_GROUPS_SESSION] as $groupID) {
 }
 
 // Record the Internal Note, if we've been handed one.
-if (isset($_POST['internal_notes']) && User::isUserAdministrator($username)) {
+//if (isset($_POST['internal_notes']) && User::isUserAdministrator($username)) {
+if (isset($_POST['internal_notes']) && $record->canEdit()) {
     $note = trim($_POST['internal_notes']);
     InternalNotes::recordNote($pid, $note);
 }
@@ -137,7 +171,7 @@ if (isset($_POST['internal_notes']) && User::isUserAdministrator($username)) {
 if (isset($_POST['editedFileDescriptions']) && is_array($_POST['editedFileDescriptions'])) {
 	$fileDetails = $_POST['editedFileDescriptions'];
 	foreach($fileDetails as $counter => $descriptionDetails) {
-		Record::updateDatastreamLabel($descriptionDetails['pid'], $descriptionDetails['filename'], $descriptionDetails['newLabel']);
+		Record::updateDatastreamLabel($pid, $descriptionDetails['filename'], $descriptionDetails['newLabel']);
 	}
 }
 
@@ -156,14 +190,12 @@ if (isset($_POST['fileNamesOld']) && is_array($_POST['fileNamesOld'])) {
 // this has to be done after the descriptions, otherwise, the datastream names will have changed and the description won't know which one to apply to
 if (isset($_POST['editedFilenames']) && is_array($_POST['editedFilenames'])) {
 	foreach($_POST['editedFilenames'] as $counter => $fileDetails) {
-		Record::renameDatastream($fileDetails['pid'], $fileDetails['originalFilename'], $fileDetails['newFilename']);
+		Record::renameDatastream($pid, $fileDetails['originalFilename'], $fileDetails['newFilename']);
         //We will check and rename the embargo file if it exists as well
-        Datastream::embargoFileRename($fileDetails['pid'], $fileDetails['originalFilename'], $fileDetails['newFilename']);
+        Datastream::embargoFileRename($pid, $fileDetails['originalFilename'], $fileDetails['newFilename']);
 	}
 }
 
-//Set file description variables and other stuff from the swf uploader section
-$max = NULL;
 //filenames are sequential but fileperms, embargo and description are ordered but possibly with gaps ie 0,1,3,4  (2 being a cancelled file).
 //Since fileperms always has a value (Default = 0) we use it to track if files have been added and use it to find the index
 if (!empty($_POST['filePermissionsNew'])) {
@@ -173,9 +205,9 @@ if (!empty($_POST['filePermissionsNew'])) {
         $_POST['xsd_display_fields'][$xsdmf_id][$count] = $_POST['description'][$i];
         $fileXdis_id = $_POST['uploader_files_uploaded'];
         $filename = $_FILES['xsd_display_fields']['name'][$fileXdis_id][$count];
-        Datastream::saveDatastreamSelectedPermissions($wfstatus->pid, $filename, $_POST['filePermissionsNew'][$i], $_POST['embargo_date'][$i]);
+        Datastream::saveDatastreamSelectedPermissions($pid, $filename, $_POST['filePermissionsNew'][$i], $_POST['embargo_date'][$i]);
         if ($_POST['filePermissionsNew'][$i] == 5 || !empty($_POST['embargo_date'][$i]) ) {
-            Datastream::setfezACML($wfstatus->pid, $filename, 10);
+            Datastream::setfezACML($pid, $filename, 10);
         }
         $count++;
     }
@@ -201,7 +233,6 @@ if (!empty($collection_pid)) {
 if (!empty($community_pid)) {
 	$extra_redirect.="&community_pid=".$pid;
 }
-$record = new RecordObject($pid);
 
 if ($record->getLock(RecordLock::CONTEXT_WORKFLOW, $wfstatus->id) != 1) {
     // Someone else is editing this record.
@@ -209,13 +240,18 @@ if ($record->getLock(RecordLock::CONTEXT_WORKFLOW, $wfstatus->id) != 1) {
     $tpl->assign('conflict', 1);
     $tpl->assign('conflict_user', User::getFullname($owner_id));
     $tpl->assign('disable_workflow', 1);
-    $tpl->displayTemplate();
+    if (APP_API_JSON) {
+        $xml = $tpl->getTemplateContents();
+        $xml = simplexml_load_string($xml);
+        echo json_encode($xml);
+    } else {
+        $tpl->displayTemplate();
+    }
     exit;
 }
 
 $tpl->assign('header_include_flash_uploader_files', 1); // we want to set the header to include the files if possible
 
-$record->getDisplay();
 $xdis_id = $record->getXmlDisplayId();
 $xdis_title = XSD_Display::getTitle($xdis_id);
 $tpl->assign("xdis_title", $xdis_title);
@@ -259,4 +295,3 @@ if ($access_ok) {
 }
 
 $tpl->displayTemplate();
-

@@ -39,11 +39,23 @@
 include_once('config.inc.php');
 include_once(APP_INC_PATH . "class.uploader.php");
 include_once(APP_INC_PATH . "class.misc.php");
+include_once(APP_INC_PATH . "class.api.php");
 
-$workflowId = $_POST['workflowId'];
-$fileNumber = $_POST['fileNumber'];
+switch ($_SERVER['REQUEST_METHOD']) {
+    case 'PUT':
+    case 'POST':
+        break;
+    default:
+        if (APP_API) {
+            $arr = API::makeResponse('FAIL', "Method not allowed.");
+            API::reply(405, $arr, APP_API);
+        }
+        exit;
+}
+
+$workflowId = $_REQUEST['workflowId'];
+$fileNumber = $_REQUEST['fileNumber'];
 $fileNumber = sprintf('%03d', $fileNumber); // left pad with zeros so we can sort without worrying about numeric vs alpha sorting
-
 $uploadDir = Uploader::getUploadedFilePath($workflowId);
 
 // Create the directory (and any missing directories) for this workflow
@@ -51,7 +63,7 @@ if (!is_dir($uploadDir))
 {
 	$directory_path = "";
 	$directories = explode("/",$uploadDir);
-	
+
 	foreach($directories as $directory)
 	{
 		$directory_path .= $directory."/";
@@ -67,5 +79,16 @@ if (!is_dir($uploadDir))
 foreach ($_FILES as $fieldName => $file) {
 	$returnValue = move_uploaded_file($file['tmp_name'], $uploadDir."/{$fileNumber}." . strip_tags(basename($file['name'])));
 }
-
-echo " "; // need to echo at least something so the flash uploader recognises a file upload has taken place
+if ($returnValue) {
+    if (APP_API) {
+        $arr = API::makeResponse('202', "Uploaded.");
+        API::reply(202, $arr, APP_API); //202 is accepted
+    } else {
+        echo " "; // need to echo at least something so the flash uploader recognises a file upload has taken place
+    }
+} else {
+    if (APP_API) {
+        $arr = API::makeResponse('400', "Method not allowed.");
+        API::reply(400, $arr, APP_API);
+    }
+}

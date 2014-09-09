@@ -1,0 +1,18 @@
+{* TODO - Check validation logic. Think there may be something missing... *}
+<bulk_move>
+		<cat>submit</cat>
+		<parent_community>
+				<display_type>
+						{foreach from=$communities_list item=option key=value}
+								{if ($option != '')}
+										<option>
+												<name>{$option}</name>
+												<value>{$value}</value>
+												<children_uri>{$rel_url}/workflow/select_collection.php?pid={$value}</children_uri>
+										</option>
+								{/if}
+						{/foreach}
+						<default_value>{$communities_list_selected}</default_value>
+				</display_type>
+		</parent_community>
+</bulk_move>

@@ -50,6 +50,12 @@ include_once(APP_INC_PATH . "class.author_affiliations.php");
 include_once(APP_INC_PATH . "class.xsd_display.php");
 include_once(APP_INC_PATH . "class.links.php");
 include_once(APP_INC_PATH . 'class.sherpa_romeo.php');
+include_once(APP_INC_PATH . 'class.api.php');
+
+// Viewing through the API. Make the autentication check for username
+if (APP_API) {
+    Auth::checkAuthentication(APP_SESSION, $failed_url = NULL, $is_popup = false);
+}
 
 $username = Auth::getUsername();
 $isAdministrator = Auth::isAdministrator();
@@ -196,6 +202,15 @@ if (!empty($pid) && $record->checkExists()) {
   }
 
   if (!is_numeric($xdis_id)) { // if still can't find the xdisplay id then ask for it
+    if (APP_API) {
+        $arr = API::makeResponse(
+          400,
+          "Incorrect display id.",
+          array('pid' => $pid)
+        );
+        API::reply(400, $arr, APP_API);
+        exit;
+    }
     Auth::redirect(APP_RELATIVE_URL . "select_xdis.php?return=view_form&pid=" . $pid . $extra_redirect, false);
   }
 
@@ -219,6 +234,7 @@ if (!empty($pid) && $record->checkExists()) {
 
   $canEdit = $record->canEdit(false);
   if ($canEdit == true) {
+    $tpl->assign("internal_notes", InternalNotes::readNote($pid));
     $canView = true;
   } else {
     $canView = $record->canView();
@@ -227,7 +243,17 @@ if (!empty($pid) && $record->checkExists()) {
   $tpl->assign("isViewer", $canView);
   if ($canView) {
     list($prev, $next) = RecordView::getNextPrevNavigation($pid);
-    $tpl->setTemplate("view.tpl.html");
+
+    if (APP_API) {
+        $tpl->setTemplate("view.tpl.xml");
+    } else {
+        $tpl->setTemplate('header.tpl.html');
+        $header = $tpl->getTemplateContents();
+        echo $header;
+        ob_flush();
+        flush();
+        $tpl->setTemplate("view.tpl.html");
+    }
 
     $ret_id = 3;
     $strict = false;
@@ -451,16 +477,21 @@ if (!empty($pid) && $record->checkExists()) {
     $record_view = new RecordView($record); // record viewer object
     $details = $record_view->getDetails();
   } else {
-    header("HTTP/1.0 403 Forbidden");
-    $tpl->setTemplate('header.tpl.html');
-    $header = $tpl->getTemplateContents();
-    echo $header;
-    ob_flush();
-    flush();
+    if (APP_API) {
+      API::reply(401, API::makeResponse(401, 'Not authorised'), APP_API);
+      exit;
+    } else {
+      header("HTTP/1.0 403 Forbidden");
+      $tpl->setTemplate('header.tpl.html');
+      $header = $tpl->getTemplateContents();
+      echo $header;
+      ob_flush();
+      flush();
 
-    $tpl->setTemplate("view.tpl.html");
-    $tpl->assign("show_not_allowed_msg", true);
-    $savePage = false;
+      $tpl->setTemplate("view.tpl.html");
+      $tpl->assign("show_not_allowed_msg", true);
+      $savePage = false;
+    }
   }
 
   //Direct link to solr for super admins
@@ -852,16 +883,26 @@ if (!empty($pid) && $record->checkExists()) {
 
   }
 } else {
-  header("Status: 404 Not Found");
-  $tpl->setTemplate('header.tpl.html');
-  $header = $tpl->getTemplateContents();
-  echo $header;
-  ob_flush();
-  flush();
+  if (APP_API) {
+    $arr = API::makeResponse(
+      404,
+      "Resource not found.",
+      array('pid' => $pid)
+    );
+    API::reply(404, $arr, APP_API);
+    exit;
+  } else {
+    header("Status: 404 Not Found");
+    $tpl->setTemplate('header.tpl.html');
+    $header = $tpl->getTemplateContents();
+    echo $header;
+    ob_flush();
+    flush();
 
-  $tpl->setTemplate("view.tpl.html");
-  $tpl->assign('not_exists', true);
-  $savePage = false;
+    $tpl->setTemplate("view.tpl.html");
+    $tpl->assign('not_exists', true);
+    $savePage = false;
+  }
 }
 
 

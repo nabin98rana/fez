@@ -35,7 +35,11 @@ include_once(APP_INC_PATH . "class.history.php");
 include_once(APP_INC_PATH . "class.db_api.php");
 
 $tpl = new Template_API();
-$tpl->setTemplate("history.tpl.html");
+if (APP_API) {
+    $tpl->setTemplate("history.tpl.xml");
+} else {
+    $tpl->setTemplate("history.tpl.html");
+}
 
 $isUser = Auth::getUsername();
 
