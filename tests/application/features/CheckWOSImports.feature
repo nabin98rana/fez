@@ -32,8 +32,8 @@ Feature: WOS imports. Check imports from wos work correctly
     And I should see "eng"
     And I should see "malt"
     And I should see "sweet wort"
-    And I should see "Hoff S."
-    And I should see "Lund M.N."
+    And I should see "Hoff, Signe"
+    And I should see "Lund, Marianne N."
     And I should see "Scopus Import"
     And I should see "10.1021/jf300749r"
 
@@ -65,8 +65,8 @@ Scenario: Delete WOS imports
     And I should see "eng"
     And I should see "malt"
     And I should see "sweet wort"
-    And I should see "Hoff S."
-    And I should see "Lund M.N."
+    And I should see "Hoff, Signe"
+    And I should see "Lund, Marianne N."
     And I should see "Scopus Import"
     And I should see "10.1021/jf300749r"
 
