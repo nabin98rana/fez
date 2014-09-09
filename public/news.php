@@ -53,7 +53,7 @@ $tpl->assign("isAdministrator", $isAdministrator);
 
 $allNews = User::isUserUPO($username) || $isAdministrator;
 $news = News::getList(2000, $allNews);
-$zf = new Fez_Filter_RichTextHtmlpurify();
+$zf = new Fez_Filter_RichTextHtmlpurifyWithLinks();
 $news = $zf->filter($news);
 $news_count = count($news);
 $tpl->assign("news", $news);
