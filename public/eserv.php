@@ -174,7 +174,7 @@ if (!empty($pid) && !empty($dsID)) {
 
 	if(APP_FEDORA_BYPASS != 'ON')
 	{
-	    if( $info['download_content_length'] == 0 )
+	    if( $info['download_content_length'] == 0 && $bookpage != true)
 		$not_exists = true;
 	}
 

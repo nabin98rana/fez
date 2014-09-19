@@ -98,7 +98,7 @@ class bookReaderPDFConverter
 
             foreach($datastreams as $ds)
             {
-                if($ds['MIMEType'] == 'application/pdf')
+                if($ds['MIMEType'] == 'application/pdf' || $ds['MIMEType'] == 'application/pdf;')
                 {
                     $q[] = array($pid, $srcURL .$ds['ID'], $convMeth);
                 }
