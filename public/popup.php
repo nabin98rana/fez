@@ -60,22 +60,21 @@ $isAdministrator = Auth::isAdministrator();
 $usr_id = Auth::getUserID();
 
 //Perform some input validation.
-
-if (array_key_exists('cat', $_REQUEST) && !$cat = Fez_Validate::run('Fez_Validate_Simpleparam', $_REQUEST["cat"])) {
+if (array_key_exists('cat', $_REQUEST) && !empty($_REQUEST["cat"]) && !$cat = Fez_Validate::run('Fez_Validate_Simpleparam', $_REQUEST["cat"])) {
     if (APP_API) {
         API::reply(400, API::makeResponse(400, "Parameter validation failed."), APP_API);
     }
     exit;
 }
 
-if (array_key_exists('dsID', $_REQUEST) && !$dsID = Fez_Validate::run('Fez_Validate_Dsid', $_REQUEST["dsID"])) {
+if (array_key_exists('dsID', $_REQUEST) && !empty($_REQUEST["dsID"]) && !$dsID = Fez_Validate::run('Fez_Validate_Dsid', $_REQUEST["dsID"])) {
     if (APP_API) {
         API::reply(400, API::makeResponse(400, "Parameter validation failed."), APP_API);
     }
     exit;
 }
 
-if (array_key_exists('pid', $_REQUEST) && !$pid = Fez_Validate::run('Fez_Validate_Pid', $_REQUEST['pid'])) {
+if (array_key_exists('pid', $_REQUEST) && !empty($_REQUEST["pid"]) && !$pid = Fez_Validate::run('Fez_Validate_Pid', $_REQUEST['pid'])) {
     if (APP_API) {
         API::reply(400, API::makeResponse(400, "Parameter validation failed."), APP_API);
     }
