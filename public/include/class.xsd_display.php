@@ -994,6 +994,26 @@ class XSD_Display
 			Citation::import($xdis, $xdis_id, $maps);
 		}
 	}
+
+    //Get all the valid xsd displays for a pid (Collection or community)
+    function getValidXSDDisplay($pid) {
+        $log = FezLog::get();
+        $db = DB_API::get();
+
+        $stmt = "SELECT rek_xsd_display_option, xdis_title FROM ". APP_TABLE_PREFIX ."record_search_key_xsd_display_option
+            INNER JOIN ".APP_TABLE_PREFIX."xsd_display ON
+            xdis_id = rek_xsd_display_option
+            WHERE xdis_enabled = 1 AND rek_xsd_display_option_pid =".$db->quote($pid) . " ORDER BY xdis_title";
+        try {
+            $res = $db->fetchPairs($stmt);
+        }
+        catch(Exception $ex) {
+            $log->err($ex);
+            return '';
+        }
+        return $res;
+
+    }
 }
 
 /**

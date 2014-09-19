@@ -376,7 +376,7 @@ class Lister
           $list = $list["list"];
 
           $tpl->assign("collection_pid", $collection_pid);
-          $childXDisplayOptions = Record::getSearchKeyIndexValue($collection_pid, "XSD Display Option");
+          $childXDisplayOptions = XSD_Display::getValidXSDDisplay($collection_pid);
 
           if (count($childXDisplayOptions) > 0) {
             $tpl->assign("childXDisplayOptions", $childXDisplayOptions);

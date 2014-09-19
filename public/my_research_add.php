@@ -45,6 +45,7 @@ include_once(APP_INC_PATH . "class.collection.php");
 include_once(APP_INC_PATH . "class.db_api.php");
 include_once(APP_INC_PATH . "class.pager.php");
 include_once(APP_INC_PATH . "class.my_research.php");
+include_once(APP_INC_PATH . "class.xsd_display.php");
 
 if (APP_MY_RESEARCH_MODULE != 'ON') {
 	die('Sorry - this module is not enabled.');
@@ -81,7 +82,7 @@ $tpl->assign("isUPO", $isUPO);
 
 $tpl->assign("active_nav", "my_fez");
 $tpl->assign("childXDisplayOptionsTop", Record::getSearchKeyIndexValue(APP_MY_RESEARCH_NEW_ITEMS_COLLECTION, "XSD Display Option", true, "", array('Book','Book Chapter','Journal Article','Conference Paper')));
-$tpl->assign("childXDisplayOptions", Record::getSearchKeyIndexValue(APP_MY_RESEARCH_NEW_ITEMS_COLLECTION, "XSD Display Option"));
+$tpl->assign("childXDisplayOptions", XSD_Display::getValidXSDDisplay(APP_MY_RESEARCH_NEW_ITEMS_COLLECTION));
 $tpl->assign("acting_user", $actingUserArray);
 $tpl->assign("actual_user", $username);
 
@@ -90,5 +91,3 @@ if (MyResearch::getHRorgUnit($username) == "" && !$isUPO) {
 }
 
 $tpl->displayTemplate();
-
-?>
