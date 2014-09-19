@@ -90,6 +90,20 @@
 		    		{/section}
 				{/if}
 			{/if}
+
+            {* for theses, set publisher to institution, faculty and school - 20100210heaphey; 20101217bhoughto *}
+            {if $list[0].rek_display_type_lookup == "Thesis"}
+                {if $list[0].rek_org_name}
+                    {if !is_array($list[0].rek_org_name)}
+                         <dc:publisher>{$list[0].rek_org_name}{if ($list[0].rek_org_name && $list[0].rek_faculty)}, {/if}{$list[0].rek_faculty}{if (($list[0].rek_org_name || $list[0].rek_org_unit_name) && $list[0].rek_org_unit_name)}, {/if}{$list[0].rek_org_unit_name}</dc:publisher>
+                    {else}
+                        {assign var="loop_org_name" value=$list[0].rek_org_name}
+                        {section name="s" loop=$loop_org_name}
+                            <dc:publisher>{$list[0].rek_org_name[0]}{if ($list[0].rek_org_name && $list[0].rek_faculty)}, {/if}{$list[0].rek_faculty}{if (($list[0].rek_org_name || $list[0].rek_org_unit_name) && $list[0].rek_org_unit_name)}, {/if}{$list[0].rek_org_unit_name[s]}</dc:publisher>
+                        {/section}
+                    {/if}
+                {/if}
+            {/if}
 			{if $list[0].rek_publisher}
 				{if !is_array($list[0].rek_publisher)}
 	            	<dc:publisher>{$list[0].rek_publisher}</dc:publisher>
