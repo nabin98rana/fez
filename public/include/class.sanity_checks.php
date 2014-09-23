@@ -106,6 +106,9 @@ class SanityChecks
             $results = array_merge($results, SanityChecks::fedora());
             $results = array_merge($results, SanityChecks::fedoraDirect());
         }
+        if (APP_SOLR_SWITCH == "ON"){
+            $results = array_merge($results, SanityChecks::solr());
+        }
         $results = array_merge($results, SanityChecks::sql());
         $results = array_merge($results, SanityChecks::pdftotext());
         $results = array_merge($results, SanityChecks::stats());
@@ -553,6 +556,20 @@ class SanityChecks
         }
         if (SanityChecks::resultsClean($results)) {
             $results[] = ConfigResult::messageOk('All Fedora Direct Access tests passed');
+        }
+        return $results;
+    }
+
+    function solr()
+    {
+        $url = "http://" . APP_SOLR_HOST . ":" . APP_SOLR_PORT . APP_SOLR_PATH;
+        $results = array(ConfigResult::message('Testing Solr'));
+        $results = array_merge($results, SanityChecks::checkHTTPConnect('APP_SOLR_SWITCH', $url ));
+        $advice = 'Check that solr is running and that it is correctly configured in fez (/manage/configuration.php > Solr Settings)';
+        if (SanityChecks::resultsClean($results)) {
+            $results[] = ConfigResult::messageOk('All Solr tests passed');
+        } else {
+            $results[] = ConfigResult::message($advice);
         }
         return $results;
     }
