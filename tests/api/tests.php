@@ -196,41 +196,15 @@ class SimpleXMLExtended extends SimpleXMLElement
 }
 
 
-function transposeXML()
-{
-    $sxml = new SimpleXmlElement(readContent('./fixtures/full_edit_record.xml'));
 
-    $newxml = new SimpleXMLExtended('<workflow><xsd_display_fields></xsd_display_fields></workflow>');
+//$response = get('cdu:38166');
+$pid = 'cdu:38166';
+$username = 'test_editor';
+$password = 'admin';
+$response = get($pid, $type='record', $format='xml', $parse=false, $username, $password);
 
-
-    foreach ($sxml->xsd_display_fields->xsd_display_field as $field) {
-        if ((int)$field->xsdmf_required == 1) {
-            $xsdf = $newxml->xsd_display_fields->addChild('xsd_display_field');
-            $xsdf->addChild('xsdmf_id', (int)$field->xsdmf_id);
-
-            echo (string)$field->xsdmf_html_input . "\r\n";
-            echo (string)$field->xsdmf_title . "\r\n" . "\r\n";
-
-            // Get the id, look at the html input type and add in values based on that
-            // Take these new xsdmf_fields and add them to a workflow>xsd_display_fields xml object
-            if ((string)$field->xsdmf_html_input == 'multiple' && $field->xsdmf_title == 'Member of Collections:') {
-                $xsdf->addChild('xsdmf_value', 'cdu:29713');
-                $xsdf->addChild('xsdmf_value', 'cdu:29181');
-                $xsdf->addChild('xsdmf_value', 'cdu:23790');
-            } elseif ((string)$field->xsdmf_html_input == 'checkbox') {
-                $xsdf->addChild('xsdmf_value', '1');
-            } elseif ((string)$field->xsdmf_html_input == 'contvocab_selector' && $field->xsdmf_title == "Subjects") {
-                $xsdf->addChild('xsdmf_value', 'cdu:29713'); // Probably not a valid subject
-            } elseif ((string)$field->xsdmf_html_input == 'textarea') {
-                $xsdff = $xsdf->addChild('xsdmf_value');
-                $xsdff->addCData('This is a bunch of text');
-            }
-        }
-    }
-
-    return $newxml;
-}
-
-$t = transposeXML();
-echo $t->asXML();
-// Add anything else to the xml you need
+$str = $response->raw_body;
+echo $str . PHP_EOL;
+//error_reporting(E_ALL ^ E_NOTICE ^ E_STRICT);
+//ini_set("display_errors", 1);
+//$sxml = new SimpleXMLElement($str);

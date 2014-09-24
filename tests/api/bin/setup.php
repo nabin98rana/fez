@@ -10,4 +10,4 @@
 // setting up the roles.
 
 require_once(__DIR__ . '/../setuplib.php');
-setup($ignoreroles=false, $solrindex=true);
+setup($ignoreroles=false, $solrindex=true, $verbose=true);

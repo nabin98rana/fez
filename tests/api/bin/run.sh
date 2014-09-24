@@ -1,3 +1,3 @@
 #!/bin/bash
 
-../behat/bin/behat --ansi $* </dev/null
+../behat/bin/behat $* </dev/null

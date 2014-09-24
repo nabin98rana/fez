@@ -106,9 +106,9 @@ Feature: moderating records
   @junk-action-no-xdis-id
   Scenario: I shouldn't be able to send the server junk parameters.
     Given I'm an editor
-    When starting a new record workflow for collection in: public_community
-    When I try to do a workflow with bad display id parameter
-    Then the http status should be 500
+    When starting a new record workflow with bad display id
+    Then I should get xml
+    Then the http status should be 400
 
   # Trying to publish
   # Note: Currently when you send a publish workflow value fez goes through the steps to publish, ie. save new record then publish new record. It'll do the save record step, then fail out on the workflow publish step.

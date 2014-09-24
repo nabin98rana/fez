@@ -33,6 +33,12 @@ define('BEHAT_ERROR_REPORTING', E_ERROR | E_WARNING | E_PARSE);
 class FeatureContext extends BehatContext
 {
 
+    // Should be same as $this->VERBOSE (for access by static methods).
+    // 
+    // @see _constructor
+
+    public static $VERBOSE = false;
+
     /**
      * @BeforeFeature
      */
@@ -40,8 +46,8 @@ class FeatureContext extends BehatContext
     {
         // Create test users/groups if not there, etc etc.
         // Don't do reindex solr, too expensive.
-        echo "beforeFeature: running setup..." . PHP_EOL;
-        setup($ignoreroles=false, $solrindex=false);
+        if (self::$VERBOSE) echo "beforeFeature: running setup..." . PHP_EOL;
+        setup($ignoreroles=false, $solrindex=false, self::$VERBOSE);
     }
 
     /**
@@ -97,6 +103,12 @@ class FeatureContext extends BehatContext
         } else {
             $this->VERBOSE = false;
         }
+        self::$VERBOSE = $this->VERBOSE;
+
+        if ($this->VERBOSE) {
+            error_reporting(E_ALL ^ E_NOTICE);
+            ini_set("display_errors", 1);
+        }
 
         // Set some convenience variables...
 
@@ -151,6 +163,7 @@ class FeatureContext extends BehatContext
     public function get($uri)
     {
         if ($this->VERBOSE) {
+            echo "============================================================" . PHP_EOL;
             echo "* GET $uri" . PHP_EOL;
             echo "* basic auth: " . $this->username . "/" . $this->password . PHP_EOL;
         }
@@ -169,6 +182,7 @@ class FeatureContext extends BehatContext
     public function getDownload($uri)
     {
         if ($this->VERBOSE) {
+            echo "============================================================" . PHP_EOL;
             echo "* GET download $uri" . PHP_EOL;
             echo "* basic auth: " . $this->username . "/" . $this->password . PHP_EOL;
         }
@@ -187,6 +201,7 @@ class FeatureContext extends BehatContext
     public function post($uri, $body, $attachment = null, $handle_response = true)
     {
         if ($this->VERBOSE) {
+            echo "============================================================" . PHP_EOL;
             echo "* POST $uri" . PHP_EOL;
             echo "* basic auth: " . $this->username . "/" . $this->password . PHP_EOL;
         }
@@ -214,16 +229,16 @@ class FeatureContext extends BehatContext
     private function _handle_response()
     {
         $this->response_raw = $this->response->raw_body;
-        $this->actions = c\get_actions($this->response_raw);
         try {
             if ($this->VERBOSE) {
                 $this->response_sxml = new SimpleXMLExtended($this->response->raw_body);
                 echo "VERBOSE output START: showing RESPONSE -------------" . PHP_EOL;
                 echo self::indentXML($this->response_sxml) . PHP_EOL;
-                echo "VERBOSE output STOP --------------------------------" . PHP_EOL;
+                echo "VERBOSE output END --------------------------------" . PHP_EOL;
             } else {
                 $this->response_sxml = @new SimpleXMLExtended($this->response->raw_body);
             }
+            $this->actions = c\get_actions($this->response_raw);
         } catch (Exception $e) {
             $this->response_sxml    = NULL;
             if ($this->VERBOSE) {
@@ -232,7 +247,8 @@ class FeatureContext extends BehatContext
                 print_r($this->response_raw);
                 echo PHP_EOL . PHP_EOL . "Output: END" . PHP_EOL;
             }
-            throw new Exception("Got non-xml");
+            throw $e;
+            //throw new Exception("Got non-xml");
         }
 
         // TODO:
@@ -282,10 +298,9 @@ class FeatureContext extends BehatContext
         }
     }
 
-    // Hits enter_metadata to get a template for a new record and
-    // loads it into the client record class.
+    // Hits enter_metadata to get a template for a new record but nothing more.
 
-    private function _createUnsaveRecordForCollection($collection, $xdis_id)
+    private function _requestUnsavedRecordForCollection($collection, $xdis_id)
     {
         $this->workflow_new_params = array(
             'collection_pid' => $collection,
@@ -295,6 +310,14 @@ class FeatureContext extends BehatContext
         );
         $uri = $this->url . "/workflow/new.php?" . http_build_query($this->workflow_new_params);
         $this->get($uri);
+    }
+
+    // Hits enter_metadata to get a template for a new record and
+    // loads it into the client record class.
+
+    private function _createUnsaveRecordForCollection($collection, $xdis_id)
+    {
+        $this->_requestUnsavedRecordForCollection($collection, $xdis_id);
         return c\Record::createFromMetadataXml($this->response_raw);
     }
 
@@ -889,6 +912,16 @@ class FeatureContext extends BehatContext
                 $this->wfses_id = (int)$this->response_sxml->wfses_id;
             }
         }
+    }
+
+    /**
+     * @When /^starting a new record workflow with bad display id$/
+     */
+    public function newRecordWorkflowWithBadDisplayId()
+    {
+        $collection = $this->conf['public_community']['collection'];
+        $xdis_id = 0;
+        $this->_requestUnsavedRecordForCollection($collection, $xdis_id);
     }
 
     /**
