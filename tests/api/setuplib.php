@@ -22,12 +22,12 @@ require_once(APP_INC_PATH . "class.auth_index.php");
 // If you run solr, it may start indexing a whole lot of stuff,
 // and you'll need to wait for it to finish.
 
-function setup($ignoreroles=false, $solrindex=true)
+function setup($ignoreroles=false, $solrindex=true, $verbose=false)
 {
-    check_records();
-    setup_users();
+    check_records($verbose);
+    setup_users($verbose);
     if (!$ignoreroles) {
-        setup_roles($solrindex);
+        setup_roles($solrindex, $verbose);
     }
 }
 
@@ -81,7 +81,7 @@ function get_conf()
 //
 // Runs get_conf which will blow up if bad. 
 
-function check_records()
+function check_records($verbose = false)
 {
     list($conf, $dist, $users, $passwords, $groups) = get_conf();
     $memberof = function($pid, $colpid) {
@@ -102,6 +102,15 @@ function check_records()
     if (!isset($conf['public_community']['record'])) {
         throw new Exception("public_community.record not set in your conf.ini.");
     }
+    if (!isset($conf['public_community']['unpublished_record'])) {
+        throw new Exception("public_community.record not set in your conf.ini.");
+    }
+    if (!isset($conf['restricted_community']['record_with_multiple_collections'])) {
+        throw new Exception("restricted_community.record_with_multiple_collections not set in your conf.ini.");
+    }
+    if (!isset($conf['edit_security']['record'])) {
+        throw new Exception("edit_security.record not set in your conf.ini.");
+    }
 
     $ok = $memberof(
         $r = $conf['public_community']['record'],
@@ -117,13 +126,26 @@ function check_records()
     if (!$ok) {
         throw new Exception("restricted community: record $r not in $c");
     }
+    $ok = $memberof(
+        $r = $conf['public_community']['unpublished_record'],
+        $c = $conf['public_community']['collection']
+    );
+    if (!$ok) {
+        throw new Exception("public community: unpublished_record $r not in $c");
+    }
+
+    // Make the unpublished record unpublished...
+    $pid = $conf['public_community']['unpublished_record'];
+    $rec = new RecordObject($pid);
+    $rec->setStatusId(4);
 
 
 }
 
+
 // Create test users and groups in fez.
 
-function setup_users()
+function setup_users($verbose = false)
 {
 
     list($conf, $dist, $users, $passwords, $groups) = get_conf();
@@ -143,7 +165,7 @@ function setup_users()
         if (Group::getID($groupname)) {
             //echo "FOUND test group $groupname" . PHP_EOL;
         } else {
-            echo "CREATING test group $groupname" . PHP_EOL;
+            if ($verbose) echo "CREATING test group $groupname" . PHP_EOL;
             $_POST['users'] = null;
             $_POST['title'] = $groupname;
             $_POST['status'] = 'active';
@@ -175,10 +197,14 @@ function setup_users()
         $_POST['email'] = $username . "@example.com";
         $_POST['full_name'] = "$role $username";
         $_POST['family_name'] = "$username";
-        if (User::getUserIDByUsername($username)) {
-            //echo "FOUND test user $role/$username" . PHP_EOL;
+        $_POST['change_password'] = true;
+        if ($id = User::getUserIDByUsername($username)) {
+            //echo "id is $id" . PHP_EOL;
+            $_POST['id'] = $id;
+            if ($verbose) echo "Updating user $role/$username" . PHP_EOL;
+            $res = User::update($_POST['super_administrator']);
         } else {
-            echo "CREATING user $username ($role)" . PHP_EOL;
+            if ($verbose) echo "CREATING user $username ($role)" . PHP_EOL;
             $res = User::insert(); //var_export($res);
         }
     }
@@ -197,12 +223,12 @@ function setup_users()
             //echo "Associating $username with group $groupname... " ;
             //echo "ALREADY DONE" . PHP_EOL;
         } else {
-            echo "Associating $username with group $groupname... " ;
+            if ($verbose) echo "Associating $username with group $groupname... " ;
             $res = Group::associateUser($gid, $uid);
             if ($res) {
-                echo "DONE" . PHP_EOL;
+                if ($verbose) echo "DONE" . PHP_EOL;
             } else {
-                echo "NOT DONE" . PHP_EOL;
+                if ($verbose) echo "NOT DONE" . PHP_EOL;
             }
         }
     }
@@ -217,7 +243,7 @@ function setup_users()
 //
 // Based on checkQuickAuthFezACML (class.record.php) .
 
-function setup_roles($solrindex = true)
+function setup_roles($solrindex = true, $verbose = false)
 {
     list($conf, $dist, $users, $passwords, $groups) = get_conf();
 
@@ -244,21 +270,36 @@ function setup_roles($solrindex = true)
         }
     }
 
-    //echo '-- setting up restricted community roles' . PHP_EOL;
-    $pid = $conf['restricted_community']['community'];
-    assign_roles_to_pid($pid, $roles, false, $solrindex);
+    // Solr indexing is recursive by default and will take time if
+    // we do this on a community or collection.
+    // So we'll index the records.
 
-    //echo '-- setting up restricted collection roles' . PHP_EOL;
-    $pid = $conf['restricted_community']['collection'];
-    assign_roles_to_pid($pid, $roles, false, $solrindex);
-
-    //echo '-- setting up public collection roles' . PHP_EOL;
-    $pid = $conf['public_community']['collection'];
-    assign_roles_to_pid($pid, $public_roles, false, $solrindex);
-
-    //echo '-- setting up public record roles' . PHP_EOL;
+    if ($verbose) echo 'Setting up public record roles' . PHP_EOL;
     $pid = $conf['public_community']['record'];
-    assign_roles_to_pid($pid, array(), true, $solrindex);
+    assign_roles_to_pid($pid, array(), true, $solrindex, $verbose);
+
+    if ($verbose) echo 'Setting up unpublished record roles' . PHP_EOL;
+    $pid = $conf['public_community']['unpublished_record'];
+    assign_roles_to_pid($pid, array(), true, $solrindex, $verbose);
+
+    if ($verbose) echo 'Setting up restricted record roles' . PHP_EOL;
+    $pid = $conf['restricted_community']['record'];
+    assign_roles_to_pid($pid, $roles, false, $solrindex, $verbose);
+
+    if ($verbose) echo 'Setting up restricted record roles' . PHP_EOL;
+    $pid = $conf['restricted_community']['record_with_multiple_collections'];
+    assign_roles_to_pid($pid, $roles, false, $solrindex, $verbose);
+
+    if ($verbose) echo 'Setting up restricted record roles' . PHP_EOL;
+    $pid = $conf['edit_security']['record'];
+    assign_roles_to_pid($pid, $roles, false, $solrindex, $verbose);
+
+    if (isset($conf['laal']['record'])) {
+        if ($verbose) echo 'Setting up restricted record roles' . PHP_EOL;
+        $pid = $conf['laal']['record'];
+        assign_roles_to_pid($pid, $roles, false, $solrindex, $verbose);
+    }
+
 
 }
 
@@ -266,15 +307,17 @@ function setup_roles($solrindex = true)
 //
 // @param array $roles same format as make_fezacml_template
 
-function assign_roles_to_pid($pid, array $roles, $inherit = false, $solrindex = true)
+function assign_roles_to_pid($pid, array $roles, $inherit = false, $solrindex = true, $verbose = false)
 {
     $xml = make_fezacml_template($roles, $inherit);
+    if ($verbose) echo "- $pid updating fezacml in fedora" . PHP_EOL;
     Fedora_API::callModifyDatastreamByValue(
         $pid, 'FezACML',
         'A', 'Fez Access Control Markup Language',
         $xml, 'text/xml', true
     );
     if ($solrindex) {
+        if ($verbose) echo "- $pid indexing in solr" . PHP_EOL;
         AuthIndex::setIndexAuth($pid, true);
     }
 }

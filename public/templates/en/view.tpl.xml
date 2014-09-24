@@ -38,15 +38,11 @@
                         <w_title>
                             {$workflows[w].wfl_title}
                         </w_title>
-                        <w_url>
-                            {$wf_url}?pid={$pid}&amp;cat=select_workflow&amp;xdis_id={$xdis_id}&amp;wft_id={$workflows[w].wft_id}&amp;href={$smarty.server.REQUEST_URI}
-                        </w_url>
+                        <w_url><![CDATA[{$wf_url}?pid={$pid}&amp;cat=select_workflow&amp;xdis_id={$xdis_id}&amp;wft_id={$workflows[w].wft_id}&amp;href={$smarty.server.REQUEST_URI}]]></w_url>
                     {/if}
                     </workflow>
                 {/section}
-                <workflow_option_url>
-                    {$rel_url}workflow/list_workflows2.php?pid={$pid}&amp;href={$smarty.server.REQUEST_URI|smarty:nodefaults|escape:url}
-                </workflow_option_url>
+                <workflow_option_url><![CDATA[{$rel_url}workflow/list_workflows2.php?pid={$pid}&amp;href={$smarty.server.REQUEST_URI|smarty:nodefaults|escape:url}]]></workflow_option_url>
             {/if}
         {/if}
     {/if}
@@ -206,11 +202,7 @@
                     {*<selected>{$created_dates_list[versions].selected}</selected>*}
                     <date>{$created_dates_list[versions].fedoraDate}</date>
                     <display_date>{$created_dates_list[versions].displayDate}</display_date>
-                    <view_uri>
-                        <![CDATA[
-                            {$rel_url}view/{$pid}?version_date={$created_dates_list[versions].fedoraDate}&version_view_type=FILTERED
-                        ]]>
-                    </view_uri>
+                    <view_uri><![CDATA[{$rel_url}view/{$pid}?version_date={$created_dates_list[versions].fedoraDate}&version_view_type=FILTERED]]></view_uri>
                 </version>
             {/if}
         {/section}
@@ -229,14 +221,8 @@
         <citation_thomson_count>
             {$citationsThomson}
         </citation_thomson_count>
-        <citation_thomson_article>
-            {$app_link_prefix}http://gateway.isiknowledge.com/gateway/Gateway.cgi?GWVersion=2&SrcApp=resolve1&DestLinkType=FullRecord&DestApp=WOS_CPL&KeyUT={$ThomsonID}&SrcAuth={$WOK_USERNAME}
-        </citation_thomson_article>
-        <citation_thomson>
-            {if $citationsThomson != 0}
-                {$app_link_prefix}http://gateway.isiknowledge.com/gateway/Gateway.cgi?GWVersion=2&SrcApp=resolve1&DestLinkType=CitingArticles&DestApp=WOS_CPL&KeyUT={$ThomsonID}&SrcAuth={$WOK_USERNAME}
-            {/if}
-        </citation_thomson>
+        <citation_thomson_article><![CDATA[{$app_link_prefix}http://gateway.isiknowledge.com/gateway/Gateway.cgi?GWVersion=2&SrcApp=resolve1&DestLinkType=FullRecord&DestApp=WOS_CPL&KeyUT={$ThomsonID}&SrcAuth={$WOK_USERNAME}]]></citation_thomson_article>
+        <citation_thomson>{if $citationsThomson != 0}<![CDATA[{$app_link_prefix}http://gateway.isiknowledge.com/gateway/Gateway.cgi?GWVersion=2&SrcApp=resolve1&DestLinkType=CitingArticles&DestApp=WOS_CPL&KeyUT={$ThomsonID}&SrcAuth={$WOK_USERNAME}]]>{/if}</citation_thomson>
         {/if}
     {if $citationsScopus != ''}
         <citation_scopus_history>
@@ -245,21 +231,11 @@
         <citation_scopus_count>
             {$citationsScopus}
         </citation_scopus_count>
-        <citation_scopus_article>
-            {$app_link_prefix}http://www.scopus.com/record/display.url?eid={$ScopusID}&origin=inward
-        </citation_scopus_article>
-        <citation_scopus>
-            {if $citationsScopus != 0}
-                {$app_link_prefix}http://www.scopus.com/results/citedbyresults.url?sort=plf-f&cite={$ScopusID}&src=s&sot=cite&sdt=a
-            {/if}
-        </citation_scopus>
+        <citation_scopus_article><![CDATA[{$app_link_prefix}http://www.scopus.com/record/display.url?eid={$ScopusID}&origin=inward]]></citation_scopus_article>
+        <citation_scopus>{if $citationsScopus != 0}<![CDATA[{$app_link_prefix}http://www.scopus.com/results/citedbyresults.url?sort=plf-f&cite={$ScopusID}&src=s&sot=cite&sdt=a]]>{/if}</citation_scopus>
     {/if}
     {if $isUser && ($useGoogleCitationCounts == "ON")}
-        <citation_google_url>
-            {if $citationsGoogle != ''}
-                {$citationsGoogleLink}
-            {/if}
-        </citation_google_url>
+        <citation_google_url>{if $citationsGoogle != ''}<![CDATA[{$citationsGoogleLink}]]>{/if}</citation_google_url>
         <citation_google_count>
             {$citationsGoogle}
         </citation_google_count>
@@ -274,7 +250,7 @@
                 {* <!--fez:statsDownloads--> <!--/fez:statsDownloads-->*}
                 {if $fileCount > 0}{$statsFiles}{/if}
             </citation_downloads>
-            <access_details_url> {$rel_url}stat_details.php?action=show_detail&amp;pid={$pid} </access_details_url>
+            <access_details_url><![CDATA[{$rel_url}stat_details.php?action=show_detail&amp;pid={$pid}]]></access_details_url>
         </citation_access_stats>
     {/if}
 </citation_statistics>
