@@ -237,7 +237,11 @@ if ($access_ok) {
 
     $tpl->assign("isCreator", 1);
     if (!is_numeric($xdis_id)) { // if still can't find the xdisplay id then ask for it
-        Auth::redirect(APP_RELATIVE_URL . "select_xdis.php?return=insert_form".$extra_redirect, false);
+        if (APP_API) {
+            header("Location: ".APP_RELATIVE_URL."select_xdis.php?return=insert_form" . $extra_redirect);
+        } else {
+            Auth::redirect(APP_RELATIVE_URL . "select_xdis.php?return=insert_form".$extra_redirect, false);
+        }
     }
     $tpl->assign("xdis_id", $xdis_id);
     $tpl->assign("xdis_title", $xdis_title);
