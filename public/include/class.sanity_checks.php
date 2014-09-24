@@ -563,8 +563,10 @@ class SanityChecks
         $db = DB_API::get();
 
         $results = array(ConfigResult::message('Testing SQL'));
-        list($server, $port) = explode(':', APP_SQL_DBHOST);
-        if (empty($port)) {
+        $server = APP_SQL_DBHOST;
+        if (defined('APP_SQL_DBPORT')) {
+            $port = APP_SQL_DBPORT;
+        } else {
             $port = '3306';
         }
         $results = array_merge($results, SanityChecks::checkConnect('APP_SQL_DBHOST', $server . ':' . $port));
