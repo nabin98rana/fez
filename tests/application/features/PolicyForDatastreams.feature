@@ -176,6 +176,7 @@ Feature: Check datastream policy works correctly
     And I fill in "Search Entry" with "title:(\"Test Title Datastream policy 4\")"
     And I press "search_entry_submit"
     And I follow "Test Title Datastream policy 4"
+    And I follow "More options"
     And I follow "Update Selected Record - Generic"
     And I follow "Edit Security for Selected Datastream"
     Given I choose the "Unit Publication Officers" group for the "Lister" role
