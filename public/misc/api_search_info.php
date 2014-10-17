@@ -56,7 +56,7 @@ if (User::isUserAdministrator($isUser)) {
     } else {
       $scopusService = new ScopusService(APP_SCOPUS_API_KEY);
 //    $result = $scopusService->getRecordByScopusId($query);
-      $query = array('query' => "(doctype(ar)+OR+doctype(cp)+OR+doctype(bk)+OR+doctype(ch)+OR+(doctype(re)+AND+srctype(j)))+title(\""
+      $query = array('query' => "(doctype(ar)+OR+doctype(cp)+OR+doctype(bk)+OR+doctype(ch)+OR+doctype(ip)+OR+(doctype(re)+AND+srctype(j)))+title(\""
         . urlencode(trim($scopus_query)) . "\")",
         'count' => $num_recs,
         'start' => 0,
