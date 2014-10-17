@@ -128,8 +128,8 @@ class RecordEditForm
             $tpl->assign('view_href', APP_RELATIVE_URL."view/$pid");
         }
 
-        $tpl->assign("eserv_url", APP_BASE_URL."eserv/".$pid."/");
-        $tpl->assign("local_eserv_url", APP_RELATIVE_URL."eserv/".$pid."/");
+        $tpl->assign("eserv_url", APP_BASE_URL."view/".$pid."/");
+        $tpl->assign("local_eserv_url", APP_RELATIVE_URL."view/".$pid."/");
         $tpl->assign("ds_get_path", APP_FEDORA_GET_URL."/".$pid."/");
         $tpl->assign("isEditor", 1);
         $tpl->assign("default_depositor_org_id", $this->default_depositor_org_id); // a flag to set to 1 later if the edit forms default depositor org id combo box was set due to it being empty - so need to show a "not saved message next to the control"

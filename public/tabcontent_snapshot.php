@@ -58,7 +58,7 @@ function displayRecentItems()
     $recentRecordsPIDs = Record::getRecentRecords();
     $list = Record::getDetailsLite($recentRecordsPIDs);
     $tpl->assign("list", $list);
-    $tpl->assign("eserv_url", APP_RELATIVE_URL."eserv/");
+    $tpl->assign("eserv_url", APP_RELATIVE_URL."view/");
     $tpl->displayTemplate();
 
 }

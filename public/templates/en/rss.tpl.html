@@ -34,7 +34,7 @@
 		{/if}
 		{section name="file_loop" loop=$list[i].rek_file_attachment_name}
 			{if $list[i].rek_file_attachment_name[file_loop]|contains:".pdf"}
-			<media:content url="{$app_base_url}eserv/{$list[i].rek_pid}/{$list[i].rek_file_attachment_name[file_loop]}" type="application/pdf" />
+			<media:content url="{$app_base_url}view/{$list[i].rek_pid}/{$list[i].rek_file_attachment_name[file_loop]}" type="application/pdf" />
 			{/if}
 		{/section}
 		

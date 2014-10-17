@@ -102,7 +102,7 @@ if ($browse == "top50authors") {
 $tpl->assign("thisYear", date("Y"));
 $tpl->assign("lastYear", date("Y")-1);
 
-$tpl->assign("eserv_url", APP_BASE_URL."eserv/");
+$tpl->assign("eserv_url", APP_BASE_URL."view/");
 $tpl->assign("list", $list);
 $tpl->assign("list_info", $list_info);
 

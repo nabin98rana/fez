@@ -59,7 +59,7 @@
 			{/if}
 		{/if}
 	        {assign var="loop_thumbnail" value=$list[i].thumbnail}
-	        <pa:thumbnail>{$app_base_url}eserv/{$list[i].rek_pid}/{$loop_thumbnail[0]}</pa:thumbnail>
+	        <pa:thumbnail>{$app_base_url}view/{$list[i].rek_pid}/{$loop_thumbnail[0]}</pa:thumbnail>
 		<dc:source>Item held by {$org_name}.</dc:source>
 	{/if}
 
@@ -210,7 +210,11 @@
                     </relatedInfo>
                 {/section}
             {/if}
-
+            {if $list[i].rek_related_publications}
+                  <relatedInfo type="publication">
+                      <notes>{$list[i].rek_related_publications}</notes>
+                  </relatedInfo>
+            {/if}
       {if $list[i].rek_author}
 				{assign var="loop_authors" value=$list[i].rek_author}
 				{section name="a" loop=$loop_authors}
@@ -516,9 +520,9 @@
             {assign var="loop_format" value=$list[i].rek_file_attachment_name}
             {section name="f" loop=$loop_format}
             {if $list[i].rek_datastream_is_public[f]}
-                <dc:identifier linktype="fulltext">{$app_base_url}eserv/{$list[i].rek_pid}/{$list[i].rek_file_attachment_name[f]}</dc:identifier>
+                <dc:identifier linktype="fulltext">{$app_base_url}view/{$list[i].rek_pid}/{$list[i].rek_file_attachment_name[f]}</dc:identifier>
             {elseif ($list[i].pid_type == "restricted")}
-                <dc:identifier linktype="restricted">{$app_base_url}eserv/{$list[i].rek_pid}/{$list[i].rek_file_attachment_name[f]}</dc:identifier>
+                <dc:identifier linktype="restricted">{$app_base_url}view/{$list[i].rek_pid}/{$list[i].rek_file_attachment_name[f]}</dc:identifier>
             {/if}
             {/section}
 		{/if}

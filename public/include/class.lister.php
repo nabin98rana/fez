@@ -1106,7 +1106,7 @@ class Lister
     $tpl->assign('sort_by_list', $sort_by_list);
     $tpl->assign("cycle_colours", "#FFFFFF," . "#" . APP_CYCLE_COLOR_TWO);
     $tpl->assign('sort_by_default', $sort_by);
-    $tpl->assign("eserv_url", APP_BASE_URL . "eserv/");
+    $tpl->assign("eserv_url", APP_BASE_URL . "view/");
     $tpl->assign('sort_order', $options["sort_order"]);
     $tpl->assign("list", $list);
     $tpl->assign("list_info", $list_info);

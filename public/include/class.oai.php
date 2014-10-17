@@ -216,7 +216,7 @@ class OAI
 						if ((!is_numeric(strpos($result['rek_'.$result['xsdmf_data_type']], "thumbnail_"))) && (!is_numeric(strpos($result['rek_'.$result['xsdmf_data_type']], "web_"))) && (!is_numeric(strpos($result['rek_'.$result['xsdmf_data_type']], "preview_"))) && (!is_numeric(strpos($result['rek_'.$result['xsdmf_data_type']], "presmd_"))) && (!is_numeric(strpos($result['rek_'.$result['xsdmf_data_type']], "FezACML_"))) )   {
 							if (!in_array($result['rek_'.$result['xsdmf_data_type']], $return[$result['rek_pid']]['File_Attachment'])) {
 								array_push($return[$result['rek_pid']]['File_Attachment'], $result['rek_'.$result['xsdmf_data_type']]);
-								$return[$result['rek_pid']]['oai_dc'] .=  '<dc:format>'.APP_BASE_URL.'eserv/'.$result['rek_pid'].'/'.$result['rek_'.$result['xsdmf_data_type']].'</dc:format>'."\n";
+								$return[$result['rek_pid']]['oai_dc'] .=  '<dc:format>'.APP_BASE_URL.'view/'.$result['rek_pid'].'/'.$result['rek_'.$result['xsdmf_data_type']].'</dc:format>'."\n";
 							}
 						}
 					}

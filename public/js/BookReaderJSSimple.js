@@ -25,7 +25,7 @@ br.getPageURI = function(index, reduce, rotate) {
     var leafStr = '0000';
     var imgStr = (index+1).toString();
     var re = new RegExp("0{"+imgStr.length+"}$");
-    var url = bookreaderConfig.host + 'eserv/' + bookreaderConfig.pid.replace('_',':') + '/' + bookreaderConfig.resource + '/' + bookreaderConfig.resource + '-'+leafStr.replace(re, imgStr) + '.jpg?bookpage=true';
+    var url = bookreaderConfig.host + 'view/' + bookreaderConfig.pid.replace('_',':') + '/' + bookreaderConfig.resource + '/' + bookreaderConfig.resource + '-'+leafStr.replace(re, imgStr) + '.jpg?bookpage=true';
     return url;
 }
 

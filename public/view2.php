@@ -113,8 +113,8 @@ $tpl->assign('spyglasshref', $spyglasshref);
 $tpl->assign('spyglassclick', $spyglassclick);
 
 $tpl->assign("fez_root_dir", APP_PATH);
-$tpl->assign("eserv_url", APP_BASE_URL . "eserv/" . $pid . "/");
-$tpl->assign("local_eserv_url", APP_BASE_URL . "eserv/" . $pid . "/");
+$tpl->assign("eserv_url", APP_BASE_URL . "view/" . $pid . "/");
+$tpl->assign("local_eserv_url", APP_BASE_URL . "view/" . $pid . "/");
 
 
 $debug = @$_REQUEST['debug'];
@@ -370,7 +370,7 @@ if (!empty($pid) && $record->checkExists()) {
                   $pathinfo = pathinfo($filename);
                   if (strtolower($pathinfo['extension']) == 'pdf') {
                     $fieldsOutputAlready[$fieldName] = $fieldName;
-                    $meta_head .= "<meta name=\"{$fieldName}\" content=\"" . htmlspecialchars(trim(APP_BASE_URL . "eserv/{$pid}/{$filename}"), ENT_QUOTES) . "\" />\n";
+                    $meta_head .= "<meta name=\"{$fieldName}\" content=\"" . htmlspecialchars(trim(APP_BASE_URL . "view/{$pid}/{$filename}"), ENT_QUOTES) . "\" />\n";
                   }
                 }
               }

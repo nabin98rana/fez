@@ -160,13 +160,13 @@
 
             {* Consideration: Possibly include if we can't view things? *}
             {if $datastreams[d].isViewer == 1 || $isAdministrator}
-                <href>{$rel_url}eserv/{$pid}/{$datastreams[d].ID}</href>
+                <href>{$rel_url}view/{$pid}/{$datastreams[d].ID}</href>
             {/if}
             {if ($datastreams[d].isArchivalViewer == 1 || $isAdministrator) && $datastreams[d].thumbnail != "0"}
-                <href>{$rel_url}eserv/{$pid}/{$datastreams[d].ID}</href>
+                <href>{$rel_url}view/{$pid}/{$datastreams[d].ID}</href>
             {/if}
             {if $datastreams[d].presmd != "0" && $datastreams[d].isViewer == 1 || $isAdministrator}
-                <preservation_metadata>{$rel_url}eserv/{$pid}/{$datastreams[d].presmd}</preservation_metadata>
+                <preservation_metadata>{$rel_url}view/{$pid}/{$datastreams[d].presmd}</preservation_metadata>
             {/if}
 
             {if ( ($datastreams[d].isEditor == 1) || $isAdministrator ) }

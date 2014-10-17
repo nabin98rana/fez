@@ -332,7 +332,7 @@ if (APP_FEDORA_BYPASS == 'ON') {
 
     $tpl->assign("datastreams", $datastreams);
     $tpl->assign("fez_root_dir", APP_PATH);
-    $tpl->assign("eserv_url", APP_BASE_URL."eserv/".$pid."/");
+    $tpl->assign("eserv_url", APP_BASE_URL."view/".$pid."/");
     $tpl->assign("local_eserv_url", APP_RELATIVE_URL."/".$pid."/");
     $tpl->assign('triggers', count(WorkflowTrigger::getList($pid)));
     $tpl->assign("ds_get_path", APP_FEDORA_GET_URL."/".$pid."/");

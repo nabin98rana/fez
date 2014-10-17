@@ -50,7 +50,7 @@ if (!Auth::isValidSession($session)) { // if user not already logged in
   }
   // Check if you even need authorisation for this - if not then just redirect to the eserv url without doing basic auth login
   if (Auth::checkAuthorisation($_GET['pid'], $_GET['dsid'], $acceptable_roles, $_SERVER['REQUEST_URI'], null, $ALLOW_SECURITY_REDIRECT) == true) {
-    header ("Location: https://".APP_HOSTNAME.APP_RELATIVE_URL."eserv/".$_GET['pid']."/".$_GET['dsid']);
+    header ("Location: https://".APP_HOSTNAME.APP_RELATIVE_URL."view/".$_GET['pid']."/".$_GET['dsid']);
     exit;
   }
 }
@@ -68,7 +68,7 @@ if (!isset($_SERVER['PHP_AUTH_USER'])) {
 			$pw = $_SERVER['PHP_AUTH_PW'];
 			if (Auth::isCorrectPassword($username, $pw)) {
 				Auth::LoginAuthenticatedUser($username, $pw, false);
-				header ("Location: https://".APP_HOSTNAME.APP_RELATIVE_URL."eserv/".$_GET['pid']."/".$_GET['dsid']);
+				header ("Location: https://".APP_HOSTNAME.APP_RELATIVE_URL."view/".$_GET['pid']."/".$_GET['dsid']);
 				exit;        		        			
 			} else {
 				header('WWW-Authenticate: Basic realm="'.APP_HOSTNAME.'"');

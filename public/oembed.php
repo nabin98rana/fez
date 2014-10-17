@@ -122,7 +122,7 @@ $oembed->addChild('publication_date', $item['rek_publication_date']);
 $oembed->addChild('publisher', $item['rek_publisher']);
 
 foreach ($item['rek_file_attachment_name'] as $file) {
-    $oembed->addChild('file', APP_BASE_URL."eserv/{$pid}/{$file}");
+    $oembed->addChild('file', APP_BASE_URL."view/{$pid}/{$file}");
 }
 
 if ($format == 'xml') {

@@ -144,7 +144,7 @@ if (!empty($pid) && !empty($dsID)) {
 			exit;
 		}
 		$dsID = str_replace("archival_", "", $dsID);
-		Auth::redirect(APP_BASE_URL."eserv/".$pid."/".$dsID);
+		Auth::redirect(APP_BASE_URL."view/".$pid."/".$dsID);
 	}
 
 	$is_video = 0;
