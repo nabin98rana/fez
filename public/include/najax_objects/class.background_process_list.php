@@ -19,7 +19,7 @@ class NajaxBackgroundProcessList {
     function getLog($bgp_id)
     {
         $result = BackgroundProcessList::getLog($bgp_id);
-        return nl2br(htmlspecialchars(wordwrap($result, 70, "\n", true)));
+        return nl2br(htmlspecialchars($result));
     }
     
     function getUserBgProcs()
