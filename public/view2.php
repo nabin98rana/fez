@@ -565,13 +565,16 @@ if (!empty($pid) && $record->checkExists()) {
       }
 
       if (!$doiInLinks && !empty($doi)) {
-        $linkCount++;
-        $links[$linkCount - 1]['rek_link'] = 'http://dx.doi.org/' . $doi;
-        $links[$linkCount - 1]['rek_link_description'] = 'Full text from publisher';
+          $linkCount++;
+          $newLink['rek_link'] = 'http://dx.doi.org/' . $doi;
+          $newLink['rek_link_description'] = 'Full text from publisher';
         if (APP_LINK_PREFIX != "") {
-          $links[$linkCount - 1]['prefix_location'] = APP_LINK_PREFIX . $links[$linkCount - 1]['rek_link'];
+            $newLink['prefix_location'] = APP_LINK_PREFIX . $newLink['rek_link'];
         }
+            array_unshift($links, $newLink);
       }
+
+
 
       $dob = new DSResource();
       $streams = $dob->listStreams($pid);
@@ -692,13 +695,15 @@ if (!empty($pid) && $record->checkExists()) {
           $tpl->assign('doi', $datastreams[$ds_key]);
         }
       }
+
       if (!$doiInLinks && !empty($doi)) {
         $linkCount++;
-        $links[$linkCount - 1]['rek_link'] = 'http://dx.doi.org/' . $doi;
-        $links[$linkCount - 1]['rek_link_description'] = 'Full text from publisher';
+        $newLink['rek_link'] = 'http://dx.doi.org/' . $doi;
+        $newLink['rek_link_description'] = 'Full text from publisher';
         if (APP_LINK_PREFIX != "") {
-          $links[$linkCount - 1]['prefix_location'] = APP_LINK_PREFIX . $links[$linkCount - 1]['rek_link'];
+            $newLink['prefix_location'] = APP_LINK_PREFIX . $newLink['rek_link'];
         }
+        array_unshift($links, $newLink);
       }
     }
 
