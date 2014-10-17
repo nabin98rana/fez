@@ -193,7 +193,7 @@ class Apache_Solr_Service
 	static public function escape($value)
 	{
 		//list taken from http://lucene.apache.org/java/docs/queryparsersyntax.html#Escaping%20Special%20Characters
-		$pattern = '/(\+|-|&&|\|\||!|\(|\)|\{|}|\[|]|\^|"|~|\*|\?|:|\\\)/';
+		$pattern = '/(\+|-|&&|\|\||!|\(|\)|\{|}|\/|\[|]|\^|"|~|\*|\?|:|\\\)/';
 		$replace = '\\\$1';
 
 		return preg_replace($pattern, $replace, $value);

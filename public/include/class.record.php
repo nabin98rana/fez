@@ -4582,9 +4582,9 @@ function getSearchKeyIndexValueShadow($pid, $searchKeyTitle, $getLookup=true, $s
 
       // Solr doesn't like unclosed brackets so if brackets don't match assume an simple search entering only part of a title etc so escape
       if (substr_count($escapedInput, '(') == substr_count($escapedInput, ')')) {
-          $pattern ='/(\+|-|&&|\|\||!|\{|}|\[|]|\^|"|~|\*|\?|:|\\\)(?!\))(?!\])/';
+          $pattern ='/(\+|-|&&|\|\||!|\{|}|\/|\[|]|\^|"|~|\*|\?|:|\\\)(?!\))(?!\])/';
       }else {
-          $pattern ='/(\+|-|&&|\(|\)|\|\||!|\{|}|\[|]|\^|"|~|\*|\?|:|\\\)(?!\))(?!\])/';
+          $pattern ='/(\+|-|&&|\(|\)|\|\||!|\{|}|\/|\[|]|\^|"|~|\*|\?|:|\\\)(?!\))(?!\])/';
       }
 
       //first escape everything
