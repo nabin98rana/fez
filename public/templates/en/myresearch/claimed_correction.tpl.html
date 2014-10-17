@@ -102,7 +102,7 @@ function submitForm()
                     return false;
                 }
                 //No need to check if HERDC since it's private
-                if (fileUploadType != 5) {
+                if (fileUploadType != 5 && fileUploadType != 8) {
                     $uploadFilename = $uploadFilename.replace(/^.*[\\\/]/, '');
                     $embargoDate = document.getElementsByName('embargo_date[' + index + ']')[0].value;
                     $embargoText = ($embargoDate) ? $embargoDate : 'Immediate';
@@ -112,7 +112,7 @@ function submitForm()
         }
 
         if (fileCheck != '') {
-            var fileCheck = 'The following files will be submitted as open access and will be made publicly available immediately or on the date nominated. Please click Cancel if you do not wish to proceed.<br />' + fileCheck + '<br /><br />All other files submitted will be accessible by UQ eSpace administrators and Unit Publications Officers only.';
+            var fileCheck = 'The following files will be submitted as open access and will be made publicly available immediately or on the date nominated. Please click Cancel if you do not wish to proceed.<br />' + fileCheck + '<br /><br />All other files submitted will be accessible by UQ eSpace administrators.';
             $('<div>' + fileCheck + '</div>').dialog({
               resizable: false,
               width: "450px",
@@ -261,7 +261,7 @@ $(document).ready(function(){
 	<input type="radio" name="type" id="rad-not-mine" value="rad-not-mine" onclick="javascript:toggleCorrections(); notMine('{$pid}');" /> This is not my record<br />
     <input type="radio" name="type" id="rad-dupe" value="rad-dupe" onclick="javascript:toggleCorrections();" /> I am the author of this publication, but the record is a duplicate<br />
 	<input type="radio" name="type" id="rad-fix" value="rad-fix" onclick="javascript:toggleCorrections();" /> I would like to report a problem<br />
-    <input type="radio" name="type" id="rad-upload" value="rad-upload" onclick="javascript:toggleCorrections();" {if $direct_link==attach}checked{/if}/> I would like to upload an Open Access or HERDC evidence file
+    <input type="radio" name="type" id="rad-upload" value="rad-upload" onclick="javascript:toggleCorrections();" {if $direct_link==attach}checked{/if}/> I would like to upload an Open Access file, HERDC evidence or an NTRO Research Statement
 
 </p>
 

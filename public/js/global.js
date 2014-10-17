@@ -29,13 +29,15 @@ function filePermissionsChange(descriptionNum) {
         if (document.getElementsByName('filePermissions[]')[descriptionNum].selectedIndex != 0) {
             if (document.getElementsByName('filePermissions[]')[descriptionNum].selectedIndex == 5) {
                 document.getElementsByName('description[' + descriptionNum + ']')[0].value = 'HERDC evidence - not publicly available';
+            } else if (document.getElementsByName('filePermissions[]')[descriptionNum].selectedIndex == 7) {
+                document.getElementsByName('description[' + descriptionNum + ']')[0].value = 'Non-traditional research output Research Statement - not publicly available';
             } else {
                 document.getElementsByName('description[' + descriptionNum + ']')[0].value = 'Full text (open access)';
             }
         }
     }
 
-    if (document.getElementsByName('filePermissions[]')[descriptionNum].selectedIndex == 5) {
+    if (document.getElementsByName('filePermissions[]')[descriptionNum].selectedIndex == 5 || document.getElementsByName('filePermissions[]')[descriptionNum].selectedIndex == 8) {
         document.getElementById('open_access_release_date[' + descriptionNum + ']').style.display = "none";
         document.getElementById('datepicker' + descriptionNum).value = '';
     } else {
@@ -51,12 +53,14 @@ function filePermissionsChangeNew(descriptionNum) {
         if (document.getElementById('filePermissionsNew['+ descriptionNum + ']').selectedIndex != 0) {
             if (document.getElementById('filePermissionsNew['+ descriptionNum + ']').selectedIndex == 5) {
                 document.getElementsByName('description[' + descriptionNum + ']')[0].value = 'HERDC evidence - not publicly available';
+            } else if (document.getElementById('filePermissionsNew['+ descriptionNum + ']').selectedIndex == 7) {
+                document.getElementsByName('description[' + descriptionNum + ']')[0].value = 'Non-traditional research output Research Statement - not publicly available';
             } else {
                 document.getElementsByName('description[' + descriptionNum + ']')[0].value = 'Full text (open access)';
             }
         }
     }
-    if (document.getElementById('filePermissionsNew['+ descriptionNum + ']').selectedIndex == 5) {
+    if (document.getElementById('filePermissionsNew['+ descriptionNum + ']').selectedIndex == 5 || document.getElementById('filePermissionsNew['+ descriptionNum + ']').selectedIndex == 8) {
         document.getElementById('open_access_release_date[' + descriptionNum + ']').style.display = "none";
         document.getElementById('datepickerSWFUpload_0_' + descriptionNum).value = '';
     } else {

@@ -737,7 +737,7 @@ function CheckFileClassifications()
                         return false;
                     }
                     //No need to check if HERDC since it's private
-                    if (fileUploadType != 5) {
+                    if (fileUploadType != 5 && fileUploadType != 8) {
                         $uploadFilename = $uploadFilename.replace(/^.*[\\\/]/, '');
                         $embargoDate = document.getElementsByName('embargo_date[' + index + ']')[0].value;
                         $embargoText = ($embargoDate) ? $embargoDate : 'Immediate';
@@ -747,7 +747,7 @@ function CheckFileClassifications()
             }
         }
         if (fileCheck != '') {
-            var fileCheck = 'The following files will be submitted as open access and will be made publicly available immediately or on the date nominated. Please click Cancel if you do not wish to proceed.<br />' + fileCheck + '<br /><br />All other files submitted will be accessible by UQ eSpace administrators and Unit Publications Officers only.';
+            var fileCheck = 'The following files will be submitted as open access and will be made publicly available immediately or on the date nominated. Please click Cancel if you do not wish to proceed.<br />' + fileCheck + '<br /><br />All other files submitted will be accessible by UQ eSpace administrators.';
             $('<div>' + fileCheck + '</div>').dialog({
                 resizable: false,
                 width: "450px",

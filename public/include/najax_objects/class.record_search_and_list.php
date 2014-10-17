@@ -18,7 +18,6 @@
         $list = Collection::searchListing($terms,0, 25, 'Relevance', 3);
         $res = array();
         foreach ($list['list'] as $item) {
-            //$record = new RecordObject($item['pid']);
             $text = $item['rek_title']; //$record->getCitation();
             $value = $item['rek_pid'];
             $res[] = compact('value','text');

@@ -53,10 +53,7 @@ $tpl->assign("type_name", "Select Group");
 $wfstatus = &WorkflowStatusStatic::getSession(); // restores WorkflowStatus object from the session
 
 $wfstatus->setTemplateVars($tpl);
-$cat = "";
-if (array_key_exists('cat', $_REQUEST)) {
-    $cat = $_REQUEST['cat'];
-}
+$cat = $_REQUEST['cat'];
 if ($cat == 'submit') {
     $wfstatus->assign('assign_grp_id',  $_REQUEST['grp_id']);
 }

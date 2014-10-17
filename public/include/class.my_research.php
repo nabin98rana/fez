@@ -463,14 +463,19 @@ class MyResearch
         }
 
         $listFiles = MyResearch::uploadFilesToPid($pid);
-        $accessMessage = "";
-        if (is_numeric(strpos($listFiles, '(open access)')) && is_numeric(strpos($listFiles, '(admin access)'))) {
-          $accessMessage = "(admin/open access)";
-        } elseif (is_numeric(strpos($listFiles, '(admin access)'))) {
-          $accessMessage = "(admin access)";
-        } elseif (is_numeric(strpos($listFiles, '(open access)'))) {
-          $accessMessage = "(open access)";
+
+        $accessMessage = "(";
+        if (is_numeric(strpos($listFiles, '(admin access)'))) {
+          $accessMessage .= " admin";
         }
+        if (is_numeric(strpos($listFiles, '(open access)'))) {
+          $accessMessage = " open";
+        }
+        if (is_numeric(strpos($listFiles, '(NTRO access)'))) {
+            $accessMessage = " NTRO";
+        }
+        $accessMessage .= ' access)';
+
         if (!empty($listFiles)) {
             $body .= "\n\n And the following files were attached:\n\n" . $listFiles;
             $subject = "My Research :: Claimed Publication with File Uploads ".$accessMessage." :: " . $jobID . " :: " . $pid . " :: " . $publishedDate . " :: " . $author;
@@ -849,14 +854,17 @@ class MyResearch
         $publishedDate = strftime("%Y", strtotime($publishedDate));
         $listFiles = MyResearch::uploadFilesToPid($pid);
 
-        $accessMessage = "";
-        if (is_numeric(strpos($listFiles, '(open access)')) && is_numeric(strpos($listFiles, '(admin access)'))) {
-          $accessMessage = "(admin/open access)";
-        } elseif (is_numeric(strpos($listFiles, '(admin access)'))) {
-          $accessMessage = "(admin access)";
-        } elseif (is_numeric(strpos($listFiles, '(open access)'))) {
-          $accessMessage = "(open access)";
+        $accessMessage = "(";
+        if (is_numeric(strpos($listFiles, '(admin access)'))) {
+            $accessMessage .= " admin";
         }
+        if (is_numeric(strpos($listFiles, '(open access)'))) {
+            $accessMessage = " open";
+        }
+        if (is_numeric(strpos($listFiles, '(NTRO access)'))) {
+            $accessMessage = " NTRO";
+        }
+        $accessMessage .= ' access )';
 
         $subject = "My Research :: File Uploads ".$accessMessage." :: " . $jobID . " :: " . $pid . " :: " . $publishedDate . " :: " . $author;
         $body = "Record: http://" . APP_HOSTNAME . APP_RELATIVE_URL . "view/" . $pid . "\n\n";
@@ -891,6 +899,9 @@ class MyResearch
                 if (($_POST['filePermissions'][$key] == 5) || !empty($_POST['embargo_date'][$key])) {
                   $fezACMLTemplateNum = 10;
                   $listFiles .= "(admin access)\n";
+                } else if(($_POST['filePermissions'][$key] == 8))  {
+                    $fezACMLTemplateNum = 11;
+                    $listFiles .= "(NTRO access)\n";
                 } else {
                   $fezACMLTemplateNum = NULL;
                   $listFiles .= "(open access)\n";

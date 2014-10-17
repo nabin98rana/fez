@@ -335,6 +335,7 @@ function swfuploaderAddDatatableEntry(entry) {
         <option label="Working/Technical Paper" value="4">Working/Technical Paper</option> \
         <option label="HERDC evidence (not open access- admin only)" value="5">HERDC evidence (not open access- admin only)</option> \
         <option label="Data Collection (Open Access)" value="6">Data Collection (Open Access)</option> \
+        <option label="Non-traditional research output Research Statement (Admin only)" value="8">Non-traditional research output Research Statement (Admin only)</option> \
         <option label="Other (any files not included in any of the above)" value="7">Other (any files not included in any of the above)</option> \
         </select>';
         var sizeCell = row.insertCell(2);

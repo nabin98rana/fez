@@ -130,6 +130,10 @@
                 <value>6</value>
             </field_option>
             <field_option>
+                <name>Non-traditional research output Research Statement (Admin only)</name>
+                <value>8</value>
+            </field_option>
+            <field_option>
                 <name>Other (any files not included in any of the above)</name>
                 <value>7</value>
             </field_option>
