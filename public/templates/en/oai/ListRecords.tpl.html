@@ -381,11 +381,11 @@
 	{* For Trove, to replace pa:thumbnail required by now-defunct Picture Australia, and resolve duplication issue their end *}
 	{if $list[i].thumbnail}
 		{if !is_array($list[i].thumbnail)}
-			<dc:identifier linktype="thumbnail">{$app_base_url}eserv/{$list[i].rek_pid}/{$loop_thumbnail[0]}</dc:identifier>
+			<dc:identifier linktype="thumbnail">{$app_base_url}view/{$list[i].rek_pid}/{$loop_thumbnail[0]}</dc:identifier>
 		{else}
 			{assign var="loop_thumbnail" value=$list[i].thumbnail}
 			{section name="s" loop=$loop_thumbnail}
-				<dc:identifier linktype="thumbnail">{$app_base_url}eserv/{$list[i].rek_pid}/{$loop_thumbnail[s]}</dc:identifier>
+				<dc:identifier linktype="thumbnail">{$app_base_url}view/{$list[i].rek_pid}/{$loop_thumbnail[s]}</dc:identifier>
 			{/section}
 		{/if}
 	{/if}
