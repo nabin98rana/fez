@@ -4,7 +4,7 @@
             <val name="UserName">{$username}</val>
             <val name="Password">{$password}</val>
             <val name="Type">{$type}</val>
-            <val name="Data"><![CDATA[{$request_data}]]></val>
+            <val name="Data"><![CDATA[{$request_data|smarty:nodefaults}]]></val>
         </list>
     </fn>
 </request>
