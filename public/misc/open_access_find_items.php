@@ -76,7 +76,7 @@ if ((php_sapi_name()==="cli") || 1) {
     foreach ($fedoraPids as $pid) {
         $pid = $pid['pid'];
         if ($status == Record::getSearchKeyIndexValue($pid, "Status", false)) {
-            $documentType = Record::getSearchKeyIndexValue($pid, "Genre", false);
+            $documentType = Record::getSearchKeyIndexValue($pid, "Display Type", false);
             $datastreams = Fedora_API::callGetDatastreams($pid);
             foreach ($datastreams as $datastream) {
                 if ($datastream['controlGroup'] == "M"
