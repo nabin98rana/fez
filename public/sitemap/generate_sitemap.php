@@ -38,7 +38,7 @@ require_once ('sitemap.php');
 define(BASE_URI, dirname(__FILE__).DIRECTORY_SEPARATOR);
 define(BASE_URL, 'http://'.APP_HOSTNAME.'/');
 
-if (php_sapi_name()==="cli" || 1) {
+if (php_sapi_name()==="cli") {
     echo "Script started: " . date('Y-m-d H:i:s') . "\n";
     flush();
     ob_flush();
@@ -64,6 +64,29 @@ if (php_sapi_name()==="cli" || 1) {
         //We'll tell google to check on pids updated lately(Past 4 weeks) sooner rather than later
         $changeFrequency = ($updated > strftime("%Y-%m-%d", time() - 60*60*24*7*4)) ? 'daily' : 'monthly';
         $url = 'view/'.$pid;
+        $sitemap->url($url, $updated, $changeFrequency);
+    }
+
+    //We'll also index user urls
+    $stmt = "(SELECT aut_mypub_url AS url, MAX(rek_updated_date) AS recent_date FROM " . APP_TABLE_PREFIX . "author
+            INNER JOIN " . APP_TABLE_PREFIX . "record_search_key_author_id ON rek_author_id = aut_id
+            INNER JOIN " . APP_TABLE_PREFIX . "record_search_key ON rek_pid = rek_author_id_pid
+            WHERE aut_mypub_url  IS NOT NULL AND aut_mypub_url != ''
+            GROUP BY aut_mypub_url)
+            UNION
+            (SELECT aut_org_username AS url, MAX(rek_updated_date) AS recent_date  FROM " . APP_TABLE_PREFIX . "author
+            INNER JOIN " . APP_TABLE_PREFIX . "record_search_key_author_id ON rek_author_id = aut_id
+            INNER JOIN " . APP_TABLE_PREFIX . "record_search_key ON rek_pid = rek_author_id_pid
+            WHERE aut_mypub_url IS  NULL OR aut_mypub_url = ''
+            GROUP BY aut_org_username);";
+    $userUrlList = $db->fetchAll($stmt);
+    echo "Adding " . count($userUrlList) . " user urls to the sitemap\n";
+    flush();
+    ob_flush();
+    foreach ($userUrlList as $userUrl) {
+        $changeFrequency = 'weekly';
+        $updated = $userUrl['recent_date'];
+        $url = $userUrl['url'];
         $sitemap->url($url, $updated, $changeFrequency);
     }
 
