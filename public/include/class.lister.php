@@ -144,7 +144,6 @@ class Lister
       7 => array('file' => 'endnote.tpl.html', 'title' => 'Export for Endnote'), //added for endnote - heaphey
       8 => array('file' => 'js.tpl.html', 'title' => 'HTML Code'), //added for js - heaphey
       9 => array('file' => 'msword.tpl.html', 'title' => 'Word File'), //added for word out - heaphey
-      10 => array('file' => 'grid.tpl.html', 'title' => 'Grid View'),
       11 => array('file' => 'xml_feed.tpl.xml', 'title' => 'JSON') //This will convert XML to json before displaying
     );
 
@@ -175,7 +174,7 @@ class Lister
     }
 
 
-    if (($tpl_idx != 0 && $tpl_idx != 10 && $tpl_idx != 4) || $isAdministrator || $isUPO) {
+    if (($tpl_idx != 0 && $tpl_idx != 4) || $isAdministrator || $isUPO) {
       $citationCache = false;
     } else {
       $citationCache = true;

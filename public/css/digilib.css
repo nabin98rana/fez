@@ -1,0 +1,15 @@
+#scanning {
+	width: 100%;
+}
+
+#scanning th {
+	padding: 3px;
+	text-align: left;
+	font-weight: bold;
+	background: lightgrey;
+}
+
+#scanning td, #scanning th {
+	padding: 3px;
+	border: 1px solid grey;
+}
