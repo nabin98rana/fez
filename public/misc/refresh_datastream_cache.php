@@ -30,6 +30,14 @@
 // | Authors: Andrew Martlew <a.martlew@library.uq.edu.au>                |
 // +----------------------------------------------------------------------+
 
+/*CREATE TABLE `fez_datastream_cache` (
+  `dc_pid` varchar(64) NOT NULL DEFAULT '',
+  `dc_dsid` varchar(255) NOT NULL DEFAULT '',
+  PRIMARY KEY (`dc_pid`,`dc_dsid`),
+  KEY `dsid` (`dc_dsid`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8
+*/
+
 include_once dirname(dirname(__FILE__)).DIRECTORY_SEPARATOR.'config.inc.php';
 
 include_once(APP_INC_PATH . "class.record.php");
