@@ -454,7 +454,7 @@
 	       {else}
             <td colspan="2" style="border-top:1px dashed #be87e9;">&nbsp;</td>
 	       {/if}
-	       <td align="left" valign="middle" style="border-top:1px dashed #be87e9; width: 100%;">
+	       <td align="center" valign="middle" style="border-top:1px dashed #be87e9; width: 100%;">
             {if $list[i].rek_thomson_citation_count != ""}
             	<a href="{$rel_url}rid_citation_count_history_{$list[i].rek_pid}" title="Cited {$list[i].rek_thomson_citation_count} times in Thomson Reuters Web of Science">{$list[i].rek_thomson_citation_count}</a>
             {elseif $list[i].rek_thomson_citation_count == 0}
@@ -463,7 +463,7 @@
             	&nbsp;
             {/if}
 		  </td>
-	       <td align="left"{if !$isUser && !$icon}colspan="2" {/if} valign="middle" style="border-top:1px dashed #be87e9; width: 100%;">
+	       <td align="center"{if !$isUser && !$icon}colspan="1" {/if} valign="middle" style="border-top:1px dashed #be87e9; width: 100%;">
             {if $list[i].rek_scopus_citation_count != ""}
             	<a href="{$rel_url}scopus_citation_count_history_{$list[i].rek_pid}" class="form_note"> <span class="form_note">Cited {$list[i].rek_scopus_citation_count} times in Scopus</span>{$list[i].rek_scopus_citation_count}</a>
             {elseif $list[i].rek_scopus_citation_count == 0}
@@ -473,7 +473,7 @@
             {/if}
 		  </td>
 		  {if $isUser && ($useGoogleCitationCounts == 'ON')}
-	       <td align="left"{if $icon}{else} colspan="2"{/if} valign="middle" style="border-top:1px dashed #be87e9; width: 100%;">
+	       <td align="center"{if $icon}{else} colspan="1"{/if} valign="middle" style="border-top:1px dashed #be87e9; width: 100%;">
             {if $list[i].rek_gs_citation_count != ""}
             	<a href="{$list[i].rek_gs_cited_by_link}" title="Cited {$list[i].rek_gs_citation_count} times in Google Scholar">{$list[i].rek_gs_citation_count}</a>
             {elseif $list[i].rek_gs_citation_count == 0}
@@ -484,9 +484,9 @@
 		  </td>
 		  {/if}
 
-        <td align="left"{if !$isUser && !$icon}colspan="2" {/if} valign="middle" style="border-top:1px dashed #be87e9; width: 100%;">
+        <td align="center"{if !$isUser && !$icon}colspan="1" {/if} valign="middle" style="border-top:1px dashed #be87e9; width: 100%;">
           {if $list[i].rek_altmetric_score != ""}
-            <a href="http://www.altmetric.com/details.php?citation_id={$list[i].rek_altmetric_id}">{$list[i].rek_altmetric_score}</a>
+            <a href="http://www.altmetric.com/details.php?citation_id={$list[i].rek_altmetric_id}" title="Altmetric score">{$list[i].rek_altmetric_score}</a>
           {elseif $list[i].rek_altmetric_score == 0}
             {$list[i].rek_altmetric_score}
           {else}
