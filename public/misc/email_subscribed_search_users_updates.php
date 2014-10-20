@@ -81,7 +81,7 @@ function main()
        $search = Lister::getList($params, false);
        if ($search[list_info][total_rows] > 0) {
            //echo $parsed_url." has ".$search[list_info][total_rows];
-          // Favourites::updateRecentItemDateSearch($alert[fvs_id]);
+           Favourites::updateRecentItemDateSearch($alert[fvs_id]);
            $link = $parsed_url['host'].$parsed_url['path']."?".http_build_query( $params );
            emailUser($link, $alert[usr_email], $alert[fvs_description] );
        }
