@@ -213,6 +213,80 @@ function setPage(new_page)
 				{*<input type="button" value="Delete" onclick="javascript:deleteMapping();" />*}
 			</div>
 		</form>
+	
+	{elseif $show == "new-screen"}
+	
+		{if $message != ""}
+		
+			<h1>Error</h1>
+			<p>{$message}</p>
+			
+		{else}
+		
+			<h1>New {if $match_type == 'C'}Conference{elseif $match_type == 'J'}Journal{/if} Mapping</h1>
+		
+			<div id="research-solo-citation">
+                {$citation|smarty:nodefaults}
+				<div style="display: block; font-size: 80%; padding-top: 15px;">[ <a href="{$rel_url}view/{$pid}" onclick="javascript:window.open('{$rel_url}view/{$pid}'); return false;">View the full record</a> ]</div>
+			</div>
+			
+			<form method="post" action="{$smarty.server.PHP_SELF}?type={$match_type}&amp;action=add" id="mappings">
+				<div>
+					
+					{if $mapping.status == 'A'}
+						<p>This record is <b>auto-mapped</b> by the Journal Matching script. To override, select Manual below, and set a new value from the drop-down list.</p>
+					{elseif $mapping.status == 'M'}
+						<p>This record is <b>manually mapped</b>. To restore this record to automatic script matching, select Auto below. The drop-down list value may be updated when the script next runs.</p>
+					{elseif $mapping.status == 'B'}
+						<p>This record is <b>black-listed</b>. It will be excluded from automatic matching.</p>
+					{/if}
+					
+                    <table>
+                        <tr>
+                          <td align="left" width="5%">
+                            {assign var="field_name_helper" value="xsd_display_fields_helper["|cat:$xsdmf.xsdmf_id|cat:"][]"}
+                            {assign var="field_id_helper" value="xsd_display_fields_helper_"|cat:$xsdmf.xsdmf_id|cat:"_0"}
+                            {assign var="field_name" value="xsd_display_fields["|cat:$xsdmf.xsdmf_id|cat:"][]"}
+                            {assign var="field_id" value="xsd_display_fields_"|cat:$xsdmf.xsdmf_id|cat:"_0"}
+                            <select id="matching_id" multiple size="20" class="default" name="matching_id[]">
+                            </select>
+                            {include file="error_icon.tpl.html" field=mapping_id}
+                          </td>
+                            <td align="left" style="vertical-align: 0;">
+                            <select id="matching_id_helper" multiple size="20" style="max-width:600px" class="default" name="matching_id_helper">
+                                {section name="i" loop=$list}
+                                    <option value="{$list[i].matching_id}">{$list[i].title|truncate:125:"...":true} &nbsp; ({$list[i].year}) &nbsp; {if $list[i].year == 2010}(Rank {$list[i].rank}){/if}</option>
+                                {/section}
+                            </select>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <input type="button" name="remove_left" value="Remove selected from left" onClick="javascript:deleteSelectedItemsFromList(this.form.matching_id);" />
+                            </td>
+                            <td>
+                                <input type="button" name="copy_left" value="Copy selected to left" onClick="javascript:addToParentList(this.form.matching_id_helper, this.form.matching_id);" />
+                            </td>
+                        </tr>
+                    </table>
+
+					<br /><br />
+					
+					<h2>Type</h2>
+					
+					<input type="radio" name="status" value="M" checked="checked" id="status_manual" /> Manual<br />
+					<input type="radio" name="status" value="B" onclick="javascript:blacklistConfirmNew();"/> Blacklist<br />
+					
+					<br />
+					
+					<input type="hidden" name="pid" value="{$pid}" />
+					<input type="hidden" name="type" value="{$match_type}" />
+					<input type="button" value="Add" onclick="javascript:add();" />
+				</div>
+			</form>
+		
+		{/if}
+	
 	{else}
 
 		<h1>Journal / Conference Matching</h1>
