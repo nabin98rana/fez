@@ -5,7 +5,6 @@
  * See: https://rnd.feide.no/content/idp-hosted-metadata-reference
  */
 
-//$metadata['urn:mace:federation.org.au:testfed:espace.library.uq.edu.au'] = array(
 $metadata['__DYNAMIC:1__'] = array(
 	/*
 	 * The hostname of the server (VHOST) that will use this SAML entity.

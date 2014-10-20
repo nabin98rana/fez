@@ -769,6 +769,7 @@ public static function multi_implode($glue, $pieces)
   }
 
   /**
+   * This may be broken see comment below
    * Method used to remove certain datastreams from the list of datastreams the user will see.
    *
    * @access  public
@@ -864,7 +865,7 @@ public static function multi_implode($glue, $pieces)
             $return[$key]['security'] = "inherit";
             $parentsACMLs = array();
           }
-          Auth::getIndexParentACMLMemberList($parentsACMLs, $key, $row['isMemberOf']);
+          //Auth::getIndexParentACMLMemberList($parentsACMLs, $key, $row['isMemberOf']);   //This function was broken so has been commented out
           $return[$key]['FezACML'] = $parentsACMLs;
 
         }

@@ -1087,7 +1087,7 @@ class DuplicatesReport {
 	{
 		$error = 0;
 		$datastreams = Fedora_API::callGetDatastreams($dup_record->pid);
-		$datastreams = Misc::cleanDatastreamList($datastreams);
+		$datastreams = Misc::cleanDatastreamList($datastreams); //This may have issues $datastreams seems wrong format
 
 		$links_xsdmf_id =  $dup_record->display->xsd_html_match->getXSDMF_ID_ByElementInSubElement(
 									'!datastream','Link','!datastream!datastreamVersion!contentLocation');
@@ -1590,7 +1590,6 @@ function authorShortWordsFilter($a)
 			$rec->markAsDeleted();
 			// set some history on the object
 			$wfl_id = $this->getWorkflowId();
-			$rec->tombstone($base_pid, $dup_pid);
 			History::addHistory($dup_pid, $wfl_id, "", "", false, '', "Marked Duplicate of ".$base_pid);
 			History::addHistory($base_pid, $wfl_id, "", "", true, '', "Resolved duplicate ".$dup_pid);
 
@@ -1651,7 +1650,7 @@ function authorShortWordsFilter($a)
 		$log = FezLog::get();
 
 		$datastreams = Fedora_API::callGetDatastreams($pid);
-		$datastreams = Misc::cleanDatastreamList($datastreams);
+		$datastreams = Misc::cleanDatastreamList($datastreams); //This may have issues $datastreams seems wrong format
 
 		$files = array();
 		foreach($datastreams as $ds) {

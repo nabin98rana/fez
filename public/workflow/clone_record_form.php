@@ -59,7 +59,7 @@ if (@$_REQUEST["cat"] == "submit") {
     $is_succession = $_REQUEST['is_succession'];
     $wfstatus->assign('is_succession', $is_succession);
     $wfstatus->assign('clone_attached_datastreams', $_REQUEST['clone_attached_datastreams']);
-    $wfstatus->assign('collection_pid', $_REQUEST['collection_pid']);
+    $wfstatus->assign('collection_pid', $_REQUEST['collection_pid']);  //To fix this, one needs to pass back an array of some sort -> clone_record -> copyToNewPID -> loop if array
 }
 $wfstatus->checkStateChange();
 
