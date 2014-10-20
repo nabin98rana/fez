@@ -39,7 +39,7 @@ include_once(APP_INC_PATH . "class.page.php");
 
 $pageID = @$_GET["page"];
 $page = Page::getPage($pageID);
-$zf = new Fez_Filter_RichTextHtmlpurifyWithLinks();
+$zf = new Fez_Filter_Htmlpurify();
 $page = $zf->filter($page);
 $title = $page['title'];
 $content = $page['content'];
