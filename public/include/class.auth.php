@@ -688,7 +688,7 @@ class Auth
 				if (defined('APP_BASIC_AUTH_IP') && (in_array($_SERVER['REMOTE_ADDR'], $ipPool))) {
 					if ((($_SERVER["SERVER_PORT"] != 443) && (APP_HTTPS == "ON"))) { //should be ssl when using basic auth
                         if (!empty($dsID)) {
-                            header ("Location: https://".APP_HOSTNAME.APP_RELATIVE_URL."eserv/".$pid.'/'.$dsID);
+                            header ("Location: https://".APP_HOSTNAME.APP_RELATIVE_URL."view/".$pid.'/'.$dsID);
                         } else {
                             header ("Location: https://".APP_HOSTNAME.APP_RELATIVE_URL."view/".$pid);
                         }
@@ -709,7 +709,7 @@ class Auth
 				        		if (Auth::isCorrectPassword($username, $pw)) {
 				        			Auth::LoginAuthenticatedUser($username, $pw, false);
                                     if (!empty($dsID)) {
-                                        header ("Location: https://".APP_HOSTNAME.APP_RELATIVE_URL."eserv/".$pid.'/'.$dsID);
+                                        header ("Location: https://".APP_HOSTNAME.APP_RELATIVE_URL."view/".$pid.'/'.$dsID);
                                     } else {
                                         header ("Location: https://".APP_HOSTNAME.APP_RELATIVE_URL."view/".$pid);
                                     }
