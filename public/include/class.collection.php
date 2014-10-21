@@ -156,7 +156,6 @@ class Collection
     $dbtp =  APP_TABLE_PREFIX;
     $authArray = Collection::getAuthIndexStmt($roles);
     $authStmt = $authArray['authStmt'];
-    $joinStmt = $authArray['joinStmt'];
     $stmt = "SELECT r2.rek_pid, r2.rek_title FROM ".$dbtp."record_search_key AS r2 " .
     $authStmt."WHERE rek_title LIKE ".$db->quote($search."%")." AND rek_object_type = 2";
     try {
@@ -232,7 +231,6 @@ class Collection
     }
     $termCounter = 2;
     $dbtp =  APP_TABLE_PREFIX;
-    $subjectList = XSD_HTML_Match::getXSDMF_IDsBySekTitle('Subject');
     $authArray = Collection::getAuthIndexStmt(array("Lister", "Viewer", "Editor", "Creator"), "r2.rek_subject_pid");
     $authStmt = $authArray['authStmt'];
     $stringIDs = Misc::array_flatten($treeIDs);
@@ -370,8 +368,6 @@ class Collection
                         ON argu_usr_id=".$db->quote($usr_id, 'INTEGER')." AND ai.authi_arg_id=argu_arg_id ";
         }
       }
-      //            $authStmt .= "
-      //                and ai.authi_pid = ".$joinPrefix;
     } else {
       $publicGroups = Collection::getPublicAuthIndexGroups();
       if (is_array($publicGroups)) { // to catch when the fez index/auth index is empty
@@ -426,43 +422,27 @@ class Collection
       $max = 9999999;
     }
     $start = $current_row * $max;
-    $data_type = $sekdet['xsdmf_data_type'];
+
     $authArray = Collection::getAuthIndexStmt();
     $authStmt = $authArray['authStmt'];
-    $sekdet = Search_Key::getBasicDetailsByTitle("Author ID");
     $middleStmt = "";
-    $order_field = "";
     $termCounter = 3;
     $extra_join = "";
-    $letter_restrict = "";
-    $show_field = "";
     $dbtp =  APP_TABLE_PREFIX;
-    $sql_where = "";
-    $search_data_type = "int";
     $group_field_id = " r3.rek_author_id, a1.aut_display_name, a1.aut_id";
-    $group_field = "r3.rek_author_id, a1.aut_display_name, a1.aut_id";
     $as_field = "record_author";
     $extra_join .= "INNER JOIN ".$dbtp."author a1 on r3.rek_author_id = a1.aut_id ";
-    $show_field = "r3.rek_author_id";
     $show_field_id1 = "a1.aut_fname";
     $show_field_id2 = "a1.aut_lname";
-    $order_field = " a1.aut_lname ASC, a1.aut_fname ASC ";
 
-    if ($show_field == "") {
-      $show_field = $group_field;
-    }
     if (!empty($letter)) {
       $letter = addslashes($letter);
-      $letter_restrict = "WHERE (r3.rek_author LIKE " . $db->quote($letter.'%') . " OR r3.rek_author LIKE " .
-                         $db->quote(strtolower($letter).'%') . ") and ";
       $letter_restrict_id = "WHERE (a1.aut_lname LIKE " . $db->quote($letter.'%') . " OR a1.aut_lname LIKE " .
                             $db->quote(strtolower($letter).'%') . ") ";
     } else {
-      $sql_where = " ";
       $sql_where_id = " ";
     }
 
-    $middleStmt .= " " . APP_TABLE_PREFIX . "record_search_key_author_id AS r".$termCounter." ".$authStmt." ";
     $middleStmt_id .= " " . APP_TABLE_PREFIX . "record_search_key_author_id AS r".$termCounter." ";
     $countStmt = " FROM ".$middleStmt_id."
             INNER JOIN
@@ -489,9 +469,6 @@ class Collection
       $total_rows = $total_rows;
       foreach ($res as $key => $row) {
         if (trim($row[$as_field]) != "") {
-          if ($searchKey == "Depositor") {
-            $return[$key]['record_desc'] = $row['fullname'];
-          }
           $return[$key][$as_field] = $row[$as_field];
           $return[$key]['record_count'] = $row['record_count'];
           $return[$key]['record_author_id'] = $row['record_author_id'];
@@ -563,9 +540,7 @@ class Collection
       $max = 9999999;
     }
     $start = $current_row * $max;
-//    $sekdet = Search_Key::getDetailsByTitle($sort_by);
     $sekdet = Search_Key::getDetailsByTitle($searchKey);
-    $data_type = $sekdet['xsdmf_data_type'];
     $sekdet = Search_Key::getBasicDetailsByTitle($searchKey);
     $middleStmt = "";
     $order_field = "";
@@ -590,11 +565,7 @@ class Collection
       $tid = 1;
     }
 
-    if ($searchKey == "Subject") {
-      $terms = $_GET['parent_id'];
-      $search_data_type = "varchar";
-    } elseif ($searchKey == "Date") {
-      $search_data_type = "date";
+    if ($searchKey == "Date") {
       $group_field = "YEAR(DATE(r".$tid.".rek_".$sekdet['sek_title_db']."))";
       $order_field = $group_field." DESC";
       $as_field = "record_year";
@@ -606,7 +577,6 @@ class Collection
       $show_field = "a1.aut_display_name";
       $order_field = " a1.aut_lname asc, a1.aut_fname asc ";
     } elseif ($searchKey == "Author") {
-      $search_data_type = "varchar";
       $group_field = "r".$tid.".rek_".$sekdet['sek_title_db'];
       $as_field = "record_author";
 
@@ -616,7 +586,6 @@ class Collection
                            $tid.".rek_".$sekdet['sek_title_db']." LIKE " . $db->quote(strtolower($letter).'%') . " ";
       }
     } elseif ($searchKey == "Depositor") {
-      $search_data_type = "int";
       $group_field = "r".$tid.".rek_".$sekdet['sek_title_db'];
       $show_field = "u.usr_full_name as fullname, ".$group_field;
       $count_field = $group_field;
@@ -624,8 +593,6 @@ class Collection
       $as_field = "record_depositor";
       $extra_join = "LEFT JOIN " . APP_TABLE_PREFIX . "user u ON u.usr_id = r".$tid.".rek_".$sekdet['sek_title_db'];
     } else {
-      $sdet = Search_Key::getDetailsByTitle($searchKey);
-      $search_data_type =  "r".$tid.".rek_".$sekdet['sek_title_db'];
       $group_field = "r".$tid.".rek_".$sekdet['sek_title_db'];
       $as_field = "record_author";
     }
@@ -778,14 +745,7 @@ class Collection
     if ($max == "ALL") {
       $max = 9999999;
     }
-    $start = $current_row * $max;
-    $restrictSQL = "";
-    $middleStmt = "";
-    $extra = "";
-    $termCounter = 3;
-    $as_field = "";
     $sekdet = Search_Key::getBasicDetailsByTitle($searchKey);
-    $group_field = ".rek_".$sekdet['sek_title_db'];
 
     if ($max == "ALL") {
       $max = 9999999;
@@ -794,14 +754,11 @@ class Collection
 
     // this query broken into pieces to try and get some speed.
 
-    $sort_by = 'File Downloads';
     $sekdet = Search_Key::getBasicDetailsByTitle($searchKey);
     //        $data_type = $sekdet['xsdmf_data_type'];
-    $restrict_community = '';
 
     $authArray = Collection::getAuthIndexStmt(array("Lister", "Viewer", "Editor", "Creator"));
     $authStmt = $authArray['authStmt'];
-    $joinStmt = $authArray['joinStmt'];
     $sort_order = "DESC";
 
     if ($sdet['sek_relationship'] == 1) {
@@ -812,7 +769,6 @@ class Collection
     }
     if ($searchKey == "Title") {
       $group_field = $sekdet['sek_title_db'].", rek_pid";
-      $extra = ", rek_pid";
     }
     $bodyStmtPart1 = " FROM  ".$dbtp."record_search_key AS r2
           ".$extra_join."
@@ -882,11 +838,6 @@ class Collection
     if ($max == "ALL") {
       $max = 9999999;
     }
-    $start = $current_row * $max;
-    $restrictSQL = "";
-    $termCounter = 3;
-    $as_field = "";
-    $sdet = Search_Key::getDetailsByTitle($searchKey);
 
     if ($max == "ALL") {
       $max = 9999999;
@@ -895,8 +846,6 @@ class Collection
 
     $dbtp =  APP_TABLE_PREFIX;
     $sort_by = 'File Downloads';
-    $sekdet = Search_Key::getDetailsByTitle($sort_by);
-    $restrict_community = '';
 
     $stmt = " SELECT ".APP_SQL_CACHE." r4.rek_author_id, a1.aut_display_name as record_author,
                   SUM(rek_file_downloads) as sort_column
@@ -922,7 +871,6 @@ class Collection
     }
 
     $return = $res;
-    $hidden_rows = 0;
 
     if (($start + $max) < $total_rows) {
       $total_rows_limit = $start + $max;
@@ -968,7 +916,6 @@ class Collection
     }
     $authArray = Collection::getAuthIndexStmt();
     $authStmt = $authArray['authStmt'];
-    $joinStmt = $authArray['joinStmt'];
     $dbtp =  APP_TABLE_PREFIX;
     $spaceCount = substr_count($terms, " ");
     $spaceCount+=1;
@@ -990,11 +937,8 @@ class Collection
       return 0;
     }
 
-    $termCounter = 100;
-
     $return = array();
     $sorter = array();
-    $res_count = array();
 
     foreach ($res as $word => $count) {
 
@@ -1062,7 +1006,7 @@ class Collection
     $returnList = array();
 
     foreach ($list as $element) {
-      if (array_key_exists('rek_ismemberof_count', $element) && is_numeric($element['rek_ismemberof_count'])) {
+      if (is_numeric($element['rek_ismemberof_count'])) {
         $returnList[$element['rek_pid']] = $element['rek_title']." (".$element['rek_ismemberof_count'].")";
       } else {
         $returnList[$element['rek_pid']] = $element['rek_title'];
