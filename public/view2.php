@@ -1040,10 +1040,7 @@ function generateTimestamps($pid, $datastreams, $requestedVersionDate, $tpl)
   $tpl->assign('created_dates_list', $createdDatesForDisplay);
 
   // Retrieve the full/filtered option from the request and repopulate it on the template
-  $versionViewType = false;
-  if (array_key_exists('version_view_type', $_REQUEST)) {
     $versionViewType = $_REQUEST['version_view_type'];
-  }
   $tpl->assign("version_view_type", $versionViewType);
 }
 

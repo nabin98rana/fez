@@ -435,7 +435,13 @@ class Mail_API
 
 		$this->setTextBody( $this->text_body);
 
-		$body = $this->mime->get();
+    // Build with UTF-8 charsets
+    $params = array(
+      'html_charset' => 'utf-8',
+      'text_charset' => 'utf-8'
+    );
+		$body = $this->mime->get($params);
+
 		$this->setHeaders(array(
             'From'    => $from,
             'To'      => Mail_API::fixAddressQuoting($to),

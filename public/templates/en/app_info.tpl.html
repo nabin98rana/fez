@@ -7,7 +7,7 @@
 
 		<div id="powered-by">Powered by <a title="Fez website" href="http://fez.library.uq.edu.au/" onclick="javascript:window.open('http://fez.library.uq.edu.au/'); return false;">Fez {$application_version} Software</a> &bull; <a href="{$rel_url}about">Contact us</a> &bull; <a href="{$rel_url}faq">Help</a>
 
-			<div>Page generated in <!--fez:totaltime-->{$benchmark_total}<!--/fez:totaltime--> seconds {if $solr_query_time}({section name="i" loop=$solr_query_time}{if $isAdministrator || true}<a href="{$solr_query_string[i]}">{/if}{$solr_query_time[i]} ms{if $isAdministrator}</a>{/if} {/section}search){/if} {if $total_queries}({$total_queries} queries{if $total_elapsed_secs} taking {$total_elapsed_secs} seconds{/if}){/if} on {$generated_time}</div>
+			<div>Page generated in <!--fez:totaltime-->{$benchmark_total}<!--/fez:totaltime--> seconds {if $solr_query_time}({section name="i" loop=$solr_query_time}{if $isAdministrator}<a href="{$solr_query_string[i]}">{/if}{$solr_query_time[i]} ms{if $isAdministrator}</a>{/if} {/section}search){/if} {if $total_queries}({$total_queries} queries{if $total_elapsed_secs} taking {$total_elapsed_secs} seconds{/if}){/if} on {$generated_time}</div>
 
 		</div>
 

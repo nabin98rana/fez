@@ -96,21 +96,18 @@ class InternalNotes
       $log->err($ex);
       return false;
     }
-    if (count($res) > 0) {
-        $t = array();
-        for ($i = 0; $i < count($res); $i++) {
-          $t[$res[$i]["ain_pid"]] =  $res[$i]["ain_detail"];
-        }
-
-        // now populate the $result variable again
-        for ($i = 0; $i < count($result); $i++) {
-          $result[$i]["rek_internal_notes"] = $t[$result[$i]["rek_pid"]];
-        }
+    
+    $t = array();
+    for ($i = 0; $i < count($res); $i++) {
+      $t[$res[$i]["ain_pid"]] =  $res[$i]["ain_detail"];
     }
-//    return $res;
+
+    // now populate the $result variable again
+    for ($i = 0; $i < count($result); $i++) {
+      $result[$i]["rek_internal_notes"] = $t[$result[$i]["rek_pid"]];
+    }
   }
 
-	
 	
 	/**
 	 * Clear the note entirely (sufficient to handle empty/deleted note), and possibly write 
@@ -145,8 +142,6 @@ class InternalNotes
 		return;
 	}
 
-
-
 	/**
 	 * Completely remove an internal note.
 	 */
@@ -169,9 +164,7 @@ class InternalNotes
 		
 		return;
 	}
-	
-	
-	
+
 	/**
 	 * Move a note from one PID to another.
 	 */

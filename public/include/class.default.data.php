@@ -300,7 +300,7 @@ class Default_Data
 		$defaultData['app_bg_poll_int']                     = "20";
 		$defaultData['app_scopus_consumer_name']            = "YOUR AGREED CONSUMER NAME";
 		$defaultData['app_scopus_partner_id   ']            = "";   // Empty default
-		$defaultData['app_fedora_bypass']                   = "ON";
+		$defaultData['app_fedora_bypass']                   = "OFF";
 		$defaultData['app_scopus_api_key']                  = "";
 		$defaultData['scopus_ws_base_url']                  = "https://api.elsevier.com/";
         $defaultData['ldap_staff_group']                   = "uqStaff";
