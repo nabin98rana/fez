@@ -18,22 +18,18 @@
                             <strong>ERA 2015 Journal Listed :</strong> {if $list[i].rj_2015_title} Yes{else}No {/if}<br />
                             <strong>ERA 2012 Journal Listed :</strong> {if $list[i].rj_2012_title} Yes{else}No {/if}<br />
                             {if $list[i].rj_2010_rank} <strong>ERA 2010 Rank:</strong> {$list[i].rj_2010_rank} ({$list[i].rj_2010_title})<br />{/if}
-                            {if $list[i].rek_refereed == '0'} <strong>Refereed:</strong> No<br /> {/if}
-                            {if $list[i].rek_refereed == '1'} <strong>Refereed:</strong> Yes<br /> {/if}
-                            {if $list[i].rek_refereed_source_lookup}<strong>Refereed Source:</strong> {$list[i].rek_refereed_source_lookup}<br /> {/if}
                             <strong>ISSN:</strong> {if is_array($list[i].rek_issn)}{", "|implode:$list[i].rek_issn}{/if}<br />
                         {elseif $list[i].rek_display_type_lookup == "Conference Paper"}
                             <strong>ERA 2015 Conference Listed :</strong> {if $list[i].rc_2015_title} Yes{else}No {/if}<br />
                             {if $list[i].rc_2010_rank}<strong>ERA 2010 Rank:</strong> {$list[i].rc_2010_rank} ({$list[i].rc_2010_title})<br />{/if}
-							{if $list[i].rek_refereed == '0'} <strong>Refereed:</strong> No<br /> {/if}
-							{if $list[i].rek_refereed == '1'} <strong>Refereed:</strong> Yes<br /> {/if}
 						{/if}
+                        {if $list[i].rek_refereed_source_lookup}<strong>Refereed Source:</strong> {$list[i].rek_refereed_source_lookup}<br /> {/if}
 						<strong>Thomson ISI Loc:</strong> {$list[i].rek_isi_loc}<br />
 						<strong>Scopus ID:</strong> {$list[i].rek_scopus_id}<br />
                         <strong>Total Pages:</strong> {$list[i].rek_total_pages}<br />
                         <strong>Scopus Doc Type:</strong> {$list[i].rek_scopus_doc_type}<br />
 					    <strong>Wok Doc Type:</strong> {$list[i].rek_wok_doc_type}<br /><br />
-						<strong>HERDC Notes:</strong> {$list[i].rek_herdc_notes}<br />{if $list[i].rek_herdc_notes}<br />{/if}
+						<strong>HERDC Notes:</strong> {$list[i].rek_herdc_notes|smarty:nodefaults|strip_tags:false}<br />{if $list[i].rek_herdc_notes}<br />{/if}
                         <strong>Internal Notes:</strong> {$list[i].rek_internal_notes}<br />{if $list[i].rek_internal_notes}<br />{/if}
                         <strong>OA Compliance field:</strong> {$list[i].rek_oa_compliance_lookup}<br />
                         <strong>OA Notes:</strong> {$list[i].rek_oa_notes}<br /><br />
