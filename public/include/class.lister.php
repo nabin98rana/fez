@@ -897,6 +897,7 @@ class Lister
       $tpl->assign("aut_scopus_id", $authorDetails['aut_scopus_id']);
       $tpl->assign("aut_orcid_id", $authorDetails['aut_orcid_id']);
       $tpl->assign("aut_google_scholar_id", $authorDetails['aut_google_scholar_id']);
+      $tpl->assign("aut_org_username", $authorDetails['aut_org_username']);
 
       $tpl->assign("list_type", "mypubs_list");
 
@@ -1172,7 +1173,7 @@ class Lister
     if ($display) {
       if ($jsonIt || APP_API_JSON) {
           $xml = $tpl->getTemplateContents();
-          $xml = simplexml_load_string($xml);
+          $xml = simplexml_load_string($xml, 'SimpleXMLElement', LIBXML_NOCDATA);
           echo  json_encode($xml);
       } else {
         $tpl->displayTemplate();
