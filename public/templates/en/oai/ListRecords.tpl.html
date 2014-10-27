@@ -204,8 +204,9 @@
             {if $list[i].rek_isdatasetof}
                 {assign var="loop_link" value=$list[i].rek_isdatasetof}
                 {section name="s" loop=$loop_link}
-                    <relatedInfo type="publication">
+                    <relatedInfo type="{if $list[i].rek_isdatasetof_publication[s]}publication{else}collection{/if}">
                       <identifier type="uri">http://{$app_hostname}/view/{$list[i].rek_isdatasetof[s]}</identifier>
+                      {if $list[i].rek_isdatasetof_doi[s]}<identifier type="doi">{$list[i].rek_isdatasetof_doi[s]}</identifier>{/if}
                        <title>{$list[i].rek_isdatasetoftitle[s]}</title>
                     </relatedInfo>
                 {/section}
