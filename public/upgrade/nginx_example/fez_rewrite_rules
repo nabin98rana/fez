@@ -18,7 +18,7 @@ if ($host = 'digilib.libckvm.library.uq.edu.au') {
 	rewrite     ^/list/([^/]*)/([^/]*)(/?)$                          /list.php?custom_view_pid=UQ:3682&browse=$1&value=$2;
 	rewrite     ^/list/(.*)$                                         /list.php?custom_view_pid=UQ:3682&$1;
 	rewrite     ^/favourites/(.*)$                                         /list.php?browse=favourites&custom_view_pid=UQ:3682&$1;
-	rewrite     ^/eserv/([A-Za-z]+):([0-9]+)/(.+)(/.+)*$             /eserv.php?pid=$1:$2&dsID=$3$4;
+	rewrite     ^/view/([A-Za-z]+):([0-9]+)/(.+)(/.+)*$             /eserv.php?pid=$1:$2&dsID=$3$4;
 	rewrite     ^/stream/([A-Za-z]+):([0-9]+)/(.+)(/.+)*$             /eserv.php?pid=$1:$2&stream=1&dsID=$3$4;
 	rewrite     ^/index.php$                                         /index.php?custom_view_pid=UQ:3682&community_pid=UQ:3682 last;
 	rewrite     ^/(.*)$						 /$1?custom_view_pid=UQ:3682 last;
@@ -27,7 +27,7 @@ if ($host = 'digilib.libckvm.library.uq.edu.au') {
 }
 rewrite     ^/errors/([0-9]+)$                                   /errors/index.php?code=$1;
 rewrite     ^/view/([A-Za-z]+):([0-9]+)(\?.*)*$                  /view.php?pid=$1:$2$3;
-rewrite     ^/eserv/([A-Za-z]+):([0-9]+)/(.+?)(/.*)*$            /eserv.php?pid=$1:$2&dsID=$3&qs=$4; 
+rewrite     ^/view/([A-Za-z]+):([0-9]+)/(.+?)(/.*)*$            /eserv.php?pid=$1:$2&dsID=$3&qs=$4;
 rewrite     ^/community/([A-Za-z]+):([0-9]+)$                        /list.php?community_pid=$1:$2;
 rewrite     ^/community/([A-Za-z]+):([0-9]+)/(.+)$               /list.php?community_pid=$1:$2&$3;
 rewrite     ^/collection/([A-Za-z]+):([0-9]+)$                   /list.php?collection_pid=$1:$2;
