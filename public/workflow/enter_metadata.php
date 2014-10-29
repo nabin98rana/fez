@@ -54,12 +54,6 @@ include_once(APP_INC_PATH . "class.my_research.php");
 include_once(APP_INC_PATH . "class.datastream.php");
 include_once(APP_INC_PATH . "class.api.php");
 
-// Temporary solution for SWFUpload not working on HTTPS environment
-if ( $_SERVER["SERVER_PORT"] == 443)  {
-   header ("HTTP 302 Redirect");
-   header ("Location: http://".APP_HOSTNAME.APP_RELATIVE_URL."workflow/enter_metadata.php"."?".$_SERVER['QUERY_STRING']);
-}
-
 Auth::checkAuthentication(APP_SESSION, $failed_url = NULL, $is_popup = false);
 
 $wfstatus = &WorkflowStatusStatic::getSession($wfses_id); // restores WorkflowStatus object from the session
@@ -98,7 +92,6 @@ if(APP_FEDORA_BYPASS == 'ON')
 {
     Zend_Registry::set('version', Date_API::getCurrentDateGMT());
 }
-
 
 
 // if we have uploaded files using the flash uploader, then generate $_FILES array entries for them

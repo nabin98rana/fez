@@ -163,10 +163,7 @@ if ((!$is_https && (APP_HTTPS == "ON")) || ($_SERVER['HTTP_HOST'] != APP_HOSTNAM
 
 $tpl = new Template_API();
 $tpl->setTemplate("index.tpl.html");
-if (array_key_exists('url', $_GET)) {
-    $_GET['url'] = base64_decode($_GET['url']);
-}
-
+$_GET['url'] = base64_decode($_GET['url']);
 if (Auth::hasValidSession(APP_SESSION)) {
     if ($_SESSION["autologin"]) {    	
         if (!empty($_GET["url"])) {

@@ -1272,7 +1272,7 @@ class XSD_DisplayObject
 						foreach ($datastreams as $ds) {
 							if (isset($ds['controlGroup']) && $ds['controlGroup'] == 'R' && is_numeric(strpos($ds['ID'], 'link_'))) {
 								$value = trim($ds['label']);
-								if (!empty($value) && isset($xsdmf_details) && array_key_exists('xsdmf_value_prefix', $xsdmf_details) && strlen($xsdmf_details['xsdmf_value_prefix']) > 0) {
+								if (!empty($value) && strlen($xsdmf_details['xsdmf_value_prefix']) > 0) {
 									$value = str_replace($xsdmf_details['xsdmf_value_prefix'], "", $value);
 								}
 								if (!is_array(@$this->xsdmf_current[$xsdmf_id])) {

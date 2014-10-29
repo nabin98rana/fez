@@ -54,12 +54,6 @@ include_once(APP_INC_PATH . "class.internal_notes.php");
 include_once(APP_INC_PATH . "class.datastream.php");
 include_once(APP_INC_PATH . "class.api.php");
 
-// Temporary solution for SWFUpload not working on HTTPS environment
-if ( $_SERVER["SERVER_PORT"] == 443)  {
-   header ("HTTP 302 Redirect");
-   header ("Location: http://".APP_HOSTNAME.APP_RELATIVE_URL."workflow/edit_metadata.php"."?".$_SERVER['QUERY_STRING']);
-}
-
 Auth::checkAuthentication(APP_SESSION, $_SERVER['PHP_SELF']."?".$_SERVER['QUERY_STRING']);
 $isAdministrator = Auth::isAdministrator();
 
