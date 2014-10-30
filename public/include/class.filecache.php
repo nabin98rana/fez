@@ -172,7 +172,7 @@ class fileCache {
 		$hosts = Custom_View::getCviewListUniqueHosts();
 		$customViewComponent = APP_HOSTNAME;
 		foreach ($hosts as $host) {
-			if ($_SERVER['HTTP_HOST'] == $host) {
+            if (isset($_SERVER['HTTP_HOST']) && $_SERVER['HTTP_HOST'] == $host) {
 				$customViewComponent = $host;
 			}
 		}
