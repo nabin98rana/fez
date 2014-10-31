@@ -182,20 +182,20 @@ div#wordmark { display: none; visibility: hidden; }
 #topnav ul li a { text-transform: uppercase; margin: 0 0 0 -8px; padding: 12px 8px 12px 8px; }
 #topnav li a:link { color: rgb(223, 223, 223); text-decoration: none; }
 #topnav li a:visited { color: rgb(223, 223, 223); text-decoration: none; }
-#topnav li a:hover { color: rgb(245, 225, 255); text-decoration: none; background: transparent url('[[$smarty.const.APP_RELATIVE_URL]]images/2009/top_nav_bg_active.gif') repeat-x scroll right bottom; border-bottom: 1px solid rgb(229, 229, 229); }
+#topnav li a:hover { color: rgb(245, 225, 255); text-decoration: none; background: transparent url('[[$smarty.const.APP_RELATIVE_URL]]images/top_nav_bg_active.gif') repeat-x scroll right bottom; border-bottom: 1px solid rgb(229, 229, 229); }
 #topnav li a:active { color: rgb(245, 225, 255); text-decoration: none; border-bottom: 1px solid rgb(229, 229, 229); }
 #topnav img { margin-top: -12px; margin-bottom: -12px; position: relative; top: -9px; }
 
-div#search { background: transparent url('[[$smarty.const.APP_RELATIVE_URL]]images/2009/form-left.png') no-repeat scroll 0pt 0pt; position: absolute; top: 40px; margin: 0 0 0 775px;}
+div#search { background: transparent url('[[$smarty.const.APP_RELATIVE_URL]]images/form-left.png') no-repeat scroll 0pt 0pt; position: absolute; top: 40px; margin: 0 0 0 775px;}
 div#search form { margin: 0pt; padding: 0pt; width: 210px; }
 div#search label { display: block; float: left; width: 30px; height: 18px; }
 div#search label span { display: none; }
 div#search input { border: 0pt none ; margin: 0 0 0 0; padding: 4px 0 0 0; background: transparent none repeat scroll 0% 0%; float: left; width: 142px; height: 18px; font-size: 11px; color: rgb(0, 0, 0); font-family: verdana, arial; }
-div#search input.submit { margin: 0pt 0pt 0pt 3px; padding: 0pt; background: transparent url('[[$smarty.const.APP_RELATIVE_URL]]images/2009/form-right.png') no-repeat scroll 0pt 0pt; float: left; cursor: pointer; width: 20px; height: 22px; }
+div#search input.submit { margin: 0pt 0pt 0pt 3px; padding: 0pt; background: transparent url('[[$smarty.const.APP_RELATIVE_URL]]images/form-right.png') no-repeat scroll 0pt 0pt; float: left; cursor: pointer; width: 20px; height: 22px; }
 
 /* Footer
 -----------------------------------------------------------------------------*/
-#footer { background: #5e217a url('[[$smarty.const.APP_RELATIVE_URL]]images/2009/bg-footer.gif') repeat-x scroll 100% 0pt; border-top: solid 2px #78b800; }
+#footer { background: #5e217a url('[[$smarty.const.APP_RELATIVE_URL]]images/bg-footer.gif') repeat-x scroll 100% 0pt; border-top: solid 2px #78b800; }
 #footer { clear: both; min-height: 140px; ! important; }
 #footer .wrapper { margin-top: 40px; }
 #footer div { }
@@ -208,7 +208,7 @@ div#search input.submit { margin: 0pt 0pt 0pt 3px; padding: 0pt; background: tra
 #siteinfo .org { font-weight: bold; }
 #siteinfo address { font-style: normal; }
 #siteinfo .org { margin: 0 0 10px 0; height: 38px; width: 200px; }
-#siteinfo .org a { overflow: hidden; background-image: url('[[$smarty.const.APP_RELATIVE_URL]]images/2009/uq-logo.gif') ! important; background-repeat: no-repeat ! important; background-color: transparent ! important; display: block; height: 38px;  text-indent: -1000px; }
+#siteinfo .org a { overflow: hidden; background-image: url('[[$smarty.const.APP_RELATIVE_URL]]images/espace/uq-logo.gif') ! important; background-repeat: no-repeat ! important; background-color: transparent ! important; display: block; height: 38px;  text-indent: -1000px; }
 #siteinfo .adr { margin: 0 0 5px 0; line-height: 1.4; }
 #siteinfo .tel { margin: 0 0 5px 0; }
 #siteinfo .campus { margin: 0 0 5px 0; }
@@ -221,7 +221,7 @@ div#search input.submit { margin: 0pt 0pt 0pt 3px; padding: 0pt; background: tra
 #footer-resources h3{margin:0 0 6px;font-family:'Helvetica Neue',Arial,verdana,sans-serif;font-size:12px;color:rgb(234,184,250);text-transform:uppercase; font-weight: normal;}
 #footer-resources li{font-size:11px;font-family:verdana,Arial,sans-serif}
 #footer-resources ul{margin:0;list-style-type:none}
-#footer-resources li{margin:0 0 6px;padding:0 0 0 12px;background:transparent url('/images/2009/arrow.png') no-repeat scroll 0 2px}
+#footer-resources li{margin:0 0 6px;padding:0 0 0 12px;background:transparent url('/images/arrow.png') no-repeat scroll 0 2px}
 #footer-resources a{padding:0 1px}
 #footer-resources p{color:#fff;font-family:'Helvetica Neue',Arial,verdana,sans-serif;font-size:11px}
 
@@ -237,7 +237,7 @@ div#search input.submit { margin: 0pt 0pt 0pt 3px; padding: 0pt; background: tra
 #footer-right p { margin: 5px 0 12px 0; font-family: verdana, arial, sans-serif; font-size: 11px; color: rgb(255, 255, 255); }
 #footer-right li { font-size: 11px; font-family: verdana,Arial,sans-serif; }
 #footer-right ul { margin: 0pt; list-style-type: none; }
-#footer-right li { margin: 0pt 0pt 6px; padding: 0 0 0 12px; background: transparent url('[[$smarty.const.APP_RELATIVE_URL]]images/2009/arrow.png') no-repeat scroll  0px 2px; }
+#footer-right li { margin: 0pt 0pt 6px; padding: 0 0 0 12px; background: transparent url('[[$smarty.const.APP_RELATIVE_URL]]images/arrow.png') no-repeat scroll  0px 2px; }
 
 p.centenary { padding: 16px 0 0 0; }
 
@@ -2741,14 +2741,14 @@ table.adminManageList{
 #footer .social-links li{width:32px;height:32px;overflow:hidden;float:left;margin:0 5px 5px 0;padding:0;list-style:none;text-indent:-999px;background:none}
 #footer .social-links li a{width:32px;height:32px;display:block;border:0;text-decoration:none;filter:alpha(opacity=80);-moz-opacity:.8;opacity:.8}
 #footer .social-links li a:hover{filter:alpha(opacity=100);-moz-opacity:1;opacity:1}
-#footer .social-links .icon-facebook a{background:url('/images/footer/icon-w-facebook-32.png') no-repeat 0 0}
-#footer .social-links .icon-twitter a{background:url('/images/footer/icon-w-twitter-32.png') no-repeat 0 0}
-#footer .social-links .icon-flickr a{background:url('/images/footer/icon-w-flickr-32.png') no-repeat 0 0}
-#footer .social-links .icon-instagram a{background:url('/images/footer/icon-w-instagram-32.png') no-repeat 0 0}
-#footer .social-links .icon-youtube a{background:url('/images/footer/icon-w-youtube-32.png') no-repeat 0 0}
-#footer .social-links .icon-vimeo a{background:url('/images/footer/icon-w-vimeo-32.png') no-repeat 0 0}
-#footer .social-links .icon-itunesu a{background:url('/images/footer/icon-w-apple-32.png') no-repeat 0 0}
-#footer .social-links .icon-linkedin a{background:url('/images/footer/icon-w-linkedin-32.png') no-repeat 0 0}
+#footer .social-links .icon-facebook a{background:url('/images/espace/footer/icon-w-facebook-32.png') no-repeat 0 0}
+#footer .social-links .icon-twitter a{background:url('/images/espace/footer/icon-w-twitter-32.png') no-repeat 0 0}
+#footer .social-links .icon-flickr a{background:url('/images/espace/footer/icon-w-flickr-32.png') no-repeat 0 0}
+#footer .social-links .icon-instagram a{background:url('/images/espace/footer/icon-w-instagram-32.png') no-repeat 0 0}
+#footer .social-links .icon-youtube a{background:url('/images/espace/footer/icon-w-youtube-32.png') no-repeat 0 0}
+#footer .social-links .icon-vimeo a{background:url('/images/espace/footer/icon-w-vimeo-32.png') no-repeat 0 0}
+#footer .social-links .icon-itunesu a{background:url('/images/espace/footer/icon-w-apple-32.png') no-repeat 0 0}
+#footer .social-links .icon-linkedin a{background:url('/images/espace/footer/icon-w-linkedin-32.png') no-repeat 0 0}
 
 /* Ands map */
 #spatial_coverage_map {
