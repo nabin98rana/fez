@@ -108,11 +108,11 @@ class fileCache {
 	 *
 	 * @access public
 	 */
-	function saveCacheFile($header, $save = true)
+	function saveCacheFile($save = true) 
 	{
 		$log = FezLog::get();
 
-		$content = $header.ob_get_flush();
+		$content = ob_get_flush();
 
 		/*
 		 * Sometimes we just want to echo results but

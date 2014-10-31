@@ -152,18 +152,13 @@ $aliasResult = Lister::checkAliasController();
 if ($aliasResult == false) {
 
     $tpl = new Template_API();
-    //flush header first so browser can start rendering css/images/js quickly
-    $tpl->setTemplate('header.tpl.html');
-
     $metaDescription = APP_NAME." operates as an institutional repository for open access publications and other digitised materials created by the University such as print materials, photographs, audio materials, videos,
      manuscripts and other original work.";
     $tpl->assign("meta_description", $metaDescription);
     $tpl->assign("isHomePage", "true");
     $tpl->assign("active_nav", "home");
     $tpl->assign("extra_title", "Home");
-    $tpl->displayTemplate();
-    ob_flush();
-    flush();
+
     //$tpl->setTemplate("maintenance.tpl.html");
 
     $front_page = "";

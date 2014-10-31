@@ -247,11 +247,6 @@ if (!empty($pid) && $record->checkExists()) {
     if (APP_API) {
         $tpl->setTemplate("view.tpl.xml");
     } else {
-        $tpl->setTemplate('header.tpl.html');
-        $header = $tpl->getTemplateContents();
-        echo $header;
-        ob_flush();
-        flush();
         $tpl->setTemplate("view.tpl.html");
     }
 
@@ -482,12 +477,6 @@ if (!empty($pid) && $record->checkExists()) {
       exit;
     } else {
       header("HTTP/1.0 403 Forbidden");
-      $tpl->setTemplate('header.tpl.html');
-      $header = $tpl->getTemplateContents();
-      echo $header;
-      ob_flush();
-      flush();
-
       $tpl->setTemplate("view.tpl.html");
       $tpl->assign("show_not_allowed_msg", true);
       $savePage = false;
@@ -898,12 +887,6 @@ if (!empty($pid) && $record->checkExists()) {
     exit;
   } else {
     header("Status: 404 Not Found");
-    $tpl->setTemplate('header.tpl.html');
-    $header = $tpl->getTemplateContents();
-    echo $header;
-    ob_flush();
-    flush();
-
     $tpl->setTemplate("view.tpl.html");
     $tpl->assign('not_exists', true);
     $savePage = false;

@@ -351,7 +351,6 @@ class Lister
 
         if ($canList) {
           $tpl->assign("list_type", "collection_records_list");
-          Lister::flushHead($tpl);
 
           $tpl->assign("xdis_id", Record::getSearchKeyIndexValue($collection_pid, "Display Type"));
           $parents = Record::getParentsDetails($collection_pid);
@@ -413,8 +412,6 @@ class Lister
           exit;
         } else {
             header("Status: 404 Not Found");
-            Lister::flushHead($tpl);
-
             $tpl->assign('not_exists', true);
         }
       }
@@ -440,7 +437,6 @@ class Lister
         $canView = $record->canView(true);
         $tpl->assign("isViewer", $canView);
         if ($canView) {
-          Lister::flushHead($tpl);
           $tpl->assign("community_pid", $community_pid);
           $userPIDAuthGroups = AuthIndex::getIndexAuthRoles($community_pid);
           $isCreator = @$userPIDAuthGroups['isCreator'] == 1;
@@ -475,9 +471,6 @@ class Lister
           exit;
         } else {
           header("Status: 404 Not Found");
-          $tpl->displayTemplate();
-          ob_flush();
-          flush();
           $tpl->assign('not_exists', true);
         }
       }
@@ -490,7 +483,6 @@ class Lister
     } elseif ($browse == "favourites") {
       Auth::checkAuthentication(APP_SESSION, $_SERVER['PHP_SELF'] . "?" . $_SERVER['QUERY_STRING']);
       $tpl->assign("list_heading", "Starred Records");
-      Lister::flushHead($tpl);
 
       $filter = array();
       $filter["searchKey" . Search_key::getID("Object Type")] = 3;
@@ -527,7 +519,6 @@ class Lister
 
     } elseif ($browse == "latest") {
       $tpl->assign("list_heading", "Browse By Latest Additions");
-      Lister::flushHead($tpl);
 
       $log->debug('Latest');
 
@@ -560,7 +551,6 @@ class Lister
 
     } elseif ($browse == "year") {
       $tpl->assign("list_heading", "List of Records");
-      Lister::flushHead($tpl);
 
       $log->debug('Browse by year');
       // browse by year
@@ -691,11 +681,9 @@ class Lister
       }
       $tpl->assign("browse_type", "browse_author");
       $tpl->assign("alphabet_list", Misc::generateAlphabetArray());
-      Lister::flushHead($tpl);
 
     } elseif ($browse == "depositor") {
       $tpl->assign("list_heading", "Browse By Depositor");
-      Lister::flushHead($tpl);
 
       $log->debug('Browse by depositor');
       // browse by depositor
@@ -735,7 +723,6 @@ class Lister
       $author_id = $params['author_id'];
       $authorDetails = Author::getDetails($author_id);
       $tpl->assign("list_heading", "Publications by " . htmlspecialchars($authorDetails["aut_display_name"]));
-      Lister::flushHead($tpl);
 
       $log->debug('Browse MyPubs');
 
@@ -912,7 +899,6 @@ class Lister
     } elseif ($browse == "subject") {
       $tpl->assign("list_heading", "List of Subject Classifications Records");
 
-      Lister::flushHead($tpl);
       $log->debug('Browse by subject');
       // browse by subject
       $parent_id = Lister::getValue($params, 'parent_id');
@@ -973,11 +959,6 @@ class Lister
     } elseif ($cat == "quick_filter") { // Advanced Search
       $log->debug('Advanced search');
       $searchKey_join = Record::buildSearchKeyFilterSolr($options, $sort_by, $operator, false);
-      $terms = rtrim($searchKey_join[SK_SEARCH_TXT], ', ');
-      $tpl->assign("list_heading", "Search Results ($terms)");
-
-      //Only have a header template on some tpl options
-      Lister::flushHead($tpl);
 
       include_once(APP_INC_PATH . "class.spell.php");
       include_once(APP_INC_PATH . "class.language.php");
@@ -1031,8 +1012,7 @@ class Lister
       $facets = @$list['facets'];
       $snips = @$list['snips'];
       $list = @$list["list"];
-
-
+      $tpl->assign("list_heading", "Search Results ($terms)");
       // KJ@ETH
       $tpl->assign("major_function", "search");
       $q = "";
@@ -1046,7 +1026,6 @@ class Lister
     } else {
       $tpl->assign("list_type", "community_list");
       $tpl->assign("list_heading", "List of Communities");
-      Lister::flushHead($tpl);
 
       $log->debug('Communities');
       $xdis_id = Community::getCommunityXDIS_ID();
@@ -1164,6 +1143,7 @@ class Lister
     $tpl_file = $tpls[$tpl_idx]['file'];
     $tpl->setTemplate($tpl_file);
     $tpl->assign("template_mode", $tpl_idx);
+	$tpl->assign("use_json", true);
 
     if (APP_API) {
         $tpl->assign("rows", $rows);
@@ -1183,13 +1163,6 @@ class Lister
     return compact('list', 'list_info');
   }
 
-  private function flushHead($tpl) {
-    if (substr($tpl->tpl_name, strrpos($tpl->tpl_name, '/')+1) == 'header.tpl.html') {
-      $tpl->displayTemplate();
-      ob_flush();
-      flush();
-    }
-  }
 
   function getValue($params, $varName)
   {
