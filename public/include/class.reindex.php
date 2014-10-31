@@ -615,7 +615,7 @@ class Reindex
   function indexFezFedoraObjects($params = array())
   {
     if (empty($params)) {
-      $params = & $_POST;
+			$params = &$_POST;
     }
     $items = @$params["items"];
     $xdis_id = @$params["xdis_id"];

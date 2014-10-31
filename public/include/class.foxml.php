@@ -272,7 +272,6 @@ class Foxml
 		} elseif ($xsdmf_details['xsdmf_fez_variable'] == "assigned_grp_id") {
 			$attrib_value = $assign_grp_id;
 		} elseif ($xsdmf_details['xsdmf_smarty_variable'] != "") {
-			$return = Misc::getPostedDate($xsdmf_details['xsdmf_attached_xsdmf_id']);
 			eval("\$attrib_value = ".$xsdmf_details['xsdmf_smarty_variable'].";");
 			$attrib_value = Misc::addPrefix($attrib_value,$xsdmf_details['xsdmf_value_prefix']);
 		} else {
