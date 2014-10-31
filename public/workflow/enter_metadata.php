@@ -204,6 +204,8 @@ if ($access_ok) {
                 Datastream::saveDatastreamSelectedPermissions($wfstatus->pid, $filename, $_POST['filePermissionsNew'][$i], $_POST['embargo_date'][$i]);
                 if ($_POST['filePermissionsNew'][$i] == 5 || !empty($_POST['embargo_date'][$i])) {
                     Datastream::setfezACML($wfstatus->pid, $filename, 10);
+                } else if ($_POST['filePermissionsNew'][$i] == 8 ) {
+                    Datastream::setfezACML($wfstatus->pid, $filename, 11);
                 }
                 $count++;
             }
