@@ -1590,6 +1590,7 @@ function authorShortWordsFilter($a)
 			$rec->markAsDeleted();
 			// set some history on the object
 			$wfl_id = $this->getWorkflowId();
+			$rec->tombstone($base_pid, $dup_pid);
 			History::addHistory($dup_pid, $wfl_id, "", "", false, '', "Marked Duplicate of ".$base_pid);
 			History::addHistory($base_pid, $wfl_id, "", "", true, '', "Resolved duplicate ".$dup_pid);
 
