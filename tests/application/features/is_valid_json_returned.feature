@@ -91,22 +91,11 @@ Feature: Check that valid json is being returned
     Given I am on "/list/?cat=quick_filter&sort_by=searchKey0&&tpl=11"
     Then should see valid JSON
 
-  @broken   
   Scenario: Check JSON is valid
     Given I am on "/oembed.php?format=json"
     Then should see valid JSON
 
-  @broken   
   Scenario: Check JSON is valid
-    Given I am on "/oembed.php?format=json&maxwidth=a:4$%@})']\%22({[&maxheight=a:4$%@})']\%22({["
+    Given I am on "/oembed.php?format_type=json&maxwidth=a:4$%@})']\%22({[&maxheight=a:4$%@})']\%22({["
     Then should see valid JSON
 
-  @broken   
-  Scenario: Check JSON is valid
-    Given I am on "/grid_proxy.php"
-    Then should see valid JSON
-
-  @broken   
-  Scenario: Check JSON is valid
-    Given I am on "/grid_proxy.php?_search=a:4$%@})']\%22({[&sidx=a:4$%@})']\%22({[&sord=a:4$%@})']\%22({[&page=a:4$%@})']\%22({[&rows=a:4$%@})']\%22({["
-    Then should see valid JSON
