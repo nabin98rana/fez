@@ -39,10 +39,11 @@
 include_once dirname(__FILE__).'/config.inc.php';
 
 $filter = new Zend_Filter_Alpha();
-$format    = $filter->filter($_GET['format']);
+$format    = $filter->filter($_GET['format_type']);
 $filter = new Zend_Filter_Int();
 $maxwidth  = $filter->filter($_GET['maxwidth']);
 $maxheight = $filter->filter($_GET['maxheight']);
+$url = $_GET['url'];
 
 function oembed_notfound($format='') {
     header('HTTP/1.0 404 Not Found');
