@@ -11,7 +11,6 @@
     {if (   $field.xsdmf_html_input != 'xsdmf_id_ref'
         and $field.xsdmf_html_input != 'xsd_ref'
         and $field.xsdmf_html_input != 'conference_suggestor'
-        and $field.xsdmf_html_input != 'author_suggestor'
         and $field.xsdmf_html_input != 'publisher_suggestor'
         and $field.xsdmf_html_input != 'dynamic'
         and $field.xsdmf_html_input != '')}
@@ -30,6 +29,7 @@
 
                 <xsd_display_field>
                     <xsdmf_id>{$field.xsdmf_id}</xsdmf_id>
+                    <xsdmf_attached_id>{$field.xsdmf_attached_xsdmf_id}</xsdmf_attached_id>
                     <xsdmf_title>{$field.xsdmf_title}</xsdmf_title>
                     <xsdmf_invsible>{$field.xsdmf_invisible}</xsdmf_invsible>
                     <xsdmf_required>{$field.xsdmf_required}</xsdmf_required>

@@ -230,14 +230,26 @@ class API
      * eg
      *   $sxml = new SimpleXmlElement('<something><xsd_display_fields><xsd_display_field>...</something>');
      *
-     * @param SimpleXmlElement $sxml The SimpleXMLElement object we are parsing
-     * @param $xsd_df The display object we compare our SimpleXmlElement against
-     * @param $details The details object represents our record details if available.
-     *
+     * @param SimpleXmlElement $sxml Represents xml of a record with possible changes we need to persist
+     * @param $xsd_df The display object we compare against
+     * @param $details The matching field details object which represents the current data for this record
+     * @return array ($xsd_display_fields, $external)
+     *    where $_POST['xsd_display_fields'] = &$xsd_display_fields;
+     *    and $external is an array of key/values that should be added to $_POST
+     *    (alongside the 'xsd_display_fields' key).
      */
     private static function extractXsdmfFields(SimpleXmlElement $sxml, $xsd_df, $details = array())
     {
-        // pay no attention to this sorcery. It is a convenience for accessing fields.
+
+        if (count($sxml->xsd_display_fields) < 1) {
+            API::reply(400, API::makeResponse(
+                400,
+                "Malformed xml. All required display fields should be submitted." ), APP_API
+            );
+            exit;
+        }
+
+        // Key $xsd_df by $xsdmf_id.
         $ids = array_map(function ($xsdmf_array) {
             return $xsdmf_array['xsdmf_id'];
         }, $xsd_df);
@@ -250,12 +262,15 @@ class API
             }
         });
 
-        if (count($sxml->xsd_display_fields) < 1) {
-            API::reply(400, API::makeResponse(400, "Malformed xml. All required display fields should be submitted."), APP_API);
-            exit;
-        }
+        // Stores external key/values that will be sibling keys to the _POST['xsd_display_fields'].
+        //
+        // Main motivation is attached xsdmf_id's (eg author_suggestor
+        // / internal author id) which fez expects to see in separate
+        // keys alongside 'xsd_display_fields' (in _POST).
+
+        $external = array();
+
         foreach ($sxml->xsd_display_fields->xsd_display_field as $f) {
-            $xsdmf_id = (int)$f->xsdmf_id;
 
             if (!isset($f->xsdmf_id)) {
                 self::reply(
@@ -279,8 +294,8 @@ class API
                 exit;
             }
 
-            $element = $f->xsdmf_value;
-
+            $xsdmf_id = (int)$f->xsdmf_id;
+            $element  = $f->xsdmf_value;
             $fielddef = $xsd_df_better[$xsdmf_id];
 
             // Check the field isn't empty.
@@ -301,7 +316,32 @@ class API
                     unset($required[$xsdmf_id]);
                 }
             }
-            if ($fielddef['xsdmf_multiple'] == 1
+
+            // This will generate a format used to update internal author ids.
+            //
+            // Uses attached xsdmf id.
+            // 
+            // We will need to generate the following format:
+            //   _POST['xsd_display_fields_xsdmfid_0'] => N
+            //   _POST['xsd_display_fields_xsdmfid_1'] => M
+            //   ...
+            // where N,M are either 0 or non-zero id.
+            // which is external to
+            //   _POST['xsd_display_fields']
+            // so we update $external.
+
+            if ($fielddef['xsdmf_html_input'] == 'author_suggestor') {
+                if (!isset($element)) continue;
+                $author_id_count = 0;
+                foreach ($element as $author_id) {
+                    $author_id = (int)$author_id;
+                    $key = 'xsd_display_fields_' . $xsdmf_id . '_' . $author_id_count;
+                    $external[$key] = $author_id;
+                    $author_id_count += 1;
+                }
+            }
+
+            elseif ($fielddef['xsdmf_multiple'] == 1
                 || $fielddef['xsdmf_html_input'] == 'multiple'
                 || $fielddef['xsdmf_html_input'] == 'contvocab_selector') {
                 $arr = array();
@@ -415,7 +455,7 @@ class API
         });
 
         // post expects $_POST['id'] = 'value'
-        return $details;
+        return array($details, $external);
     }
 
     /**
@@ -646,8 +686,8 @@ class API
     /**
      * This function populates the global $_POST variable with the file_get_contents of the Request if
      * the Request is for an API resource (json/xml).
-     * @param $xsd_df The display field object to check this request against. Typically called by getting the display details of a record
-     * @param $xsd_df The display details. Typically these are the details already associated with this xsd_df (in the case of an edit)
+     * @param $xsd_df  The match fields list for a specific display type.
+     * @param $details Corresponding data for a record for the $xsd_df; for new records this would be blank.
      * @param $populate_record_context In some cases we may just be populating a form that is using xsd display fields but is not a record (ex. edit security metadata fields)
      * @return void
      **/
@@ -670,13 +710,13 @@ class API
         if ($details) {
             //$xsd_df = $record->display->getMatchFieldsList(array("FezACML"), array());
             //$details = $record->getDetails();
-            $xsd_display_fields = self::extractXsdmfFields($sxml, $xsd_df, $details);
+            list($xsd_display_fields, $external) = self::extractXsdmfFields($sxml, $xsd_df, $details);
         } else {
             if (!isset($xsd_df)) {
                 $xsd_d = new XSD_DisplayObject($xdis_id);
                 $xsd_df = $xsd_d->getMatchFieldsList(array("FezACML"), array());
             }
-            $xsd_display_fields = self::extractXsdmfFields($sxml, $xsd_df);
+            list($xsd_display_fields, $external) = self::extractXsdmfFields($sxml, $xsd_df);
             $_POST['cat'] = "report"; // It's expecting this report value from the html POST version of this. We'll add it in here to be in line.
         }
 
@@ -685,6 +725,11 @@ class API
         $_POST['sta_id'] = $sta_id;
         $_POST['workflow_button_' . $workflow_button_id] = $workflow_button_val;
         $_POST['xsd_display_fields'] = &$xsd_display_fields;
+        if (is_array($external)) {
+            foreach ($external as $fieldName => $fieldValue) {
+                $_POST[$fieldName] = $fieldValue;
+            }
+        }
 
         // This stuff doesn't need to be called if we're calling it as edit security context
         if ($populate_record_context) {
