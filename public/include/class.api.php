@@ -310,32 +310,75 @@ class API
                 }
                 $details[$xsdmf_id] = $arr;
             } elseif ($fielddef['xsdmf_html_input'] == 'date') {
-                // Submitting a datefield comes as array("Day" => 01, "Month" => 03, "Year" => 2007)
-                //
+
+                $elementStr = trim((string)$element);
+
+                // Extract date as array("Day" => 01, "Month" => 03, "Year" => 2007).
+                // 
+                // xsdmf_date_type:
+                // 1 => YYYY
+                // 0 => YYYY-MM-DD
+                // 
                 // <xsdmf_value>
-                //     <day>31</day>
-                //     <month>10</month>
                 //     <year>2014</year>
+                //     [<month>10</month>]
+                //     [<day>31</day>]
                 // </xsdmf_value>
-                //
+
                 if ($fielddef['xsdmf_date_type'] == 1) {
-                    // 0 means we're just posting a year.
-                    // if there is a year set and it isn't length 4. If there is no year set
-                    if (isset($element->year) && strlen((string)$element->year) == 4) {
-                        $details[$xsdmf_id] = array('Year' => (string)$element->year);
-                    } elseif (isset($element->year) || !empty($element)) {
-                        API::reply(400, API::makeResponse(400, "Invalid date format. Please specify in the correct format."), APP_API);
+                    if (isset($element->year) ) {
+                        $year = (string)$element->year;
+                        $yearlength = strlen($year);
+                        if ($yearlength == 4) {
+                            $details[$xsdmf_id] = array('Year' => $year);
+                        }
+                        elseif ($yearlength == 0) {
+                            // Ignore, blank date.
+                        }
+                        else {
+                            API::reply(400, API::makeResponse(
+                                400,
+                                "Invalid date format for xsdmf_id: $xsdmf_id . " .
+                                "Got '$year', expected 4 digits." ), APP_API
+                            );
+                        }
+                    }
+                    elseif (strlen($elementStr) > 0) {
+                        API::reply(400, API::makeResponse(
+                            400,
+                            "Invalid date format for xsdmf_id: $xsdmf_id . " .
+                            "Got '$elementStr', expected: <year>YYYY</year>" ), APP_API
+                        );
                         exit;
                     }
-                } else {
-                    // Anything else is assumed to be a Day/Month/Year sort of deal.
-                    if (API::isValidDateField($element)) {
-                        $details[$xsdmf_id] = array('Year' =>  (string)$element->year, 'Month' => (string)$element->month, 'Day' => (string)$element->day);
-                    } else {
-                        API::reply(400, API::makeResponse(400, "Invalid date format. Please specify in the correct format."), APP_API);
-                        exit;
+                    else {
+                        // Ignore, blank date.
                     }
                 }
+
+                // Anything else is assumed to be a Day/Month/Year tags.
+
+                else {
+                    if (API::isValidDateField($element)) {
+                        $details[$xsdmf_id] = array(
+                            'Year' =>  (string)$element->year,
+                            'Month' => (string)$element->month,
+                            'Day' => (string)$element->day
+                        );
+                    }
+                    elseif (strlen($elementStr) > 0) {
+                        API::reply(400, API::makeResponse(
+                            400,
+                            "Invalid date format.  Expected year/month/day tags, got: '$elementStr' . " .
+                            "Please specify in the correct format."), APP_API
+                        );
+                        exit;
+                    }
+                    else {
+                        // Ignore, blank date.
+                    }
+                }
+
             } elseif ($fielddef['xsdmf_html_input'] == 'checkbox') {
                 if ($val_str === "off" || $val_str === 0) {
                     // Fez designates unchecking a checkbox by unsetting the xsdmf_id for the checkbox.

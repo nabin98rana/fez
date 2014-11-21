@@ -78,12 +78,18 @@
                         <xsdmf_value></xsdmf_value>
                         {/section}
                     {else}
-                        {* We should return this as an iso 8601 timestamp, but because date is used to represent all kinds of dates we cannot.
                         {if $field.xsdmf_html_input == 'date'}
-                            <xsdmf_value><![CDATA[{$details[$temp_fld_id]|date_format:"%c"}]]></xsdmf_value>
+                            {* We have detected a specific date format, so present this in xml (for APP_API). *}
+                            {if $field.xsdmf_html_input_date_format == 'YYY-MM-DD'}
+                                <xsdmf_value>{$details[$temp_fld_id]|smarty:nodefaults}</xsdmf_value>
+                            {elseif $field.xsdmf_html_input_date_format == 'YYY'}
+                                <xsdmf_value>{$details[$temp_fld_id]|smarty:nodefaults}</xsdmf_value>
+                            {else}
+                                <xsdmf_value>{$details[$temp_fld_id]|smarty:nodefaults}</xsdmf_value>
+                            {/if}
+                        {else}
+                            <xsdmf_value>{$details[$temp_fld_id]}</xsdmf_value>
                         {/if}
-                        *}
-                        <xsdmf_value><![CDATA[{$details[$temp_fld_id]}]]></xsdmf_value>
                     {/if}
                 </xsd_display_field>
                 {/if}
