@@ -84,6 +84,8 @@
                     {if is_array($details[$temp_fld_id])}
                         {section loop=$details[$temp_fld_id] name=i}
                         <xsdmf_value><![CDATA[{$details[$temp_fld_id][i]}]]></xsdmf_value>
+                        {sectionelse}
+                        <xsdmf_value></xsdmf_value>
                         {/section}
                     {else}
                         {* We should return this as an iso 8601 timestamp, but because date is used to represent all kinds of dates we cannot.
