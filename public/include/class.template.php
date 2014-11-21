@@ -162,7 +162,11 @@ class Template_API
     {
         // If we're making an API call, at the last second lets just make sure we're returning xml, if not 400.
         if (APP_API && strpos($this->tpl_name, '.tpl.xml') == false) {
-            API::reply(400, API::makeResponse(400, "Your browser sent a request that this server could not understand."), APP_API);
+            API::reply(400, API::makeResponse(
+                400,
+                "Your browser sent a request that this server could not understand.  " .
+                "There is no xml version for '" . $this->tpl_name . "'. "), APP_API
+            );
             exit;
         }
         if (APP_API_JSON) {

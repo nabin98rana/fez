@@ -6,12 +6,6 @@
 
 {* Filter out some fields in the display: *}
 
-{*
-<![CDATA[
-{$datastreams|print_r}
-]]>
-*}
-
 <xsd_display_fields>
 {foreach from=$xsd_display_fields item=field}
     {if (   $field.xsdmf_html_input != 'xsdmf_id_ref'
@@ -55,16 +49,12 @@
                     <field_options>
                         {if ($field.xsdmf_html_input == 'contvocab_selector')}
                             <uri>
-                                <![CDATA[
-                                    {$rel_url}cv_selector.php?parent_id={$field.xsdmf_cvo_id}&form=wfl_form1&element=xsd_display_fields_{$field.xsdmf_id}_0&xsdmf_cvo_min_level={$field.xsdmf_cvo_min_level}
-                                ]]>
+                                <![CDATA[{$rel_url}cv_selector.php?parent_id={$field.xsdmf_cvo_id}&form=wfl_form1&element=xsd_display_fields_{$field.xsdmf_id}_0&xsdmf_cvo_min_level={$field.xsdmf_cvo_min_level}]]>
                             </uri>
                         {/if}
                         {if ($field.xsdmf_html_input == 'file_input' && $field.xsdmf_title == 'File Upload')}
                             <uri>
-                                <![CDATA[
-                                    {$rel_url}uploader_upload_files.php?format=xml&workflowId={$id}&xsdmf_id={$field.xsdmf_id}&fileNumber=0
-                                ]]>
+                                <![CDATA[{$rel_url}uploader_upload_files.php?format=xml&workflowId={$id}&xsdmf_id={$field.xsdmf_id}&fileNumber=0]]>
                             </uri>
                         {/if}
                         {foreach from=$field.field_options item=option key=value}

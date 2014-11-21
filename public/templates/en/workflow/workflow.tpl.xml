@@ -18,9 +18,7 @@
         <wfl_progress>
             {section name="i" loop=$states_done}
                 <wfl_state>{$states_done[i].wfs_auto}</wfl_state>
-                <wfl_url><![CDATA[
-                    {$rel_url}workflow/{$states_done[i].wfb_script_name}?id={$id}&wfs_id={$states_done[i].wfs_id}
-                ]]></wfl_url>
+                <wfl_url><![CDATA[{$rel_url}workflow/{$states_done[i].wfb_script_name}?id={$id}&wfs_id={$states_done[i].wfs_id}]]></wfl_url>
             {/section}
         </wfl_progress>
     {/if}

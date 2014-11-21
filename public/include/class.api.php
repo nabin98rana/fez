@@ -185,7 +185,7 @@ class API
      *
      * @param SimpleXmlElement $node The date node we're checking
      */
-    private static function isValidDateField($node)
+    private static function isValidDateField(SimpleXmlElement $node)
     {
         // If the year/month/day is not set, just consider this an empty date for convenience sake.
         if (!isset($node->year) || !isset($node->month) || !isset($node->day)) {
@@ -257,9 +257,25 @@ class API
         foreach ($sxml->xsd_display_fields->xsd_display_field as $f) {
             $xsdmf_id = (int)$f->xsdmf_id;
 
-            if (!isset($f->xsdmf_value) || !isset($f->xsdmf_id)) {
+            if (!isset($f->xsdmf_id)) {
+                self::reply(
+                    400,
+                    self::makeResponse(
+                        400,
+                        "You submitted an xsd_display_field without an xsdmf_id child element."),
+                    APP_API);
+                exit;
+            }
+
+            if (!isset($f->xsdmf_value)) {
                 // Every value POSTed should have xsdmf_id and xsdmf_value
-                API::reply(400, API::makeResponse(400, "Both the xsdmf_id and the xsdmf_value field are required."), APP_API);
+                self::reply(
+                    400,
+                    self::makeResponse(
+                        400,
+                        "child element: xsdmf_value is required for xsdmf_id '" .
+                        $f->xsdmf_id . "'."),
+                    APP_API);
                 exit;
             }
 
@@ -276,7 +292,10 @@ class API
             // Take note if this was required.
             if ($fielddef['xsdmf_required'] == 1) {
                 if (!$element || (!$multi_val && empty($val_str))) {
-                    API::reply(400, API::makeResponse(400, "Missing required field for {$xsdmf_id}."), APP_API);
+                    API::reply(400, API::makeResponse(
+                        400,
+                        "Missing required field for xsdmf_id: {$xsdmf_id} ."), APP_API
+                    );
                     exit;
                 } else {
                     unset($required[$xsdmf_id]);
