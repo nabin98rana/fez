@@ -38,11 +38,11 @@
                         <w_title>
                             {$workflows[w].wfl_title}
                         </w_title>
-                        <w_url><![CDATA[{$wf_url}?pid={$pid}&amp;cat=select_workflow&amp;xdis_id={$xdis_id}&amp;wft_id={$workflows[w].wft_id}&amp;href={$smarty.server.REQUEST_URI}]]></w_url>
+                        <w_url><![CDATA[{$wf_url}?pid={$pid}&cat=select_workflow&xdis_id={$xdis_id}&wft_id={$workflows[w].wft_id}&href={$smarty.server.REQUEST_URI}]]></w_url>
                     {/if}
                     </workflow>
                 {/section}
-                <workflow_option_url><![CDATA[{$rel_url}workflow/list_workflows2.php?pid={$pid}&amp;href={$smarty.server.REQUEST_URI|smarty:nodefaults|escape:url}]]></workflow_option_url>
+                <workflow_option_url><![CDATA[{$rel_url}workflow/list_workflows2.php?pid={$pid}&href={$smarty.server.REQUEST_URI|smarty:nodefaults|escape:url}]]></workflow_option_url>
             {/if}
         {/if}
     {/if}
@@ -250,7 +250,7 @@
                 {* <!--fez:statsDownloads--> <!--/fez:statsDownloads-->*}
                 {if $fileCount > 0}{$statsFiles}{/if}
             </citation_downloads>
-            <access_details_url><![CDATA[{$rel_url}stat_details.php?action=show_detail&amp;pid={$pid}]]></access_details_url>
+            <access_details_url><![CDATA[{$rel_url}stat_details.php?action=show_detail&pid={$pid}]]></access_details_url>
         </citation_access_stats>
     {/if}
 </citation_statistics>
