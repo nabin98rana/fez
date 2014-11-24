@@ -72,11 +72,17 @@
                     <xsdmf_description><![CDATA[{$field.xsdmf_description}]]></xsdmf_description>
                     <xsdmf_multiple>{$field.xsdmf_multiple}</xsdmf_multiple>
                     {if is_array($details[$temp_fld_id])}
+                        {if ($field.xsdmf_html_input == 'contvocab_selector')}
+                        {foreach from=$details[$temp_fld_id] key=cvo_id item=name }
+                        <xsdmf_value><![CDATA[{$cvo_id}]]></xsdmf_value>
+                        {/foreach}
+                        {else}
                         {section loop=$details[$temp_fld_id] name=i}
                         <xsdmf_value><![CDATA[{$details[$temp_fld_id][i]}]]></xsdmf_value>
                         {sectionelse}
                         <xsdmf_value></xsdmf_value>
                         {/section}
+                        {/if}
                     {else}
                         {if $field.xsdmf_html_input == 'date'}
                             {* We have detected a specific date format, so present this in xml (for APP_API). *}
