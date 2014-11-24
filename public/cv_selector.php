@@ -103,7 +103,12 @@ $isUser = Auth::getUsername();
 if (is_numeric($parent_id) && !(User::isUserAdministrator($isUser))) {
     $cv_tree = Controlled_Vocab::renderCVtree(Controlled_Vocab::buildCVtree(APP_API, $parent_id, true), APP_API, $parent_id);
 } else {
-    $cv_tree = Controlled_Vocab::renderCVtree(Controlled_Vocab::buildCVtree(APP_API), APP_API);
+    // Adminstrators using API should get vocab rooted in $parent_id.
+    if (APP_API && is_numeric($parent_id)) {
+        $cv_tree = Controlled_Vocab::renderCVtree(Controlled_Vocab::buildCVtree(APP_API, $parent_id, true), APP_API, $parent_id);
+    } else {
+        $cv_tree = Controlled_Vocab::renderCVtree(Controlled_Vocab::buildCVtree(APP_API), APP_API);
+    }
 }
 
 $tpl->assign("cvo_details", $cvo_details);
