@@ -107,6 +107,31 @@ class RecordEditForm
                     $xsdmf['fields_num_display'] = count(array_filter($details[$xsdmf['xsdmf_id']])) + 1;
                 }
             }
+
+            // Handle YYY-MM-DD dates and YYY dates.
+            //
+            // We will present this in a form that the API will accept
+            // if it gets POSTed back to us in an update.
+
+            if (APP_API) {
+                if($xsdmf['xsdmf_html_input'] == 'date') {
+                    $dateval = $details[$xsdmf['xsdmf_id']];
+                    if (preg_match('/^\d\d\d\d-\d\d-\d\d$/', $dateval)) {
+                        $xsdmf['xsdmf_html_input_date_format'] = "YYY-MM-DD";
+                        $parts = explode('-', $dateval);
+                        $details[$xsdmf['xsdmf_id']] =
+                            '<year>'.$parts[0].'</year>'.
+                            '<month>'.$parts[1].'</month>'.
+                            '<day>'.$parts[2].'</day>';
+                    }
+                    else if (preg_match('/^\d\d\d\d$/', $dateval)) {
+                        $xsdmf['xsdmf_html_input_date_format'] = "YYY";
+                        $details[$xsdmf['xsdmf_id']] = '<year>'.$dateval.'</year>';
+                    }
+
+                }
+            }
+
         }
 
         $tpl->assign("xsd_display_fields",  $xsdmf_to_use);

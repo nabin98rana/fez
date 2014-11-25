@@ -381,7 +381,11 @@ class WorkflowStatus
             // If wfb_details is bad, they are supplying a bad workflow id. We need to 400 them here
             // if you don't zend will catch the error and return html
             if (!$this->wfb_details) {
-                API::reply(400, API::makeResponse(400, "Your browser sent a request that this server could not understand."), APP_API);
+                API::reply(400, API::makeResponse(
+                    400,
+                    "Your browser sent a request that this server could not understand.  " .
+                    "Could not retrieve wfb_details (workflow behaviour details) for this request." ), APP_API
+                );
                 exit;
             }
         }

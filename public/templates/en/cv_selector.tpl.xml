@@ -1,20 +1,10 @@
 <cv_tree>
     {foreach from=$cv_tree item=element}
         <element>
-            <cvo_id>
-                {$element.cvo_id}
-            </cvo_id>
-            <cvo_title>
-                {$element.cvo_title}
-            </cvo_title>
-            <cvo_title_extended>
-                <![CDATA[
-                    {$element.cvo_title_extended}
-                ]]>
-            </cvo_title_extended>
-            <cvo_parent_id>
-                {$element.cvo_parent_id}
-            </cvo_parent_id>
+            <cvo_id>{$element.cvo_id}</cvo_id>
+            <cvo_title>{$element.cvo_title}</cvo_title>
+            <cvo_title_extended><![CDATA[{$element.cvo_title_extended}]]></cvo_title_extended>
+            <cvo_parent_id>{$element.cvo_parent_id}</cvo_parent_id>
         </element>
     {/foreach}
 </cv_tree>

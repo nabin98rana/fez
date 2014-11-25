@@ -3,11 +3,6 @@
     - MGS TODO: Use the xsd_display_fields render function in class api, but only show if show_in_view 
 *}
 
-{*
-<![CDATA[
-{$details|print_r}
-]]>
-*}
 <xsd_display_fields>
 {section name="i" loop=$xsd_display_fields}
     {if $xsd_display_fields[i].xsdmf_html_input != 'static' 

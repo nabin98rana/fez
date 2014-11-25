@@ -6,18 +6,11 @@
 
 {* Filter out some fields in the display: *}
 
-{*
-<![CDATA[
-{$datastreams|print_r}
-]]>
-*}
-
 <xsd_display_fields>
 {foreach from=$xsd_display_fields item=field}
     {if (   $field.xsdmf_html_input != 'xsdmf_id_ref'
         and $field.xsdmf_html_input != 'xsd_ref'
         and $field.xsdmf_html_input != 'conference_suggestor'
-        and $field.xsdmf_html_input != 'author_suggestor'
         and $field.xsdmf_html_input != 'publisher_suggestor'
         and $field.xsdmf_html_input != 'dynamic'
         and $field.xsdmf_html_input != '')}
@@ -36,6 +29,7 @@
 
                 <xsd_display_field>
                     <xsdmf_id>{$field.xsdmf_id}</xsdmf_id>
+                    <xsdmf_attached_id>{$field.xsdmf_attached_xsdmf_id}</xsdmf_attached_id>
                     <xsdmf_title>{$field.xsdmf_title}</xsdmf_title>
                     <xsdmf_invsible>{$field.xsdmf_invisible}</xsdmf_invsible>
                     <xsdmf_required>{$field.xsdmf_required}</xsdmf_required>
@@ -55,16 +49,12 @@
                     <field_options>
                         {if ($field.xsdmf_html_input == 'contvocab_selector')}
                             <uri>
-                                <![CDATA[
-                                    {$rel_url}cv_selector.php?parent_id={$field.xsdmf_cvo_id}&form=wfl_form1&element=xsd_display_fields_{$field.xsdmf_id}_0&xsdmf_cvo_min_level={$field.xsdmf_cvo_min_level}
-                                ]]>
+                                <![CDATA[{$rel_url}cv_selector.php?parent_id={$field.xsdmf_cvo_id}&form=wfl_form1&element=xsd_display_fields_{$field.xsdmf_id}_0&xsdmf_cvo_min_level={$field.xsdmf_cvo_min_level}]]>
                             </uri>
                         {/if}
                         {if ($field.xsdmf_html_input == 'file_input' && $field.xsdmf_title == 'File Upload')}
                             <uri>
-                                <![CDATA[
-                                    {$rel_url}uploader_upload_files.php?format=xml&workflowId={$id}&xsdmf_id={$field.xsdmf_id}&fileNumber=0
-                                ]]>
+                                <![CDATA[{$rel_url}uploader_upload_files.php?format=xml&workflowId={$id}&xsdmf_id={$field.xsdmf_id}&fileNumber=0]]>
                             </uri>
                         {/if}
                         {foreach from=$field.field_options item=option key=value}
@@ -82,16 +72,30 @@
                     <xsdmf_description><![CDATA[{$field.xsdmf_description}]]></xsdmf_description>
                     <xsdmf_multiple>{$field.xsdmf_multiple}</xsdmf_multiple>
                     {if is_array($details[$temp_fld_id])}
+                        {if ($field.xsdmf_html_input == 'contvocab_selector')}
+                        {foreach from=$details[$temp_fld_id] key=cvo_id item=name }
+                        <xsdmf_value><![CDATA[{$cvo_id}]]></xsdmf_value>
+                        {/foreach}
+                        {else}
                         {section loop=$details[$temp_fld_id] name=i}
                         <xsdmf_value><![CDATA[{$details[$temp_fld_id][i]}]]></xsdmf_value>
+                        {sectionelse}
+                        <xsdmf_value></xsdmf_value>
                         {/section}
-                    {else}
-                        {* We should return this as an iso 8601 timestamp, but because date is used to represent all kinds of dates we cannot.
-                        {if $field.xsdmf_html_input == 'date'}
-                            <xsdmf_value><![CDATA[{$details[$temp_fld_id]|date_format:"%c"}]]></xsdmf_value>
                         {/if}
-                        *}
-                        <xsdmf_value><![CDATA[{$details[$temp_fld_id]}]]></xsdmf_value>
+                    {else}
+                        {if $field.xsdmf_html_input == 'date'}
+                            {* We have detected a specific date format, so present this in xml (for APP_API). *}
+                            {if $field.xsdmf_html_input_date_format == 'YYY-MM-DD'}
+                                <xsdmf_value>{$details[$temp_fld_id]|smarty:nodefaults}</xsdmf_value>
+                            {elseif $field.xsdmf_html_input_date_format == 'YYY'}
+                                <xsdmf_value>{$details[$temp_fld_id]|smarty:nodefaults}</xsdmf_value>
+                            {else}
+                                <xsdmf_value>{$details[$temp_fld_id]|smarty:nodefaults}</xsdmf_value>
+                            {/if}
+                        {else}
+                            <xsdmf_value>{$details[$temp_fld_id]}</xsdmf_value>
+                        {/if}
                     {/if}
                 </xsd_display_field>
                 {/if}

@@ -185,7 +185,7 @@ class API
      *
      * @param SimpleXmlElement $node The date node we're checking
      */
-    private static function isValidDateField($node)
+    private static function isValidDateField(SimpleXmlElement $node)
     {
         // If the year/month/day is not set, just consider this an empty date for convenience sake.
         if (!isset($node->year) || !isset($node->month) || !isset($node->day)) {
@@ -230,14 +230,26 @@ class API
      * eg
      *   $sxml = new SimpleXmlElement('<something><xsd_display_fields><xsd_display_field>...</something>');
      *
-     * @param SimpleXmlElement $sxml The SimpleXMLElement object we are parsing
-     * @param $xsd_df The display object we compare our SimpleXmlElement against
-     * @param $details The details object represents our record details if available.
-     *
+     * @param SimpleXmlElement $sxml Represents xml of a record with possible changes we need to persist
+     * @param $xsd_df The display object we compare against
+     * @param $details The matching field details object which represents the current data for this record
+     * @return array ($xsd_display_fields, $external)
+     *    where $_POST['xsd_display_fields'] = &$xsd_display_fields;
+     *    and $external is an array of key/values that should be added to $_POST
+     *    (alongside the 'xsd_display_fields' key).
      */
     private static function extractXsdmfFields(SimpleXmlElement $sxml, $xsd_df, $details = array())
     {
-        // pay no attention to this sorcery. It is a convenience for accessing fields.
+
+        if (count($sxml->xsd_display_fields) < 1) {
+            API::reply(400, API::makeResponse(
+                400,
+                "Malformed xml. All required display fields should be submitted." ), APP_API
+            );
+            exit;
+        }
+
+        // Key $xsd_df by $xsdmf_id.
         $ids = array_map(function ($xsdmf_array) {
             return $xsdmf_array['xsdmf_id'];
         }, $xsd_df);
@@ -250,21 +262,40 @@ class API
             }
         });
 
-        if (count($sxml->xsd_display_fields) < 1) {
-            API::reply(400, API::makeResponse(400, "Malformed xml. All required display fields should be submitted."), APP_API);
-            exit;
-        }
-        foreach ($sxml->xsd_display_fields->xsd_display_field as $f) {
-            $xsdmf_id = (int)$f->xsdmf_id;
+        // Stores external key/values that will be sibling keys to the _POST['xsd_display_fields'].
+        //
+        // Main motivation is attached xsdmf_id's (eg author_suggestor
+        // / internal author id) which fez expects to see in separate
+        // keys alongside 'xsd_display_fields' (in _POST).
 
-            if (!isset($f->xsdmf_value) || !isset($f->xsdmf_id)) {
-                // Every value POSTed should have xsdmf_id and xsdmf_value
-                API::reply(400, API::makeResponse(400, "Both the xsdmf_id and the xsdmf_value field are required."), APP_API);
+        $external = array();
+
+        foreach ($sxml->xsd_display_fields->xsd_display_field as $f) {
+
+            if (!isset($f->xsdmf_id)) {
+                self::reply(
+                    400,
+                    self::makeResponse(
+                        400,
+                        "You submitted an xsd_display_field without an xsdmf_id child element."),
+                    APP_API);
                 exit;
             }
 
-            $element = $f->xsdmf_value;
+            if (!isset($f->xsdmf_value)) {
+                // Every value POSTed should have xsdmf_id and xsdmf_value
+                self::reply(
+                    400,
+                    self::makeResponse(
+                        400,
+                        "child element: xsdmf_value is required for xsdmf_id '" .
+                        $f->xsdmf_id . "'."),
+                    APP_API);
+                exit;
+            }
 
+            $xsdmf_id = (int)$f->xsdmf_id;
+            $element  = $f->xsdmf_value;
             $fielddef = $xsd_df_better[$xsdmf_id];
 
             // Check the field isn't empty.
@@ -276,13 +307,41 @@ class API
             // Take note if this was required.
             if ($fielddef['xsdmf_required'] == 1) {
                 if (!$element || (!$multi_val && empty($val_str))) {
-                    API::reply(400, API::makeResponse(400, "Missing required field for {$xsdmf_id}."), APP_API);
+                    API::reply(400, API::makeResponse(
+                        400,
+                        "Missing required field for xsdmf_id: {$xsdmf_id} ."), APP_API
+                    );
                     exit;
                 } else {
                     unset($required[$xsdmf_id]);
                 }
             }
-            if ($fielddef['xsdmf_multiple'] == 1
+
+            // This will generate a format used to update internal author ids.
+            //
+            // Uses attached xsdmf id.
+            // 
+            // We will need to generate the following format:
+            //   _POST['xsd_display_fields_xsdmfid_0'] => N
+            //   _POST['xsd_display_fields_xsdmfid_1'] => M
+            //   ...
+            // where N,M are either 0 or non-zero id.
+            // which is external to
+            //   _POST['xsd_display_fields']
+            // so we update $external.
+
+            if ($fielddef['xsdmf_html_input'] == 'author_suggestor') {
+                if (!isset($element)) continue;
+                $author_id_count = 0;
+                foreach ($element as $author_id) {
+                    $author_id = (int)$author_id;
+                    $key = 'xsd_display_fields_' . $xsdmf_id . '_' . $author_id_count;
+                    $external[$key] = $author_id;
+                    $author_id_count += 1;
+                }
+            }
+
+            elseif ($fielddef['xsdmf_multiple'] == 1
                 || $fielddef['xsdmf_html_input'] == 'multiple'
                 || $fielddef['xsdmf_html_input'] == 'contvocab_selector') {
                 $arr = array();
@@ -291,32 +350,75 @@ class API
                 }
                 $details[$xsdmf_id] = $arr;
             } elseif ($fielddef['xsdmf_html_input'] == 'date') {
-                // Submitting a datefield comes as array("Day" => 01, "Month" => 03, "Year" => 2007)
-                //
+
+                $elementStr = trim((string)$element);
+
+                // Extract date as array("Day" => 01, "Month" => 03, "Year" => 2007).
+                // 
+                // xsdmf_date_type:
+                // 1 => YYYY
+                // 0 => YYYY-MM-DD
+                // 
                 // <xsdmf_value>
-                //     <day>31</day>
-                //     <month>10</month>
                 //     <year>2014</year>
+                //     [<month>10</month>]
+                //     [<day>31</day>]
                 // </xsdmf_value>
-                //
+
                 if ($fielddef['xsdmf_date_type'] == 1) {
-                    // 0 means we're just posting a year.
-                    // if there is a year set and it isn't length 4. If there is no year set
-                    if (isset($element->year) && strlen((string)$element->year) == 4) {
-                        $details[$xsdmf_id] = array('Year' => (string)$element->year);
-                    } elseif (isset($element->year) || !empty($element)) {
-                        API::reply(400, API::makeResponse(400, "Invalid date format. Please specify in the correct format."), APP_API);
+                    if (isset($element->year) ) {
+                        $year = (string)$element->year;
+                        $yearlength = strlen($year);
+                        if ($yearlength == 4) {
+                            $details[$xsdmf_id] = array('Year' => $year);
+                        }
+                        elseif ($yearlength == 0) {
+                            // Ignore, blank date.
+                        }
+                        else {
+                            API::reply(400, API::makeResponse(
+                                400,
+                                "Invalid date format for xsdmf_id: $xsdmf_id . " .
+                                "Got '$year', expected 4 digits." ), APP_API
+                            );
+                        }
+                    }
+                    elseif (strlen($elementStr) > 0) {
+                        API::reply(400, API::makeResponse(
+                            400,
+                            "Invalid date format for xsdmf_id: $xsdmf_id . " .
+                            "Got '$elementStr', expected: <year>YYYY</year>" ), APP_API
+                        );
                         exit;
                     }
-                } else {
-                    // Anything else is assumed to be a Day/Month/Year sort of deal.
-                    if (API::isValidDateField($element)) {
-                        $details[$xsdmf_id] = array('Year' =>  (string)$element->year, 'Month' => (string)$element->month, 'Day' => (string)$element->day);
-                    } else {
-                        API::reply(400, API::makeResponse(400, "Invalid date format. Please specify in the correct format."), APP_API);
-                        exit;
+                    else {
+                        // Ignore, blank date.
                     }
                 }
+
+                // Anything else is assumed to be a Day/Month/Year tags.
+
+                else {
+                    if (API::isValidDateField($element)) {
+                        $details[$xsdmf_id] = array(
+                            'Year' =>  (string)$element->year,
+                            'Month' => (string)$element->month,
+                            'Day' => (string)$element->day
+                        );
+                    }
+                    elseif (strlen($elementStr) > 0) {
+                        API::reply(400, API::makeResponse(
+                            400,
+                            "Invalid date format.  Expected year/month/day tags, got: '$elementStr' . " .
+                            "Please specify in the correct format."), APP_API
+                        );
+                        exit;
+                    }
+                    else {
+                        // Ignore, blank date.
+                    }
+                }
+
             } elseif ($fielddef['xsdmf_html_input'] == 'checkbox') {
                 if ($val_str === "off" || $val_str === 0) {
                     // Fez designates unchecking a checkbox by unsetting the xsdmf_id for the checkbox.
@@ -353,7 +455,7 @@ class API
         });
 
         // post expects $_POST['id'] = 'value'
-        return $details;
+        return array($details, $external);
     }
 
     /**
@@ -584,8 +686,8 @@ class API
     /**
      * This function populates the global $_POST variable with the file_get_contents of the Request if
      * the Request is for an API resource (json/xml).
-     * @param $xsd_df The display field object to check this request against. Typically called by getting the display details of a record
-     * @param $xsd_df The display details. Typically these are the details already associated with this xsd_df (in the case of an edit)
+     * @param $xsd_df  The match fields list for a specific display type.
+     * @param $details Corresponding data for a record for the $xsd_df; for new records this would be blank.
      * @param $populate_record_context In some cases we may just be populating a form that is using xsd display fields but is not a record (ex. edit security metadata fields)
      * @return void
      **/
@@ -608,13 +710,13 @@ class API
         if ($details) {
             //$xsd_df = $record->display->getMatchFieldsList(array("FezACML"), array());
             //$details = $record->getDetails();
-            $xsd_display_fields = self::extractXsdmfFields($sxml, $xsd_df, $details);
+            list($xsd_display_fields, $external) = self::extractXsdmfFields($sxml, $xsd_df, $details);
         } else {
             if (!isset($xsd_df)) {
                 $xsd_d = new XSD_DisplayObject($xdis_id);
                 $xsd_df = $xsd_d->getMatchFieldsList(array("FezACML"), array());
             }
-            $xsd_display_fields = self::extractXsdmfFields($sxml, $xsd_df);
+            list($xsd_display_fields, $external) = self::extractXsdmfFields($sxml, $xsd_df);
             $_POST['cat'] = "report"; // It's expecting this report value from the html POST version of this. We'll add it in here to be in line.
         }
 
@@ -623,6 +725,11 @@ class API
         $_POST['sta_id'] = $sta_id;
         $_POST['workflow_button_' . $workflow_button_id] = $workflow_button_val;
         $_POST['xsd_display_fields'] = &$xsd_display_fields;
+        if (is_array($external)) {
+            foreach ($external as $fieldName => $fieldValue) {
+                $_POST[$fieldName] = $fieldValue;
+            }
+        }
 
         // This stuff doesn't need to be called if we're calling it as edit security context
         if ($populate_record_context) {
