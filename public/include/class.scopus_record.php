@@ -112,6 +112,7 @@ class ScopusRecItem extends RecordImport
     /**
      * Set all the entry fields for the object
      * @param string $entryXML
+     * $recordData needs to be from a fuller search, like from the getRecordByScopusId function
      */
 
     public function load($recordData, $nameSpaces=null)

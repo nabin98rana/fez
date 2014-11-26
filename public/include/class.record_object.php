@@ -83,7 +83,7 @@ class RecordObject extends RecordGeneral
 		} else {
 			$this->assign_grp_id = NULL;
 		}
-		if (isset($xdis_array['usr_id'][0]) && !empty($xdis_array['grp_id'][0])) {
+		if (isset($xdis_array['usr_id'][0]) && !empty($xdis_array['usr_id'][0])) {
 			if (!is_array($this->assign_usr_id)) {
 				$this->assign_usr_id = array();
 			}
