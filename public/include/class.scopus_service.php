@@ -227,7 +227,6 @@ class ScopusService
         $xpath = new DOMXPath($xmlDoc);
 
         if ($xpath->query("/service-error")->length > 0) {
-            echo $xml;
             return false;
         }
 

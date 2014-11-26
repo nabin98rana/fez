@@ -64,8 +64,6 @@ if ($isAdministrator) {
         $history = '- Automated DOI assigned';
         $record->addSearchKeyValueList(array("DOI"), array($doi), true, $history);
     }
-    $log = FezLog::get();
-    $log->err('Pid:'.$pid);
 } else {
     $tpl->assign("show_not_allowed_msg", true);
 }
