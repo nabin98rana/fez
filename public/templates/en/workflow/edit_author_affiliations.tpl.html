@@ -52,23 +52,7 @@ function submitSuggestedAffiliation(authorID, orgID, iteration) {
 	<input type="hidden" name="af_id" value="{$current.af_id}"/>
 
 	{section name='jj' loop=$affiliation_suggestions}
-	  {assign var="org_id" value=$affiliation_suggestions[jj].org_id}
-	  {if $smarty.section.jj.first}
-	  <h3>Suggested author affiliations</h3>
-	  <table class="default" style="border-collapse: collapse; padding: 5px; margin: 0;">
-	  <tr>
-           <th class="affilName">Name</th>
-           <th class="affilOrg">Organisational Unit</th>
-           {if 'fte'|array_key_exists:$affiliation_suggestions[jj]}
-               <th class="affilPos">Position Title</th>
-               <th class="affilDteFrom">Date From</th>
-               <th class="affilDteTo">Date To</th>
-               <th class="affilFte">FTE</th>
-           {/if}
-           <th class="affilEd">&nbsp;</th>
-           <th class="affilEd">&nbsp;</th>
-      </tr>
-	  {/if}
+	  {if $smarty.section.jj.first}<h3>Suggested author affiliations</h3><table class="default" style="border-collapse: collapse; padding: 5px; margin: 0;">{/if}
 	  <tr bgcolor="{cycle values="$cycle_colours"}">
 	    <td width="200">{$affiliation_suggestions[jj].name}</td>
 		<!--td width="150" bgcolor="red">PRF: {$affiliation_suggestions[jj].payroll_flag}</td-->
@@ -77,29 +61,10 @@ function submitSuggestedAffiliation(authorID, orgID, iteration) {
 		<!--td width="150" bgcolor="red">ORG ID: {$affiliation_suggestions[jj].org_id}</td-->
 		<!--td width="150" bgcolor="red">WAMIKEY: {$affiliation_suggestions[jj].wamikey}</td-->
 		<!--td width="150" bgcolor="red">AOU: {$affiliation_suggestions[jj].aou}</td-->
-		<td width="350">{$affiliation_suggestions[jj].org_title}</td>
-		{if 'fte'|array_key_exists:$affiliation_suggestions[jj]}
-           <td width="250">{$affiliation_suggestions[jj].pos_title}</td>
-           <td>{$affiliation_suggestions[jj].dt_from}</td>
-           <td>{$affiliation_suggestions[jj].dt_to}</td>
-           <td>{$affiliation_suggestions[jj].fte}</td>
-        {/if}
-        {if !isset($tdCount|smarty:nodefaults) || $tdCount != $affiliation_suggestions[jj].org_title}
-			<td rowspan="{$autOrgUnitCount.$org_id}" width="80">
-			     {if $autOrgUnitCount.$org_id > 1}
-			      <input type="hidden" value="100" id="percentage-{$smarty.section.jj.iteration}" />
-			      <span>100%</span>
-			     {else}
-			     <input type="text" id="percentage-{$smarty.section.jj.iteration}"
-			     value="{$affiliation_suggestions[jj].percentage}" 
-			     size="6" 
-			     class="default" />%
-			     {/if}
+		<td width="550">{$affiliation_suggestions[jj].org_title}</td>
+		<td width="100"><input type="text" id="percentage-{$smarty.section.jj.iteration}" value="{$affiliation_suggestions[jj].percentage}" size="6" class="default" />%</td>
+		<td width=""><input type="button" onclick="javasacript:submitSuggestedAffiliation({$affiliation_suggestions[jj].aut_id}, {$affiliation_suggestions[jj].org_id}, {$smarty.section.jj.iteration});" value="Use this affiliation" class="button" /><br />
 			</td>
-			<td rowspan="{$autOrgUnitCount.$org_id}" width=""><input type="button" onclick="javasacript:submitSuggestedAffiliation({$affiliation_suggestions[jj].aut_id}, {$affiliation_suggestions[jj].org_id}, {$smarty.section.jj.iteration});" value="Use this affiliation" class="button" /><br />
-			</td>
-			{assign var="tdCount" value=$affiliation_suggestions[jj].org_title}
-		{/if}
 		<!--td width="150" bgcolor="red">DEBUG: {$affiliation_suggestions[jj].debug}</td-->
 	  </tr>
 	  {if $smarty.section.jj.last}</table>{/if}
@@ -127,25 +92,13 @@ function submitSuggestedAffiliation(authorID, orgID, iteration) {
 	<div style="border: solid 1px green; padding: 10px; margin: 10px; width: 800;">
 
 	{section name='ii' loop=$list}
-	{if $smarty.section.ii.first}
-	<h3>Registered author affiliations</h3>
-	<table id="regAuthAffil" class="default">
-	<tr>
-           <th class="affilName">Name</th>
-           <th class="affilOrg">Organisational Unit</th>
-           <th class="affilPerc">Percentage Affiliation</th>
-           
-           <th class="affilEd">&nbsp;</th>
-           <th class="affilEd">&nbsp;</th>
-      </tr>
-	{/if}
+	{if $smarty.section.ii.first}<h3>Registered author affiliations</h3><table class="default" style="border-collapse: collapse; padding: 5px; margin: 0;">{/if}
       <tr bgcolor="{cycle values="$cycle_colours"}">
-        <td>{$list[ii].author_name}</td>
-        <td>{$list[ii].org_title}</td>
-		<td>{$list[ii].af_percent_affiliation}%</td>
-		
-        <td><a href="{$smarty.server.PHP_SELF}?id={$wf_id}&action=edit&af_id={$list[ii].af_id}" title="Edit this affiliation">Edit</a></td>
-        <td><a href="{$smarty.server.PHP_SELF}?id={$wf_id}&action=delete&af_id={$list[ii].af_id}" title="Remove this affiliation">Remove</a></td>
+        <td width="200">{$list[ii].author_name}</td>
+        <td width="550">{$list[ii].org_title}</td>
+		<td width="65">{$list[ii].af_percent_affiliation}%</td>
+        <td width="30"><a href="{$smarty.server.PHP_SELF}?id={$wf_id}&action=edit&af_id={$list[ii].af_id}" title="Edit this affiliation">Edit</a></td>
+        <td width="30"><a href="{$smarty.server.PHP_SELF}?id={$wf_id}&action=delete&af_id={$list[ii].af_id}" title="Remove this affiliation">Remove</a></td>
       </tr>
       {if $smarty.section.ii.last}</table>{/if}
     {sectionelse}
