@@ -85,7 +85,7 @@ if ($range == "4w") {
 	$dateString = "for all years";
 }
 if ($action == "show_detail") {
-	if ($record->canApprove()) {
+	if ($pid != 'all' && $record->canApprove()) {
 		$userAbstractViews = Statistics::getStatsByUserAbstractView($pid, $year, $month, $range);
 		$userDownloads = Statistics::getStatsByUserDownloads($pid, $year, $month, $range);
 
