@@ -155,9 +155,7 @@ if ($aliasResult == false) {
     $metaDescription = APP_NAME." operates as an institutional repository for open access publications and other digitised materials created by the University such as print materials, photographs, audio materials, videos,
      manuscripts and other original work.";
     $tpl->assign("meta_description", $metaDescription);
-    $tpl->assign("isHomePage", "true");
     $tpl->assign("active_nav", "home");
-    $tpl->assign("extra_title", "Home");
 
     //$tpl->setTemplate("maintenance.tpl.html");
 
@@ -200,7 +198,6 @@ if ($aliasResult == false) {
     $list = Record::getDetailsLite($recentRecordsPIDs);
     $tpl->assign("list", $list);
     $tpl->assign("eserv_url", APP_RELATIVE_URL."view/");
-    $tpl->assign("isHomePage", "true");
 
     $tpl->assign("autosuggest", 1);
     /* $tpl->headerscript .= "window.oTextbox_front_search
