@@ -127,9 +127,10 @@ class Lister
       $tpl_idx = 0;
     }
 
+    //if the template is 11 we'll treat it as XML then json convert it
     if (APP_API == 'xml') {
         $tpl_idx = 3;
-    } elseif (APP_API == 'json') {
+    } elseif (APP_API == 'json' || $tpl_idx == 11) {
         $tpl_idx = 3;
         $jsonIt = true;
     }

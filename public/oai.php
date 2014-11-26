@@ -271,7 +271,7 @@ if (!empty($verb)) {
                                             $record_dataset_of = new RecordObject($dataset_of_pid);
                                             $list[0]['rek_isdatasetoftitle'][$j] = $record_dataset_of->getTitle();
                                             $list[0]['rek_isdatasetof_doi'][$j] = Record::getSearchKeyIndexValue($dataset_of_pid, "doi");
-                                            $list[0]['rek_isdatasetof_publication'][$j] = ($data_collection_xdis_id != Record::getSearchKeyIndexValue($dataset_of_pid, "Display Type"));
+                                            $list[0]['rek_isdatasetof_publication'][$j] = ($data_collection_xdis_id != Record::getSearchKeyIndexValue($dataset_of_pid, "Display Type", false));
                                         }
                                     }
 
