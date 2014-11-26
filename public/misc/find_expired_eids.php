@@ -42,6 +42,7 @@ echo "Script started: " . date('Y-m-d H:i:s') . "\n";
 $isUser = Auth::getUsername();
 if ((php_sapi_name()==="cli") || (User::isUserSuperAdministrator($isUser))) {
     $db = DB_API::get();
+    $body = '';
     $dbtp =  APP_TABLE_PREFIX; // Database and table prefix
     $stmt =  "SELECT * FROM fez_record_search_key_scopus_id
                 LEFT JOIN fez_record_search_key ON rek_pid = rek_scopus_id_pid
@@ -77,18 +78,65 @@ if ((php_sapi_name()==="cli") || (User::isUserSuperAdministrator($isUser))) {
             }
 
             if ($scopusId) {
-                $history .= " Updating Scopus ID due to previous ID being invalid";
-                //$record->addSearchKeyValueList(array("Scopus ID"), array($scopusId), true, $history);
-                //$sq->add($scopusId);
+                $list_new_info = array();
+                $list_new_value = array();
+
+                $record = $scopusService->getRecordByScopusId($scopusId);
+                $sri = new ScopusRecItem();
+                $sri->load($record);
+                $sri_fields = $sri->getFields();
+
+                $list_new_info[] = 'Scopus ID';
+                $list_new_value[] = '2-s2.0-'.$scopusId;
+
+                if (!empty($sri_fields['_issueVolume']) && $sri_fields['_issueVolume'] != Record::getSearchKeyIndexValue($pid, "Volume Number")) {
+                    $list_new_info[] = 'Volume Number';
+                    $list_new_value[] = $sri_fields['_issueVolume'];
+                }
+                if (!empty($sri_fields['_issueNumber']) && $sri_fields['_issueNumber'] != Record::getSearchKeyIndexValue($pid, "Issue Number")) {
+                    $list_new_info[] = 'Issue Number';
+                    $list_new_value[] = $sri_fields['_issueNumber'];
+                }
+                if (!empty($sri_fields['_startPage']) && $sri_fields['_startPage'] != Record::getSearchKeyIndexValue($pid, "Start Page")) {
+                    $list_new_info[] = 'Start Page';
+                    $list_new_value[] = $sri_fields['_startPage'];
+                }
+                if (!empty($sri_fields['_endPage']) && $sri_fields['_endPage'] != Record::getSearchKeyIndexValue($pid, "End Page")) {
+                    $list_new_info[] = 'End Page';
+                    $list_new_value[] = $sri_fields['_endPage'];
+                }
+                if (!empty($sri_fields['_xdisSubtype']) && $sri_fields['_xdisSubtype'] != Record::getSearchKeyIndexValue($pid, "Subtype")) {
+                    $list_new_info[] = 'Subtype';
+                    $list_new_value[] = $sri_fields['_xdisSubtype'];
+                }
+
+                $history = " Updating current Scopus ID and other information due to the previous ID no longer being valid";
+                $record = new RecordObject($pid);
+                $record->addSearchKeyValueList($list_new_info, $list_new_value, true, $history);
+                $sq = ScopusQueue::get();
+                $sq->add($scopusId);
                 echo " Replaced with new Scopus Id: ".$scopusId."\n";
             } else {
-                echo " No match found\n";
+                if ($xml === NULL) {    // If empty but not null it is in scopus but not searchable.
+                    echo " No match found\n";
+                    $body .= "Fail:" . " http://espace.library.uq.edu.au/view/" . $pid . " , " . $eid  . " No auto match found\n";
+                } else {
+                    echo " In scopus\n";
+                }
             }
 
         }
         ob_flush();
         flush();
         usleep(500000);
+    }
+    if (!empty($body)) {
+        $mail = new Mail_API;
+        $subject = "Records with invalid scopus IDs";
+        $to = 'espace@library.uq.edu.au';
+        $from = APP_EMAIL_SYSTEM_FROM_ADDRESS;
+        $mail->setTextBody(stripslashes($body));
+        $mail->send($from, $to, $subject, false);
     }
     echo "Script finished: " . date('Y-m-d H:i:s') . "\n";
 } else {
