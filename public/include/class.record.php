@@ -5857,7 +5857,10 @@ function getSearchKeyIndexValueShadow($pid, $searchKeyTitle, $getLookup=true, $s
     }
 
     // add history event about renaming file (from what to what, who and maybe why)
-
+    if ($historyDescription == '') {
+      $historyDescription = "Renamed the {$oldName} datastream to {$newName}";
+    }
+    History::addHistory($pid, null, "", "", true, $historyDescription, null);
   }
 
   /**
