@@ -58,17 +58,23 @@ if (is_numeric(strpos($image, "/"))) {
 
 if (trim($image_dir) == "") { $image_dir = APP_TEMP_DIR; }
 
-//$temp_file = preg_replace('/\.\S*?$/', ".$ext", $outfile);
+// Strip existing extension, store in $temp_file.
 $ext_loc = strrpos($outfile, ".");
 if (is_numeric($ext_loc)) {
-	$temp_file = substr($outfile, 0, $ext_loc);
+  $temp_file = substr($outfile, 0, $ext_loc);
 }
-if (!strstr($temp_file,$ext)) {
-    $temp_file .= ".$ext";
+else {
+  $temp_file = $outfile;
 }
+// Add desired extension.
+$temp_file .= ".$ext";
 $temp_file = str_replace(" ", "_", $temp_file);
+$temp_file = trim($temp_file);
 $error = '';
 if(!$image) $error .= "<b>ERROR:</b> no image specified<br>";
+if(empty($temp_file)) {
+  $error .= "<b>ERROR:</b> outfile: '" . htmlspecialchars($outfile) . "' not a valid name<br>";
+}
 
 // get image from an URL 
 $is_url = false;
