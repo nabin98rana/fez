@@ -99,8 +99,8 @@ class Statistics
 			if	((preg_match("/^(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}) - - \[(.*?)\] \"GET ".preg_quote(APP_RELATIVE_URL,'/')."\/?view\.php\?.*pid=([a-zA-Z]*:[0-9]+).* HTTP\/1..\" 200 .*/i",$buffer,$matches)) ||
 			(preg_match("/^(\S{1,}\.\S{1,}\.\S{1,}\.\S{1,}) - - \[(.*?)\] \"GET ".preg_quote(APP_RELATIVE_URL,'/')."\/?eserv\.php\?.*pid=([a-zA-Z]*:[0-9]+)&dsID=(\S*).* HTTP\/1..\" 200 .*/i",$buffer,$matches)) ||
 			(preg_match("/^(\S{1,}\.\S{1,}\.\S{1,}\.\S{1,}) - - \[(.*?)\] \"GET \/robots\.txt.*/i",$buffer,$matches)) ||
-			(preg_match("/^(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}) - - \[(.*?)\] \"GET ".preg_quote(APP_RELATIVE_URL,'/')."\/?view\/([a-zA-Z]*:[0-9]+).* HTTP\/1..\" 200 .*/i",$buffer,$matches)) ||
-			(preg_match("/^(\S{1,}\.\S{1,}\.\S{1,}\.\S{1,}) - - \[(.*?)\] \"GET ".preg_quote(APP_RELATIVE_URL,'/')."\/?eserv\/([a-zA-Z]*:[0-9]+)\/(\S*).* HTTP\/1..\" 200 .*/i",$buffer,$matches)))
+            (preg_match("/^(\S{1,}\.\S{1,}\.\S{1,}\.\S{1,}) - - \[(.*?)\] \"GET ".preg_quote(APP_RELATIVE_URL,'/')."\/?view\/([a-zA-Z]*:[0-9]+)\/(\S*).* HTTP\/1..\" 200 .*/i",$buffer,$matches)) ||
+			(preg_match("/^(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}) - - \[(.*?)\] \"GET ".preg_quote(APP_RELATIVE_URL,'/')."\/?view\/([a-zA-Z]*:[0-9]+).* HTTP\/1..\" 200 .*/i",$buffer,$matches)))
 			{
 				//				print_r($matches); // debug
 				$pid = "";

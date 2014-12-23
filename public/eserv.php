@@ -36,7 +36,7 @@ include_once("config.inc.php");
 include_once(APP_INC_PATH . "class.auth.php");
 include_once(APP_INC_PATH . "class.misc.php");
 include_once(APP_INC_PATH . "class.exiftool.php");
-
+include_once(APP_INC_PATH . "class.log.php");
 include_once(APP_INC_PATH . "class.fedora_direct_access.php");
 
 // Commented out basic auth request as Nginx web app server doesnt pass basic auth request username/password
@@ -279,7 +279,7 @@ if (!empty($pid) && !empty($dsID)) {
     			}
 		    }
 			// Add view to statistics buffer
-			Statistics::addBuffer($pid, $dsID);
+            addBufferOnce($pid, $dsID);
 		    exit;
 
          } elseif( $bookreader == true ) {
@@ -319,7 +319,7 @@ if (!empty($pid) && !empty($dsID)) {
 
             $tpl->displayTemplate();
             // Add view to statistics buffer
-            Statistics::addBuffer($pid, $dsID);
+            addBufferOnce($pid, $dsID);
             exit;
 
          } elseif($bookpage == true) {
@@ -364,7 +364,7 @@ if (!empty($pid) && !empty($dsID)) {
 			$tpl->assign("url", Origami::getTitleLocation($pid, $dsID));
 			$tpl->displayTemplate();
 			// Add view to statistics buffer
-			Statistics::addBuffer($pid, $dsID);
+            addBufferOnce($pid, $dsID);
 			exit;
 
 		} elseif (($is_video == 1) && (is_numeric(strpos($ctype, "flv")))) {
@@ -441,16 +441,17 @@ if (!empty($pid) && !empty($dsID)) {
     		header('Cache-control: private, max-age=600');
 
 
-    if (APP_FEDORA_SENDFILE_DIRECT == "ON") {
-      Statistics::addBuffer($pid, $dsID);
-      $fda = new Fedora_Direct_Access();
-      $dsVersionID = $fda->getMaxDatastreamVersion($pid, $dsID);
-      $fda->getDatastreamManagedContent($pid, $dsID, $dsVersionID);
-    } else {
-		    Misc::processURL($urldata, true);
-		}
-      Statistics::addBuffer($pid, $dsID);
-    }
+            if (APP_FEDORA_SENDFILE_DIRECT == "ON") {
+                addBufferOnce($pid, $dsID);
+                $fda = new Fedora_Direct_Access();
+                $dsVersionID = $fda->getMaxDatastreamVersion($pid, $dsID);
+                $fda->getDatastreamManagedContent($pid, $dsID, $dsVersionID);
+            } else {
+                Misc::processURL($urldata, true);
+                addBufferOnce($pid, $dsID);
+            }
+
+        }
 		// Add view to statistics buffer
 
 		exit;
@@ -491,4 +492,13 @@ function extractQS()
 	}
 
 	return;
+}
+
+function addBufferOnce($pid, $dsID) {
+    if ((empty($_SERVER['HTTP_RANGE'])) || (strpos($_SERVER['HTTP_RANGE'], 'bytes=0') === 0 )) {   //This is need to not record stats in multibyte file requests which is DB intensive
+        Statistics::addBuffer($pid, $dsID);
+    } else if ((!empty($_SERVER['HTTP_RANGE'])) && (!preg_match('/bytes=[1-9]/', $_SERVER['HTTP_RANGE']) )) {
+        $log = FezLog::get();
+        $log->err('Warning in eserv this is not being recorded in stats, but perhaps should: '. $_SERVER['HTTP_RANGE']);
+    }
 }
