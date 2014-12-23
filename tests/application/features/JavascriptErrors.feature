@@ -96,6 +96,11 @@ Feature: Test pages for javascript errors
     Given I am on "/manage/io_workflows.php"
     Given I am on "/manage/io_xsds.php"
     Given I am on "/manage/upgrade.php"
+    Given I am on "/manage/reports.php"
+    Given I am on "/misc/api_view_info.php"
+    Given I am on "/quick_match.php?match_type=conference"
+    Given I am on "/my_research_data_claimed.php"
+    Given I am on "/solr_help.php"
 
   #Mostly espace specific.
     Given I am on "/manage/xsd_source_edit.php?cat=edit&xsd_id=28"
