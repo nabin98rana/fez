@@ -82,7 +82,6 @@ include_once(APP_INC_PATH . 'class.log.php');
 include_once(APP_INC_PATH . "class.cache.php");
 include_once(APP_INC_PATH . "class.configuration.php");
 include_once(APP_INC_PATH . "class.language.php");
-include_once(APP_INC_PATH . "class.session_db.php");
 
 $params = array(
   'host' => APP_SQL_DBHOST,
