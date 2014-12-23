@@ -2147,7 +2147,7 @@ class Author
      * @param string $pid
      * @return array An array of authors records
      */
-    public function getAuthorsByPID($pid, $loadAuthorId = false)
+    public function getAuthorsByPID($pid)
     {
         $authors = array();
 
