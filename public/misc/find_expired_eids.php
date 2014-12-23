@@ -31,7 +31,6 @@
 // +----------------------------------------------------------------------+
 include_once dirname(dirname(__FILE__)).DIRECTORY_SEPARATOR.'config.inc.php';
 include_once(APP_INC_PATH . "class.db_api.php");
-include_once(APP_INC_PATH . "class.session.php");
 include_once(APP_INC_PATH . 'class.scopus_service.php');
 include_once(APP_INC_PATH . "class.scopus_queue.php");
 

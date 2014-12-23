@@ -33,7 +33,6 @@ include_once dirname(dirname(__FILE__)).DIRECTORY_SEPARATOR.'config.inc.php';
 include_once(APP_INC_PATH . "class.db_api.php");
 include_once(APP_INC_PATH . "class.exiftool.php");
 include_once(APP_INC_PATH . "class.fedora_direct_access.php");
-include_once(APP_INC_PATH . "class.session.php");
 
 
 //This will update Exif data on all objects if it is not considered the latest version hard coded below, current 8.5
