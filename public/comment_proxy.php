@@ -50,11 +50,15 @@ if(strlen($_GET['query']) > 2) {
 }
 
 //This is a hack for adding in Ulrichs data on top of Sherpa Romeo
+$ulrichsLink = '';
 if ($sek_comment_function = "SherpaRomeo::getJournalColourFromISSNComment") {
     $return = Ulrichs::getEmbarboStatusInfo($xsdmf_id,$query);
-
+    if (!empty($return['title_id'])) {
+        $ulrichsLink = " or <a href='http://ezproxy.library.uq.edu.au/login?url=http://ulrichsweb.serialssolutions.com/title/" . $return['title_id'] . "' target='_blank'>Ulrichs information</a>";
+    }
 }
 
-$return['comment'] = $comment;
+$return['comment'] = $comment.$ulrichsLink;
+
 
 echo json_encode($return);
