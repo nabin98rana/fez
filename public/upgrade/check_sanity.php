@@ -18,14 +18,6 @@ include_once(APP_INC_PATH.'class.template.php');
 $tpl = new Template_API();
 $tpl->setTemplate('sanity_check.tpl.html');
 
-$username = Auth::getUsername();
-$tpl->assign("isUser", $username);
-$isAdministrator = User::isUserAdministrator($username);
-$tpl->assign("isAdministrator", $isAdministrator);
-if (Auth::userExists($username)) { // if the user is registered as a Fez user
-    $tpl->assign("isFezUser", $username);
-}
-
 $field = $_GET["field"];  // The request may be to check a specific config variable
 $value = $_GET["value"];  // The request may be accompanied by a specific value to check
 if (!empty($field)) {
@@ -38,5 +30,3 @@ if (!empty($field)) {
 $tpl->assign('sanity_results', $res);
 
 $tpl->displayTemplate();
-
-?>

@@ -465,9 +465,6 @@ class Template_API
 		$this->assign("isUser", $username);
 		$isAdministrator = User::isUserAdministrator($username);
 		$isSuperAdministrator = User::isUserSuperAdministrator($username);
-		if (Auth::userExists($username)) { // if the user is registered as a Fez user
-			$this->assign("isFezUser", $username);
-		}
 		$this->assign("isAdministrator", $isAdministrator);
 		$this->assign("isSuperAdministrator", $isSuperAdministrator);
 	}

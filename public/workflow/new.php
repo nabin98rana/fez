@@ -72,9 +72,7 @@ Auth::checkAuthentication(APP_SESSION, $_SERVER['PHP_SELF']."?"."xdis_id=".$xdis
 $user_id = Auth::getUserID();
 
 $isUser = Auth::getUsername();
-$tpl->assign("isUser", $isUser);
 $isAdministrator = User::isUserAdministrator($isUser);
-$tpl->assign("isAdministrator", $isAdministrator);
 
 $tpl->assign("href", $href);
 

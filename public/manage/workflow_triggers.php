@@ -82,10 +82,6 @@ if (!$isSuperAdministrator) {
     $tpl->assign("show_not_allowed_msg", true);
 }
 
-if (Auth::userExists($isUser)) { // if the user is registered as a Fez user
-	$tpl->assign("isFezUser", $isUser);
-}
-
 $record_id = Misc::GETorPOST('pid');
 $cat = Misc::GETorPOST('cat');
 $pid = $record_id;

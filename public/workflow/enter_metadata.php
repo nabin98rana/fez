@@ -131,14 +131,12 @@ if (strtolower($_SERVER['HTTPS']) == 'on' || $_SERVER['SERVER_PORT'] == 443 || s
 }
 
 $username = Auth::getUsername();
-$isUPO = User::isUserUPO($username);
 $isAdministrator = User::isUserAdministrator($username);
 $actingUser = Auth::getActingUsername();
 $actingUserArray = Author::getDetailsByUsername($actingUser);
 $actingUserArray['org_unit_description'] = MyResearch::getHRorgUnit($actingUser);
 $tpl->assign("acting_user", $actingUserArray);
 $tpl->assign("actual_user", $username);
-$tpl->assign("isUPO", $isUPO);
 
 $wfstatus->setTemplateVars($tpl);
 
@@ -410,5 +408,4 @@ if(!$isAdmin) {
 	$isAdmin = User::isUserSuperAdministrator(Auth::getUsername());
 }
 
-$tpl->assign("isAdmin", $isAdmin);
 $tpl->displayTemplate();

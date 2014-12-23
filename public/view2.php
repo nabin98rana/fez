@@ -62,8 +62,6 @@ $isAdministrator = Auth::isAdministrator();
 $isSuperAdministrator = User::isUserSuperAdministrator($username);
 $isUPO = User::isUserUPO($username);
 
-$tpl->assign("isSuperAdministrator", $isSuperAdministrator);
-
 if ($isAdministrator || $isUPO) {
 
     //get ranked journals for 2010/12 for spyglass

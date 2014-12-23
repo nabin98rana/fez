@@ -54,10 +54,7 @@ $tpl->assign("type", 'batchimport_record_group');
 Auth::checkAuthentication(APP_SESSION);
 
 $isUser = Auth::getUsername();
-$tpl->assign("isUser", $isUser);
 $isAdministrator = User::isUserAdministrator($isUser);
-$tpl->assign("isAdministrator", $isAdministrator);
-
 
 
 /* 

@@ -51,9 +51,7 @@ $tpl->setTemplate("workflow/index.tpl.html");
 $tpl->assign("type", 'batchimport');
 
 $isUser = Auth::getUsername();
-$tpl->assign("isUser", $isUser);
 $isAdministrator = User::isUserAdministrator($isUser);
-$tpl->assign("isAdministrator", $isAdministrator);
 
 $wfstatus = &WorkflowStatusStatic::getSession(); // restores WorkflowStatus object from the session
 $pid = $wfstatus->pid;

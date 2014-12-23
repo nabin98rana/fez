@@ -40,11 +40,6 @@ $tpl = new Template_API();
 $tpl->setTemplate("workflow/index.tpl.html");
 $tpl->assign('type',"duplicates_report");
 
-$username = Auth::getUsername();
-$tpl->assign("isUser", $username);
-$isAdministrator = Auth::isAdministrator(); 
-$tpl->assign("isAdministrator", $isAdministrator);
-
 $wfstatus = &WorkflowStatusStatic::getSession(); // restores WorkflowStatus object from the session
 $pid = $wfstatus->pid;
 $tpl->assign('report_pid', $pid);

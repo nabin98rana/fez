@@ -122,8 +122,6 @@ $tpl->assign('file_options', Datastream::$file_options);
 $link_self = $_SERVER['PHP_SELF'].'?'.http_build_query(array('id' => $wfstatus->id));
 $tpl->assign('link_self', $link_self);
 
-$tpl->assign("isAdmin", $isAdministrator);
-
 if ((array_key_exists('HTTPS', $_SERVER) && strtolower($_SERVER['HTTPS'])) == 'on'
     || $_SERVER['SERVER_PORT'] == 443 || (array_key_exists('SCRIPT_URI', $_SERVER) && strtolower(substr($_SERVER['SCRIPT_URI'], 0, 5)) == 'https')) {
 	$tpl->assign('http_protocol', 'https');
@@ -260,7 +258,6 @@ if ($xdis_title == 'Thesis') {
 $tpl->assign("showFileUploadExtras", $showFileUploadExtras);
 $tpl->assign("extra_title", "Edit ".$xdis_title);
 $tpl->assign("internal_notes", InternalNotes::readNote($pid));
-$tpl->assign("isSuperAdministrator", $isSuperAdministrator);
 
 $canApprove = $record->canApprove();
 if ($canApprove === true) {

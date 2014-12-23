@@ -46,7 +46,6 @@ Auth::checkAuthentication(APP_SESSION, $_SERVER['PHP_SELF']);
 $tpl->assign("type", "search_favourites");
 
 $isUser = Auth::getUsername();
-$tpl->assign("isUser", $isUser);
 
 $issues = array();
 if ($isUser) {

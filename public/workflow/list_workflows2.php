@@ -51,9 +51,7 @@ $tpl->setTemplate("workflow/index.tpl.html");
 $tpl->assign("type", 'update');
 
 $isUser = Auth::getUsername();
-$tpl->assign("isUser", $isUser);
 $isAdministrator = User::isUserAdministrator($isUser);
-$tpl->assign("isAdministrator", $isAdministrator);
 $tpl->assign("showTriggerEdit", true);
 $xdis_id = Misc::GETorPOST('xdis_id');
 $pid = Misc::GETorPOST('pid');

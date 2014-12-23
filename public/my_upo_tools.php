@@ -52,8 +52,6 @@ if (APP_MY_RESEARCH_MODULE != 'ON') {
 }
 
 $isUser = Auth::getUsername();
-$isAdministrator = User::isUserAdministrator($isUser);
-$isSuperAdministrator = User::isUserSuperAdministrator($isUser);
 $isUPO = User::isUserUPO($isUser);
 
 $action = @$_POST['action'];
@@ -88,10 +86,6 @@ $page = $zf->filter($page);
 
 $tpl->assign("headerContent", $page['content']);
 $tpl->assign("type", "upo");
-$tpl->assign("isUser", $isUser);
-$tpl->assign("isAdministrator", $isAdministrator);
-$tpl->assign("isSuperAdministrator", $isSuperAdministrator);
-$tpl->assign("isUPO", $isUPO);
 
 $action = @$_POST['action'];
 if ($action == 'author-search') {

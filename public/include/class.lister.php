@@ -168,7 +168,6 @@ class Lister
     $username = Auth::getUsername();
     $isAdministrator = User::isUserAdministrator($username);
     $isUPO = User::isUserUPO($username);
-    $tpl->assign("isUPO", $isUPO);
 
     if ($isAdministrator == true || $isUPO) {
       $tpl->assign("jqueryUI", true);
@@ -207,11 +206,6 @@ class Lister
       );
       $dynamicParams = Misc::query_string_encode($params, $excludeForHtmlOutput);
       $tpl->assign('dynamicParams', $dynamicParams);
-    }
-
-
-    if (Auth::userExists($username)) { // if the user is registered as a Fez user
-      $tpl->assign("isFezUser", $username);
     }
 
     $pager_row = $params['pager_row'];

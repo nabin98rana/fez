@@ -65,8 +65,6 @@ class MyResearch
         MyResearch::addDatasetLink($tpl);
 
         $isUser = Auth::getUsername();
-        $isAdministrator = User::isUserAdministrator($isUser);
-        $isSuperAdministrator = User::isUserSuperAdministrator($isUser);
         $isUPO = User::isUserUPO($isUser);
         $filter = array();
 
@@ -89,10 +87,6 @@ class MyResearch
             $tpl->assign("non_hr", true); // This will cause a bail-out in template land
         }
 
-        $tpl->assign("isUser", $isUser);
-        $tpl->assign("isAdministrator", $isAdministrator);
-        $tpl->assign("isSuperAdministrator", $isSuperAdministrator);
-        $tpl->assign("isUPO", $isUPO);
         $tpl->assign("active_nav", "my_fez");
         $tpl->assign("jqueryUI", true);
         $tpl->assign('isApprover', $_SESSION['auth_is_approver']);
@@ -111,7 +105,6 @@ class MyResearch
         $list = true;
 
         if ($type == "possible") {
-            $cookie_key = "my_research_possible_list";
             if ($action == 'claim-add') {
                 MyResearch::possiblePubsClaim();
             } elseif ($action == 'claim') {
@@ -130,7 +123,6 @@ class MyResearch
                 MyResearch::bulkHide();
             }
         } elseif ($type == "claimed") {
-            $cookie_key = "my_research_claimed_list";
             if ($action == 'not-mine') {
                 MyResearch::claimedPubsDisown(Misc::GETorPOST('pid'));
             } elseif ($action == 'not-mine-bulk') {

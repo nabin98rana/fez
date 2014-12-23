@@ -44,12 +44,7 @@ $tpl = new Template_API();
 (array_key_exists('show', $_GET) && $_GET['show'] == 'rss') ? $tpl->setTemplate("news_rss.tpl.html") : $tpl->setTemplate("news.tpl.html");
 
 $username = Auth::getUsername();
-$tpl->assign("isUser", $username);
 $isAdministrator = User::isUserAdministrator($username);
-if (Auth::userExists($username)) { // if the user is registered as a Fez user
-    $tpl->assign("isFezUser", $username);
-}
-$tpl->assign("isAdministrator", $isAdministrator);
 
 $allNews = User::isUserUPO($username) || $isAdministrator;
 $news = News::getList(2000, $allNews);

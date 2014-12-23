@@ -66,21 +66,11 @@ if (NAJAX_Server::runServer()) {
 
 
 
-
-
 $isUser = Auth::getUsername();
-$isAdministrator = User::isUserAdministrator($isUser);
 $isSuperAdministrator = User::isUserSuperAdministrator($isUser);
-$tpl->assign("isUser", $isUser);
-$tpl->assign("isAdministrator", $isAdministrator);
-$tpl->assign("isSuperAdministrator", $isSuperAdministrator);
 
 if (!$isSuperAdministrator) {
     $tpl->assign("show_not_allowed_msg", true);
-}
-
-if (Auth::userExists($isUser)) { // if the user is registered as a Fez user
-	$tpl->assign("isFezUser", $isUser);
 }
 
 $record_id = Misc::GETorPOST('pid');

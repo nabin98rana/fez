@@ -62,6 +62,8 @@ $tpl->assign("headerContent", $page['content']);
 
 Auth::checkAuthentication(APP_SESSION, $_SERVER['PHP_SELF']."?".$_SERVER['QUERY_STRING']);
 $username = Auth::getUsername();
+$isUPO = User::isUserUPO($username);
+$isAdministrator = User::isUserAdministrator($username);
 $actingUser = Auth::getActingUsername();
 $author_id = Author::getIDByUsername($actingUser);
 $actingUserArray = Author::getDetailsByUsername($actingUser);
@@ -70,23 +72,13 @@ $actingUserArray['org_unit_description'] = MyResearch::getHRorgUnit($actingUser)
 $tpl->assign("type", "add");
 MyResearch::addDatasetLink($tpl);
 
-$isUser = Auth::getUsername();
-$isAdministrator = User::isUserAdministrator($isUser);
-$isSuperAdministrator = User::isUserSuperAdministrator($isUser);
-$isUPO = User::isUserUPO($isUser);
-
-$tpl->assign("isUser", $isUser);
-$tpl->assign("isAdministrator", $isAdministrator);
-$tpl->assign("isSuperAdministrator", $isSuperAdministrator);
-$tpl->assign("isUPO", $isUPO);
-
 $tpl->assign("active_nav", "my_fez");
 $tpl->assign("childXDisplayOptionsTop", Record::getSearchKeyIndexValue(APP_MY_RESEARCH_NEW_ITEMS_COLLECTION, "XSD Display Option", true, "", array('Book','Book Chapter','Journal Article','Conference Paper')));
 $tpl->assign("childXDisplayOptions", XSD_Display::getValidXSDDisplay(APP_MY_RESEARCH_NEW_ITEMS_COLLECTION));
 $tpl->assign("acting_user", $actingUserArray);
 $tpl->assign("actual_user", $username);
 
-if (MyResearch::getHRorgUnit($username) == "" && !$isUPO) {
+if (MyResearch::getHRorgUnit($username) == "" && !$isUPO && !$isAdministrator) {
 	$tpl->assign("non_hr", true); // This will cause a bail-out in template land
 }
 
