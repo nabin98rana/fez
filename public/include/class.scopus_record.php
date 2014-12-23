@@ -201,12 +201,17 @@ class ScopusRecItem extends RecordImport
             foreach ($authors as $author) {
                 $sequence = $author->getAttribute('seq');
                 if (is_numeric($sequence)) {
-                  // sequence goes from 1 up, but this array goes from 0 up, so take it down one
-                  $sequence -= 1;
-                  $name = $xpath->query('ce:indexed-name', $author)->item(0)->nodeValue;
-
+                    // sequence goes from 1 up, but this array goes from 0 up, so take it down one
+                    $sequence -= 1;
+                    $name = $xpath->query('ce:indexed-name', $author)->item(0)->nodeValue;
+                    $tempNodes= $xpath->query('d:affiliation', $author);
+                    $author_affiliations_id = array();
+                    foreach($tempNodes as $tempNode) {
+                        $author_affiliations_id[] = $tempNode->getAttribute('id');
+                    }
                   if (!array_key_exists($sequence, $this->_authors)) {
-                    $this->_authors[$sequence] = $name;
+                      $this->_authors[$sequence] = $name;
+                      $this->_author_affiliation_ids[$sequence] = $author_affiliations_id;
                   }
 
                 }

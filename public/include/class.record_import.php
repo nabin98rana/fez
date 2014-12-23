@@ -51,6 +51,7 @@ abstract class RecordImport
     protected $_confenceLocationState = null;
     protected $_authors = array();
     protected $_author_ids = array();
+    protected $_author_affiliation_ids = array();
     protected $_keywords = array();
     protected $_subjects = array();
     protected $_loaded = FALSE;
