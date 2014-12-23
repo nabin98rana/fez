@@ -216,10 +216,10 @@ class RecordView {
                             }
 
                             if (array_key_exists('rj_2015_title', $rjinfo)) {
-                                $rjl .= "&nbsp; <span style='color: #1e88ce' title= '".$rjinfo['rj_2015_title']."'>(ERA 2015 Listed)</span>";
+                                $rjl .= "&nbsp; <span style='color: #1e88ce' title= '".$rjinfo['rj_2015_title']."'>(ERA 2015 Journal Listed)</span>";
                             }
                             if (array_key_exists('rj_2012_title', $rjinfo)) {
-                                $rjl .= "&nbsp;&nbsp;&nbsp; <span style='color: #1e88ce' title= '".$rjinfo['rj_2012_title']."'>(ERA 2012 Listed)</span>";
+                                $rjl .= "&nbsp;&nbsp;&nbsp; <span style='color: #1e88ce' title= '".$rjinfo['rj_2012_title']."'>(ERA 2012 Journal Listed)</span>";
                             }
                             if (array_key_exists('rj_2010_rank', $rjinfo)) {
                                 $rjl .= "&nbsp;&nbsp;&nbsp; <span style='color: #1e88ce' title= '".$rjinfo['rj_2010_title']."'>(ERA 2010 Rank ".$rjinfo['rj_2010_rank'].")</span>";
@@ -250,7 +250,7 @@ class RecordView {
                                     $rcinfo['rc_2010_rank'] = "N/R";
                                 }
                                 if (array_key_exists('rc_2015_title', $rcinfo)) {
-                                    $rcl .= "&nbsp; <span style='color: #1e88ce' title= '".$rcinfo['rc_2015_title']."'>(ERA 2015 Listed)</span>";
+                                    $rcl .= "&nbsp; <span style='color: #1e88ce' title= '".$rcinfo['rc_2015_title']."'>(ERA 2015 Conference Listed)</span>";
                                 }
                                 if (array_key_exists('rc_2010_rank', $rcinfo)) {
                                     $rcl .= "&nbsp;&nbsp;&nbsp; <span style='color: #1e88ce' title= '".$rcinfo['rc_2010_title']."'>(ERA 2010 Rank ".$rcinfo['rc_2010_rank'].")</span>";
