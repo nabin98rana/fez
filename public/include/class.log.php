@@ -127,7 +127,13 @@ class FezLog
 
 	public function err($message)
 	{
-        $message.= "\n" . $this->generateStacktrace() . "\n";
+        if (is_array($message)) {
+            $message[] = $this->generateStacktrace();
+
+        } else {
+            $message .= "\n" . $this->generateStacktrace() . "\n";
+        }
+
 		foreach($this->_logs as $log)
 			$log['log']->err($this->format_message($log['type'], $message));
 	}
