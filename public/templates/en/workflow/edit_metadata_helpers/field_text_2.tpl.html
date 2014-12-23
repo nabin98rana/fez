@@ -55,6 +55,9 @@
                   $('#{/literal}{$xsd_display_fields[i].xsdmf_id}{literal}_comment').html(obj.comment);
               });
             });
+            $( document ).ready( function() {
+                $("#xsd_display_fields_{/literal}{$xsd_display_fields[i].xsdmf_id}{literal}_0").trigger("blur");
+            });
             {/literal}
         </script>
         {/if}
