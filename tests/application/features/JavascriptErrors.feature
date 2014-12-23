@@ -97,7 +97,7 @@ Feature: Test pages for javascript errors
     Given I am on "/manage/io_xsds.php"
     Given I am on "/manage/upgrade.php"
     Given I am on "/manage/reports.php"
-    Given I am on "/quick_match.php?match_type=conference"
+    Given I am on "/manage/quick_match.php?match_type=conference"
     Given I am on "/my_research_data_claimed.php"
     Given I am on "/solr_help.php"
 
