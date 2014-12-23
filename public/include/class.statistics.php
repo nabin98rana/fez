@@ -2036,7 +2036,7 @@ class Statistics
 		return $latestLog;
 	}
 
-	function cleanupFalseHitsBatch($limit, $offset, $min_date = false)
+	function cleanupFalseHitsBatch($limit, $offset, $min_date = false, $pid = false) 
 	{
 		$log = FezLog::get();
     if (defined("APP_SQL_SLAVE_DBHOST")) {
@@ -2054,7 +2054,14 @@ class Statistics
 				$stmt .= " WHERE stl_request_date >= date_sub(".$db->quote($min_date).", INTERVAL 11 SECOND) ";
 			}
 		}
-		$stmt .= " ORDER BY stl_request_date ASC LIMIT $limit OFFSET $offset";
+                if ($pid !== false) {
+                  if ($min_date !== false) {
+                                $stmt .= " AND stl_pid = ".$db->quote($pid);
+                  } else {
+                                $stmt .= " WHERE stl_pid = ".$db->quote($pid);
+                  }
+                }
+		$stmt .= " ORDER BY stl_request_date ASC, stl_id ASC LIMIT $limit OFFSET $offset";
 
 		try {
 			$res = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
@@ -2066,7 +2073,7 @@ class Statistics
 		return $res;
 	}
 
-	function cleanupFalseHitsCount($min_date = false)
+	function cleanupFalseHitsCount($min_date = false, $pid = false) 
 	{
 		$log = FezLog::get();
     if (defined("APP_SQL_SLAVE_DBHOST")) {
@@ -2078,13 +2085,20 @@ class Statistics
 		$stmt = "SELECT count(*)
                  FROM " . APP_TABLE_PREFIX . "statistics_all";
 
-		if ($date_min !== false) {
+		if ($min_date !== false) {
 			if (!is_numeric(strpos(APP_SQL_DBTYPE, "mysql"))) { //eg if postgresql etc
 				$stmt .= " WHERE stl_request_date >= (TIMESTAMP ".$db->quote($min_date)." - INTERVAL '11 seconds') ";
 			} else {
 				$stmt .= " WHERE stl_request_date >= date_sub(".$db->quote($min_date).", INTERVAL 11 SECOND) ";
 			}
 		}
+                if ($pid !== false) {
+                  if ($min_date !== false) {
+                                $stmt .= " AND stl_pid = ".$db->quote($pid);
+                  } else {
+                                $stmt .= " WHERE stl_pid = ".$db->quote($pid);
+                  }
+                }
 
 		try {
 			$res = $db->fetchOne($stmt);
@@ -2162,13 +2176,13 @@ class Statistics
 	}
 
     //Min_date overrides the minimum date which is normally the date of the last bad stat
-	function cleanupFalseHits(&$increments = array(), $min_date = NULL)
+	function cleanupFalseHits(&$increments = array(), $min_date = NULL, $pid = false)
 	{
 		$seconds_limit = 10; // 10 seconds COUNTER draft 3 recommended limit
 		if (empty($min_date)) {
             $min_date = Statistics::getMinBadDate();
         }
-		$stats_count = Statistics::cleanupFalseHitsCount($min_date);
+		$stats_count = Statistics::cleanupFalseHitsCount($min_date, $pid);
 		$history = array();
 		$newhistory = array();
 		$max_id = 0;
@@ -2177,7 +2191,7 @@ class Statistics
 		$stats_count = $stats_count/$batch_limit;
 		for($x=0;$x<=$stats_count;$x++) {
 			$y = $x*$batch_limit;
-			$res = Statistics::cleanupFalseHitsBatch($batch_limit, $y, $min_date);
+			$res = Statistics::cleanupFalseHitsBatch($batch_limit, $y, $min_date, $pid);
 			foreach ($res as $key => $val) {
 				// echo "TESTING out: "; echo($val['stl_id']." - ".$val['stl_ip']." - ".$val['stl_pid']." - ".$val['stl_dsid']." - ".$val['stl_request_date']); echo "\n";
 				$newkey = $val['stl_pid']."|".$val['stl_dsid']."|".$val['stl_ip'];
