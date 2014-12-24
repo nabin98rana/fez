@@ -108,16 +108,23 @@ class Template_API
 	function setTemplate($tpl_name)
 	{
 		$_curr_path = $this->smarty->template_dir;
-        if (isset($this->smarty->custom_view_dir)) {
-            $_fullpath = $_curr_path . "/". $this->smarty->custom_view_dir. "/" .  $tpl_name;
-        } else {
-            $_fullpath = $_curr_path . "/".  $tpl_name;
-        }
+		if (!empty($this->smarty->custom_view_dir)) {
+			$_fullpath = $_curr_path . "/". $this->smarty->custom_view_dir. "/" .  $tpl_name;
+			if (file_exists($_fullpath) && is_file($_fullpath)) {
+				$tpl_name = $_fullpath;
+			}
+		} else {
+			$tryoverride = $_curr_path . "/". $this->smarty->custom_view_dir. "/override/" .  $tpl_name;
+			if (file_exists($tryoverride) && is_file($tryoverride)) {
+				$tpl_name = $tryoverride;
+			} else {
+				$_fullpath = $_curr_path . "/" . $tpl_name;
 
-		if (file_exists($_fullpath) && is_file($_fullpath)) {
-			$tpl_name = $_fullpath;
+				if (file_exists($_fullpath) && is_file($_fullpath)) {
+					$tpl_name = $_fullpath;
+				}
+			}
 		}
-
 		$this->tpl_name = $tpl_name;
 	}
 
