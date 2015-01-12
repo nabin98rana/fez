@@ -116,7 +116,7 @@ function doFedoraFezIntegrityChecks() {
 		}
 		echo "\tFound {$countInserted} pids that are in marked as deleted in fedora and also in fez when they shouldn't be\n";
 	} catch(Exception $ex) {
-		echo "The following exception occurred: " . $ex->getMessage() . "\n";
+		echo "The following exception occurred in doFedoraFezIntegrityChecks: " . $ex->getMessage() . "\n";
 		$log->err($ex);
 		return false;
 	}
@@ -141,7 +141,7 @@ function doFedoraFezDelete() {
 		echo "\t" . count($pids) . " deleted from fez (and possibly solr as well)\n";
 		
 	} catch (Exception $ex) {
-		echo "The following exception occurred: " . $ex->getMessage() . "\n";
+		echo "The following exception occurred in doFedoraFezDelete: " . $ex->getMessage() . "\n";
 		$log->err($ex);
 		return false;
 	}
@@ -194,7 +194,7 @@ function doFezSolrIntegrityChecks() {
 		echo "\tFound {$countInsertedGhosts} pids that are in solr but not in fez\n";
 		echo "\tFound {$countInsertedUnspawned} pids that are in fez but not in solr\n";
 	} catch(Exception $ex) {
-		echo "The following exception occurred: " . $ex->getMessage() . "\n";
+		echo "The following exception occurred in doFezSolrIntegrityChecks: " . $ex->getMessage() . "\n";
 		$log->err($ex);
 		return false;
 	}	
@@ -219,7 +219,7 @@ function doFezSolrDeletes() {
 		echo "\t" . count($pids) . " deleted from solr\n";
 		
 	} catch (Exception $ex) {
-		echo "The following exception occurred: " . $ex->getMessage() . "\n";
+		echo "The following exception occurred in doFezSolrDeletes: " . $ex->getMessage() . "\n";
 		$log->err($ex);
 		return false;
 	}
@@ -249,7 +249,7 @@ function doSolrCitationChecks() {
 		}
 		echo "\tFound {$countInserted} pids that don't have citations in solr\n";
 	} catch(Exception $ex) {
-		echo "The following exception occurred: " . $ex->getMessage() . "\n";
+		echo "The following exception occurred in doSolrCitationChecks: " . $ex->getMessage() . "\n";
 		$log->err($ex);
 		return false;
 	}	
@@ -280,7 +280,7 @@ function addSolrUnspawned() {
 		echo "\tAdded " . count($pids) . " missing pid in solr\n";
 		
 	} catch (Exception $ex) {
-		echo "The following exception occurred: " . $ex->getMessage() . "\n";
+		echo "The following exception occurred in addSolrUnspawned: " . $ex->getMessage() . "\n";
 		$log->err($ex);
 		return false;
 	}
@@ -310,7 +310,7 @@ function addSolrCitations() {
 		echo "\tUpdated " . count($pids) . " citations in solr\n";
 		
 	} catch (Exception $ex) {
-		echo "The following exception occurred: " . $ex->getMessage() . "\n";
+		echo "The following exception occurred in addSolrCitations: " . $ex->getMessage() . "\n";
 		$log->err($ex);
 		return false;
 	}
@@ -345,7 +345,7 @@ function doPidAuthChecks() {
 			echo "\tNo missing pids auth indexes were found\n";
 		}
 	} catch(Exception $ex) {
-		echo "The following exception occurred: " . $ex->getMessage() . "\n";
+		echo "The following exception occurred in doPidAuthChecks: " . $ex->getMessage() . "\n";
 		$log->err($ex);
 		return false;
 	}	
@@ -374,7 +374,7 @@ function doPidAuthDeletes() {
 			}
 		}
 	} catch(Exception $ex) {
-		echo "The following exception occurred: " . $ex->getMessage() . "\n";
+		echo "The following exception occurred in doPidAuthDeletes: " . $ex->getMessage() . "\n";
 		$log->err($ex);
 		return false;
 	}	
@@ -413,13 +413,13 @@ function doSolrSearch($query) {
 	$url = "http://{$solrHost}:{$solrPort}{$solr->getPath()}select?{$queryString}";
 	
     $curlResponse = new Apache_Solr_HttpTransport_Curl;
-    $raw_response = $curlResponse->performGetRequest($url);
+    $raw_response = $curlResponse->performGetRequest($url, 600); // We'll see if curl times are causing things to fail
 	
     if($raw_response->getStatusCode() != 200) {
 		$log->err('No response from solr.. trying again.');			
 		unset($raw_response);
 		sleep(1);
-        $raw_response = $curlResponse->performGetRequest($url);
+        $raw_response = $curlResponse->performGetRequest($url, 600);
         if($raw_response->getStatusCode() != 200) {
 			throw new Exception(print_r($raw_response[1], true));
 		}			
