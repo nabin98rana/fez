@@ -158,7 +158,7 @@ function clearFilters(f) {
 
                     {elseif $search_keys[i].sek_html_input == 'multiple'}
 
-                        {if $search_keys[i].sek_relationship == 1 }
+                        {if $search_keys[i].sek_relationship == 1}
                             <select name="search_keys[{$search_keys[i].sek_id}][multiple_type]" id="search_keys[{$search_keys[i].sek_id}][multiple_type]">
                                 <option {if $last_key.multiple_type == "any"}selected{/if} value="any">Any Of</option>
                                 <option {if $last_key.multiple_type == "all"}selected{/if} value="all">All of</option>

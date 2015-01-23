@@ -11,4 +11,4 @@ Regards,
 Manager - {$application_name}
 
 {* Include the full metadata *}
-{ include file="workflow/full_thesis_metadata.tpl.txt" }
+{include file="workflow/full_thesis_metadata.tpl.txt"}

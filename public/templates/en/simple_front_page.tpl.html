@@ -49,7 +49,7 @@
 	        {section name="i" loop=$list}
 				{if $list[i].rek_object_type == 1}
 	                {assign var="href_view" value="community/"|cat:$list[i].rek_pid}
-	                {assign var="icon" value="images/community.jpg" }
+	                {assign var="icon" value="images/community.jpg"}
 	                {if ($list[i].isEditor==1 || $isAdministrator)}
 	                        {assign var="showEdit" value=true}
 	                {else}
@@ -57,7 +57,7 @@
 	                {/if}
 	           {elseif $list[i].rek_object_type == 2}
 	                {assign var="href_view" value="collection/"|cat:$list[i].rek_pid}
-	                {assign var="icon" value="images/collection.jpg" }
+	                {assign var="icon" value="images/collection.jpg"}
 	                {if $isUser && ($list[i].isEditor==1 || $isAdministrator)}
 	                        {assign var="showEdit" value=true}
 	                {else}
@@ -72,9 +72,9 @@
 					{if $list[i].thumbnail.0 != "" && $list[i].isViewer==1}
 		                {assign var="icon" value=$eserv_url|cat:$list[i].rek_pid|cat:"/"|cat:$list[i].thumbnail.0}
 					{else}
-		                {assign var="icon" value="images/record.jpg" }
+		                {assign var="icon" value="images/record.jpg"}
 					{/if}
-	                {if $isUser }
+	                {if $isUser}
 	                        {assign var="showEdit" value=true}
 	                {else}
 	                        {assign var="showEdit" value=false}

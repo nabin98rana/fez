@@ -63,7 +63,7 @@ function validateForm() {
 	{/if}
 {elseif $xsd_display_fields[i].xsdmf_html_input == 'textarea'
 		&& $xsd_display_fields[i].xsdmf_validation_maxlength != null
-		&& $xsd_display_fields[i].xsdmf_validation_maxlength != '' }
+		&& $xsd_display_fields[i].xsdmf_validation_maxlength != ''}
 	{if $xsd_display_fields[i].xsdmf_multiple == 1}
 		// Validate multiple textarea fields
 		{section name="z" loop=$xsd_display_fields[i].multiple_array}

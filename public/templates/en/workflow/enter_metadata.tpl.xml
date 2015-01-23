@@ -73,7 +73,7 @@
                     <xsdmf_multiple>{$field.xsdmf_multiple}</xsdmf_multiple>
                     {if is_array($details[$temp_fld_id])}
                         {if ($field.xsdmf_html_input == 'contvocab_selector')}
-                        {foreach from=$details[$temp_fld_id] key=cvo_id item=name }
+                        {foreach from=$details[$temp_fld_id] key=cvo_id item=name}
                         <xsdmf_value><![CDATA[{$cvo_id}]]></xsdmf_value>
                         {/foreach}
                         {else}
@@ -173,7 +173,7 @@
                 <preservation_metadata>{$rel_url}view/{$pid}/{$datastreams[d].presmd}</preservation_metadata>
             {/if}
 
-            {if ( ($datastreams[d].isEditor == 1) || $isAdministrator ) }
+            {if ( ($datastreams[d].isEditor == 1) || $isAdministrator )}
                 <delete_uri>
                     <![CDATA[
                         {$rel_url}popup.php?cat=delete_datastream&pid={$pid}&dsID={$datastreams[d].ID}

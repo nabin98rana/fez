@@ -24,9 +24,9 @@
 			  </td>
 				  {if $xsdmf.xsdmf_multiple == 1}
 				    {include file='workflow/compare_records_helpers/get_right_column.tpl.html input_field_name="xsd_display_fields["|cat:$xsdmf.xsdmf_id|cat:"]"|cat:$squares
-				  	  attached_field_name=$attached_field_name attached_xsdmf=$attached_xsdmf }
+				  	  attached_field_name=$attached_field_name attached_xsdmf=$attached_xsdmf}
 				  {else}
 				    {include file='workflow/compare_records_helpers/get_right_column.tpl.html input_field_name="xsd_display_fields["|cat:$xsdmf.xsdmf_id|cat:"]" 
-				  	  attached_field_name=$attached_field_name attached_xsdmf=$attached_xsdmf }
+				  	  attached_field_name=$attached_field_name attached_xsdmf=$attached_xsdmf}
 				  {/if}
 			</tr>

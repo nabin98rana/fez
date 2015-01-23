@@ -21,7 +21,7 @@ function validateForm(f)
 
 <select class="default" name="collection_pid">
     <option label="" value="">Same as cloned pid</option>
-    {html_options options=$collection_list selected=$collection_list_selected }
+    {html_options options=$collection_list selected=$collection_list_selected}
 </select>
 </span>
 </div>
@@ -46,7 +46,7 @@ function validateForm(f)
 <label for="new_xdis_id" >Display</label>
 <span class="fez_form_input">
 <select name="new_xdis_id" >
-	{html_options options=$xdis_list selected=$smarty.request.new_xdis_id|default:$xdis_id }
+	{html_options options=$xdis_list selected=$smarty.request.new_xdis_id|default:$xdis_id}
 </select>
 </span>
 </div>
