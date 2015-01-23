@@ -530,15 +530,22 @@
                 {/if}
             </td>
             <td bgcolor="{$value_color}">
+                <div id="mapContainer">
                 <br />
+                <script type="text/javascript" src="/js/location_capture_widget.js"></script>
                 <script type="text/javascript">
-                    mapInputFieldId = 'xsd_display_fields_location_widget_{$xsd_display_fields[i].xsdmf_id}';  // this will be the name of the form element containing the coordinates
-                    {assign var="temp_xsdmf_id" value=$xsd_display_fields[i].xsdmf_id}
-                    {assign var="latLon" value=$details[$temp_xsdmf_id]}
-                    latLon = '{$latLon}';
-                    mctServicePath = 'http://services.ands.org.au/api/resolver/';
+                    {literal}
+                    $("#mapContainer").ands_location_widget({
+                        {/literal}
+                        {assign var="temp_xsdmf_id" value=$xsd_display_fields[i].xsdmf_id}
+                        target:"xsd_display_fields_location_widget_{$xsd_display_fields[i].xsdmf_id}",
+                        gasset_protocol:'https://',
+                        lonLat:"{$details[$temp_xsdmf_id]}"
+                        {literal}
+                    });
+                    {/literal}
                 </script>
-                <script type="text/javascript" src="//services.ands.org.au/api/resolver/js/location_capture_widget.js"></script>
+                </div>
 
                 {include file="error_icon.tpl.html" field="xsd_display_fields["|cat:$xsd_display_fields[i].xsdmf_id|cat:"]"}
                 {if $xsd_display_fields[i].xsdmf_required == 1}
