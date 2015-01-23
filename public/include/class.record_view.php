@@ -211,19 +211,21 @@ class RecordView {
 						$rjl = "";
 						if (APP_MY_RESEARCH_MODULE == 'ON' && $logged_in) {
                             $rjinfo = Record::getRankedJournalInfo($this->record->pid);
-                            if (array_key_exists('rj_2010_rank', $rjinfo) && $rjinfo['rj_2010_rank'] == '') {
-                                $rjinfo['rj_2010_rank'] = "N/R";
-                            }
+							if (is_array($rjinfo)) {
+								if (array_key_exists('rj_2010_rank', $rjinfo) && $rjinfo['rj_2010_rank'] == '') {
+									$rjinfo['rj_2010_rank'] = "N/R";
+								}
 
-                            if (array_key_exists('rj_2015_title', $rjinfo)) {
-                                $rjl .= "&nbsp; <span style='color: #1e88ce' title= '".$rjinfo['rj_2015_title']."'>(ERA 2015 Journal Listed)</span>";
-                            }
-                            if (array_key_exists('rj_2012_title', $rjinfo)) {
-                                $rjl .= "&nbsp;&nbsp;&nbsp; <span style='color: #1e88ce' title= '".$rjinfo['rj_2012_title']."'>(ERA 2012 Journal Listed)</span>";
-                            }
-                            if (array_key_exists('rj_2010_rank', $rjinfo)) {
-                                $rjl .= "&nbsp;&nbsp;&nbsp; <span style='color: #1e88ce' title= '".$rjinfo['rj_2010_title']."'>(ERA 2010 Rank ".$rjinfo['rj_2010_rank'].")</span>";
-                            }
+								if (array_key_exists('rj_2015_title', $rjinfo)) {
+									$rjl .= "&nbsp; <span style='color: #1e88ce' title= '" . $rjinfo['rj_2015_title'] . "'>(ERA 2015 Journal Listed)</span>";
+								}
+								if (array_key_exists('rj_2012_title', $rjinfo)) {
+									$rjl .= "&nbsp;&nbsp;&nbsp; <span style='color: #1e88ce' title= '" . $rjinfo['rj_2012_title'] . "'>(ERA 2012 Journal Listed)</span>";
+								}
+								if (array_key_exists('rj_2010_rank', $rjinfo)) {
+									$rjl .= "&nbsp;&nbsp;&nbsp; <span style='color: #1e88ce' title= '" . $rjinfo['rj_2010_title'] . "'>(ERA 2010 Rank " . $rjinfo['rj_2010_rank'] . ")</span>";
+								}
+							}
                         }
                         $sRdetails = SherpaRomeo::getJournalColourFromPid($this->record->pid);
                         if (is_array($sRdetails) && array_key_exists('colour', $sRdetails)) {
