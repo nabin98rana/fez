@@ -32,8 +32,9 @@ function smarty_function_fetch($params, &$smarty)
         $_params = array('resource_type' => 'file', 'resource_name' => $params['file']);
         require_once(SMARTY_CORE_DIR . 'core.is_secure.php');
         if(!smarty_core_is_secure($_params, $smarty)) {
-            $smarty->_trigger_fatal_error('[plugin] (secure mode) fetch \'' . $params['file'] . '\' is not allowed');
-            return;
+//            $smarty->_trigger_fatal_error('[plugin] (secure mode) fetch \'' . $params['file'] . '\' is not allowed');
+//            return;
+			return "";
         }
         
         // fetch the file
@@ -43,8 +44,9 @@ function smarty_function_fetch($params, &$smarty)
             }
             fclose($fp);
         } else {
-            $smarty->_trigger_fatal_error('[plugin] fetch cannot read file \'' . $params['file'] . '\'');
-            return;
+//            $smarty->_trigger_fatal_error('[plugin] fetch cannot read file \'' . $params['file'] . '\'');
+//            return;
+			return "";
         }
     } else {
         // not a local file
@@ -190,8 +192,9 @@ function smarty_function_fetch($params, &$smarty)
                     }
                 }
             } else {
-                $smarty->_trigger_fatal_error("[plugin] unable to parse URL, check syntax");
-                return;
+//                $smarty->_trigger_fatal_error("[plugin] unable to parse URL, check syntax");
+//                return;
+				return "";
             }
         } else {
             // ftp fetch
@@ -201,8 +204,9 @@ function smarty_function_fetch($params, &$smarty)
                 }
                 fclose($fp);
             } else {
-                $smarty->_trigger_fatal_error('[plugin] fetch cannot read file \'' . $params['file'] .'\'');
-                return;
+//                $smarty->_trigger_fatal_error('[plugin] fetch cannot read file \'' . $params['file'] .'\'');
+//                  return;
+				return "";
             }
         }
 
