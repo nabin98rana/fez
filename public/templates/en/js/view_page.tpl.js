@@ -18,52 +18,6 @@ function showDiv(p)
     }
 }
 
-// ======================================
-// helper functions to show/hide elements
-// ======================================
-function showElement(elementName, duration, displayStyle) {
-
-	// set some defaults
-	duration = typeof(duration) != 'undefined' ? duration : 200;
-	displayStyle = typeof(displayStyle) != 'undefined' ? displayStyle : 'block';
-
-	var checkNode = dojo.byId(elementName);
-	if (checkNode.style.display == 'none' || checkNode.style.display == '') {
-		var fadeArgs = {
-			node: elementName,
-			duration: duration,
-			beforeBegin: function() {
-				var node = dojo.byId(elementName);
-				if (node.style.display != displayStyle) {
-					dojo.style(node, "opacity", 0);
-					dojo.style(node, "display", displayStyle);
-				}
-			}
-		};
-		x = dojo.fadeIn(fadeArgs);
-		x.delay = 350;
-		x.play();
-	}
-}
-function hideElement(elementName, duration) {
-
-	// set defaults
-	duration = typeof(duration) != 'undefined' ? duration : 200;
-
-	hideThisElement = dojo.byId(elementName);
-	if (hideThisElement.style.display != 'none') {
-		var fadeArgs = {
-			node: elementName,
-			duration: duration,
-			onEnd: function() {
-				var node = dojo.byId(elementName);
-				node.style.display = 'none';
-			}
-		};
-		dojo.fadeOut(fadeArgs).play();
-	}
-}
-
 function drawMap(){//drawing the map on the left side
     if($('#spatial_coverage_map').length > 0){//if there is a coverage
         var latlng = new google.maps.LatLng(-25.397, 133.644);
