@@ -7,7 +7,6 @@ Disallow: /history.php
 Disallow: /adv_search.php
 Disallow: /list.php
 
-Disallow: /list/
 Disallow: /js/
 Disallow: /css/
 Disallow: /flviewer/
