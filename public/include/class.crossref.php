@@ -150,8 +150,8 @@ class Crossref
         } else {
             $lastNumber++;
         }
-        //return CROSSREF_DOI_PREFIX.'.'.date("Y").'.'.$lastNumber;
-        return CROSSREF_DOI_PREFIX.'.2013.10';
+        return CROSSREF_DOI_PREFIX.'.'.date("Y").'.'.$lastNumber;
+        //return CROSSREF_DOI_PREFIX.'.2013.10';
     }
 
     //Save NEW doi's into the database
@@ -164,6 +164,10 @@ class Crossref
         $lastNumber = preg_replace("/".preg_quote(CROSSREF_DOI_PREFIX,'/')."\.\d\d\d\d\./", '', $doi);
         preg_match("/\.\d\d\d\d\./", $doi, $matches);
         $year=substr($matches[0], 1, 4);
+
+        if ($doi != $this->getNextDoi()) {
+            $log->err("Warning DOI save was out of order ".$doi.' '.$this->getNextDoi().' '.$user.' '.$pid);
+        }
 
         $stmt = "INSERT INTO
                     " . APP_TABLE_PREFIX . "doi_created (dcr_pid, dcr_doi_year, dcr_doi_num, dcr_creator, dcr_date) VALUES
@@ -181,9 +185,7 @@ class Crossref
             return false;
         }
 
-        if ($doi != $this->getNextDoi()) {
-            $log->err("Warning DOI save was out of order".$doi.' '.$this->getNextDoi().' '.$user.' '.$pid);
-        }
+
         return $res;
     }
 
