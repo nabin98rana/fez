@@ -47,11 +47,36 @@ function loadPreview(pid,datastreamID, alt, origami)
         dismissQueue: true,
         modal: false,
         layout: 'topCenter',
-        timeout: 5000,
+        //timeout: 5000,
         theme: 'defaultTheme'
     });
 
+
+    function getWorkflows(){
+        var feedback = $.ajax({
+            url: "/ajax_pid_outstanding_events.php",
+            type: "GET",
+            async: false,
+            data: {pid: "{/literal}{$pid}{literal}", type: "WORKFLOW"}
+        }).success(function(data){
+            if (data != '[]' && data != undefined) {
+                setTimeout(function () {
+                    getWorkflows();
+                }, 10000);
+            }
+        }).responseText;
+
+        if (feedback=='[]') {
+            setTimeout(function(){ $("#noty_topCenter_layout_container").empty()} , 5000);
+        }
+    }
+
+    $(function() {
+        getWorkflows();
+    });
+
 </script>
+
 {/literal}
 {/if}
 {/if}

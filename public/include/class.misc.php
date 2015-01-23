@@ -4988,7 +4988,8 @@ public static function multi_implode($glue, $pieces)
    **/
   public static function generateOutstandingStatusString($pid)
   {
-    $workflowsCount = WorkflowStatusStatic::getCountForPid($pid);
+    $workflowsDetails = WorkflowStatusStatic::getWorkflowDetailsForPid($pid);
+    $workflowsCount = count($workflowsDetails);
     $bgpsCount = BackgroundProcessPids::getCountForPid($pid);
     $fulltextQueueDetails = FulltextQueue::getDetailsForPid($pid);
 
@@ -5005,6 +5006,12 @@ public static function multi_implode($glue, $pieces)
       $wfPrefix = $workflowsCount == 1 ? 'is' : 'are';
       $workflowsString = "{$workflowsCount} workflow{$plural}";
       $outputString .= " {$wfPrefix} <strong>{$workflowsString}</strong>";
+
+      $outputString .= " by <BR />";
+      foreach( $workflowsDetails as $workflows) {
+          $out[] = "<strong>".$workflows['username'] . '</strong> - ' . $workflows['workflowTitle'];
+      }
+      $outputString .=  implode('</br>', $out) . "</BR>";
       $outputStarted = true;
     }
 
