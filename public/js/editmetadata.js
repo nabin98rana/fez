@@ -69,9 +69,9 @@ function selectDateOptions(field_prefix, date_str)
 
 function selectDateField(field_name, day, month, year)
 {
-    selectOption(this.document.wfl_form1, field_name + '[Day]', day);
-    selectOption(this.document.wfl_form1, field_name + '[Month]', month);
-    selectOption(this.document.wfl_form1, field_name + '[Year]', year);
+    selectOption(wfl_form1, field_name + '[Day]', day);
+    selectOption(wfl_form1, field_name + '[Month]', month);
+    selectOption(wfl_form1, field_name + '[Year]', year);
 }
 
 function insertAfter(newElement,targetElement) {
