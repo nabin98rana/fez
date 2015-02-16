@@ -401,9 +401,8 @@ if (!empty($pid) && !empty($dsID)) {
 
 		    header("Content-Type: $header");
 
-		    if($dsMeta['mimetype'] == 'application/pdf'
-		        && $dsMeta['size'] > 7000000
-		        && Misc::is_firefox())
+		    if(($dsMeta['mimetype'] == 'application/pdf' && $dsMeta['size'] > 7000000 && Misc::is_firefox())
+				|| (is_numeric(strpos($ctype, "htm"))))
 		    {
 		        header("Content-Type: application/force-download");
 		    }
@@ -429,7 +428,8 @@ if (!empty($pid) && !empty($dsID)) {
     	    }
 
     	    // PDF? > 7MB? Firefox? Force download.
-    	    if (is_numeric(strpos($ctype, "pdf")) && $info['download_content_length'] > 7000000 && Misc::is_firefox()) {
+    	    if ((is_numeric(strpos($ctype, "pdf")) && $info['download_content_length'] > 7000000 && Misc::is_firefox()) || (is_numeric(strpos($ctype, "htm"))))
+			{
     	    	header("Content-Type: application/force-download");
     	    }
 
