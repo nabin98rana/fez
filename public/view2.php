@@ -64,11 +64,18 @@ $isUPO = User::isUserUPO($username);
 
 if ($isAdministrator || $isUPO) {
 
-    //get ranked journals for 2010/12 for spyglass
+    //get ranked journals for 2010/12/etc for spyglass
     $rjl_spyglass = '';
     $rjinfo = Record::getRankedJournalInfo($pid);
     $rcinfo = Record::getRankedConferenceInfo($pid);
     if (is_array($rjinfo) || is_array($rcinfo)) {
+        if (array_key_exists('rj_tier_rank', $rjinfo) && $rjinfo['rj_tier_rank'] == '') {
+          $rjinfo['rj_2010_rank'] = "N/R";
+        }
+        if (array_key_exists('rj_tier_title', $rjinfo)) {
+          $rjl_spyglass .= "(UQ Tiered Journal List: ".$rjinfo['rj_tier_title'].", ranked UQ Tier ".$rjinfo['rj_tier_rank'].")</br>";
+        }
+
         if (array_key_exists('rj_2010_rank', $rjinfo) && $rjinfo['rj_2010_rank'] == '') {
             $rjinfo['rj_2010_rank'] = "N/R";
         }

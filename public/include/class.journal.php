@@ -437,6 +437,38 @@ class Journal
 		return $res;
 	}
 
+	/**
+	 * Get the complete list of journals.
+	 */
+	function getJournalsUqTiered()
+	{
+		$log = FezLog::get();
+		$db = DB_API::get();
+
+		$stmt = "
+			SELECT
+			    jnl_id as matching_id,
+			    jnl_era_year AS year,
+				jnl_era_id AS eraid,
+				jnl_rank AS rank,
+				jnl_journal_name AS title
+			FROM
+				" . APP_TABLE_PREFIX . "journal_uq_tiered
+			ORDER BY
+				jnl_journal_name ASC, jnl_era_year ASC;
+		";
+
+		try {
+			$res = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
+		}
+		catch(Exception $ex) {
+			$log->err($ex);
+			return '';
+		}
+
+		return $res;
+	}
+
   /**
  	 * Get the complete list of journals.
  	 */

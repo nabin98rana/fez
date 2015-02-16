@@ -552,6 +552,28 @@ class Record
 			return "";
 		}
 
+        $stmt = "
+              SELECT
+                  jnl_rank AS rank,
+                  jnl_journal_name AS title,
+                  jnl_era_year as year
+              FROM
+                  " . APP_TABLE_PREFIX . "matched_uq_tiered_journals,
+                  " . APP_TABLE_PREFIX . "journal_uq_tiered
+              WHERE
+                  mtj_jnl_id = jnl_id
+                  AND mtj_pid = " . $db->quote($pid) . "
+              ORDER BY jnl_era_year DESC
+          ";
+
+        try {
+          $res2 = $db->fetchAll($stmt, Zend_Db::FETCH_ASSOC);
+        } catch(Exception $ex) {
+          $log->err($ex);
+          return "";
+        }
+
+        $res = array_merge($res, $res2);
 		if (count($res) == 0) {
 			return "";
 		}
@@ -595,6 +617,38 @@ class Record
     return $res;
   }
 
+    function getRankedUQTieredJournal($pid)
+    {
+      $log = FezLog::get();
+      $db = DB_API::get();
+
+      $stmt = "
+        SELECT
+          mtj_jnl_id AS matching_id, ";
+
+      if (!is_numeric(strpos(APP_SQL_DBTYPE, "mysql"))) {
+        $stmt .= " ' (UQ Tier ' || jnl_rank || ')' || jnl_journal_name  AS title";
+      } else {
+        $stmt .= " CONCAT(' (UQ Tier ',  jnl_rank, ') ',jnl_journal_name) AS title";
+      }
+      $stmt .= "
+        FROM
+          " . APP_TABLE_PREFIX . "matched_uq_tiered_journals LEFT JOIN
+          " . APP_TABLE_PREFIX . "journal_uq_tiered ON jnl_id = mtj_jnl_id
+        WHERE
+          mtj_pid = " . $db->quote($pid) . ";
+      ";
+
+      try {
+        $res = $db->fetchPairs($stmt);
+      } catch(Exception $ex) {
+        $log->err($ex);
+        return "";
+      }
+
+      return $res;
+    }
+
 	function getRankedJournalInfoByPIDs($pids)
 	{
 		$log = FezLog::get();
@@ -621,7 +675,28 @@ class Record
 			return "";
 		}
 
-		return $res;
+        $stmt = "
+              SELECT
+                  mtj_pid as pid,
+                  jnl_rank AS rank,
+                  jnl_journal_name AS title,
+                  jnl_era_year as year
+              FROM
+                  " . APP_TABLE_PREFIX . "matched_uq_tiered_journals,
+                  " . APP_TABLE_PREFIX . "journal_uq_tiered
+              WHERE
+                  mtj_jnl_id = jnl_id
+                  AND mtj_pid in (".Misc::arrayToSQLBindStr($pids).")
+          ";
+
+        try {
+          $res2 = $db->fetchAll($stmt, $pids, Zend_Db::FETCH_ASSOC);
+        } catch(Exception $ex) {
+          $log->err($ex);
+          return "";
+        }
+
+		return array_merge($res, $res2);
 	}
 
 	function getRankedConferenceInfo($pid)

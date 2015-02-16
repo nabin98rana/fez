@@ -136,6 +136,85 @@ class matching
 	}
 
 	/**
+	 * Returns all matches (automatic, manual, and black-listed items).
+	 */
+	function getAllUQTieredMatches($current_row = 0, $max = 25, $filter = "")
+	{
+		$log = FezLog::get();
+		$db = DB_API::get();
+
+		$start = $current_row * $max;
+
+		$stmtSelect = "
+			SELECT
+				mtj_pid AS pid,
+				jnl_era_year,
+				jnl_id,
+				rek_title AS record_title,
+				jnl_era_id AS journal_era_id,
+				jnl_journal_name AS journal_name,
+				mtj_status AS journal_match_status
+		";
+
+		$stmtFrom = "
+				FROM
+					" . APP_TABLE_PREFIX . "matched_uq_tiered_journals
+			LEFT JOIN " . APP_TABLE_PREFIX . "record_search_key ON rek_pid = mtj_pid
+			LEFT JOIN " . APP_TABLE_PREFIX . "journal_uq_tiered ON mtj_jnl_id = jnl_id
+
+		";
+
+
+		if ($filter != '') {
+			$stmtFrom .= "WHERE mtj_pid = " . $db->quote($filter);
+		}
+
+		$stmtLimit = "
+			ORDER BY mtj_pid ASC
+			LIMIT " . $db->quote($max, 'INTEGER') . " OFFSET " . $db->quote($start, 'INTEGER') . ";";
+
+		$stmt = $stmtSelect . $stmtFrom . $stmtLimit;
+
+		try {
+			$result = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
+		}
+		catch(Exception $ex) {
+			$log->err($ex);
+			return '';
+		}
+
+		/* Get page count stuff */
+		$stmt = "SELECT COUNT(*) " . $stmtFrom;
+		try {
+			$total_rows = $db->fetchOne($stmt);
+		} catch(Exception $ex) {
+			$log->err($ex);
+			return '';
+		}
+		if (($start + $max) < $total_rows) {
+			$total_rows_limit = $start + $max;
+		} else {
+			$total_rows_limit = $total_rows;
+		}
+		$total_pages = ceil($total_rows / $max);
+		$last_page = $total_pages - 1;
+
+		return array(
+			"list" => $result,
+			"list_info" => array(
+				"current_page"  => $current_row,
+				"start_offset"  => $start,
+				"end_offset"    => $total_rows_limit,
+				"total_rows"    => $total_rows,
+				"total_pages"   => $total_pages,
+				"prev_page" 	=> ($current_row == 0) ? "-1" : ($current_row - 1),
+				"next_page"     => ($current_row == $last_page) ? "-1" : ($current_row + 1),
+				"last_page"     => $last_page
+			)
+		);
+	}
+
+	/**
 	 * Get a list of all PIDs that are not to be mapped.
 	 */
 	function getMatchingExceptions($type)
@@ -220,6 +299,52 @@ class matching
 		exit;
 	}
 
+	/**
+	 * Add a brand new mapping.
+	 */
+	function addUQTier()
+	{
+		$log = FezLog::get();
+		$db = DB_API::get();
+
+		$pid = $_POST['pid'];
+		$matching_id = $_POST['matching_id'];
+		$status = $_POST['status'];
+
+		UQTJL::removeMatchByPID($pid);
+
+		if ($status == 'B') {
+			$matching_id = array('0');
+		}
+
+		foreach ($matching_id as $mid) {
+			$stmt = "INSERT INTO " . APP_TABLE_PREFIX . "matched_uq_tiered_journals
+                    (
+                    mtj_pid,
+                    mtj_jnl_id ,
+                    mtj_status
+                    ) VALUES (
+                    " . $db->quote($pid) . ",
+                    " . $db->quote($mid, 'INTEGER') . ",
+                    " . $db->quote($status) . "
+                    );";
+
+			try {
+				$db->exec($stmt);
+			}
+			catch(Exception $ex) {
+				$log->err($ex);
+				return -1;
+			}
+		}
+
+		if (APP_SOLR_INDEXER == "ON") {
+			FulltextQueue::singleton()->add($pid);
+		}
+
+		header("Location: https://" . APP_HOSTNAME . "/manage/matching_uq_tiered_journal.php");
+		exit;
+	}
 
 	/**
 	 * Add a brand new mapping.
@@ -250,7 +375,9 @@ class matching
             $suffix = "_cnf_id";
             RCL::removeMatchByPID($pid);
 		}
-
+		if ($status == 'B') {
+			$matching_id = array('0');
+		}
 		foreach ($matching_id as $mid) {
             $stmt = "INSERT INTO " . APP_TABLE_PREFIX . "matched_" . $table . "
                     (

@@ -111,6 +111,11 @@ function checkAll()
 			        These publications may be authored by you. Your surname or one of the variants of your name that we know about is listed as an author of this publication.<br /><br />
 			        You can use the refine feature at the left to find publications more likely to be yours, based on co-authors, keywords etc.
 			        </th>
+					<th style="text-align: center; padding: 2px;">
+						{if $list_info.total_rows > 0}
+							<img src="{$rel_url}images/tiered_journal_list_16.png" title="UQ Tiered Journal List" alt="UQ Tiered Journal List" />
+						{/if}
+					</th>
                     <th style="text-align: center; padding: 2px;">
         			{if $list_info.total_rows > 0}
         				<img src="{$rel_url}images/journal_listed_b_16.png" title="ERA 2015 Journal Listed" alt="ERA 2015 Journal Listed" />
@@ -126,7 +131,7 @@ function checkAll()
                         <img src="{$rel_url}images/journal_listed_16.png" title="ERA 2012 Journal Listed" alt="ERA 2012 Journal Listed" />
                         {/if}
                     </th>
-                  <th style="text-align: center; padding: 2px;">
+{*                  <th style="text-align: center; padding: 2px;">
         			{if $list_info.total_rows > 0}
         				<img src="{$rel_url}images/journal_ranking_16.png" title="ERA 2010 Ranking" alt="ERA 2010 Ranked Journal List Ranking" />
         			{/if}
@@ -136,6 +141,7 @@ function checkAll()
         					<img src="{$rel_url}images/conference_ranking_16.png" title="ERA 2010 Ranked Conference List Ranking" alt="ERA 2010 Ranked Conference List Ranking" />
         				{/if}
         			</th>
+*}
 					<th style="text-align: center; padding: 2px;">
 						{if $list_info.total_rows > 0}
 							<img src="{$rel_url}images/herdc_code_16.png" title="HERDC Code" alt="HERDC Code" />
@@ -188,6 +194,9 @@ function checkAll()
 					<a href="{$rel_url}view/{$list[i].rek_pid}" target="_blank">{$list[i].rek_title}</a>
 				{/if}
 			</td>
+			<td style="vertical-align: middle; text-align: center; border-top:1px dashed #be87e9;">
+				{if $list[i].rj_tier_title}<a href="#" title="{$list[i].rj_tier_title}">UQ Tier {$list[i].rj_tier_rank}</a>{else}<a href="#" title="This publication is not identified as being in the UQ Tiered Journal list.">-</a>{/if}
+			</td>
             <td style="vertical-align: middle; text-align: center; border-top:1px dashed #be87e9;">
                 {if $list[i].rj_2015_title}<a href="#" title="{$list[i].rj_2015_title}">Y</a>{else}<a href="#" title="This publication is outside the ERA 2015 window (pre-2008) and/or not identified as being in a 2015 ERA Listed Journal.">-</a>{/if}
             </td>
@@ -197,12 +206,13 @@ function checkAll()
             <td style="vertical-align: middle; text-align: center; border-top:1px dashed #be87e9;">
                 {if $list[i].rj_2012_title}<a href="#" title="{$list[i].rj_2012_title}">Y</a>{else}<a href="#" title="This publication is outside the ERA 2012 window (pre-2005) and/or not identified as being in a 2012 ERA Listed Journal.">-</a>{/if}
             </td>
-           <td style="vertical-align: middle; text-align: center; border-top:1px dashed #be87e9;">
+{*           <td style="vertical-align: middle; text-align: center; border-top:1px dashed #be87e9;">
                 {if $list[i].rj_2010_rank}<a href="#" title="{$list[i].rj_2010_title}">{$list[i].rj_2010_rank}</a>{else}<a href="#" title="This publication is outside the ERA 2010 window (pre-2003) and/or not identified as being in a 2010 ERA Ranked Journal.">-</a>{/if}
             </td>
             <td style="vertical-align: middle; text-align: center; border-top:1px dashed #be87e9;">
                 {if $list[i].rc_2010_rank}<a href="#" title="{$list[i].rc_2010_title}">{$list[i].rc_2010_rank}</a>{else}<a href="#" title="This is outside the ERA 2010 window (pre-2003) and/or not identified as being in a 2010 ERA Ranked Conference.">-</a>{/if}
             </td>
+*}
 			<td style="vertical-align: middle; text-align: center;">
 				{if $list[i].rek_herdc_code_lookup != ''}
 					<a href="#" title="{if $list[i].rek_herdc_status_lookup == 'Provisional Code'}PROVISIONAL {elseif $list[i].rek_herdc_status_lookup == 'Confirmed Code'}CONFIRMED {/if}{$list[i].rek_herdc_code_lookup}">{$list[i].rek_herdc_code_lookup}{if $list[i].rek_herdc_status_lookup == 'Provisional Code'}P{elseif $list[i].rek_herdc_status_lookup == 'Confirmed Code'}&#10003;{/if}</a>
