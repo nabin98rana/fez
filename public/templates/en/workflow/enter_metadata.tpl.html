@@ -651,7 +651,7 @@
                           $('#{/literal}{$xsd_display_fields[i].xsdmf_id}{literal}_comment').html(obj.comment);
                           //hack for Urlichs we'll enter in info if relevent
                           var intRegex = /^\d+$/;
-                          if( intRegex.test(obj.embargo_xsdmf_id) && intRegex.test(obj.oastatus_xsdmf_id)) {
+                          if( (obj.status == "true") && intRegex.test(obj.embargo_xsdmf_id) && intRegex.test(obj.oastatus_xsdmf_id)) {
                               $('#xsd_display_fields_'+obj.oastatus_xsdmf_id+'_0').prop('checked', true);
                               $('#xsd_display_fields_'+obj.embargo_xsdmf_id+'_0').val('0');
                           }
