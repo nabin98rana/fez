@@ -834,21 +834,6 @@ class RJL
         return;
     }
 
-
-    function subtractMatchesFromCandidates(&$candidates, $matches)
-    {
-        echo "Removing matches from journal pool ... ";
-
-        foreach ($matches as $matchKey => $matchVal) {
-            unset($candidates[$matchKey]);
-        }
-
-        echo " done.\n";
-
-        return;
-    }
-
-
     function lookForManualMatches($check, $manualMatches, &$matches)
     {
         echo "Checking un-matched journals for manual matches... \n";
@@ -916,34 +901,6 @@ class RJL
         }
 
         return $clean;
-    }
-
-    function runNearMatchInserts($matches)
-    {
-        $log = FezLog::get();
-        $db = DB_API::get();
-
-        echo "Running " . count($matches) . "  near match insertion queries on eSpace database ... ";
-        // clear out any existing matches
-        RJL::removeNearMatches();
-
-        foreach ($matches as $match) {
-            $stmt = "INSERT INTO " . APP_TABLE_PREFIX . "near_matched_journals (nmj_pid, nmj_jnl_id, nmj_jnl_journal_name, nmj_rek_journal_name, nmj_similarity, nmj_created_date) VALUES ('" . $match['pid'] . "', '" . $match['matching_id'] . "', '" . $match['jnl_journal_name'] . "', '" . $match['rek_journal_name'] . "', '" . $match['similarity'] . "', NOW())";
-            if (TEST_WHERE != '') {
-                echo $stmt . "\n";
-            }
-            ob_flush();
-            try {
-                $db->exec($stmt);
-            } catch (Exception $ex) {
-                $log->err($ex);
-                die('There was a problem with the query ' . $stmt);
-            }
-        }
-
-        echo "done.\n";
-
-        return;
     }
 
 
@@ -1044,22 +1001,6 @@ class RJL
                        mtj_pid = ?";
         try {
             $db->query($stmt, $pid);
-        } catch (Exception $ex) {
-            $log->err($ex);
-            return false;
-        }
-        return true;
-    }
-
-    function removeNearMatches()
-    {
-        $log = FezLog::get();
-        $db = DB_API::get();
-
-        $stmt = "TRUNCATE
-                     " . APP_TABLE_PREFIX . "near_matched_journals";
-        try {
-            $db->query($stmt);
         } catch (Exception $ex) {
             $log->err($ex);
             return false;
