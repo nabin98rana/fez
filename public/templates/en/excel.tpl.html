@@ -1,38 +1,53 @@
 <table border="1">
-  <tr>
-    <td bgcolor="#CCCCCC"><b>PID</b></td>
-    <td bgcolor="#CCCCCC"><b>Title</b></td>
-    <td bgcolor="#CCCCCC"><b>Type</b></td>
-    <td bgcolor="#CCCCCC"><b>Details</b></td>
-    <td bgcolor="#CCCCCC"><b>Abstract views</b></td>
-    <td bgcolor="#CCCCCC"><b>Downloads</b></td>
-    <td bgcolor="#CCCCCC"><b>WoS citations</b></td>
-    <td bgcolor="#CCCCCC"><b>Scopus citations</b></td>
-    <td bgcolor="#CCCCCC"><b>Google Scholar citations</b></td>
-    <td bgcolor="#CCCCCC"><b>Altmetric Score</b></td>
-    <td bgcolor="#CCCCCC"><b>ERA 2010 Journal ranking</b></td>
-    <td bgcolor="#CCCCCC"><b>ERA 2012 Journal listed</b></td>
-    <td bgcolor="#CCCCCC"><b>HERDC code</b></td>
-    <td bgcolor="#CCCCCC"><b>HERDC status</b></td>
-    <td bgcolor="#CCCCCC"><b>HERDC affiliation</b></td>
-  </tr>
-{section name="i" loop=$list}
-  <tr>
-    <td>{$list[i].rek_pid}</td>
-    <td>{$list[i].rek_title}</td>
-    <td>{$list[i].rek_genre}</td>
-    <td>{$list[i].rek_citation_stripped}</td>
-    <td>{$list[i].rek_views}</td>
-    <td>{$list[i].rek_file_downloads}</td>
-    <td>{$list[i].rek_thomson_citation_count}</td>
-    <td>{$list[i].rek_scopus_citation_count}</td>
-    <td>{$list[i].rek_gs_citation_count}</td>
-    <td>{$list[i].rek_altmetric_score}</td>
-    <td>{$list[i].rj_2010_rank}</td>
-    <td>{if $list[i].rj_2012_title}Y{else}N{/if}</td>
-    <td>{$list[i].rek_herdc_code_lookup}</td>
-    <td>{$list[i].rek_herdc_status_lookup}</td>
-    <td>{$list[i].rek_institutional_status_lookup}</td>
-  </tr>
-{/section}
+    <tr>
+        <td bgcolor="#CCCCCC"><b>PID</b></td>
+        <td bgcolor="#CCCCCC"><b>Title</b></td>
+        <td bgcolor="#CCCCCC"><b>Type</b></td>
+        <td bgcolor="#CCCCCC"><b>Details</b></td>
+        <td bgcolor="#CCCCCC"><b>Abstract views</b></td>
+        <td bgcolor="#CCCCCC"><b>Downloads</b></td>
+        <td bgcolor="#CCCCCC"><b>WoS citations</b></td>
+        <td bgcolor="#CCCCCC"><b>Scopus citations</b></td>
+        <td bgcolor="#CCCCCC"><b>Google Scholar citations</b></td>
+        <td bgcolor="#CCCCCC"><b>Altmetric Score</b></td>
+        <td bgcolor="#CCCCCC"><b>ERA 2010 Journal ranking</b></td>
+        <td bgcolor="#CCCCCC"><b>ERA 2012 Journal listed</b></td>
+        <td bgcolor="#CCCCCC"><b>HERDC code</b></td>
+        <td bgcolor="#CCCCCC"><b>HERDC status</b></td>
+        <td bgcolor="#CCCCCC"><b>HERDC affiliation</b></td>
+        {foreach from=$titles item=entry key=name}
+            <td bgcolor="#CCCCCC"><b>{$entry}</b></td>
+        {/foreach}
+      </tr>
+
+    {section name="i" loop=$excel_data}
+    <tr>
+        <td>{$list[i].rek_pid}</td>
+        <td>{$list[i].rek_title}</td>
+        <td>{$list[i].rek_genre}</td>
+        <td>{$list[i].rek_citation_stripped}</td>
+        <td>{$list[i].rek_views}</td>
+        <td>{$list[i].rek_file_downloads}</td>
+        <td>{$list[i].rek_thomson_citation_count}</td>
+        <td>{$list[i].rek_scopus_citation_count}</td>
+        <td>{$list[i].rek_gs_citation_count}</td>
+        <td>{$list[i].rek_altmetric_score}</td>
+        <td>{$list[i].rj_2010_rank}</td>
+        <td>{if $list[i].rj_2012_title}Y{else}N{/if}</td>
+        <td>{$list[i].rek_herdc_code_lookup}</td>
+        <td>{$list[i].rek_herdc_status_lookup}</td>
+        <td>{$list[i].rek_institutional_status_lookup}</td>
+        {foreach from=$titles item=entry1 key=name1}
+            {if is_array($excel_data[i][$entry1])}
+                <td>
+                {foreach from=$excel_data[i][$entry1] item=entry2 key=name2}
+                    {$entry2}|
+                {/foreach}
+                </td>
+            {else}
+                    <td>{$excel_data[i][$entry1]}</td>
+            {/if}
+        {/foreach}
+    </tr>
+    {/section}
 </table>

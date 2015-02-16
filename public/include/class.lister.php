@@ -1055,6 +1055,27 @@ class Lister
 
     if ($tpl_idx == 1) {
       // Add the Research Details to the array
+      $titles = array();
+      foreach ($list as $rec) {
+        $record = new RecordObject($rec['rek_pid']);
+        $record->getDisplay();
+        $details = $record->getDetails();
+        $xsd_display_fields = $record->display->getMatchFieldsList(array("FezACML"), array()); // XSD_DisplayObject
+        $pidTitles = array();
+        foreach ($xsd_display_fields as $value) {
+          if ($value['xsdmf_show_in_view'] && $value['xsdmf_enabled'] && !$value['xsdmf_invisible'] && !empty($value['sek_title'] )&& !empty($details[$value['xsdmf_id']]) && $value['sek_title'] != 'Description' && $value['sek_title'] != 'Formatted Abstract') {
+            $pidTitles[] = $value['sek_title'];
+            $excelRow[$value['sek_title']] = $details[$value['xsdmf_id']];
+          }
+        }
+        $titles = array_merge($pidTitles, $titles);
+        $excelData[] = $excelRow;
+      }
+      $titles = array_unique($titles);
+      sort($titles);
+      //$tpl->assign('xsd_display_fields', $xsd_display_fields);
+      $tpl->assign('titles', $titles);
+      $tpl->assign('excel_data', $excelData);
       $list = Record::getResearchDetailsbyPIDS($list);
     }
 
