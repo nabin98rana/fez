@@ -179,7 +179,7 @@
 														value="{$workflow_buttons[i].wfs_title|default:'Done'}"
 														{if $disable_workflow}disabled="disabled"{/if} />&nbsp;
 													{/section}
-													<input class="button" type="button" id="workflow_abandon_1" name="workflow_abandon" onclick="javascript:document.location.href='{$rel_url}workflow/abandon.php?id={$id}&amp;href={$href|smarty:nodefaults|escape:url}';" value="Abandon Workflow" />
+													<input class="button" type="button" id="workflow_abandon_1" name="workflow_abandon" onclick="javascript:document.location.href='{$rel_url}workflow/abandon.php?id={$id}&amp;href={$href|escape:url nofilter}';" value="Abandon Workflow" />
 												</td>
 											</tr>
 										</table>
@@ -210,7 +210,7 @@
 										<input class="button" type="submit" name="workflow_button_{$workflow_buttons[i].wfs_id}" id="workflow_button_{$workflow_buttons[i].wfs_id}_2" value="{$workflow_buttons[i].wfs_title|default:'Done'}"
 										{if $disable_workflow}disabled="disabled"{/if} />&nbsp;
 									{/section}
-									<input class="button" type="button" id="workflow_abandon_2" name="workflow_abandon" onclick="javascript:document.location.href='{$rel_url}workflow/abandon.php?id={$id}&amp;href={$href|smarty:nodefaults|escape:url}';" value="Abandon Workflow" />
+									<input class="button" type="button" id="workflow_abandon_2" name="workflow_abandon" onclick="javascript:document.location.href='{$rel_url}workflow/abandon.php?id={$id}&amp;href={$href|escape:url nofilter}';" value="Abandon Workflow" />
 								</div>
 							</th>
 						</tr>

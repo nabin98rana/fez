@@ -44,7 +44,7 @@
         </tr>
         {section name="i" loop=$xsd_display_fields}
             {assign var="temp_fld_id" value=$xsd_display_fields[i].xsdmf_id}
-            {assign var='xsdmf' value=$xsd_display_fields[i]|smarty:nodefaults}
+            {assign var='xsdmf' value=$xsd_display_fields[i]}
             {include file='workflow/edit_metadata_helpers/field_'|cat:$xsd_display_fields[i].xsdmf_html_input|cat:'.tpl.html'}
             {if $debug == 1}
                 {$xsd_display_fields[i].xsdmf_order}

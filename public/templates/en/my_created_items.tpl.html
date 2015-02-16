@@ -101,7 +101,7 @@ No items found
 
         <td class="default">
             <a href="{$rel_url}view/{$list[i].rek_pid}"><img align="absmiddle" src="{$icon}" border="0"></a>
-            <a href="{$rel_url}view/{$list[i].rek_pid}" class="title_link">{$list[i].rek_citation|smarty:nodefaults}</a>
+            <a href="{$rel_url}view/{$list[i].rek_pid}" class="title_link">{$list[i].rek_citation nofilter}</a>
             <br />(Created: {$list[i].rek_created_date}{if $list[i].rek_updated_date <> $list[i].rek_created_date} Last Updated: {$list[i].rek_updated_date}{/if})
        </td>
         <td nowrap valign="middle" class="default">
@@ -130,7 +130,7 @@ No items found
         {else}
             {assign var='wf_url' value=$rel_url|cat:'workflow/update.php'}
   		{/if}
-	   <a href="{$wf_url}?pid={$list[i].rek_pid}&amp;cat=select_workflow&amp;xdis_id={$list[i].rek_display_type}&amp;wft_id={$list[i].wft_id[w]}&amp;href={$smarty.server.REQUEST_URI|smarty:nodefaults|escape:url}"><img alt="{$list[i].wfl_title[w]}" title="{$list[i].wfl_title[w]}" src="{$rel_url}{$wf_icon}" border="0" /></a>
+	   <a href="{$wf_url}?pid={$list[i].rek_pid}&amp;cat=select_workflow&amp;xdis_id={$list[i].rek_display_type}&amp;wft_id={$list[i].wft_id[w]}&amp;href={$smarty.server.REQUEST_URI|escape:url nofilter}"><img alt="{$list[i].wfl_title[w]}" title="{$list[i].wfl_title[w]}" src="{$rel_url}{$wf_icon}" border="0" /></a>
 	  {/if}
 	  {/section}
      </td>

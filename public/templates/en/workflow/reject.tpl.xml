@@ -16,7 +16,7 @@
                 {/section}
                 <action>
                     <name>Abandon Workflow</name>
-                    <uri><![CDATA[{$rel_url}workflow/abandon.php?id={$id}&href={$href|smarty:nodefaults|escape:url}]]></uri>
+                    <uri><![CDATA[{$rel_url}workflow/abandon.php?id={$id}&href={$href|escape:url nofilter}]]></uri>
                 </action>
         </actions>
     {/if}

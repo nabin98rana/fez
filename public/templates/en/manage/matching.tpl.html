@@ -155,7 +155,7 @@ function setPage(new_page)
         </h1>
 
 		<div id="research-solo-citation">
-			{$citation|smarty:nodefaults}
+			{$citation nofilter}
 			<div style="display: block; font-size: 80%; padding-top: 15px;">[ <a href="{$rel_url}view/{$pid}" onclick="javascript:window.open('{$rel_url}view/{$pid}'); return false;">View the full record</a> ]</div>
 		</div>
 
@@ -226,7 +226,7 @@ function setPage(new_page)
 			<h1>New {if $match_type == 'C'}Conference{elseif $match_type == 'J'}Journal{/if} Mapping</h1>
 		
 			<div id="research-solo-citation">
-                {$citation|smarty:nodefaults}
+                {$citation nofilter}
 				<div style="display: block; font-size: 80%; padding-top: 15px;">[ <a href="{$rel_url}view/{$pid}" onclick="javascript:window.open('{$rel_url}view/{$pid}'); return false;">View the full record</a> ]</div>
 			</div>
 			

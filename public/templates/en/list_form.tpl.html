@@ -199,7 +199,7 @@
 
   <div class="create-box">
 	{if $list_type == 'community_list' && $isAdministrator}
-	<a title="Create New Community" id="Create New Community" href="{$rel_url}workflow/new.php?pid=-1&amp;xdis_id={$xdis_id}&amp;href={$smarty.server.REQUEST_URI|smarty:nodefaults|escape:url}"><img src="{$rel_url}images/folder_new.gif" alt="" /> <b>Create New Community</b></a>
+	<a title="Create New Community" id="Create New Community" href="{$rel_url}workflow/new.php?pid=-1&amp;xdis_id={$xdis_id}&amp;href={$smarty.server.REQUEST_URI nofilter}"><img src="{$rel_url}images/folder_new.gif" alt="" /> <b>Create New Community</b></a>
 	{elseif $list_type == 'collection_list' && ($isAdministrator || $isCreator)}
 		{if $childXDisplayOptions != 0}
 		<img src="{$rel_url}images/folder_new.gif" alt="" />
@@ -262,8 +262,8 @@
     {/foreach}
 	{if is_array($alternativeAuthorNamesList) && count($alternativeAuthorNamesList) > 1}
 		<li><strong>Names this author has published as</strong></li>
-		{foreach from=$alternativeAuthorNamesList|smarty:nodefaults item=authorLink}
-		<li class="facetarrow">{$authorLink|smarty:nodefaults}</li>
+		{foreach from=$alternativeAuthorNamesList nofilter item=authorLink}
+		<li class="facetarrow">{$authorLink nofilter}</li>
 		{/foreach}
 		<li>&nbsp;</li>
 	{/if}
@@ -290,7 +290,7 @@
             </td>
             <td align="center">
             {if $list_info.total_rows > 0 && ($list_type !== 'collection_list' && $list_type !== 'community_list')}
-                <img src="{$rel_url}images/downloads_16.png" title="File Downloads" alt="File Downloads" />
+                <img src="{$rel_url}images/downloads_16.png" title="File Downloads" alt="File Downloads" /><img src = '/images/exclamation.png' title="Warning: Current statistics are considered to be inaccurate and are being investigated "/>
             {/if}
             </td>
             <td align="center">
@@ -387,7 +387,7 @@
 			{/if}
             {/if}
             {if $list[i].rek_citation != ""}
-            {$list[i].rek_citation|smarty:nodefaults}
+            {$list[i].rek_citation nofilter}
             {else}
             {if $href_view}<a href='{$rel_url}{$href_view}' title='{$list[i].rek_title}'>{/if}{$list[i].rek_title}{if $href_view}</a>{/if}
             {/if}
@@ -409,7 +409,7 @@
                     {assign var="snip_width" value=$snip_width-$icon_width-20}
                 {/if}
               {/if}
-              <br /><br /><div class='snip' style="max-width:{$snip_width}px">...{$snips[$pid]|smarty:nodefaults}...</div>
+              <br /><br /><div class='snip' style="max-width:{$snip_width}px">...{$snips[$pid] nofilter}...</div>
             {/if}
 		  </td>
 
@@ -436,11 +436,11 @@
                 {else}
                   {assign var='wf_url' value=$rel_url|cat:'workflow/update.php'}
    			    {/if}
-			     <a href="{$wf_url}?pid={$list[i].rek_pid}&amp;cat=select_workflow&amp;xdis_id={$list[i].rek_display_type}&amp;wft_id={$list[i].wft_id[w]}&amp;href={$smarty.server.REQUEST_URI|smarty:nodefaults|escape:url}"{if $list[i].wft_icon[w] == 'images/delete.gif'} onclick="return confirmDelete();"{/if}><img alt="{$list[i].wfl_title[w]}" title="{$list[i].wfl_title[w]}" src="{$rel_url}{$wf_icon}" /></a>
+			     <a href="{$wf_url}?pid={$list[i].rek_pid}&amp;cat=select_workflow&amp;xdis_id={$list[i].rek_display_type}&amp;wft_id={$list[i].wft_id[w]}&amp;href={$smarty.server.REQUEST_URI|escape:url nofilter}"{if $list[i].wft_icon[w] == 'images/delete.gif'} onclick="return confirmDelete();"{/if}><img alt="{$list[i].wfl_title[w]}" title="{$list[i].wfl_title[w]}" src="{$rel_url}{$wf_icon}" /></a>
 				{/if}
 			  {/section}
 
-                <a href="{$rel_url}workflow/list_workflows2.php?pid={$list[i].rek_pid}&amp;href={$smarty.server.REQUEST_URI|smarty:nodefaults|escape:url}"><img src="{$rel_url}images/options_16.png" alt="More options" title="More options" width="16" height="16" /></a>
+                <a href="{$rel_url}workflow/list_workflows2.php?pid={$list[i].rek_pid}&amp;href={$smarty.server.REQUEST_URI|escape:url nofilter}"><img src="{$rel_url}images/options_16.png" alt="More options" title="More options" width="16" height="16" /></a>
 			</td>
            {/if}
 

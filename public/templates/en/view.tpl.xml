@@ -11,7 +11,7 @@
 <title>{$title}</title>
 <citation>
 {if $citation != ""}
-    <![CDATA[{$citation|smarty:nodefaults}]]>
+    <![CDATA[{$citation nofilter}]]>
 {/if}
 </citation>
 
@@ -42,7 +42,7 @@
                     {/if}
                     </workflow>
                 {/section}
-                <workflow_option_url><![CDATA[{$rel_url}workflow/list_workflows2.php?pid={$pid}&href={$smarty.server.REQUEST_URI|smarty:nodefaults|escape:url}]]></workflow_option_url>
+                <workflow_option_url><![CDATA[{$rel_url}workflow/list_workflows2.php?pid={$pid}&href={$smarty.server.REQUEST_URI|escape:url nofilter}]]></workflow_option_url>
             {/if}
         {/if}
     {/if}
@@ -184,7 +184,7 @@
     </publish_status>
     {if $hasDatasets == 1}
         <dataset_tree>
-        {$datasetTree|smarty:nodefaults}
+        {$datasetTree nofilter}
         </dataset_tree>
     {/if}
 

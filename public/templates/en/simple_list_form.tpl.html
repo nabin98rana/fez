@@ -13,7 +13,7 @@
 {if $isUser}
   <div class="create-box">
 	{if $list_type == 'community_list' && $isAdministrator}
-	<a target="_top" title="Create a new community" href="{$rel_url}workflow/new.php?pid=-1&amp;xdis_id={$xdis_id}&amp;href={$smarty.server.REQUEST_URI|smarty:nodefaults|escape:url}"><img src="{$rel_url}images/folder_new.gif" alt="" /> <b>Create New Community</b></a>
+	<a target="_top" title="Create a new community" href="{$rel_url}workflow/new.php?pid=-1&amp;xdis_id={$xdis_id}&amp;href={$smarty.server.REQUEST_URI|escape:url nofilter}"><img src="{$rel_url}images/folder_new.gif" alt="" /> <b>Create New Community</b></a>
 	{elseif $list_type == 'collection_list' && ($isAdministrator || $isCreator)}
 		{if $childXDisplayOptions != 0}
 		<img src="{$rel_url}images/folder_new.gif" alt="" />
@@ -134,7 +134,7 @@
                         {if $list[i].rek_author_id && $list[i].rek_author_id[author_loop] && $list[i].rek_author_id[author_loop] != 0}
                         <a class="author_id_link" title="Browse by Author ID for {$list[i].rek_author[author_loop]} ({$list[i].rek_author_id[author_loop]})" href="{$rel_url}list/author_id/{$list[i].rek_author_id[author_loop]}/">{$list[i].rek_author[author_loop]}</a>
                         {else}
-                        <a title="Browse by Author Name for {$list[i].rek_author[author_loop]}" href="{$rel_url}list/author/{$list[i].rek_author[author_loop]|smarty:nodefaults|escape:url}/">{$list[i].rek_author[author_loop]}</a>
+                        <a title="Browse by Author Name for {$list[i].rek_author[author_loop]}" href="{$rel_url}list/author/{$list[i].rek_author[author_loop]|escape:url nofilter}/">{$list[i].rek_author[author_loop]}</a>
                         {/if}
                         {/if}
                         {if $list[i].rek_author[$next_author] != ""} and {/if}
@@ -180,7 +180,7 @@
                 {else}
                   {assign var='wf_url' value=$rel_url|cat:'workflow/update.php'}
    			    {/if}
-			     <a href="{$wf_url}?pid={$list[i].rek_pid}&amp;cat=select_workflow&amp;xdis_id={$list[i].rek_display_type}&amp;wft_id={$list[i].wft_id[w]}&amp;href={$smarty.server.REQUEST_URI|smarty:nodefaults|escape:url}"{if $list[i].wft_icon[w] == 'images/delete.gif'} onclick="return confirmDelete();"{/if}><img alt="{$list[i].wfl_title[w]}" title="{$list[i].wfl_title[w]}" src="{$rel_url}{$wf_icon}" /></a>
+			     <a href="{$wf_url}?pid={$list[i].rek_pid}&amp;cat=select_workflow&amp;xdis_id={$list[i].rek_display_type}&amp;wft_id={$list[i].wft_id[w]}&amp;href={$smarty.server.REQUEST_URI|escape:url nofilter}"{if $list[i].wft_icon[w] == 'images/delete.gif'} onclick="return confirmDelete();"{/if}><img alt="{$list[i].wfl_title[w]}" title="{$list[i].wfl_title[w]}" src="{$rel_url}{$wf_icon}" /></a>
 				{/if}
 			  {/section}
 

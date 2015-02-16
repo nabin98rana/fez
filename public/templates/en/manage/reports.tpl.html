@@ -12,7 +12,7 @@
     <td>Text</td>
 </tr>
 {section name="i" loop=$reports}
-			  {assign var="report" value=$reports[i]|smarty:nodefaults}
+			  {assign var="report" value="$reports[i]"}
 			  {cycle values=$cycle assign="row_color"}
                     <tr onmouseover="this.style.background='#{$smarty.const.APP_HIGHLIGHT_COLOR}';" onmouseout="this.style.background='{$row_color}';" style="background: {$row_color}">
                         <td style="width: 15%;" class="default">

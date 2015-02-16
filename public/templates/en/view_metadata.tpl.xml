@@ -35,7 +35,7 @@
                     {else}
                             <xsdmf_value>
                                 <![CDATA[
-                                    {$details[$temp_fld_id]|smarty:nodefaults}
+                                    {$details[$temp_fld_id] nofilter}
                                 ]]>
                             </xsdmf_value>
                     {/if}
