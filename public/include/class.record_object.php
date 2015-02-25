@@ -1,6 +1,5 @@
 <?php
 include_once(APP_INC_PATH.'class.record_general.php');
-include_once(APP_INC_PATH.'class.record_general.php');
 include_once(APP_INC_PATH.'class.digitalobject.php');
 /**
  * RecordObject
