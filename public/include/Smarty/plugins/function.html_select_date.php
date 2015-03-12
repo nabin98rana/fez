@@ -63,6 +63,23 @@ function smarty_function_html_select_date($params)
         }
     }
 
+    //This is need for backward compatibility to Smart 2.x
+    $params['time'] = trim($params['time']);
+    if(strlen($params['time']) == 10) {
+        if(substr($params['time'], -2, 2) == '00') {
+            $params['day_empty'] = "";
+            $params['time'] = substr_replace($params['time'], '01',-2, 2);
+        }
+        if(substr($params['time'], -5, 2) == '00') {
+            $params['month_empty'] = "";
+            $params['time'] = substr_replace($params['time'], '01',-5, 2);
+        }
+
+        if(substr($params['time'], -10, 4) == '0000') {
+            $params['year_empty'] = "";
+        }
+    }
+
     /* Default values. */
     $prefix = "Date_";
     $start_year = null;
