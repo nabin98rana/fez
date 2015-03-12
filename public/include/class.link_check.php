@@ -47,15 +47,10 @@ class LinkCheck
 		
 		echo "Retrieving list of URLs in the system ... ";
 
-		$query = "
-					SELECT 
-						DISTINCT(rek_link) AS url
-					FROM
-						" . APP_TABLE_PREFIX . "record_search_key_link
-					ORDER BY
-						rek_link_pid, rek_link_order
-					;
-				";
+		$query = "(SELECT CONCAT('http://dx.doi.org/10.14264/uql.',dcr_doi_year, '.',dcr_doi_num) AS url FROM " . APP_TABLE_PREFIX . "doi_created)
+                    UNION
+                  (SELECT DISTINCT(rek_link) AS url FROM " . APP_TABLE_PREFIX . "record_search_key_link ORDER BY rek_link_pid, rek_link_order);";
+
 		try {
 			$res = $db->fetchAll($query);
 		}
