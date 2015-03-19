@@ -1,10 +1,10 @@
 <script type="text/javascript">
 <!--
 
-var page_url = '{$PAGE_URL|replace:'&amp;':'&'}';
-var url_wo_sort = '{if $url_wo_sort}{$url_wo_sort|replace:'&amp;':'&'}&{/if}';
-var url_wo_rows = '{if $url_wo_rows}{$url_wo_rows|replace:'&amp;':'&'}&{/if}';
-var url_wo_tpl = '{if $url_wo_tpl}{$url_wo_tpl|replace:'&amp;':'&'}&{/if}';
+var page_url = '{$PAGE_URL nofilter}';
+var url_wo_sort = '{if $url_wo_sort}{$url_wo_sort nofilter}&{/if}';
+var url_wo_rows = '{if $url_wo_rows}{$url_wo_rows nofilter}&{/if}';
+var url_wo_tpl = '{if $url_wo_tpl}{$url_wo_tpl nofilter}&{/if}';
 var rel_url = '{$rel_url}';
 var custom_filter_element = getPageElement('custom_filter_form' + '1');
 var basic_element = getPageElement('basic_filter_form' + '1');
