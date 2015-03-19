@@ -66,11 +66,30 @@
 		}
 		/* Add or Remove the stars, depending on the toggle value */
 		for (var i = 0; i < pids.length; i++) {
-			if (star_toggle == 'off') {
-				addStar(pids[i]);
-			} else {
-				removeStar(pids[i]);
-			}
+			var image = document.getElementById('star_' + pids[i]);
+			image.src = rel_url + 'images/star_16_active.png';
+		}
+
+		if (star_toggle == 'off') {
+			var star_result = star_proxy.starAll(pids);
+			star_result.addCallback( function(msg) {
+				if (msg == true) {
+					for (var i = 0; i < pids.length; i++) {
+						var image = document.getElementById('star_' + pids[i]);
+						image.src = rel_url + 'images/star_16.png';
+					}
+				}
+			});
+		} else {
+			var star_result = star_proxy.unstarAll(pids);
+			star_result.addCallback( function(msg) {
+				if (msg == true) {
+					for (var i = 0; i < pids.length; i++) {
+						var image = document.getElementById('star_' + pids[i]);
+						image.src = rel_url + 'images/star_16_grey.png';
+					}
+				}
+			});
 		}
 
 		/* Adjust toggle */

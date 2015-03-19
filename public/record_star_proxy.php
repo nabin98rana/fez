@@ -103,6 +103,24 @@ class RecordStarProxy
 		}
 	}
 
+	public function starAll($pids)
+	{
+		$return = true;
+		foreach($pids as $pid) {
+			$return = $return && Favourites::star($pid);
+		}
+		return $return;
+	}
+
+	public function unstarAll($pids)
+	{
+		$return = true;
+		foreach($pids as $pid) {
+			$return = $return && Favourites::unstar($pid);
+		}
+		return $return;
+	}
+
     /**
    	 * Stars the specified search for the current user
    	 *
