@@ -85,7 +85,7 @@ $result[0]["rek_pid"] = $pid;
 $details = $record->getSearchKeysByPIDS($result, true);
 
 $dslist = $record_obj->getDatastreams();
-$warning = "<div style = 'color:red'>No open access datastreams are attached</div>";
+$warning = "<div style = 'color:red'>No open access datastreams are attached, doi will be for metadata only</div>";
 foreach ($dslist as $datastream) {
     if ($datastream['controlGroup'] == 'M' && $datastream['state'] == 'A') {
         $pidPermisisons = Auth::getAuthPublic($pid, $datastream['ID']);

@@ -14,38 +14,38 @@ DOI will be :<br />
 {$depositor_full_name} <br/>
 {$depositor_email}  - Note: email needs to be correct as it will be where verification from Crossref will be emailed to<br/>
 <br/>
-Institution: {$org_name} <br />
-First Author First Name: {$details.rek_author_firstname[0]}<br />
-First Author Last Name: {$details.rek_author_lastname[0]}<br />
+        <strong>Institution:</strong> {$org_name} <br />
+        <strong>First Author First Name:</strong> {$details.rek_author_firstname[0]}<br />
+        <strong>First Author Last Name:</strong> {$details.rek_author_lastname[0]}<br />
 
 {section name="j" loop=$details.rek_author}
     {if $smarty.section.j.index!=0}
-        Additional Author First Name: {$details.rek_author_firstname[j]}<br />
-        Additional Author Last Name: {$details.rek_author_lastname[j]}<br />
+        <strong>Additional Author First Name:</strong> {$details.rek_author_firstname[j]}<br />
+        <strong>Additional Author Last Name:</strong> {$details.rek_author_lastname[j]}<br />
     {/if}
 {/section}
 
 {if $xdis_title=="Thesis"}
-    Publication Date: {$published_date|date_format:"%d/%m/%y"}<br />
-    Degree: {$details.rek_genre_type}<br />
-    Department: {$details.rek_org_unit_name}<br />
+        <strong>Publication Date:</strong> {$published_date|date_format:"%d/%m/%y"}<br />
+        <strong>Degree:</strong> {$details.rek_genre_type}<br />
+        <strong>Department:</strong> {$details.rek_org_unit_name}<br />
 {elseif $xdis_title=="Data Collection"}
-    Publication Date: {$published_date|date_format:"%Y"}<br />
-    Description: {$details.rek_description}<br />
+        <strong>Publication Date:</strong> {$published_date|date_format:"%Y"}<br />
+        <strong>Description:</strong> {$details.rek_description}<br />
 {elseif $xdis_title=="Conference Paper"}
-    Conference_name: {$details.rek_conference_name}<br />
-    Conference_location: {$details.rek_conference_location}<br />
-    Publication Date: {$published_date|date_format:"%Y"}<br />
-    Description: {$details.rek_description}<br />
-    First page: {$details.rek_start_page}<br />
-    Last page: {$details.rek_end_page}<br />
-    Proceedings Title: {$details.rek_proceedings_title}<br />
-    Publisher name: {$details.rek_publisher}<br />
-    ISBN: {$details.rek_isbn[0]}<br />
+        <strong>Conference_name:</strong> {$details.rek_conference_name}<br />
+        <strong>Conference_location:</strong> {$details.rek_conference_location}<br />
+        <strong>Publication Date:</strong> {$published_date|date_format:"%Y"}<br />
+        <strong>Description:</strong> {$details.rek_description}<br />
+        <strong>First page:</strong> {$details.rek_start_page}<br />
+        <strong>Last page:</strong> {$details.rek_end_page}<br />
+        <strong>Proceedings Title:</strong> {$details.rek_proceedings_title}<br />
+        <strong>Publisher name:</strong> {$details.rek_publisher}<br />
+        <strong>ISBN:</strong> {$details.rek_isbn[0]}<br />
 {elseif $xdis_title=="Working Paper"}
-    Publisher: {$details.rek_publisher}}<br />
-    Publication Date: {$published_date|date_format:"%d/%m/%y"}<br />
-    Department: {$details.rek_org_unit_name}<br />
+        <strong>Publisher:</strong> {$details.rek_publisher}}<br />
+        <strong>Publication Date:</strong> {$published_date|date_format:"%d/%m/%y"}<br />
+        <strong>Department:</strong> {$details.rek_org_unit_name}<br />
 {/if}
 
 </div> </div> </div>
