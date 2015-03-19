@@ -11,7 +11,7 @@ var bgp_items = new Array;
 var bgp_done = new Array;
 {section name="iii" loop=$bgp_list}
 bgp_items[{$smarty.section.iii.index}] = {$bgp_list[iii].bgp_id};
-{if {$bgp_list[iii].bgp_state == 2}
+{if $bgp_list[iii].bgp_state == 2}
 bgp_done[{$smarty.section.iii.index}] = 1;
 {else}
 bgp_done[{$smarty.section.iii.index}] = 0;

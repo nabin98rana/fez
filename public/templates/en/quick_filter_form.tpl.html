@@ -285,9 +285,9 @@ function calendarCallback_search_keys_end{/literal}{$search_keys[i].sek_id}{lite
 date_fields[date_fields.length] = new Option('search_keys[{$temp_sek_id}][start]', '{$last_key.start_date}');
 date_fields[date_fields.length] = new Option('search_keys[{$temp_sek_id}][end]', '{$last_key.end_date}');
 {if $custom_elements_to_hide != ""}
-{assign var="custom_elements_to_hide" value=$custom_elements_to_hide,'search_keys[$temp_sek_id]'}
+{assign var="custom_elements_to_hide" value="$custom_elements_to_hide,'search_keys[$temp_sek_id]'"}
 {else}
-{assign var="custom_elements_to_hide" value=$custom_elements_to_hide'search_keys[$temp_sek_id]'}
+{assign var="custom_elements_to_hide" value="$custom_elements_to_hide'search_keys[$temp_sek_id]'"}
 {/if}
 {/if}
 {/section}
