@@ -85,7 +85,18 @@ class Altmetric
             'as_amid' => $info->altmetric_id,
             'as_doi'  => $doi,
             'as_score' => ceil($info->score),
-            'as_last_checked' => time()
+            'as_last_checked' => time(),
+            'as_1d' => $info->altmetric_score->score_history->{'1d'},
+            'as_2d' => $info->altmetric_score->score_history->{'2d'},
+            'as_3d' => $info->altmetric_score->score_history->{'3d'},
+            'as_4d' => $info->altmetric_score->score_history->{'4d'},
+            'as_5d' => $info->altmetric_score->score_history->{'5d'},
+            'as_6d' => $info->altmetric_score->score_history->{'6d'},
+            'as_1w' => $info->altmetric_score->score_history->{'1w'},
+            'as_1m' => $info->altmetric_score->score_history->{'1m'},
+            'as_3m' => $info->altmetric_score->score_history->{'3m'},
+            'as_6m' => $info->altmetric_score->score_history->{'6m'},
+            'as_1y' => $info->altmetric_score->score_history->{'1y'}
         );
 
         try {

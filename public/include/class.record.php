@@ -3439,20 +3439,20 @@ class Record
     $dbtp =  APP_TABLE_PREFIX; // Database and table prefix
     $prev_count;
 
-      // Get the isi_loc
-      $stmt = "SELECT
-                      rek_isi_loc
-                   FROM
-                      " . $dbtp . "record_search_key_isi_loc
-                   WHERE
-                      rek_isi_loc_pid = ".$db->quote($pid);
-      try {
-        $res = $db->fetchOne($stmt);
-      }
-      catch(Exception $ex) {
-        $log->err($ex);
-      }
-      $isi_loc = $res;
+    // Get the isi_loc
+    $stmt = "SELECT
+                  rek_isi_loc
+               FROM
+                  " . $dbtp . "record_search_key_isi_loc
+               WHERE
+                  rek_isi_loc_pid = ".$db->quote($pid);
+    try {
+    $res = $db->fetchOne($stmt);
+    }
+    catch(Exception $ex) {
+    $log->err($ex);
+    }
+    $isi_loc = $res;
     if (!empty($isi_loc)) {
         // Get the previous count
         $stmt = "SELECT
@@ -3505,12 +3505,24 @@ class Record
 
     $dbtp =  APP_TABLE_PREFIX; // Database and table prefix
 
+    $stmt = "SELECT ".$db->quote($count)." - tc_count AS difference FROM " . $dbtp . "thomson_citations
+                WHERE  tc_isi_loc = ". $db->quote($isi_loc)."
+                ORDER BY tc_created DESC LIMIT 1";
+
+    try {
+      $difference = $db->fetchOne($stmt);
+    }
+    catch(Exception $ex) {
+      $log->err($ex);
+      return false;
+    }
+
     $stmt = "INSERT INTO
                     " . $dbtp . "thomson_citations
-                 (tc_id, tc_count, tc_last_checked, tc_created, tc_isi_loc)
+                 (tc_id, tc_count, tc_last_checked, tc_created, tc_isi_loc, tc_diff_previous)
                  VALUES
                  (NULL, ".$db->quote($count).", '".time()."', '".time()."', ".
-                $db->quote($isi_loc).")";
+                $db->quote($isi_loc).", ".$db->quote($difference).")";
 
     try {
       $db->query($stmt);
@@ -3683,12 +3695,24 @@ class Record
 
     $dbtp =  APP_TABLE_PREFIX; // Database and table prefix
 
+    $stmt = "SELECT ".$db->quote($count)." - sc_count AS difference FROM " . $dbtp . "scopus_citations
+                    WHERE  sc_eid = ". $db->quote($eid)."
+                    ORDER BY sc_created DESC LIMIT 1";
+
+    try {
+      $difference = $db->fetchOne($stmt);
+    }
+    catch(Exception $ex) {
+      $log->err($ex);
+      return false;
+    }
+
     $stmt = "INSERT INTO
                     " . $dbtp . "scopus_citations
-                 (sc_id, sc_count, sc_last_checked, sc_created, sc_eid)
+                 (sc_id, sc_count, sc_last_checked, sc_created, sc_eid, sc_diff_previous)
                  VALUES
                  (NULL, ".$db->quote($count).", '".time()."', '".time()."', ".
-                $db->quote($eid).")";
+                $db->quote($eid).", ".$db->quote($difference).")";
 
     try {
       $db->query($stmt);

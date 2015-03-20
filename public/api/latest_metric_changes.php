@@ -46,7 +46,7 @@ if(!ctype_alnum($author_username)) {   //is alphanumeric
     exit();
 }
 
-$stmt = "SELECT * FROM fez_author WHERE aut_org_username =  " .$db->quote($author_username);
+$stmt = "SELECT * FROM " . APP_TABLE_PREFIX . "author WHERE aut_org_username =  " .$db->quote($author_username);
 
 try {
     $res1 = $db->fetchAll($stmt);
@@ -56,11 +56,11 @@ catch (Exception $ex) {
     return false;
 }
 
-$stmt = "SELECT rek_author_id, rek_doi, fez_altmetric.*, fez_record_search_key.* FROM fez_author
-INNER JOIN fez_record_search_key_author_id ON aut_id = rek_author_id
-INNER JOIN fez_record_search_key_doi ON rek_doi_pid = rek_author_id_pid
-INNER JOIN fez_altmetric ON as_doi = rek_doi
-INNER JOIN fez_record_search_key ON rek_pid = rek_author_id_pid
+$stmt = "SELECT rek_author_id, rek_doi, " . APP_TABLE_PREFIX . "altmetric.*, " . APP_TABLE_PREFIX . "record_search_key.* FROM " . APP_TABLE_PREFIX . "author
+INNER JOIN " . APP_TABLE_PREFIX . "record_search_key_author_id ON aut_id = rek_author_id
+INNER JOIN " . APP_TABLE_PREFIX . "record_search_key_doi ON rek_doi_pid = rek_author_id_pid
+INNER JOIN " . APP_TABLE_PREFIX . "altmetric ON as_doi = rek_doi
+INNER JOIN " . APP_TABLE_PREFIX . "record_search_key ON rek_pid = rek_author_id_pid
 WHERE aut_org_username =" .$db->quote($author_username) . "
 ORDER BY as_1d DESC, as_2d DESC, as_3d DESC, as_4d DESC, as_5d DESC, as_6d DESC, as_1w DESC, as_1m DESC, as_3m DESC, as_6m DESC, as_1y DESC LIMIT 3";
 
@@ -74,11 +74,11 @@ catch (Exception $ex) {
     return false;
 }
 
-$stmt = "SELECT rek_isi_loc, fez_thomson_citations.*, fez_record_search_key.*  FROM fez_author
-    INNER JOIN fez_record_search_key_author_id ON aut_id = rek_author_id
-    INNER JOIN fez_record_search_key_isi_loc ON rek_isi_loc_pid = rek_author_id_pid
-    INNER JOIN fez_thomson_citations ON tc_isi_loc = rek_isi_loc
-    INNER JOIN fez_record_search_key ON rek_pid = rek_author_id_pid
+$stmt = "SELECT rek_isi_loc, " . APP_TABLE_PREFIX . "thomson_citations.*, " . APP_TABLE_PREFIX . "record_search_key.*  FROM " . APP_TABLE_PREFIX . "author
+    INNER JOIN " . APP_TABLE_PREFIX . "record_search_key_author_id ON aut_id = rek_author_id
+    INNER JOIN " . APP_TABLE_PREFIX . "record_search_key_isi_loc ON rek_isi_loc_pid = rek_author_id_pid
+    INNER JOIN " . APP_TABLE_PREFIX . "thomson_citations ON tc_isi_loc = rek_isi_loc
+    INNER JOIN " . APP_TABLE_PREFIX . "record_search_key ON rek_pid = rek_author_id_pid
     WHERE aut_org_username = " .$db->quote($author_username) . " AND tc_created > UNIX_TIMESTAMP(DATE_ADD(CURDATE(),INTERVAL -180 DAY)) AND tc_diff_previous IS NOT NULL AND tc_diff_previous > 0
     GROUP BY tc_isi_loc
     ORDER BY tc_created DESC LIMIT 3;";
@@ -91,11 +91,11 @@ catch (Exception $ex) {
     return false;
 }
 
-$stmt = "SELECT rek_scopus_id, fez_scopus_citations.*, fez_record_search_key.* FROM fez_author
-    INNER JOIN fez_record_search_key_author_id ON aut_id = rek_author_id
-    INNER JOIN fez_record_search_key_scopus_id ON rek_scopus_id_pid = rek_author_id_pid
-    INNER JOIN fez_scopus_citations ON sc_eid = rek_scopus_id
-    INNER JOIN fez_record_search_key ON rek_pid = rek_author_id_pid
+$stmt = "SELECT rek_scopus_id, " . APP_TABLE_PREFIX . "scopus_citations.*, " . APP_TABLE_PREFIX . "record_search_key.* FROM " . APP_TABLE_PREFIX . "author
+    INNER JOIN " . APP_TABLE_PREFIX . "record_search_key_author_id ON aut_id = rek_author_id
+    INNER JOIN " . APP_TABLE_PREFIX . "record_search_key_scopus_id ON rek_scopus_id_pid = rek_author_id_pid
+    INNER JOIN " . APP_TABLE_PREFIX . "scopus_citations ON sc_eid = rek_scopus_id
+    INNER JOIN " . APP_TABLE_PREFIX . "record_search_key ON rek_pid = rek_author_id_pid
     WHERE aut_org_username = " .$db->quote($author_username) . " AND sc_created > UNIX_TIMESTAMP(DATE_ADD(CURDATE(),INTERVAL -180 DAY)) AND sc_diff_previous IS NOT NULL  AND sc_diff_previous > 0
     GROUP BY sc_eid
     ORDER BY sc_created DESC LIMIT 3;";
