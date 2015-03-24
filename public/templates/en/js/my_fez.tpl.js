@@ -47,29 +47,6 @@ function checkPageField(ev)
     }
 }
 
-function disableFields(f)
-{
-    if (current_page == 0) {
-        f.first.disabled = true;
-        f.previous.disabled = true;
-    }
-    if ((current_page == last_page) || (last_page <= 0)) {
-        f.next.disabled = true;
-        f.last.disabled = true;
-    }
-    if ((current_page == 0) && (last_page <= 0)) {
-        f.page.disabled = true;
-        f.go.disabled = true;
-    }
-}
-
-function sortList(f, field) {
-    sort_by = getSelectedOption(f, field);
-    sort_by_dir = getSelectedOption(f, 'sort_by_dir');    
-    temp = page_url + "?" + 'sort_by=' + sort_by;
-    window.location.href = temp + "&" + 'sort_by_dir=' + sort_by_dir;
-}
-
 function resizePagerMyFez(f, page_url)
 {
     var pagesize = f.page_size.options[f.page_size.selectedIndex].value;   
