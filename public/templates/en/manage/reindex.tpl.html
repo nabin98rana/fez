@@ -159,17 +159,6 @@ function hideSettings() {
 	document.getElementById('tr_sta_id').style.display = 'none';
 	document.getElementById('tr_xdis_id').style.display = 'none';
 }
-function toggleOverride()
-{
-  var f = document.getElementById('reindex_form');
-  if (f.recover.checked) {
-	  hideSettings();
-  } else {
-	  showSettings();
-	  selectCommunity(f, 'community_pid');
-  }
-  return true;
-}
 
 function checkForSelectedItem() {
 	var f = document.getElementById('reindex_form');
