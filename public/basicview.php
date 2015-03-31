@@ -36,18 +36,27 @@ include_once("config.inc.php");
 //include_once(APP_INC_PATH . "class.db_api.php");
 include_once(APP_INC_PATH . "class.auth.php");
 include_once(APP_INC_PATH . "class.misc.php");
+include_once(APP_INC_PATH . "class.record_object.php");
 
 if ((($_SERVER["SERVER_PORT"] != 443) && (APP_HTTPS == "ON"))) { //should be ssl when using basic auth
 	header ("Location: https://".APP_HOSTNAME.APP_RELATIVE_URL."basicview.php"."?".$_SERVER['QUERY_STRING']);
-	exit;        		
+	exit;
 }
 if (!Auth::isValidSession($session)) { // if user not already logged in
-  $record = new RecordObject($_GET['pid']);
-  $canView = $record->canView();
-  if ($canView) {
-    header ("Location: https://".APP_HOSTNAME.APP_RELATIVE_URL."view/".$_GET['pid']);
-    exit;
-  }
+	$ipPool = array();
+	if (defined('APP_BASIC_AUTH_IP')) {
+		$ipPool = Auth::getBasicAuthIPs();
+	}
+
+	# Check pool of Basic Auth IP addresses
+	if (defined('APP_BASIC_AUTH_IP') && (!in_array($_SERVER['REMOTE_ADDR'], $ipPool))) {
+		$record = new RecordObject($_GET['pid']);
+		$canView = $record->canView();
+		if ($canView) {
+			header("Location: https://" . APP_HOSTNAME . APP_RELATIVE_URL . "view/" . $_GET['pid']);
+			exit;
+		}
+	}
 }
 
 if (!isset($_SERVER['PHP_AUTH_USER'])) {
@@ -65,7 +74,7 @@ if (!isset($_SERVER['PHP_AUTH_USER'])) {
 			if (Auth::isCorrectPassword($username, $pw)) {
 				Auth::LoginAuthenticatedUser($username, $pw, false);
 				header ("Location: https://".APP_HOSTNAME.APP_RELATIVE_URL."view/".$_GET['pid']);
-				exit;        		        			
+				exit;
 			} else {
 				header('WWW-Authenticate: Basic realm="'.APP_HOSTNAME.'"');
 				header('HTTP/1.0 401 Unauthorized');
