@@ -69,7 +69,7 @@ catch (Exception $ex) {
 $stmt = "SELECT a.rek_author_id, GROUP_CONCAT(rek_author ORDER BY b.rek_author_order SEPARATOR ';') as rek_author,
 GROUP_CONCAT(c.rek_author_id ORDER BY c.rek_author_id_order SEPARATOR ';') as rek_author_ids,
 rek_doi, " . APP_TABLE_PREFIX . "altmetric.*, rek_pid, rek_title, rek_formatted_title,
-rek_thomson_citation_count, rek_scopus_citation_count, rek_journal_name
+rek_thomson_citation_count, rek_scopus_citation_count, rek_journal_name, rek_date
  FROM " . APP_TABLE_PREFIX . "author
 INNER JOIN " . APP_TABLE_PREFIX . "record_search_key_author_id a ON aut_id = rek_author_id
 INNER JOIN " . APP_TABLE_PREFIX . "record_search_key_doi ON rek_doi_pid = a.rek_author_id_pid
