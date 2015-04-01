@@ -66,18 +66,21 @@ catch (Exception $ex) {
     return false;
 }
 
-$stmt = "SELECT a.rek_author_id, GROUP_CONCAT(rek_author ORDER BY b.rek_author_order SEPARATOR ';') as rek_author,
+$stmt = "SELECT a.rek_author_id, GROUP_CONCAT(DISTINCT rek_author ORDER BY b.rek_author_order SEPARATOR ';') as rek_author,
+GROUP_CONCAT(DISTINCT c.rek_author_id ORDER BY c.rek_author_id_order SEPARATOR ';') as rek_author_ids,
 rek_doi, " . APP_TABLE_PREFIX . "altmetric.*, rek_pid, rek_title, rek_formatted_title,
 rek_thomson_citation_count, rek_scopus_citation_count, rek_journal_name
  FROM " . APP_TABLE_PREFIX . "author
 INNER JOIN " . APP_TABLE_PREFIX . "record_search_key_author_id a ON aut_id = rek_author_id
-INNER JOIN " . APP_TABLE_PREFIX . "record_search_key_doi ON rek_doi_pid = rek_author_id_pid
+INNER JOIN " . APP_TABLE_PREFIX . "record_search_key_doi ON rek_doi_pid = a.rek_author_id_pid
 INNER JOIN " . APP_TABLE_PREFIX . "altmetric ON as_doi = rek_doi
-INNER JOIN " . APP_TABLE_PREFIX . "record_search_key ON rek_pid = rek_author_id_pid
+INNER JOIN " . APP_TABLE_PREFIX . "record_search_key ON rek_pid = a.rek_author_id_pid
 INNER JOIN " . APP_TABLE_PREFIX . "auth_index2_lister ON authi_pid = rek_pid AND authi_arg_id = '11'
-LEFT JOIN fez_record_search_key_author b on rek_pid = rek_author_pid
-LEFT JOIN fez_record_search_key_journal_name on rek_pid = rek_journal_name
+LEFT JOIN " . APP_TABLE_PREFIX . "record_search_key_author b on rek_pid = rek_author_pid
+LEFT JOIN " . APP_TABLE_PREFIX . "record_search_key_author_id c on rek_pid = c.rek_author_id_pid
+LEFT JOIN " . APP_TABLE_PREFIX . "record_search_key_journal_name on rek_pid = rek_journal_name
 WHERE aut_org_username =" .$db->quote($author_username) . " AND rek_status = 2
+GROUP BY as_doi
 ORDER BY as_1d DESC, as_2d DESC, as_3d DESC, as_4d DESC, as_5d DESC, as_6d DESC, as_1w DESC, as_1m DESC, as_3m DESC, as_6m DESC, as_1y DESC LIMIT 3";
 
 
@@ -90,15 +93,17 @@ catch (Exception $ex) {
     return false;
 }
 
-$stmt = "SELECT rek_isi_loc, GROUP_CONCAT(rek_author ORDER BY b.rek_author_order SEPARATOR ';') as rek_author,
+$stmt = "SELECT rek_isi_loc, GROUP_CONCAT(DISTINCT rek_author ORDER BY b.rek_author_order SEPARATOR ';') as rek_author,
 " . APP_TABLE_PREFIX . "thomson_citations.*, rek_pid, rek_date, rek_journal_name, rek_title, rek_formatted_title,
+GROUP_CONCAT(DISTINCT c.rek_author_id ORDER BY c.rek_author_id_order SEPARATOR ';') as rek_author_ids,
   rek_scopus_citation_count, rek_altmetric_score FROM " . APP_TABLE_PREFIX . "author
-    INNER JOIN " . APP_TABLE_PREFIX . "record_search_key_author_id ON aut_id = rek_author_id
+    INNER JOIN " . APP_TABLE_PREFIX . "record_search_key_author_id a ON aut_id = a.rek_author_id
     INNER JOIN " . APP_TABLE_PREFIX . "record_search_key_isi_loc ON rek_isi_loc_pid = rek_author_id_pid
     INNER JOIN " . APP_TABLE_PREFIX . "thomson_citations ON tc_isi_loc = rek_isi_loc
     INNER JOIN " . APP_TABLE_PREFIX . "record_search_key ON rek_pid = rek_author_id_pid
     INNER JOIN " . APP_TABLE_PREFIX . "auth_index2_lister ON authi_pid = rek_pid AND authi_arg_id = '11'
     LEFT JOIN fez_record_search_key_author b on rek_pid = rek_author_pid
+    LEFT JOIN " . APP_TABLE_PREFIX . "record_search_key_author_id c on rek_pid = c.rek_author_id_pid
     LEFT JOIN fez_record_search_key_journal_name on rek_pid = rek_journal_name
     WHERE aut_org_username = " .$db->quote($author_username) . " AND tc_created > UNIX_TIMESTAMP(DATE_ADD(CURDATE(),INTERVAL -180 DAY)) AND tc_diff_previous IS NOT NULL AND tc_diff_previous > 0 AND rek_status = 2
     GROUP BY tc_isi_loc
@@ -112,8 +117,9 @@ catch (Exception $ex) {
     return false;
 }
 
-$stmt = "SELECT rek_scopus_id, GROUP_CONCAT(rek_author ORDER BY b.rek_author_order SEPARATOR ';') as rek_author,
+$stmt = "SELECT rek_scopus_id, GROUP_CONCAT(DISTINCT rek_author ORDER BY b.rek_author_order SEPARATOR ';') as rek_author,
 " . APP_TABLE_PREFIX . "scopus_citations.*, rek_pid,  rek_date, rek_journal_name, rek_title, rek_formatted_title,
+GROUP_CONCAT(DISTINCT c.rek_author_id ORDER BY c.rek_author_id_order SEPARATOR ';') as rek_author_ids,
 rek_thomson_citation_count, rek_altmetric_score
 FROM " . APP_TABLE_PREFIX . "author
     INNER JOIN " . APP_TABLE_PREFIX . "record_search_key_author_id ON aut_id = rek_author_id
@@ -122,6 +128,7 @@ FROM " . APP_TABLE_PREFIX . "author
     INNER JOIN " . APP_TABLE_PREFIX . "record_search_key ON rek_pid = rek_author_id_pid
     INNER JOIN " . APP_TABLE_PREFIX . "auth_index2_lister ON authi_pid = rek_pid AND authi_arg_id = '11'
     LEFT JOIN fez_record_search_key_author b on rek_pid = rek_author_pid
+    LEFT JOIN " . APP_TABLE_PREFIX . "record_search_key_author_id c on rek_pid = c.rek_author_id_pid
     LEFT JOIN fez_record_search_key_journal_name on rek_pid = rek_journal_name
     WHERE aut_org_username = " .$db->quote($author_username) . " AND sc_created > UNIX_TIMESTAMP(DATE_ADD(CURDATE(),INTERVAL -180 DAY)) AND sc_diff_previous IS NOT NULL  AND sc_diff_previous > 0 AND rek_status = 2
     GROUP BY sc_eid
