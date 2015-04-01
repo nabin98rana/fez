@@ -93,7 +93,7 @@ catch (Exception $ex) {
     return false;
 }
 
-$stmt = "SELECT rek_isi_loc, GROUP_CONCAT(rek_author ORDER BY b.rek_author_order SEPARATOR ';') as rek_author,
+$stmt = "SELECT a.rek_author_id, rek_isi_loc, GROUP_CONCAT(rek_author ORDER BY b.rek_author_order SEPARATOR ';') as rek_author,
 " . APP_TABLE_PREFIX . "thomson_citations.*, rek_pid, rek_date, rek_journal_name, rek_title, rek_formatted_title,
 GROUP_CONCAT(c.rek_author_id ORDER BY c.rek_author_id_order SEPARATOR ';') as rek_author_ids,
   rek_scopus_citation_count, rek_altmetric_score FROM " . APP_TABLE_PREFIX . "author
@@ -117,12 +117,12 @@ catch (Exception $ex) {
     return false;
 }
 
-$stmt = "SELECT rek_scopus_id, GROUP_CONCAT(rek_author ORDER BY b.rek_author_order SEPARATOR ';') as rek_author,
+$stmt = "SELECT a.rek_author_id, rek_scopus_id, GROUP_CONCAT(rek_author ORDER BY b.rek_author_order SEPARATOR ';') as rek_author,
 " . APP_TABLE_PREFIX . "scopus_citations.*, rek_pid,  rek_date, rek_journal_name, rek_title, rek_formatted_title,
 GROUP_CONCAT(c.rek_author_id ORDER BY c.rek_author_id_order SEPARATOR ';') as rek_author_ids,
 rek_thomson_citation_count, rek_altmetric_score
 FROM " . APP_TABLE_PREFIX . "author
-    INNER JOIN " . APP_TABLE_PREFIX . "record_search_key_author_id ON aut_id = rek_author_id
+    INNER JOIN " . APP_TABLE_PREFIX . "record_search_key_author_id a ON aut_id = a.rek_author_id
     INNER JOIN " . APP_TABLE_PREFIX . "record_search_key_scopus_id ON rek_scopus_id_pid = rek_author_id_pid
     INNER JOIN " . APP_TABLE_PREFIX . "scopus_citations ON sc_eid = rek_scopus_id
     INNER JOIN " . APP_TABLE_PREFIX . "record_search_key ON rek_pid = rek_author_id_pid
