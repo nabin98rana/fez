@@ -106,7 +106,7 @@ GROUP_CONCAT(c.rek_author_id ORDER BY c.rek_author_id_order SEPARATOR ';') as re
     LEFT JOIN " . APP_TABLE_PREFIX . "record_search_key_author_id c on b.rek_author_pid = c.rek_author_id_pid and c.rek_author_id_order = b.rek_author_order
     LEFT JOIN fez_record_search_key_journal_name on rek_pid = rek_journal_name
     WHERE aut_org_username = " .$db->quote($author_username) . " AND tc_created > UNIX_TIMESTAMP(DATE_ADD(CURDATE(),INTERVAL -180 DAY)) AND tc_diff_previous IS NOT NULL AND tc_diff_previous > 0 AND rek_status = 2
-    GROUP BY tc_isi_loc
+    GROUP BY tc_isi_loc, tc_created
     ORDER BY tc_created DESC LIMIT 3";
 
 try {
@@ -131,7 +131,7 @@ FROM " . APP_TABLE_PREFIX . "author
     LEFT JOIN " . APP_TABLE_PREFIX . "record_search_key_author_id c on b.rek_author_pid = c.rek_author_id_pid and c.rek_author_id_order = b.rek_author_order
     LEFT JOIN fez_record_search_key_journal_name on rek_pid = rek_journal_name
     WHERE aut_org_username = " .$db->quote($author_username) . " AND sc_created > UNIX_TIMESTAMP(DATE_ADD(CURDATE(),INTERVAL -180 DAY)) AND sc_diff_previous IS NOT NULL  AND sc_diff_previous > 0 AND rek_status = 2
-    GROUP BY sc_eid
+    GROUP BY sc_eid, sc_created
     ORDER BY sc_created DESC LIMIT 3";
 
 try {
