@@ -270,8 +270,6 @@ function setup_roles($solrindex = true, $verbose = false)
         }
     }
 
-    // Solr indexing is recursive by default and will take time if
-    // we do this on a community or collection.
     // So we'll index the records.
 
     if ($verbose) echo 'Setting up public record roles' . PHP_EOL;
@@ -300,7 +298,16 @@ function setup_roles($solrindex = true, $verbose = false)
         assign_roles_to_pid($pid, $roles, false, $solrindex, $verbose);
     }
 
+    // Collections
+    // 
+    // NOTE: Solr indexing is recursive by default and will take time if
+    // we do this on a community or collection.
+    // 
+    // Do restricted collection...
+    // This should be small or fez will take some time to index it.
 
+    $pid = $conf['restricted_community']['collection'];
+    assign_roles_to_pid($pid, $roles, false, $solrindex, $verbose);
 }
 
 // Set roles and permissions on a pid.
