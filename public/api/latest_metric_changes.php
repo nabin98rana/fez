@@ -30,7 +30,9 @@
 // | Authors: Aaron Brown <a.brown@library.uq.edu.au>                     |
 // +----------------------------------------------------------------------+
 //
+//  authi_arg_id = '11' is assumed to give all lister permissions for public access. It is not necessarily aways the the case it's this simple.
 //
+
 
 include_once('../config.inc.php');
 include_once(APP_INC_PATH . "class.template.php");
@@ -41,12 +43,20 @@ $db = DB_API::get();
 
 $callback = $_GET['callback'];
 $callback = !empty($callback) ? preg_replace('/[^a-z0-9\.$_]/si', '', $callback) : false;
+header('Access-Control-Allow-Origin: *');
+header('Content-Type: ' . ($callback ? 'application/javascript' : 'application/json') . ';charset=UTF-8');
+
+
 $author_username  = $_GET['author_username'];
-if(!ctype_alnum($author_username)) {   //is alphanumeric
+$author_username = trim($author_username);
+if(!ctype_alnum($author_username) || substr( strtolower($author_username), 0, 1 ) === "s" || empty($author_username)) {   //is alphanumeric and not a student
+    echo json_encode();
     exit();
 }
 
-$stmt = "SELECT * FROM " . APP_TABLE_PREFIX . "author WHERE aut_org_username =  " .$db->quote($author_username);
+$stmt = "SELECT aut_id, aut_org_username,  aut_email,
+aut_display_name, aut_fname, aut_mname, aut_lname, aut_title, aut_position, aut_function, aut_cv_link, aut_homepage_link, aut_researcher_id, aut_scopus_id, aut_mypub_url,
+aut_people_australia_id, aut_description, aut_orcid_id, aut_google_scholar_id, aut_rid_last_updated FROM " . APP_TABLE_PREFIX . "author WHERE aut_org_username =  " .$db->quote($author_username);
 
 try {
     $res1 = $db->fetchAll($stmt);
@@ -56,12 +66,13 @@ catch (Exception $ex) {
     return false;
 }
 
-$stmt = "SELECT rek_author_id, rek_doi, " . APP_TABLE_PREFIX . "altmetric.*, " . APP_TABLE_PREFIX . "record_search_key.* FROM " . APP_TABLE_PREFIX . "author
+$stmt = "SELECT rek_author_id, rek_doi, " . APP_TABLE_PREFIX . "altmetric.*, rek_pid, rek_title, rek_citation, rek_formatted_title FROM " . APP_TABLE_PREFIX . "author
 INNER JOIN " . APP_TABLE_PREFIX . "record_search_key_author_id ON aut_id = rek_author_id
 INNER JOIN " . APP_TABLE_PREFIX . "record_search_key_doi ON rek_doi_pid = rek_author_id_pid
 INNER JOIN " . APP_TABLE_PREFIX . "altmetric ON as_doi = rek_doi
 INNER JOIN " . APP_TABLE_PREFIX . "record_search_key ON rek_pid = rek_author_id_pid
-WHERE aut_org_username =" .$db->quote($author_username) . "
+INNER JOIN " . APP_TABLE_PREFIX . "auth_index2_lister ON authi_pid = rek_pid AND authi_arg_id = '11'
+WHERE aut_org_username =" .$db->quote($author_username) . " AND rek_status = 2
 ORDER BY as_1d DESC, as_2d DESC, as_3d DESC, as_4d DESC, as_5d DESC, as_6d DESC, as_1w DESC, as_1m DESC, as_3m DESC, as_6m DESC, as_1y DESC LIMIT 3";
 
 
@@ -74,12 +85,13 @@ catch (Exception $ex) {
     return false;
 }
 
-$stmt = "SELECT rek_isi_loc, " . APP_TABLE_PREFIX . "thomson_citations.*, " . APP_TABLE_PREFIX . "record_search_key.*  FROM " . APP_TABLE_PREFIX . "author
+$stmt = "SELECT rek_isi_loc, " . APP_TABLE_PREFIX . "thomson_citations.*, rek_pid, rek_title, rek_citation, rek_formatted_title  FROM " . APP_TABLE_PREFIX . "author
     INNER JOIN " . APP_TABLE_PREFIX . "record_search_key_author_id ON aut_id = rek_author_id
     INNER JOIN " . APP_TABLE_PREFIX . "record_search_key_isi_loc ON rek_isi_loc_pid = rek_author_id_pid
     INNER JOIN " . APP_TABLE_PREFIX . "thomson_citations ON tc_isi_loc = rek_isi_loc
     INNER JOIN " . APP_TABLE_PREFIX . "record_search_key ON rek_pid = rek_author_id_pid
-    WHERE aut_org_username = " .$db->quote($author_username) . " AND tc_created > UNIX_TIMESTAMP(DATE_ADD(CURDATE(),INTERVAL -180 DAY)) AND tc_diff_previous IS NOT NULL AND tc_diff_previous > 0
+    INNER JOIN " . APP_TABLE_PREFIX . "auth_index2_lister ON authi_pid = rek_pid AND authi_arg_id = '11'
+    WHERE aut_org_username = " .$db->quote($author_username) . " AND tc_created > UNIX_TIMESTAMP(DATE_ADD(CURDATE(),INTERVAL -180 DAY)) AND tc_diff_previous IS NOT NULL AND tc_diff_previous > 0 AND rek_status = 2
     GROUP BY tc_isi_loc
     ORDER BY tc_created DESC LIMIT 3;";
 
@@ -91,12 +103,13 @@ catch (Exception $ex) {
     return false;
 }
 
-$stmt = "SELECT rek_scopus_id, " . APP_TABLE_PREFIX . "scopus_citations.*, " . APP_TABLE_PREFIX . "record_search_key.* FROM " . APP_TABLE_PREFIX . "author
+$stmt = "SELECT rek_scopus_id, " . APP_TABLE_PREFIX . "scopus_citations.*, rek_pid, rek_title, rek_citation, rek_formatted_title FROM " . APP_TABLE_PREFIX . "author
     INNER JOIN " . APP_TABLE_PREFIX . "record_search_key_author_id ON aut_id = rek_author_id
     INNER JOIN " . APP_TABLE_PREFIX . "record_search_key_scopus_id ON rek_scopus_id_pid = rek_author_id_pid
     INNER JOIN " . APP_TABLE_PREFIX . "scopus_citations ON sc_eid = rek_scopus_id
     INNER JOIN " . APP_TABLE_PREFIX . "record_search_key ON rek_pid = rek_author_id_pid
-    WHERE aut_org_username = " .$db->quote($author_username) . " AND sc_created > UNIX_TIMESTAMP(DATE_ADD(CURDATE(),INTERVAL -180 DAY)) AND sc_diff_previous IS NOT NULL  AND sc_diff_previous > 0
+    INNER JOIN " . APP_TABLE_PREFIX . "auth_index2_lister ON authi_pid = rek_pid AND authi_arg_id = '11'
+    WHERE aut_org_username = " .$db->quote($author_username) . " AND sc_created > UNIX_TIMESTAMP(DATE_ADD(CURDATE(),INTERVAL -180 DAY)) AND sc_diff_previous IS NOT NULL  AND sc_diff_previous > 0 AND rek_status = 2
     GROUP BY sc_eid
     ORDER BY sc_created DESC LIMIT 3;";
 
@@ -115,9 +128,4 @@ $output['altmetric'] = $res2;
 $output['thomson'] = $res3;
 $output['scopus'] = $res4;
 
-
-
-header('Access-Control-Allow-Origin: *');
-$callback = !empty($callback) ? preg_replace('/[^a-z0-9\.$_]/si', '', $callback) : false;
-header('Content-Type: ' . ($callback ? 'application/javascript' : 'application/json') . ';charset=UTF-8');
 echo json_encode($output);
