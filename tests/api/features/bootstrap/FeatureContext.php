@@ -2299,12 +2299,25 @@ class FeatureContext extends BehatContext
      */
     public function iShouldBeAbleToDownloadTheFirstDatastreamLinkAttachment()
     {
-        $uri = (string)$this->response_sxml->item->datastream_links->datastream_link;
-        if (empty($uri)) {
-            throw new Exception("No datastream present in the response xml.", 1);
+        // Scan through item-tags in $this->response_sxml for one with a datastream_link tag...
+        $pidWithAttachment = null;
+        foreach ($this->response_sxml->item as $item) {
+            if (!empty($item->datastream_links) && !empty($item->datastream_links->datastream_link)) {
+                $pidWithAttachment = $item;
+                break;
+            }
         }
+        if (is_null($pidWithAttachment)) {
+            throw new Exception("No datastream in this collection seems to have a datastream_link tag (an attachment) .", 1);
+        }
+
+        $uri = (string)$pidWithAttachment->datastream_links->datastream_link;
         // The uri is already in the full form eg. http://cdu.local/...
         $this->getDownload(trim($uri));
+        if (empty($this->response->raw_body)) {
+            echo "NOTE: it looks like we have an attachment in the metadata ($uri) but it is not physically present in fez - you should add this to your test fedora server in data/datastreams/** for the pid being tested here." . PHP_EOL;
+            echo $this->response_sxml->item->pid . PHP_EOL;
+        }
         $this->expect(empty($this->response->raw_body))->equals(false);
     }
 }

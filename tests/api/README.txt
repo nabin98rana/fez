@@ -84,6 +84,9 @@ and then configure it for your particular fez installation.
    It is recommended you CREATE NEW COLLECTIONS containing only a few
    test records as required by conf.ini.
 
+3.5) ensure that at least one record in your public collection in conf.ini has an attachment
+     (See @col-viewer-download-attachment scenario tag)
+
 4) create users and groups and assign them to roles for the above
    communities as prescribed by conf.ini
 
