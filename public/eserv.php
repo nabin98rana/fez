@@ -206,7 +206,7 @@ if (!empty($pid) && !empty($dsID)) {
 
 			$dissemination_dsID = "web_".substr($dsID, 0, strrpos($dsID, ".") + 1)."jpg";
 		} elseif (($is_video == 1) && (!is_numeric(strpos($dsID, "stream_")) && (!is_numeric(strpos($ctype, "flv"))))) {
-			$acceptable_roles = array("Community_Admin", "Editor", "Creator", "Archival_Format_Viewer");
+			$acceptable_roles = array("Community_Admin", "Editor", "Creator", "Viewer", "Archival_Format_Viewer");
 			$dissemination_dsID = "stream_".substr($dsID, 0, strrpos($dsID, ".") + 1)."flv";
 		} else {
 			$acceptable_roles = array("Viewer", "Community_Admin", "Editor", "Creator", "Annotator");
