@@ -784,6 +784,14 @@ if (!empty($pid) && $record->checkExists()) {
     {
       $tpl->assign("addthis", APP_ADDTHIS_ID);
     }
+
+    $showMetrics = true;
+    // TODO: change this from a static string to a config variable
+    if ($username == "ERA") {
+      $showMetrics = false;
+    }
+    $tpl->assign("showMetrics", $showMetrics);
+
     $tpl->assign("displayOrderForm", $displayOrderForm);
     $tpl->assign("displayReqOpenAccess", $displayReqOpenAccess);
     $tpl->assign("origami", APP_ORIGAMI_SWITCH);
