@@ -370,6 +370,7 @@ if (!empty($pid) && !empty($dsID)) {
 		} elseif (($is_video == 1) && (is_numeric(strpos($ctype, "flv")))) {
 
 	        include_once(APP_INC_PATH . "class.template.php");
+			header("Content-Type: text/html");
 			$tpl = new Template_API();
 			$tpl->setTemplate("flv.tpl.html");
 			$tpl->assign("APP_BASE_URL", APP_BASE_URL);
