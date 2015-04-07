@@ -298,16 +298,32 @@ function setup_roles($solrindex = true, $verbose = false)
         assign_roles_to_pid($pid, $roles, false, $solrindex, $verbose);
     }
 
-    // Collections
+    // Collections / Communities
     // 
-    // NOTE: Solr indexing is recursive by default and will take time if
-    // we do this on a community or collection.
+    // These should be SMALL or fez will take some time to index it.
+    // RECOMMEND you make these for the tests.
+
+    // Restricted
     // 
-    // Do restricted collection...
-    // This should be small or fez will take some time to index it.
+    // NOTE: Solr indexing is recursive by default and WILL TAKE TIME if
+    // we do this on a large community or collection.
 
     $pid = $conf['restricted_community']['collection'];
     assign_roles_to_pid($pid, $roles, false, $solrindex, $verbose);
+    $pid = $conf['restricted_community']['community'];
+    assign_roles_to_pid($pid, $roles, false, $solrindex, $verbose);
+
+    // Public
+    //
+    // We have to set the same retrictions on editing / updating and
+    // approving as per restricted counterparts.
+    // But we should allow viewing and listing - which means we don't
+    // set anything for viewer/lister roles.
+
+    $pid = $conf['public_community']['collection'];
+    assign_roles_to_pid($pid, $public_roles, false, $solrindex, $verbose);
+    $pid = $conf['public_community']['community'];
+    assign_roles_to_pid($pid, $public_roles, false, $solrindex, $verbose);
 }
 
 // Set roles and permissions on a pid.
