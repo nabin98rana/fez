@@ -99,3 +99,10 @@ Feature: Check that valid json is being returned
     Given I am on "/oembed.php?format_type=json&maxwidth=a:4$%@})']\%22({[&maxheight=a:4$%@})']\%22({["
     Then should see valid JSON
 
+  Scenario: Check JSON is valid
+    Given I am on "/api/latest_metric_changes.php?author_username=uqpburn2"
+    Then should see valid JSON
+
+  Scenario: Check JSON is valid
+    Given I am on "/api/latest_metric_changes.php?author_username=a:4$%@})']\%22({["
+    Then should see valid JSON
