@@ -1292,13 +1292,25 @@ class FeatureContext extends BehatContext
         $group_name = $this->conf['credentials'][$group_conf_name];
         list($role,$_) = explode('_', $group_conf_name);
         $role = ucfirst($role);
-        $gid = Group::getID($groupname);
+        $gid = Group::getID($group_name);
         $pid = $this->conf[$arr[0]][$arr[1]];
         $acml_dom = Record::getACML($pid);
-        //print_r($acml_dom->saveXML());
         $xpath = new DOMXPath($acml_dom);
         $res = $xpath->query("/FezACML/rule/role[@name='Creator']/Fez_Group");
         $this->expect($res->length)->equals(1, "There should be on role tag with attribute 'Creator'");
+        $this->expect($res->item(0)->nodeValue)->equals($gid);
+    }
+
+    /**
+     * @Then /^the attachment \'([^\']*)\' should have group \'([^\']*)\' set to \'([^\']*)\'$/
+     */
+    public function attachmentShouldHaveGroup($attachment_name, $group_name, $role_name)
+    {
+        $gid = Group::getID($group_name);
+        $acml_dom = Record::getACML($this->pid, basename($attachment_name));
+        $xpath = new DOMXPath($acml_dom);
+        $res = $xpath->query("/FezACML/rule/role[@name='$role_name']/Fez_Group");
+        $this->expect($res->length)->equals(1, "There should be on role tag with attribute '$role_name'");
         $this->expect($res->item(0)->nodeValue)->equals($gid);
     }
 
