@@ -441,7 +441,10 @@ class API
         if (count($required) > 0) {
             // We haven't fulfilled all required fields!
             // We'll leave the session lingering in the case they want to resubmit.
-            API::reply(400, API::makeResponse(400, "Required fields are not fulfilled."), APP_API);
+            $details = implode("; ", array_map(function ($field) {
+                return "xsdmf_id: {$field['xsdmf_id']} ('{$field['xsdmf_title']}')";
+            }, $required));
+            API::reply(400, API::makeResponse(400, "Required fields are not fulfilled: " . $details), APP_API);
             exit;
         }
 

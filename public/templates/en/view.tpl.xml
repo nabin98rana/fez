@@ -107,7 +107,7 @@
                         {* Name of file *}
                         {if $datastreams[d].isViewer == 1 || $isAdministrator}
                             <href>
-                                {$rel_url}eserv/{$pid}/{$ds_show}{if $viewingPreviousVersion}?version_date={$versionDate}{/if}
+                                {$rel_url}view/{$pid}/{$ds_show}{if $viewingPreviousVersion}?version_date={$versionDate}{/if}
                             </href>
                         {/if}
 
@@ -115,7 +115,7 @@
                             && $datastreams[d].stream != "0"
                             && $ds_show_extra != ''}
                             <href>
-                                {$rel_url}eserv/{$pid}/{$ds_show_extra}{if $viewingPreviousVersion}?version_date={$versionDate}{/if}
+                                {$rel_url}view/{$pid}/{$ds_show_extra}{if $viewingPreviousVersion}?version_date={$versionDate}{/if}
                             </href>
                         {/if}
 
@@ -123,7 +123,7 @@
                         {if ($datastreams[d].isArchivalViewer == 1 || $isAdministrator)
                             && $datastreams[d].thumbnail != "0"}
                             <href>
-                                {$rel_url}eserv/{$pid}/{$datastreams[d].ID}{if $viewingPreviousVersion}?version_date={$versionDate}{/if}
+                                {$rel_url}view/{$pid}/{$datastreams[d].ID}{if $viewingPreviousVersion}?version_date={$versionDate}{/if}
                             </href>
                         {/if}
 
