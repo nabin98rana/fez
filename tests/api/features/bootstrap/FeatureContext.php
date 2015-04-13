@@ -1,9 +1,8 @@
 <?php
 
 // Library used to make requests and parse xml etc
-require_once(__DIR__ . '/../../client/Client.php');
 require_once(__DIR__ . '/../../client/Record.php');
-require_once(__DIR__ . '/../../client/Workflow.php');
+require_once(__DIR__ . '/../../client/utils.php');
 require_once(__DIR__ . '/../../Expectation.php');
 require_once(__DIR__ . '/../../setuplib.php');
 
@@ -238,7 +237,7 @@ class FeatureContext extends BehatContext
             } else {
                 $this->response_sxml = @new SimpleXMLExtended($this->response->raw_body);
             }
-            $this->actions = c\get_actions($this->response_raw);
+            $this->actions = c\getActions($this->response_raw);
         } catch (Exception $e) {
             $this->response_sxml    = NULL;
             if ($this->VERBOSE) {
@@ -1236,7 +1235,7 @@ class FeatureContext extends BehatContext
         $required = $this->_populateRequiredFields($this->record);
         $xml = $this->record->toXml();
 
-        $actions = c\by_key('name', $this->actions);
+        $actions = c\byKey('name', $this->actions);
         $publish = $actions['Publish'];
 
         $uri = $this->url . $publish['uri'];
@@ -1293,13 +1292,25 @@ class FeatureContext extends BehatContext
         $group_name = $this->conf['credentials'][$group_conf_name];
         list($role,$_) = explode('_', $group_conf_name);
         $role = ucfirst($role);
-        $gid = Group::getID($groupname);
+        $gid = Group::getID($group_name);
         $pid = $this->conf[$arr[0]][$arr[1]];
         $acml_dom = Record::getACML($pid);
-        //print_r($acml_dom->saveXML());
         $xpath = new DOMXPath($acml_dom);
         $res = $xpath->query("/FezACML/rule/role[@name='Creator']/Fez_Group");
         $this->expect($res->length)->equals(1, "There should be on role tag with attribute 'Creator'");
+        $this->expect($res->item(0)->nodeValue)->equals($gid);
+    }
+
+    /**
+     * @Then /^the attachment \'([^\']*)\' should have group \'([^\']*)\' set to \'([^\']*)\'$/
+     */
+    public function attachmentShouldHaveGroup($attachment_name, $group_name, $role_name)
+    {
+        $gid = Group::getID($group_name);
+        $acml_dom = Record::getACML($this->pid, basename($attachment_name));
+        $xpath = new DOMXPath($acml_dom);
+        $res = $xpath->query("/FezACML/rule/role[@name='$role_name']/Fez_Group");
+        $this->expect($res->length)->equals(1, "There should be on role tag with attribute '$role_name'");
         $this->expect($res->item(0)->nodeValue)->equals($gid);
     }
 
@@ -2300,12 +2311,25 @@ class FeatureContext extends BehatContext
      */
     public function iShouldBeAbleToDownloadTheFirstDatastreamLinkAttachment()
     {
-        $uri = (string)$this->response_sxml->item->datastream_links->datastream_link;
-        if (empty($uri)) {
-            throw new Exception("No datastream present in the response xml.", 1);
+        // Scan through item-tags in $this->response_sxml for one with a datastream_link tag...
+        $pidWithAttachment = null;
+        foreach ($this->response_sxml->item as $item) {
+            if (!empty($item->datastream_links) && !empty($item->datastream_links->datastream_link)) {
+                $pidWithAttachment = $item;
+                break;
+            }
         }
+        if (is_null($pidWithAttachment)) {
+            throw new Exception("No datastream in this collection seems to have a datastream_link tag (an attachment) .", 1);
+        }
+
+        $uri = (string)$pidWithAttachment->datastream_links->datastream_link;
         // The uri is already in the full form eg. http://cdu.local/...
         $this->getDownload(trim($uri));
+        if (empty($this->response->raw_body)) {
+            echo "NOTE: it looks like we have an attachment in the metadata ($uri) but it is not physically present in fez - you should add this to your test fedora server in data/datastreams/** for the pid being tested here." . PHP_EOL;
+            echo $this->response_sxml->item->pid . PHP_EOL;
+        }
         $this->expect(empty($this->response->raw_body))->equals(false);
     }
 }

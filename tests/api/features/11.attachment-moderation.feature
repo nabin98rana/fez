@@ -6,9 +6,14 @@ Feature: attachment moderation / security
 
   @edit-attachment-permissions
   Scenario: Editing attachment security - See edit security
+    # Purge all previous attachment.
+    #Given I'm a super administrator
+    #Given getting a record 'public_community.record'
+    #Then remove all attachments
+    # Real test starts here...
     Given I'm an editor
     Given getting a record 'public_community.record'
-    Given this record is loaded with attachment 'README.txt'
+    Given this record is loaded with attachment 'fixtures/sample-file-1.txt'
     When viewing the workflow 'Update Selected Record - Generic'
     Then I should get xml
     And I should see element 'datastreams'
@@ -22,16 +27,14 @@ Feature: attachment moderation / security
     Then add the display field with xsdmf_title 'Fez Group' and xsdel_title 'Lister' value '23'
     Then POSTing that xml to our uri
     Then the http status should be 202
-    Then the attachment should have group 'test_creator' set to 'Lister'
+    Then the attachment 'fixtures/sample-file-1.txt' should have group 'test_creator' set to 'Lister'
     Then remove all attachments
 
   @viewer-restricted-datastream
   Scenario: If a datastream is restricted, then they shouldn't be able to view it
     Given I'm a super administrator
-    # Given getting a record 'restricted_community.record'
-    # # Call a bunch of steps to restrict the attachment:
-    Given getting a record 'restricted_community.record'
-    Given this record is loaded with attachment 'README.txt'
+    Given getting a record 'public_community.record'
+    Given this record is loaded with attachment 'fixtures/sample-file-1.txt'
     When viewing the workflow 'Update Selected Record - Generic'
     Then I should get xml
     And I should see element 'datastreams'
@@ -49,8 +52,8 @@ Feature: attachment moderation / security
     Then POSTing that xml to our uri
     Then the http status should be 202
     Given I'm a user with no groups
-    Given getting a record 'restricted_community.record'
+    Given getting a record 'public_community.record'
     And the http status should be 200
-    And I cannot see attachment 'README.txt'
+    And I cannot see attachment 'fixtures/sample-file-1.txt'
 
   # Embargo - See @edit-change-permission-embargo-attachment in editing-records.feature

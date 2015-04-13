@@ -39,6 +39,7 @@ Feature: creating records
     And add the display field 'Member of Collections:' value 'cdu:29713'
     And add the display field 'Member of Collections:' value 'cdu:9444'
     And add the display field 'Member of Collections:' value 'cdu:29715'
+    And add the display field 'Author' value 'Some Author'
     And add the display year date field 'Collection year' value '2007'
     And add the display field 'Title' value 'This is a test'
     # 'Translated title' is in the same looping subelement as 'title':

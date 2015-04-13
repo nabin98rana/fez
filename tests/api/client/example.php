@@ -4,12 +4,12 @@
 // run at the beginning?
 
 require_once(__DIR__ . '/Record.php');
-require_once(__DIR__ . '/Workflow.php');
+require_once(__DIR__ . '/utils.php');
 
-$collection_xml = file_get_contents(__DIR__ . '/../fixtures/collection-example-01.xml');
-$metadata_xml = file_get_contents(__DIR__ . '/../fixtures/enter_metadata-example-01.xml');
+$collection_xml = file_get_contents(__DIR__ . '/../fixtures/collection-example.xml');
+$metadata_xml = file_get_contents(__DIR__ . '/../fixtures/enter_metadata-example.xml');
 
-$r = fezapi\client\get_actions($collection_xml);
+$r = fezapi\client\getActions($collection_xml);
 print_r($r);
 
 $disp = fezapi\client\Record::createFromMetadataXml($metadata_xml);
