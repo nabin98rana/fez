@@ -37,6 +37,7 @@
 include_once('../config.inc.php');
 include_once(APP_INC_PATH . "class.template.php");
 include_once(APP_INC_PATH . "class.db_api.php");
+include_once(APP_INC_PATH . "class.api_researchers.php");
 
 $log = FezLog::get();
 $db = DB_API::get();
@@ -59,7 +60,7 @@ aut_display_name, aut_fname, aut_mname, aut_lname, aut_title, aut_position, aut_
 aut_people_australia_id, aut_description, aut_orcid_id, aut_google_scholar_id, aut_rid_last_updated FROM " . APP_TABLE_PREFIX . "author WHERE aut_org_username =  " .$db->quote($author_username);
 
 try {
-    $res1 = $db->fetchAll($stmt);
+    $resAuthorDetails = $db->fetchAll($stmt);
 }
 catch (Exception $ex) {
     $log->err($ex);
@@ -86,7 +87,7 @@ ORDER BY as_1d DESC, as_2d DESC, as_3d DESC, as_4d DESC, as_5d DESC, as_6d DESC,
 
 
 try {
-    $res2 = $db->fetchAll($stmt);
+    $resAltmetric = $db->fetchAll($stmt);
 }
 catch (Exception $ex) {
     $log->err($ex);
@@ -110,7 +111,7 @@ GROUP_CONCAT(c.rek_author_id ORDER BY c.rek_author_id_order SEPARATOR ';') as re
     ORDER BY tc_created DESC LIMIT 3";
 
 try {
-    $res3 = $db->fetchAll($stmt);
+    $resThomson = $db->fetchAll($stmt);
 }
 catch (Exception $ex) {
     $log->err($ex);
@@ -135,18 +136,31 @@ FROM " . APP_TABLE_PREFIX . "author
     ORDER BY sc_created DESC LIMIT 3";
 
 try {
-    $res4 = $db->fetchAll($stmt);
+    $resScopus = $db->fetchAll($stmt);
 }
 catch (Exception $ex) {
     $log->err($ex);
     return false;
 }
 
+foreach($resAltmetric as &$row) {
+    $row['altmetric_url'] = api_researchers::altmetric($row['as_amid']);
+}
+
+foreach($resThomson as &$row) {
+    $row['wos_citation_url'] = api_researchers::wosCitationURL($row['rek_isi_loc']);
+    $row['wos_url'] = api_researchers::wosURL($row['rek_isi_loc']);
+}
+
+foreach($resScopus as &$row) {
+    $row['scopus_citation_url'] = api_researchers::scopusCitationURL($row['rek_scopus_id']);
+    $row['scopus_url'] = api_researchers::scopusURL($row['rek_scopus_id']);
+}
 
 $output = array();
-$output['author_details'] = $res1;
-$output['altmetric'] = $res2;
-$output['thomson'] = $res3;
-$output['scopus'] = $res4;
+$output['author_details'] = $resAuthorDetails;
+$output['altmetric'] = $resAltmetric;
+$output['thomson'] = $resThomson;
+$output['scopus'] = $resScopus;
 
 echo json_encode($output);

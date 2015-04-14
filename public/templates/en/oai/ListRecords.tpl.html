@@ -73,7 +73,7 @@
 		<registryObject group="{$org_name}">
 			<key>{$app_hostname}/view/{$list[i].rek_pid}</key>
 			<originatingSource>{$app_hostname}</originatingSource>
-			<collection type="{$list[i].rek_ands_collection_type_lookup|strip_tags:false|escape:'html' nofilter}" dateAccessioned="{$list[i].rek_created_date}" dateModified="{$list[i].rek_updated_date}">
+			<collection type="{$list[i].rek_ands_collection_type_lookup|smarty:nodefaults|strip_tags:false|escape:'html'}" dateAccessioned="{$list[i].rek_created_date}" dateModified="{$list[i].rek_updated_date}">
       {if $list[i].rek_handle}
 			<identifier type="handle">hdl.handle.net/{$list[i].rek_handle}</identifier>
       {/if}
@@ -216,7 +216,7 @@
                       <notes>{$list[i].rek_related_publications}</notes>
                   </relatedInfo>
             {/if}
-      {if $list[i].rek_author}
+			{if $list[i].rek_author}
 				{assign var="loop_authors" value=$list[i].rek_author}
 				{section name="a" loop=$loop_authors}
 				    {if !$list[i].rek_author_id[a] == 0}
@@ -312,19 +312,19 @@
 			      {/if}
 			{/if}
 			{if $list[i].rek_description}
-			      <description type="full">{$list[i].rek_description|strip_tags:false|escape:"html" nofilter}</description>
+			      <description type="full">{$list[i].rek_description|smarty:nodefaults|strip_tags:false|escape:"html"}</description>
 			{/if}
 			{if $list[i].rek_extent}
-			      <description type="brief">{$list[i].rek_extent|strip_tags:false|escape:"html" nofilter}</description>
+			      <description type="brief">{$list[i].rek_extent|smarty:nodefaults|strip_tags:false|escape:"html"}</description>
 			{/if}
 			{if $list[i].rek_rights}
 			     <description type="rights">&#xA9;{$list[i].rek_rights|trim}</description>
 			{/if}
 			{if $list[i].rek_access_conditions}
-			      <description type="accessRights">{$list[i].rek_access_conditions_lookup|strip_tags:false|escape:"html" nofilter}</description>
-			{/if}
+			      <description type="accessRights">{$list[i].rek_access_conditions_lookup|smarty:nodefaults|strip_tags:false|escape:"html"}</description>
+			 {/if}
             {if $list[i].rek_license}
-                 <description type="accessRights">{$list[i].rek_license_lookup|strip_tags:false|escape:"html" nofilter}</description>
+                 <description type="accessRights">{$list[i].rek_license_lookup|smarty:nodefaults|strip_tags:false|escape:"html"}</description>
             {/if}
 			{if $list[i].rek_notes}
 			      {if !is_array($list[i].rek_notes)}
@@ -338,11 +338,11 @@
 		     {/if}
 
 			{if $list[i].rek_citation}
-			      <citationInfo>
+              <citationInfo>
 					<fullCitation style="harvard">{$list[i].rek_citation_stripped} {if $list[i].rek_doi}http://dx.doi.org/{$list[i].rek_doi}{elseif $list[i].rek_handle} http://hdl.handle.net/{$list[i].rek_handle}{/if}{/if}
 					</fullCitation>
 			      </citationInfo>
-			 {/if}
+                {/if}
 		      </collection>
 		</registryObject>{/strip}
 	{/if}
@@ -399,9 +399,9 @@
 	{if $list[i].rek_long_description || $list[i].rek_description}
 		<dc:description>
 		{if $list[i].rek_long_description}
-			{$list[i].rek_long_description|strip_tags:false|escape:"html" nofilter}
+			{$list[i].rek_long_description|smarty:nodefaults|strip_tags:false|escape:"html"}
 		{else}
-			{$list[i].rek_description|strip_tags:false|escape:"html" nofilter}
+			{$list[i].rek_description|smarty:nodefaults|strip_tags:false|escape:"html"}
 		{/if}
 		</dc:description>
 	{/if}
@@ -518,15 +518,15 @@
 
 
 		{if $list[i].rek_file_attachment_name}
-            {assign var="loop_format" value=$list[i].rek_file_attachment_name}
-            {section name="f" loop=$loop_format}
+				{assign var="loop_format" value=$list[i].rek_file_attachment_name}
+				{section name="f" loop=$loop_format}
             {if $list[i].rek_datastream_is_public[f]}
                 <dc:identifier linktype="fulltext">{$app_base_url}view/{$list[i].rek_pid}/{$list[i].rek_file_attachment_name[f]}</dc:identifier>
             {elseif ($list[i].pid_type == "restricted")}
                 <dc:identifier linktype="restricted">{$app_base_url}view/{$list[i].rek_pid}/{$list[i].rek_file_attachment_name[f]}</dc:identifier>
             {/if}
-            {/section}
-		{/if}
+				{/section}
+			{/if}
         <dc:identifier linktype="{$list[i].pid_type}">{$app_base_url}view/{$list[i].rek_pid}</dc:identifier>
 
 		{if $list[i].rek_rights}

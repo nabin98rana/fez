@@ -1,7 +1,7 @@
 {if $message}
 	<tr>
 		<td colspan="2" bgcolor="{$cell_color}" class="error">
-			{$message nofilter}
+			{$message|smarty:nodefaults}
 		</td>
 	<tr>
 {/if}
@@ -25,7 +25,7 @@
 								</td>
 								<td class="default" style="width: 100%;">
 							{/if}
-							<a href="{$smarty.server.SCRIPT_NAME}?pid={$pid}&amp;cat=select_workflow&amp;xdis_id={$xdis_id}&amp;wft_id={$workflows[i].wft_id}&amp;href={$href}">{$wfl_list[$wfl_id].wfl_title}</a> 
+							<a href="{$smarty.server.SCRIPT_NAME}?pid={$pid}&amp;cat=select_workflow&amp;xdis_id={$xdis_id}&amp;wft_id={$workflows[i].wft_id}&amp;href={$href}">{$wfl_list[$wfl_id].wfl_title}</a>
 							{if $wfl_list[$wfl_id].wfl_description}
 								<br /><br />
 								{$wfl_list[$wfl_id].wfl_description}

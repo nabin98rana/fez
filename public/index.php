@@ -34,7 +34,7 @@
 //
 //
 
-require_once(dirname(__FILE__).DIRECTORY_SEPARATOR.'include/simplesaml/lib/_autoload.php');
+//require_once(dirname(__FILE__).DIRECTORY_SEPARATOR.'include/simplesaml/lib/_autoload.php');
 
 if (!is_file("config.inc.php")) {
     header("Location: setup/");
@@ -62,7 +62,7 @@ include_once(APP_INC_PATH . "najax_objects/class.suggestor.php");
 
 // Redirect if sent from an alias or IP as shibboleth and sessions won't like it otherwise
 if ((array_key_exists('HTTP_HOST', $_SERVER) && $_SERVER['HTTP_HOST'] != APP_HOSTNAME) && (!is_numeric(APP_CUSTOM_VIEW_ID))) {
-       header ("HTTP 302 Redirect");
+	   header ("HTTP 302 Redirect");
        header ("Location: http://".APP_HOSTNAME);
 }
 
@@ -79,20 +79,20 @@ $masquerade = @$_POST["masquerade"];
 if ((@$_SESSION[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-TargetedID'] != "" || @$_SERVER['Shib-Session-ID'] != "") && $masquerade == '') {
 
 // Uncomment this to see a debug output of all the shibboleth attributes in the session
-	// echo "<pre>";
+	// echo "<pre>"; 
 	// print_r($_SESSION[APP_SHIB_ATTRIBUTES_SESSION]);
-	// echo "</pre>";
+	// echo "</pre>";  
 
 	if (Auth::LoginAuthenticatedUser("", "", true) > 0) {
     	Auth::redirect(APP_RELATIVE_URL . "login.php?err=22");
 	}
-	if (!empty($_SESSION["url"])) {
+	if (!empty($_SESSION["url"])) { 
 		$url = $_SESSION["url"];
 		$realUrl = urldecode($url);
 		$_SESSION["url"] = "";
 		$username = Auth::getUsername();
 		Zend_Session::writeClose(); // write the session data out before doing a redirect
-		if (!empty($realUrl) && $realUrl != APP_RELATIVE_URL && $realUrl != "/index.php?err=6") {
+		if (!empty($realUrl) && $realUrl != APP_RELATIVE_URL && $realUrl != "/index.php?err=6") {		
 			Auth::redirect($realUrl);
 		} else {
 			if (APP_MY_RESEARCH_MODULE == 'ON' && MyResearch::getHRorgUnit($username) != "") {
@@ -115,25 +115,25 @@ if ((@$_SESSION[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-TargetedID'] != "" || @$_S
 	}
 
 	if ($masquerade != '' && User::isUserSuperAdministrator($_POST["username"])) {
-		Auth::redirect(APP_RELATIVE_URL . "login.php?err=30&username=" . $_POST["username"]);
+		Auth::redirect(APP_RELATIVE_URL . "login.php?err=30&username=" . $_POST["username"]);	
 	}
-
+	
     // check if the password matches
     // This method can also check via LDAP
 	if (!Auth::isCorrectPassword($_POST["username"], $_POST["passwd"])) {
         Auth::redirect(APP_RELATIVE_URL . "login.php?err=3&username=" . $_POST["username"].'&url='.base64_encode($_POST["url"]));
 	}
-
+	
     $loginres = Auth::LoginAuthenticatedUser($_POST["username"], $_POST["passwd"], false, $masquerade);
-
+    
     if ($loginres > 0) {
-        Auth::redirect(APP_RELATIVE_URL . "login.php?err={$loginres}&username=" . $_POST["username"]);
+        Auth::redirect(APP_RELATIVE_URL . "login.php?err={$loginres}&username=" . $_POST["username"]);	
     }
 	$username = Auth::getUsername();
 	Zend_Session::writeClose(); // write the session data out before doing a redirect
 	$realUrl = urldecode($_POST["url"]);
 	if (!empty($_POST["url"]) && $realUrl != APP_RELATIVE_URL && $realUrl != "/index.php?err=6") {
-		Auth::redirect(urldecode($_POST["url"]));
+		Auth::redirect(urldecode($_POST["url"])); 
 	} else {
 		if (APP_MY_RESEARCH_MODULE == 'ON' && MyResearch::isClassicUser($username) == 1) {
 			Auth::redirect(APP_BASE_URL."my_fez_traditional.php");
@@ -150,10 +150,13 @@ $aliasResult = Lister::checkAliasController();
 
 // Don't need to proceed with the front page if we found an alias piped to index.php eg for my pubs aliases like fez/Christiaan
 if ($aliasResult == false) {
-
+    
     $tpl = new Template_API();
-    $metaDescription = APP_NAME." operates as an institutional repository for open access publications and other digitised materials created by the University such as print materials, photographs, audio materials, videos,
-     manuscripts and other original work.";
+    $metaDescription = "UQ eSpace is the single authoritative source for the research outputs of the staff and students of the University of Queensland and is the archival home
+     of UQ Research Higher Degree Theses. UQ eSpace raises the visibility and accessibility of these publications to the wider world and provides data for mandatory Government reporting requirements
+     such as Higher Education Research Data Collection (HERDC) and Excellence in Research for Australia (ERA) and for the internal UQ systems such as the Q-Index and UQreSearchers.
+     It also operates as an institutional repository for open access publications and other digitised materials created by the University such as print materials, photographs, audio materials, videos,
+     manuscripts and other original work. For more information about UQ eSpace please read our Scope and Policy document.";
     $tpl->assign("meta_description", $metaDescription);
     $tpl->assign("active_nav", "home");
 
@@ -165,7 +168,7 @@ if ($aliasResult == false) {
     if (Auth::userExists($username)) { // if the user is registered as a Fez user
         $prefs = Prefs::get(Auth::getUserID());
         if (array_key_exists('front_page', $prefs)) {
-            $front_page = $prefs['front_page'];
+        $front_page = $prefs['front_page'];
         }
     } else {
         $front_page = Pager::getParam("front_page");

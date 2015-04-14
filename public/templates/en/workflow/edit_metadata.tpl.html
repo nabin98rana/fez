@@ -44,7 +44,7 @@
         </tr>
         {section name="i" loop=$xsd_display_fields}
             {assign var="temp_fld_id" value=$xsd_display_fields[i].xsdmf_id}
-            {assign var='xsdmf' value=$xsd_display_fields[i]}
+            {assign var='xsdmf' value=$xsd_display_fields[i]|smarty:nodefaults}
             {include file='workflow/edit_metadata_helpers/field_'|cat:$xsd_display_fields[i].xsdmf_html_input|cat:'.tpl.html'}
             {if $debug == 1}
                 {$xsd_display_fields[i].xsdmf_order}
@@ -62,14 +62,14 @@
         {assign var="filecounter" value=0}
         {section name="d" loop=$datastreams}
             {if $datastreams[d].controlGroup == "M" && ($datastreams[d].isLister == 1 || $isAdministrator)}
-            <tr class="default">
+              <tr class="default"> 
                 <td style="background: {$cell_color};padding:10px;">Name</td>
                 <td style="background: {$cell_color};padding:10px;">Description (click to edit)</td>
                 <td style="background: {$cell_color};padding:10px;">MIMEType</td>
             </tr>
               <tr class="default">
                 {assign var="image_file_name" value=$datastreams[d].MIMEType|replace:"/":"_"|cat:".png"}
-                {assign var="image_name" value=$fez_root_dir|cat:"images/"|cat:$image_file_name}
+                {assign var="image_name" value=$fez_root_dir|cat:"images/"|cat:$image_file_name}            
                 {assign var="image_file_string" value=""}
                 {assign var="filecounter" value=$filecounter+1}
                 {fetch file=$image_name assign="image_file_string"}
@@ -81,7 +81,7 @@
                 {if ($datastreams[d].isArchivalViewer == 1 || $isAdministrator) && $datastreams[d].thumbnail != "0"}<a target="_blank" href="{$rel_url}view/{$pid}/{$datastreams[d].ID}"><img title="archival version" align="absmiddle" border="0" src="{$rel_url}images/archival_22.gif"></a>&nbsp;{/if}
                 {if $datastreams[d].presmd != "0" && $datastreams[d].isViewer == 1 || $isAdministrator}<a target="_blank" href="{$rel_url}view/{$pid}/{$datastreams[d].presmd}"><img title="preservation metadata" align="absmiddle" border="0" src="{$rel_url}images/presmd_22.gif"></a>&nbsp;{/if}
                 {if ( ($datastreams[d].isEditor == 1) || $isAdministrator )}[ <a class="link" title="delete datastream" href="javascript:void(null);" onClick="javascript:deleteDatastream('{$pid}','{$datastreams[d].ID}');">Delete</a> ]{/if}
-                {if ($isSuperAdministrator)}[ <a class="link" title="purge datastream" href="javascript:void(null);" onClick="javascript:purgeDatastream('{$pid}','{$datastreams[d].ID}');">Purge</a> ]{/if}
+                    {if ($isSuperAdministrator)}[ <a class="link" title="purge datastream" href="javascript:void(null);" onClick="javascript:purgeDatastream('{$pid}','{$datastreams[d].ID}');">Purge</a> ]{/if}
                 <span id="{$pid}_{$filecounter}_newFilename">&nbsp;</span>
                 {section name="w" loop=$datastreams[d].workflows}
                     {if $datastreams[d].workflows[w].wft_icon == 'images/security.gif'}
@@ -100,10 +100,10 @@
                     {if $datastreams[d].isEditor == 1 || $isAdministrator}&nbsp;<a href='{$rel_url}workflow/update.php?pid={$pid}&dsID={$datastreams[d].ID}&cat=select_workflow&wft_id={$datastreams[d].workflows[w].wft_id}&href={$smarty.server.REQUEST_URI}'><img alt="{$datastreams[d].workflows[w].wfl_title}" title="{$datastreams[d].workflows[w].wfl_title}" align="absmiddle" src="{$rel_url}{$wf_icon}" border="0"></a>{/if}
                 {/section}
                 [ <a href="javascript:editFilename('{$pid}', '{$datastreams[d].ID}', '{$filecounter}')">Rename</a> ]
-
+                
                     {* Hidden input to help validating the required file-upload fields. *}
                     <input type="hidden" name="uploader_files_uploaded" value="{$datastreams[d].ID}" id="hidden_{$datastreams[d].ID}" />
-
+                
                 </td>
 
                 <td bgcolor="{$value_color}"><div id="{$pid}_{$filecounter}_div"><span id="{$pid}_{$filecounter}_span" onclick="editFileLabel('{$pid}', '{$datastreams[d].ID}', {$filecounter});">{if $datastreams[d].label == ""}(empty){else}{$datastreams[d].label}{/if}</span></div></td>
@@ -140,7 +140,7 @@
         </tr>
     </table>
 {/if}
-
+    
 {* Reason for Edit *}
 <table cellpadding="2" cellspacing="0" style="background: white; width: 100%">
     <tr>
@@ -153,7 +153,7 @@
     </tr>
 </table>
 
-{/if}
+{/if}                 
 </div>
 </td></tr>
 

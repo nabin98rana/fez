@@ -1,0 +1,585 @@
+<script type="text/javascript" src="/js/view_page.php"></script>
+<script type="text/javascript">
+<!--
+var rel_url = '{$rel_url}';
+var image_preview_loading = 0;
+var image_preview_current_id = '';
+
+{literal}
+// get an image and put it in the preview image
+function loadPreview(pid,datastreamID, alt, origami)
+{
+    if (image_preview_loading > 0) {
+        return;
+    }
+    image_preview_loading = 1;
+
+    // display the 'loading...' text. (unhide it)
+    pv_loading = document.getElementById('datastream_preview_loading');
+    pv_loading.innerHTML = ' - Loading...';
+    pv_loading.style.display = '';
+
+
+    if (datastreamID.substring(0, 7) == 'stream_') {
+        document.getElementById('datastream_preview_td').width = 450;
+        document.getElementById('datastream_preview_frame').innerHTML='<iframe frameborder="no" width="100%" height="400" src="'+rel_url+'view/'+pid+'/'+datastreamID+'?wrapper=no{/literal}{if $viewingPreviousVersion}&version_date={$versionDate}{/if}{literal}"></iframe>';
+    } else {
+        {/literal}
+        
+        {if $img_width > 0}
+        datastream_preview_td_width = screen.width * .3;
+        image_width = {$img_width};
+        {literal}
+        if(datastream_preview_td_width > image_width)
+        {
+            document.getElementById('datastream_preview_td').width = image_width;
+        }
+        {/literal}
+        {/if}
+        
+        document.getElementById('datastream_preview_frame').innerHTML='<a id="datastream_preview_href" title="Click on the image to see a larger version"  target="_blank" href="{$rel_url}view/{$pid}/{$preview_ds_1.ID}{if $viewingPreviousVersion}?version_date={$versionDate}{/if}"><img width="100%" id="datastream_preview" alt="Datastream Preview" src="#" /></a>';
+        {literal}
+        pv_img = document.getElementById('datastream_preview');
+        pv_img_href = document.getElementById('datastream_preview_href');
+        
+        // get the resized image
+        pv_img_href.href = rel_url+'view/'+pid;
+        if(origami == "true") {
+            pv_img_href.href += '/'+datastreamID+'?oi=1{/literal}{if $viewingPreviousVersion}&version_date={$versionDate}{/if}{literal}';
+            // This replace must be done AFTER creating href
+            datastreamID = str_replace(datastreamID, '.tif', '.jpg');
+        } else {
+            datastreamID = str_replace(datastreamID, '.tif', '.jpg');
+            datastreamID = str_replace(datastreamID, '.gif', '.jpg');
+            datastreamID = str_replace(datastreamID, '.eps', '.jpg');
+            datastreamID = str_replace(datastreamID, '.png', '.jpg');
+            datastreamID = str_replace(datastreamID, '.bmp', '.jpg');
+            datastreamID = str_replace(datastreamID, '.BMP', '.jpg');
+            datastreamID = str_replace(datastreamID, '.JPG', '.jpg');
+            pv_img_href.href += '/web_'+datastreamID+'{/literal}{if $viewingPreviousVersion}?version_date={$versionDate}{/if}{literal}';
+        }
+        
+        pv_img.src = rel_url+'view/'+pid+'/preview_'+datastreamID+'{/literal}{if $viewingPreviousVersion}?version_date={$versionDate}{/if}{literal}';
+        pv_img.alt = alt;
+    }
+    pv_loading.style.display = 'none';
+    image_preview_loading = 0;
+    if (image_preview_current_id.length > 0) {
+      tr_list = document.getElementById(image_preview_current_id);
+      tr_list.style.backgroundColor='{/literal}{$light_color}{literal}';
+    }
+    tr_list = document.getElementById('datastream_list_'+alt);
+    tr_list.style.backgroundColor='{/literal}{$selected_color}{literal}';
+    image_preview_current_id = 'datastream_list_'+alt;
+
+}
+
+{/literal}
+-->
+</script>
+<input type="hidden" name="cat" value="assign" />
+
+{* Div to show the outstanding workflows if they exist *}
+{if ($isEditor || $isAdministrator)}
+	<div id="outstandingWorkflowsDiv" class="flash_message" {if $workflow_count == 0} style="display:none"{/if}>
+		<span id="outstandingWorkflowsText">
+		{if $workflow_count == 0} There are currently no workflows 
+		{elseif $workflow_count == 1} There is currently 1 workflow
+		{else} There are currently {$workflow_count} workflows
+		{/if} 
+		outstanding on this item. 
+		</span> <a id="outstandingWorkflowsLink" href="javascript:checkOutstandingWorkflows('{$pid}');">Check again</a>
+	</div>
+	<script type="text/javascript">
+		dojo.addOnLoad(function() {ldelim} 
+			checkOutstandingWorkflows('{$pid}'); 
+		{rdelim});
+	</script>
+{/if}
+
+<table style="background: {$cell_color}; width: 100%;">
+  <tr>
+    <td>
+    <table style="background: #FFFFFF; width: 100%;">
+    <tr>
+    <td style="vertical-align: top">
+      <table style="width: 100%">
+        <tr>
+          <td colspan="2">
+			  <table style="margin-left: 15px;">
+			  <tr>
+			  <td style="vertical-align: top; width: 10px;">{if $fedora_get_view != "0"}<a title="Click to open this PID in Fedora (admin access only)" href="{$fedora_get_view}" onclick="javascript:window.open('{$fedora_get_view}'); return false;" >{/if}<img src="{$rel_url}images/record_view_32.jpg" alt="" />{if $fedora_get_view != "0"}</a>{/if}
+			  </td>
+			  <td>
+				  <h1>{$title}</h1>
+				  {if $citation != ""}
+					<span>{$citation|smarty:nodefaults}</span>
+					<br /><br />
+				  {/if}
+			  </td>
+			  </tr>
+			  </table>
+	  	  </td>
+        </tr>
+	  </table>
+
+	  <div id="{if $viewingPreviousVersion}viewInfoBoxNoEdit{else}viewInfoBox{/if}">
+      <table id="viewInfoBoxTable">
+
+		<tr>
+			<th>
+				Document type:
+			</th>
+			<td>
+				{$xdis_title}
+			</td>
+		</tr>
+
+{if $isUser && !$hide_edit}
+	{if $isEditor || $isAdministrator}
+		{if !$viewingPreviousVersion}
+				<tr>
+				  <th>Workflows</th>
+		          <td>
+					  {section name="w" loop=$workflows}
+					    {if $workflows[w].wft_id != ''}
+						    {if $workflows[w].wft_icon == 'images/security.gif'}
+						      {if $list[i].security == 'include'}
+						        {assign var="wf_icon" value="images/security_include.gif"}
+						      {elseif $list[i].security == 'exclude'}
+						        {assign var="wf_icon" value="images/security_exclude.gif"}
+						      {elseif $list[i].security == 'inherit'}
+					                {assign var="wf_icon" value="images/security_inherit.gif"}
+						      {else}
+						        {assign var="wf_icon" value=$workflows[w].wft_icon}
+						      {/if}
+					            {else}
+						      {assign var="wf_icon" value=$workflows[w].wft_icon}
+						    {/if}
+			                {if $workflows[w].wft_type_id == 6}
+			                  {assign var='wf_url' value=$rel_url|cat:'workflow/export.php'}
+			                {else}
+			                  {assign var='wf_url' value=$rel_url|cat:'workflow/update.php'}
+						    {/if}
+							<a href='{$wf_url}?pid={$pid}&amp;cat=select_workflow&amp;xdis_id={$xdis_id}&amp;wft_id={$workflows[w].wft_id}&amp;href={$smarty.server.REQUEST_URI}'><img title="{$workflows[w].wfl_title}" src="{$rel_url}{$wf_icon}" alt="" /></a>
+						{/if}
+					  {/section}
+					  <a href="{$rel_url}workflow/list_workflows2.php?pid={$pid}"><img src="{$rel_url}images/options_16.png" alt="More options" title="More options" width="16" height="16" /></a>
+				  </td>
+		        </tr>
+		{/if}
+	{/if}
+{/if}
+
+{if $show_tombstone && !$deleted || !$show_tombstone}
+
+{if $parents}		
+	<tr>
+		<th>
+			{$parent_heading}
+		</th>
+		<td>
+			{section name="i" loop=$parents}
+				<a href="{$rel_url}collection/{$parents[i].rek_pid}">{$parents[i].rek_title}</a><br />
+			{/section}
+		</td>
+	</tr>
+{/if}
+
+{if $prev || $next}
+	<tr>
+		<th>
+			Browse Collection:
+		</th>
+		<td>
+			{if $prev}<a href="{$rel_url}view/{$prev.rek_pid}">Prev: <i>{$prev.rek_title}</i></a> {if $next}<br />{/if}{/if}
+			{if $next}<a href="{$rel_url}view/{$next.rek_pid}">Next: <i>{$next.rek_title}</i></a> {/if}
+		</td>
+	</tr>
+{/if}
+
+{if $viewingPreviousVersion}
+	<tr>
+		<th>
+			Viewing Version:
+		</th>
+		<td>
+			{$versionDatePretty}
+			&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+			<span class='disabled'>Cannot Modify</span>
+		</td>
+	</tr>
+{/if}
+
+</table>
+</div>
+
+<table style="width: 100%;">
+	<tr>
+		<td>
+			{if $fileCount > 0}
+				<table id="view-attachments">
+
+					{if $display_checksums == 'ON'}
+						<tr>
+							<th colspan="6">&nbsp;</th>
+						</tr>
+						<tr>
+							<td class="default_white" colspan="6" style="background: {$heading_color}">
+								<b>Attached Files</b>
+							</td>
+						</tr>
+					{else}
+						<tr>
+							<td colspan="5">&nbsp;</td>
+						</tr>
+						<tr>
+							<td class="default_white" colspan="6" style="background: {$heading_color}">
+								<b>Attached Files</b>
+							</td>
+						</tr>
+					{/if}
+
+					<tr style="background: {$cell_color};">
+						<td>Name</td>
+						{if $display_checksums == 'ON'}
+							<td>Checksum</td>
+						{/if}
+						<td>Description</td>
+						<td>MIMEType</td>
+						<td>Size</td>
+						<td style="text-align: right">Downloads</td>
+					</tr>
+					
+					{assign var="ds_show_onclick" value=""}
+					{assign var="show_preview_pane" value="0"}
+					{section name="d" loop=$datastreams}
+						{if $datastreams[d].archival_size_raw > 1048576 && $origami == 'ON' && $datastreams[d].origami_switch == 'ON' && 
+							($datastreams[d].MIMEType == 'image/jpeg' || 
+							$datastreams[d].MIMEType == 'image/tiff' || 
+							$datastreams[d].MIMEType == 'image/tif' || 
+							$datastreams[d].MIMEType == 'image/jpg')}
+							{assign var="origami_preview" value="true"}
+						{else}
+							{assign var="origami_preview" value="false"}
+						{/if}
+						
+						{if $datastreams[d].controlGroup == "M" && $datastreams[d].isLister == 1}
+							{assign var="ds_show" value=$datastreams[d].ID}
+							<tr id="datastream_list_{$datastreams[d].ID}" style="background: {$light_color};">
+								{assign var="image_file_name" value=$datastreams[d].MIMEType|replace:"/":"_"|cat:".png"}
+								{assign var="image_name" value=$fez_root_dir|cat:"images/"|cat:$image_file_name} 			
+								{if ($datastreams[d].canPreview || $isAdministrator) && !$preview_ds_1 && ($datastreams[d].preview != "0" || $datastreams[d].stream != "0")}
+								{assign var="preview_ds_1" value=$datastreams[d]}
+								{assign var="preview_ds_origami" value=$origami_preview}
+							{/if}
+							{assign var="image_file_string" value=""}
+							{fetch file=$image_name assign="image_file_string"}
+							<td style="white-space: nowrap;">
+							{if $datastreams[d].thumbnail != "0" || $datastreams[d].stream != "0"}
+							{if $datastreams[d].canPreview || $isAdministrator}
+								<a href="#">
+							{/if}
+							{assign var="show_preview_pane" value="1"}
+							{if $datastreams[d].thumbnail != "0"}
+								<img alt="Click to show the corresponding preview" title="Click to show the corresponding preview" src="{$eserv_url}{$datastreams[d].thumbnail}{if $viewingPreviousVersion}?version_date={$versionDate}{/if}" 
+								{if ($datastreams[d].canPreview || $isAdministrator) && $datastreams[d].stream != "0"}
+									{assign var="ds_show" value=$datastreams[d].stream}onclick="javascript:loadPreview('{$pid}','{$datastreams[d].stream}', '{$datastreams[d].ID}', '{$origami_preview}');" />
+								{else}
+									{if ($datastreams[d].canPreview || $isAdministrator) && $datastreams[d].web != "0"}
+										{assign var="ds_show" value=$datastreams[d].web}onclick="javascript:loadPreview('{$pid}','{$datastreams[d].ID}', '{$datastreams[d].ID}', '{$origami_preview}');" />
+									{/if}
+								{/if}
+							{elseif ($datastreams[d].canPreview || $isAdministrator) && $datastreams[d].stream != "0"}
+								{assign var="ds_show" value=$datastreams[d].ID}
+								{assign var="ds_show_extra" value=$datastreams[d].stream}
+							{/if}
+							{if $datastreams[d].canPreview || $isAdministrator}
+								</a>
+							{/if}
+						{/if}
+						{if $image_file_string != ""}
+							<img alt="" src="{$rel_url}images/{$image_file_name}"{if $ds_show_extra != ""}onclick="javascript:loadPreview('{$pid}','{$ds_show_extra}', '{$datastreams[d].ID}', '{$origami_preview}');"{/if} />
+						{else}
+							<img alt="Click to show the corresponding preview/stream" title="Click to show the corresponding preview/stream" src="{$rel_url}images/default.png"{if $ds_show_extra != ""}onclick="javascript:loadPreview('{$pid}','{$ds_show_extra}', '{$datastreams[d].ID}', '{$origami_preview}');"{/if} />
+						{/if}
+						{if $datastreams[d].isViewer == 1 || $isAdministrator}
+							{if $datastreams[d].archival_size_raw > 1048576 && $origami == 'ON' && $datastreams[d].origami_switch == 'ON'
+								&& ($datastreams[d].MIMEType == 'image/jpeg' || 
+									$datastreams[d].MIMEType == 'image/tiff' || 
+									$datastreams[d].MIMEType == 'image/tif' || 
+									$datastreams[d].MIMEType == 'image/jpg')}
+							<a onclick="javascript:window.open('{$rel_url}view/{$pid}/{$datastreams[d].ID}?oi=1{if $viewingPreviousVersion}&amp;version_date={$versionDate}{/if}'); return false;" href="{$rel_url}view/{$pid}/{$datastreams[d].ID}?oi=1{if $viewingPreviousVersion}&amp;version_date={$versionDate}{/if}">
+							{else}
+							<a onclick="javascript:window.open('{$rel_url}view/{$pid}/{$ds_show}{if $viewingPreviousVersion}?version_date={$versionDate}{/if}'); return false;" href="{$rel_url}view/{$pid}/{$ds_show}{if $viewingPreviousVersion}?version_date={$versionDate}{/if}">
+							{/if}
+						{/if}
+						{$datastreams[d].ID}
+							{if ($datastreams[d].canPreview || $isAdministrator) && $datastreams[d].stream != "0"}
+										<a onclick="javascript:window.open('{$rel_url}view/{$pid}/{$ds_show_extra}{if $viewingPreviousVersion}?version_date={$versionDate}{/if}'); return false;" href="{$rel_url}view/{$pid}/{$ds_show_extra}{if $viewingPreviousVersion}?version_date={$versionDate}{/if}">(stream)</a>
+							{/if}
+						{if $datastreams[d].isViewer == 1 || $isAdministrator}
+							</a> &nbsp;
+						{/if}
+						{if ($datastreams[d].isArchivalViewer == 1 || $isAdministrator) && $datastreams[d].thumbnail != "0"}
+							<a onclick="javascript:window.open('{$rel_url}view/{$pid}/{$datastreams[d].ID}{if $viewingPreviousVersion}?version_date={$versionDate}{/if}'); return false;" href="{$rel_url}view/{$pid}/{$datastreams[d].ID}{if $viewingPreviousVersion}?version_date={$versionDate}{/if}"><img alt="Archival version" title="Archival version" src="{$rel_url}images/archival_22.gif" /></a>&nbsp;
+						{/if}
+						{if $datastreams[d].presmd != "0" && ($isAdministrator)}
+							<a onclick="javascript:window.open('{$rel_url}view/{$pid}/{$datastreams[d].presmd}{if $viewingPreviousVersion}?version_date={$versionDate}{/if}'); return false;" href="{$rel_url}view/{$pid}/{$datastreams[d].presmd}{if $viewingPreviousVersion}?version_date={$versionDate}{/if}"><img alt="Preservation metadata" title="Preservation metadata" src="{$rel_url}images/presmd_22.gif" /></a>&nbsp;
+						{/if} 	
+							</td>
+							{if $display_checksums == 'ON'}<td>({$datastreams[d].checksumType}) {$datastreams[d].checksum}</td>{/if}
+							<td style="vertical-align: bottom">{$datastreams[d].label}</td>
+							<td style="vertical-align: bottom">{$datastreams[d].MIMEType}</td>
+							<td style="vertical-align: bottom">{$datastreams[d].archival_size}</td>				
+							<td style="vertical-align: bottom; text-align: right"><!--fez:ds_{$datastreams[d].base64ID}-->{$datastreams[d].downloads}<!--/fez:ds_{$datastreams[d].base64ID}--></td>		
+						</tr>
+						{/if}
+					{/section}
+				</table>
+				<br />
+			{/if}
+			
+		{if $sta_id != 2}
+		<tr><td class="error" style="background: {$heading_color}; text-align: center">
+		<b>NOTE: This record is not published.</b>
+		</td></tr>
+		
+		{/if}
+		
+		<br />		
+
+		{include file='view_metadata.tpl.html'}
+		
+		</td>
+	</tr>
+		
+</table>
+
+		<table style="background: #FFFFFF; width: 100%;">
+
+	{if $linkCount > 0}
+		  <tr>
+			<td colspan="5">&nbsp;</td>
+		  </tr>
+		  
+		  <tr>
+			<td class="default_white" colspan="5" style="background: {$heading_color}"><b>Related Links</b></td>
+		  </tr>
+
+		  <tr>
+			<td colspan="2" style="background: {$cell_color}">Link</td>
+			<td colspan="3" style="background: {$cell_color}">Description</td>
+		  </tr>
+			{if $doi}
+			<tr>
+			<td style="background: {$light_color}" colspan="2">
+			<a target="_blank" href="{$doi.location}">{$doi.location}</a> 
+			</td>
+			<td style="background: {$light_color}" colspan="3">{$doi.label}</td>
+			</tr>
+			{/if}
+
+        {section name="d" loop=$datastreams}        
+			{if $datastreams[d].controlGroup == "R" && $datastreams[d].ID != "DOI"}
+			  <tr>
+				<td colspan="2" style="background: {$light_color}"><img src="{$rel_url}images/text_html.png"> <a target="_blank" href="{$datastreams[d].location}">{$datastreams[d].location|truncate:80:"..."}</a> &nbsp;{if $datastreams[d].prefix_location != ""}<br /> <img src="{$rel_url}images/org_link_16.gif"> <a target="_blank" href="{$datastreams[d].prefix_location}">Go to link with your {$APP_SHORT_ORG_NAME} access privileges</a> &nbsp;{/if}</td>
+				<td colspan="3" style="background: {$light_color}">{$datastreams[d].label} &nbsp;</td>
+			  </tr>
+			 {/if}
+        {/section}
+    {/if}
+	{if $hasVersions == 1}		  
+		  <tr>
+			<td colspan="5">&nbsp;</td>
+		  </tr>
+		  <tr>
+			<td class="default_white" colspan="5" style="background: {$heading_color}"><b>Available Versions of this Record</b></td>
+		  </tr>
+
+		  <tr>
+			<td colspan="5" style="background: {$cell_color}">{$derivationTree}</td>
+		  </tr>
+	{/if}		  
+		  
+		  <tr>
+			<td colspan="5">&nbsp;</td>
+		  </tr>    
+		  
+{else}
+	{* Show tombstone *}
+		<tr>
+		    <td>&nbsp;</td>
+			<td>
+				<div class="outline light_background">
+				<div class="admin-header">This record has been deleted.</div>
+				{if $duplicate_pid}
+					<div class="admin-content">
+					<div>It was marked as a duplicate of <a href="{$rel_url}view/{$duplicate_pid}">{$duplicate_pid}</a></div>
+					<div>Event detail: {$duplicate_premis.pre_detail}</div>
+					<div>Date: {$duplicate_premis.pre_date|date_format:'%a, %d %b %Y, %H:%M:%S %z'}</div>
+					</div>
+				{/if}
+				</div>
+			</td>
+		</tr>
+{/if}
+
+{if $canViewVersions}
+     
+	<tr>
+		<td>
+			<form id="viewversionform" action="{$rel_url}view/{$pid}" method="post">
+				<table style="width: 100%;">
+					<tr>
+						<td class="default_white" colspan="5" style="background: {$heading_color}"><b>Versions</b></td>
+					</tr>
+					<tr style="background: {$cell_color}">
+						<td colspan="2">Version</td>
+						<td colspan="3">Filter Type</td>
+					</tr>
+					<tr>
+						<td colspan="2" style="background: {$light_color}">
+							<select name="version_date">
+							{section name="versions" loop=$created_dates_list}
+								{if $version_view_type == 'FULL' || !$created_dates_list[versions].filtered}
+									<option {if $created_dates_list[versions].filtered}class="phantomVersionItem" {/if}value="{$created_dates_list[versions].fedoraDate}"
+									{if $created_dates_list[versions].selected} selected="selected"{/if}>{$created_dates_list[versions].displayDate}</option>
+								{/if}
+							{/section}
+							</select>
+							<input type="submit" value="View Version" />
+						</td>
+						<td colspan="3" style="background: {$light_color}">
+							<select name="version_view_type">
+								<option value="FILTERED"{if $version_view_type == 'FILTERED'} selected="selected"{/if}>Filtered</option>
+								<option value="FULL"{if $version_view_type == 'FULL'} selected="selected"{/if}>Full</option>
+							</select>
+							<input type="submit" name="fullVersionList" value="Change" />
+						</td>
+					</tr>
+				</table>
+			</form>
+		</td>
+	</tr>
+    
+{/if}
+
+{if $displayusercomments && $show_tombstone && !$deleted}
+	   <tr>
+          <table style="background: #FFFFFF; width: 100%; text-align: right">
+    
+    	  <tr>
+    		<td colspan="5">&nbsp;</td>
+    	  </tr>
+    	  <tr>
+    		<td class="default_white" colspan="5" style="background: {$heading_color}"><b>User Comments</b></td>
+    	  </tr>
+    
+        {section name="uc" loop=$usercomments}
+           <tr style="vertical-align: top">
+           <td style="background: {$light_color}; border-bottom: 2px solid #FFFFFF; text-align: right">
+            <p>
+             <blockquote>{$usercomments[uc].comment}</blockquote>
+             {if $usercomments[uc].usc_rating}<br /><i><b>Rating:</b></i> {section name="rating" loop=$usercomments[uc].usc_rating}<img src="{$rel_url}images/rating_16.png" alt="{$usercomments[uc].usc_rating}">{/section}{/if}
+             <br/>
+             <cite><i><b>Posted by:</b> <a href="mailto:{$usercomments[uc].usr_email}">{$usercomments[uc].usr_full_name}</a> {$usercomments[uc].formatted_date_created}</i></cite><br>
+            </p>
+            </td>
+           </tr>
+        {/section}
+        
+       {if $addusercomment}
+       <tr>
+        <td><a href="#comment" onclick="javascript:showDiv('comment');"><strong>Add a comment</strong></a></td>
+       </tr>
+       <tr>
+        <td>
+        <div id="comment" style="display: none">
+        <form name="addusercommentform" action="{$rel_url}add_comment.php" method="post">
+         <p>
+          <textarea name="usercommenttext" rows="10" cols="45"></textarea> <br />
+          <input type="hidden" name="pid" value="{$pid}" />
+          <select name="rating">
+           <option value="0">Rating out of 5 stars (optional)</option>
+           <option value="1">One star (Awful)</option>
+           <option value="2">Two stars</option>
+           <option value="3">Three stars</option>
+           <option value="4">Four stars</option>
+           <option value="5">Five stars (Superb)</option>
+          </select>
+          <br />
+          <input type="submit" value="Add Comment" />
+         </p>
+        </form>
+        </div>
+         </td>
+        </tr>
+       {/if}
+       </td>
+     </tr>
+             
+        <tr>
+    	  <td colspan="5">&nbsp;</td>
+        </tr>
+             
+     </table>
+     </tr>
+{/if}
+
+		  <tr>
+			<td colspan="5">
+		      <table id="view_stats">
+{if $WEBSERVER_LOG_STATISTICS == 'ON'}   		
+				<tr>
+				  <th>Access Statistics:</th>
+				  <td><!--fez:statsAbs-->{$statsAbstract}<!--/fez:statsAbs--> Abstract Views{if $fileCount > 0}, <!--fez:statsDownloads-->{$statsFiles}<!--/fez:statsDownloads--> File Downloads{/if} &nbsp;-&nbsp;
+				  <a href="{$rel_url}stat_details.php?action=show_detail&amp;pid={$pid}">Detailed Statistics</a>
+				  </td>
+				</tr>
+{/if}				
+				<tr>
+				  <th>Created:</th>
+				  <td>{$created_date} 
+				  {if $depositor != ""} by <a href="{$rel_url}list/depositor/{$depositor_id}/">{$depositor}</a> 
+				  {if $depositor_org != ""} on behalf of {$depositor_org}{/if}{/if} &nbsp;-&nbsp; 
+				  <a title="view the full history of changes on this object" href="javascript:void(null);" onclick="javascript:openHistory('{$pid}');">Detailed History</a>
+				  </td>
+				</tr>
+				
+			  </table>
+			</td>
+		  </tr>
+    
+	    </table>
+
+    </td>
+{if $show_tombstone && !$deleted || !$show_tombstone}
+	{if $show_preview_pane == "1"} 
+    <td style="text-align: center" id="datastream_preview_td">
+      <table width="100%" border="0" cellpadding="2" cellspacing="0" style="background: #FFFFFF">
+        <tr>
+          <td class="default_white" colspan="4" style="background: {$heading_color}"><b>Preview/Stream (click the image for a higher quality version)</b>
+          <span id="datastream_preview_loading" style="display:none;"></span>
+          </td>
+        </tr>
+        <tr>
+        <td>
+          {if $preview_ds_1}
+		  <div id="datastream_preview_frame">
+          <a id="datastream_preview_href" title="Click on the image to see a larger version" onclick="javascript:window.open('{$rel_url}view/{$pid}/{$preview_ds_1.ID}{if $viewingPreviousVersion}?version_date={$versionDate}{/if}'); return false;" href="{$rel_url}view/{$pid}/{$preview_ds_1.ID}{if $viewingPreviousVersion}?version_date={$versionDate}{/if}"><img src="" id="datastream_preview" alt="Datastream Preview"/></a>
+          <script type="text/javascript">loadPreview('{$pid}','{if $preview_ds_1.stream != "0"}{$preview_ds_1.stream}{else}{$preview_ds_1.ID}{/if}','{$preview_ds_1.ID}', '{$preview_ds_origami}');</script>
+		  </div>
+          {/if}
+        </td>
+        </tr>
+      </table>
+    </td>
+	{/if}
+{/if}
+  </tr>			
+  </table>
+  </td>
+  </tr>
+
+</table>

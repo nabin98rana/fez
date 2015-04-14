@@ -3,13 +3,13 @@
       <table cellspacing="0" cellpadding="0" style="width: 100%;">
         <tr>
           <td>
-
+          
             <form id="xsd_source_form" method="post" action="{$smarty.server.PHP_SELF}" enctype="multipart/form-data">
             <div>
               <input type="hidden" name="cat" value="update" />
               <input type="hidden" name="xsd_id" value="{$xsd_id}" />
             </div>
-
+                        
             <table style="background: #FFFFFF; width: 100%;" cellspacing="1" cellpadding="2">
               <tr>
                 <td colspan="2" class="default">
@@ -81,7 +81,7 @@
                   <b>Edit XSD Source:</b>
                 </td>
                 <td style="background: {$light_color}">
-                  <textarea name="xsd_source" rows="40" cols="100" class="default">{$list.xsd_file nofilter}</textarea>
+                  <textarea name="xsd_source" rows="40" cols="100" class="default">{$list.xsd_file|smarty:nodefaults}</textarea>
                 </td>
               </tr>
               <tr>
@@ -99,7 +99,7 @@
                 </td>
               </tr>
             </table>
-          </form>
+          </form>            
           </td>
         </tr>
       </table>

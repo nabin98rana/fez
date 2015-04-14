@@ -93,7 +93,10 @@ try {
     }
 }
 
-$tpl->displayTemplateRecord($pid);
+$templateHtml = $tpl->getTemplateContents();
+header("Content-length: " . strlen($templateHtml)); // This is need for legacy program
+echo $templateHtml;
+unset($templateHtml);
 
 if(!$logged_in && APP_FILECACHE == "ON") {
 	$cache->saveCacheFile($savePage);

@@ -4,7 +4,7 @@
     <div class="admin-header">Please check any information before proceeding</div>
     <div class="default admin-content">
         {$xdis_title} - {$pid} - {$title}<br/><br/>
-<h1>{$warning nofilter}</h1>
+<h1>{$warning|smarty:nodefaults}</h1>
 DOI will be :<br />
 {$doi} <br/>
 <b>{$existingDoi}</b> <br/><br/>

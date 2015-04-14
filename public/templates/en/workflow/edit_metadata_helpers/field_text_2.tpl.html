@@ -3,7 +3,7 @@
     <th>
         <b>{$xsdmf.xsdmf_title}(s) {if $xsdmf.xsdmf_required == 1} * {/if}</b>
         {if $xsdmf.xsdmf_description != ""}
-            <br/><i>{$xsdmf.xsdmf_description nofilter}</i>
+            <br/><i>{$xsdmf.xsdmf_description|smarty:nodefaults}</i>
         {/if}
         <br />
         <i>Additional boxes will appear for more {$xsdmf.xsdmf_title|lower}s.</i>
@@ -17,7 +17,7 @@
                 $xsdmf.xsdmf_title|stristr:"native script")}translated_field{/if}"
     >
     <td width="200" bgcolor="{$cell_color}" class="default" valign="top">
-        <b><label for="xsd_display_fields_{$xsdmf.xsdmf_id}_{$loop_num}">{$xsdmf.xsdmf_title}{if $xsdmf.xsdmf_multiple == 1} {math equation="x + 1" x=$loop_num}{elseif $xsdmf.xsdmf_required == 1} * {/if}</label></b>{if $xsdmf.xsdmf_description != "" && $xsdmf.xsdmf_multiple != 1}<br /><i>{$xsdmf.xsdmf_description nofilter}</i>{/if}
+        <b><label for="xsd_display_fields_{$xsdmf.xsdmf_id}_{$loop_num}">{$xsdmf.xsdmf_title}{if $xsdmf.xsdmf_multiple == 1} {math equation="x + 1" x=$loop_num}{elseif $xsdmf.xsdmf_required == 1} * {/if}</label></b>{if $xsdmf.xsdmf_description != "" && $xsdmf.xsdmf_multiple != 1}<br /><i>{$xsdmf.xsdmf_description|smarty:nodefaults}</i>{/if}
         {if $xsdmf.xsdmf_multiple == 1}<img id="xsd_display_fields_{$xsdmf.xsdmf_id}_{$loop_num}_arrow" src="{$rel_url}images/downarrow.png" onclick="javascript:swapTextBox('xsd_display_fields_{$xsdmf.xsdmf_id}','{$xsdmf.xsdmf_attached_xsdmf_id}','{$loop_num}', 1);" style="cursor: pointer;{if $details[$temp_fld_id][$loop_num] == ''}display: none;{/if}" />{if $loop_num != 0}<img src="{$rel_url}images/uparrow.png" onclick="javascript:swapTextBox('xsd_display_fields_{$xsdmf.xsdmf_id}','{$xsdmf.xsdmf_attached_xsdmf_id}','{$loop_num}', -1);" style="cursor: pointer" />{/if}{/if}
     </td>
     <td class="{if $loop_num % 2 == 0}text-input-even{else}text-input-odd{/if}">
@@ -39,7 +39,8 @@
 		{else}
 			name="xsd_display_fields[{$xsdmf.xsdmf_id}]" value="{$details[$temp_fld_id]}" />
 		{/if}
-		{include file="error_icon.tpl.html" field="aaxsd_display_fields["|cat:$xsdmf.xsdmf_id|cat:"]"|cat:$squares}
+		
+		{include file="error_icon.tpl.html" field="xsd_display_fields["|cat:$xsdmf.xsdmf_id|cat:"]"|cat:$squares}
 
         {if $xsd_display_fields[i].sek_comment_function != ""}
         <span id="{$xsd_display_fields[i].xsdmf_id}_comment"></span>
@@ -49,10 +50,10 @@
                 $.ajax({
                     url: "/comment_proxy.php",
                     data: { query: $("#xsd_display_fields_{/literal}{$xsd_display_fields[i].xsdmf_id}_0").val(), xsd_display_fields: {$xsd_display_fields[i].xsdmf_id}{literal}},
-              }).done(function(result) {
+            }).done(function(result) {
                   obj = JSON.parse(result);
                   $('#{/literal}{$xsd_display_fields[i].xsdmf_id}{literal}_comment').html(obj.comment);
-              });
+            });
             });
             $( document ).ready( function() {
                 $("#xsd_display_fields_{/literal}{$xsd_display_fields[i].xsdmf_id}{literal}_0").trigger("blur");
@@ -71,10 +72,10 @@
             </script>
             {/literal}
 		{/if}
-
+				
 	{if $xsdmf.xsdmf_attached_xsdmf_id != ""}
-		{assign var="attached_field_name" value="xsd_display_fields_"|cat:$attached_xsdmf_id|cat:"_"|cat:$loop_num}
-		 {include file='workflow/edit_metadata_helpers/attached_'|cat:$attached_xsdmf.xsdmf_html_input|cat:'.tpl.html'}
+		{assign var="attached_field_name" value="xsd_display_fields_"|cat:$attached_xsdmf_id|cat:"_"|cat:$loop_num}						
+		{include file='workflow/edit_metadata_helpers/attached_'|cat:$attached_xsdmf.xsdmf_html_input|cat:'.tpl.html'}
 	{/if}
 	{if $xsd_display_fields[i].xsdmf_required == 1 && $loop_num == 0}
 	<script language="JavaScript">
@@ -86,10 +87,10 @@
 	{/if}
     </td>
 {if $xsdmf.xsdmf_multiple == 1}
-  {include file="workflow/compare_records_helpers/get_right_column.tpl.html" input_field_name="xsd_display_fields["|cat:$xsdmf.xsdmf_id|cat:"]"|cat:$squares
+  {include file='workflow/compare_records_helpers/get_right_column.tpl.html input_field_name="xsd_display_fields["|cat:$xsdmf.xsdmf_id|cat:"]"|cat:$squares
 	  attached_field_name=$attached_field_name attached_xsdmf=$attached_xsdmf}
 {else}
-  {include file="workflow/compare_records_helpers/get_right_column.tpl.html" input_field_name="xsd_display_fields["|cat:$xsdmf.xsdmf_id|cat:"]"
+  {include file='workflow/compare_records_helpers/get_right_column.tpl.html input_field_name="xsd_display_fields["|cat:$xsdmf.xsdmf_id|cat:"]" 
 	  attached_field_name=$attached_field_name attached_xsdmf=$attached_xsdmf}
 {/if}
 </tr>

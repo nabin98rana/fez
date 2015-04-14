@@ -1,6 +1,6 @@
 {if $headerContent}
     <div style="padding: 5px; background: #f9ff98; margin-bottom: 5px; border: 1px solid #f0f0f0;">
-        {$headerContent nofilter}
+        {$headerContent|smarty:nodefaults}
     </div>
 {/if}
 <ul id="research-tabs">

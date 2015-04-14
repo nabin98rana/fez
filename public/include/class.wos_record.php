@@ -260,6 +260,13 @@ class WosRecItem extends RecordImport
   private $author_ids = array();
 
   /**
+     * RID returned from wok, false if none.
+     *
+     * @var array
+     */
+    private $authorRidReturned = array();
+
+  /**
    * Keywords
    *
    * @var array
@@ -440,6 +447,7 @@ class WosRecItem extends RecordImport
                 $authorTemp = Misc::smart_ucwords($authorTemp, 2);
             }
             $authors[] = $authorTemp;
+            $this->authorRidReturned[] = $this->getRidFromDaisID($node, $element->getAttribute('dais_id'));
         }
     }
     if (is_array($authors) && count($authors) > 0) {
@@ -511,7 +519,6 @@ class WosRecItem extends RecordImport
           $this->record_exists = 0;
         } else {
           $this->record_exists = 1;
-          //		            $fields->pid = $isInImportColl[0]['rek_scopus_id_pid'];
           $this->likenStatus = $likenResults[0];
           $this->likenMessage = preg_replace('/('.APP_PID_NAMESPACE.':[0-9]*)/', '<a href="'.APP_RELATIVE_URL.'view/$1">$1</a>', $likenResults[1]);
         }
@@ -681,15 +688,15 @@ class WosRecItem extends RecordImport
         // Instantiate Record Sek class
         $recordSearchKey = new Fez_Record_Searchkey();
 
-        if (empty($history)){
+
             // History message
-            $history = 'Imported from WoK Web Services Premium';
+        $history .= ' - Imported from WoK Web Services Premium';
             if (count($this->author_ids) > 0) {
                 $aut_details = Author::getDetails($this->author_ids[0]);
                 $history .= " via Researcher ID download of " . $aut_details['aut_display_name'] . " (" .
                         $aut_details['aut_researcher_id'] . " - " . $aut_details['aut_id'] . " - " . $aut_details['aut_org_username'] . ")";
             }
-        }
+
 
         // Citation Data
         $citationData = array('thomson' => $this->timesCited);
@@ -737,9 +744,14 @@ class WosRecItem extends RecordImport
             $sri->load($record);
             if($sri->isLoaded())
             {
-                $history = "Importing a Scopus base record before saving a new wos record";
+                $history .= " Importing a Scopus base record before saving a new wos record - ";
+                    if (count($this->author_ids) > 0) {
+                        $aut_details = Author::getDetails($this->author_ids[0]);
+                        $history .= " via Researcher ID download of " . $aut_details['aut_display_name'] . " (" .
+                            $aut_details['aut_researcher_id'] . " - " . $aut_details['aut_id'] . " - " . $aut_details['aut_org_username'] . ")";
+                    }
                 $pid = $sri->save($history, APP_SCOPUS_IMPORT_COLLECTION);
-                $this->update($pid);
+                $this->update($pid, true);
                 return $pid;
             }
         }
@@ -752,8 +764,13 @@ class WosRecItem extends RecordImport
 
         } else {
 
-
-            $log = FezLog::get();
+            //Temp code to write to logs rids for matching
+            //All existing rids count since it's a new pid.
+            foreach($this->authorRidReturned as $rid) {
+                if ($rid && User::getUserInfoByRid($rid)) {
+                    $log->err( 'RID Data:: WOS: '.$this->ut.' Researcher ID: '.$rid);
+                }
+            }
 
             if (!$this->_loaded) {
                 $log->err('WoS record must be loaded before saving');
@@ -769,38 +786,29 @@ class WosRecItem extends RecordImport
                 return FALSE;
             }
 
-
             $xdis_title = $dTMap[$this->docTypeCode][0];
             $xdis_subtype = $dTMap[$this->docTypeCode][1];
-            $xdis_id = $dTMap[$this->docTypeCode][2];
 
-            if (empty($history)){
-                $history = 'Imported from WoK Web Services Premium';
+            $history .= ' - Imported from WoK Web Services Premium';
 
                 if (count($this->author_ids) > 0) {
                     $aut_details = Author::getDetails($this->author_ids[0]);
                     $history .= " via Researcher ID download of " . $aut_details['aut_display_name'] . " (" .
                             $aut_details['aut_researcher_id'] . " - " . $aut_details['aut_id'] . " - " . $aut_details['aut_org_username'] . ")";
                 }
-            }
+
             // MODS
 
             $mods = array();
             $mods['titleInfo']['title'] = $this->itemTitle;
             if (count($this->authors) > 0) {
-                $mods['name'][0]['id'] = '0';
-                $mods['name'][0]['authority'] = APP_ORG_NAME;
-                $mods['name'][0]['namePart_personal'] = $this->authors[0];
-                $mods['name'][0]['role']['roleTerm_text'] = 'author';
-                if (count($this->authors) > 1) {
-                    for ($i = 1; $i < count($this->authors); $i++) {
+                for ($i = 0; $i < count($this->authors); $i++) {
                         $mods['name'][$i]['id'] = '0';
                         $mods['name'][$i]['authority'] = APP_ORG_NAME;
                         $mods['name'][$i]['namePart_personal'] = $this->authors[$i];
                         $mods['name'][$i]['role']['roleTerm_text'] = 'author';
                     }
                 }
-            }
             if (count($this->keywords) > 0) {
                 for ($i = 0; $i < count($this->keywords); $i++) {
                     $mods['subject'][$i]['authority'] = 'keyword';
@@ -848,7 +856,7 @@ class WosRecItem extends RecordImport
   /**
    * Update an existing record with additional bib data from WoK
    */
-  public function update($pid)
+  public function update($pid, $overrideExistingAuthors = false)
   {
     $log = FezLog::get();
     // TODO: update an existing record
@@ -858,6 +866,10 @@ class WosRecItem extends RecordImport
       $log->err('WoS record must be loaded before saving');
       return FALSE;
     }
+
+    //temp check that logs data
+    $this->checkIfAuthorsMissingRid($pid);
+      
     // List of doc types we support saving
     $dTMap = Thomson_Doctype_Mappings::getList('ESTI');
     foreach ($dTMap as $map) {
@@ -867,10 +879,7 @@ class WosRecItem extends RecordImport
       $log->err('Unsupported doc type: ' . $this->docType.' '.$this->docTypeCode);
       return FALSE;
     }
-    $xdis_title = $dTMap[$this->docTypeCode][0];
     $xdis_subtype = $dTMap[$this->docTypeCode][1];
-    $xdis_id = $dTMap[$this->docTypeCode][2];
-
     $searchKeyTargets = array(
       "ISI LOC" => $this->ut,
       "Date" => $this->date_issued,
@@ -888,6 +897,12 @@ class WosRecItem extends RecordImport
       "Journal Name" => $this->sourceTitle,
       "WoK Doc Type" => $this->docTypeCode
     );
+
+    if ($overrideExistingAuthors) {
+        foreach ($this->authors as $author) {
+            $authors[] = array('name' => $author);
+        }
+    }
     if (!empty($this->confLocCity) || !empty($this->confLocState)) {
             $searchKeyTargets['Conference Location'] = $this->confLocCity . ' ' . $this->confLocState;
     }
@@ -906,11 +921,17 @@ class WosRecItem extends RecordImport
         }
     }
 
+
     $history = 'Filled empty metadata fields ('.implode(", ",$search_keys).') using WoK Web Services Premium';
     $record = new RecordObject($pid);
     $record->addSearchKeyValueList(
         $search_keys, $values, true, $history
     );
+
+    if ($overrideExistingAuthors) {
+      $record->replaceAuthors($authors, "Choosing WoS Authors over Scopus");
+    }
+
 
     // If this update came from a RID download, put this in the RID collection as long as it ONLY exists in the WoS collection right now
     if ($this->collections[0] == RID_DL_COLLECTION) {
@@ -920,7 +941,7 @@ class WosRecItem extends RecordImport
             if($res >= 1) {
                 $log->debug("Copied '".$pid."' into RID Download Collection ".RID_DL_COLLECTION);
             } else {
-                $log->err("Copy of '".$pid."' into RID Download Collection ".RID_DL_COLLECTION." Failed");
+                $log->err("Copy of '".$pid."' into RID Download Collection ".RID_DL_COLLECTION." Failed. Error: ".$res);
             }
              $wos_collection = trim(APP_WOS_COLLECTIONS, "'");
             // If this record is in the WOS collection, remove it from it now that is in the RID collection
@@ -941,4 +962,56 @@ class WosRecItem extends RecordImport
     }
     return TRUE;
   }
+    function getRidFromDaisID($node, $daisID) {
+        $log = FezLog::get();
+        $elements = $node->getElementsByTagName("item")->item(0);
+        $elements = $elements->getElementsByTagName("name");
+        foreach($elements as $element) {
+            if ($element->getAttribute('dais_id') == $daisID) {
+                $rid = $element->getAttribute('r_id');
+                /*if ($element->getAttribute('r_id')) {
+                    $userInfo = User::getUserInfoByRid($element->getAttribute('r_id'));
+                    if (!empty($userInfo)) {
+                        $log->err( 'WOS: '.$this->ut." Author ID: ".$userInfo['aut_id'].' Username: '.$userInfo['aut_org_username'].' Researcher ID: '.$element->getAttribute('r_id'));
+                    }
+                }*/
+                return ($rid) ? $rid : false;
+            }
+        }
+    }
+
+    function checkIfAuthorsMissingRid($pid) {
+
+        //Are there any Rid ids in the rid array or are they all false
+        if (array_filter($this->authorRidReturned)) {
+            $log = FezLog::get();
+            $record = new Record($pid);
+            $result[0]["rek_pid"] = $pid;
+            $null = $record->getSearchKeysByPIDS($result, true);
+            foreach($this->authors as $j => $wokAuthor) {
+                if ($this->authorRidReturned[$j]) {
+                    foreach($result[0]['rek_author_id'] as $i => $authorId ) {
+                        if ($authorId && $this->matchAuthor($authorId, $wokAuthor) && !User::getUserInfoByRid($this->authorRidReturned[$j])) {
+                            $log->err( 'RID Data:: Author missing RID - WOS: '.$this->ut." Author ID: ".$authorId.' Author: '.$result[0]['rek_author'][$i]. ' Rid: '.$this->authorRidReturned[$j]);
+                            return true;
+                        }
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
+    //Returns true is $authorName is a variant of one of authorID's possibilities.
+    function matchAuthor($authorID, $authorName) {
+        $aut_details = Author::getDetails($authorID);
+        $aut_alt_names = Author::getAlternativeNames($authorID);
+        $aut_alt_names[] = $aut_details['aut_display_name'];
+        foreach($aut_alt_names as $name) {
+            if ($name == $authorName) {
+                return true;
+            }
+        }
+        return false;
+    }
 }

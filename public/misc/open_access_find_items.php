@@ -61,6 +61,7 @@ if ((php_sapi_name()==="cli") || 1) {
     $db = DB_API::get();
     $log = FezLog::get();
     $isUser = Auth::getUsername();
+    $isAdministrator = User::isUserAdministrator($isUser);
 
     /*$query = "DELETE FROM " . APP_TABLE_PREFIX . "open_access_items";
     try {
@@ -87,15 +88,15 @@ if ((php_sapi_name()==="cli") || 1) {
                         && !Misc::hasPrefix($datastream['ID'], 'presmd_'))) {
 
                     if (!inDatabase($pid, $datastream['ID'])) {
-                        $userPIDAuthGroups = Auth::getAuthorisationGroups($pid, $datastream['ID']);
-                        if (in_array('Viewer', $userPIDAuthGroups)) {
+                    $userPIDAuthGroups = Auth::getAuthorisationGroups($pid, $datastream['ID']);
+                        if (in_array('Viewer', $userPIDAuthGroups) || $isAdministrator) {
                             saveOpenAccessItemInfo($pid, $datastream['ID'], $documentType, $datastream['createDate'], $datastream['label'], $isUser);
-                            $open = true;
+                        $open = true;
 
-                        }
                     }
                 }
             }
+        }
         }
 
         if ($open) {

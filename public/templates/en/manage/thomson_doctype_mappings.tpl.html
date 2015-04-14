@@ -38,7 +38,7 @@
 		  <b>XSD Display:</b></td>
 		<td style="background: {$light_color}" class="default">
 		  <select name="tdm_xdis_id" onchange="displaySubtypes(this.options[this.selectedIndex].value);">
-      {foreach from=$xsd_disp_list nofilter item=xsd_disp}
+      {foreach from=$xsd_disp_list|smarty:nodefaults item=xsd_disp}
 			 <option value="{$xsd_disp.xdis_id}">
 			   {$xsd_disp.xdis_title}
 			 </option>
@@ -92,8 +92,8 @@ function checkDelete(f)
 
 var subTypes = new Array();
 {/literal}
-{foreach from=$xsd_disp_list nofilter item=xsd_disp}
-  {foreach from=$xsd_disp.subtypes nofilter key=mfo_id item=mfo_value}
+{foreach from=$xsd_disp_list|smarty:nodefaults item=xsd_disp}
+  {foreach from=$xsd_disp.subtypes|smarty:nodefaults key=mfo_id item=mfo_value}
     subType = new Object();
     subType.id = {$xsd_disp.xdis_id};
     subType.value = "{$mfo_value}";

@@ -606,7 +606,7 @@ class Search_Key
           return false;
         }
 
-        if (in_array($solrID, array('sherpa_colour_t','ain_detail_t','rj_tier_rank_t','rj_tier_title_t', 'rj_2015_rank_t','rj_2015_title_t','rc_2015_rank_t','rc_2015_title_t','rj_2010_rank_t','rj_2010_title_t','rj_2012_rank_t','rj_2012_title_t','rc_2010_rank_t','rc_2010_title_t','herdc_code_description_t'))) {
+        if (in_array($solrID, array('open_access_t','sherpa_colour_t','ain_detail_t','rj_tier_rank_t','rj_tier_title_t', 'rj_2015_rank_t','rj_2015_title_t','rc_2015_rank_t','rc_2015_title_t','rj_2010_rank_t','rj_2010_title_t','rj_2012_rank_t','rj_2012_title_t','rc_2010_rank_t','rc_2010_title_t','herdc_code_description_t'))) {
           return false;
         }
 

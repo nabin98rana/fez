@@ -33,7 +33,7 @@
 // +----------------------------------------------------------------------+
 //
 //
-require_once(dirname(__FILE__).DIRECTORY_SEPARATOR.'include/simplesaml/lib/_autoload.php');
+//require_once(dirname(__FILE__).DIRECTORY_SEPARATOR.'include/simplesaml/lib/_autoload.php');
 include_once("config.inc.php");
 
 include_once(APP_INC_PATH . "class.template.php");
@@ -105,7 +105,7 @@ function parseSSO($string, $IDProviders, $redirectCookieName){
 	// Remove redirect statement
 //	$IDPurl = eregi_replace($redirectCookieName, '', $string);
 	$IDPurl = str_ireplace($redirectCookieName, '', $string);
-
+	
 	// Remove slashes
 	$IDPurl = preg_replace('/\//', '', $IDPurl);
 	

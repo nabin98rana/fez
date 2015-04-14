@@ -43,7 +43,7 @@ class RecordView {
 	}
 
 	function getDetails()
-	{
+	{	
 		$details = $this->record->getDetails();
 		$xsd_display_fields = $this->getDisplayFields();
 		foreach ($xsd_display_fields as $dis_key => $dis_field) {
@@ -61,14 +61,14 @@ class RecordView {
 							}
 						} else {
 							if ($dis_field['sek_title'] == "Subject" || $dis_field['sek_title'] == "Fields of Research" || $dis_field['sek_title'] == "SEO Code") {
-								$details[$dis_field['xsdmf_id']] = "<a class='silent_link' href='".APP_BASE_URL."list/subject/".$details[$dis_field['xsdmf_id']]."/'>".Controlled_Vocab::getTitle($details[$dis_field['xsdmf_id']])."</a>";
-                            } elseif ($dis_field['sek_title'] == "License") { // add icon and url for creative commons badge
-                                    $cv_details = Controlled_Vocab::getDetails($details[$dis_field['xsdmf_id']]);
-                                    $details[$dis_field['xsdmf_id']] = "<a title=".'"'."Search the repository for more like this".'"'." class='silent_link' href=".'"'.APP_RELATIVE_URL."list/?cat=quick_filter&amp;search_keys%5B".$dis_field['xsdmf_sek_id']."%5D=".urlencode($details[$dis_field['xsdmf_id']]).'"'.">".Controlled_Vocab::getTitle($details[$dis_field['xsdmf_id']])."</a><br /><br />"."<a href=".'"'.$cv_details['cvo_desc'].'"'."><img src=".'"'.APP_RELATIVE_URL.'images/'.$cv_details['cvo_image_filename'].'" alt="View License Details" title="View License Details" width="88" height="31" />'."</a>";
-                            } else {
+								$details[$dis_field['xsdmf_id']] = "<a class='silent_link' href='".APP_BASE_URL."list/subject/".$details[$dis_field['xsdmf_id']]."/'>".Controlled_Vocab::getTitle($details[$dis_field['xsdmf_id']])."</a>";								
+              } elseif ($dis_field['sek_title'] == "License") { // add icon and url for creative commons badge
+                $cv_details = Controlled_Vocab::getDetails($details[$dis_field['xsdmf_id']]);
+                $details[$dis_field['xsdmf_id']] = "<a title=".'"'."Search the repository for more like this".'"'." class='silent_link' href=".'"'.APP_RELATIVE_URL."list/?cat=quick_filter&amp;search_keys%5B".$dis_field['xsdmf_sek_id']."%5D=".urlencode($details[$dis_field['xsdmf_id']]).'"'.">".Controlled_Vocab::getTitle($details[$dis_field['xsdmf_id']])."</a><br /><br />"."<a href=".'"'.$cv_details['cvo_desc'].'"'."><img src=".'"'.APP_RELATIVE_URL.'images/'.$cv_details['cvo_image_filename'].'" alt="View License Details" title="View License Details" width="88" height="31" />'."</a>";
+							} else {
 								$details[$dis_field['xsdmf_id']] = "<a title=".'"'."Search the repository for more like this".'"'." class='silent_link' href=".'"'.APP_RELATIVE_URL."list/?cat=quick_filter&amp;search_keys%5B".$dis_field['xsdmf_sek_id']."%5D=".urlencode($details[$dis_field['xsdmf_id']]).'"'.">".Controlled_Vocab::getTitle($details[$dis_field['xsdmf_id']])."</a>";
 							}
-                       }
+						}
 					}
 				}
 				if ($dis_field['xsdmf_html_input'] == "xsdmf_id_ref") {
@@ -117,7 +117,7 @@ class RecordView {
                                 if ($month != '00' && $day != '00') {
                                     $details[$dis_field['xsdmf_id']] = substr($details[$dis_field['xsdmf_id']], 0, 10);
                                 } elseif ($month != '00') {
-                                    $details[$dis_field['xsdmf_id']] = substr($details[$dis_field['xsdmf_id']], 0, 7);
+								$details[$dis_field['xsdmf_id']] = substr($details[$dis_field['xsdmf_id']], 0, 7);
                                 } else {
                                     $details[$dis_field['xsdmf_id']] = substr($details[$dis_field['xsdmf_id']], 0, 4);
                                 }
@@ -139,9 +139,9 @@ class RecordView {
 						}
 					}
 				}
-                if ($dis_field['xsdmf_html_input'] == "rich_text") {
-                  $details[$dis_field['xsdmf_id']] = strip_tags($details[$dis_field['xsdmf_id']], '<p><br><b><i><u><strong><sub><sup><em>');
-                }
+        if ($dis_field['xsdmf_html_input'] == "rich_text") {
+          $details[$dis_field['xsdmf_id']] = strip_tags($details[$dis_field['xsdmf_id']], '<p><br><b><i><u><strong><sub><sup><em>');
+        }
 				if ($dis_field['xsdmf_html_input'] == "author_selector") {
 					if (!empty($details[$dis_field['xsdmf_id']])) {
 						if (is_array($details[$dis_field['xsdmf_id']])) {
@@ -210,22 +210,32 @@ class RecordView {
 						//Check for Ranked Journal Rank
 						$rjl = "";
 						if (APP_MY_RESEARCH_MODULE == 'ON' && $logged_in) {
-                            $rjinfo = Record::getRankedJournalInfo($this->record->pid);
+							$rjinfo = Record::getRankedJournalInfo($this->record->pid);
 							if (is_array($rjinfo)) {
-								if (array_key_exists('rj_2010_rank', $rjinfo) && $rjinfo['rj_2010_rank'] == '') {
-									$rjinfo['rj_2010_rank'] = "N/R";
+								if (array_key_exists('rj_tier_rank', $rjinfo) && $rjinfo['rj_tier_rank'] == '') {
+									$rjinfo['rj_tier_rank'] = "N/R";
 								}
 
-								if (array_key_exists('rj_2015_title', $rjinfo)) {
-									$rjl .= "&nbsp; <span style='color: #1e88ce' title= '" . $rjinfo['rj_2015_title'] . "'>(ERA 2015 Journal Listed)</span>";
+								if (array_key_exists('rj_tier_rank', $rjinfo)) {
+									$rjl .= "&nbsp;&nbsp;&nbsp; <span style='color: #1e88ce' title='" . $rjinfo['rj_tier_title'] .  "'>(UQ Tiered Journal List: UQ Tier " . $rjinfo['rj_tier_rank'] . ")</span>";
 								}
+
+								/*if (array_key_exists('rj_2010_rank', $rjinfo) && $rjinfo['rj_2010_rank'] == '') {
+                                $rjinfo['rj_2010_rank'] = "N/R";
+								}*/
+
+                            if (array_key_exists('rj_2015_title', $rjinfo)) {
+									$rjl .= "&nbsp; <span style='color: #1e88ce' title= '" . $rjinfo['rj_2015_title'] . "'>(ERA 2015 Journal Listed)</span>";
+                            }
+
+
 								if (array_key_exists('rj_2012_title', $rjinfo)) {
 									$rjl .= "&nbsp;&nbsp;&nbsp; <span style='color: #1e88ce' title= '" . $rjinfo['rj_2012_title'] . "'>(ERA 2012 Journal Listed)</span>";
-								}
-								if (array_key_exists('rj_2010_rank', $rjinfo)) {
+                            }
+								/*if (array_key_exists('rj_2010_rank', $rjinfo)) {
 									$rjl .= "&nbsp;&nbsp;&nbsp; <span style='color: #1e88ce' title= '" . $rjinfo['rj_2010_title'] . "'>(ERA 2010 Rank " . $rjinfo['rj_2010_rank'] . ")</span>";
-								}
-							}
+								}*/
+                            }
                         }
                         $sRdetails = SherpaRomeo::getJournalColourFromPid($this->record->pid);
                         if (is_array($sRdetails) && array_key_exists('colour', $sRdetails)) {
@@ -248,15 +258,15 @@ class RecordView {
 						if (APP_MY_RESEARCH_MODULE == 'ON' && $logged_in) {
 							$rcinfo = Record::getRankedConferenceInfo($this->record->pid);
                             if (is_array($rcinfo)) {
-                                if (array_key_exists('rc_2010_rank', $rcinfo) && $rcinfo['rc_2010_rank'] == '') {
+                                /*if (array_key_exists('rc_2010_rank', $rcinfo) && $rcinfo['rc_2010_rank'] == '') {
                                     $rcinfo['rc_2010_rank'] = "N/R";
-                                }
+                                }*/
                                 if (array_key_exists('rc_2015_title', $rcinfo)) {
                                     $rcl .= "&nbsp; <span style='color: #1e88ce' title= '".$rcinfo['rc_2015_title']."'>(ERA 2015 Conference Listed)</span>";
                                 }
-                                if (array_key_exists('rc_2010_rank', $rcinfo)) {
+                                /*if (array_key_exists('rc_2010_rank', $rcinfo)) {
                                     $rcl .= "&nbsp;&nbsp;&nbsp; <span style='color: #1e88ce' title= '".$rcinfo['rc_2010_title']."'>(ERA 2010 Rank ".$rcinfo['rc_2010_rank'].")</span>";
-                                }
+                                }*/
                             }
 						}
 						if (is_array($details[$dis_field['xsdmf_id']])) {
@@ -268,7 +278,7 @@ class RecordView {
 						}
 					}
 				}
-
+				
 				if (($dis_field['sek_title'] == "Subject"  || $dis_field['sek_title'] == "Fields of Research" || $dis_field['sek_title'] == "SEO Code" || $dis_field['sek_title'] == "Book Title" || $dis_field['sek_title'] == "Series") && (($dis_field['xsdmf_html_input'] != "contvocab_selector")) ) {
 					if (!empty($details[$dis_field['xsdmf_id']])) {
 						if (is_array($details[$dis_field['xsdmf_id']])) {
@@ -280,7 +290,7 @@ class RecordView {
 						}
 					}
 				}
-
+				
 			   if ($dis_field['sek_title'] == "Faculty") {
 					if (!empty($details[$dis_field['xsdmf_id']])) {
 						if (is_array($details[$dis_field['xsdmf_id']])) {
@@ -304,8 +314,8 @@ class RecordView {
 						}
 					}
 				}
-
-
+				
+				
 				if ($dis_field['sek_title'] == "Language") {
 					if (!empty($details[$dis_field['xsdmf_id']])) {
 						if (is_array($details[$dis_field['xsdmf_id']])) {
@@ -348,14 +358,14 @@ class RecordView {
                     if (array_key_exists($dis_field['xsdmf_id'], $details) && isset($obj[0]) && isset($obj[1]) && method_exists($obj[0], $obj[1])) {
                         $result = eval("return " . $dis_field['sek_lookup_function'] . "('" . $details[$dis_field['xsdmf_id']] . "');");
                         if ( !empty($details[$dis_field['xsdmf_id']]) || !empty($result) ) {
-                            $details[$dis_field['xsdmf_id']] = $details[$dis_field['xsdmf_id']] . " - " . $result;
+                        $details[$dis_field['xsdmf_id']] = $details[$dis_field['xsdmf_id']] . " - " . $result;
                         } else {
                             $details[$dis_field['xsdmf_id']] = '';
                         }
                     }
                 }
             }
-		}
+        }
 		foreach ($details as $dkey => $dvalue) { // turn any array values into a comma seperated string value
 			if (is_array($dvalue)) {
 				$details[$dkey] = implode("<br />", $dvalue);

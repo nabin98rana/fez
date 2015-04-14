@@ -133,10 +133,15 @@ class Datastream
         if (!empty($embargoDate)) {
             //Make sure the date is in English time -> mysql time
             $embargoDate = str_replace('/', '-', $embargoDate);
-            $phpdate = strtotime( $embargoDate );
-            $embargoDate = date( 'Y-m-d H:i:s', $phpdate );
+        $phpdate = strtotime( $embargoDate );
+        $embargoDate = date( 'Y-m-d H:i:s', $phpdate );
         } else {
             $embargoDate = 'NULL';
+        }
+
+        if (empty($pid) || empty($dsId)) {
+            $log->err("saveDatastreamSelectedPermissions called with blank data. pid: ".$pid." dsId: ".$dsId);
+            return false;
         }
 
         $stmt = "
@@ -177,7 +182,7 @@ class Datastream
             $log->err($ex);
             return array();
         }
-
+        
         History::addHistory($pid, null, "", "", false, $historyDetail);
         return $res;
     }
@@ -257,5 +262,23 @@ class Datastream
         return $res;
     }
 
+    static function getOpenAccess($pid)
+    {
+        $log = FezLog::get();
+        $db = DB_API::get();
+
+        $stmt = "
+			SELECT SUM(dsi_open_access) FROM " . APP_TABLE_PREFIX . "datastream_info
+            WHERE dsi_pid = ".$db->quote($pid);
+
+        try {
+            $res = $db->fetchOne($stmt);
+        }
+        catch(Exception $ex) {
+            $log->err($ex);
+            return false;
+        }
+        return !empty($res);
+    }
 
 }

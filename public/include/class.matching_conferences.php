@@ -40,7 +40,7 @@ define("WINDOW_END_MC",				'2099-01-01 00:00:00');
 
 class RCL
 {
-  var $unMatched = "0";
+  var $unMatched = "1";
   var $runType = "0";
   var $dupeList = "";
 
@@ -53,14 +53,14 @@ class RCL
 		$matches = array();
 		$candidateConferences = RCL::getCandidateConferences(2015);
 		$rankedConferences = RCL::getRankedConferences();
-		$rankedConferencesAcronyms = RCL::getRankedConferenceAcronyms();
+		//$rankedConferencesAcronyms = RCL::getRankedConferenceAcronyms();
 
         //We'll assume if and matching is done on a pid, it'll need to be done by hand for other years.
-        $matchingExceptions = matching::getMatchingExceptions("C");
+        $matchingExceptions = array(); //matching::getMatchingExceptions("C");
 		/* Print some information about the number of items found */
 		echo "Number of candidate conferences: " . sizeof($candidateConferences) . "\n";
 		echo "Number of ranked conferences: " . sizeof($rankedConferences) . "\n";
-		echo "Number of conference acronyms: " . sizeof($rankedConferencesAcronyms) . "\n";
+		//echo "Number of conference acronyms: " . sizeof($rankedConferencesAcronyms) . "\n";
 
 		/* Perform normalisation */
 		$normalisedCandidateConferences = RCL::normaliseListOfTitles($candidateConferences);
@@ -70,8 +70,8 @@ class RCL
 		// more-likely-correct matches get precedence over the new ones.
 
 		/* Look for acronym matches */
-		RCL::lookForMatchesByAcronym($candidateConferences, $rankedConferencesAcronyms, $matches);
-		echo "Number of matches after acronym matching: " . sizeof($matches) . "\n";
+		//RCL::lookForMatchesByAcronym($candidateConferences, $rankedConferencesAcronyms, $matches);
+		//echo "Number of matches after acronym matching: " . sizeof($matches) . "\n";
 
 		/* Crush matches */
 		$crushedCandidateConferences = RCL::crushListOfTitles($normalisedCandidateConferences);
@@ -99,7 +99,7 @@ class RCL
           }
         }
         $matches = $okMatches;
-        echo "Total number of OK matches (not black-listed or manually mapped): " . sizeof($matches) . "\n";
+        echo "Total number of OK matches: " . sizeof($matches) . "\n";
         ob_flush();
 
 		echo "Total number of matches: " . sizeof($matches) . "\n";
@@ -115,7 +115,7 @@ class RCL
             $mail->send($from, $to, $subject, false);
         }
 
-		RCL::runInserts($matches);
+		//RCL::runInserts($matches);
 
 		return;
 	}
@@ -187,13 +187,13 @@ class RCL
         LEFT JOIN fez_record_search_key
         ON rek_herdc_code_pid = rek_pid
         LEFT JOIN fez_matched_conferences
-        ON mtc_pid = rek_herdc_code_pid
+        ON mtc_pid = rek_herdc_code_pid AND (mtc_cnf_id > 1952 OR mtc_cnf_id = 0)
         LEFT JOIN fez_conference
         ON cnf_id = mtc_cnf_id
         LEFT JOIN fez_record_search_key_conference_name
         ON rek_conference_name_pid = rek_herdc_code_pid
         WHERE rek_date > '2008'
-        AND (mtc_cnf_id > 1952 OR mtc_cnf_id IS NULL)
+        AND (mtc_cnf_id IS NULL)
         AND (      (A.cvo_title = 'E1'  AND B.cvo_title = 'Confirmed Code')
             OR (A.cvo_title = 'E1' AND B.cvo_title = 'Provisional Code' AND rek_subtype = 'Fully published paper' )
             OR (rek_genre = 'Conference Paper' AND B.cvo_title = 'Confirmed Code' AND (A.cvo_title = 'B1' OR A.cvo_title = 'C1'))
@@ -624,7 +624,7 @@ class RCL
                             $best = $conference;
                         }
                 }
-                if ($similarityBest > SIMILARITY_THRESHOLD+5 && $similarityBest != 100) {
+                if ($similarityBest > 0) {   //SIMILARITY_THRESHOLD  - won't use
                     $existsAlready = false;
                     foreach ($matches as $match) {
                         if ($match['pid'] == $sourceKey && $match['matching_year'] == $best['cnf_era_year']) {

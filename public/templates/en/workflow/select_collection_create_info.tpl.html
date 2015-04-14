@@ -1,6 +1,6 @@
 <script type="text/javascript">
 <!--
-{$najax_register nofilter}
+{$najax_register|smarty:nodefaults}
 {literal}
 
 var dt_load_state = 0;
@@ -21,7 +21,7 @@ function selectCommunity(f, field_name)
 {
     if (dt_load_state > 0) {
        return false;
-    }
+    } 
     var field = getFormElement(f, field_name);
     var selections = getSelectedItems(field);
 

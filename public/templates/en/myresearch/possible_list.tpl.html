@@ -111,8 +111,8 @@ function checkAll()
 			        These publications may be authored by you. Your surname or one of the variants of your name that we know about is listed as an author of this publication.<br /><br />
 			        You can use the refine feature at the left to find publications more likely to be yours, based on co-authors, keywords etc.
 			        </th>
-					<th style="text-align: center; padding: 2px;">
-						{if $list_info.total_rows > 0}
+                    <th style="text-align: center; padding: 2px;">
+        			{if $list_info.total_rows > 0}
 							<img src="{$rel_url}images/tiered_journal_list_16.png" title="UQ Tiered Journal List" alt="UQ Tiered Journal List" />
 						{/if}
 					</th>
@@ -189,12 +189,12 @@ function checkAll()
                 {/if}
 				{/if}
 				{if $list[i].rek_citation != ""}
-					{$list[i].rek_citation nofilter}
+					{$list[i].rek_citation|smarty:nodefaults}
 				{else}
 					<a href="{$rel_url}view/{$list[i].rek_pid}" target="_blank">{$list[i].rek_title}</a>
 				{/if}
 			</td>
-			<td style="vertical-align: middle; text-align: center; border-top:1px dashed #be87e9;">
+            <td style="vertical-align: middle; text-align: center; border-top:1px dashed #be87e9;">
 				{if $list[i].rj_tier_title}<a href="#" title="{$list[i].rj_tier_title}">UQ Tier {$list[i].rj_tier_rank}</a>{else}<a href="#" title="This publication is not identified as being in the UQ Tiered Journal list.">-</a>{/if}
 			</td>
             <td style="vertical-align: middle; text-align: center; border-top:1px dashed #be87e9;">
@@ -296,7 +296,7 @@ function checkAll()
 
 	{sectionelse}
 		{if $author_id_message != ''}
-		<p>{$author_id_message nofilter}</p>
+		<p>{$author_id_message|smarty:nodefaults}</p>
 		{else}
 		<p>We could not find any publications that we suspect might be yours.</p>
 		{/if}

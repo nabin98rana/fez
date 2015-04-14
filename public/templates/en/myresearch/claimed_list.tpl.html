@@ -100,8 +100,8 @@ function correctionRequired(pid)
 							<br /><br />This list does NOT include items that you edited. See the My Pubs page.
 						{/if}
 			        </th>
-					<th style="text-align: center; padding: 2px;">
-						{if $list_info.total_rows > 0}
+                    <th style="text-align: center; padding: 2px;">
+                        {if $list_info.total_rows > 0}
 						<img src="{$rel_url}images/tiered_journal_list_16.png" title="UQ Tiered Journal List" alt="UQ Tiered Journal List" />
 						{/if}
 					</th>
@@ -173,13 +173,13 @@ function correctionRequired(pid)
 				{/if}
                 {/if}
 				{if $list[i].rek_citation != ""}
-					{$list[i].rek_citation nofilter}
+					{$list[i].rek_citation|smarty:nodefaults}
 				{else}
 					<a href="{$rel_url}view/{$list[i].rek_pid}" target="_blank">{$list[i].rek_title}</a>
 				{/if}
 				{if $list[i].rek_status != '2'} &nbsp; (not yet published by an Administrator) {/if}
 			</td>
-			<td style="vertical-align: middle; text-align: center; border-top:1px dashed #be87e9;">
+            <td style="vertical-align: middle; text-align: center; border-top:1px dashed #be87e9;">
 				{if $list[i].rj_tier_rank}<a href="#" title="{$list[i].rj_tier_title}">UQ Tier {$list[i].rj_tier_rank}</a>{else}<a href="#" title="This publication is not identified as being in the 2015 UQ Tiered Journal list.">-</a>{/if}
 			</td>
             <td style="vertical-align: middle; text-align: center; border-top:1px dashed #be87e9;">
@@ -288,7 +288,7 @@ function correctionRequired(pid)
 
 	{sectionelse}
 		{if $author_id_message != ''}
-		<p>{$author_id_message nofilter}</p>
+		<p>{$author_id_message|smarty:nodefaults}</p>
 		{else}
 		<p>We could not find any publications that are currently attributed to you.</p>
 		{/if}

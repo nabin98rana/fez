@@ -1,21 +1,5 @@
 /* FEZ NEW (FROM PRODUCT SITE) */
 
-html, body, div, span, applet, object, iframe, h1, h2, h3, h4, h5, h6, p,
-blockquote, pre, a, abbr, acronym, address, big, cite, code, del, dfn, em, font,
-img, ins, kbd, q, s, samp, small, strike, strong, sub, sup, tt, var, b, u, i,
-center, dl, dt, dd, ol, ul, li, fieldset, form, label, legend, table, caption,
-tbody, tfoot, thead, tr, th, td {
-	border: 0pt none;
-	margin: 0pt;
-	padding: 0pt;
-	background: transparent none repeat scroll 0% 0%;
-	outline-color: -moz-use-text-color;
-	outline-style: none;
-	outline-width: 0pt;
-	font-size: 100%;
-	vertical-align: baseline;
-}
-
 body { background: white; }
 
 * {	margin: 0; padding: 0; border:none; }
@@ -58,20 +42,20 @@ table { border-collapse: collapse; border-spacing: 0pt; }
 div#wordmark { display: none; visibility: hidden; }
 
 /*	Hidden Content
------------------------------------------------------------------------------*/
-.skip {	display: none; }
-#search label { display: none; visibility: hidden; }
+-----------------------------------------------------------------------------*/				  	  
+.skip {	display: none; }		
+#search label { display: none; visibility: hidden; }	
 
 /* Header + Body
------------------------------------------------------------------------------*/
+-----------------------------------------------------------------------------*/	
 .wrapper { position: relative; top: 0pt; margin: 0px auto; width: 960px; }
 
-#header { margin: 0pt; padding: 0pt; background: rgb(96, 34, 124) url('[[$smarty.const.APP_RELATIVE_URL]]images/2009/bodybg.gif') repeat-x scroll 0pt 0pt; color: rgb(239, 239, 239); height: 100px; }
+#header { margin: 0pt; padding: 0pt; background: rgb(96, 34, 124) url('[[$smarty.const.APP_RELATIVE_URL]]images/bodybg.gif') repeat-x scroll 0pt 0pt; color: rgb(239, 239, 239); height: 100px; }
 
 #header-inner, #topnav-inner { margin: 0pt auto; padding: 0pt; width: 1150px; }
 
 #header-inner h1 { margin: 26px 0 0 25px;  text-indent: -9999px; z-index: 9999; position: absolute; }
-#header-inner h1 a { background: transparent url('[[$smarty.const.APP_RELATIVE_URL]]images/2009/masthead-logo.gif') no-repeat scroll 0pt 0pt; display: block; height: 50px; text-decoration: none; width: 182px; }
+#header-inner h1 a { background: transparent url('[[$smarty.const.APP_RELATIVE_URL]]images/masthead-logo.gif') no-repeat scroll 0pt 0pt; display: block; height: 50px; text-decoration: none; width: 182px; }
 
 #header-inner h2 {
 	width: 350px;
@@ -144,7 +128,7 @@ div#wordmark { display: none; visibility: hidden; }
         float: left;
     }
 
-
+    
 /* Hover state for the Login button */
 .login-btn:hover,
 .logout-btn:hover{
@@ -160,13 +144,13 @@ div#wordmark { display: none; visibility: hidden; }
     .logout-btn:hover SPAN.login-btn-right{
         background-position: 0 -216px;
     }
-
+        
 .padded_table td, .padded_table th {
     border:1px solid #CCCCCC;
     border-spacing:0px;
     padding:5px;
 }
-
+        
 #mininav { margin: 0pt; padding: 10px 20px 8px 0; color: rgb(255, 255, 255); font-size: 9px; font-family: Helvetica,"Trebuchet MS",sans-serif; font-weight: lighter; float: right; }
 #mininav ul { margin: 0pt; padding: 5px 0 0 15px; list-style-type: none; list-style-image: none; list-style-position: outside; letter-spacing: 1px; }
 #mininav ul li { margin: 0pt 0.8em 0pt 0pt; padding: 0pt; float: left; display: inline; }
@@ -194,10 +178,10 @@ div#search input { border: 0pt none ; margin: 0 0 0 0; padding: 4px 0 0 0; backg
 div#search input.submit { margin: 0pt 0pt 0pt 3px; padding: 0pt; background: transparent url('[[$smarty.const.APP_RELATIVE_URL]]images/form-right.png') no-repeat scroll 0pt 0pt; float: left; cursor: pointer; width: 20px; height: 22px; }
 
 /* Footer
------------------------------------------------------------------------------*/
+-----------------------------------------------------------------------------*/	
 #footer { background: #5e217a url('[[$smarty.const.APP_RELATIVE_URL]]images/bg-footer.gif') repeat-x scroll 100% 0pt; border-top: solid 2px #78b800; }
 #footer { clear: both; min-height: 140px; ! important; }
-#footer .wrapper { margin-top: 40px; }
+#footer .wrapper { margin-top: 40px; } 
 #footer div { }
 #footer .wrapper {  }
 #footer li a, #navResources p a, .campus a, .directions a, .copyright a {  border-bottom: 1px solid rgb(108, 93, 94); color: rgb(241, 241, 241); cursor: pointer; }
@@ -335,7 +319,7 @@ p.centenary { padding: 16px 0 0 0; }
 
 .default a {
     text-decoration: none;
-    color: #3179C6;
+    color: #3179C6; 
 }
 
 .default a:hover {
@@ -570,7 +554,7 @@ div.suggestions div.current {
 
 .listrecord a {
     text-decoration: none;
-    color: #3179C6;
+    color: #3179C6; 
 }
 
 .listrecord a:hover {
@@ -885,13 +869,13 @@ width: 2em;
 	border-top: 1px solid #336699;
 	border-right: 1px solid #336699;
 	border-left: 1px solid #336699;
-	border-bottom: 1px solid #336699;
+	border-bottom: 1px solid #336699;	
 	color: #f2f2f2;
 }
 
 .tabs li a:hover {
 	background: #336699;
-	text-decoration: underline;
+	text-decoration: underline;	
 }
 
 .tabs li a.active {
@@ -929,7 +913,7 @@ width: 2em;
 	border-top: 1px solid #828282;
 	border-right: 1px solid #828282;
 	border-left: 1px solid #828282;
-	border-bottom: 1px solid #828282;
+	border-bottom: 1px solid #828282;	
 	color: #fff;
 }
 
@@ -1032,7 +1016,7 @@ width: 2em;
 div.wfl_description {
 padding: 1em;
 margin: 1em;
-font-size: 110%;
+font-size: 110%;        
 border: 1px solid #[[$smarty.const.APP_DARK_COLOR]];
 background-color: #[[$smarty.const.APP_LIGHT_COLOR]];
 }
@@ -1098,7 +1082,7 @@ div.fez_form_item {
     width: 200px;
     vertical-align: top;
  }
-
+ 
 span.fez_form_input {
     display: table-cell;
     background-color: #[[$smarty.const.APP_LIGHT_COLOR]];
@@ -1343,10 +1327,10 @@ hr {
 }
 
 .clearfix:after {
-    content: ".";
-    display: block;
-    height: 0;
-    clear: both;
+    content: "."; 
+    display: block; 
+    height: 0; 
+    clear: both; 
     visibility: hidden;
 }
 
@@ -1363,7 +1347,7 @@ hr {
 .clearfix {
 	display: block;
 }
-
+	
 /* End hide from IE-mac */
 #criteria-box {
 	margin: 1em 0 1em;
@@ -1415,7 +1399,7 @@ hr {
 .phantomVersionItem {color:#aaaaaa;}
 
 #viewInfoBoxUpper, #viewInfoBox, #viewInfoBoxNoEdit {
-	border: 1px solid #8e8e8e;
+	border: 1px solid #8e8e8e; 
 	padding: 10px;
 	line-height: 20px;
 }
@@ -1609,11 +1593,11 @@ a.form_note:hover span.form_note {
     /*width: 225px;*/
     padding: 5px;
     margin: 0px;
-    color: black;
-    z-index: 100;
-    background-color: #ffffee;
-    border: solid 1px black;
-    text-align: left;
+		color: black;
+        z-index: 100;
+        background-color: #ffffee;
+        border: solid 1px black;
+        text-align: left;
 }
 
 .form_note img {
@@ -1625,7 +1609,7 @@ div.maxlength {
     font-size: 70%;
     color: black;
  }
-
+ 
 span.maxlength_exceeded {
     color: red;
     font-weight: bold;
@@ -1638,7 +1622,7 @@ span.maxlength_exceeded {
 	width: 500px;
 	text-align: center;
 	align: center;
-	margin: 0 auto;
+	margin: 0 auto;	
 }
 
 .gallery-row img {
@@ -1651,7 +1635,7 @@ span.maxlength_exceeded {
 
 /* Home page stylings */
 
-.boxes,
+.boxes, 
 .floated-boxes {
 	margin-bottom: 2em;
 	background: #f2f2f2;
@@ -1734,8 +1718,8 @@ ul.box-tab li.box-tab-active a {
 	background: none !important;
 }
 
-#first-box h1 {
-	margin-bottom: 0.5em;
+#first-box h1 { 
+	margin-bottom: 0.5em;	
 }
 
 #first-box p {
@@ -1794,7 +1778,7 @@ ul.box-tab li.box-tab-active a {
 a.icon-help {
 	text-decoration: none;
 	color: #fff;
-
+	
 }
 
 a.icon-help img {
@@ -2266,7 +2250,7 @@ a.author_id_link:hover {
 
 #shib-login form label  {
     font-size: 100% !important;
-    font-weight: normal !important;
+    font-weight: normal !important;   
 }
 
 #request-access {
@@ -2415,7 +2399,7 @@ a.author_id_link:hover {
     color:#666;
 }
 
-#topnav ul li a#bgpsClose,
+#topnav ul li a#bgpsClose, 
 #topnav ul li a#bgpsClose:hover{
     cursor:pointer;
     background:none;
@@ -2428,8 +2412,8 @@ a.author_id_link:hover {
 }
 
 #regAuthAffil{
-    border-collapse: collapse;
-    padding: 5px;
+    border-collapse: collapse; 
+    padding: 5px; 
     margin: 0;
 }
 
@@ -2479,7 +2463,7 @@ a.author_id_link:hover {
  * CSS Style of RID Jobs listing on Admin GUI, URL/manage/rid_jobs.php
  * Used by this file: rid_jobs.tpl.html
  */
-
+ 
 H2.adminListHeader{
     padding: 15px 5px 5px;
 }
@@ -2487,35 +2471,35 @@ H2.adminListHeader{
 /* Sort & Search Form. We use #content to overwrite css style from #content div. */
 #content .adminListSortForm,
 #content .adminListSearchForm {
-    width: 45%;
-    float: left;
-    display: block;
-    overflow:auto;
-    background: #F6F6F6;
+    width: 45%; 
+    float: left; 
+    display: block; 
+    overflow:auto; 
+    background: #F6F6F6; 
     padding: 1px 0 6px;
     margin: 0px;
 }
 
     #content .adminListSearchForm{
-        margin:0 5px;
+        margin:0 5px; 
         float: right;
     }
-
+    
     .adminListSearchForm .button,
     .adminListSortForm .button{
-        font-size: 11px;
-        cursor: pointer;
-        background: #D4D4D4;
-        color: #494949;
+        font-size: 11px; 
+        cursor: pointer; 
+        background: #D4D4D4; 
+        color: #494949; 
         margin: 0 5px;
     }
     .adminListSearchForm LABEL{
-        padding: 5px 5px 5px 10px;
+        padding: 5px 5px 5px 10px; 
         font-weight: bold;
     }
 
     .adminListSortForm LABEL{
-        padding: 5px;
+        padding: 5px; 
         font-weight: bold;
     }
     .adminListSearchText{
@@ -2524,8 +2508,8 @@ H2.adminListHeader{
     .adminListSearchVal{
         height: 16px;
     }
-
-/* Listing table */
+    
+/* Listing table */    
 table.adminManageList{
     width: 100%;
 }
@@ -2573,7 +2557,7 @@ table.adminManageList{
             font-style: italic;
             margin-bottom: 1px !important; /* overwrites css on #content div */
         }
-
+            
 /* End of: Admin GUI for ResearcherID Download Request Jobs */
 
 
@@ -2585,20 +2569,20 @@ table.adminManageList{
 .sprite_arrows {
     background-image: url('/images/sprite_arrows.png');
 }
-.sprite-down_arrow{
-    background-position: 0 0; width: 9px; height: 7px;
-}
-.sprite-left_arrow{
-    background-position: 0 -57px; width: 6px; height: 9px;
-}
-.sprite-right_arrow{
-    background-position: 0 -116px; width: 6px; height: 9px;
-}
-.sprite-up_arrow{
-    background-position: 0 -175px; width: 9px; height: 6px;
-}
+.sprite-down_arrow{ 
+    background-position: 0 0; width: 9px; height: 7px; 
+} 
+.sprite-left_arrow{ 
+    background-position: 0 -57px; width: 6px; height: 9px; 
+} 
+.sprite-right_arrow{ 
+    background-position: 0 -116px; width: 6px; height: 9px; 
+} 
+.sprite-up_arrow{ 
+    background-position: 0 -175px; width: 9px; height: 6px; 
+} 
 
-/* End: General sprite arrows. */
+/* End: General sprite arrows. */        
 
 
 /**
@@ -2609,9 +2593,9 @@ table.adminManageList{
  *         - templates/en/workflow/enter_metadata_helpers/field_dual_multiple_language.tpl.html
  */
 #translated_hint {
-    height:30px;
-    width:auto;
-    display:none;
+    height:30px; 
+    width:auto; 
+    display:none; 
     padding: 3px 5px;
 }
 

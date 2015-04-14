@@ -43,9 +43,9 @@ if ((php_sapi_name()==="cli") || (User::isUserSuperAdministrator($isUser))) {
     $body = '';
     $dbtp =  APP_TABLE_PREFIX; // Database and table prefix
     $stmt =     "SELECT rek_ismemberof_pid AS pid, GROUP_CONCAT(rek_ismemberof)  AS collections FROM fez_record_search_key_datastream_policy 
-                    INNER JOIN fez_record_search_key_ismemberof
-                    ON rek_ismemberof = rek_datastream_policy_pid
-                    GROUP BY rek_ismemberof_pid
+                INNER JOIN fez_record_search_key_ismemberof
+                ON rek_ismemberof = rek_datastream_policy_pid
+                GROUP BY rek_ismemberof_pid
                     HAVING COUNT(rek_ismemberof) > 1 AND MAX(rek_datastream_policy) != MIN(rek_datastream_policy)
                     UNION
                     SELECT rek_ismemberof_pid AS pid, rek_ismemberof AS collections FROM  fez_record_search_key_datastream_policy AS A
@@ -65,7 +65,7 @@ if ((php_sapi_name()==="cli") || (User::isUserSuperAdministrator($isUser))) {
     if (!empty($res)) {
         foreach ($res as $row) {
             $pid = $row['pid'];
-            $body .= $pid . " is in these colletions - " . $row['collections'] . " which have conflicting datastream policies applied.\n";
+            $body .= "http:/espace.library.uq.edu.au/view/".$pid . "  has a datastream security policy that is in conflict with the collection security.  These collections it is in " . $row['collections'] . " have conflicting datastream policies with this pid.\n";
             ob_flush();
             flush();
         }
@@ -74,8 +74,10 @@ if ((php_sapi_name()==="cli") || (User::isUserSuperAdministrator($isUser))) {
     }
 
     if (!empty($body)) {
+        $body .= "\nPlease refer to the eSpace Manager or Librarian as this issue must be resolved immediately.";
+        
         $mail = new Mail_API;
-        $subject = "Notice : Records with conflicting Datastream policies!";
+        $subject = "Urgent warning: Thesis security datastream policy conflict detected";
         $to = 'espace@library.uq.edu.au';
         $from = APP_EMAIL_SYSTEM_FROM_ADDRESS;
         $mail->setTextBody(stripslashes($body));

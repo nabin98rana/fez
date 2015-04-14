@@ -16,7 +16,7 @@
                 </detail>
                 <outcome_detail>
                     {if $changes[i].pre_outcomedetail}
-                        {$changes[i].pre_outcomedetail nofilter}
+                        {$changes[i].pre_outcomedetail|smarty:nodefaults}
                     {/if}
                 </outcome_detail>
             </change>

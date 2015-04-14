@@ -1,0 +1,32 @@
+{include file="header.tpl.html" extra_title="About" cv_css="digilib.css"}
+{include file="1/navigation.tpl.html"}
+
+{if $show_not_allowed_msg}
+  <div style="text-align: center">
+    <h1>Permission Denied</h1>
+    <b>Sorry, but you do not have the required permission level to access this page.</b>
+    <br /><br />
+    <a href="javascript:history.go(-1);">Go Back</a>
+  </div>
+{elseif $pid == "" || $not_exists}
+  <div style="text-align: center">
+    <h1>Not Found</h1>
+    <b>The requested object could not be found in the repository.</b>
+    <br /><br />
+    <a href="javascript:history.go(-1);">Go Back</a>
+  </div>
+{else}
+  {if $isViewer}
+	  {include file="1/view_form.tpl.html"}
+  {else}
+	 <div style="text-align: center">
+      <h1>Permission Denied</h1>
+      <b>Sorry, but you do not have the required permission level to view this page.</b>
+      <br /><br />
+      <a href="javascript:history.go(-1);">Go Back</a>
+	 </div>
+  {/if}
+{/if}
+
+{include file="app_info.tpl.html"}
+{include file="footer.tpl.html"}

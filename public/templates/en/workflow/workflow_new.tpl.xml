@@ -1,7 +1,7 @@
 <workflow>
     {if $message}
         <msg>
-            {$message nofilter}
+            {$message|smarty:nodefaults}
         </msg>     
     {/if}
 

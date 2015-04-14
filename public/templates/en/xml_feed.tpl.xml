@@ -4,7 +4,7 @@
     <actions>
     {section name="i" loop=$create_actions}
       <action>
-        <uri><![CDATA[{$create_actions[i].url nofilter}]]></uri>
+        <uri><![CDATA[{$create_actions[i].url|smarty:nodefaults}]]></uri>
         <name>{$create_actions[i].name}</name>
         <xdis_id>{$create_actions[i].xdis_id}</xdis_id>
       </action>
@@ -31,7 +31,7 @@
 	<title>{$list[i].rek_title}</title>
 
 	<pid>{$list[i].rek_pid}</pid>
-        <citation><![CDATA[{$list[i].rek_citation nofilter}]]></citation>
+        <citation><![CDATA[{$list[i].rek_citation|smarty:nodefaults}]]></citation>
 	<identifier>{$app_base_url}{$href_view}</identifier>
 	<description><![CDATA[{$list[i].rek_description}]]></description>
 	<genre>{$list[i].rek_genre}</genre>

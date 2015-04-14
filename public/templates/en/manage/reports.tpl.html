@@ -1,3 +1,27 @@
+{literal}
+<style type="text/css">
+    #sel_query{
+        max-height:50px;
+        display:block;
+        overflow:hidden;
+        font-family:"courier new", courier, monospace;
+    }
+</style>
+
+<script type="text/javascript">
+    $( document ).ready(function() {
+        $(".more").click(function (e) {
+            e.stopPropagation();
+            $(this).prev().css({
+                'max-height': 'none'
+            });
+        });
+    });
+</script>
+{/literal}
+
+
+
 <div class="admin-box">
 
 <h1>Available Reports</h1>
@@ -12,14 +36,17 @@
     <td>Text</td>
 </tr>
 {section name="i" loop=$reports}
-			  {assign var="report" value=$reports[i]}
+			  {assign var="report" value=$reports[i]|smarty:nodefaults}
 			  {cycle values=$cycle assign="row_color"}
                     <tr onmouseover="this.style.background='#{$smarty.const.APP_HIGHLIGHT_COLOR}';" onmouseout="this.style.background='{$row_color}';" style="background: {$row_color}">
                         <td style="width: 15%;" class="default">
                             &nbsp;{$report.sel_title}
                         </td>
                         <td style="width: 40%;" class="default">
-                          &nbsp;{$report.sel_query}
+                            <span  id="sel_query">
+                                {$report.sel_query}
+                            </span>
+                            <a class="more" href="#">More...</a>
                         </td>
                         <td style="width: 40%;" class="default">
                           &nbsp;{$report.sel_description}

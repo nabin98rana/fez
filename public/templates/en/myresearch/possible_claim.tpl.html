@@ -130,7 +130,7 @@ function cancel()
 <p>You are claiming to be the author of this item:</p>
 
 <div id="research-solo-citation">
-	{$citation nofilter}
+	{$citation|smarty:nodefaults}
 	<div style="display: block; font-size: 80%; padding-top: 15px;">[ <a href="{$rel_url}view/{$pid}" onclick="javascript:window.open('{$rel_url}view/{$pid}'); return false;">View the full record</a> ]</div>
 </div>
 
@@ -209,7 +209,7 @@ function cancel()
     <tr>
         <td><img src="{$rel_url}images/sherparomeo.png" title="Sherpa Romeo details" alt="Sherpa Romeo" /> Sherpa Romeo</td>
         <td>
-            {if $sherpa_romeo_link}{$sherpa_romeo_link nofilter}{else}Unknown - <a href = 'http://www.sherpa.ac.uk/romeo/'>User Search</a>{/if}
+            {if $sherpa_romeo_link}{$sherpa_romeo_link|smarty:nodefaults}{else}Unknown - <a href = 'http://www.sherpa.ac.uk/romeo/'>User Search</a>{/if}
         </td>
     </tr>
 </table>

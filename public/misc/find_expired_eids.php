@@ -108,6 +108,10 @@ if ((php_sapi_name()==="cli") || (User::isUserSuperAdministrator($isUser))) {
                     $list_new_info[] = 'Subtype';
                     $list_new_value[] = $sri_fields['_xdisSubtype'];
                 }
+                if (!empty($sri_fields['_scopusDocTypeCode']) && $sri_fields['_scopusDocTypeCode'] != Record::getSearchKeyIndexValue($pid, "Scopus Doc Type", false)) {
+                    $list_new_info[] = 'Scopus Doc Type';
+                    $list_new_value[] = $sri_fields['_scopusDocTypeCode'];
+                }
 
                 $history = " Updating current Scopus ID and other information due to the previous ID no longer being valid";
                 $record = new RecordObject($pid);
@@ -117,7 +121,7 @@ if ((php_sapi_name()==="cli") || (User::isUserSuperAdministrator($isUser))) {
                 echo " Replaced with new Scopus Id: ".$scopusId."\n";
             } else {
                 if ($xml === NULL) {    // If empty but not null it is in scopus but not searchable.
-                    echo " No match found\n";
+                echo " No match found\n";
                     $body .= "Fail:" . " http://espace.library.uq.edu.au/view/" . $pid . " , " . $eid  . " No auto match found\n";
                 } else {
                     echo " In scopus\n";

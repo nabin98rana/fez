@@ -8,10 +8,10 @@
 					id="{$field_id}" 
 					{if $xsdmf.xsdmf_multiple == 1}
 						name="xsd_display_fields[{$xsdmf.xsdmf_id}]{$squares}" 
-						value="{$details[$temp_fld_id][$loop_num]}" 
+						value="{$details[$temp_fld_id][$loop_num]}"
 					{else}
 						name="xsd_display_fields[{$xsdmf.xsdmf_id}]" 
-						value="{$details[$temp_fld_id]}" 
+						value="{$details[$temp_fld_id]}"
 					{/if}
 					>
 				{if $xsdmf.xsdmf_attached_xsdmf_id != ""}
@@ -23,10 +23,10 @@
 
 			  </td>
 				  {if $xsdmf.xsdmf_multiple == 1}
-				    {include file='workflow/compare_records_helpers/get_right_column.tpl.html' input_field_name="xsd_display_fields["|cat:$xsdmf.xsdmf_id|cat:"]"|cat:$squares
+				    {include file='workflow/compare_records_helpers/get_right_column.tpl.html input_field_name="xsd_display_fields["|cat:$xsdmf.xsdmf_id|cat:"]"|cat:$squares
 				  	  attached_field_name=$attached_field_name attached_xsdmf=$attached_xsdmf}
 				  {else}
-				    {include file='workflow/compare_records_helpers/get_right_column.tpl.html' input_field_name="xsd_display_fields["|cat:$xsdmf.xsdmf_id|cat:"]"
+				    {include file='workflow/compare_records_helpers/get_right_column.tpl.html input_field_name="xsd_display_fields["|cat:$xsdmf.xsdmf_id|cat:"]" 
 				  	  attached_field_name=$attached_field_name attached_xsdmf=$attached_xsdmf}
 				  {/if}
 			</tr>

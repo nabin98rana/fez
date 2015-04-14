@@ -34,7 +34,7 @@ include_once(APP_INC_PATH . "class.mail.php");
 include_once(APP_INC_PATH . "class.filecache.php");
 include_once(APP_INC_PATH . "class.fulltext_queue.php");
 define("TEST",   		 			false); // limit to 250 records only if TRUE
-define("TEST_WHERE", " record_pid = 'UQ:350417' "); // Adds this condition to the where statement for eg testing single pids
+define("TEST_WHERE", ""); // Adds this condition to the where statement for eg testing single pids
 define("SIMILARITY_THRESHOLD", 80); // These similarity functions aren't currently invoked
 define("WINDOW_START", '2009-01-01 00:00:00');
 
@@ -232,7 +232,7 @@ class UQTJL
             WHERE mtj_pid IS NULL AND " . TEST_WHERE . "
             rek_date >= '" . WINDOW_START . "'
             GROUP BY rek_pid, rek_issn
-        ";
+            ";
 
         if (TEST) {
             $stmt .= " LIMIT 250;";
@@ -250,9 +250,9 @@ class UQTJL
                 if (isset($candidateISSNs[$row['record_pid']])) {
                     $candidateISSNs[$row['record_pid']] .= $row['issn'];
                 } else {
-                    $candidateISSNs[$row['record_pid']] = $row['issn'];
-                }
+                $candidateISSNs[$row['record_pid']] = $row['issn'];
             }
+        }
         }
 
         echo "done.\n";

@@ -127,7 +127,7 @@ function removeAndAddToParentList(matching_id_helper, matching_id)
         </h1>
 
 		<div id="research-solo-citation">
-			{$citation nofilter}
+			{$citation|smarty:nodefaults}
 			<div style="display: block; font-size: 80%; padding-top: 15px;">[ <a href="{$rel_url}view/{$pid}" onclick="javascript:window.open('{$rel_url}view/{$pid}'); return false;">View the full record</a> ]</div>
 		</div>
 
@@ -197,7 +197,7 @@ function removeAndAddToParentList(matching_id_helper, matching_id)
 			<h1>New Journal Mapping</h1>
 		
 			<div id="research-solo-citation">
-                {$citation nofilter}
+				{$citation|smarty:nodefaults}
 				<div style="display: block; font-size: 80%; padding-top: 15px;">[ <a href="{$rel_url}view/{$pid}" onclick="javascript:window.open('{$rel_url}view/{$pid}'); return false;">View the full record</a> ]</div>
 			</div>
 			

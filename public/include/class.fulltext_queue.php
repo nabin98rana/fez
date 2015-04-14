@@ -32,6 +32,7 @@
 include_once(dirname(dirname(__FILE__)).DIRECTORY_SEPARATOR."config.inc.php");
 include_once(APP_INC_PATH . "class.bgp_fulltext_index.php");
 include_once(APP_INC_PATH . "class.sherpa_romeo.php");
+include_once(APP_INC_PATH . "class.datastream.php");
 
 class FulltextQueue
 {
@@ -531,8 +532,11 @@ class FulltextQueue
         }
       }
 
+      $open_access = Datastream::getOpenAccess($row['rek_pid']);
+      $res[$rkey]['row'] .= ',"' .$open_access .'"';
+
       //Also add sherpa romeo colour
-      $sherpa_details = SherpaRomeo::getJournalColourFromPid($row['pid']);
+      $sherpa_details = SherpaRomeo::getJournalColourFromPid($row['rek_pid']);
       $res[$rkey]['row'] .= ',"' .$sherpa_details['colour'] .'"';
 
       //Also add the internal notes
@@ -549,9 +553,9 @@ class FulltextQueue
 		$res[$rkey]['row'] .= ',""';
 	  }
       if (array_key_exists('rj_2015_rank', $row)) {
-		$res[$rkey]['row'] .= ',"' .$row['rj_2015_rank'] .'"';
+          $res[$rkey]['row'] .= ',"' .$row['rj_2015_rank'] .'"';
       } else {
-        $res[$rkey]['row'] .= ',""';
+          $res[$rkey]['row'] .= ',""';
       }
       if (array_key_exists('rj_2015_title', $row)) {
         $res[$rkey]['row'] .= ',"' .$row['rj_2015_title'] .'"';
