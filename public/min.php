@@ -50,7 +50,7 @@ if (isset($min_errorLogger)) {
 
 // ensure $_SERVER['DOCUMENT_ROOT'] never has a trailing slash, because some servers don't have the trailing slash while others do.
 $_SERVER['DOCUMENT_ROOT'] = rtrim($_SERVER['DOCUMENT_ROOT'],'/');
-$pathfixup = substr( str_replace($_SERVER["DOCUMENT_ROOT"], '', APP_PATH), 1); //GC
+$pathfixup = substr( str_replace(realpath($_SERVER["DOCUMENT_ROOT"]), '', APP_PATH), 1); //GC
 
 $min_serveOptions['groups'] = array(
         $file =>  array($_SERVER["DOCUMENT_ROOT"] . $_SERVER["REQUEST_URI"]), //GC
