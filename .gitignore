@@ -33,6 +33,7 @@ include/simplesaml/log/*
 pidimages
 pidimages/*
 pidindex/*
+sitemap/sitemap-records-*
 .settings/*
 .buildpath
 .buildpath/*

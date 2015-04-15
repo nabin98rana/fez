@@ -1,0 +1,46 @@
+
+## This is a directory/file filter template for WinMerge
+name: PHP SVN
+desc: Remove dirs/files you dont want in most php apps with svn too
+
+## Select if filter is inclusive or exclusive
+## Inclusive (loose) filter lets through all items not matching rules
+## Exclusive filter lets through only items that match to rule
+## include or exclude
+def: include
+
+## Filters for filenames begin with f:
+## Filters for directories begin with d:
+## (Inline comments begin with " ##" and extend to the end of the line)
+
+f: \.bak$ ## Filter for filename
+f: \.tmproj$ ## Filter for filename
+f: \.bak$ ## Filter for filename
+f: \._.*$ ## Filter for filename
+f: \.tmp$ ## Filter for filename
+f: \error_handler.log$ ## Filter for filename
+f: \.buildpath$ ## Filter for filename
+f: \.project$ ## Filter for filename
+f: \maintenance.tpl.html$ ## Filter for filename
+f: \DS_Store$ ## Filter for filename
+f: \.svn$ ## Filter for filename
+
+d: \\subdir$ ## Filter for directory
+d: \\solr_upload$
+d: \\logs$
+d: \\images$
+d: \\.svn$
+d: \\.hg$
+d: \\templates_c$
+d: \\cache$
+d: \\test$
+d: \\ZendPlatorm$
+d: \\flviewer$
+d: \\articles$
+d: \\PHPUnit$
+d: \\najax$
+d: \\documentation$
+d: \\fedora$
+d: \\fedora_old$
+d: \\fedoraold$
+d: \\DS_Store$

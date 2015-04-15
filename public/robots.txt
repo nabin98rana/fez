@@ -10,3 +10,5 @@ Disallow: /list.php
 Disallow: /js/
 Disallow: /css/
 Disallow: /flviewer/
+
+Sitemap: http://espace.library.uq.edu.au/sitemap/sitemap-index.xml
