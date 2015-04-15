@@ -1,47 +1,44 @@
 {if $wrapper != "no"}
 {include file="header.tpl.html" extra_title=$extra_title}
 {/if}
-<script type="text/javascript" src="{$rel_url}js/swfobject.js"></script>
+<script type="text/javascript" src="{$rel_url}jwplayer/jwplayer.js"></script>
 {if $wrapper != "no"}
 {include file="navigation.tpl.html"}
 {/if}
 <table width=100% cellpadding=0 cellspacing=0 border=0>
-<tr><td valign="top">
+  <tr><td valign="top">
 
-<!-- 
+    <!--
 
-Start FLV Player Code
-{$eserv_url}?pid={$pid}&dsID={$dsID}
--->
-{literal}
+    Start FLV Player Code
+    {$eserv_url}?pid={$pid}&dsID={$dsID}
+    -->
+    {literal}
+    <center>
 
-<center>
+      <div id="myElement">Loading the player...</div>
+      <script>jwplayer.key="VDPhCj3HpqB8kdeo/a/tqwW77v3UpjJjHgANDCKarlk=";</script>
+      <script type="text/javascript">
+        jwplayer("myElement").setup({
+          file: "{/literal}{$rel_url}{literal}stream/{/literal}{$pid}{literal}/{/literal}{$dsID}{literal}",
+          image: "{/literal}{$eserv_url|replace:".php":""}{literal}/{/literal}{$pid}{literal}/{/literal}{$image_file_name}{literal}",
+          height: 350,
+          width: 425,
+        });
+      </script>
+    </center>
 
-<p id='flashmedia'>&nbsp;</p>
-<script type='text/javascript' src='{/literal}{$rel_url}{literal}js/swfobject.js'></script>
-<script type='text/javascript'>
-	var s1 = new SWFObject('{/literal}{$rel_url}{literal}flash/player.swf','player','425','350','7');
-	s1.addParam('allowfullscreen','true');
-	s1.addParam('allowscriptaccess','always');
-	s1.addVariable("file",escape("{/literal}{$rel_url}{literal}stream/{/literal}{$pid}{literal}/{/literal}{$dsID}{literal}"));
-	{/literal}{if $smarty.const.APP_FEDORA_APIA_DIRECT == 'ON'} 
-	s1.addVariable('http.startparam', 'pos');
-	s1.addVariable('provider', 'http');
-	{/if}{literal}
-	s1.addVariable("image", "{/literal}{$eserv_url|replace:".php":""}{literal}/{/literal}{$pid}{literal}/{/literal}{$image_file_name}{literal}");
-	s1.write('flashmedia');
-</script>
+    {/literal}
 
-</center>
-{/literal}
 
-<!-- 
 
-end FLV Player Code
+    <!--
 
--->
+    end FLV Player Code
 
-</td></tr></table>
+    -->
+
+  </td></tr></table>
 {if $wrapper != "no"}
 
 <br />
