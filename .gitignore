@@ -2,6 +2,7 @@
 .DS_Store
 .idea
 *.orig
+*.bak
 test.php
 error_handler.log
 config.inc.php
