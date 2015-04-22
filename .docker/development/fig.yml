@@ -24,7 +24,11 @@ fedora:
     - "10081:10081"
   privileged: true
   volumes:
-    - logs/fedora:/opt/fedora/tomcat/logs
+    - etc/fedora/tomcat-users.xml:/opt/fedora/tomcat/conf/tomcat-users.xml
+    - etc/fedora/fedora.fcfg:/opt/fedora/server/config/fedora.fcfg
+    - etc/fedora/fedora-users.xml:/opt/fedora/server/config/fedora-users.xml
+    - logs/fedora_tomcat:/opt/fedora/tomcat/logs
+    - logs/fedora:/opt/fedora/server/logs
     - /data/docker/fez/fedora:/opt/fedora/data
 
 fezdb:

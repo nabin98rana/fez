@@ -24,6 +24,7 @@ mkdir -p ${DEV_BASE}/tmp/cache
 mkdir -p ${DEV_BASE}/tmp/templates_c
 mkdir -p ${DEV_BASE}/logs/backend/fpm
 mkdir -p ${DEV_BASE}/logs/backend/nginx
+mkdir -p ${DEV_BASE}/logs/fedora_tomcat
 mkdir -p ${DEV_BASE}/logs/fedora
 mkdir -p ${DEV_BASE}/logs/fez
 mkdir -p ${DEV_BASE}/logs/solr
