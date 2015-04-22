@@ -226,6 +226,10 @@ class Exiftool
                       $info['create_date'] = NULL;
                   }
       	}
+
+        if(array_key_exists('duration', $info) && !array_key_exists('play_duration', $info)) {
+            $info['play_duration'] = $info['duration'];
+        }
 		return $info;
 	}
 
