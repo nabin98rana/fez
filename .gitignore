@@ -57,4 +57,3 @@ init.php
 .idea
 \.tmtags
 tests\application\features\bootstrap\LoginHelper.php
-

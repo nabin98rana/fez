@@ -1,0 +1,58 @@
+backend:
+  environment:
+    - APP_ENVIRONMENT=development
+  image: uqlibrary/docker-nginx:latest
+  links:
+    - fezdb
+    - fedora
+    - fedoradb
+    - solr
+  ports:
+    - "8080:80"
+  volumes:
+    - ../../:/var/app/current
+    - logs/backend/nginx:/var/log/nginx
+    - logs/backend/fpm:/var/log/php-fpm
+  privileged: true
+
+fedora:
+  image: uqlibrary/docker-fedoracommons:latest
+  links:
+    - fedoradb
+  ports:
+    - "10081:10081"
+  privileged: true
+  volumes:
+    - logs/fedora:/opt/fedora/tomcat/logs
+
+fezdb:
+  environment:
+    - MYSQL_ROOT_PASSWORD=development
+    - MYSQL_USER=fez
+    - MYSQL_PASSWORD=fez
+    - MYSQL_DATABASE=fez
+  image: mysql:latest
+  ports:
+    - "3306:3306"
+  privileged: true
+  volumes:
+    - /data/docker/fez/mysql:/var/lib/mysql
+
+fedoradb:
+  environment:
+    - MYSQL_ROOT_PASSWORD=development
+    - MYSQL_USER=fedoraAdmin
+    - MYSQL_PASSWORD=fedoraAdmin
+    - MYSQL_DATABASE=fedora3
+  image: mysql:latest
+  ports:
+    - "3307:3306"
+  privileged: true
+  volumes:
+    - /data/docker/fez/mysql_fedora:/var/lib/mysql
+
+solr:
+  image: makuk66/docker-solr:4.10.4
+  ports:
+    - "8983:8983"
+  privileged: true
