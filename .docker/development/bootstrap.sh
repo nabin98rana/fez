@@ -13,3 +13,6 @@ cp etc/nginx/espace_rewrite_rules.conf /etc/nginx/
 
 rm -Rf /etc/php-fpm.d
 cp -R etc/php-fpm.d /etc/
+
+mkdir -p /var/app/current/.docker/development/tmp/cache
+mkdir -p /var/app/current/.docker/development/tmp/templates_c
