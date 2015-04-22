@@ -58,3 +58,4 @@ init.php
 \.tmtags
 tests\application\features\bootstrap\LoginHelper.php
 
+.docker/*
