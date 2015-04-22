@@ -13,6 +13,7 @@ backend:
     - ../../:/var/app/current
     - logs/backend/nginx:/var/log/nginx
     - logs/backend/fpm:/var/log/php-fpm
+    - /data/docker/fez/fedora:/espace/data
   privileged: true
 
 fedora:
@@ -24,6 +25,7 @@ fedora:
   privileged: true
   volumes:
     - logs/fedora:/opt/fedora/tomcat/logs
+    - /data/docker/fez/fedora:/opt/fedora/data
 
 fezdb:
   environment:

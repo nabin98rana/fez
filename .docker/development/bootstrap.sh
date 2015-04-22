@@ -16,6 +16,9 @@ cp etc/nginx/espace_rewrite_rules.conf /etc/nginx/
 rm -Rf /etc/php-fpm.d
 cp -R etc/php-fpm.d /etc/
 
+# Directory for Fedora direct data
+mkdir -p /espace/data
+
 # Create the tmp and logs directories
 mkdir -p ${DEV_BASE}/tmp/cache
 mkdir -p ${DEV_BASE}/tmp/templates_c
