@@ -26,7 +26,7 @@ function validateForm(f) {
 	{section name='ii' loop=$list}
 	{if $smarty.section.ii.first}<h3>Tick to register an author</h3><table class="default" style="border-collapse: collapse; padding: 5px; margin: 0; width: 100%;">{/if}
       <tr bgcolor="{cycle values="$cycle_colours"}">
-        <td><input type="checkbox" name="author_id[]" value="{$list[ii].aut_id}" {if $list[ii].mc_status !== null}checked{/if}/> {$list[ii].aut_display_name}</td>
+        <td><input type="checkbox" name="author_id[]" value="{$list[ii].aut_id}" {if $list[ii].mc_status != ''}checked{/if}/> {$list[ii].aut_display_name}</td>
       </tr>
       {if $smarty.section.ii.last}<tr><td><br /><input type="submit" name="save" value="Save" class="button" onclick="javascript:validateForm(this);" /></td></tr></table>{/if}
     {sectionelse}
