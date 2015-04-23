@@ -1,6 +1,8 @@
 backend:
   environment:
     - APP_ENVIRONMENT=development
+    - XDEBUG_CONFIG="idekey=fez"
+    - PHP_IDE_CONFIG="serverName=dev-fez.library.uq.edu.au"
   image: uqlibrary/docker-nginx:latest
   links:
     - fezdb

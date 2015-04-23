@@ -33,7 +33,6 @@ mkdir -p ${DEV_BASE}/logs/solr
 yum install -y php56u-pecl-xdebug
 
 cat >> /etc/php.d/15-xdebug.ini  << EOF
-xdebug.idekey="fez"
 xdebug.remote_autostart=1
 xdebug.remote_connect_back=1
 xdebug.remote_enable=1
