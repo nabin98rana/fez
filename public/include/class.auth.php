@@ -967,7 +967,7 @@ class Auth
 		if ((in_array('Viewer', $userPIDAuthGroups) && !in_array('Lister', $userPIDAuthGroups)) || (isset($overrideAuth['Lister']) && $overrideAuth['Lister'] == true)) {
             array_push($userPIDAuthGroups, "Lister");
         }
-        if (!in_array('Archival_Format_Viewer', $userPIDAuthGroups) && User::isUserGlobalArchiveViewer()) {
+        if (!in_array('Archival_Format_Viewer', $userPIDAuthGroups) && in_array('Viewer', $userPIDAuthGroups) && User::isUserGlobalArchiveViewer()) {
             array_push($userPIDAuthGroups, "Archival_Format_Viewer");
         }
 
