@@ -13,6 +13,7 @@ backend:
     - ../../:/var/app/current
     - logs/backend/nginx:/var/log/nginx
     - logs/backend/fpm:/var/log/php-fpm
+    - /data/docker/fez/fedora:/espace/data
   privileged: true
 
 fedora:
@@ -23,7 +24,12 @@ fedora:
     - "10081:10081"
   privileged: true
   volumes:
-    - logs/fedora:/opt/fedora/tomcat/logs
+    - etc/fedora/tomcat-users.xml:/opt/fedora/tomcat/conf/tomcat-users.xml
+    - etc/fedora/fedora.fcfg:/opt/fedora/server/config/fedora.fcfg
+    - etc/fedora/fedora-users.xml:/opt/fedora/server/config/fedora-users.xml
+    - logs/fedora_tomcat:/opt/fedora/tomcat/logs
+    - logs/fedora:/opt/fedora/server/logs
+    - /data/docker/fez/fedora:/espace/data
 
 fezdb:
   environment:
@@ -56,3 +62,8 @@ solr:
   ports:
     - "8983:8983"
   privileged: true
+  volumes:
+    - etc/solr/schema.xml:/opt/solr/example/solr/collection1/conf/schema.xml
+    - etc/solr/solrconfig.xml:/opt/solr/example/solr/collection1/conf/solrconfig.xml
+    - logs/solr:/opt/solr/example/logs
+    - /data/docker/fez/solr:/opt/solr/example/solr/collection1/data
