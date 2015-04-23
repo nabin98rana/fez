@@ -51,7 +51,7 @@ header('Content-Type: ' . ($callback ? 'application/javascript' : 'application/j
 $author_username  = $_GET['author_username'];
 $author_username = trim($author_username);
 if(!ctype_alnum($author_username) || substr( strtolower($author_username), 0, 1 ) === "s" || empty($author_username)) {   //is alphanumeric and not a student
-    echo json_encode();
+    echo json_encode(array(), JSON_FORCE_OBJECT);
     exit();
 }
 
