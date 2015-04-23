@@ -29,7 +29,7 @@ fedora:
     - etc/fedora/fedora-users.xml:/opt/fedora/server/config/fedora-users.xml
     - logs/fedora_tomcat:/opt/fedora/tomcat/logs
     - logs/fedora:/opt/fedora/server/logs
-    - /data/docker/fez/fedora:/opt/fedora/data
+    - /data/docker/fez/fedora:/espace/data
 
 fezdb:
   environment:
