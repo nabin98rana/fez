@@ -9,6 +9,7 @@ backend:
     - solr
   ports:
     - "8080:80"
+    - "9000:9000"
   volumes:
     - ../../:/var/app/current
     - logs/backend/nginx:/var/log/nginx

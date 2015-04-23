@@ -22,9 +22,20 @@ mkdir -p /espace/data
 # Create the tmp and logs directories
 mkdir -p ${DEV_BASE}/tmp/cache
 mkdir -p ${DEV_BASE}/tmp/templates_c
+mkdir -p ${DEV_BASE}/tmp/xdebug
 mkdir -p ${DEV_BASE}/logs/backend/fpm
 mkdir -p ${DEV_BASE}/logs/backend/nginx
 mkdir -p ${DEV_BASE}/logs/fedora_tomcat
 mkdir -p ${DEV_BASE}/logs/fedora
 mkdir -p ${DEV_BASE}/logs/fez
 mkdir -p ${DEV_BASE}/logs/solr
+
+yum install -y php56u-pecl-xdebug
+
+cat >> /etc/php.d/15-xdebug.ini  << EOF
+xdebug.idekey="fez"
+xdebug.remote_autostart=1
+xdebug.remote_connect_back=1
+xdebug.remote_enable=1
+xdebug.remote_port=9000
+EOF
