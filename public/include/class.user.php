@@ -260,6 +260,31 @@ class User
 	}
 	
 	/**
+     * Method used to check whether an user is in a Archive Viewer Group or not.
+     *
+     * @access  public
+     * @return  boolean
+     */
+    function isUserGlobalArchiveViewer()
+    {
+        $username = Auth::getUsername();
+        $isGlobalArchiveViewer = false;
+
+        $gAVGroupID = Group::getID(APP_MY_RESEARCH_ARCHIVE_VIEWER_GROUP);
+        $userGroups = Group::getGroupColList(User::getUserIDByUsername($username));
+
+        if (count($userGroups) > 0) {
+            foreach ($userGroups as $ug) {
+                if ($ug == $gAVGroupID) {
+                    $isGlobalArchiveViewer = true;
+                }
+            }
+        }
+
+        return $isGlobalArchiveViewer;
+    }
+
+	/**
 	 * Method used to check whether an user is an administrator.
 	 *
 	 * @access  public

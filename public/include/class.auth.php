@@ -616,7 +616,7 @@ class Auth
 		$indexArray['isApprover'] = (!empty($approver_matches) || $indexArray['isCommunityAdministrator'] == true);
 		$indexArray['isEditor'] = (!empty($editor_matches) || $indexArray['isCommunityAdministrator'] == true);
 		$indexArray['isCreator'] = (!empty($creator_matches) || $indexArray['isCommunityAdministrator'] == true);
-		$indexArray['isArchivalViewer'] = (in_array('Archival_Format_Viewer', $userPIDAuthGroups) || ($indexArray['isEditor'] == true));
+		$indexArray['isArchivalViewer'] = (in_array('Archival_Format_Viewer', $userPIDAuthGroups) || ($indexArray['isEditor'] == true) || User::isUserGlobalArchiveViewer());
 		$indexArray['isViewer'] = (in_array('Viewer', $userPIDAuthGroups) || ($indexArray['isEditor'] == true));
 		$indexArray['isLister'] = (in_array('Lister', $userPIDAuthGroups) || ($indexArray['isViewer'] == true));
 
@@ -644,7 +644,7 @@ class Auth
 			$indexArray[$indexKey]['isEditor'] = (!empty($editor_matches) || $indexArray[$indexKey]['isCommunityAdministrator'] == true);
 			$indexArray[$indexKey]['isCreator'] = (!empty($creator_matches) || $indexArray[$indexKey]['isCommunityAdministrator'] == true);
 			$indexArray[$indexKey]['isApprover'] = (!empty($approver_matches) || $indexArray[$indexKey]['isCommunityAdministrator'] == true);
-			$indexArray[$indexKey]['isArchivalViewer'] = (in_array(3, $userPIDAuthGroups) || ($indexArray[$indexKey]['isEditor'] == true));
+			$indexArray[$indexKey]['isArchivalViewer'] = (in_array(3, $userPIDAuthGroups) || ($indexArray[$indexKey]['isEditor'] == true) || User::isUserGlobalArchiveViewer());
 			$indexArray[$indexKey]['isViewer'] = (in_array(10, $userPIDAuthGroups) || ($indexArray[$indexKey]['isEditor'] == true));
 			$indexArray[$indexKey]['isLister'] = (in_array(9, $userPIDAuthGroups) || ($indexArray[$indexKey]['isViewer'] == true));
 		}
