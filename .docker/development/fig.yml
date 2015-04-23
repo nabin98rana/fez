@@ -62,3 +62,8 @@ solr:
   ports:
     - "8983:8983"
   privileged: true
+  volumes:
+    - etc/solr/schema.xml:/opt/solr/example/solr/collection1/conf/schema.xml
+    - etc/solr/solrconfig.xml:/opt/solr/example/solr/collection1/conf/solrconfig.xml
+    - logs/solr:/opt/solr/example/logs
+    - /data/docker/fez/solr:/opt/solr/example/solr/collection1/data
