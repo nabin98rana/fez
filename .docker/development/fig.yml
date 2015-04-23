@@ -1,8 +1,8 @@
 backend:
   environment:
     - APP_ENVIRONMENT=development
-    - XDEBUG_CONFIG="idekey=fez"
-    - PHP_IDE_CONFIG="serverName=dev-fez.library.uq.edu.au"
+    - XDEBUG_CONFIG=idekey=fez
+    - PHP_IDE_CONFIG=serverName=dev-fez.library.uq.edu.au
   image: uqlibrary/docker-nginx:latest
   links:
     - fezdb
@@ -12,12 +12,12 @@ backend:
   ports:
     - "8080:80"
     - "9000:9000"
+  privileged: true
   volumes:
     - ../../:/var/app/current
+    - /data/docker/fez/fedora:/espace/data
     - logs/backend/nginx:/var/log/nginx
     - logs/backend/fpm:/var/log/php-fpm
-    - /data/docker/fez/fedora:/espace/data
-  privileged: true
 
 fedora:
   image: uqlibrary/docker-fedoracommons:latest
@@ -27,12 +27,12 @@ fedora:
     - "10081:10081"
   privileged: true
   volumes:
+    - /data/docker/fez/fedora:/espace/data
     - etc/fedora/tomcat-users.xml:/opt/fedora/tomcat/conf/tomcat-users.xml
     - etc/fedora/fedora.fcfg:/opt/fedora/server/config/fedora.fcfg
     - etc/fedora/fedora-users.xml:/opt/fedora/server/config/fedora-users.xml
     - logs/fedora_tomcat:/opt/fedora/tomcat/logs
     - logs/fedora:/opt/fedora/server/logs
-    - /data/docker/fez/fedora:/espace/data
 
 fezdb:
   environment:
@@ -68,7 +68,7 @@ solr:
     - "8983:8983"
   privileged: true
   volumes:
+    - /data/docker/fez/solr:/opt/solr/example/solr/collection1/data
     - etc/solr/schema.xml:/opt/solr/example/solr/collection1/conf/schema.xml
     - etc/solr/solrconfig.xml:/opt/solr/example/solr/collection1/conf/solrconfig.xml
     - logs/solr:/opt/solr/example/logs
-    - /data/docker/fez/solr:/opt/solr/example/solr/collection1/data

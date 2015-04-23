@@ -38,3 +38,9 @@ xdebug.remote_connect_back=1
 xdebug.remote_enable=1
 xdebug.remote_port=9000
 EOF
+
+# These modules are causing errors, and aren't required
+rm -f /etc/php.d/20-mssql.ini
+rm -f /etc/php.d/30-pdo_dblib.ini
+
+sed -i "s/memory_limit = 128M/memory_limit = 800M/" /etc/php.ini

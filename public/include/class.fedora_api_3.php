@@ -1833,7 +1833,17 @@ class Fedora_API {
 			} catch (SoapFault $fault) {
 //				$fedoraError = "Error when calling ".$call." :".$fault->faultstring;
         $current_tries++;
-				$fedoraError = "Error when calling ".$call." :".$fault->getMessage()."\n\n \n\n FOR THE $current_tries time REQUEST: \n\n".$client->__getLastRequest()."\n\n RESPONSE: \n\n ".$client->__getLastResponse();
+        $lastReq = '';
+        $lastResp= '';
+        if ($client) {
+          if ($client->__getLastRequest()) {
+            $lastReq = $client->__getLastRequest();
+          }
+          if ($client->__getLastResponse()) {
+            $lastResp = $client->__getLastResponse();
+          }
+        }
+				$fedoraError = "Error when calling ".$call." :".$fault->getMessage()."\n\n \n\n FOR THE $current_tries time REQUEST: \n\n".$lastReq."\n\n RESPONSE: \n\n ".$lastResp;
 				$log->err(array($fedoraError, __FILE__,__LINE__));
         // If it's an object locked exception.. some other thread is trying to modify it, so wait and try again as long as it hasn't been tried at least 4 times already
         if (is_numeric(strpos($fault->getMessage(), "fedora.server.errors.ObjectLockedException")) && $current_tries < 5) {
