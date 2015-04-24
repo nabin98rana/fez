@@ -399,7 +399,7 @@ class FulltextIndex_Solr_CSV extends FulltextIndex
       $postFields["commit"] = "true";
       $url = "http://" . APP_SOLR_HOST . ":" . APP_SOLR_PORT . APP_SOLR_PATH . "update/csv";
 
-      if (APP_SOLR_HOST == APP_HOSTNAME) {
+      if (APP_SOLR_HOST == APP_HOSTNAME || (defined('APP_SOLR_LOCAL_FILE') && APP_SOLR_LOCAL_FILE == 'ON')) {
         $postFields["stream.file"] = $tmpfname;
       } else {
         $url_loc = "http://" . APP_HOSTNAME . APP_RELATIVE_URL . "solr_upload/" . substr($tmpfname, (strrpos($tmpfname, "/") + 1));

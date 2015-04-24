@@ -72,3 +72,4 @@ solr:
     - etc/solr/schema.xml:/opt/solr/example/solr/collection1/conf/schema.xml
     - etc/solr/solrconfig.xml:/opt/solr/example/solr/collection1/conf/solrconfig.xml
     - logs/solr:/opt/solr/example/logs
+    - tmp/solr_upload:/var/app/current/.docker/development/tmp/solr_upload

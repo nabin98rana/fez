@@ -21,6 +21,7 @@ mkdir -p /espace/data
 
 # Create the tmp and logs directories
 mkdir -p ${DEV_BASE}/tmp/cache
+mkdir -p ${DEV_BASE}/tmp/solr_upload
 mkdir -p ${DEV_BASE}/tmp/templates_c
 mkdir -p ${DEV_BASE}/tmp/xdebug
 mkdir -p ${DEV_BASE}/logs/backend/fpm
@@ -29,6 +30,12 @@ mkdir -p ${DEV_BASE}/logs/fedora_tomcat
 mkdir -p ${DEV_BASE}/logs/fedora
 mkdir -p ${DEV_BASE}/logs/fez
 mkdir -p ${DEV_BASE}/logs/solr
+
+cd ${DEV_BASE}/../../public/
+if [ ! -h  solr_upload ]; then
+  ln -s ../.docker/development/tmp/solr_upload .
+fi
+cd ${DEV_BASE}
 
 yum install -y php56u-pecl-xdebug
 
