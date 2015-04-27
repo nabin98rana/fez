@@ -33,9 +33,10 @@ class Flint
     function returnInterviewees() {
         $log = FezLog::get();
         $db = DB_API::get();
-        $stmt = "    SELECT DISTINCT(rek_contributor) FROM " . APP_TABLE_PREFIX . "record_search_key_contributor
+        $stmt = "SELECT rek_contributor, COUNT(rek_contributor) AS interviewee_count FROM " . APP_TABLE_PREFIX . "record_search_key_contributor
         LEFT JOIN " . APP_TABLE_PREFIX . "record_search_key_ismemberof ON rek_ismemberof_pid = rek_contributor_pid
-        WHERE rek_ismemberof IN ('UQ:353627');";
+        WHERE rek_ismemberof IN ('".APP_FLINT_COLLECTION."');
+        GROUP BY rek_contributor";
 
         try {
             $res = $db->fetchAll($stmt);

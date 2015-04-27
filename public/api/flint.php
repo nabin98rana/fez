@@ -45,7 +45,7 @@ header('Content-Type: ' . ($callback ? 'application/javascript' : 'application/j
 
 if(!empty($_REQUEST['languages'])) {
     echo json_encode(Flint::returnFlintLanguages());
-} else if(!empty($_REQUEST['interviewee'])) {
+} else if(!empty($_REQUEST['interviewees'])) {
     echo json_encode(Flint::returnInterviewees());
 } else {
     echo json_encode(array(), JSON_FORCE_OBJECT);
