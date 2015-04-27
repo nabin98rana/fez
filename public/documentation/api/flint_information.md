@@ -78,7 +78,7 @@ https://espace.library.uq.edu.au/api/flint.php?interviewees=1
 
 ## HTTP GET
 
-Returns a language list (language=1) or interviewee information (interviewee=1).
+Returns a language list (languages=1) or interviewee information (interviewees=1).
 
 
 If the request is successful a HTTP 200 response is returned with the following response body.
