@@ -37,8 +37,6 @@ if [ ! -h  solr_upload ]; then
 fi
 cd ${DEV_BASE}
 
-yum install -y php56u-pecl-xdebug
-
 cat >> /etc/php.d/15-xdebug.ini  << EOF
 xdebug.remote_autostart=1
 xdebug.remote_connect_back=1
@@ -51,3 +49,5 @@ rm -f /etc/php.d/20-mssql.ini
 rm -f /etc/php.d/30-pdo_dblib.ini
 
 sed -i "s/memory_limit = 128M/memory_limit = 800M/" /etc/php.ini
+sed -i "s/post_max_size = 8M/post_max_size = 800M/" /etc/php.ini
+sed -i "s/upload_max_filesize = 30M/upload_max_filesize = 800M/" /etc/php.ini
