@@ -10,12 +10,13 @@ backend:
     - fedoradb
     - solr
   ports:
-    - "8080:80"
+    - "8080:8080"
     - "9000:9000"
   privileged: true
   volumes:
     - ../../:/var/app/current
     - /data/docker/fez/fedora:/espace/data
+    - /data/docker/fez/espace_san:/espace_san
     - logs/backend/nginx:/var/log/nginx
     - logs/backend/fpm:/var/log/php-fpm
 
