@@ -45,10 +45,11 @@ class Graphviz
 		fclose($handle);
 		$return_status = 0;
 		$return_array = array();
-		$command = APP_DOT_EXEC." -Tcmapx ".$tmpfname;
+		$command = APP_DOT_EXEC." -q2 -Tcmapx ".$tmpfname;
 		$result = '';
 		exec($command, $result, $return_status);
-		if ($return_status <> 0) {
+		$mapsig = '<map id="States" name="States">';
+		if ($return_status <> 0 && (strcasecmp(substr(implode("\n",$result), 0, strlen($mapsig)), $mapsig) != 0)) {
 			$log->err(array("GraphViz CMAPX Error: return status = ".$return_status.", for command ".$command." \n", __FILE__,__LINE__));
 			$result = "";
 		}
