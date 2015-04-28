@@ -5,7 +5,7 @@ backend:
     - PHP_IDE_CONFIG=serverName=dev-fez.library.uq.edu.au
     - JAVA_HOME=/usr/lib/jvm/jre
     - JHOVE_HOME=/usr/local/jhove
-  image: uqlibrary/docker-nginx:latest
+  image: uqlibrary/docker-nginx-fez:latest
   links:
     - fezdb
     - fedora
