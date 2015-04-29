@@ -239,7 +239,7 @@ class SanityChecks
         }
         if (SanityChecks::resultsClean($results)) {
             // if all the other checks have passed, we should be able to run jhove on a file
-            copy(APP_PATH . "images/1leftarrow.png", APP_TEMP_DIR . "test.gif");
+            copy(APP_PATH . "images/add.gif", APP_TEMP_DIR . "test.gif");
             Workflow::checkForPresMD("test.gif");
             $result = SanityChecks::checkXML('Jhove Result', APP_TEMP_DIR . "presmd_test.xml",
                                              '/j:jhove/j:repInfo/j:mimeType[\'image/gif\']',
