@@ -3,6 +3,7 @@
 .idea
 *.orig
 *.bak
+*.ser
 test.php
 error_handler.log
 config.inc.php
@@ -59,3 +60,4 @@ init.php
 tests\application\features\bootstrap\LoginHelper.php
 .docker/development/logs/*
 .docker/development/tmp/*
+public/testing.php
