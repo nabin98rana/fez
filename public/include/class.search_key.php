@@ -556,7 +556,7 @@ class Search_Key
         $log = FezLog::get();
         $db = DB_API::get();
         // remove the solr suffix
-        $solr_name = preg_replace('/(.*)({_t_s|_mt|_t|_t_s|_dt|_ms|_s|_t_ws|_t_ft|_f|_mws|_ft|_mft|_mtl|_l|_mi|_i|_b|_mdt|_mt_exact}$)/', '$1', $solr_name);
+        $solr_name = preg_replace('/(.*)({_t_s|_mt|_t|_t_s|_dt|_ms|_s|_t_ws|_t_ft|_f|_mws|_ft|_mft|_mtl|_l|_mi|_i|_b|_mdt|_mt_exact|_cv_id_lookup|_cv_desc_lookup}$)/', '$1', $solr_name);
         $solr_name = str_replace("_", " ", trim(strtolower($solr_name)));
 
         $stmt = "SELECT
@@ -1418,10 +1418,27 @@ class Search_Key
             $res[$i]['sek_title_solr'] = FulltextIndex_Solr::getFieldName($res[$i]['sek_title_db'], FulltextIndex::mapType($res[$i]['sek_data_type']), $res[$i]['sek_cardinality']);
             $return[$res[$i]['sek_title_db']] = $res[$i]['sek_title_solr'];
             if ($lookups && !empty($res[$i]['sek_lookup_function'])) {
-              $return[$res[$i]['sek_title_db'].'_lookup'] = $res[$i]['sek_title_solr'].'_lookup';
-              $res[$i][$res[$i]['sek_title_db'] . '_lookup'] = $res[$i]['sek_title_solr'].'_lookup';
+                $return[$res[$i]['sek_title_db'] . '_lookup'] = $res[$i]['sek_title_solr'] . '_lookup';
+                $res[$i][$res[$i]['sek_title_db'] . '_lookup'] = $res[$i]['sek_title_solr'] . '_lookup';
+                if($res[$i]['sek_html_input'] == 'allcontvocab' || $res[$i]['sek_html_input'] == 'contvocab') {
+                    $return[$res[$i]['sek_title_db'] . '_cv_id_lookup'] = $res[$i]['sek_title_solr'] . '_cv_id_lookup';
+                    $res[$i][$res[$i]['sek_title_db'] . '_cv_id_lookup'] = $res[$i]['sek_title_solr'] . '_cv_id_lookup';
+                    $return[$res[$i]['sek_title_db'] . '_desc_lookup'] = $res[$i]['sek_title_solr'] . '_desc_lookup';
+                    $res[$i][$res[$i]['sek_title_db'] . '_desc_lookup'] = $res[$i]['sek_title_solr'] . '_desc_lookup';
+            }
+            }
+
+        }
+
+        //Variables added not dynamically. Assume all end in _t. Don't have normal search tables.
+        if ($lookups) {
+            $extraSolrVariables = array('open_access_t', 'sherpa_colour_t', 'ain_detail_t', 'rj_tier_rank_t', 'rj_tier_title_t', 'rj_2015_rank_t', 'rj_2015_title_t', 'rj_2010_rank_t', 'rj_2010_title_t', 'rj_2012_rank_t', 'rj_2012_title_t', 'rc_2015_rank_t', 'rc_2015_title_t', 'rc_2010_rank_t', 'rc_2010_title_t', 'herdc_code_description_t');
+            foreach ($extraSolrVariables as $solrVariable) {
+                $return[substr($solrVariable, 0, -2)] = $solrVariable;
+                $res[substr($solrVariable, 0, -2)] = $solrVariable;
             }
         }
+
         if (!$assoc) {
           $return = $res;
         }

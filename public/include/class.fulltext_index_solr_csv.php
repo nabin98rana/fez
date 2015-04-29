@@ -85,7 +85,8 @@ class FulltextIndex_Solr_CSV extends FulltextIndex
           'name' => $sekDetails["sek_title_db"],
           'type' => $fieldType,
           'cardinality' => $sekDetails['sek_cardinality'],
-          'sek_lookup_function' => $sekDetails['sek_lookup_function']
+          'sek_lookup_function' => $sekDetails['sek_lookup_function'],
+          'sek_html_input' => $sekDetails['sek_html_input']
         );
         $mtColumnsHeader[] = $this->getFieldName($sekDetails["sek_title_db"], $fieldType, $isMultiple);
         // Add year and decade to solr if its a date field so they can be faceted on
@@ -102,7 +103,10 @@ class FulltextIndex_Solr_CSV extends FulltextIndex
           $mtColumnsHeader[] = $sekDetails["sek_title_solr"] . "_lookup";
           $mtColumnsHeader[] = $sekDetails["sek_title_solr"] . "_lookup_exact";
         }
-
+        if ($sekDetails['sek_html_input'] == 'contvocab' || $sekDetails['sek_html_input'] == 'allcontvocab' ) {
+            $mtColumnsHeader[] = $sekDetails["sek_title_solr"] . "_cv_desc_lookup";
+            $mtColumnsHeader[] = $sekDetails["sek_title_solr"] . "_cv_id_lookup";
+        }
 
       } else {
 
@@ -358,6 +362,27 @@ class FulltextIndex_Solr_CSV extends FulltextIndex
             }
           }
         }
+
+      if ($mtColumn['sek_html_input'] == 'allcontvocab' || $mtColumn['sek_html_input'] == 'contvocab') {
+          foreach ($csv as $rek_pid => $rek_line) {
+              $subjects = Record::getSearchKeyIndexValue($rek_pid, $mtColumn['name'], false);
+              if (!empty($subjects)) {
+                  $controlVocabDetails = array();
+                  foreach ($subjects as $cvid) {
+                      $controlVocabDetail = Controlled_Vocab::getDetails($cvid);
+                      $controlVocabDetails['cvo_title'] .= $controlVocabDetail['cvo_title'] . "\t";
+                      $controlVocabDetails['cvo_desc'] .= "\t" . $controlVocabDetail['cvo_desc'];
+                      $controlVocabDetails['cvo_external_id'] .= "\t" . $controlVocabDetail['cvo_external_id'];
+                  }
+                  $csv[$rek_pid] .= ',"' . $controlVocabDetails['cvo_desc'] . '"';
+                  $csv[$rek_pid] .= ',"' . $controlVocabDetails['cvo_external_id'] . '"';
+              } else {
+                  $csv[$rek_pid] .= ',""';
+                  $csv[$rek_pid] .= ',""';
+              }
+          }
+      }
+
       }
       /*
        * Add datastream text to CSV array
