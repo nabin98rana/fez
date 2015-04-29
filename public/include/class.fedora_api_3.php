@@ -301,6 +301,7 @@ class Fedora_API {
 				        exit;
 				}
                 $ch = curl_init($getString);
+				curl_setopt($ch, CURLOPT_SAFE_UPLOAD, false);
 				curl_setopt($ch, CURLOPT_HEADER, true);
                 curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
                 if (APP_HTTPS_CURL_CHECK_CERT == "OFF" && APP_FEDORA_APIA_PROTOCOL_TYPE == 'https://')  {
@@ -917,12 +918,13 @@ class Fedora_API {
                 $versionable = 'false';
             }
 	        $log = FezLog::get();
-//			$getString = APP_SIMPLE_FEDORA_APIM_DOMAIN."/objects/".$pid."/datastreams/".$dsID."?dsLabel=".urlencode($dsLabel)."&mimeType=".$mimeType."&formatURI="
-//				          .$formatURI."&dsState=A&logMessage=".urlencode("Modified Datastream");
+			$getString = APP_SIMPLE_FEDORA_APIM_DOMAIN."/objects/".$pid."/datastreams/".$dsID."?dsLabel=".urlencode($dsLabel)."&mimeType=".$mimetype.
+				          "&dsState=A&logMessage=".urlencode("Modified Datastream");
 
-			$getString = APP_SIMPLE_FEDORA_APIM_DOMAIN."/objects/".$pid."/datastreams/".$dsID."?versionable=".$versionable;
+//			$getString = APP_SIMPLE_FEDORA_APIM_DOMAIN."/objects/".$pid."/datastreams/".$dsID."?versionable=".$versionable;
 
 			$ch = curl_init($getString);
+			curl_setopt($ch, CURLOPT_SAFE_UPLOAD, false);
 //			curl_setopt($ch, CURLOPT_PUT, true);
 //			curl_setopt($ch, CURLOPT_HEADER, 1);
 			curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
@@ -958,7 +960,7 @@ class Fedora_API {
                               "dsLabel" => urlencode($dsLabel),
                               "versionable" => $versionable,
                               "mimeType" => $mimetype,
-                              "formatURI" => $formatURI,
+//                              "formatURI" => $formatURI,
 //															"controlGroup" => $controlGroup,
                               "dsState" => "A",
                               "logMessage" => "Modified Datastream"
