@@ -285,6 +285,11 @@
         <dynamicField name="*_mi_lookup"  type="text"    indexed="true"  stored="true" multiValued="true" />
         <dynamicField name="*_mi_lookup_exact"  type="string"    indexed="true"  stored="true" multiValued="true"/>
 
+        <dynamicField name="*_mi_cv_desc_lookup"  type="text"    indexed="true"  stored="true" multiValued="true" />
+        <dynamicField name="*_mi_cv_id_lookup"  type="text"    indexed="true"  stored="true" multiValued="true" />
+        <dynamicField name="*_i_cv_desc_lookup"  type="text"    indexed="true"  stored="true" multiValued="true" />
+        <dynamicField name="*_i_cv_id_lookup"  type="text"    indexed="true"  stored="true" multiValued="true" />
+
         <dynamicField name="*_s"  type="alphaOnlySort"  indexed="true"  stored="false"/>
         <dynamicField name="*_ms"  type="alphaOnlySort"  indexed="true"  stored="false" multiValued="true"/>
         <dynamicField name="*_mft" type="string" indexed="true" stored="false" multiValued="true"/>
@@ -353,7 +358,7 @@
     <copyField source="content" dest="text"/>
     <copyField source="*_t" dest="text"/>
     <copyField source="*_mt" dest="text"/>
-
+    <copyField source="*_lookup" dest="text"/>
 
     <!-- Similarity is the scoring routine for each document vs. a query.
          A custom similarity may be specified here, but the default is fine
