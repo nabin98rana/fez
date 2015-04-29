@@ -103,7 +103,7 @@
          replication is in use, this should match the replication
          configuration.
       -->
-    <dataDir>${solr.data.dir:}</dataDir>
+    <dataDir>/var/lib/solr</dataDir>
 
 
     <!-- The DirectoryFactory to use for indexes.

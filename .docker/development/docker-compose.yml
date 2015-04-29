@@ -1,76 +1,91 @@
+cache:
+  build: ./cache/
+
+logs:
+  build: ./logs/
+
 backend:
+  build: ./backend/
   environment:
     - APP_ENVIRONMENT=development
     - XDEBUG_CONFIG=idekey=fez
     - PHP_IDE_CONFIG=serverName=dev-fez.library.uq.edu.au
-  image: uqlibrary/docker-nginx:latest
+    - JAVA_HOME=/usr/lib/jvm/jre
+    - JHOVE_HOME=/usr/local/jhove
   links:
     - fezdb
     - fedora
     - fedoradb
     - solr
   ports:
-    - "8080:8080"
+    - "8080:80"
     - "9000:9000"
   privileged: true
   volumes:
     - ../../:/var/app/current
-    - /data/docker/fez/fedora:/espace/data
-    - /data/docker/fez/espace_san:/espace_san
-    - logs/backend/nginx:/var/log/nginx
-    - logs/backend/fpm:/var/log/php-fpm
-
-fedora:
-  image: uqlibrary/docker-fedoracommons:latest
-  links:
-    - fedoradb
-  ports:
-    - "10081:10081"
-  privileged: true
-  volumes:
-    - /data/docker/fez/fedora:/espace/data
-    - etc/fedora/tomcat-users.xml:/opt/fedora/tomcat/conf/tomcat-users.xml
-    - etc/fedora/fedora.fcfg:/opt/fedora/server/config/fedora.fcfg
-    - etc/fedora/fedora-users.xml:/opt/fedora/server/config/fedora-users.xml
-    - logs/fedora_tomcat:/opt/fedora/tomcat/logs
-    - logs/fedora:/opt/fedora/server/logs
+  volumes_from:
+    - cache
+    - fedoradata
+    - logs
 
 fezdb:
+  build: ./backend/db/
   environment:
     - MYSQL_ROOT_PASSWORD=development
     - MYSQL_USER=fez
     - MYSQL_PASSWORD=fez
     - MYSQL_DATABASE=fez
-  image: mysql:latest
   ports:
     - "3306:3306"
+  volumes_from:
+    - fezdbdata
+    - logs
+
+fezdbdata:
+  build: ./backend/db/data/
+
+fedora:
+  build: ./fedora/
+  links:
+    - fedoradb
+  ports:
+    - "10081:10081"
+    - "10082:10082"
   privileged: true
+  volumes_from:
+    - fedoradata
+    - logs
+
+fedoradata:
+  build: ./fedora/data/
   volumes:
-    - /data/docker/fez/mysql:/var/lib/mysql
-    - etc/mysql/default.cnf:/etc/mysql/conf.d/default.cnf
+    - /data/docker/fez/fedora:/espace/data
 
 fedoradb:
+  build: ./fedora/db/
   environment:
     - MYSQL_ROOT_PASSWORD=development
     - MYSQL_USER=fedoraAdmin
     - MYSQL_PASSWORD=fedoraAdmin
     - MYSQL_DATABASE=fedora3
-  image: mysql:latest
   ports:
     - "3307:3306"
   privileged: true
-  volumes:
-    - /data/docker/fez/mysql_fedora:/var/lib/mysql
-    - etc/mysql/default.cnf:/etc/mysql/conf.d/default.cnf
+  volumes_from:
+    - fedoradbdata
+    - logs
+
+fedoradbdata:
+  build: ./fedora/db/data/
 
 solr:
-  image: makuk66/docker-solr:4.10.4
+  build: ./solr/
   ports:
     - "8983:8983"
-  privileged: true
-  volumes:
-    - /data/docker/fez/solr:/opt/solr/example/solr/collection1/data
-    - etc/solr/schema.xml:/opt/solr/example/solr/collection1/conf/schema.xml
-    - etc/solr/solrconfig.xml:/opt/solr/example/solr/collection1/conf/solrconfig.xml
-    - logs/solr:/opt/solr/example/logs
-    - tmp/solr_upload:/var/app/current/.docker/development/tmp/solr_upload
+  volumes_from:
+    - cache
+    - solrdata
+    - logs
+
+solrdata:
+  build: ./solr/data/
