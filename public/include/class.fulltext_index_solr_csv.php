@@ -404,7 +404,15 @@ class FulltextIndex_Solr_CSV extends FulltextIndex
 
 
       $csv = implode("\n", $csv);
-      $tmpfname = tempnam(APP_PATH . "solr_upload", "solrCsv");
+      $localSolrFile = false;
+      if (defined('APP_SOLR_LOCAL_FILE') && APP_SOLR_LOCAL_FILE == 'ON') {
+        $localSolrFile = true;
+      }
+      $path = APP_PATH . "solr_upload";
+      if ($localSolrFile && defined('APP_SOLR_LOCAL_FILE_PATH')) {
+        $path = APP_SOLR_LOCAL_FILE_PATH;
+      }
+      $tmpfname = tempnam($path, "solrCsv");
 
       $handle = fopen($tmpfname, "w");
       fwrite($handle, $csvHeader);
@@ -424,7 +432,7 @@ class FulltextIndex_Solr_CSV extends FulltextIndex
       $postFields["commit"] = "true";
       $url = "http://" . APP_SOLR_HOST . ":" . APP_SOLR_PORT . APP_SOLR_PATH . "update/csv";
 
-      if (APP_SOLR_HOST == APP_HOSTNAME || (defined('APP_SOLR_LOCAL_FILE') && APP_SOLR_LOCAL_FILE == 'ON')) {
+      if (APP_SOLR_HOST == APP_HOSTNAME || $localSolrFile) {
         $postFields["stream.file"] = $tmpfname;
       } else {
         $url_loc = "http://" . APP_HOSTNAME . APP_RELATIVE_URL . "solr_upload/" . substr($tmpfname, (strrpos($tmpfname, "/") + 1));
