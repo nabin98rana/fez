@@ -62,6 +62,16 @@ Auth::checkAuthentication(APP_SESSION);
 $tpl = new Template_API();
 $tpl->setTemplate("workflow/index.tpl.html");
 $tpl->assign('type', 'set_template');
+$tpl->assign('set_template', '1');
+$tpl->assign('header_include_flash_uploader_files', 1); // we want to set the header to include the files if possible
+
+// if this is a thesis, hide the embargo date and file type picker because they will confuse students
+if ($xdis_title == 'Thesis') {
+    $showFileUploadExtras = 0;
+} else {
+    $showFileUploadExtras = 1;
+}
+$tpl->assign("showFileUploadExtras", $showFileUploadExtras);
 
 $isUser = Auth::getUsername();
 $isAdministrator = User::isUserAdministrator($isUser);
