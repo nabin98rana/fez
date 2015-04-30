@@ -366,7 +366,7 @@ class FulltextIndex_Solr_CSV extends FulltextIndex
       if ($mtColumn['sek_html_input'] == 'allcontvocab' || $mtColumn['sek_html_input'] == 'contvocab') {
           foreach ($csv as $rek_pid => $rek_line) {
               $subjects = Record::getSearchKeyIndexValue($rek_pid, $mtColumn['name'], false);
-              if (!empty($subjects)) {
+              if (!empty($subjects) && is_array($subjects) && count($subjects) > 0) {
                   $controlVocabDetails = array();
                   foreach ($subjects as $cvid) {
                       $controlVocabDetail = Controlled_Vocab::getDetails($cvid);
