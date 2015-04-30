@@ -219,7 +219,7 @@ class FulltextIndex_Solr_CSV extends FulltextIndex
           if (is_numeric(strpos(APP_SQL_DBTYPE, "pgsql"))) {
             $stmt .= " array_to_string(array(SELECT " . $col_name . " FROM " . APP_TABLE_PREFIX . "record_search_key_" . $mtColumn["name"] . " a1 WHERE a1.rek_" . $mtColumn["name"] . "_pid = a2.rek_" . $mtColumn["name"] . "_pid {$orderByClause}), '" . "\t" . "') AS value ";
           } else {
-            $stmt .= " GROUP_CONCAT(" . $col_name . " {$orderByClause} SEPARATOR \"\t\") as value ";
+            $stmt .= " GROUP_CONCAT(LEFT(" . $col_name . ", 31000) {$orderByClause} SEPARATOR \"\t\") as value ";
           }
         } else {
           $stmt .= " " . $col_name . " as value ";
@@ -288,7 +288,7 @@ class FulltextIndex_Solr_CSV extends FulltextIndex
             if (is_numeric(strpos(APP_SQL_DBTYPE, "pgsql"))) {
               $stmt .= " array_to_string(array(SELECT " . $col_name . " FROM " . APP_TABLE_PREFIX . "record_search_key_" . $mtColumn["name"] . " a1 WHERE a1.rek_" . $mtColumn["name"] . "_pid = a2.rek_" . $mtColumn["name"] . "_pid {$orderByClause}), '" . "\t" . "') AS value ";
             } else {
-              $stmt .= " GROUP_CONCAT(" . $col_name . " {$orderByClause} SEPARATOR \"\t\") as value ";
+              $stmt .= " GROUP_CONCAT(LEFT(" . $col_name . ", 31000) {$orderByClause} SEPARATOR \"\t\") as value ";
             }
           } else {
             $stmt .= " " . $col_name . " as value ";
@@ -395,7 +395,7 @@ class FulltextIndex_Solr_CSV extends FulltextIndex
       foreach ($csv as $rek_pid => $rek_line) {
 
         if (!empty($content[$rek_pid])) {
-          $csv[$rek_pid] .= ',"' . $content[$rek_pid] . '"';
+          $csv[$rek_pid] .= ',"' .  mb_strimwidth($content[$rek_pid], 0, 31000, "...") . '"';
         } else {
           $csv[$rek_pid] .= ',""';
         }
