@@ -796,7 +796,7 @@ class Fedora_API {
 			$getString .= "&dsLocation=".urlencode($dsLocation);
 			$ch = curl_init($getString);
  		 	curl_setopt($ch, CURLOPT_POST, 1);
-
+			curl_setopt($ch, CURLOPT_SAFE_UPLOAD, false);
 			curl_setopt($ch, CURLOPT_POSTFIELDS, array("dsLocation" => $dsLocation,
 														"dsLabel" => urlencode($dsLabel),
 														"versionable" => $versionable,
@@ -809,6 +809,7 @@ class Fedora_API {
 
 		} elseif ($xmlContent != "") {
 			$ch = curl_init($getString);
+			curl_setopt($ch, CURLOPT_SAFE_UPLOAD, false);
  		 	curl_setopt($ch, CURLOPT_POST, 1);
 			if ($controlGroup == 'X') {
 				$xmlContent = Fedora_API::tidyXML($xmlContent);
@@ -834,6 +835,7 @@ class Fedora_API {
 
 		} elseif ($dsLocation != "" && $controlGroup == "M") {
 			$ch = curl_init($getString);
+			curl_setopt($ch, CURLOPT_SAFE_UPLOAD, false);
 	 		 curl_setopt($ch, CURLOPT_POST, 1);
 //			curl_setopt($ch, CURLOPT_POSTFIELDS, array("file[]" => "@".$dsLocation.";type=".$mimetype));
 //$log->err("OMG: $dsLocation");
