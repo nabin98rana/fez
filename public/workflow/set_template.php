@@ -72,7 +72,14 @@ if ($xdis_title == 'Thesis') {
     $showFileUploadExtras = 1;
 }
 $tpl->assign("showFileUploadExtras", $showFileUploadExtras);
-
+// if we have uploaded files using the flash uploader, then generate $_FILES array entries for them
+if (isset($_POST['uploader_files_uploaded']) && APP_FEDORA_BYPASS != 'ON')
+{
+    $tmpFilesArray = Uploader::generateFilesArray($wfstatus->id, $_POST['uploader_files_uploaded']);
+    if (count($tmpFilesArray)) {
+        $_FILES = $tmpFilesArray;
+    }
+}
 $isUser = Auth::getUsername();
 $isAdministrator = User::isUserAdministrator($isUser);
 
