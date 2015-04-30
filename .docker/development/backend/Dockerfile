@@ -12,5 +12,8 @@ RUN mkdir -p /espace/data && \
   sed -i "s/memory_limit = 128M/memory_limit = 800M/" /etc/php.ini && \
   sed -i "s/post_max_size = 8M/post_max_size = 800M/" /etc/php.ini && \
   sed -i "s/upload_max_filesize = 30M/upload_max_filesize = 800M/" /etc/php.ini && \
+  sed -i "s/keepalive_timeout 5 5;/keepalive_timeout 10 10;/" /etc/nginx/nginx.conf && \
+  sed -i "s/send_timeout 10;/send_timeout 60;/" /etc/nginx/nginx.conf && \
+  sed -i "s/client_body_timeout 10;/client_body_timeout 60;/" /etc/nginx/nginx.conf && \
   sed -i "s/; max_input_vars = 1000/max_input_vars = 5000/" /etc/php.ini && \
   usermod -u 1000 nobody
