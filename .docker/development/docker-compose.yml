@@ -19,7 +19,7 @@ backend:
     - solr
   ports:
     - "8080:8080"
-      privileged: true
+  privileged: true
   volumes:
     - ../../:/var/app/current
   volumes_from:
