@@ -541,7 +541,12 @@ class Controlled_Vocab
 	}
 
   /**
+   * Method used to get the ID of a specific controlled vocabulary.
    *
+   * @access public
+   * @param  string $cvo_title The controlled vocabulary title
+   * @param  int $cvo_parent_id restricts to children of the given parent text
+   * @return string The ID of the controlled vocabulary
    */
   function getIDByTitleAndParentID($cvo_title, $cvo_parent_id)
   {
