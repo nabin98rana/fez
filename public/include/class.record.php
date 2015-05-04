@@ -5089,7 +5089,8 @@ function getSearchKeyIndexValueShadow($pid, $searchKeyTitle, $getLookup=true, $s
     // hose the index array as we'll generate it from the ingested object later
     $indexArray = array();
     $datastreamTitles = $display->getDatastreamTitles();
-    return compact('datastreamTitles', 'xmlObj', 'indexArray', 'xdis_id');
+    $rawPost = $_POST;
+    return compact('datastreamTitles', 'xmlObj', 'indexArray', 'xdis_id', 'rawPost');
   }
 
   /**
