@@ -3014,6 +3014,27 @@ class XSD_HTML_Match
 			return $res;
 		}
 
+  function getDetailsBySekIDXDIS_ID($sek_id, $xdis_str='')
+  {
+    $log = FezLog::get();
+    $db = DB_API::get();
+
+    $stmt = "SELECT
+	                   *
+	                FROM
+	                   " . APP_TABLE_PREFIX . "xsd_display_matchfields x1
+					WHERE
+	                   x1.xsdmf_sek_id = ".$db->quote($sek_id) . " AND x1.xsdmf_xdis_id in (".$xdis_str.")";
+    try {
+      $res = $db->fetchRow($stmt);
+    }
+    catch(Exception $ex) {
+      $log->err($ex);
+      return array();
+    }
+    return $res;
+  }
+
 
 
 		/**
