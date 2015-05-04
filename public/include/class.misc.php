@@ -1168,17 +1168,29 @@ public static function multi_implode($glue, $pieces)
    *
    * @access  public
    * @param   string $directory The path to list the files from
+   * @param   bool $fullPath Return the full path to the file if true otherwise just the file name. Default is false.
+   * @param   bool  $recursive Recursively find files if true, otherwise only files immediately under the specified directory. Default is false.
    * @return  array The list of files
    */
-  function getFileList($directory)
-  {
+  function getFileList($directory, $fullPath = false, $recursive = false) {
     $files = array();
+    if (substr($directory, -1) !== '/') {
+      $directory .= '/';
+    }
     $dir = @opendir($directory);
     while ($item = @readdir($dir)) {
       if (($item == '.') || ($item == '..') || ($item == 'CVS') || ($item == 'SCCS')) {
         continue;
       }
-      $files[] = $item;
+      if ($recursive && is_dir($directory . $item)) {
+        $files = array_merge(Misc::getFileList($directory . $item, $fullPath, true), $files);
+      }
+      if ($fullPath) {
+        $files[] = $directory . $item;
+      }
+      else {
+        $files[] = $item;
+      }
     }
     return $files;
   }
