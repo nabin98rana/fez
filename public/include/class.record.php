@@ -3517,6 +3517,10 @@ class Record
       return false;
     }
 
+    if(!is_numeric($difference)) {
+      $difference = is_numeric($count) ? $count : NULL;
+    }
+
     $stmt = "INSERT INTO
                     " . $dbtp . "thomson_citations
                  (tc_id, tc_count, tc_last_checked, tc_created, tc_isi_loc, tc_diff_previous)
@@ -3705,6 +3709,10 @@ class Record
     catch(Exception $ex) {
       $log->err($ex);
       return false;
+    }
+
+    if(!is_numeric($difference)) {
+        $difference = is_numeric($count) ? $count : NULL;
     }
 
     $stmt = "INSERT INTO
