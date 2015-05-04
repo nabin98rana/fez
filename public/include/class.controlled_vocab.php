@@ -540,6 +540,36 @@ class Controlled_Vocab
 		return $res;
 	}
 
+  /**
+   *
+   */
+  function getIDByTitleAndParentID($cvo_title, $cvo_parent_id)
+  {
+    $log = FezLog::get();
+    $db = DB_API::get();
+
+    $stmt = "SELECT cvo_id FROM " . APP_TABLE_PREFIX . "controlled_vocab ";
+
+    if (!empty($parent) && !empty($cvo_parent_id)) {
+      $stmt .= " LEFT JOIN " . APP_TABLE_PREFIX . "controlled_vocab_relationship ON cvr_child_cvo_id = cvo_id ";
+    }
+
+    $stmt .= " WHERE cvo_title LIKE ".$db->quote($cvo_title."%");
+
+    if (!empty($parent) && !empty($cvo_parent_id)) {
+      $stmt .= " AND cvr_parent_cvo_id = ".$db->quote($cvo_parent_id);
+    }
+
+    try {
+      $res = $db->fetchOne($stmt);
+    }
+    catch(Exception $ex) {
+      $log->err($ex);
+      return '';
+    }
+    return $res;
+  }
+
 	/**
 	 * Method used to get the list of controlled vocabularies available in the
 	 * system returned in an associative array for drop down lists.
