@@ -1486,7 +1486,7 @@ class BatchImport
 
   function isCollectionSpecificImport($collection_pid)
   {
-    return false; // Disabled - set to true for testing
+    return true; // Disabled - set to true for testing
   }
 
   /**

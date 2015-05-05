@@ -59,7 +59,7 @@ fedoradata:
   build: ./fedora/data/
   volumes:
     - /data/docker/fez/fedora:/espace/data
-
+    - /data/docker/fez/espace_san:/espace_san
 fedoradb:
   build: ./fedora/db/
   environment:

@@ -2,6 +2,7 @@
 
 include_once(dirname(dirname(__FILE__)).DIRECTORY_SEPARATOR."config.inc.php");
 require_once(__DIR__ . '/class.record.php');
+require_once(__DIR__ . '/class.uploader.php');
 require_once(__DIR__ . '/class.datastream.php');
 
 /**
@@ -158,6 +159,7 @@ class Flint
           $transcriptFile = dirname($file) . '/' . $snippetFileParts[0] . '.txt';
           $values['Transcript'] =  '';
           $values['TranscriptFile'] = $transcriptFile;
+          $values['Directory'] = dirname($file) . '/';
           if (is_file($transcriptFile)) {
             $values['Transcript'] = nl2br(Misc::getFileContents($transcriptFile));
           }
@@ -181,6 +183,8 @@ class Flint
      */
     function importRecord($collection_pid, $xdis_id, $dsarray, $recData)
     {
+      $log = FezLog::get();
+
       $params = $dsarray['rawPost'];
       $params['xdis_id'] = $xdis_id;
       $params['sta_id'] = 1; // unpublished record
@@ -318,8 +322,29 @@ class Flint
       //$tmpFilesArray = Uploader::generateFilesArray($wfstatus->id, $_POST['uploader_files_uploaded']);
 
 
+
+
       $record = new RecordObject();
+      $wfstatus = new WorkflowStatus();
+
+      // Copy the non-metadata files into the temporary uploader directory
+      $destDir = Uploader::getUploadedFilePath($wfstatus->id) . '/';
+
+      $ret = mkdir($destDir, 0775, true);
+
+      if(!$ret) {
+        $log->err(array("Cache Page Failed - Could not create folder " . $this->cachePath, __FILE__ , __LINE__ ));
+        return;
+      }
+
+      copy($recData['Directory'].$recData['SnippetSoundFileWAV'], $destDir.$recData['SnippetSoundFileWAV']);
+      copy($recData['Directory'].$recData['SnippetSoundFileMP3'], $destDir.$recData['SnippetSoundFileMP3']);
+
+      $xsdmf_id = XSD_HTML_Match::getXSDMF_IDByElement('!datastream!datastreamVersion!binaryContent', $xdis_id);
+      $params['uploader_files_uploaded'] = $xsdmf_id;
       $pid = $record->fedoraInsertUpdate(array(),array(),$params);
+
+      // TODO : may have to unlink/delete the temporary files, maybe not will check first
 
       // Return the data for debugging purposes
       return array(
