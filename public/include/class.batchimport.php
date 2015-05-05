@@ -1392,7 +1392,9 @@ class BatchImport
 
 
 	/**
-	 * The main method for batch importing. It opens up each file in the specified directory, scans for content type and imports accordingly.
+	 * The main method for batch importing. It opens up each file in the specified directory,
+   * scans for content type and imports accordingly. It can also handle custom imports based on
+   * a selected collection.
 	 *
 	 * @access  public
 	 * @param   array $dsarray
@@ -1400,80 +1402,116 @@ class BatchImport
 	 */
 	function insert($directory, $xdis_id, $collection_pid, $dsarray=null)
 	{
-		//open the current directory
-		$ret_id = 3; // standard record type id
-		$sta_id = Status::getID("In Creation"); // standard status type id
-		$xsd_id = XSD_Display::getParentXSDID($xdis_id);
-		$xsd_details = Doc_Type_XSD::getDetails($xsd_id);
-		$xsd_element_prefix = $xsd_details['xsd_element_prefix'];
-		$xsd_top_element_name = $xsd_details['xsd_top_element_name'];
-		$datastreamTitles = XSD_Loop_Subelement::getDatastreamTitles($xdis_id);
-		$parent_pid = $collection_pid;
-		$dir_name = APP_SAN_IMPORT_DIR.$directory;
-		$directory_h = opendir($dir_name);
-		while (false !== ($file = readdir($directory_h))) {
-			if (is_file($dir_name."/".$file)) {
-				$filenames[$dir_name."/".$file] = $file;
-			}
-		}
-		closedir($directory_h);
-		$counter = 0;
-		foreach ($filenames as $full_name => $short_name) {
-			$counter++;
-			$handled_as_xml = false;
-			$pid = Fedora_API::getNextPID();
-			// Also need to add the FezMD and RELS-EXT - FezACML probably not necessary as it can be inhereted
-			// and the FezMD can have status - 'freshly uploaded' or something.
+    if ($this->isCollectionSpecificImport($collection_pid)) {
+      $this->handleCollectionSpecificImport($directory, $xdis_id, $collection_pid, $dsarray);
 
-			$filename_ext = strtolower(substr($short_name, (strrpos($short_name, ".") + 1)));
-			if ($filename_ext == "xml") {
-				$xmlObj = file_get_contents($full_name);
-				if (is_numeric(strpos($xmlObj, "foxml:digitalObject"))) {
-					$this->handleFOXMLImport($xmlObj);
-					Record::setIndexMatchingFields($pid);
-					$handled_as_xml = true;
-					// Newer versions of eprints have URIs so took out the ">"
-				} elseif (is_numeric(strpos($xmlObj, "<eprintsdata"))) {
-					$this->handleEntireEprintsImport($pid, $collection_pid, $xmlObj);
-					$handled_as_xml = true;
-				} elseif (is_numeric(strpos($xmlObj, "METS:mets"))) {
-					$xmlBegin = $this->ConvertMETSToFOXML($pid, $xmlObj, $collection_pid, $short_name, $xdis_id, $ret_id, $sta_id);
-					$xmlObj = $this->handleMETSImport($pid, $xmlObj, $xmlBegin, $xdis_id);
-					$handled_as_xml = true;
-				}
-			}
-			if (!$handled_as_xml) {
-				if ($this->bgp) {
-					$this->bgp->setProgress(intval($counter*100/count($filenames)));
-					$this->bgp->setStatus($pid." - ".$short_name);
-				}
-				// Create the Record in Fedora
-				if (empty($dsarray)) {
-					// use default metadata
-					$xmlObj = Foxml::GenerateSingleFOXMLTemplate($pid, $parent_pid, $full_name, $short_name,
-					$xdis_id, $ret_id, $sta_id);
-					//Insert the generated foxml object
-					Fedora_API::callIngestObject($xmlObj);
-				} else {
-					// use metadata from a user template
-					Record::insertFromTemplate($pid, $xdis_id, $short_name, $dsarray);
-				}
-				// add the binary batch import file.
-				$this->handleStandardFileImport($pid, $full_name, $short_name, $xdis_id);
-				Record::setIndexMatchingFields($pid);
-				if ($this->bgp) {
-					$this->bgp->setStatus('Imported '.$counter.' files');
-				}
-			}
+    } else {
+      //open the current directory
+      $ret_id = 3; // standard record type id
+      $sta_id = Status::getID("In Creation"); // standard status type id
+      $xsd_id = XSD_Display::getParentXSDID($xdis_id);
+      $xsd_details = Doc_Type_XSD::getDetails($xsd_id);
+      $xsd_element_prefix = $xsd_details['xsd_element_prefix'];
+      $xsd_top_element_name = $xsd_details['xsd_top_element_name'];
+      $datastreamTitles = XSD_Loop_Subelement::getDatastreamTitles($xdis_id);
+      $parent_pid = $collection_pid;
+      $dir_name = APP_SAN_IMPORT_DIR.$directory;
+      $directory_h = opendir($dir_name);
+      while (false !== ($file = readdir($directory_h))) {
+        if (is_file($dir_name."/".$file)) {
+          $filenames[$dir_name."/".$file] = $file;
+        }
+      }
+      closedir($directory_h);
+      $counter = 0;
 
-		}
-		if ($this->bgp) {
+      foreach ($filenames as $full_name => $short_name) {
+        $counter++;
+        $handled_as_xml = FALSE;
+        $pid = Fedora_API::getNextPID();
+        // Also need to add the FezMD and RELS-EXT - FezACML probably not necessary as it can be inhereted
+        // and the FezMD can have status - 'freshly uploaded' or something.
+
+        $filename_ext = strtolower(substr($short_name, (strrpos($short_name, ".") + 1)));
+        if ($filename_ext == "xml") {
+          $xmlObj = file_get_contents($full_name);
+          if (is_numeric(strpos($xmlObj, "foxml:digitalObject"))) {
+            $this->handleFOXMLImport($xmlObj);
+            Record::setIndexMatchingFields($pid);
+            $handled_as_xml = TRUE;
+            // Newer versions of eprints have URIs so took out the ">"
+          }
+          elseif (is_numeric(strpos($xmlObj, "<eprintsdata"))) {
+            $this->handleEntireEprintsImport($pid, $collection_pid, $xmlObj);
+            $handled_as_xml = TRUE;
+          }
+          elseif (is_numeric(strpos($xmlObj, "METS:mets"))) {
+            $xmlBegin = $this->ConvertMETSToFOXML($pid, $xmlObj, $collection_pid, $short_name, $xdis_id, $ret_id, $sta_id);
+            $xmlObj = $this->handleMETSImport($pid, $xmlObj, $xmlBegin, $xdis_id);
+            $handled_as_xml = TRUE;
+          }
+        }
+        if (!$handled_as_xml) {
+          if ($this->bgp) {
+            $this->bgp->setProgress(intval($counter * 100 / count($filenames)));
+            $this->bgp->setStatus($pid . " - " . $short_name);
+          }
+          // Create the Record in Fedora
+          if (empty($dsarray)) {
+            // use default metadata
+            $xmlObj = Foxml::GenerateSingleFOXMLTemplate($pid, $parent_pid, $full_name, $short_name,
+              $xdis_id, $ret_id, $sta_id);
+            //Insert the generated foxml object
+            Fedora_API::callIngestObject($xmlObj);
+          }
+          else {
+            // use metadata from a user template
+            Record::insertFromTemplate($pid, $xdis_id, $short_name, $dsarray);
+          }
+          // add the binary batch import file.
+          $this->handleStandardFileImport($pid, $full_name, $short_name, $xdis_id);
+          Record::setIndexMatchingFields($pid);
+          if ($this->bgp) {
+            $this->bgp->setStatus('Imported ' . $counter . ' files');
+          }
+        }
+
+      }
+    }
+
+    if ($this->bgp) {
 			$this->bgp->setProgress(100);
 		}
 	}
 
+  function isCollectionSpecificImport($collection_pid)
+  {
+    return false; // Disabled - set to true for testing
+  }
 
-
+  /**
+   * Handles a custom import based on a selected collection.
+   *
+   * @access  public
+   * @param   array $dsarray
+   * @return  void
+   */
+  function handleCollectionSpecificImport($directory, $xdis_id, $collection_pid, $dsarray)
+  {
+    // Check if flint import using a lookup of $collection_pid
+    if (true) {
+      include_once(APP_INC_PATH . "class.flint.php");
+      $dir_name = APP_SAN_IMPORT_DIR;
+      if (substr($dir_name, -1) !== '/') {
+        $dir_name .= '/';
+      }
+      $dir_name .= $directory;
+      Flint::batchImport($this->bgp, $dir_name, $xdis_id, $collection_pid, $dsarray);
+    }
+    if ($this->bgp) {
+      $this->bgp->setProgress(100);
+    }
+  }
 
 	/**
 	 * Method used to extra the OAI dublin core metadata from an xml string.

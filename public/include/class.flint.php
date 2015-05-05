@@ -47,4 +47,285 @@ class Flint
         }
         return $res;
     }
+
+    /**
+     * Handles the import of Flint records from the SAN when the Flint collection
+     * was selected in a batch import workflow
+     *
+     * @access public
+     * @param BackgroundProcess $bgp The background process which triggered this import
+     * @param string $directory The SAN directory of files to import
+     * @param int $xdis_id The type of document
+     * @param string $collection_pid The collection being imported into
+     * @param array $dsarray An array of template fields
+     * @return bool True if the import succeeded, otherwise false
+     */
+    function batchImport(&$bgp, $directory, $xdis_id, $collection_pid, $dsarray)
+    {
+      $log = FezLog::get();
+
+      // Expect to be run in the context of a background process.
+      if (! $bgp || ! $bgp instanceof BackgroundProcess) {
+        $log->err('Flint batch import failed - not running within a background process.');
+        return false;
+      }
+
+      // Expect a valid import directory.
+      if (! is_dir($directory)) {
+        $bgp->setStatus('Flint batch import failed - the batch import directory "' . $directory . '" does not exist.');
+        return false;
+      }
+
+      // Get a list of file names ending in *_metadata.txt.
+      $files = Misc::getFileList($directory, true, true);
+      $metadata_files = array();
+      foreach ($files as $file) {
+        if (Misc::endsWith(strtolower($file), '_metadata.txt')) {
+          $metadata_files[] = $file;
+        }
+      }
+      if (count($metadata_files) === 0) {
+        $bgp->setStatus('Flint batch import failed - no metadata files found (i.e. files ending with "_metadata.txt").');
+        return false;
+      }
+
+      // Loop through each metadata file and parse the data to import. Bail if there is a parse error.
+      $importData = array();
+      foreach ($metadata_files as $file) {
+        $parsedData = Flint::parseBatchImportMetadataFile($file);
+        if (! $parsedData) {
+          $bgp->setStatus('Flint batch import failed - failed to parse metadata file "' . $file . '"');
+          return false;
+        }
+        $importData[] = $parsedData;
+      }
+
+      // Loop through parsed data and import.
+      $count = 1;
+      foreach ($importData as $data) {
+        $bgp->setProgress(intval(($count / count($importData)) * 100));
+        foreach ($data as $d) {
+          $result = Flint::importRecord($collection_pid, $xdis_id, $dsarray, $d);
+          $bgp->setStatus($result['pid']);
+          $bgp->setStatus(print_r($result['recData'], true));
+          $bgp->setStatus(print_r($result['params'], true));
+          return true; // DEBUG
+        }
+        $count++;
+      }
+
+      return true;
+    }
+
+    /**
+     * Parses a metadata file and returns the data in an array ready for ingesting.
+     * @param string $file The file to parse
+     * @return array|bool An array of data for ingesting, unless a parse error occurred in which case false is returned
+     */
+    function parseBatchImportMetadataFile($file)
+    {
+      $importData = array();
+      if (! is_file($file)) {
+        return false;
+      }
+      $handle = fopen($file, 'r');
+      if (! $handle) {
+        return false;
+      }
+
+      $lineCount = 1;
+      $keys = array();
+      while (($line = fgets($handle)) !== false) {
+        if ($lineCount === 1 && stripos($line, 'SnippetSoundFileWAV|') !== 0) {
+          // First line invalid bailing..
+          return false;
+        } else if ($lineCount === 1) {
+          $keys = explode('|', $line);
+        }
+        else {
+          $values = array();
+          $data = explode('|', $line);
+          if (count($data) !== count($keys)) {
+            // Headings do not match with values, bailing..
+            return false;
+          }
+          for ($i = 0; $i < count($data); $i++) {
+            $k = trim($keys[$i]);
+            $values[$k] = trim($data[$i]);
+          }
+          // Get the transcript from the file matching this line
+          $snippetFileParts = explode('.', $values['SnippetSoundFileWAV']);
+          $transcriptFile = dirname($file) . '/' . $snippetFileParts[0] . '.txt';
+          $values['Transcript'] =  '';
+          $values['TranscriptFile'] = $transcriptFile;
+          if (is_file($transcriptFile)) {
+            $values['Transcript'] = nl2br(Misc::getFileContents($transcriptFile));
+          }
+
+          $importData[] = $values;
+        }
+        $lineCount++;
+      }
+      fclose($handle);
+
+      return $importData;
+    }
+
+    /**
+     * Imports a record
+     * @param int $collection_pid The collection the record will be added to
+     * @param int $xdis_id The type of document
+     * @param array $dsarray An array of template fields
+     * @param array $recData An array of data to import
+     * @return array
+     */
+    function importRecord($collection_pid, $xdis_id, $dsarray, $recData)
+    {
+      $params = $dsarray['rawPost'];
+      $params['xdis_id'] = $xdis_id;
+      $params['sta_id'] = 1; // unpublished record
+      $params['collection_pid'] = $collection_pid;
+
+      $xdis_list = XSD_Relationship::getListByXDIS($xdis_id);
+      array_push($xdis_list, array("0" => $xdis_id));
+      $xdis_str = Misc::sql_array_to_string($xdis_list);
+
+      // Title
+      // Replace template placeholder title
+      foreach ($params['xsd_display_fields'] as $k => $v) {
+        if ($v == '__makeInsertTemplate_DCTitle__') {
+          $params['xsd_display_fields'][$k] = $recData['Title'];
+        }
+      }
+      $xsdmf = XSD_HTML_Match::getDetailsBySekIDXDIS_ID(Search_Key::getID('Title'), $xdis_str);
+      if ($xsdmf) {
+        $params['xsd_display_fields'][$xsdmf['xsdmf_id']] = $recData['Title'];
+      }
+
+      // Creator
+      $xsdmf = XSD_HTML_Match::getDetailsBySekIDXDIS_ID(Search_Key::getID('Author'), $xdis_str);
+      if ($xsdmf) {
+        $params['xsd_display_fields'][$xsdmf['xsdmf_id']] = array(); // Clear any previous values
+        $params['xsd_display_fields'][$xsdmf['xsdmf_id']][] = 'Flint, Elwyn Henry';
+      }
+
+      // Genre
+      $xsdmf = XSD_HTML_Match::getDetailsBySekIDXDIS_ID(Search_Key::getID('Alternate Genre'), $xdis_str);
+      if ($xsdmf) {
+        $cvo_id = Controlled_Vocab::getIDByTitleAndParentID($recData['Genre'], $xsdmf['xsdmf_cvo_id']);
+        if ($cvo_id) {
+          $params['xsd_display_fields'][$xsdmf['xsdmf_id']] = array(); // Clear any previous values
+          $params['xsd_display_fields'][$xsdmf['xsdmf_id']][] = $cvo_id;
+        }
+      }
+
+      // ContributorIdentities
+      $xsdmf = XSD_HTML_Match::getDetailsBySekIDXDIS_ID(Search_Key::getID('Contributor'), $xdis_str);
+      if ($xsdmf) {
+        // Split input from file using comma
+        $params['xsd_display_fields'][$xsdmf['xsdmf_id']] = array(); // Clear any previous values
+        $contributors = explode(',', $recData['ContributorIdentities']);
+        foreach ($contributors as $c) {
+          $params['xsd_display_fields'][$xsdmf['xsdmf_id']][] = trim($c);
+        }
+      }
+
+      // SourceField
+      $xsdmf = XSD_HTML_Match::getDetailsBySekIDXDIS_ID(Search_Key::getID('Source'), $xdis_str);
+      if ($xsdmf) {
+        $params['xsd_display_fields'][$xsdmf['xsdmf_id']] = $recData['SourceField'];
+      }
+
+      // Duration
+      $xsdmf = XSD_HTML_Match::getDetailsBySekIDXDIS_ID(Search_Key::getID('Length'), $xdis_str);
+      if ($xsdmf) {
+        $params['xsd_display_fields'][$xsdmf['xsdmf_id']] = $recData['Duration'];
+      }
+
+      // RecordingDate
+      $xsdmf = XSD_HTML_Match::getDetailsBySekIDXDIS_ID(Search_Key::getID('Date Recorded'), $xdis_str);
+      if ($xsdmf) {
+        $recDate = explode('/', $recData['RecordingDate']);
+        $year = $recDate[2];
+        if (strlen($year) === 2) {
+          $year = '19' . $year;
+        }
+        $params['xsd_display_fields'][$xsdmf['xsdmf_id']]['Year'] = $year;
+        $params['xsd_display_fields'][$xsdmf['xsdmf_id']]['Month'] = $recDate[1];
+        $params['xsd_display_fields'][$xsdmf['xsdmf_id']]['Day'] = $recDate[0];
+      }
+
+      // RecordingPlace
+      $xsdmf = XSD_HTML_Match::getDetailsBySekIDXDIS_ID(Search_Key::getID('Location'), $xdis_str);
+      if ($xsdmf) {
+        $params['xsd_display_fields'][$xsdmf['xsdmf_id']] = $recData['RecordingPlace'];
+      }
+
+      // Transcript
+      $xsdmf = XSD_HTML_Match::getDetailsBySekIDXDIS_ID(Search_Key::getID('Transcript'), $xdis_str);
+      if ($xsdmf) {
+        $params['xsd_display_fields'][$xsdmf['xsdmf_id']] = $recData['Transcript'];
+      }
+
+      // Series
+      $xsdmf = XSD_HTML_Match::getDetailsBySekIDXDIS_ID(Search_Key::getID('Series'), $xdis_str);
+      if ($xsdmf) {
+        $params['xsd_display_fields'][$xsdmf['xsdmf_id']] = 'Elwyn Flint collection, UQFL173';
+      }
+
+      // Type
+      $xsdmf = XSD_HTML_Match::getDetailsBySekIDXDIS_ID(Search_Key::getID('Genre'), $xdis_str);
+      if ($xsdmf) {
+        $params['xsd_display_fields'][$xsdmf['xsdmf_id']] = 'audio/wav'; // Hardcoded
+      }
+
+      // Group
+      $xsdmf = XSD_HTML_Match::getDetailsBySekIDXDIS_ID(Search_Key::getID('Identifier'), $xdis_str);
+      if ($xsdmf) {
+        $params['xsd_display_fields'][$xsdmf['xsdmf_id']] = 'Group ' . $recData['GroupID'];
+      }
+
+      /* Language (AIATSIS code) - where is this coming from? It's not in the metadata file..
+      $xsdmf = XSD_HTML_Match::getDetailsBySekIDXDIS_ID(Search_Key::getID('Subject'), $xdis_str);
+      if ($xsdmf) {
+        $cvo_id = Controlled_Vocab::getIDByTitleAndParentID($recData['Language'], $xsdmf['xsdmf_cvo_id']);
+        if ($cvo_id) {
+          $params['xsd_display_fields'][$xsdmf['xsdmf_id']][] = $cvo_id;
+        }
+      }*/
+
+      // Not sure whether these will be in the import
+      /*
+      $xsdmf_id = XSD_HTML_Match::getXSDMFIDByTitleXDIS_ID('Abstract/Summary', $xdis_id);
+      if ($xsdmf_id) {
+        $params['xsd_display_fields'][$xsdmf_id] = 'The Flint papers comprise written documents..';
+      }
+
+      $xsdmf_id = XSD_HTML_Match::getXSDMFIDByTitleXDIS_ID('Keyword', $xdis_id);
+      if ($xsdmf_id) {
+        $params['xsd_display_fields'][$xsdmf_id][] = 'Aboriginal Australians -- Languages';
+        $params['xsd_display_fields'][$xsdmf_id][] = 'Queensland Speech Survey';
+        $params['xsd_display_fields'][$xsdmf_id][] = 'Culture, stories, people';
+      }
+
+      $xsdmf_id = XSD_HTML_Match::getXSDMFIDByTitleXDIS_ID('Acknowledgements', $xdis_id);
+      if ($xsdmf_id) {
+        $params['xsd_display_fields'][$xsdmf_id] = 'This project supported by the Australia National Data Service [MODC 23]';
+      }
+      */
+
+      //$_POST['uploader_files_uploaded']
+      //$tmpFilesArray = Uploader::generateFilesArray($wfstatus->id, $_POST['uploader_files_uploaded']);
+
+
+      $record = new RecordObject();
+      $pid = $record->fedoraInsertUpdate(array(),array(),$params);
+
+      // Return the data for debugging purposes
+      return array(
+        'pid' => $pid,
+        'recData' => $recData,
+        'params' => $params,
+      );
+    }
 }
