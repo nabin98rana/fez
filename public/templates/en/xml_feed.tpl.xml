@@ -840,6 +840,34 @@
 		</subjects>
 	{/if}
 
+    {if $list[i].rek_subject_mi_lookup}
+    <subject_lookups>
+        {if !is_array($list[i].rek_subject_mi_lookup)}
+        <subject_lookup>{$list[i].rek_subject_mi_lookup}</subject_lookup>
+        {else}
+        {section name="subject_lookup_loop" loop=$list[i].rek_subject_mi_lookup}
+        <subject_lookup>{$list[i].rek_subject_mi_lookup[subject_lookup_loop]}</subject_lookup>
+        {sectionelse}
+        <subject_lookup />
+        {/section}
+        {/if}
+    </subject_lookups>
+    {/if}
+
+    {if $list[i].rek_alternate_genre_mi_lookup}
+    <alternate_genre_lookups>
+        {if !is_array($list[i].rek_alternate_genre_mi_lookup)}
+        <alternate_genre_lookup>{$list[i].rek_alternate_genre_mi_lookup}</alternate_genre_lookup>
+        {else}
+        {section name="alternate_genre_lookup_loop" loop=$list[i].rek_alternate_genre_mi_lookup}
+        <alternate_genre_lookup>{$list[i].rek_alternate_genre_mi_lookup[alternate_genre_lookup_loop]}</alternate_genre_lookup>
+        {sectionelse}
+        <alternate_genre_lookup />
+        {/section}
+        {/if}
+    </alternate_genre_lookups>
+    {/if}
+    
 	{if $list[i].rek_refereed}
 		<refereeds>
 		{if !is_array($list[i].rek_refereed)}
@@ -896,6 +924,19 @@
 		</notess>
 	{/if}
 
+    {if $list[i].rek_transcript}
+    <transcript>
+        {if !is_array($list[i].rek_transcript)}
+        <transcript>{$list[i].rek_transcript}</transcript>
+        {else}
+        {section name="transcript_loop" loop=$list[i].rek_transcript}
+        <transcript>{$list[i].rek_transcript[transcript_loop]}</transcript>
+        {sectionelse}
+        <transcript />
+        {/section}
+        {/if}
+    </transcript>
+    {/if}
 	{if $list[i].rek_file_attachment_name}
 		{assign var="loop_format" value=$list[i].rek_file_attachment_name}
 		<datastream_links>
