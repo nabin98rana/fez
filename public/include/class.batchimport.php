@@ -1506,7 +1506,8 @@ class BatchImport
         $dir_name .= '/';
       }
       $dir_name .= $directory;
-      Flint::batchImport($this->bgp, $dir_name, $xdis_id, $collection_pid, $dsarray);
+      $flintImport = new Flint();
+      $flintImport->batchImport($this->bgp, $dir_name, $xdis_id, $collection_pid, $dsarray);
     }
     if ($this->bgp) {
       $this->bgp->setProgress(100);
