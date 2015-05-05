@@ -1402,9 +1402,9 @@ class BatchImport
 	 */
 	function insert($directory, $xdis_id, $collection_pid, $dsarray=null)
 	{
-    if ($this->isCollectionSpecificImport($collection_pid)) {
-      $this->handleCollectionSpecificImport($directory, $xdis_id, $collection_pid, $dsarray);
-
+    $importClass = $this->getCollectionSpecificImport($xdis_id, $collection_pid);
+    if ($importClass) {
+      $this->handleCollectionSpecificImport($importClass, $directory, $xdis_id, $collection_pid, $dsarray);
     } else {
       //open the current directory
       $ret_id = 3; // standard record type id
@@ -1484,31 +1484,70 @@ class BatchImport
 		}
 	}
 
-  function isCollectionSpecificImport($collection_pid)
+  /**
+   * Checks to see if the selected collection PID has a specific import associated with it by checking
+   * the keywords on $collection_pid
+   *
+   * @param $xdis_id
+   * @param $collection_pid
+   * @return object|bool The import class otherwise false indicating this collection does not have a specific import associated with it
+   */
+  function getCollectionSpecificImport($xdis_id, $collection_pid)
   {
-    return true; // Disabled - set to true for testing
+    $record = new RecordObject($collection_pid);
+    $record->getDisplay();
+    $details = $record->getDetails();
+    $xdis_list = XSD_Relationship::getListByXDIS($record->xdis_id);
+    array_push($xdis_list, array("0" => $record->xdis_id));
+    $xdis_str = Misc::sql_array_to_string($xdis_list);
+    $xsdmf = XSD_HTML_Match::getDetailsBySekIDXDIS_ID(Search_Key::getID('Keywords'), $xdis_str);
+
+    if ($xsdmf && array_key_exists($xsdmf['xsdmf_id'], $details)) {
+      $keywords = $details[$xsdmf['xsdmf_id']];
+      $search = 'BATCH_IMPORT:';
+      foreach ($keywords as $k) {
+        if (stripos($k, $search) === 0) {
+          $parts = explode(':', $k);
+          if (count($parts) === 2) {
+            $file = strtolower($parts[1]);
+            if (
+              preg_match('/^([a-z0-9]*)$/', $file) &&
+              is_file(APP_INC_PATH . 'class.' . $file . '.php')
+            ) {
+              include_once(APP_INC_PATH . 'class.' . $file . '.php');
+              $class = ucfirst($file);
+              $import = new $class();
+              if (method_exists($import, 'batchImport')) {
+                return $import;
+              }
+            }
+          }
+        }
+      }
+    }
+    return false;
   }
 
   /**
    * Handles a custom import based on a selected collection.
    *
    * @access  public
+   * @param   object $importClass
+   * @param   string $directory
+   * @param   int $xdis_id
+   * @param   string $collection_pid
    * @param   array $dsarray
    * @return  void
    */
-  function handleCollectionSpecificImport($directory, $xdis_id, $collection_pid, $dsarray)
+  function handleCollectionSpecificImport($importClass, $directory, $xdis_id, $collection_pid, $dsarray)
   {
     // Check if flint import using a lookup of $collection_pid
-    if (true) {
-      include_once(APP_INC_PATH . "class.flint.php");
-      $dir_name = APP_SAN_IMPORT_DIR;
-      if (substr($dir_name, -1) !== '/') {
-        $dir_name .= '/';
-      }
-      $dir_name .= $directory;
-      $flintImport = new Flint();
-      $flintImport->batchImport($this->bgp, $dir_name, $xdis_id, $collection_pid, $dsarray);
+    $dir_name = APP_SAN_IMPORT_DIR;
+    if (substr($dir_name, -1) !== '/') {
+      $dir_name .= '/';
     }
+    $dir_name .= $directory;
+    $importClass->batchImport($this->bgp, $dir_name, $xdis_id, $collection_pid, $dsarray);
     if ($this->bgp) {
       $this->bgp->setProgress(100);
     }
