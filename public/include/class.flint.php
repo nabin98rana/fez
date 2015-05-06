@@ -84,6 +84,15 @@ class Flint
       return false;
     }
 
+    // Check an Audio Document type (MODS 1.0) was selected
+    $display = XSD_Display::getDetails($xdis_id);
+    if (! ($display && $display['xdis_title'] === 'Audio Document' && $display['xdis_version'] === 'MODS 1.0')) {
+      $error = 'Flint batch import - invalid document type was selected, expected Audio Document/MODS 1.0';
+      $this->_importBgp->setStatus($error);
+      $this->_log->err($error);
+      return false;
+    }
+
     // Get a list of file names ending in *_metadata.txt.
     $files = Misc::getFileList($directory, true, true);
     $metadata_files = array();
@@ -194,6 +203,11 @@ class Flint
           $this->_log->err('Flint batch import - the MP3 sound file was not found.');
           return false;
         }
+        $sourceParts = explode(',', $values['SourceField']);
+        $values['Series'] = trim($sourceParts[0]);
+        if (count($sourceParts) > 1) {
+          $values['Series'] .= ', ' . trim($sourceParts[1]);
+        }
         $importData[] = $values;
       }
     }
@@ -302,7 +316,7 @@ class Flint
     // Series
     $xsdmf = XSD_HTML_Match::getDetailsBySekIDXDIS_ID(Search_Key::getID('Series'), $xdis_str);
     if ($xsdmf) {
-      $params['xsd_display_fields'][$xsdmf['xsdmf_id']] = 'Elwyn Flint collection, UQFL173';
+      $params['xsd_display_fields'][$xsdmf['xsdmf_id']] = $recData['Series'];
     }
 
     // Type
@@ -316,35 +330,6 @@ class Flint
     if ($xsdmf) {
       $params['xsd_display_fields'][$xsdmf['xsdmf_id']] = 'Group ' . $recData['GroupID'];
     }
-
-    /* Language (AIATSIS code) - where is this coming from? It's not in the metadata file..
-    $xsdmf = XSD_HTML_Match::getDetailsBySekIDXDIS_ID(Search_Key::getID('Subject'), $xdis_str);
-    if ($xsdmf) {
-      $cvo_id = Controlled_Vocab::getIDByTitleAndParentID($recData['Language'], $xsdmf['xsdmf_cvo_id']);
-      if ($cvo_id) {
-        $params['xsd_display_fields'][$xsdmf['xsdmf_id']][] = $cvo_id;
-      }
-    }*/
-
-    // Not sure whether these will be in the import
-    /*
-    $xsdmf_id = XSD_HTML_Match::getXSDMFIDByTitleXDIS_ID('Abstract/Summary', $xdis_id);
-    if ($xsdmf_id) {
-      $params['xsd_display_fields'][$xsdmf_id] = 'The Flint papers comprise written documents..';
-    }
-
-    $xsdmf_id = XSD_HTML_Match::getXSDMFIDByTitleXDIS_ID('Keyword', $xdis_id);
-    if ($xsdmf_id) {
-      $params['xsd_display_fields'][$xsdmf_id][] = 'Aboriginal Australians -- Languages';
-      $params['xsd_display_fields'][$xsdmf_id][] = 'Queensland Speech Survey';
-      $params['xsd_display_fields'][$xsdmf_id][] = 'Culture, stories, people';
-    }
-
-    $xsdmf_id = XSD_HTML_Match::getXSDMFIDByTitleXDIS_ID('Acknowledgements', $xdis_id);
-    if ($xsdmf_id) {
-      $params['xsd_display_fields'][$xsdmf_id] = 'This project supported by the Australia National Data Service [MODC 23]';
-    }
-    */
 
     $record = new RecordObject();
     $pid = $record->fedoraInsertUpdate(array(), array(), $params);
