@@ -3518,6 +3518,7 @@ class Record
     }
 
     if(!is_numeric($difference)) {
+        $newEntry = true;
       $difference = is_numeric($count) ? $count : NULL;
     }
 
@@ -3535,7 +3536,19 @@ class Record
       $log->err($ex);
       return false;
     }
+      //If it's new of the citation count has changed lets store this once in the cache table to speed access.
+      if($newEntry || !empty($difference)) {
+          $stmt = str_replace('thomson_citations', 'thomson_citations_cache', $stmt);
+          $stmt .= "ON DUPLICATE KEY UPDATE tc_count = " . $db->quote($count) . ", tc_last_checked = '" . time() . "',
+                    tc_created = '" . time() . "', tc_isi_loc = " . $db->quote($eid) . ", tc_diff_previous = " . $db->quote($difference);
 
+          try {
+              $db->query($stmt);
+          } catch (Exception $ex) {
+              $log->err($ex);
+              return false;
+          }
+      }
     return true;
   }
 
@@ -3712,6 +3725,7 @@ class Record
     }
 
     if(!is_numeric($difference)) {
+        $newEntry = true;
         $difference = is_numeric($count) ? $count : NULL;
     }
 
@@ -3730,8 +3744,24 @@ class Record
       return false;
     }
 
+
+      //If it's new of the citation count has changed lets store this once in the cache table to speed access.
+      if($newEntry || !empty($difference)) {
+          $stmt = str_replace('scopus_citations', 'scopus_citations_cache', $stmt);
+          $stmt .= "ON DUPLICATE KEY UPDATE sc_count = " . $db->quote($count) . ", sc_last_checked = '" . time() . "',
+       sc_created = '" . time() . "', sc_eid = " . $db->quote($eid) . ", sc_diff_previous = " . $db->quote($difference);
+
+          try {
+              $db->query($stmt);
+          } catch (Exception $ex) {
+              $log->err($ex);
+              return false;
+          }
+      }
         return true;
   }
+
+
 
   /**
    * Updates the Scopus citation count for a record using the last
