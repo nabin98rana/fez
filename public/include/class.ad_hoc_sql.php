@@ -41,219 +41,211 @@
  * @version 1.0
  * @author Christiaan Kortekaas <c.kortekaas@library.uq.edu.au>
  */
+class Ad_Hoc_SQL
+{
 
-class Ad_Hoc_SQL {
+    /**
+     * Gets the Ad Hoc SQL Pid array lists
+     *
+     * @return array An ad hoc SQL list
+     */
+    public static function getList()
+    {
+        $log = FezLog::get();
+        $db = DB_API::get();
 
-	/**
-	 * Gets the Ad Hoc SQL Pid array lists
-	 *
-	 * @return array An ad hoc SQL list
-	 */
-	public static function getList()
-	{
-		$log = FezLog::get();
-		$db = DB_API::get();
+        $res = array();
 
-		$res = array();
+        $stmt = "SELECT * FROM " . APP_TABLE_PREFIX . "ad_hoc_sql";
+        try {
+            $res = $db->fetchAll($stmt);
+        } catch (Exception $ex) {
+            $log->err($ex);
+            return false;
+        }
+        return $res;
+    }
 
-		$stmt = "SELECT * FROM " . APP_TABLE_PREFIX . "ad_hoc_sql";
-		try {
-			$res = $db->fetchAll($stmt);
-		}
-		catch(Exception $ex) {
-			$log->err($ex);
-			return false;
-		}
-		return $res;
-	}
+    /**
+     * Returns the PIDs by executing the Adoc SQL query specified
+     *
+     * @param int $ahs_id The id of the ad hoc SQL query to execute
+     * @return array Resulting array of PID
+     */
+    public static function getPIDS($ahs_id)
+    {
+        $log = FezLog::get();
 
-	/**
-	 * Returns the PIDs by executing the Adoc SQL query specified
-	 *
-	 * @param int $ahs_id The id of the ad hoc SQL query to execute
-	 * @return array Resulting array of PID
-	 */
-	public static function getPIDS($ahs_id)
-	{
-		$log = FezLog::get();
+        $res = array();
+        $db = DB_API::get();
 
-		$res = array();
-		$db = DB_API::get();
+        $details = Ad_Hoc_SQL::getDetails($ahs_id);
+        if (!$details) {
+            $log->notice('No details found');
+            return false;
+        }
+        $stmt = $details['ahs_query'];
 
-		$details = Ad_Hoc_SQL::getDetails($ahs_id);
-		if(! $details) {
-			$log->notice('No details found');
-			return false;
-		}
-		$stmt = $details['ahs_query'];
+        try {
+            $res = $db->fetchCol($stmt);
+        } catch (Exception $ex) {
+            $log->err($ex);
+        }
+        return $res;
+    }
 
-		try {
-			$res = $db->fetchCol($stmt);
-		}
-		catch(Exception $ex) {
-			$log->err($ex);
-		}
-		return $res;
-	}
+    /**
+     * Executes an Ad Hoc SQL show query and returns the resulting list
+     *
+     * @param int $ahs_id The id of the Ad Hoc SQL show query to execute
+     * @param int $page OPTIONAL The current page to return results from. Default is page 0.
+     * @param int $max OPTIONAL The maximum number of results to return. Default is 50.
+     * @return array The results of the ad hoc SQL show query
+     */
+    public static function getResultSet($ahs_id, $page = 0, $max = 50)
+    {
+        $log = FezLog::get();
+        $db = DB_API::get();
 
-	/**
-	 * Executes an Ad Hoc SQL show query and returns the resulting list
-	 *
-	 * @param int $ahs_id The id of the Ad Hoc SQL show query to execute
-	 * @param int $page OPTIONAL The current page to return results from. Default is page 0.
-	 * @param int $max OPTIONAL The maximum number of results to return. Default is 50.
-	 * @return array The results of the ad hoc SQL show query
-	 */
-	public static function getResultSet($ahs_id, $page = 0, $max = 50)
-	{
-		$log = FezLog::get();
-		$db = DB_API::get();
+        if (!is_numeric($ahs_id)) {
+            $log->notice('ahs_id is not numeric');
+            return false;
+        }
+        $details = Ad_Hoc_SQL::getDetails($ahs_id);
+        $stmtCount = $details['ahs_query_count'];
 
-		if (!is_numeric($ahs_id)) {
-			$log->notice('ahs_id is not numeric');
-			return false;
-		}
-		$details = Ad_Hoc_SQL::getDetails($ahs_id);
-		$stmtCount = $details['ahs_query_count'];
+        $res = array();
+        try {
+            $res = $db->fetchOne($stmtCount);
+        } catch (Exception $ex) {
+            $log->err($ex);
+            return false;
+        }
 
-		$res = array();
-		try {
-			$res = $db->fetchOne($stmtCount);
-		}
-		catch(Exception $ex) {
-			$log->err($ex);
-			return false;
-		}
+        if (is_numeric($res)) {
+            $count = $res;
+        } else {
+            return false;
+        }
 
-		if (is_numeric($res)) {
-			$count = $res;
-		} else {
-			return false;
-		}
+        $stmtShow = $details['ahs_query_show'];
+        if (!is_numeric($page) || !is_numeric($max)) {
+            $page = 0;
+            $max = 50;
+        }
+        $offset = $page * $max;
+        $limit = $max;
 
-		$stmtShow = $details['ahs_query_show'];
-		if (!is_numeric($page) || !is_numeric($max)) {
-			$page = 0;
-			$max = 50;
-		}
-		$offset = $page * $max;
-		$limit = $max;
+        $stmtShow .= ' LIMIT ' . $db->quote($limit, 'INTEGER') . ' OFFSET ' . $db->quote($offset, 'INTEGER');
 
-		$stmtShow .= ' LIMIT '.$db->quote($limit, 'INTEGER').' OFFSET '.$db->quote($offset, 'INTEGER');
+        $res = array();
+        try {
+            $res = $db->fetchAll($stmtShow);
+        } catch (Exception $ex) {
+            $log->err($ex);
+            return false;
+        }
+        if (empty($res)) {
+            return array();
+        }
 
-		$res = array();
-		try {
-			$res = $db->fetchAll($stmtShow);
-		}
-		catch(Exception $ex) {
-			$log->err($ex);
-			return false;
-		}
-		if (empty($res)) {
-			return array();
-		}
-
-		$start = $page;
-		$total_rows = $count;
-		if (($start + $max) < $total_rows) {
-			$total_rows_limit = $start + $max;
-		} else {
-			$total_rows_limit = $total_rows;
-		}
-		$total_pages = ceil($total_rows / $max);
-		$last_page = $total_pages - 1;
-		return array(
+        $start = $page;
+        $total_rows = $count;
+        if (($start + $max) < $total_rows) {
+            $total_rows_limit = $start + $max;
+        } else {
+            $total_rows_limit = $total_rows;
+        }
+        $total_pages = ceil($total_rows / $max);
+        $last_page = $total_pages - 1;
+        return array(
             "list" => $res,
             "info" => array(
-                "current_page"  => $page,
-                "start_offset"  => $start,
-                "end_offset"    => $start + ($total_rows_limit),
-                "total_rows"    => $total_rows,
-                "total_pages"   => $total_pages,
-                "prev_page" 	=> ($page == 0) ? "-1" : ($page - 1),
-                "next_page"     => ($page == $last_page) ? "-1" : ($page + 1),
-                "last_page"     => $last_page
-		    )
-		);
-	}
+                "current_page" => $page,
+                "start_offset" => $start,
+                "end_offset" => $start + ($total_rows_limit),
+                "total_rows" => $total_rows,
+                "total_pages" => $total_pages,
+                "prev_page" => ($page == 0) ? "-1" : ($page - 1),
+                "next_page" => ($page == $last_page) ? "-1" : ($page + 1),
+                "last_page" => $last_page
+            )
+        );
+    }
 
-	/**
-	 *
-	 * @param $ahs_id
-	 * @return unknown_type
-	 */
-	public static function getDetails($ahs_id)
-	{
-		$log = FezLog::get();
-		$db = DB_API::get();
+    /**
+     *
+     * @param $ahs_id
+     * @return unknown_type
+     */
+    public static function getDetails($ahs_id)
+    {
+        $log = FezLog::get();
+        $db = DB_API::get();
 
-		$res = array();
+        $res = array();
 
-		if (!is_numeric($ahs_id)) {
-			$log->notice('ahs_id is not numeric');
-			return false;
-		}
+        if (!is_numeric($ahs_id)) {
+            $log->notice('ahs_id is not numeric');
+            return false;
+        }
 
-		$stmt = 'SELECT *
+        $stmt = 'SELECT *
                  FROM ' . APP_TABLE_PREFIX . 'ad_hoc_sql
-                 WHERE ahs_id = '.$db->quote($ahs_id, 'INTEGER');
+                 WHERE ahs_id = ' . $db->quote($ahs_id, 'INTEGER');
 
-		try {
-			$res = $db->fetchRow($stmt);
-		}
-		catch(Exception $ex) {
-			$log->err($ex);
-			return '';
-		}
-		return $res;
-	}
+        try {
+            $res = $db->fetchRow($stmt);
+        } catch (Exception $ex) {
+            $log->err($ex);
+            return '';
+        }
+        return $res;
+    }
 
-	public static function insert()
-	{
-		$log = FezLog::get();
+    public static function insert()
+    {
+        $log = FezLog::get();
+        $db = DB_API::get();
 
-		$res = array();
-		$db = DB_API::get();
+        if ((is_numeric(stripos($_POST["ahs_query"], "DROP "))) || (is_numeric(stripos($_POST["ahs_query"], "DELETE "))) || (is_numeric(stripos($_POST["ahs_query"], "TRUNCATE "))) || (is_numeric(stripos($_POST["ahs_query"], "INSERT "))) || (is_numeric(stripos($_POST["ahs_query"], "UPDATE ")))) {
+            $log->notice('Restricted statement detected in ahs_query: ' . $_POST['ahs_query']);
+            return false;
+        }
+        if ((is_numeric(stripos($_POST["ahs_query_count"], "DROP "))) || (is_numeric(stripos($_POST["ahs_query_count"], "DELETE "))) || (is_numeric(stripos($_POST["ahs_query_count"], "TRUNCATE "))) || (is_numeric(stripos($_POST["ahs_query_count"], "INSERT "))) || (is_numeric(stripos($_POST["ahs_query_count"], "UPDATE ")))) {
+            $log->notice('Restricted statement detected in ahs_query_count: ' . $_POST['ahs_query_count']);
+            return false;
+        }
+        if ((is_numeric(stripos($_POST["ahs_query_show"], "DROP "))) || (is_numeric(stripos($_POST["ahs_query_show"], "DELETE "))) || (is_numeric(stripos($_POST["ahs_query_show"], "TRUNCATE "))) || (is_numeric(stripos($_POST["ahs_query_show"], "INSERT "))) || (is_numeric(stripos($_POST["ahs_query_show"], "UPDATE ")))) {
+            $log->notice('Restricted statement detected in ahs_query_show: ' . $_POST['ahs_query_show']);
+            return false;
+        }
 
-		if ((is_numeric(stripos($_POST["ahs_query"], "DROP "))) || (is_numeric(stripos($_POST["ahs_query"], "DELETE "))) || (is_numeric(stripos($_POST["ahs_query"], "TRUNCATE "))) || (is_numeric(stripos($_POST["ahs_query"], "INSERT "))) || (is_numeric(stripos($_POST["ahs_query"], "UPDATE ")))) {
-			$log->notice('Restricted statement detected in ahs_query: '.$_POST['ahs_query']);
-			return false;
-		}
-		if ((is_numeric(stripos($_POST["ahs_query_count"], "DROP "))) || (is_numeric(stripos($_POST["ahs_query_count"], "DELETE "))) || (is_numeric(stripos($_POST["ahs_query_count"], "TRUNCATE "))) || (is_numeric(stripos($_POST["ahs_query_count"], "INSERT "))) || (is_numeric(stripos($_POST["ahs_query_count"], "UPDATE ")))) {
-			$log->notice('Restricted statement detected in ahs_query_count: '.$_POST['ahs_query_count']);
-			return false;
-		}
-		if ((is_numeric(stripos($_POST["ahs_query_show"], "DROP "))) || (is_numeric(stripos($_POST["ahs_query_show"], "DELETE "))) || (is_numeric(stripos($_POST["ahs_query_show"], "TRUNCATE "))) || (is_numeric(stripos($_POST["ahs_query_show"], "INSERT "))) || (is_numeric(stripos($_POST["ahs_query_show"], "UPDATE ")))) {
-			$log->notice('Restricted statement detected in ahs_query_show: '.$_POST['ahs_query_show']);
-			return false;
-		}
+        $data = array(
+            'ahs_name' => $_POST['ahs_name'],
+            'ahs_query' => $_POST['ahs_query'],
+            'ahs_query_count' => $_POST['ahs_query_count'],
+            'ahs_query_show' => $_POST['ahs_query_show']
+        );
 
-		$data = array(
-				'ahs_name' => $_POST['ahs_name'],
-				'ahs_query' => $_POST['ahs_query'],
-				'ahs_query_count' => $_POST['ahs_query_count'],
-				'ahs_query_show' => $_POST['ahs_query_show']
-		);
+        try {
+            $db->insert(APP_TABLE_PREFIX . 'ad_hoc_sql', $data);
+        } catch (Exception $ex) {
+            $log->err($ex);
+            return -1;
+        }
+        return 1;
+    }
 
-		try {
-			$db->insert(APP_TABLE_PREFIX . 'ad_hoc_sql', $data);
-		}
-		catch(Exception $ex) {
-			$log->err($ex);
-			return -1;
-		}
-		return 1;
-	}
-
-	public static function getAssocList()
-	{
-		$log = FezLog::get();
-		$db = DB_API::get();
+    public static function getAssocList()
+    {
+        $log = FezLog::get();
+        $db = DB_API::get();
 
 
-		$res = array();
+        $res = array();
 
-		$stmt = "SELECT
+        $stmt = "SELECT
                     ahs_id,
                     ahs_name
                  FROM
@@ -261,88 +253,85 @@ class Ad_Hoc_SQL {
                  ORDER BY
                     ahs_id ASC";
 
-		try {
-			$res = $db->fetchPairs($stmt);
-		}
-		catch(Exception $ex) {
-			$log->err($ex);
+        try {
+            $res = $db->fetchPairs($stmt);
+        } catch (Exception $ex) {
+            $log->err($ex);
 
-			return '';
-		}
-
-
-		return $res;
-	}
-
-	public static function update($ahs_id)
-	{
-		$log = FezLog::get();
-		$db = DB_API::get();
+            return '';
+        }
 
 
-		$res = array();
+        return $res;
+    }
 
-		if ((is_numeric(stripos($_POST["ahs_query"], "DROP "))) || (is_numeric(stripos($_POST["ahs_query"], "DELETE "))) || (is_numeric(stripos($_POST["ahs_query"], "TRUNCATE "))) || (is_numeric(stripos($_POST["ahs_query"], "INSERT "))) || (is_numeric(stripos($_POST["ahs_query"], "UPDATE ")))) {
-			$log->notice('Restricted statement detected in ahs_query: '.$_POST['ahs_query']);
+    public static function update($ahs_id)
+    {
+        $log = FezLog::get();
+        $db = DB_API::get();
 
-			return false;
-		}
-		if ((is_numeric(stripos($_POST["ahs_query_count"], "DROP "))) || (is_numeric(stripos($_POST["ahs_query_count"], "DELETE "))) || (is_numeric(stripos($_POST["ahs_query_count"], "TRUNCATE "))) || (is_numeric(stripos($_POST["ahs_query_count"], "INSERT "))) || (is_numeric(stripos($_POST["ahs_query_count"], "UPDATE ")))) {
-			$log->notice('Restricted statement detected in ahs_query: '.$_POST['ahs_query_count']);
 
-			return false;
-		}
-		if ((is_numeric(stripos($_POST["ahs_query_show"], "DROP "))) || (is_numeric(stripos($_POST["ahs_query_show"], "DELETE "))) || (is_numeric(stripos($_POST["ahs_query_show"], "TRUNCATE "))) || (is_numeric(stripos($_POST["ahs_query_show"], "INSERT "))) || (is_numeric(stripos($_POST["ahs_query_show"], "UPDATE ")))) {
-			$log->notice('Restricted statement detected in ahs_query: '.$_POST['ahs_query_show']);
+        $res = array();
 
-			return false;
-		}
-		if(! is_numeric($ahs_id)) {
+        if ((is_numeric(stripos($_POST["ahs_query"], "DROP "))) || (is_numeric(stripos($_POST["ahs_query"], "DELETE "))) || (is_numeric(stripos($_POST["ahs_query"], "TRUNCATE "))) || (is_numeric(stripos($_POST["ahs_query"], "INSERT "))) || (is_numeric(stripos($_POST["ahs_query"], "UPDATE ")))) {
+            $log->notice('Restricted statement detected in ahs_query: ' . $_POST['ahs_query']);
 
-			return false;
-		}
+            return false;
+        }
+        if ((is_numeric(stripos($_POST["ahs_query_count"], "DROP "))) || (is_numeric(stripos($_POST["ahs_query_count"], "DELETE "))) || (is_numeric(stripos($_POST["ahs_query_count"], "TRUNCATE "))) || (is_numeric(stripos($_POST["ahs_query_count"], "INSERT "))) || (is_numeric(stripos($_POST["ahs_query_count"], "UPDATE ")))) {
+            $log->notice('Restricted statement detected in ahs_query: ' . $_POST['ahs_query_count']);
 
-		$data = array(
-				'ahs_name' => $_POST['ahs_name'],
-				'ahs_query' => $_POST['ahs_query'],
-				'ahs_query_count' => $_POST['ahs_query_count'],
-				'ahs_query_show' => $_POST['ahs_query_show']
-		);
+            return false;
+        }
+        if ((is_numeric(stripos($_POST["ahs_query_show"], "DROP "))) || (is_numeric(stripos($_POST["ahs_query_show"], "DELETE "))) || (is_numeric(stripos($_POST["ahs_query_show"], "TRUNCATE "))) || (is_numeric(stripos($_POST["ahs_query_show"], "INSERT "))) || (is_numeric(stripos($_POST["ahs_query_show"], "UPDATE ")))) {
+            $log->notice('Restricted statement detected in ahs_query: ' . $_POST['ahs_query_show']);
 
-		try {
-			$db->update(APP_TABLE_PREFIX . 'ad_hoc_sql', $data, 'ahs_id='.$db->quote($ahs_id, 'INTEGER'));
-		}
-		catch(Exception $ex) {
-			$log->err($ex);
+            return false;
+        }
+        if (!is_numeric($ahs_id)) {
 
-			return -1;
-		}
+            return false;
+        }
 
-		return 1;
-	}
+        $data = array(
+            'ahs_name' => $_POST['ahs_name'],
+            'ahs_query' => $_POST['ahs_query'],
+            'ahs_query_count' => $_POST['ahs_query_count'],
+            'ahs_query_show' => $_POST['ahs_query_show']
+        );
 
-	public static function remove()
-	{
-		$log = FezLog::get();
+        try {
+            $db->update(APP_TABLE_PREFIX . 'ad_hoc_sql', $data, 'ahs_id=' . $db->quote($ahs_id, 'INTEGER'));
+        } catch (Exception $ex) {
+            $log->err($ex);
 
-		$res = array();
-		$db = DB_API::get();
+            return -1;
+        }
 
-		$stmt = "DELETE FROM
+        return 1;
+    }
+
+    public static function remove()
+    {
+        $log = FezLog::get();
+
+        $res = array();
+        $db = DB_API::get();
+
+        $stmt = "DELETE FROM
                     " . APP_TABLE_PREFIX . "ad_hoc_sql
                  WHERE
-                    ahs_id IN (".Misc::arrayToSQLBindStr($_POST['items']).")";
+                    ahs_id IN (" . Misc::arrayToSQLBindStr($_POST['items']) . ")";
 
-		try {
-			$db->query($stmt, $_POST['items']);
-		}
-		catch(Exception $ex) {
-			$log->err($ex);
+        try {
+            $db->query($stmt, $_POST['items']);
+        } catch (Exception $ex) {
+            $log->err($ex);
 
-			return false;
-		}
+            return false;
+        }
 
-		return true;
-	}
+        return true;
+    }
 }
 
