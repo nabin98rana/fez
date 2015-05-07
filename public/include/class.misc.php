@@ -1467,7 +1467,7 @@ public static function multi_implode($glue, $pieces)
    * @param   array $array
    * @return  string $return_str
    */
-  function sql_array_to_string_simple($array)
+  public static function sql_array_to_string_simple($array)
   {
     $return_str = "";
     $existing_array = array();
