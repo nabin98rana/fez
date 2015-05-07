@@ -258,10 +258,11 @@ class Flint
     // Genre
     $xsdmf = XSD_HTML_Match::getDetailsBySekIDXDIS_ID(Search_Key::getID('Alternate Genre'), $xdis_str);
     if ($xsdmf) {
-      $cvo_id = Controlled_Vocab::getIDByTitleAndParentID($recData['Genre'], $xsdmf['xsdmf_cvo_id']);
+      $refDetails =  XSD_HTML_Match::getDetailsByXSDMF_ID($xsdmf['xsdmf_id_ref']);
+      $cvo_id = Controlled_Vocab::getIDByTitleAndParentID($recData['Genre'], $refDetails['xsdmf_cvo_id']);
       if ($cvo_id) {
-        $params['xsd_display_fields'][$xsdmf['xsdmf_id']] = array(); // Clear any previous values
-        $params['xsd_display_fields'][$xsdmf['xsdmf_id']][] = $cvo_id;
+        $params['xsd_display_fields'][$refDetails['xsdmf_id']] = array(); // Clear any previous values
+        $params['xsd_display_fields'][$refDetails['xsdmf_id']][] = $cvo_id;
       }
     }
 
