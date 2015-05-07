@@ -1,4 +1,4 @@
-FROM uqlibrary/docker-mysql-udf-preg
+FROM uqlibrary/docker-mysql-udf-preg:latest
 
 COPY etc/mysql/default.cnf /etc/mysql/conf.d/default.cnf
 
