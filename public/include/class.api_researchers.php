@@ -100,12 +100,12 @@ aut_people_australia_id, aut_description, aut_orcid_id, aut_google_scholar_id, a
         $db = DB_API::get();
 
         $stmt = "SELECT a.rek_author_id, rek_isi_loc, GROUP_CONCAT(rek_author ORDER BY b.rek_author_order SEPARATOR ';') as rek_author,
-        " . APP_TABLE_PREFIX . "thomson_citations.*, rek_pid, rek_date, rek_journal_name, rek_title, rek_formatted_title,
+        " . APP_TABLE_PREFIX . "thomson_citations_cache.*, rek_pid, rek_date, rek_journal_name, rek_title, rek_formatted_title,
         GROUP_CONCAT(c.rek_author_id ORDER BY c.rek_author_id_order SEPARATOR ';') as rek_author_ids,
           rek_scopus_citation_count, rek_altmetric_score FROM " . APP_TABLE_PREFIX . "author
             INNER JOIN " . APP_TABLE_PREFIX . "record_search_key_author_id a ON aut_id = a.rek_author_id
             INNER JOIN " . APP_TABLE_PREFIX . "record_search_key_isi_loc ON rek_isi_loc_pid = rek_author_id_pid
-            INNER JOIN " . APP_TABLE_PREFIX . "thomson_citations ON tc_isi_loc = rek_isi_loc
+            INNER JOIN " . APP_TABLE_PREFIX . "thomson_citations_cache ON tc_isi_loc = rek_isi_loc
             INNER JOIN " . APP_TABLE_PREFIX . "record_search_key ON rek_pid = rek_author_id_pid
             INNER JOIN " . APP_TABLE_PREFIX . "auth_index2_lister ON authi_pid = rek_pid AND authi_arg_id = '11'
             LEFT JOIN fez_record_search_key_author b on rek_pid = rek_author_pid
@@ -132,13 +132,13 @@ aut_people_australia_id, aut_description, aut_orcid_id, aut_google_scholar_id, a
         $db = DB_API::get();
 
         $stmt = "SELECT a.rek_author_id, rek_scopus_id, GROUP_CONCAT(rek_author ORDER BY b.rek_author_order SEPARATOR ';') as rek_author,
-        " . APP_TABLE_PREFIX . "scopus_citations.*, rek_pid,  rek_date, rek_journal_name, rek_title, rek_formatted_title,
+        " . APP_TABLE_PREFIX . "scopus_citations_cache.*, rek_pid,  rek_date, rek_journal_name, rek_title, rek_formatted_title,
         GROUP_CONCAT(c.rek_author_id ORDER BY c.rek_author_id_order SEPARATOR ';') as rek_author_ids,
         rek_thomson_citation_count, rek_altmetric_score
         FROM " . APP_TABLE_PREFIX . "author
             INNER JOIN " . APP_TABLE_PREFIX . "record_search_key_author_id a ON aut_id = a.rek_author_id
             INNER JOIN " . APP_TABLE_PREFIX . "record_search_key_scopus_id ON rek_scopus_id_pid = rek_author_id_pid
-            INNER JOIN " . APP_TABLE_PREFIX . "scopus_citations ON sc_eid = rek_scopus_id
+            INNER JOIN " . APP_TABLE_PREFIX . "scopus_citations_cache ON sc_eid = rek_scopus_id
             INNER JOIN " . APP_TABLE_PREFIX . "record_search_key ON rek_pid = rek_author_id_pid
             INNER JOIN " . APP_TABLE_PREFIX . "auth_index2_lister ON authi_pid = rek_pid AND authi_arg_id = '11'
             LEFT JOIN fez_record_search_key_author b on rek_pid = rek_author_pid
