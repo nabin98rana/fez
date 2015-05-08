@@ -3516,6 +3516,9 @@ class Record
       $log->err($ex);
       return false;
     }
+    if ($difference < 0 && $count == 0) {    //Most likely a error from Thomson. Citations shouldn't drop to zero.
+        return false;
+    }
 
     if(!is_numeric($difference)) {
         $newEntry = true;
@@ -3540,7 +3543,7 @@ class Record
       if($newEntry || !empty($difference)) {
           $stmt = str_replace('thomson_citations', 'thomson_citations_cache', $stmt);
           $stmt .= "ON DUPLICATE KEY UPDATE tc_count = " . $db->quote($count) . ", tc_last_checked = '" . time() . "',
-                    tc_created = '" . time() . "', tc_isi_loc = " . $db->quote($eid) . ", tc_diff_previous = " . $db->quote($difference);
+                    tc_created = '" . time() . "', tc_isi_loc = " . $db->quote($isi_loc) . ", tc_diff_previous = " . $db->quote($difference);
 
           try {
               $db->query($stmt);
@@ -3721,6 +3724,10 @@ class Record
     }
     catch(Exception $ex) {
       $log->err($ex);
+      return false;
+    }
+
+    if ($difference < 0 && $count == 0) {    //Most likely a error from Scopus. Citations shouldn't drop to zero.
       return false;
     }
 
