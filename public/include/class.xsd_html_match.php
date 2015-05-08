@@ -3527,7 +3527,7 @@ class XSD_HTML_MatchObject
      * Retrieve the matchfields records that relate to the current display and store them locally.  This
      * method keeps a local copy of the results to save making multiple queries for the same information.
      */
-    private function getMatchCols()
+    public function getMatchCols()
     {
         $log = FezLog::get();
         $db = DB_API::get();
