@@ -1,0 +1,4 @@
+UQ eSpace is developed by the UQ Library by a team of developers as well as other external contributors to the open source project.
+
+https://github.com/uqlibrary/fez/graphs/contributors
+
