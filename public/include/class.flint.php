@@ -229,7 +229,7 @@ class Flint
   {
     $params = $dsarray['rawPost'];
     $params['xdis_id'] = $xdis_id;
-    $params['sta_id'] = 1; // unpublished record
+    $params['sta_id'] = 2;
     $params['collection_pid'] = $collection_pid;
 
     $xdis_list = XSD_Relationship::getListByXDIS($xdis_id);
@@ -237,6 +237,7 @@ class Flint
     $xdis_str = Misc::sql_array_to_string($xdis_list);
 
     // Title
+    $recData['Title'] = rtrim($recData['Title'], '.');
     // Replace template placeholder title
     foreach ($params['xsd_display_fields'] as $k => $v) {
       if ($v == '__makeInsertTemplate_DCTitle__') {
@@ -273,7 +274,8 @@ class Flint
       $params['xsd_display_fields'][$xsdmf['xsdmf_id']] = array(); // Clear any previous values
       $contributors = explode(',', $recData['ContributorIdentities']);
       foreach ($contributors as $c) {
-        $params['xsd_display_fields'][$xsdmf['xsdmf_id']][] = trim($c);
+        $c = trim($c);
+        $params['xsd_display_fields'][$xsdmf['xsdmf_id']][] = rtrim(trim($c), '.');
       }
     }
 

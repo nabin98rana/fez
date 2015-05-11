@@ -1504,6 +1504,10 @@ class BatchImport
 
     if ($xsdmf && array_key_exists($xsdmf['xsdmf_id'], $details)) {
       $keywords = $details[$xsdmf['xsdmf_id']];
+      if (! is_array($keywords)) {
+        // Force into an array
+        $keywords = array($keywords);
+      }
       $search = 'BATCH_IMPORT:';
       foreach ($keywords as $k) {
         if (stripos($k, $search) === 0) {
