@@ -1360,7 +1360,7 @@ class BatchImport
 		if (is_file($temp_store)) {
 			unlink($temp_store);
 		}
-
+    Record::setIndexMatchingFields($pid);
 	}
 
 	function saveEprintPID($eprint_id, $pid)
