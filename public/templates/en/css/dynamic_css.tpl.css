@@ -170,7 +170,7 @@ div#wordmark { display: none; visibility: hidden; }
 #topnav li a:active { color: rgb(245, 225, 255); text-decoration: none; border-bottom: 1px solid rgb(229, 229, 229); }
 #topnav img { margin-top: -12px; margin-bottom: -12px; position: relative; top: -9px; }
 
-div#search { background: transparent url('[[$smarty.const.APP_RELATIVE_URL]]images/form-left.png') no-repeat scroll 0pt 0pt; position: absolute; top: 40px; margin: 0 0 0 775px;}
+div#search { background: transparent url('[[$smarty.const.APP_RELATIVE_URL]]images/form-left.png') no-repeat scroll 0pt 0pt; position: absolute; top: 40px; margin: 0 0 0 925px;}
 div#search form { margin: 0pt; padding: 0pt; width: 210px; }
 div#search label { display: block; float: left; width: 30px; height: 18px; }
 div#search label span { display: none; }
@@ -1010,7 +1010,7 @@ width: 2em;
 #logged-in {
 	font-size: 9pt;
 	float: left;
-	padding-left: 30px;
+	padding-left: 180px;
 }
 
 div.wfl_description {
