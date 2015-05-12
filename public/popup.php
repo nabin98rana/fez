@@ -74,7 +74,7 @@ if (array_key_exists('dsID', $_REQUEST) && !empty($_REQUEST["dsID"]) && !$dsID =
     exit;
 }
 
-if (array_key_exists('pid', $_REQUEST) && !empty($_REQUEST["pid"]) && !$pid = Fez_Validate::run('Fez_Validate_Pid', $_REQUEST['pid'])) {
+if (array_key_exists('pid', $_REQUEST) && !empty($_REQUEST['pid']) && ($_REQUEST['pid']) != '-1' && !$pid = Fez_Validate::run('Fez_Validate_Pid', $_REQUEST['pid'])) {
     if (APP_API) {
         API::reply(400, API::makeResponse(400, "Parameter validation failed."), APP_API);
     }
