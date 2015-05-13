@@ -340,7 +340,7 @@ class Flint
     if ($xsdmf && $xsdmfDesc) {
       $params['xsd_display_fields'][$xsdmf['xsdmf_id']] = array();
       $params['xsd_display_fields'][$xsdmfDesc['xsdmf_id']] = array();
-      $params['xsd_display_fields'][$xsdmf['xsdmf_id']][0] = 'https://app.library.uq.edu.au/v1/master/flint';
+      $params['xsd_display_fields'][$xsdmf['xsdmf_id']][0] = 'https://www.library.uq.edu.au/fryer-library/indigenous-voices';
       $params['xsd_display_fields'][$xsdmfDesc['xsdmf_id']][0] = 'Browse Indigenous language resources from this collection online';
     }
 
