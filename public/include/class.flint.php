@@ -334,6 +334,12 @@ class Flint
       $params['xsd_display_fields'][$xsdmf['xsdmf_id']] = 'Group ' . $recData['GroupID'];
     }
 
+    // Remove published date
+    $xsdmf = XSD_HTML_Match::getDetailsBySekIDXDIS_ID(Search_Key::getID('Date'), $xdis_str);
+    if ($xsdmf && array_key_exists($xsdmf['xsdmf_id'], $params['xsd_display_fields'])) {
+      unset($params['xsd_display_fields'][$xsdmf['xsdmf_id']]);
+    }
+
     $record = new RecordObject();
     $pid = $record->fedoraInsertUpdate(array(), array(), $params);
 
