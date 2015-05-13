@@ -338,8 +338,10 @@ class Flint
     $xsdmf = XSD_HTML_Match::getDetailsBySekIDXDIS_ID(Search_Key::getID('Link'), $xdis_str);
     $xsdmfDesc = XSD_HTML_Match::getDetailsBySekIDXDIS_ID(Search_Key::getID('Link Description'), $xdis_str);
     if ($xsdmf && $xsdmfDesc) {
-      $params['xsd_display_fields'][$xsdmf['xsdmf_id']] = 'https://app.library.uq.edu.au/v1/master/flint';
-      $params['xsd_display_fields'][$xsdmfDesc['xsdmf_id']] = 'Browse Indigenous language resources from this collection online';
+      $params['xsd_display_fields'][$xsdmf['xsdmf_id']] = array();
+      $params['xsd_display_fields'][$xsdmfDesc['xsdmf_id']] = array();
+      $params['xsd_display_fields'][$xsdmf['xsdmf_id']][0] = 'https://app.library.uq.edu.au/v1/master/flint';
+      $params['xsd_display_fields'][$xsdmfDesc['xsdmf_id']][0] = 'Browse Indigenous language resources from this collection online';
     }
 
     // Remove published date
