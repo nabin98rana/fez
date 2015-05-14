@@ -64,7 +64,9 @@ function smarty_function_html_select_date($params)
     }
 
     //This is need for backward compatibility to Smart 2.x
-    $params['time'] = trim($params['time']);
+    if ($params['time'] !== null) {
+        $params['time'] = trim($params['time']);
+    }
     if(strlen($params['time']) == 10) {
         if(substr($params['time'], -2, 2) == '00') {
             $params['day_empty'] = "";
