@@ -7,8 +7,6 @@ Disallow: /history.php
 Disallow: /adv_search.php
 Disallow: /list.php
 
-Disallow: /js/
-Disallow: /css/
 Disallow: /flviewer/
 
 Sitemap: http://espace.library.uq.edu.au/sitemap/sitemap-index.xml
