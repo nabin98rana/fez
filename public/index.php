@@ -194,7 +194,7 @@ if ($aliasResult == false) {
 
     $recCount = Record::getNumPublishedRecords();
     $recCount = number_format($recCount, 0, ".", " ");
-    $recCount = str_replace(" ", html_entity_decode(",&nbsp;", ENT_COMPAT, "UTF-8"), $recCount);
+    $recCount = str_replace(" ", html_entity_decode(",", ENT_COMPAT, "UTF-8"), $recCount);
     $tpl->assign("record_count", $recCount);
 
     $recentRecordsPIDs = Record::getRecentRecords();
