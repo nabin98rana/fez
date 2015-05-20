@@ -18,7 +18,7 @@ tests/api/conf.ini
 
 cache
 secure
-templates_c/*
+public/templates_c/*
 flviewer/1*
 flviewer/2*
 flviewer/3*
@@ -50,7 +50,7 @@ tmp
 pidsources
 pidsources/*
 bookreadertest*
-solr_upload/*
+public/solr_upload/*
 testst.txt.txt
 *nfs*
 apc.php
