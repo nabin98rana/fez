@@ -45,6 +45,7 @@ ${MYSQL_DUMP_CMD} \
   --tables fez_sessions fez_statistics_all fez_thomson_citations fez_scopus_citations \
   > fez.sql
 ${MYSQL_DUMP_CMD} \
+  --ignore-table=${MYSQL_DB_ESPACE}.fez_config \
   --ignore-table=${MYSQL_DB_ESPACE}.fez_sessions \
   --ignore-table=${MYSQL_DB_ESPACE}.fez_statistics_all \
   --ignore-table=${MYSQL_DB_ESPACE}.fez_thomson_citations \
