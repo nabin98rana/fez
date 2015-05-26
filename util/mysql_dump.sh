@@ -62,7 +62,7 @@ if [ -f "fez.config.sql" ]; then
 fi
 
 MYSQL_FEZ_STAGING_CMD="mysql -u${MYSQL_USER} -p${MYSQL_PASS} --compress ${MYSQL_DB_FEZ_STAGING} < fez.sql"
-MYSQL_FEDORA_STAGING_CMD="mysql -u${MYSQL_USER} -p${MYSQL_PASS} --compress ${MYSQL_DB_FEDORA_STAGING} < fedora.sql"
+MYSQL_FEDORA_STAGING_CMD="mysql -u${MYSQL_USER} -p${MYSQL_PASS} --compress ${MYSQL_DB_FEDORA_STAGING} < fedora3.sql"
 
 ${MYSQL_FEZ_STAGING_CMD}
 ${MYSQL_FEDORA_STAGING_CMD}
