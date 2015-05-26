@@ -3,27 +3,31 @@
 function usage {
   echo
   echo "DESCRIPTION"
-  echo "    Dumps eSpace and Fedora databases to gzipped files. This script should be run on slave database servers only."
+  echo "    Dumps Fez and Fedora databases to gzipped files, and loads the databases into staging. This script should be run on slave database servers only."
   echo
   echo "USAGE"
-  echo "    mysql_dump.sh <MYSQL_DB_ESPACE> <MYSQL_DB_FEDORA> <MYSQL_DUMP_DIR>"
+  echo "    mysql_dump.sh <MYSQL_DB_FEZ> <MYSQL_DB_FEDORA> <MYSQL_DUMP_DIR> <MYSQL_DB_FEZ_STAGING> <MYSQL_DB_FEDORA_STAGING>"
   echo
-  echo "    MYSQL_DB_ESPACE = The eSpace database."
-  echo "    MYSQL_DB_FEDORA = The Fedora database."
-  echo "    MYSQL_DUMP_DIR  = The directory to dump the database files to."
+  echo "    MYSQL_DB_FEZ         = The Fez database."
+  echo "    MYSQL_DB_FEDORA         = The Fedora database."
+  echo "    MYSQL_DUMP_DIR          = The directory to dump the database files to."
+  echo "    MYSQL_DB_FEZ_STAGING = The Fez staging database (limited to be on the same server currently)."
+  echo "    MYSQL_DB_FEDORA_STAGING = The Fedora staging database (limited to be on the same server currently)."
   echo
   echo "    The script expects the MySQL username/password to be set as the environment variables MYSQL_USER / MYSQL_PASS respectively."
   echo
   exit
 }
 
-if [ "$#" -ne 3 ]; then
+if [ "$#" -ne 5 ]; then
   usage
 fi
 
-MYSQL_DB_ESPACE=$1
+MYSQL_DB_FEZ=$1
 MYSQL_DB_FEDORA=$2
 MYSQL_DUMP_DIR=$3
+MYSQL_DB_FEZ_STAGING=$4
+MYSQL_DB_FEDORA_STAGING=$5
 
 if [ ! -d "${MYSQL_DUMP_DIR}" ]; then
   echo
@@ -41,22 +45,29 @@ MYSQL_DUMP_CMD="mysqldump -u${MYSQL_USER} -p${MYSQL_PASS} --max_allowed_packet=2
 ${MYSQL_CMD} -e 'stop slave'
 ${MYSQL_DUMP_CMD} ${MYSQL_DB_FEDORA} > fedora3.sql
 ${MYSQL_DUMP_CMD} \
-  --no-data ${MYSQL_DB_ESPACE} \
+  --no-data ${MYSQL_DB_FEZ} \
   --tables fez_sessions fez_statistics_all fez_thomson_citations fez_scopus_citations \
   > fez.sql
 ${MYSQL_DUMP_CMD} \
-  --ignore-table=${MYSQL_DB_ESPACE}.fez_config \
-  --ignore-table=${MYSQL_DB_ESPACE}.fez_sessions \
-  --ignore-table=${MYSQL_DB_ESPACE}.fez_statistics_all \
-  --ignore-table=${MYSQL_DB_ESPACE}.fez_thomson_citations \
-  --ignore-table=${MYSQL_DB_ESPACE}.fez_scopus_citations \
-  ${MYSQL_DB_ESPACE} \
+  --ignore-table=${MYSQL_DB_FEZ}.fez_config \
+  --ignore-table=${MYSQL_DB_FEZ}.fez_sessions \
+  --ignore-table=${MYSQL_DB_FEZ}.fez_statistics_all \
+  --ignore-table=${MYSQL_DB_FEZ}.fez_thomson_citations \
+  --ignore-table=${MYSQL_DB_FEZ}.fez_scopus_citations \
+  ${MYSQL_DB_FEZ} \
   >> fez.sql
-${MYSQL_CMD} -e 'start slave'
 
 if [ -f "fez.config.sql" ]; then
   cat fez.config.sql >> fez.sql
 fi
+
+MYSQL_FEZ_STAGING_CMD="mysql -u${MYSQL_USER} -p${MYSQL_PASS} --compress ${MYSQL_DB_FEZ_STAGING} < fez.sql"
+MYSQL_FEDORA_STAGING_CMD="mysql -u${MYSQL_USER} -p${MYSQL_PASS} --compress ${MYSQL_DB_FEDORA_STAGING} < fedora.sql"
+
+${MYSQL_FEZ_STAGING_CMD}
+${MYSQL_FEDORA_STAGING_CMD}
+
+${MYSQL_CMD} -e 'start slave'
 
 gzip fedora3.sql
 gzip fez.sql
