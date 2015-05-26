@@ -34,7 +34,7 @@ include_once(APP_INC_PATH . "class.db_api.php");
 include_once(APP_INC_PATH . 'class.scopus_service.php');
 include_once(APP_INC_PATH . "class.scopus_queue.php");
 
-//This table will update pids from the __temp_col_four table to new values. Often column C ($key) and D($history) will all be the same in the table.
+//This table will update pids from the import_value_to_pid table, key and history will often be repeated values.
 
 echo "Script started: " . date('Y-m-d H:i:s') . "\n";
 $isUser = Auth::getUsername();
