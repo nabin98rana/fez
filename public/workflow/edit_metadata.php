@@ -152,10 +152,7 @@ foreach ($_SESSION[APP_INTERNAL_GROUPS_SESSION] as $groupID) {
     }
 }
 
-if (APP_API) {
-    // Expose this to enter_metadata.tpl.xml for exposing purge_uri.
-    $tpl->assign("isSuperAdministrator", $isSuperAdministrator);
-}
+$tpl->assign("isSuperAdministrator", $isSuperAdministrator);
 
 // Record the Internal Note, if we've been handed one.
 //if (isset($_POST['internal_notes']) && User::isUserAdministrator($username)) {
