@@ -160,7 +160,7 @@ div#wordmark { display: none; visibility: hidden; }
 #mininav a:hover { color: rgb(255, 255, 255); text-decoration: none; }
 #mininav a:active { color: rgb(255, 255, 255); text-decoration: none; }
 
-#topnav { margin: 0pt; padding: 8px 0pt; background: rgb(0, 0, 0) none repeat scroll 0% 0%; color: rgb(255, 255, 255); font-size: 11px; font-family: Helvetica,"Trebuchet MS",sans-serif; font-weight: lighter; }
+#topnav { margin: 0pt; padding: 8px 0pt; background: rgb(0, 0, 0) none repeat scroll 0% 0%; color: rgb(255, 255, 255); font-size: 11px; font-family: Helvetica,"Trebuchet MS",sans-serif; font-weight: lighter; height: 16px;}
 #topnav ul { margin: 0pt; padding: 2pt 0pt 0pt 25px; list-style-type: none; list-style-image: none; list-style-position: outside; letter-spacing: 1px; }
 #topnav ul li { margin: 0 15px 0 0; padding: 0 0 0 0; float: left; display: inline; }
 #topnav ul li a { text-transform: uppercase; margin: 0 0 0 -8px; padding: 11px 8px 13px 8px; }
