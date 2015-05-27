@@ -19,7 +19,6 @@ Feature: WOS imports. Check imports from wos work correctly
     And I see "pub_link" id or wait for "300" seconds
     Then I press "Abandon Workflow"
     And I fill in "Search Entry" with "title:(\"Influence of malt roasting on the oxidative stability of sweet wort\")"
-    And I follow "Matching records found in ISI Web of Science"
     And I press "search_entry_submit"
     And I follow "Influence of malt roasting on the oxidative stability of sweet wort"
     And I should see "Influence of malt roasting on the oxidative stability of sweet wort"
