@@ -176,17 +176,17 @@ div#wordmark { display: none; visibility: hidden; }
 #mininav a:hover { color: rgb(255, 255, 255); text-decoration: none; }
 #mininav a:active { color: rgb(255, 255, 255); text-decoration: none; }
 
-#topnav { margin: 0pt; padding: 8px 0pt; background: rgb(0, 0, 0) none repeat scroll 0% 0%; color: rgb(255, 255, 255); font-size: 11px; font-family: Helvetica,"Trebuchet MS",sans-serif; font-weight: lighter; }
+#topnav { margin: 0pt; padding: 8px 0pt; background: rgb(0, 0, 0) none repeat scroll 0% 0%; color: rgb(255, 255, 255); font-size: 11px; font-family: Helvetica,"Trebuchet MS",sans-serif; font-weight: lighter; height: 16px;}
 #topnav ul { margin: 0pt; padding: 2pt 0pt 0pt 25px; list-style-type: none; list-style-image: none; list-style-position: outside; letter-spacing: 1px; }
 #topnav ul li { margin: 0 15px 0 0; padding: 0 0 0 0; float: left; display: inline; }
-#topnav ul li a { text-transform: uppercase; margin: 0 0 0 -8px; padding: 12px 8px 12px 8px; }
+#topnav ul li a { text-transform: uppercase; margin: 0 0 0 -8px; padding: 11px 8px 13px 8px; }
 #topnav li a:link { color: rgb(223, 223, 223); text-decoration: none; }
 #topnav li a:visited { color: rgb(223, 223, 223); text-decoration: none; }
 #topnav li a:hover { color: rgb(245, 225, 255); text-decoration: none; background: transparent url('[[$smarty.const.APP_RELATIVE_URL]]images/top_nav_bg_active.gif') repeat-x scroll right bottom; border-bottom: 1px solid rgb(229, 229, 229); }
 #topnav li a:active { color: rgb(245, 225, 255); text-decoration: none; border-bottom: 1px solid rgb(229, 229, 229); }
 #topnav img { margin-top: -12px; margin-bottom: -12px; position: relative; top: -9px; }
 
-div#search { background: transparent url('[[$smarty.const.APP_RELATIVE_URL]]images/form-left.png') no-repeat scroll 0pt 0pt; position: absolute; top: 40px; margin: 0 0 0 775px;}
+div#search { background: transparent url('[[$smarty.const.APP_RELATIVE_URL]]images/form-left.png') no-repeat scroll 0pt 0pt; position: absolute; top: 40px; margin: 0 0 0 925px;}
 div#search form { margin: 0pt; padding: 0pt; width: 210px; }
 div#search label { display: block; float: left; width: 30px; height: 18px; }
 div#search label span { display: none; }
@@ -195,7 +195,7 @@ div#search input.submit { margin: 0pt 0pt 0pt 3px; padding: 0pt; background: tra
 
 /* Footer
 -----------------------------------------------------------------------------*/
-#footer { background: #5e217a url('[[$smarty.const.APP_RELATIVE_URL]]images/bg-footer.gif') repeat-x scroll 100% 0pt; border-top: solid 2px #78b800; }
+#footer { background: #5e217a url('[[$smarty.const.APP_RELATIVE_URL]]images/bg-footer.gif') repeat-x scroll 100% 0pt; border-top: solid 2px #78b800; flex-shrink: 0;}
 #footer { clear: both; min-height: 140px; ! important; }
 #footer .wrapper { margin-top: 40px; }
 #footer div { }
@@ -266,7 +266,8 @@ p.centenary { padding: 16px 0 0 0; }
 /* Site-specific styling. */
 
 #content-holder {
-	/* Maybe we'll add a background later if we get fancy. */
+    /* Maybe we'll add a background later if we get fancy. */
+    flex: 1 0 auto;
 }
 
 #content {
@@ -274,7 +275,7 @@ p.centenary { padding: 16px 0 0 0; }
     position: relative;
     top: 0pt;
     margin: 0px auto;
-    padding: 25px 0 25px 0;
+    padding: 25px 0 0px 0;
     font-family: 'Helvetica Neue', Arial, Verdana, sans-serif;
     font-size: 12px;
     min-height:500px;
@@ -302,7 +303,7 @@ p.centenary { padding: 16px 0 0 0; }
 #nav-focus a:link, #nav-focus a:visited {
 	display: block;
 	background-color: white;
-	margin-top: -12px;
+	margin-top: -11px;
 	color: #171717 !important;
 }
 
@@ -1026,7 +1027,7 @@ width: 2em;
 #logged-in {
 	font-size: 9pt;
 	float: left;
-	padding-left: 30px;
+	padding-left: 180px;
 }
 
 div.wfl_description {
@@ -2709,7 +2710,8 @@ table.adminManageList{
     color: whitesmoke;
     margin: 0px auto;
     display: inline-block;
-    padding: 3px 0px
+    padding: 3px 0px;
+    flex-shrink: 0;
 }
 
 .editor-condensed-view form {
@@ -2735,6 +2737,12 @@ table.adminManageList{
 
 .addthis_pill_style {
     padding-left: 10px;
+}
+
+#bodyElement{
+    display: flex;
+    min-height: 100vh;
+    flex-direction: column;
 }
 
 /* Social Media links */
