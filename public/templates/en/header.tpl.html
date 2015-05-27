@@ -41,7 +41,7 @@
 {if $swfobject}
 <script type="text/javascript" src="{$rel_url}js/swfobject.js"></script>
 {/if}
-{if $isUser && ($authors_form || $enter_metadata || $use_json)} {* TODO: Depracate first 2 vars in due course; only use 3rd *}
+{if $isUser && ($authors_form || $enter_metadata || $set_template || $use_json)} {* TODO: Depracate first 2 vars in due course; only use 3rd *}
 <script type="text/javascript">
     <!--
     dojo.require("dojo.rpc.JsonService");
@@ -63,7 +63,7 @@
 {/if}
 
 {*  Load jQuery library  *}
-<script type="text/javascript" src="{$rel_url}js/jquery/jquery-1.10.2.min.js"></script>
+<script type="text/javascript" src="{$rel_url}js/jquery/jquery-2.1.3.min.js"></script>
 
 <script type="text/javascript" src="/js/noty/jquery.noty.js"></script>
 
@@ -75,8 +75,8 @@
 
 {*   Load jQuery UI library *}
 {if $jqueryUI == true}
-<link rel="stylesheet" type="text/css" media="screen" href="{$rel_url}css/jquery/fez/jquery-ui-1.10.3.custom.min.css" />
-<script type="text/javascript" src="{$rel_url}js/jquery/jquery-ui-1.10.3.custom.min.js"></script>
+<link rel="stylesheet" type="text/css" media="screen" href="{$rel_url}css/jquery/fez/jquery-ui.custom.min.css" />
+<script type="text/javascript" src="{$rel_url}js/jquery/jquery-ui.custom.min.js"></script>
 {/if}
 
 {if $include_stats_map == 1 && APP_USE_GOOGLE_MAP_SWITCH == 'ON'}
