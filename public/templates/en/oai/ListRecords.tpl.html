@@ -439,6 +439,17 @@
 				{/section}
 			{/if}
 		{/if}
+        {if $list[i].rek_subject_lookup}
+            {if !is_array($list[i].rek_subject)}
+                <dc:subject>{$list[i].rek_subject_lookup}</dc:subject>
+            {else}
+                {assign var="loop_subject" value=$list[i].rek_subject}
+                {section name="s" loop=$loop_subject}
+                    <dc:subject>{$list[i].rek_subject_lookup[s]}</dc:subject>
+                {/section}
+            {/if}
+        {/if}
+
 		{if $list[i].rek_australian_pictorial_thesaurus}
 			{if !is_array($list[i].rek_australian_pictorial_thesaurus)}
 	        	<dc:subject>{$list[i].rek_australian_pictorial_thesaurus}</dc:subject>
