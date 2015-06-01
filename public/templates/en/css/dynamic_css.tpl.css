@@ -50,7 +50,7 @@ div#wordmark { display: none; visibility: hidden; }
 -----------------------------------------------------------------------------*/	
 .wrapper { position: relative; top: 0pt; margin: 0px auto; width: 960px; }
 
-#header { margin: 0pt; padding: 0pt; background: rgb(96, 34, 124) url('[[$smarty.const.APP_RELATIVE_URL]]images/bodybg.gif') repeat-x scroll 0pt 0pt; color: rgb(239, 239, 239); height: 100px; }
+#header { margin: 0pt; padding: 0pt; background: rgb(96, 34, 124) url('[[$smarty.const.APP_RELATIVE_URL]]images/bodybg.gif') repeat-x scroll 0pt 0pt; color: rgb(239, 239, 239); height: 100px; min-width: 980px}
 
 #header-inner, #topnav-inner { margin: 0pt auto; padding: 0pt; max-width: 1150px; }
 
@@ -79,7 +79,6 @@ div#wordmark { display: none; visibility: hidden; }
 /* Login css on page header */
 #logged-in {
 	margin-top: -10px;  /* -5px; */
-	margin-right: 30px;
 	font-family: Helvetica, "Trebuchet MS", sans-serif;
 	font-size: 12px;
 	width: 940px;
