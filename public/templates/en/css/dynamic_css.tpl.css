@@ -267,7 +267,7 @@ p.centenary { padding: 16px 0 0 0; }
 }
 
 .content-restrict {
-    width: 1100px;
+    max-width: 1100px;
 }
 
 /* END FEZ NEW */
