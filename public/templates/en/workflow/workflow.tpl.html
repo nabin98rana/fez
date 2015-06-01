@@ -152,7 +152,7 @@
                                 {/if}
 								{if $wfs_description}
 									<div class="wfl_description">
-										{$wfs_description}
+										{$wfs_description|smarty:nodefaults}
 									</div>
 								{/if}
 								{if $states_done}
