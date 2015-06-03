@@ -342,7 +342,7 @@ function loadPreview(pid,datastreamID, alt, origami)
 								
 								{* Name of file *}
                                 {assign var="dsName" value=$datastreams[d].ID}
-                                {if $datastreams[d].MIMEType == 'application/pdf' && $pageCounts[$dsName]}
+                                    {if ($datastreams[d].MIMEType == 'application/pdf' || $datastreams[d].MIMEType == 'application/pdf;') && $pageCounts[$dsName]}
                                     {if $datastreams[d].isViewer == 1 || $isAdministrator}
                                         <a target="_blank" href="{$rel_url}view/{$pid}/{$ds_show}?bookreader=true">
                                             <img style="float:left;clear:none;" src="/images/icons/bookreader.png" alt="Read with bookreader" /></a>

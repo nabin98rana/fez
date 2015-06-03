@@ -851,7 +851,7 @@ if (!empty($pid) && $record->checkExists()) {
     //Find the pdf stream
     if ($datastreams) {
       foreach ($datastreams as $ds) {
-        if ($ds['MIMEType'] == 'application/pdf') {
+        if ($ds['MIMEType'] == 'application/pdf' || $ds['MIMEType'] == 'application/pdf;') {
           //Check that it has been converted to images
           //and let the template know.
           $resource = explode('.pdf', $ds['ID']);

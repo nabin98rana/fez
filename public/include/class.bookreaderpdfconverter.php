@@ -85,7 +85,7 @@ class bookReaderPDFConverter
                 $hash = $dsr->getHash();
                 $meta = $dsr->getMeta();
 
-                if($meta['mimetype'] == 'application/pdf')
+                if($meta['mimetype'] == 'application/pdf' || $meta['mimetype'] == 'application/pdf;')
                 {
                     $q[] = array($pid, APP_DSTREE_PATH.$hash['hashPath'].$hash['rawHash'], $convMeth, $ds['filename']);
                 }
