@@ -29,6 +29,8 @@
 // +----------------------------------------------------------------------+
 // | Authors: Aaron Brown <a.brown@library.uq.edu.au>                |
 // +----------------------------------------------------------------------+
+
+
 include_once dirname(dirname(__FILE__)).DIRECTORY_SEPARATOR.'config.inc.php';
 include_once(APP_INC_PATH . "class.db_api.php");
 include_once(APP_INC_PATH . 'class.scopus_service.php');
@@ -38,10 +40,13 @@ include_once(APP_INC_PATH . "class.author_era_affiliations.php");
 
 echo "Script started: " . date('Y-m-d H:i:s') . "\n";
 $isUser = Auth::getUsername();
-if ((php_sapi_name()==="cli") || (User::isUserSuperAdministrator($isUser))) {
+if (php_sapi_name()==="cli")  {   // This must be run while not logged in else it wil cause false issues in stage two
     $db = DB_API::get();
+    $log = FezLog::get();
+
+    //----------------------- Stage one Datastream Policy conflicts (Is it in two collections with different set datastream policies -----------------------//
+
     $body = '';
-    $dbtp =  APP_TABLE_PREFIX; // Database and table prefix
     $stmt =     "SELECT rek_ismemberof_pid AS pid, GROUP_CONCAT(rek_ismemberof)  AS collections FROM fez_record_search_key_datastream_policy 
                 INNER JOIN fez_record_search_key_ismemberof
                 ON rek_ismemberof = rek_datastream_policy_pid
@@ -70,7 +75,7 @@ if ((php_sapi_name()==="cli") || (User::isUserSuperAdministrator($isUser))) {
             flush();
         }
     } else {
-        echo "None found". "\n";
+        echo "None found for conflicts". "\n";
     }
 
     if (!empty($body)) {
@@ -83,6 +88,59 @@ if ((php_sapi_name()==="cli") || (User::isUserSuperAdministrator($isUser))) {
         $mail->setTextBody(stripslashes($body));
         $mail->send($from, $to, $subject, false);
     }
+
+
+    //----------------------- Stage Two check for open items in special private collections ----------------------- //
+
+    $body = '';
+
+    //This is currently run ever two hours. It will have to be adapted if large collections are checked below
+    $stmt =     "SELECT rek_pid AS pid FROM fez_record_search_key
+                  LEFT JOIN fez_record_search_key_ismemberof ON rek_pid = rek_ismemberof_pid
+                  WHERE rek_ismemberof IN ('UQ:342107', 'UQ:335745')";
+    try {
+        $res = $db->fetchAll($stmt);
+    }
+    catch(Exception $ex) {
+        $log->err($ex);
+        return false;
+    }
+    foreach ($fedoraPids as $pid) {
+        $pid = $pid['pid'];
+        if ($status == Record::getSearchKeyIndexValue($pid, "Status", false)) {
+            $documentType = Record::getSearchKeyIndexValue($pid, "Display Type", false);
+            $datastreams = Fedora_API::callGetDatastreams($pid);
+            foreach ($datastreams as $datastream) {
+                if ($datastream['controlGroup'] == "M"
+                    && (!Misc::hasPrefix($datastream['ID'], 'preview_')
+                        && !Misc::hasPrefix($datastream['ID'], 'web_')
+                        && !Misc::hasPrefix($datastream['ID'], 'thumbnail_')
+                        && !Misc::hasPrefix($datastream['ID'], 'stream_')
+                        && !Misc::hasPrefix($datastream['ID'], 'presmd_'))) {
+
+
+                    $userPIDAuthGroups = Auth::getAuthorisationGroups($pid, $datastream['ID']);
+                    if (in_array('Viewer', $userPIDAuthGroups)) {
+                        $body .= "http:/espace.library.uq.edu.au/view/".$pid . "  has a datastream that's open in an collection where datastreams should be closed.\n";
+                        $openFound = true;
+                    }
+
+                }
+            }
+        }
+    }
+    if (!empty($body)) {
+        $body .= "\nPlease refer to the eSpace Manager or Librarian as this issue must be resolved immediately.";
+        $mail = new Mail_API;
+        $subject = "Urgent warning: Open access file detected on an embargoed thesis";
+        $to = 'espace@library.uq.edu.au';
+        $from = APP_EMAIL_SYSTEM_FROM_ADDRESS;
+        $mail->setTextBody(stripslashes($body));
+        $mail->send($from, $to, $subject, false);
+    } else {
+        echo "None found for open access in closed collections". "\n";
+    }
+
 
     echo "Script finished: " . date('Y-m-d H:i:s') . "\n";
 } else {
