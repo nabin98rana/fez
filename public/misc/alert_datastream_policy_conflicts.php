@@ -105,10 +105,10 @@ if (php_sapi_name()==="cli")  {   // This must be run while not logged in else i
         $log->err($ex);
         return false;
     }
-    foreach ($fedoraPids as $pid) {
+    $status = Status::getID("Published");
+    foreach ($res as $pid) {
         $pid = $pid['pid'];
         if ($status == Record::getSearchKeyIndexValue($pid, "Status", false)) {
-            $documentType = Record::getSearchKeyIndexValue($pid, "Display Type", false);
             $datastreams = Fedora_API::callGetDatastreams($pid);
             foreach ($datastreams as $datastream) {
                 if ($datastream['controlGroup'] == "M"
@@ -118,11 +118,11 @@ if (php_sapi_name()==="cli")  {   // This must be run while not logged in else i
                         && !Misc::hasPrefix($datastream['ID'], 'stream_')
                         && !Misc::hasPrefix($datastream['ID'], 'presmd_'))) {
 
-
                     $userPIDAuthGroups = Auth::getAuthorisationGroups($pid, $datastream['ID']);
                     if (in_array('Viewer', $userPIDAuthGroups)) {
                         $body .= "http:/espace.library.uq.edu.au/view/".$pid . "  has a datastream that's open in an collection where datastreams should be closed.\n";
                         $openFound = true;
+                        echo $pid . " found with issues\n";
                     }
 
                 }
