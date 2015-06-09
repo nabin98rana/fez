@@ -260,26 +260,29 @@ class User
 	}
 
     /**
-     * Method used to check whether an user is in the Org's IP range.
+     * Method used to check whether an user is in a Archive Viewer Group or not.
      *
      * @access  public
      * @return  boolean
      */
-    function isUserInOrgIPRange()
+    function isUserGlobalArchiveViewer()
     {
-        $ip = ip2long($_SERVER['REMOTE_ADDR']);
-        if ( ($ip > ip2long('130.102.0.0') && $ip < ip2long('130.102.255.255')) ||
-             ($ip > ip2long('152.98.192.0') && $ip < ip2long('152.98.255.255')) ||
-             ($ip > ip2long('10.0.0.0') && $ip < ip2long('10.255.255.255')) ||
-             ($ip > ip2long('172.16.0.0') && $ip < ip2long('172.31.255.255')) ||
-             ($ip > ip2long('192.168.0.0') && $ip < ip2long('192.168.255.255')) ) {
-            return true;
-        } else {
-            return false;
+        $username = Auth::getUsername();
+        $isGlobalArchiveViewer = false;
+
+        $gAVGroupID = Group::getID(APP_MY_RESEARCH_ARCHIVE_VIEWER_GROUP);
+        $userGroups = Group::getGroupColList(User::getUserIDByUsername($username));
+
+        if (count($userGroups) > 0) {
+            foreach ($userGroups as $ug) {
+                if ($ug == $gAVGroupID) {
+                    $isGlobalArchiveViewer = true;
+                }
+            }
         }
 
+        return $isGlobalArchiveViewer;
     }
-
 
 	/**
 	 * Method used to check whether an user is an administrator.
