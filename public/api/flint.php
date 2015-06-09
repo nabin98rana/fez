@@ -35,58 +35,18 @@
 
 
 include_once('../config.inc.php');
-include_once(APP_INC_PATH . "class.template.php");
 include_once(APP_INC_PATH . "class.db_api.php");
-include_once(APP_INC_PATH . "class.metrics.php");
-include_once(APP_INC_PATH . "class.api_researchers.php");
-
-$log = FezLog::get();
-$db = DB_API::get();
+include_once(APP_INC_PATH . "class.flint.php");
 
 $callback = $_GET['callback'];
 $callback = !empty($callback) ? preg_replace('/[^a-z0-9\.$_]/si', '', $callback) : false;
 header('Access-Control-Allow-Origin: *');
 header('Content-Type: ' . ($callback ? 'application/javascript' : 'application/json') . ';charset=UTF-8');
 
-
-$author_username  = $_GET['author_username'];
-$author_username = trim($author_username);
-if(!ctype_alnum($author_username) || substr( strtolower($author_username), 0, 1 ) === "s" || empty($author_username)) {   //is alphanumeric and not a student
+if(!empty($_REQUEST['languages'])) {
+    echo json_encode(Flint::returnFlintLanguages());
+} else if(!empty($_REQUEST['interviewees'])) {
+    echo json_encode(Flint::returnInterviewees());
+} else {
     echo json_encode(array(), JSON_FORCE_OBJECT);
-    exit();
 }
-
-$resAuthorDetails = ApiResearchers::getAuthorDetails($author_username);
-$resAltmetric = ApiResearchers::getAltmetrics($author_username);
-$resThomson = ApiResearchers::setThomsonMetrics($author_username);
-$resScopus = ApiResearchers::setScopusMetrics($author_username);
-
-
-
-
-
-
-
-
-
-foreach($resAltmetric as &$row) {
-    $row['altmetric_url'] = ApiResearchers::altmetric($row['as_amid']);
-}
-
-foreach($resThomson as &$row) {
-    $row['wos_citation_url'] = ApiResearchers::wosCitationURL($row['rek_isi_loc']);
-    $row['wos_url'] = ApiResearchers::wosURL($row['rek_isi_loc']);
-}
-
-foreach($resScopus as &$row) {
-    $row['scopus_citation_url'] = ApiResearchers::scopusCitationURL($row['rek_scopus_id']);
-    $row['scopus_url'] = ApiResearchers::scopusURL($row['rek_scopus_id']);
-}
-
-$output = array();
-$output['author_details'] = $resAuthorDetails;
-$output['altmetric'] = $resAltmetric;
-$output['thomson'] = $resThomson;
-$output['scopus'] = $resScopus;
-
-echo json_encode($output);
