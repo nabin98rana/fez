@@ -514,7 +514,7 @@ class FulltextQueue
 
     foreach ( $res as $rkey => $row ) {
       $pids[] = $row['rek_pid'];
-			$keys[] = $row['ftq_key'];
+      $keys[] = $row['ftq_key'];
       // Add a closing quote to the citation column
       $res[$rkey]['row'] .= '"';
       // Add the lookups
@@ -532,7 +532,7 @@ class FulltextQueue
       }
 
       //Also add sherpa romeo colour
-      $sherpa_details = SherpaRomeo::getJournalColourFromPid($row['pid']);
+      $sherpa_details = SherpaRomeo::getJournalColourFromPid($row['rek_pid']);
       $res[$rkey]['row'] .= ',"' .$sherpa_details['colour'] .'"';
 
       //Also add the internal notes
