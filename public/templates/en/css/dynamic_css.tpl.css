@@ -1,21 +1,5 @@
 /* FEZ NEW (FROM PRODUCT SITE) */
 
-html, body, div, span, applet, object, iframe, h1, h2, h3, h4, h5, h6, p,
-blockquote, pre, a, abbr, acronym, address, big, cite, code, del, dfn, em, font,
-img, ins, kbd, q, s, samp, small, strike, strong, sub, sup, tt, var, b, u, i,
-center, dl, dt, dd, ol, ul, li, fieldset, form, label, legend, table, caption,
-tbody, tfoot, thead, tr, th, td {
-	border: 0pt none;
-	margin: 0pt;
-	padding: 0pt;
-	background: transparent none repeat scroll 0% 0%;
-	outline-color: -moz-use-text-color;
-	outline-style: none;
-	outline-width: 0pt;
-	font-size: 100%;
-	vertical-align: baseline;
-}
-
 body { background: white; }
 
 * {	margin: 0; padding: 0; border:none; }
@@ -66,9 +50,9 @@ div#wordmark { display: none; visibility: hidden; }
 -----------------------------------------------------------------------------*/
 .wrapper { position: relative; top: 0pt; margin: 0px auto; width: 960px; }
 
-#header { margin: 0pt; padding: 0pt; background: rgb(96, 34, 124) url('[[$smarty.const.APP_RELATIVE_URL]]images/2009/bodybg.gif') repeat-x scroll 0pt 0pt; color: rgb(239, 239, 239); height: 100px; }
+#header { margin: 0pt; padding: 0pt; background: rgb(96, 34, 124) url('[[$smarty.const.APP_RELATIVE_URL]]images/2009/bodybg.gif') repeat-x scroll 0pt 0pt; color: rgb(239, 239, 239); height: 100px; min-width: 980px}
 
-#header-inner, #topnav-inner { margin: 0pt auto; padding: 0pt; width: 1150px; }
+#header-inner, #topnav-inner { margin: 0pt auto; padding: 0pt; max-width: 1150px; }
 
 #header-inner h1 { margin: 26px 0 0 25px;  text-indent: -9999px; z-index: 9999; position: absolute; }
 #header-inner h1 a { background: transparent url('[[$smarty.const.APP_RELATIVE_URL]]images/2009/masthead-logo.gif') no-repeat scroll 0pt 0pt; display: block; height: 50px; text-decoration: none; width: 182px; }
@@ -95,7 +79,6 @@ div#wordmark { display: none; visibility: hidden; }
 /* Login css on page header */
 #logged-in {
 	margin-top: -10px;  /* -5px; */
-	margin-right: 30px;
 	font-family: Helvetica, "Trebuchet MS", sans-serif;
 	font-size: 12px;
 	width: 940px;
@@ -167,7 +150,7 @@ div#wordmark { display: none; visibility: hidden; }
     padding:5px;
 }
 
-#mininav { margin: 0pt; padding: 10px 20px 8px 0; color: rgb(255, 255, 255); font-size: 9px; font-family: Helvetica,"Trebuchet MS",sans-serif; font-weight: lighter; float: right; }
+#mininav { margin: 0pt; padding: 10px 8px 8px 0; color: rgb(255, 255, 255); font-size: 9px; font-family: Helvetica,"Trebuchet MS",sans-serif; font-weight: lighter; float: right; }
 #mininav ul { margin: 0pt; padding: 5px 0 0 15px; list-style-type: none; list-style-image: none; list-style-position: outside; letter-spacing: 1px; }
 #mininav ul li { margin: 0pt 0.8em 0pt 0pt; padding: 0pt; float: left; display: inline; }
 #mininav a { text-transform: uppercase; font-weight: bold; }
@@ -186,7 +169,7 @@ div#wordmark { display: none; visibility: hidden; }
 #topnav li a:active { color: rgb(245, 225, 255); text-decoration: none; border-bottom: 1px solid rgb(229, 229, 229); }
 #topnav img { margin-top: -12px; margin-bottom: -12px; position: relative; top: -9px; }
 
-div#search { background: transparent url('[[$smarty.const.APP_RELATIVE_URL]]images/form-left.png') no-repeat scroll 0pt 0pt; position: absolute; top: 40px; margin: 0 0 0 925px;}
+div#search { background: transparent url('[[$smarty.const.APP_RELATIVE_URL]]images/form-left.png') no-repeat scroll 0pt 0pt;  top: 40px; float: right;}
 div#search form { margin: 0pt; padding: 0pt; width: 210px; }
 div#search label { display: block; float: left; width: 30px; height: 18px; }
 div#search label span { display: none; }
@@ -284,7 +267,7 @@ p.centenary { padding: 16px 0 0 0; }
 }
 
 .content-restrict {
-    width: 1100px;
+    max-width: 1100px;
 }
 
 /* END FEZ NEW */
@@ -1026,8 +1009,8 @@ width: 2em;
 
 #logged-in {
 	font-size: 9pt;
-	float: left;
-	padding-left: 180px;
+	float: right;
+	padding: 4px 15px 0px 0px;
 }
 
 div.wfl_description {
