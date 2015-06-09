@@ -1,5 +1,4 @@
 <script type="text/javascript">
-<!--
 
 var page_url = '{$PAGE_URL nofilter}';
 var url_wo_sort = '{if $url_wo_sort}{$url_wo_sort nofilter}&{/if}';
@@ -23,5 +22,5 @@ if ((isElementVisible(basic_element) && isElementVisible(custom_filter_element))
 } 
 {/literal}
 
--->
+
 </script>
