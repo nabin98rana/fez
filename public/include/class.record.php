@@ -3516,6 +3516,14 @@ class Record
       $log->err($ex);
       return false;
     }
+    if ($difference < 0 && $count == 0) {    //Most likely a error from Thomson. Citations shouldn't drop to zero.
+        return false;
+    }
+
+    if(!is_numeric($difference)) {
+        $newEntry = true;
+        $difference = is_numeric($count) ? $count : NULL;
+    }
 
     $stmt = "INSERT INTO
                     " . $dbtp . "thomson_citations
@@ -3531,7 +3539,19 @@ class Record
       $log->err($ex);
       return false;
     }
+      //If it's new of the citation count has changed lets store this once in the cache table to speed access.
+      if($newEntry || !empty($difference)) {
+          $stmt = str_replace('thomson_citations', 'thomson_citations_cache', $stmt);
+          $stmt .= "ON DUPLICATE KEY UPDATE tc_count = " . $db->quote($count) . ", tc_last_checked = '" . time() . "',
+                    tc_created = '" . time() . "', tc_isi_loc = " . $db->quote($isi_loc) . ", tc_diff_previous = " . $db->quote($difference);
 
+          try {
+              $db->query($stmt);
+          } catch (Exception $ex) {
+              $log->err($ex);
+              return false;
+          }
+      }
     return true;
   }
 
@@ -3707,6 +3727,15 @@ class Record
       return false;
     }
 
+    if ($difference < 0 && $count == 0) {    //Most likely a error from Scopus. Citations shouldn't drop to zero.
+      return false;
+    }
+
+    if(!is_numeric($difference)) {
+        $newEntry = true;
+        $difference = is_numeric($count) ? $count : NULL;
+    }
+
     $stmt = "INSERT INTO
                     " . $dbtp . "scopus_citations
                  (sc_id, sc_count, sc_last_checked, sc_created, sc_eid, sc_diff_previous)
@@ -3722,8 +3751,24 @@ class Record
       return false;
     }
 
-        return true;
+
+      //If it's new of the citation count has changed lets store this once in the cache table to speed access.
+      if($newEntry || !empty($difference)) {
+          $stmt = str_replace('scopus_citations', 'scopus_citations_cache', $stmt);
+          $stmt .= "ON DUPLICATE KEY UPDATE sc_count = " . $db->quote($count) . ", sc_last_checked = '" . time() . "',
+       sc_created = '" . time() . "', sc_eid = " . $db->quote($eid) . ", sc_diff_previous = " . $db->quote($difference);
+
+          try {
+              $db->query($stmt);
+          } catch (Exception $ex) {
+              $log->err($ex);
+              return false;
+          }
+      }
+      return true;
   }
+
+
 
   /**
    * Updates the Scopus citation count for a record using the last
@@ -5309,8 +5354,6 @@ function getSearchKeyIndexValueShadow($pid, $searchKeyTitle, $getLookup=true, $s
         $log->err(array($xmlObj, __FILE__,__LINE__));
       }
     }
-
-    $convert_check = false;
 
     // ingest the datastreams
     foreach ($datastreamXMLHeaders as $dsKey => $dsTitle) {
