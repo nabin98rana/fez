@@ -3,7 +3,7 @@
 class Fulltext_Tools {
 	
 	// MIME-Types the extaction method understands
-	private static $mime_types = array('application/pdf','text/plain');
+	private static $mime_types = array('application/pdf','text/plain', 'application/pdf;');
 	
 	
     /**
@@ -124,6 +124,7 @@ class Fulltext_Tools {
 
         // convert to plain text
         switch ($mimetype) {
+            case 'application/pdf;':
             case 'application/pdf':
                 exec(APP_PDFTOTEXT_EXEC.' -q '.$filename.' '.$textfilename);
                 break;
