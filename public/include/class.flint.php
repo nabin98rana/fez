@@ -24,7 +24,7 @@ class Flint
         LEFT JOIN " . APP_TABLE_PREFIX . "controlled_vocab AS B ON B.cvo_id = cvr_child_cvo_id
         LEFT JOIN " . APP_TABLE_PREFIX . "record_search_key_subject ON rek_subject = cvr_child_cvo_id
         LEFT JOIN " . APP_TABLE_PREFIX . "record_search_key ON rek_subject_pid = rek_pid AND rek_status = '2'
-        INNER JOIN " . APP_TABLE_PREFIX . "record_search_key_ismemberof ON rek_ismemberof_pid = rek_contributor_pid
+        INNER JOIN " . APP_TABLE_PREFIX . "record_search_key_ismemberof ON rek_ismemberof_pid = rek_subject_pid
         WHERE A.cvo_title = 'AIATSIS codes'
         AND rek_ismemberof IN ('".APP_FLINT_COLLECTION."')
         GROUP BY B.cvo_id";
