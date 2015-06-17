@@ -91,7 +91,7 @@
         <div id="topnav-inner">
             <ul>
                 <li{if $active_nav == 'home'} id="nav-focus"{/if}><a id="Home" href="{$rel_url}">Home</a></li>
-                <li{if $active_nav == 'list'} id="nav-focus"{/if}><a id="Browse" href="{$rel_url}list/">Browse</a></li>
+                <li{if $active_nav == 'list'} id="nav-focus"{/if}><a id="Browse" href="{$rel_url}browse/">Browse</a></li>
                 <li{if $active_nav == 'search'} id="nav-focus"{/if}><a id="Advanced Search" href="{$rel_url}adv_search.php">Search</a></li>
                 <li{if $active_nav == 'help'} id="nav-focus"{/if}><a id="FAQs" title="Browse the Frequently Asked Questions section" href="{$rel_url}faq">FAQs</a></li>
                 <li{if $active_nav == 'about'} id="nav-focus"{/if}><a id="About" href="{$rel_url}about">About / Contact</a></li>
@@ -107,7 +107,7 @@
 
                     {if $isAdministrator}
                         <li{if $active_nav == 'admin'} id="nav-focus"{/if}><a id="Admin" href="{$rel_url}manage/">Admin</a></li>
-                        <li{if $active_nav == 'favourites'} id="nav-focus"{/if}>
+                        <li{if $active_nav == 'favourites'} id="nav-focus"d{/if}>
                             <a id="Favourites" href="{$rel_url}favourites"><img src="{$rel_url}images/star_16.png" width="16" height="16" alt="View starred records"  title="Starred Records"/></a>
                         </li>
                      {/if}
