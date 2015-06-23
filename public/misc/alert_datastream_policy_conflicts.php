@@ -120,7 +120,7 @@ if (php_sapi_name()==="cli")  {   // This must be run while not logged in else i
 
                     $userPIDAuthGroups = Auth::getAuthorisationGroups($pid, $datastream['ID']);
                     if (in_array('Viewer', $userPIDAuthGroups)) {
-                        $body .= "http:/espace.library.uq.edu.au/view/".$pid . "  has a datastream that's open in an collection where datastreams should be closed.\n";
+                        $body .= $datastream['ID'] . " attached to http:/espace.library.uq.edu.au/view/".$pid . " is available open access when it should be embargoed.\n";
                         $openFound = true;
                         echo $pid . " found with issues\n";
                     }
