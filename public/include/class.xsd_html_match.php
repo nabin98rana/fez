@@ -3034,7 +3034,7 @@ class XSD_HTML_Match
      * @return  array The list of matching field options as array(mfo_id => mfo_value),
      *                 or if an array was passed, array(fld_id => array(mfo_id, mfo_value))
      */
-    private static function getOptions($fld_id)
+    public static function getOptions($fld_id)
     {
         $log = FezLog::get();
         $db = DB_API::get();
