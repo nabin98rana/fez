@@ -94,11 +94,13 @@ class Iii
     foreach ($files as $file) {
       $data = array();
       $data['Error'] = '';
+      $data['Fix'] = '';
       $data['ImportDirectory'] = dirname($file) . '/';
       $data['ThesisFilenames'] = array(basename($file));
       $data['CallNo'] = str_ireplace('.pdf', '', $data['ThesisFilenames'][0]);
       $data['Institution'] = 'The University of Queensland';
       $data['ErrorFile'] = $data['ImportDirectory'] . $data['CallNo'] . '.error.txt';
+      $data['FixFile'] = $data['ImportDirectory'] . $data['CallNo'] . '.fix.txt';
       if (stripos($data['CallNo'], '_V') !== FALSE) {
         // Multiple volumes
         $data['CallNo'] = explode('_', $data['CallNo'])[0];
@@ -116,14 +118,14 @@ class Iii
         // Possibly multiple results, try to find the exact result for this CallNo
         preg_match('#href="(.*)">' . $data['CallNo'] . '</a>#i', $record, $m);
         if (! $m) {
-          $data['Error'] .= 'Failed to search on the call no. URL was: ' . $searchUrl;
+          $data['Error'] .= " - Failed to search on the call no. URL was: $searchUrl\n";
           $this->_logErrorToFile($data);
           continue;
         }
         $record = Misc::getFileURL('http://library.uq.edu.au' . $m[1]);
         preg_match('#id="recordnum" href="/record=b(\d+)#i', $record, $matches);
         if (! $matches) {
-          $data['Error'] .= 'Failed to search on the call no. URL was: ' . $searchUrl;
+          $data['Error'] .= " - Failed to search on the call no. URL was: $searchUrl\n";
           $this->_logErrorToFile($data);
           continue;
         }
@@ -133,13 +135,13 @@ class Iii
       $recordXml = Misc::getFileURL($recordUrl);
       $xml = @simplexml_load_string($recordXml);
       if (!$xml) {
-        $data['Error'] .= 'Failed to load the record XML in the catalogue at URL: ' . $recordUrl;
+        $data['Error'] .= " - Failed to load the record XML in the catalogue at URL: $recordUrl\n";
         $this->_logErrorToFile($data);
         continue;
       }
       $notFound = (string) @$xml->xpath('/IIIRECORD/NULLRECORD')[0]->MESSAGE[0];
       if ($notFound) {
-        $data['Error'] .= 'The record was not found at URL: ' . $recordUrl;
+        $data['Error'] .= " - The record was not found at URL: $recordUrl\n";
         $this->_logErrorToFile($data);
         continue;
       }
@@ -148,7 +150,7 @@ class Iii
       if ($author) {
         $data['Author'] = rtrim($author, '. ');
       } else {
-        $data['Error'] .= 'Author missing in record';
+        $data['Error'] .= " - Author missing in record\n";
       }
 
       $title = '';
@@ -163,14 +165,15 @@ class Iii
       if ($title) {
         $data['Title'] = rtrim($title, '/ ');
       } else {
-        $data['Error'] .= 'Title missing in record';
+        $data['Error'] .= " - Title missing in record\n";
       }
 
       $school = (string) @$xml->xpath('/IIIRECORD/VARFLD/MARCINFO[MARCTAG="610"]/../MARCSUBFLD[SUBFIELDINDICATOR="b"]')[0]->SUBFIELDDATA[0];
       if ($school) {
         $data['School'] = rtrim($school, '. ');
       } else {
-        $data['Error'] .= 'School missing in record';
+        $data['School'] = '';
+        $data['Fix'] .= " - School missing in record\n";
       }
 
       $subjects = @$xml->xpath('/IIIRECORD/VARFLD/HEADER[TAG="SUBJECT"]/..');
@@ -204,22 +207,28 @@ class Iii
         $data['PublicationDate'] = rtrim($pubDate, '. ');
         $data['CollectionYear'] = $data['PublicationDate'];
       } else {
-        $data['Error'] .= 'Collection year missing in record';
+        $data['Error'] .= " - Collection year missing in record\n";
       }
 
       $thesisType = (string) @$xml->xpath('/IIIRECORD/VARFLD/MARCINFO[MARCTAG="610"]/../MARCSUBFLD[SUBFIELDINDICATOR="x"]')[1]->SUBFIELDDATA[0];
       if ($thesisType) {
         $data['ThesisType'] = rtrim($thesisType, '. ');
       } else {
-        $data['Error'] .= 'Thesis type missing in record';
+        $data['Error'] .= " - Thesis type missing in record\n";
       }
 
       $pages = (string) @$xml->xpath('/IIIRECORD/VARFLD/MARCINFO[MARCTAG="300"]/../MARCSUBFLD[SUBFIELDINDICATOR="a"]')[0]->SUBFIELDDATA[0];
       if ($pages) {
-        $pages = preg_split('/[^\d]/', $pages);
-        $data['TotalPages'] = $pages[0];
+        $p = preg_split('/[^\d]/', $pages);
+        if ($p && stripos($pages, $p[0] . 'v') !== 0) {
+          // Not no. of volumes
+          $data['TotalPages'] = $p[0];
+        } else {
+          $data['TotalPages'] = '';
+          $data['Fix'] .= " - Unable to derive total pages from record: $pages\n";
+        }
       } else {
-        $data['Error'] .= 'Total pages missing in record';
+        $data['Fix'] .= " - Total pages missing in record\n";
       }
 
       $notes = (string) @$xml->xpath('/IIIRECORD/VARFLD/MARCINFO[MARCTAG="246"]/../MARCSUBFLD')[0]->SUBFIELDDATA[0];
@@ -246,6 +255,19 @@ class Iii
   {
     $message = $data['Error'] . "\n\n" . print_r($data, true);
     file_put_contents($data['ErrorFile'], $message);
+  }
+
+  /**
+   * Writes to file fixes which should be applied to imported records (e.g. a missing school)
+   *
+   * @param Array $data The data to log
+   * @param String $pid The record to fix
+   */
+  private function _logToFixFile($data, $pid)
+  {
+    $message = "The following issues were found with record $pid:\n\n";
+    $message .=  $data['Fix'] . "\n\n" . print_r($data, true);
+    file_put_contents($data['FixFile'], $message);
   }
 
   /**
@@ -313,7 +335,7 @@ class Iii
       }
     }
     if (! $addedThesisType) {
-      $recData['Error'] .= 'Unable to add a thesis type.';
+      $recData['Error'] .= " - Unable to add a thesis type\n";
     }
 
     // Total Pages
@@ -366,6 +388,10 @@ class Iii
 
     $record = new RecordObject();
     $pid = $record->fedoraInsertUpdate(array(), array(), $params);
+
+    if (! empty($recData['Fix'])) {
+      $this->_logToFixFile($recData, $pid);
+    }
 
     $count = 0;
     foreach ($recData['ThesisFilenames'] as $file) {
