@@ -174,8 +174,9 @@ if (!empty($pid) && !empty($dsID)) {
 
 	if(APP_FEDORA_BYPASS != 'ON')
 	{
-	    if( $info['download_content_length'] == 0 && $bookpage != true)
-		$not_exists = true;
+	    if( $info['download_content_length'] == 0 && $bookpage != true && (substr($dsID, -4) != ".xml")) {
+            //$not_exists = true;   // Currently sending back incorrect values
+        }
 	}
 
 
@@ -274,7 +275,7 @@ if (!empty($pid) && !empty($dsID)) {
     			} else {
     				$fh = fopen($file, "rb");
     				//$buffer = 512;  not needed?
-    			  	echo stream_get_contents($fh, $size, $seekat);
+    			  	echo stream_get_contents($fh); // Currently sending back incorrect values for size , $size, $seekat);
     				fclose($fh);
     			}
 		    }
