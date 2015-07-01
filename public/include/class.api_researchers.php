@@ -83,7 +83,6 @@ aut_people_australia_id, aut_description, aut_orcid_id, aut_google_scholar_id, a
                 ORDER BY as_1d DESC, as_2d DESC, as_3d DESC, as_4d DESC, as_5d DESC, as_6d DESC, as_1w DESC, as_1m DESC, as_3m DESC, as_6m DESC, as_1y DESC LIMIT 3";
 
 
-
         try {
             $res = $db->fetchAll($stmt);
         }
@@ -195,4 +194,57 @@ aut_people_australia_id, aut_description, aut_orcid_id, aut_google_scholar_id, a
     {
         return "http://www.altmetric.com/details.php?citation_id=" . $altmetricDOI;
     }
+
+    //11 is lister permissions. 371 is data collections. 2 is published
+    public static function getDataCollections($author, $year = null)
+    {
+        $log = FezLog::get();
+        $db = DB_API::get();
+
+        $year = (is_numeric($year)) ? " AND rek_date > " . $year . " " : "";
+
+        $stmt = "SELECT rek_pid, rek_title, GROUP_CONCAT(rek_author_id) as author_id FROM " . APP_TABLE_PREFIX . "record_search_key
+                INNER JOIN " . APP_TABLE_PREFIX . "record_search_key_author_id ON rek_pid = rek_author_id_pid
+                INNER JOIN " . APP_TABLE_PREFIX . "auth_index2_lister ON authi_pid = rek_pid AND authi_arg_id = '11'
+                WHERE rek_display_type = 371 AND rek_author_id = " . $author . " rek_status = 2 " . $year . "
+                GROUP BY(rek_pid)
+                LIMIT 10000000";
+
+        try {
+            $res = $db->fetchAll($stmt);
+        }
+        catch (Exception $ex) {
+            $log->err($ex);
+            return false;
+        }
+
+        return $res;
+    }
+
+    //11 is lister permissions. 371 is data collections. 2 is published
+    public static function getPidsWithDatacollections($author, $year = null)
+    {
+        $log = FezLog::get();
+        $db = DB_API::get();
+
+        $year = (is_numeric($year)) ? " AND rek_date > " . $year . " " : "";
+
+        $stmt = "SELECT rek_isdatasetof,  rek_title, GROUP_CONCAT(rek_pid) AS is_dataset_of FROM " . APP_TABLE_PREFIX . "record_search_key
+                INNER JOIN " . APP_TABLE_PREFIX . "record_search_key_author_id ON rek_pid = rek_author_id_pid
+                INNER JOIN " . APP_TABLE_PREFIX . "auth_index2_lister ON authi_pid = rek_pid AND authi_arg_id = '11'
+                INNER JOIN " . APP_TABLE_PREFIX . "record_search_key_isdatasetof ON rek_pid = rek_isdatasetof_pid
+                WHERE rek_display_type = 371 AND rek_author_id = " . $author . " AND rek_status = 2 " . $year . "
+                GROUP BY(rek_isdatasetof)";
+
+        try {
+            $res = $db->fetchAll($stmt);
+        }
+        catch (Exception $ex) {
+            $log->err($ex);
+            return false;
+        }
+
+        return $res;
+    }
+
 }
