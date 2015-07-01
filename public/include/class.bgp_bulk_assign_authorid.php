@@ -122,7 +122,7 @@ class BackgroundProcess_Bulk_Assign_Authorid extends BackgroundProcess
                     $query = "//mods:name[contains(mods:namePart,'$author_name')]";
                     $nodeList = $xpath->query($query);
 
-                    if($nodeList->length > 0 ) {
+                    if($nodeList->length == 1 ) {
                         $this->_numAuthorsUpdated += $nodeList->length;
                         $this->_pidsUpdated[] = $pid;
                         $this->setStatus("Updated " . $nodeList->length ." Author ID(s) for " . $pid . " ");
@@ -141,8 +141,10 @@ class BackgroundProcess_Bulk_Assign_Authorid extends BackgroundProcess
 
                         // Set Index
                         Record::setIndexMatchingFields($pid);
-                    } else {
+                    } else if ($nodeList->length == 0 ) {
                         $this->setStatus("Did NOT update " . $pid . " didn't have any authors with '" . $author_name . "'");
+                    } else {
+                        $this->setStatus("Did NOT update " . $pid . " matched on multiple authors with '" . $author_name . "'");
                     }
                 }
 
