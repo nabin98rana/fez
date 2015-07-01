@@ -206,7 +206,7 @@ aut_people_australia_id, aut_description, aut_orcid_id, aut_google_scholar_id, a
         $stmt = "SELECT rek_pid, rek_title, GROUP_CONCAT(rek_author_id) as author_id FROM " . APP_TABLE_PREFIX . "record_search_key
                 INNER JOIN " . APP_TABLE_PREFIX . "record_search_key_author_id ON rek_pid = rek_author_id_pid
                 INNER JOIN " . APP_TABLE_PREFIX . "auth_index2_lister ON authi_pid = rek_pid AND authi_arg_id = '11'
-                WHERE rek_display_type = 371 AND rek_author_id = " . $author . " rek_status = 2 " . $year . "
+                WHERE rek_display_type = 371 AND rek_author_id = " . $author . " AND rek_status = 2 " . $year . "
                 GROUP BY(rek_pid)
                 LIMIT 10000000";
 

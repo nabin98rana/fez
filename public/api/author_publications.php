@@ -36,7 +36,7 @@
 
 include_once('../config.inc.php');
 include_once(APP_INC_PATH . "class.db_api.php");
-include_once(APP_INC_PATH . "class.flint.php");
+include_once(APP_INC_PATH . "class.api_researchers.php");
 
 $callback = $_REQUEST['callback'];
 $callback = !empty($callback) ? preg_replace('/[^a-z0-9\.$_]/si', '', $callback) : false;
