@@ -46,7 +46,7 @@ header('Content-Type: ' . ($callback ? 'application/javascript' : 'application/j
 $author_id = $_REQUEST['author_id'];
 $year = $_REQUEST['year'];
 
-if(!is_numeric($year) || !is_numeric($author_id)) {   //is alphanumeric and not a student
+if((!is_numeric($year) && !empty($year)) || !is_numeric($author_id)) {   //is alphanumeric and not a student
     echo json_encode(array(), JSON_FORCE_OBJECT);
     exit();
 }
