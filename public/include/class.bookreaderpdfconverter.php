@@ -160,6 +160,9 @@ class bookReaderPDFConverter
     {
         $parts = pathinfo($url);
         $fhurl = fopen($url, 'rb');
+        if ($fhurl == false) {
+            return false;
+        }
         $tmpPth = APP_TEMP_DIR . $parts['basename'];
         $fhfs = fopen($tmpPth, 'ab');
 
