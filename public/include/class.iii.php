@@ -90,6 +90,7 @@ class Iii
   private function _getDataFromIii($files)
   {
     $importData = array();
+    $catBaseUrl = 'http://library.uq.edu.au';
 
     foreach ($files as $file) {
       $data = array();
@@ -111,7 +112,7 @@ class Iii
         }
       }
 
-      $searchUrl = 'http://library.uq.edu.au/search~S7/?searchtype=m&searcharg=' . $data['CallNo'];
+      $searchUrl = $catBaseUrl . '/search~S7/?searchtype=m&searcharg=' . $data['CallNo'];
       $record = Misc::getFileURL($searchUrl);
       preg_match('#id="recordnum" href="/record=b(\d+)#i', $record, $matches);
       if (! $matches) {
@@ -122,7 +123,7 @@ class Iii
           $this->_logErrorToFile($data);
           continue;
         }
-        $record = Misc::getFileURL('http://library.uq.edu.au' . $m[1]);
+        $record = Misc::getFileURL($catBaseUrl . $m[1]);
         preg_match('#id="recordnum" href="/record=b(\d+)#i', $record, $matches);
         if (! $matches) {
           $data['Error'] .= " - Failed to search on the call no. URL was: $searchUrl\n";
@@ -131,7 +132,7 @@ class Iii
         }
       }
       $data['BibNo'] = 'b' . $matches[1];
-      $recordUrl = 'http://library.uq.edu.au/xrecord=' . $data['BibNo'];
+      $recordUrl = $catBaseUrl . '/xrecord=' . $data['BibNo'];
       $recordXml = Misc::getFileURL($recordUrl);
       $xml = @simplexml_load_string($recordXml);
       if (!$xml) {
