@@ -1,4 +1,4 @@
-CREATE TABLE %TABLE_PREFIX%record_search_key_herdc_code (
+CREATE TABLE IF NOT EXISTS %TABLE_PREFIX%record_search_key_herdc_code (
   rek_herdc_code_id int(11) NOT NULL AUTO_INCREMENT,
   rek_herdc_code_pid varchar(64) DEFAULT NULL,
   rek_herdc_code_xsdmf_id int(11) DEFAULT NULL,
