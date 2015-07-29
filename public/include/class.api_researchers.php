@@ -201,16 +201,15 @@ aut_people_australia_id, aut_description, aut_orcid_id, aut_google_scholar_id, a
         $log = FezLog::get();
         $db = DB_API::get();
 
-        $startYear = (is_numeric($startYear)) ? " AND rek_date > " . $startYear . " " : "";
-        $endYear = (is_numeric($endYear)) ? " AND rek_date < " . $endYear . " " : "";
+        $startYear = (is_numeric($startYear)) ? " AND rek_date > " . $db->quote($startYear) . " " : "";
+        $endYear = (is_numeric($endYear)) ? " AND rek_date < " . $db->quote($endYear) . " " : "";
 
         $stmt = "SELECT rek_pid, rek_title, GROUP_CONCAT(rek_author_id) as author_id FROM " . APP_TABLE_PREFIX . "record_search_key
                 INNER JOIN " . APP_TABLE_PREFIX . "record_search_key_author_id ON rek_pid = rek_author_id_pid
                 INNER JOIN " . APP_TABLE_PREFIX . "auth_index2_lister ON authi_pid = rek_pid AND authi_arg_id = '11'
                 INNER JOIN " . APP_TABLE_PREFIX . "author on aut_id = rek_author_id
                 WHERE rek_display_type = 371 AND aut_org_username = " .$db->quote($author_username) . " AND rek_status = 2 " . $startYear . $endYear . "
-                GROUP BY(rek_pid)
-                LIMIT 10000000";
+                GROUP BY(rek_pid)";
 
         try {
             $res = $db->fetchAll($stmt);
@@ -229,8 +228,8 @@ aut_people_australia_id, aut_description, aut_orcid_id, aut_google_scholar_id, a
         $log = FezLog::get();
         $db = DB_API::get();
 
-        $startYear = (is_numeric($startYear)) ? " AND rek_date > " . $startYear . " " : "";
-        $endYear = (is_numeric($endYear)) ? " AND rek_date < " . $endYear . " " : "";
+        $startYear = (is_numeric($startYear)) ? " AND rek_date > " . $db->quote($startYear) . " " : "";
+        $endYear = (is_numeric($endYear)) ? " AND rek_date < " . $db->quote($endYear) . " " : "";
 
         $stmt = "SELECT rek_isdatasetof,  rek_title, GROUP_CONCAT(rek_pid) AS is_dataset_of FROM " . APP_TABLE_PREFIX . "record_search_key
                 INNER JOIN " . APP_TABLE_PREFIX . "record_search_key_author_id ON rek_pid = rek_author_id_pid
