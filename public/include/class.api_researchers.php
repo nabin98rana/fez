@@ -196,17 +196,19 @@ aut_people_australia_id, aut_description, aut_orcid_id, aut_google_scholar_id, a
     }
 
     //11 is lister permissions. 371 is data collections. 2 is published
-    public static function getDataCollections($author, $year = null)
+    public static function getDataCollections($author_username, $startYear = null, $endYear = null)
     {
         $log = FezLog::get();
         $db = DB_API::get();
 
-        $year = (is_numeric($year)) ? " AND rek_date > " . $year . " " : "";
+        $startYear = (is_numeric($startYear)) ? " AND rek_date > " . $startYear . " " : "";
+        $endYear = (is_numeric($endYear)) ? " AND rek_date < " . $endYear . " " : "";
 
         $stmt = "SELECT rek_pid, rek_title, GROUP_CONCAT(rek_author_id) as author_id FROM " . APP_TABLE_PREFIX . "record_search_key
                 INNER JOIN " . APP_TABLE_PREFIX . "record_search_key_author_id ON rek_pid = rek_author_id_pid
                 INNER JOIN " . APP_TABLE_PREFIX . "auth_index2_lister ON authi_pid = rek_pid AND authi_arg_id = '11'
-                WHERE rek_display_type = 371 AND rek_author_id = " . $author . " AND rek_status = 2 " . $year . "
+                INNER JOIN " . APP_TABLE_PREFIX . "author on aut_id = rek_author_id
+                WHERE rek_display_type = 371 AND aut_org_username = " .$db->quote($author_username) . " AND rek_status = 2 " . $startYear . $endYear . "
                 GROUP BY(rek_pid)
                 LIMIT 10000000";
 
@@ -222,18 +224,20 @@ aut_people_australia_id, aut_description, aut_orcid_id, aut_google_scholar_id, a
     }
 
     //11 is lister permissions. 371 is data collections. 2 is published
-    public static function getPidsWithDatacollections($author, $year = null)
+    public static function getPidsWithDatacollections($author_username, $startYear = null, $endYear = null)
     {
         $log = FezLog::get();
         $db = DB_API::get();
 
-        $year = (is_numeric($year)) ? " AND rek_date > " . $year . " " : "";
+        $startYear = (is_numeric($startYear)) ? " AND rek_date > " . $startYear . " " : "";
+        $endYear = (is_numeric($endYear)) ? " AND rek_date < " . $endYear . " " : "";
 
         $stmt = "SELECT rek_isdatasetof,  rek_title, GROUP_CONCAT(rek_pid) AS is_dataset_of FROM " . APP_TABLE_PREFIX . "record_search_key
                 INNER JOIN " . APP_TABLE_PREFIX . "record_search_key_author_id ON rek_pid = rek_author_id_pid
                 INNER JOIN " . APP_TABLE_PREFIX . "auth_index2_lister ON authi_pid = rek_pid AND authi_arg_id = '11'
                 INNER JOIN " . APP_TABLE_PREFIX . "record_search_key_isdatasetof ON rek_pid = rek_isdatasetof_pid
-                WHERE rek_display_type = 371 AND rek_author_id = " . $author . " AND rek_status = 2 " . $year . "
+                INNER JOIN " . APP_TABLE_PREFIX . "author on aut_id = rek_author_id
+                WHERE rek_display_type = 371 AND aut_org_username = " .$db->quote($author_username) . " AND rek_status = 2 " . $startYear . $endYear . "
                 GROUP BY(rek_isdatasetof)";
 
         try {

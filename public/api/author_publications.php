@@ -43,17 +43,19 @@ $callback = !empty($callback) ? preg_replace('/[^a-z0-9\.$_]/si', '', $callback)
 header('Access-Control-Allow-Origin: *');
 header('Content-Type: ' . ($callback ? 'application/javascript' : 'application/json') . ';charset=UTF-8');
 
-$author_id = $_REQUEST['author_id'];
-$year = $_REQUEST['year'];
+$author_username = $_REQUEST['author_username'];
 
-if((!is_numeric($year) && !empty($year)) || !is_numeric($author_id)) {   //is alphanumeric and not a student
+$startYear = $_REQUEST['start_year'];
+$endYear = $_REQUEST['end_year'];
+
+if((!is_numeric($startYear) && !empty($startYear)) || (!is_numeric($endYear) && !empty($endYear)) || !ctype_alnum($author_username) || substr( strtolower($author_username), 0, 1 ) === "s" || empty($author_username)) {   //is alphanumeric and not a student
     echo json_encode(array(), JSON_FORCE_OBJECT);
     exit();
 }
 
 if(!empty($_REQUEST['datacollections'])) {
-    $return['data_collections'] = ApiResearchers::getDataCollections($author_id, $year);
-    $return['pids_with_data_collections'] = ApiResearchers::getPidsWithDatacollections($author_id, $year);
+    $return['data_collections'] = ApiResearchers::getDataCollections($author_username, $startYear, $endYear);
+    $return['pids_with_data_collections'] = ApiResearchers::getPidsWithDatacollections($author_username, $startYear, $endYear);
     echo json_encode($return);
 } else {
     echo json_encode(array(), JSON_FORCE_OBJECT);
