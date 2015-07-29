@@ -204,7 +204,7 @@ aut_people_australia_id, aut_description, aut_orcid_id, aut_google_scholar_id, a
         $startYear = (is_numeric($startYear)) ? " AND rek_date > " . $db->quote($startYear) . " " : "";
         $endYear = (is_numeric($endYear)) ? " AND rek_date < " . $db->quote($endYear) . " " : "";
 
-        $stmt = "SELECT rek_pid, rek_title, GROUP_CONCAT(rek_author_id) as author_id FROM " . APP_TABLE_PREFIX . "record_search_key
+        $stmt = "SELECT rek_pid, rek_title, GROUP_CONCAT(rek_author_id) as author_id, rek_date FROM " . APP_TABLE_PREFIX . "record_search_key
                 INNER JOIN " . APP_TABLE_PREFIX . "record_search_key_author_id ON rek_pid = rek_author_id_pid
                 INNER JOIN " . APP_TABLE_PREFIX . "auth_index2_lister ON authi_pid = rek_pid AND authi_arg_id = '11'
                 INNER JOIN " . APP_TABLE_PREFIX . "author on aut_id = rek_author_id
@@ -231,7 +231,7 @@ aut_people_australia_id, aut_description, aut_orcid_id, aut_google_scholar_id, a
         $startYear = (is_numeric($startYear)) ? " AND rek_date > " . $db->quote($startYear) . " " : "";
         $endYear = (is_numeric($endYear)) ? " AND rek_date < " . $db->quote($endYear) . " " : "";
 
-        $stmt = "SELECT rek_isdatasetof,  rek_title, GROUP_CONCAT(rek_pid) AS is_dataset_of FROM " . APP_TABLE_PREFIX . "record_search_key
+        $stmt = "SELECT rek_isdatasetof,  rek_title, GROUP_CONCAT(rek_pid) AS is_dataset_of, rek_date FROM " . APP_TABLE_PREFIX . "record_search_key
                 INNER JOIN " . APP_TABLE_PREFIX . "record_search_key_author_id ON rek_pid = rek_author_id_pid
                 INNER JOIN " . APP_TABLE_PREFIX . "auth_index2_lister ON authi_pid = rek_pid AND authi_arg_id = '11'
                 INNER JOIN " . APP_TABLE_PREFIX . "record_search_key_isdatasetof ON rek_pid = rek_isdatasetof_pid
