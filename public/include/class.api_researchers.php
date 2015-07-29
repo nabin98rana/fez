@@ -234,9 +234,9 @@ aut_people_australia_id, aut_description, aut_orcid_id, aut_google_scholar_id, a
         $stmt = "SELECT rek_isdatasetof as rek_pid,  B.rek_title, GROUP_CONCAT(A.rek_pid) AS rek_is_dataset_of, B.rek_date FROM " . APP_TABLE_PREFIX . "record_search_key AS A
                 INNER JOIN " . APP_TABLE_PREFIX . "record_search_key_author_id ON A.rek_pid = rek_author_id_pid
                 INNER JOIN " . APP_TABLE_PREFIX . "auth_index2_lister ON authi_pid = A.rek_pid AND authi_arg_id = '11'
-                INNER JOIN " . APP_TABLE_PREFIX . "record_search_key_isdatasetof ON A.rek_pid = rek_isdatasetof
+                INNER JOIN " . APP_TABLE_PREFIX . "record_search_key_isdatasetof ON A.rek_pid = rek_isdatasetof_pid
                 INNER JOIN " . APP_TABLE_PREFIX . "author on aut_id = rek_author_id
-                INNER JOIN " . APP_TABLE_PREFIX . "record_search_key AS B on rek_isdatasetof_pid = B.rek_pid
+                INNER JOIN " . APP_TABLE_PREFIX . "record_search_key AS B on rek_isdatasetof = B.rek_pid
                 WHERE A.rek_display_type = 371 AND aut_org_username = " .$db->quote($author_username) . " AND A.rek_status = 2 " . $startYear . $endYear . "
                 GROUP BY(rek_isdatasetof)";
 
