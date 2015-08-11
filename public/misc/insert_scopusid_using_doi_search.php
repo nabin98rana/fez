@@ -76,7 +76,7 @@ if ((php_sapi_name()==="cli") || (User::isUserSuperAdministrator($isUser))) {
     $sq = ScopusQueue::get();
     for($i=0; $i< ((int)(count($res)/$max) +1); $i++) {
         echo "Loop ".$i. "\n";
-        $input_keys = array_splice($input_keys_all, $i*$max, 100);
+        $input_keys = array_slice($input_keys_all, $i*$max, 100);
         if(count($input_keys) > 0 ) {
             $result = Scopus::getCitedByCount($input_keys);
             foreach($result as $pid => $link_data) {
