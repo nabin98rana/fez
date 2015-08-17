@@ -1004,7 +1004,7 @@ class Fedora_API {
         "logMessage" => "Modified Datastream"
       ));
     }
-} elseif ($xmlContent != "") {
+    elseif ($xmlContent != "") {
 				// test different way to use curl  - heaphey
 				$message = 'Modified Datastream';
 				$getString .= '?versionable='.$versionable.'&dsLabel='.urlencode($dsLabel).'&dsState=A&mimeType='.$mimetype.'&formatURI='.$formatURI.'&logMessage='.urlencode($message);
@@ -1020,7 +1020,7 @@ class Fedora_API {
       }
       fclose($fp);
 
-        		$params = array("file" => "@".$tempFile.";type=".$mimetype);
+      $params = array("file" => "@".$tempFile.";type=".$mimetype);
 															//"dsLabel" => urlencode($dsLabel),
 															//"versionable" => $versionable,
 															//"mimeType" => $mimetype,
