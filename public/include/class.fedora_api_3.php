@@ -1004,7 +1004,12 @@ class Fedora_API {
         "logMessage" => "Modified Datastream"
       ));
     }
-    elseif ($xmlContent != "") {
+} elseif ($xmlContent != "") {
+				// test different way to use curl  - heaphey
+				$message = 'Modified Datastream';
+				$getString .= '?versionable='.$versionable.'&dsLabel='.urlencode($dsLabel).'&dsState=A&mimeType='.$mimetype.'&formatURI='.$formatURI.'&logMessage='.urlencode($message);
+				curl_setopt($ch, CURLOPT_URL, $getString);
+
       $xmlContent = Fedora_API::tidyXML($xmlContent);
       $tempFile = APP_TEMP_DIR . str_replace(":", "_", $pid) . "_" . $dsID . ".xml";
       $fp = fopen($tempFile, "w");
@@ -1015,17 +1020,14 @@ class Fedora_API {
       }
       fclose($fp);
 
-      $params = array(
-        "file" => "@" . $tempFile . ";type=" . $mimetype,
-        "dsLabel" => urlencode($dsLabel),
-        "versionable" => $versionable,
-        "mimeType" => $mimetype,
-        "formatURI" => NULL,
+        		$params = array("file" => "@".$tempFile.";type=".$mimetype);
+															//"dsLabel" => urlencode($dsLabel),
+															//"versionable" => $versionable,
+															//"mimeType" => $mimetype,
+															//"formatURI" => null,
 //															"controlGroup" => $controlGroup,
-        "dsState" => "A",
-        "logMessage" => "Modified Datastream"
-      );
-
+															//"dsState" => "A",
+															//"logMessage" => "Modified Datastream"
 
       curl_setopt($ch, CURLOPT_POSTFIELDS, $params);
     }
