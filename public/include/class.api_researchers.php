@@ -201,8 +201,9 @@ aut_people_australia_id, aut_description, aut_orcid_id, aut_google_scholar_id, a
         $log = FezLog::get();
         $db = DB_API::get();
 
+        $endYear = (is_numeric($endYear)) ? $endYear + 1 : $endYear; //We plus one since it's inclusive
         $startYear = (is_numeric($startYear)) ? " AND rek_date > " . $db->quote($startYear) . " " : "";
-        $endYear = (is_numeric($endYear)) ? " AND rek_date < " . $db->quote($endYear + 1) . " " : "";  //We plus one since it's inclusive
+        $endYear = (is_numeric($endYear)) ? " AND rek_date < " . $db->quote($endYear) . " " : "";
 
         $stmt = "SELECT rek_pid, rek_title, GROUP_CONCAT(rek_author_id) as rek_author_id, rek_date FROM " . APP_TABLE_PREFIX . "record_search_key
                 INNER JOIN " . APP_TABLE_PREFIX . "record_search_key_author_id ON rek_pid = rek_author_id_pid
@@ -228,8 +229,9 @@ aut_people_australia_id, aut_description, aut_orcid_id, aut_google_scholar_id, a
         $log = FezLog::get();
         $db = DB_API::get();
 
+        $endYear = (is_numeric($endYear)) ? $endYear + 1 : $endYear; //We plus one since it's inclusive
         $startYear = (is_numeric($startYear)) ? " AND B.rek_date > " . $db->quote($startYear) . " " : "";
-        $endYear = (is_numeric($endYear)) ? " AND B.rek_date < " . $db->quote($endYear + 1) . " " : ""; //We plus one since it's inclusive
+        $endYear = (is_numeric($endYear)) ? " AND B.rek_date < " . $db->quote($endYear) . " " : "";
 
         $stmt = "SELECT rek_isdatasetof as rek_pid,  B.rek_title, GROUP_CONCAT(A.rek_pid) AS rek_is_dataset_of, B.rek_date FROM " . APP_TABLE_PREFIX . "record_search_key AS A
                 INNER JOIN " . APP_TABLE_PREFIX . "record_search_key_author_id ON A.rek_pid = rek_author_id_pid
