@@ -951,7 +951,7 @@ class Fedora_API {
 //echo "OMG WHAT THE? ".$dsLocation; print_r(debug_backtrace()); exit;
 //			$versionable = $versionable === true ? 'true' : $versionable === false ? 'false' : 'false';
     if ($versionable != 'true' && $versionable != 'false') {
-      $versionable = 'false';
+      $versionable = ($versionable == 'inherit') ? 'true' : 'false';
     }
     $log = FezLog::get();
     $getString = APP_SIMPLE_FEDORA_APIM_DOMAIN . "/objects/" . $pid . "/datastreams/" . $dsID . "?dsLabel=" . urlencode($dsLabel) . "&mimeType=" . $mimetype .

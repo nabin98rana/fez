@@ -365,7 +365,7 @@ class History
 			} else {
 				//				$xdis_array = Fedora_API::callGetDatastreamContents($this->pid, 'PremisEvent');
 				//				print_r($xdis_array); exit;
-				Fedora_API::callModifyDatastreamByValue($pid, $dsIDName, "A", "Premis Event Datastream", $newXML, "text/xml", "inherit");
+				Fedora_API::callModifyDatastreamByValue($pid, $dsIDName, "A", "Premis Event Datastream", $newXML, "text/xml", "false");
 			}
 		}
 	}
