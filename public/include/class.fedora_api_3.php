@@ -993,42 +993,23 @@ class Fedora_API {
       ));
     }
     elseif ($dsLocation != "") {
-      curl_setopt($ch, CURLOPT_POSTFIELDS, array(
-        "file" => "@" . $dsLocation . ";type=" . $mimetype,
-        "dsLabel" => urlencode($dsLabel),
-        "versionable" => $versionable,
-        "mimeType" => $mimetype,
-//                              "formatURI" => $formatURI,
-//															"controlGroup" => $controlGroup,
-        "dsState" => "A",
-        "logMessage" => "Modified Datastream"
-      ));
-    }
-    elseif ($xmlContent != "") {
-				// test different way to use curl  - heaphey
-				$message = 'Modified Datastream';
-				$getString .= '?versionable='.$versionable.'&dsLabel='.urlencode($dsLabel).'&dsState=A&mimeType='.$mimetype.'&formatURI='.$formatURI.'&logMessage='.urlencode($message);
-				curl_setopt($ch, CURLOPT_URL, $getString);
+
+      // test different way to use curl  - heaphey
+      $message = 'Modified Datastream';
+      $getString .= '&versionable='.$versionable.'&dsLabel='.urlencode($dsLabel).'&dsState=A&mimeType='.$mimetype.'&formatURI='.$formatURI.'&logMessage='.urlencode($message);
+      curl_setopt($ch, CURLOPT_URL, $getString);
 
       $xmlContent = Fedora_API::tidyXML($xmlContent);
-      $tempFile = APP_TEMP_DIR . str_replace(":", "_", $pid) . "_" . $dsID . ".xml";
+      $tempFile = APP_TEMP_DIR.str_replace(":", "_", $pid)."_".$dsID.".xml";
       $fp = fopen($tempFile, "w");
       if (fwrite($fp, $xmlContent) === FALSE) {
         $err = "Cannot write to file ($tempFile)";
-        $log->err(array($err, __FILE__, __LINE__));
+        $log->err(array($err, __FILE__,__LINE__));
         exit;
       }
       fclose($fp);
 
       $params = array("file" => "@".$tempFile.";type=".$mimetype);
-															//"dsLabel" => urlencode($dsLabel),
-															//"versionable" => $versionable,
-															//"mimeType" => $mimetype,
-															//"formatURI" => null,
-//															"controlGroup" => $controlGroup,
-															//"dsState" => "A",
-															//"logMessage" => "Modified Datastream"
-
       curl_setopt($ch, CURLOPT_POSTFIELDS, $params);
     }
 
