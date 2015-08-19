@@ -39,9 +39,9 @@
                       <employeeID>{$list.aut_org_username}</employeeID>
                       <role>Other</role>
                       {if $list.positions[y].dt_from > 2008 || $list.positions[y].dt_from == ''}
-                        <start-date>2008</start-date>
+
                       {else}
-                        <start-date>{$list.positions[y].dt_from}</start-date>
+
                       {/if}               
                   {/if}
                 {/section}            
@@ -49,7 +49,7 @@
                   <departmentName>Other</departmentName>
                   <employeeID>{$list.aut_org_username}</employeeID>
                   <role>Other</role>
-                  <start-date>2008</start-date>
+                  
               {/if}
               
               
