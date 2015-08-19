@@ -154,7 +154,7 @@ function isScopusID(u) {
 }
 
 function isGoogleScholarID(u) {
-  return /^[A-Za-z0-9_]+$/.test(u);
+  return /^[A-Za-z0-9_-]+$/.test(u);
 }
 
 function hasDeniedChars(s)
