@@ -241,18 +241,11 @@
 				  {/section}
 			{/if}
 
-			{if $list[i].rek_grantid}      {* if ARC or NHMRC, set up key for activity record. *}
-				  {if $list[i].rek_grantid|substr:0:4 eq "ARC "}
+			{if $list[i].rek_grant_id}
 						<relatedObject>
-							<key>http://purl.org/au-research/grants/arc/{$list[i].rek_grantid|replace:"ARC ":""}</key>
+							<key>{$list[i].rek_grant_id}</key>
 							<relation type="isOutputOf"></relation>
 						</relatedObject>
-				  {elseif $list[i].rek_grantid|substr:0:6 eq "NHMRC "}
-						<relatedObject>
-							<key>http://purl.org/au-research/grants/nhmrc/{$list[i].rek_grantid|replace:"NHMRC ":""}</key>
-							<relation type="isOutputOf"></relation>
-						</relatedObject>
-				  {/if}
 			{/if}
 
 			{if $list[i].rek_isderivationof}
@@ -510,18 +503,13 @@
 		{/if}
 
 
-		{* NHMRC tagging pilot bhoughto 10/10/2012 *}
-		{if $list[i].rek_grantid}      {* display only if NHMRC *}
-			{if !is_array($list[i].rek_grantid)}
-				{* {if $list[i].rek_grantid|stristr:"nhmrc"}   disable 6/11/2012 until NHMRC start their testing  *}
-					<dc:relation>{$list[i].rek_grantid}</dc:relation>
-				{* {/if}  *}
+		{if $list[i].rek_grant_id}
+			{if !is_array($list[i].rek_grant_id)}
+					<dc:relation>{$list[i].rek_grant_id}</dc:relation>
 			{else}
-				{assign var="loop_relation" value=$list[i].rek_grantid}
+				{assign var="loop_relation" value=$list[i].rek_grant_id}
 				{section name="s" loop=$loop_relation}
-				{*    {if $list[i].rek_grantid[s]|stristr:"nhmrc"} disable 6/11/2012 until NHMRC start their testing  *}
-					<dc:relation>{$list[i].rek_grantid[s]}</dc:relation>
-				{* {/if}	*}
+					<dc:relation>{$list[i].rek_grant_id[s]}</dc:relation>
 				{/section}
 			{/if}
 		{/if}
