@@ -1066,7 +1066,7 @@ class Lister
         foreach ($xsd_display_fields as $value) {
           $pidTitles[] = $value['sek_title'];
           if ($value['xsdmf_show_in_view'] && $value['xsdmf_enabled'] && !$value['xsdmf_invisible'] && !empty($value['sek_title'] )&& !empty($details[$value['xsdmf_id']]) && $value['sek_title'] != 'Description' && $value['sek_title'] != 'Formatted Abstract') {
-            $excelRow[$value['sek_title']] = $details[$value['xsdmf_id']];
+            $excelRow[$value['sek_title']] =  preg_replace('/\<br(\s*)?\/?\>/i', "\n", $details[$value['xsdmf_id']]);
             $pidTitleUsed[$value['sek_title']] = 1;
           }
         }
