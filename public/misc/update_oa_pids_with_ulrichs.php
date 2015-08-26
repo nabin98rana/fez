@@ -47,15 +47,15 @@ foreach ($result as $pidDetails) {
     $history = "";
     if($open) {
         $history = 'Ulrichs not added added, based on an open access attachment being present - OA Status = File (Publisher version)';
-        //$record->addSearchKeyValueList(array("OA Status"), array('453695'), true, $history);
+        $record->addSearchKeyValueList(array("OA Status"), array('453695'), true, $history);
     } else if (!empty($doi)) {
         $history = 'Ulrichs info added - OA Status = DOI, OA Embargo Days = 0';
-        //$record->addSearchKeyValueList(array("OA Status"), array('453693'), true, $history);
-        //$record->addSearchKeyValueList(array("OA Embargo Days"), array('0'), true, $history);
+        $record->addSearchKeyValueList(array("OA Status"), array('453693'), true, $history);
+        $record->addSearchKeyValueList(array("OA Embargo Days"), array('0'), true, $history);
     } else {
         $history = 'Ulrichs info added - OA Status = Link (no DOI) based on no doi present, OA Embargo Days = 0';
-        //$record->addSearchKeyValueList(array("OA Status"), array('453694'), true, $history);
-        //$record->addSearchKeyValueList(array("OA Embargo Days"), array('0'), true, $history);
+        $record->addSearchKeyValueList(array("OA Status"), array('453694'), true, $history);
+        $record->addSearchKeyValueList(array("OA Embargo Days"), array('0'), true, $history);
     }
 
     echo $pid.' '.$history."\n";
