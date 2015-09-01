@@ -106,7 +106,7 @@ class ResearcherIDProxy
     $log = FezLog::get();
     $db = DB_API::get();
 
-    $dateAddedFrom[0] = '1900';
+    $dateAddedFrom[0] = '2007';
     $dateAddedFrom[1] = '01';
     $dateAddedFrom[2] = '01';
 
