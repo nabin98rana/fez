@@ -105,8 +105,12 @@ class ResearcherIDProxy
   {
     $log = FezLog::get();
     $db = DB_API::get();
-  
-    if (ResearcherID::downloadRequest(array($researcher_id), 'researcherIDs', 'researcherID')) {
+
+    $dateAddedFrom[0] = '1900';
+    $dateAddedFrom[1] = '01';
+    $dateAddedFrom[2] = '01';
+
+    if (ResearcherID::downloadRequest(array($researcher_id), 'researcherIDs', 'researcherID', $dateAddedFrom)) {
       return 'true'; 
     } else {
       return 'false';
