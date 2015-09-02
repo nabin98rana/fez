@@ -603,9 +603,8 @@ class Lister
             	$options = Search_Key::stripSearchKeys($options);
 
         $filter["searchKey" . Search_Key::getID("Status")] = 2; // enforce published records only
-        $filter["searchKey" . Search_Key::getID("Author ID")] = $author_id; //
-        $filter["searchKey" . Search_Key::getID("Contributor ID")] = $author_id;
-				$author = Author::getFullname($author_id); 
+        $filter["manualFilter"] = " (author_id_mi:" . $author_id . " OR contributor_id_mi:" . $author_id . ") ";
+		$author = Author::getFullname($author_id);
             	$list = Record::getListing($options, array("Lister", "Viewer"), $pager_row, $rows, $sort_by, $getSimple, $citationCache, $filter);
 
 				$alternativeAuthorNamesList = Author::getAlternativeNamesList($author_id);
@@ -628,8 +627,7 @@ class Lister
             } elseif (!empty($author)) {	
 	        	$options = Search_Key::stripSearchKeys($options);
         $filter["searchKey" . Search_Key::getID("Status")] = 2; // enforce published records only
-        $filter["searchKey" . Search_Key::getID("Author")] = $author;
-        $filter["searchKey" . Search_Key::getID("Contributor")] = $author;
+        $filter["manualFilter"] = " (author_mt:" . $author . " OR contributor_mt:" . $author . ") ";
             	$list = Record::getListing($options, array("Lister", "Viewer"), $pager_row, $rows, $sort_by, $getSimple, $citationCache, $filter);
                 $list_info = $list["info"];
                 $list = $list["list"];
@@ -640,9 +638,7 @@ class Lister
 			} elseif (!empty($author_refine)) {
 	        	$options = Search_Key::stripSearchKeys($options);
         $filter["searchKey" . Search_Key::getID("Status")] = 2; // enforce published records only
-        $filter["searchKey" . Search_Key::getID("Author")] = str_replace("+", " ", $author_refine);
-        $filter["searchKey" . Search_Key::getID("Contributor")] = str_replace("+", " ", $author_refine);
-                
+        $filter["manualFilter"] = " (author_mt:" . $author . " OR contributor_mt:" . $author . ") ";                
             	$list = Record::getListing($options, array("Lister", "Viewer"), $pager_row, $rows, $sort_by, $getSimple, $citationCache, $filter, 'AND', false, false, true); // do an exact match
 
                 $list_info = $list["info"];
