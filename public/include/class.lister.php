@@ -627,7 +627,7 @@ class Lister
             } elseif (!empty($author)) {	
 	        	$options = Search_Key::stripSearchKeys($options);
         $filter["searchKey" . Search_Key::getID("Status")] = 2; // enforce published records only
-        $filter["manualFilter"] = " (author_mt:" . $author . " OR contributor_mt:" . $author . ") ";
+        $filter["manualFilter"] = " (author_mt_exact:" . $author . " OR contributor_mt_exact:" . $author . ") ";
             	$list = Record::getListing($options, array("Lister", "Viewer"), $pager_row, $rows, $sort_by, $getSimple, $citationCache, $filter);
                 $list_info = $list["info"];
                 $list = $list["list"];
@@ -638,7 +638,7 @@ class Lister
 			} elseif (!empty($author_refine)) {
 	        	$options = Search_Key::stripSearchKeys($options);
         $filter["searchKey" . Search_Key::getID("Status")] = 2; // enforce published records only
-        $filter["manualFilter"] = " (author_mt:" . str_replace("+", " ", $author_refine) . " OR contributor_mt:" . str_replace("+", " ", $author_refine) . ") ";
+ $filter["manualFilter"] = " (author_mt_exact:" . str_replace("+", " ", $author_refine) . " OR contributor_mt_exact:" . str_replace("+", " ", $author_refine) . ") ";
          
             	$list = Record::getListing($options, array("Lister", "Viewer"), $pager_row, $rows, $sort_by, $getSimple, $citationCache, $filter, 'AND', false, false, true); // do an exact match
 
