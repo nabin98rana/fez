@@ -584,7 +584,7 @@ class Lister
             $tpl->assign("browse_type", "browse_year");
             
         } elseif (($browse == "author") || ($browse == "author_id") || ($browse == 'author_refine')) {
-            $log->debug('Browse by author');
+            $log->debug('Browse by Author/Contributor/Editor');
             // browse by author
       if ($browse == "author") {
         if (strlen(Lister::getValue($params, 'author')) != 1) {
@@ -604,6 +604,7 @@ class Lister
 
         $filter["searchKey" . Search_Key::getID("Status")] = 2; // enforce published records only
         $filter["searchKey" . Search_Key::getID("Author ID")] = $author_id; //
+        $filter["searchKey" . Search_Key::getID("Contributor ID")] = $author_id;
 				$author = Author::getFullname($author_id); 
             	$list = Record::getListing($options, array("Lister", "Viewer"), $pager_row, $rows, $sort_by, $getSimple, $citationCache, $filter);
 
@@ -622,23 +623,25 @@ class Lister
                 $list = $list["list"];
 				
                 $tpl->assign("author_id", $author_id);
-        $tpl->assign("browse_heading", "Browse By Author ID - " . htmlspecialchars($author));
-        $tpl->assign("list_heading", "Browse By Author ID - " . htmlspecialchars($author));
+        $tpl->assign("browse_heading", "Browse By Author/Contributor/Editor ID - " . htmlspecialchars($author));
+        $tpl->assign("list_heading", "Browse By Author/Contributor/Editor ID - " . htmlspecialchars($author));
             } elseif (!empty($author)) {	
 	        	$options = Search_Key::stripSearchKeys($options);
         $filter["searchKey" . Search_Key::getID("Status")] = 2; // enforce published records only
         $filter["searchKey" . Search_Key::getID("Author")] = $author;
+        $filter["searchKey" . Search_Key::getID("Contributor")] = $author;
             	$list = Record::getListing($options, array("Lister", "Viewer"), $pager_row, $rows, $sort_by, $getSimple, $citationCache, $filter);
                 $list_info = $list["info"];
                 $list = $list["list"];
 				
                 $tpl->assign("author", $author);
-        $tpl->assign("browse_heading", "Browse By Author Name - " . htmlspecialchars($author));
-        $tpl->assign("list_heading", "Browse By Author Name - " . htmlspecialchars($author));
+        $tpl->assign("browse_heading", "Browse By Author/Contributor/Editor Name - " . htmlspecialchars($author));
+        $tpl->assign("list_heading", "Browse By Author/Contributor/Editor Name - " . htmlspecialchars($author));
 			} elseif (!empty($author_refine)) {
 	        	$options = Search_Key::stripSearchKeys($options);
         $filter["searchKey" . Search_Key::getID("Status")] = 2; // enforce published records only
         $filter["searchKey" . Search_Key::getID("Author")] = str_replace("+", " ", $author_refine);
+        $filter["searchKey" . Search_Key::getID("Contributor")] = str_replace("+", " ", $author_refine);
                 
             	$list = Record::getListing($options, array("Lister", "Viewer"), $pager_row, $rows, $sort_by, $getSimple, $citationCache, $filter, 'AND', false, false, true); // do an exact match
 
@@ -646,8 +649,8 @@ class Lister
                 $list = $list["list"];
 				
 				$tpl->assign("author_refine", $author_refine);
-                $tpl->assign("browse_heading", "Refine By Author Name - \"{$author_refine}\"");
-			    $tpl->assign("list_heading", "Refine By Author Name - \"{$author_refine}\"");
+                $tpl->assign("browse_heading", "Refine By Author/Contributor/Editor Name - \"{$author_refine}\"");
+			    $tpl->assign("list_heading", "Refine By Author/Contributor/Editor Name - \"{$author_refine}\"");
             } else {
                 
             	if ($browse == "author_id") {
@@ -655,15 +658,15 @@ class Lister
 	                $list_info = $list["info"];
 	                $list = $list["list"];
 					
-          $tpl->assign("browse_heading", "Browse By " . APP_NAME . " Author ID");
-          $tpl->assign("list_heading", "Browse By " . APP_NAME . " Author ID");
+          $tpl->assign("browse_heading", "Browse By " . APP_NAME . " Author/Contributor/Editor ID");
+          $tpl->assign("list_heading", "Browse By " . APP_NAME . " Author/Contributor/Editor ID");
             	} else {
                     $list = array();
 	                $list_info = $list["info"];
 	                $list = $list["list"];
 					
-	                $tpl->assign("browse_heading", "Browse By Author Name");
-				    $tpl->assign("list_heading", "Browse By Author Name");
+	                $tpl->assign("browse_heading", "Browse By Author/Contributor/Editor Name");
+				    $tpl->assign("list_heading", "Browse By Author/Contributor/Editor Name");
             	}
             	
         // Remove these sort options when viewing a list of authors
