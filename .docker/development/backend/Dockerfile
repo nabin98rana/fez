@@ -1,4 +1,4 @@
-FROM uqlibrary/docker-nginx-fez:latest
+FROM uqlibrary/docker-nginx-php5.6:1
 
 COPY etc/nginx/conf.d /etc/nginx/conf.d
 COPY etc/nginx/espace_rewrite_rules.conf /etc/nginx/espace_rewrite_rules.conf
