@@ -42,13 +42,9 @@ foreach ($result as $pidDetails) {
     $pid = $pidDetails['pid'];
     $doi = $pidDetails['doi'];
     $record = new RecordObject($pid);
-    $open = hasDatastreamOpen($pid);
-
     $history = "";
-    if($open) {
-        $history = 'Ulrichs not added added, based on an open access attachment being present - OA Status = File (Publisher version)';
-        $record->addSearchKeyValueList(array("OA Status"), array('453695'), true, $history);
-    } else if (!empty($doi)) {
+
+    if (!empty($doi)) {
         $history = 'Ulrichs info added - OA Status = DOI, OA Embargo Days = 0';
         $record->addSearchKeyValueList(array("OA Status"), array('453693'), true, $history);
         $record->addSearchKeyValueList(array("OA Embargo Days"), array('0'), true, $history);
@@ -64,26 +60,3 @@ foreach ($result as $pidDetails) {
 }
 
 echo "Script finished: " . date('Y-m-d H:i:s') . "\n";
-
-function hasDatastreamOpen($pid)
-{
-    $status = Status::getID("Published");
-    if ($status == Record::getSearchKeyIndexValue($pid, "Status", false)) {
-        $datastreams = Fedora_API::callGetDatastreams($pid);
-        foreach ($datastreams as $datastream) {
-            if ($datastream['controlGroup'] == "M"
-                && (!Misc::hasPrefix($datastream['ID'], 'preview_')
-                    && !Misc::hasPrefix($datastream['ID'], 'web_')
-                    && !Misc::hasPrefix($datastream['ID'], 'thumbnail_')
-                    && !Misc::hasPrefix($datastream['ID'], 'stream_')
-                    && !Misc::hasPrefix($datastream['ID'], 'presmd_'))
-            ) {
-                $userPIDAuthGroups = Auth::getAuthorisationGroups($pid, $datastream['ID']);
-                if (in_array('Viewer', $userPIDAuthGroups)) {
-                    return true;
-                }
-            }
-        }
-    }
-    return false;
-}
