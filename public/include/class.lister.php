@@ -637,10 +637,11 @@ class Lister
         $tpl->assign("list_heading", "Browse By Author/Contributor/Editor Name - " . htmlspecialchars($author));
 			} elseif (!empty($author_refine)) {
 	        	$options = Search_Key::stripSearchKeys($options);
-        $filter["searchKey" . Search_Key::getID("Status")] = 2; // enforce published records only
- $filter["manualFilter"] = " (author_mt:" . str_replace("+", " ", $author_refine) . " OR contributor_mt:" . str_replace("+", " ", $author_refine) . ") ";
-         
-            	$list = Record::getListing($options, array("Lister", "Viewer"), $pager_row, $rows, $sort_by, $getSimple, $citationCache, $filter, 'AND', false, false, true); // do an exact match
+                $filter["searchKey" . Search_Key::getID("Status")] = 2; // enforce published records only
+                $filter["manualFilter"] = " (author_mt_exact:(\"" . str_replace("+", " ", $author_refine) . "\") OR contributor_mt_exact:(\"" . str_replace("+", " ", $author_refine) . "\")) ";
+
+
+                $list = Record::getListing($options, array("Lister", "Viewer"), $pager_row, $rows, $sort_by, $getSimple, $citationCache, $filter, 'AND', false, false, true); // do an exact match
 
                 $list_info = $list["info"];
                 $list = $list["list"];
