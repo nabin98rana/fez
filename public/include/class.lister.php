@@ -627,7 +627,7 @@ class Lister
             } elseif (!empty($author)) {	
 	        	$options = Search_Key::stripSearchKeys($options);
         $filter["searchKey" . Search_Key::getID("Status")] = 2; // enforce published records only
-        $filter["manualFilter"] = " (author_mt:" . $author . " OR contributor_mt:" . $author . ") ";
+        $filter["manualFilter"] = " ((author_mt:" . $author . ") OR (contributor_mt:" . $author . ")) ";
             	$list = Record::getListing($options, array("Lister", "Viewer"), $pager_row, $rows, $sort_by, $getSimple, $citationCache, $filter);
                 $list_info = $list["info"];
                 $list = $list["list"];
