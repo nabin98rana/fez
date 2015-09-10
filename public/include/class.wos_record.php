@@ -751,6 +751,10 @@ class WosRecItem extends RecordImport
                             $aut_details['aut_researcher_id'] . " - " . $aut_details['aut_id'] . " - " . $aut_details['aut_org_username'] . ")";
                     }
                 $pid = $sri->save($history, APP_SCOPUS_IMPORT_COLLECTION);
+                if(empty($pid)) {
+                  $log->err('Save fail, pid empty. ' . print_r($sri, true));
+                  return FALSE;
+                }
                 $this->update($pid, true);
                 return $pid;
             }
