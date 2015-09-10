@@ -2069,7 +2069,6 @@ class Author
             } else {
                 $res = $db->fetchAll($stmt);
             }
-            $log->err($res);
         }
         catch (Exception $ex) {
             $log->err($ex);

@@ -1107,6 +1107,11 @@ abstract class RecordImport
             $collection = ($collection) ? $collection : $this->_collections[0];
             $pid = $rec->insertFromArray($mods, $collection, "MODS 1.0", $history, 0, $links, array());
 
+            if(empty($pid)) {
+                $log->err('Insert fail, pid empty. Mods:' . $mods . ' Collection: ' . $collection);
+                return FALSE;
+            }
+
             if (is_numeric($this->_wokCitationCount)) {
                 Record::updateThomsonCitationCount($pid, $this->_wokCitationCount, $this->_isiLoc);
             }
