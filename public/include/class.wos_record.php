@@ -767,15 +767,6 @@ class WosRecItem extends RecordImport
             $pid = $this->_saveFedoraBypass($history);
 
         } else {
-
-            //Temp code to write to logs rids for matching
-            //All existing rids count since it's a new pid.
-            foreach($this->authorRidReturned as $rid) {
-                if ($rid && User::getUserInfoByRid($rid)) {
-                    $log->err( 'RID Data:: WOS: '.$this->ut.' Researcher ID: '.$rid);
-                }
-            }
-
             if (!$this->_loaded) {
                 $log->err('WoS record must be loaded before saving');
                 return FALSE;
