@@ -19,7 +19,7 @@ if ((php_sapi_name()==="cli") || (User::isUserSuperAdministrator($isUser))) {
 
     $stmt = "INSERT INTO " . APP_TABLE_PREFIX . "fulltext_queue (ftq_pid, ftq_op) SELECT rek_pid, 'I' FROM fez_record_search_key
              LEFT JOIN " . APP_TABLE_PREFIX . "fulltext_queue ON rek_pid = ftq_pid
-             WHERE ftq_pid IS NULL AND rek_updated_date > ".$db->quote($date);
+             WHERE ftq_pid IS NULL AND rek_updated_date > " . $db->quote($date) . " ORDER BY rek_updated_date ASC ";  #fulltext_queue is last in, first out
     try {
         $db->exec($stmt);
     }
