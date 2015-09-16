@@ -776,12 +776,12 @@ if (!empty($pid) && $record->checkExists()) {
       $displayReqOpenAccess = false;
         foreach ($datastreams as $datastream) {
             if ($datastream['controlGroup'] == 'M') {
-                  $displayReqOpenAccess = true;
                 $publicPerms = Auth::getAuthPublic($pid, $datastream['ID']);
                 if ($publicPerms['viewer']) {
                     $displayReqOpenAccess = false;
                     break;
-              }
+                }
+                $displayReqOpenAccess = (in_arrary(array("UQ:130846", "UQ:210175"), $record['record_parents'])) ? "NOT_RDH" : "RDH";
           }
       }
     }

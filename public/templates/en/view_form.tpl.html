@@ -118,9 +118,11 @@ function loadPreview(pid,datastreamID, alt, origami)
         </tr>
 	  </table>
 
-    {if $displayReqOpenAccess}
-        <div style="float:right"><a href="{$rel_url}view/UQ:299070/OpenAccessThesisAuthorisation.pdf" target="_blank"><img src="{$rel_url}images/request_open_access.png" title="Thesis authors click here to request their thesis be made open access"/></a></div>
-    {/if}
+	{if $displayReqOpenAccess == "NOT_RDH"}
+		<div style="float:right"><a href="{$rel_url}view/UQ:299070/OpenAccessThesisAuthorisation.pdf" target="_blank"><img src="{$rel_url}images/request_open_access.png" title="Thesis authors click here to request their thesis be made open access"/></a></div>
+	{else $displayReqOpenAccess == "RDH"}
+		<div style="float:right"><a href="http://www.uq.edu.au/grad-school/open-access" target="_blank"><img src="{$rel_url}images/request_open_access.png" title="Thesis authors click here to request their thesis be made open access"/></a></div>
+	{/if}
     {if $showMetrics}
     {if $addthis && (!$isEditor && !$isAdministrator)}
         <!-- AddThis Button BEGIN -->
