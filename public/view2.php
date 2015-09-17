@@ -781,7 +781,8 @@ if (!empty($pid) && $record->checkExists()) {
                     $displayReqOpenAccess = false;
                     break;
                 }
-                $displayReqOpenAccess = (in_array(array("UQ:130846", "UQ:210175"), $record['record_parents'])) ? "NOT_RDH" : "RDH";
+              $inRDHArray = array_intersect(array("UQ:130846", "UQ:210175"), $record->record_parents); // "UQ:130846", "UQ:210175" RDH collections
+              $displayReqOpenAccess = (empty($inRDHArray)) ? "NOT_RDH" : "RDH";
           }
       }
     }
