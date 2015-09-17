@@ -744,19 +744,19 @@ class WosRecItem extends RecordImport
             $sri->load($record);
             if($sri->isLoaded())
             {
-                $history .= " Importing a Scopus base record before saving a new wos record - ";
+                $historyScopus = $history." Importing a Scopus base record before saving a new wos record - ";
                     if (count($this->author_ids) > 0) {
                         $aut_details = Author::getDetails($this->author_ids[0]);
-                        $history .= " via Researcher ID download of " . $aut_details['aut_display_name'] . " (" .
+                        $historyScopus .= " via Researcher ID download of " . $aut_details['aut_display_name'] . " (" .
                             $aut_details['aut_researcher_id'] . " - " . $aut_details['aut_id'] . " - " . $aut_details['aut_org_username'] . ")";
                     }
-                $pid = $sri->save($history, APP_SCOPUS_IMPORT_COLLECTION);
+                $pid = $sri->save($historyScopus, APP_SCOPUS_IMPORT_COLLECTION);
                 if(empty($pid)) {
-                  $log->err('Save fail, pid empty. ' . print_r($sri, true));
-                  return FALSE;
+                  $log->err('Save fail on Scopus, pid empty.');  // Fail! (Prob an unknown scopus doc type) We'll leave this section and continue through WOS
+                } else {
+                    $this->update($pid, true); //Add wos info before we return
+                    return $pid;
                 }
-                $this->update($pid, true);
-                return $pid;
             }
         }
 
