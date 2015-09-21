@@ -781,8 +781,13 @@ if (!empty($pid) && $record->checkExists()) {
                     $displayReqOpenAccess = false;
                     break;
                 }
-              $inRDHArray = array_intersect(array("UQ:130846", "UQ:210175"), $record->record_parents); // "UQ:130846", "UQ:210175" RDH collections
-              $displayReqOpenAccess = (empty($inRDHArray)) ? "NOT_RDH" : "RDH";
+              $inRDHArray = array_intersect(array("UQ:130846", "UQ:342107"), $record->record_parents); // "UQ:130846", "UQ:210175" RDH collections
+              $inNONRDHArray = array_intersect(array("UQ:183974", "UQ:155729", "UQ:151710"), $record->record_parents); // "UQ:183974", "UQ:155729", "UQ:151710" RDH collections
+              if (!empty($inRDHArray)) {
+                $displayReqOpenAccess = "RDH";
+              } else if(!empty($inNONRDHArray)) {
+                $displayReqOpenAccess = "NOT_RDH";
+              }
           }
       }
     }
