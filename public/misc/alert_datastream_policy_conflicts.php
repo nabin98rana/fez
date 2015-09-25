@@ -95,9 +95,9 @@ if (php_sapi_name()==="cli")  {   // This must be run while not logged in else i
     $body = '';
 
     //This is currently run ever two hours. It will have to be adapted if large collections are checked below
-    $stmt =     "SELECT rek_pid AS pid FROM fez_record_search_key
+    $stmt =     "SELECT rek_pid AS pid, rek_ismemberof FROM fez_record_search_key
                   LEFT JOIN fez_record_search_key_ismemberof ON rek_pid = rek_ismemberof_pid
-                  WHERE rek_ismemberof IN ('UQ:342107', 'UQ:335745')";
+                  WHERE rek_ismemberof IN ('UQ:342107', 'UQ:335745', 'UQ:11408')";
     try {
         $res = $db->fetchAll($stmt);
     }
@@ -120,7 +120,7 @@ if (php_sapi_name()==="cli")  {   // This must be run while not logged in else i
 
                     $userPIDAuthGroups = Auth::getAuthorisationGroups($pid, $datastream['ID']);
                     if (in_array('Viewer', $userPIDAuthGroups)) {
-                        $body .= $datastream['ID'] . " attached to http:/espace.library.uq.edu.au/view/".$pid . " is available open access when it should be embargoed.\n";
+                        $body .= "http:/espace.library.uq.edu.au/view/" . $pid . "  has a datastream: " . $datastream['ID'] . "that's open in collection: " . $pid['rek_ismemberof'] . " where datastreams should be closed.\n";
                         $openFound = true;
                         echo $pid . " found with issues\n";
                     }
