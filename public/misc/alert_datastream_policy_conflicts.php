@@ -97,7 +97,7 @@ if (php_sapi_name()==="cli")  {   // This must be run while not logged in else i
     //This is currently run ever two hours. It will have to be adapted if large collections are checked below
     $stmt =     "SELECT rek_pid AS pid, rek_ismemberof FROM fez_record_search_key
                   LEFT JOIN fez_record_search_key_ismemberof ON rek_pid = rek_ismemberof_pid
-                  WHERE rek_ismemberof IN ('UQ:342107', 'UQ:335745', 'UQ:11408')";
+                  WHERE rek_ismemberof IN ('UQ:342107', 'UQ:335745')";
     try {
         $res = $db->fetchAll($stmt);
     }
@@ -121,7 +121,6 @@ if (php_sapi_name()==="cli")  {   // This must be run while not logged in else i
                     $userPIDAuthGroups = Auth::getAuthorisationGroups($pid, $datastream['ID']);
                     if (in_array('Viewer', $userPIDAuthGroups)) {
                         $body .= "http:/espace.library.uq.edu.au/view/" . $pid . "  has a datastream: " . $datastream['ID'] . "that's open in collection: " . $pid['rek_ismemberof'] . " where datastreams should be closed.\n";
-                        $openFound = true;
                         echo $pid . " found with issues\n";
                     }
 
@@ -139,6 +138,43 @@ if (php_sapi_name()==="cli")  {   // This must be run while not logged in else i
         $mail->send($from, $to, $subject, false);
     } else {
         echo "None found for open access in closed collections". "\n";
+    }
+
+    //----------------------- Stage Three check for open citations in special private collections ----------------------- //
+
+    $body = '';
+
+    //This is currently run ever two hours. It will have to be adapted if large collections are checked below
+    $stmt =     "SELECT rek_pid AS pid, rek_ismemberof FROM fez_record_search_key
+                  LEFT JOIN fez_record_search_key_ismemberof ON rek_pid = rek_ismemberof_pid
+                  WHERE rek_ismemberof IN ('UQ:335745')";
+    try {
+        $res = $db->fetchAll($stmt);
+    }
+    catch(Exception $ex) {
+        $log->err($ex);
+        return false;
+    }
+    $status = Status::getID("Published");
+    foreach ($res as $pid) {
+        $pid = $pid['pid'];
+        $record = new RecordObject($pid);
+        $canView = $record->canView();
+        if ($canView) {
+            $body .= "http:/espace.library.uq.edu.au/view/" . $pid . "  citation is open when it should be restricted in collection: " . $pid['rek_ismemberof'] ."\n";
+            echo $pid . " found with issues\n";
+        }
+    }
+    if (!empty($body)) {
+        $body .= "\nPlease refer to the eSpace Manager or Librarian as this issue must be resolved immediately.";
+        $mail = new Mail_API;
+        $subject = "Urgent warning: Open citation detected on an embargoed thesis";
+        $to = 'espace@library.uq.edu.au';
+        $from = APP_EMAIL_SYSTEM_FROM_ADDRESS;
+        $mail->setTextBody(stripslashes($body));
+        $mail->send($from, $to, $subject, false);
+    } else {
+        echo "None found for open citations in closed citations collections". "\n";
     }
 
 
