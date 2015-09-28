@@ -159,7 +159,7 @@ if (php_sapi_name()==="cli")  {   // This must be run while not logged in else i
     foreach ($res as $pid) {
         $pid = $pid['pid'];
         $record = new RecordObject($pid);
-        $canView = $record->canView();
+        $canView = $record->canView(false);
         if ($canView) {
             $body .= "http:/espace.library.uq.edu.au/view/" . $pid . "  citation is open when it should be restricted in collection: " . $pid['rek_ismemberof'] ."\n";
             echo $pid . " found with issues\n";
