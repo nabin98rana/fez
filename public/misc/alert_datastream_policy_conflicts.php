@@ -107,6 +107,7 @@ if (php_sapi_name()==="cli")  {   // This must be run while not logged in else i
     }
     $status = Status::getID("Published");
     foreach ($res as $pid) {
+        $isMemberOf = $pid['rek_ismemberof'];
         $pid = $pid['pid'];
         if ($status == Record::getSearchKeyIndexValue($pid, "Status", false)) {
             $datastreams = Fedora_API::callGetDatastreams($pid);
@@ -120,7 +121,7 @@ if (php_sapi_name()==="cli")  {   // This must be run while not logged in else i
 
                     $userPIDAuthGroups = Auth::getAuthorisationGroups($pid, $datastream['ID']);
                     if (in_array('Viewer', $userPIDAuthGroups)) {
-                        $body .= "http:/espace.library.uq.edu.au/view/" . $pid . "  has a datastream: " . $datastream['ID'] . "that's open in collection: " . $pid['rek_ismemberof'] . " where datastreams should be closed.\n";
+                        $body .= "http:/espace.library.uq.edu.au/view/" . $pid . "  has a datastream: " . $datastream['ID'] . "that's open in collection: " . $isMemberOf . " where datastreams should be closed.\n";
                         echo $pid . " found with issues\n";
                     }
 
@@ -157,11 +158,12 @@ if (php_sapi_name()==="cli")  {   // This must be run while not logged in else i
     }
     $status = Status::getID("Published");
     foreach ($res as $pid) {
+        $isMemberOf = $pid['rek_ismemberof'];
         $pid = $pid['pid'];
         $record = new RecordObject($pid);
         $canView = $record->canView(false);
         if ($canView) {
-            $body .= "http:/espace.library.uq.edu.au/view/" . $pid . "  citation is open when it should be restricted in collection: " . $pid['rek_ismemberof'] ."\n";
+            $body .= "http:/espace.library.uq.edu.au/view/" . $pid . "  citation is open when it should be restricted in collection: " . $isMemberOf ."\n";
             echo $pid . " found with issues\n";
         }
     }
