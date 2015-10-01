@@ -435,7 +435,7 @@ class FulltextIndex_Solr_CSV extends FulltextIndex
       if (APP_SOLR_HOST == APP_HOSTNAME || $localSolrFile) {
         $postFields["stream.file"] = $tmpfname;
       } else {
-        $url_loc = "http://" . APP_HOSTNAME . APP_RELATIVE_URL . "solr_upload/" . substr($tmpfname, (strrpos($tmpfname, "/") + 1));
+        $url_loc = "https://" . APP_HOSTNAME . APP_RELATIVE_URL . "solr_upload/" . substr($tmpfname, (strrpos($tmpfname, "/") + 1));
         $postFields["stream.url"] = $url_loc;
       }
 
