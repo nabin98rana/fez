@@ -47,7 +47,7 @@ $callback = $_GET['callback'];
 $callback = !empty($callback) ? preg_replace('/[^a-z0-9\.$_]/si', '', $callback) : false;
 header('Access-Control-Allow-Origin: *');
 header('Content-Type: ' . ($callback ? 'application/javascript' : 'application/json') . ';charset=UTF-8');
-
+echo ($callback ? '/**/'.$callback . '(' : '');
 
 $author_username  = $_GET['author_username'];
 $author_username = trim($author_username);
@@ -90,3 +90,5 @@ $output['thomson'] = $resThomson;
 $output['scopus'] = $resScopus;
 
 echo json_encode($output);
+
+echo $callback ? ');' : '';

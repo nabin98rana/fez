@@ -42,6 +42,7 @@ $callback = $_REQUEST['callback'];
 $callback = !empty($callback) ? preg_replace('/[^a-z0-9\.$_]/si', '', $callback) : false;
 header('Access-Control-Allow-Origin: *');
 header('Content-Type: ' . ($callback ? 'application/javascript' : 'application/json') . ';charset=UTF-8');
+echo ($callback ? '/**/'.$callback . '(' : '');
 
 $author_username = $_REQUEST['author_username'];
 
@@ -60,3 +61,5 @@ if(!empty($_REQUEST['datacollections'])) {
 } else {
     echo json_encode(array(), JSON_FORCE_OBJECT);
 }
+
+echo $callback ? ');' : '';

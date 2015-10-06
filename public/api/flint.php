@@ -43,6 +43,8 @@ $callback = !empty($callback) ? preg_replace('/[^a-z0-9\.$_]/si', '', $callback)
 header('Access-Control-Allow-Origin: *');
 header('Content-Type: ' . ($callback ? 'application/javascript' : 'application/json') . ';charset=UTF-8');
 
+echo ($callback ? '/**/'.$callback . '(' : '');
+
 if(!empty($_REQUEST['languages'])) {
     echo json_encode(Flint::returnFlintLanguages());
 } else if(!empty($_REQUEST['interviewees'])) {
@@ -50,3 +52,5 @@ if(!empty($_REQUEST['languages'])) {
 } else {
     echo json_encode(array(), JSON_FORCE_OBJECT);
 }
+
+echo $callback ? ');' : '';
