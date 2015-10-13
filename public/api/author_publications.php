@@ -51,6 +51,7 @@ $endYear = $_REQUEST['end_year'];
 
 if((!is_numeric($startYear) && !empty($startYear)) || (!is_numeric($endYear) && !empty($endYear)) || !ctype_alnum($author_username) || substr( strtolower($author_username), 0, 1 ) === "s" || empty($author_username)) {   //is alphanumeric and not a student
     echo json_encode(array(), JSON_FORCE_OBJECT);
+    echo $callback ? ');' : '';
     exit();
 }
 
