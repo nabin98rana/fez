@@ -448,7 +448,6 @@ class Author
                     aut_display_name=" . $db->quote(trim($_POST["dname"])) . ",
                     aut_position=" . $db->quote(trim($_POST["position"])) . ",
           					aut_email=" . $db->quote(trim($_POST["email"])) . ",
-                    aut_cv_link=" . $db->quote(trim($_POST["cv_link"])) . ",
                     aut_homepage_link=" . $db->quote(trim($_POST["homepage_link"])) . ",
                     aut_ref_num=" . $db->quote(trim($_POST["aut_ref_num"])) . ",
                     aut_scopus_id=" . $db->quote(trim($_POST["scopus_id"])).",
@@ -632,9 +631,6 @@ class Author
 	if ($_POST["email"] !== "") {
       $insert .= ", aut_email ";
     }
-    if ($_POST["cv_link"] !== "") {
-      $insert .= ", aut_cv_link ";
-    }
     if ($_POST["homepage_link"] !== "") {
       $insert .= ", aut_homepage_link ";
     }
@@ -693,9 +689,6 @@ class Author
     }
     if ($_POST["email"] !== "") {
       $values .= ", " . $db->quote(trim($_POST["email"]));
-    }
-    if ($_POST["cv_link"] !== "") {
-      $values .= ", " . $db->quote(trim($_POST["cv_link"]));
     }
     if ($_POST["homepage_link"] !== "") {
       $values .= ", " . $db->quote(trim($_POST["homepage_link"]));

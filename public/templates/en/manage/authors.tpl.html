@@ -372,7 +372,7 @@
                   {include file="error_icon.tpl.html" field="email"}
                 </td>
               </tr>
-              <tr>
+              {*<tr>
                 <td style="width: 120px" class="default cell-colour">
                   <b>CV Link: </b>
                 </td>
@@ -380,7 +380,7 @@
                   <input type="text" name="cv_link" size="40" class="default" value="{$info.aut_cv_link}" />
                   {include file="error_icon.tpl.html" field="cv_link"}
                 </td>
-              </tr>
+              </tr>*}
               <tr>
                 <td style="width: 120px" class="default cell-colour">
                   <b>Homepage Link: </b>
@@ -611,7 +611,7 @@
                       <td style="background: {$row_color}" class="default">&nbsp;{$list[i].aut_org_username}</td>
                       <td style="background: {$row_color}" class="default">&nbsp;{$list[i].aut_mypub_url}</td>
                       <td style="background: {$row_color}" class="default">&nbsp;{$list[i].aut_ref_num}</td>
-                      <td style="background: {$row_color}" class="default">&nbsp;{$list[i].aut_cv_link}</td>
+                      {* <td style="background: {$row_color}" class="default">&nbsp;{$list[i].aut_cv_link}</td> *}
                       <td style="background: {$row_color}" class="default">&nbsp;{$list[i].aut_homepage_link}</td>
                       <td style="background: {$row_color}" class="default">&nbsp;{$list[i].aut_created_date}</td>
                       <td style="background: {$row_color}" class="default">&nbsp;<a href="orgstructure_author.php?cat=view&amp;auth={$list[i].aut_id}" title="Update this entry">Edit</a></td>
