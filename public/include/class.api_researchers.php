@@ -47,7 +47,7 @@ class ApiResearchers
         $db = DB_API::get();
 
         $stmt = "SELECT aut_id, aut_org_username,  aut_email,
-aut_display_name, aut_fname, aut_mname, aut_lname, aut_title, aut_position, aut_function, aut_cv_link, aut_homepage_link, aut_researcher_id, aut_scopus_id, aut_mypub_url,
+aut_display_name, aut_fname, aut_mname, aut_lname, aut_title, aut_position, aut_homepage_link, aut_researcher_id, aut_scopus_id, aut_mypub_url,
 aut_people_australia_id, aut_description, aut_orcid_id, aut_google_scholar_id, aut_rid_last_updated FROM " . APP_TABLE_PREFIX . "author WHERE aut_org_username =  " .$db->quote($author_username);
 
         try {
@@ -194,4 +194,63 @@ aut_people_australia_id, aut_description, aut_orcid_id, aut_google_scholar_id, a
     {
         return "http://www.altmetric.com/details.php?citation_id=" . $altmetricDOI;
     }
+
+    //11 is lister permissions. 371 is data collections. 2 is published
+    public static function getDataCollections($author_username, $startYear = null, $endYear = null)
+    {
+        $log = FezLog::get();
+        $db = DB_API::get();
+
+        $endYear = (is_numeric($endYear)) ? $endYear + 1 : $endYear; //We plus one since it's inclusive
+        $startYear = (is_numeric($startYear)) ? " AND rek_date > " . $db->quote($startYear) . " " : "";
+        $endYear = (is_numeric($endYear)) ? " AND rek_date < " . $db->quote((string) $endYear) . " " : ""; //We need to typecast since the comparison is not to integer
+
+        $stmt = "SELECT rek_pid, rek_title, GROUP_CONCAT(rek_author_id) as rek_author_id, rek_date FROM " . APP_TABLE_PREFIX . "record_search_key
+                INNER JOIN " . APP_TABLE_PREFIX . "record_search_key_author_id ON rek_pid = rek_author_id_pid
+                INNER JOIN " . APP_TABLE_PREFIX . "auth_index2_lister ON authi_pid = rek_pid AND authi_arg_id = '11'
+                INNER JOIN " . APP_TABLE_PREFIX . "author on aut_id = rek_author_id
+                WHERE rek_display_type = 371 AND aut_org_username = " .$db->quote($author_username) . " AND rek_status = 2 " . $startYear . $endYear . "
+                GROUP BY(rek_pid)";
+
+        try {
+            $res = $db->fetchAll($stmt);
+        }
+        catch (Exception $ex) {
+            $log->err($ex);
+            return false;
+        }
+
+        return $res;
+    }
+
+    //11 is lister permissions. 371 is data collections. 2 is published
+    public static function getPidsWithDatacollections($author_username, $startYear = null, $endYear = null)
+    {
+        $log = FezLog::get();
+        $db = DB_API::get();
+
+        $endYear = (is_numeric($endYear)) ? $endYear + 1 : $endYear; //We plus one since it's inclusive
+        $startYear = (is_numeric($startYear)) ? " AND B.rek_date > " . $db->quote($startYear) . " " : "";
+        $endYear = (is_numeric($endYear)) ? " AND B.rek_date < " . $db->quote((string) $endYear) . " " : "";  //We need to typecast since the comparison is not to integer
+
+        $stmt = "SELECT rek_isdatasetof as rek_pid,  B.rek_title, GROUP_CONCAT(A.rek_pid) AS rek_is_dataset_of, B.rek_date FROM " . APP_TABLE_PREFIX . "record_search_key AS A
+                INNER JOIN " . APP_TABLE_PREFIX . "record_search_key_author_id ON A.rek_pid = rek_author_id_pid
+                INNER JOIN " . APP_TABLE_PREFIX . "auth_index2_lister ON authi_pid = A.rek_pid AND authi_arg_id = '11'
+                INNER JOIN " . APP_TABLE_PREFIX . "record_search_key_isdatasetof ON A.rek_pid = rek_isdatasetof_pid
+                INNER JOIN " . APP_TABLE_PREFIX . "author on aut_id = rek_author_id
+                INNER JOIN " . APP_TABLE_PREFIX . "record_search_key AS B on rek_isdatasetof = B.rek_pid
+                WHERE A.rek_display_type = 371 AND aut_org_username = " .$db->quote($author_username) . " AND A.rek_status = 2 " . $startYear . $endYear . "
+                GROUP BY(rek_isdatasetof)";
+
+        try {
+            $res = $db->fetchAll($stmt);
+        }
+        catch (Exception $ex) {
+            $log->err($ex);
+            return false;
+        }
+
+        return $res;
+    }
+
 }
