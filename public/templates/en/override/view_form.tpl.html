@@ -44,7 +44,7 @@ function loadPreview(pid,datastreamID, alt, origami)
 {literal}
 <script type="text/javascript">
     var x = noty({
-        text: '{/literal}{$outstandingStatus|smarty:nodefaults}{literal}',
+        text: '{/literal}{$outstandingStatus|smarty:nodefaults|escape:'javascript'}{literal}',
         type: 'warning',
         dismissQueue: true,
         modal: false,
