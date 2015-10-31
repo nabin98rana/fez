@@ -2046,7 +2046,7 @@ class Statistics
     }
 
 		$stmt = "SELECT stl_id, stl_pid, stl_dsid, stl_ip, stl_request_date, stl_counter_bad
-                 FROM " . APP_TABLE_PREFIX . "statistics_all ";
+                 FROM " . APP_TABLE_PREFIX . "statistics_all force index (date_id) ";
 		if ($min_date !== false) {
 			if (!is_numeric(strpos(APP_SQL_DBTYPE, "mysql"))) { //eg if postgresql etc
 				$stmt .= " WHERE stl_request_date >= (TIMESTAMP ".$db->quote($min_date)." - INTERVAL '11 seconds') ";
