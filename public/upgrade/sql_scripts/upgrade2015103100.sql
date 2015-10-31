@@ -1,0 +1,1 @@
+ALTER TABLE %TABLE_PREFIX%statistics_all ADD INDEX date_id (stl_request_date, stl_id);
