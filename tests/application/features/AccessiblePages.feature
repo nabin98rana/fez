@@ -11,7 +11,7 @@ Scenario: A user needs contact infomation
   Scenario: A user needs faq infomation
     Given I am on "/faq"
     Then I should see "Frequently Asked Questions"
-    And I should see "Am I required to have a ResearcherID account"
+    And I should see "How do I find out more about the NHMRC and ARC Mandates?"
 
   Scenario: A user wants to browser
     Given I am on "/list/"
