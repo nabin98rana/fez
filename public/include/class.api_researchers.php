@@ -41,26 +41,27 @@
 class ApiResearchers
 {
 
-    public function getAuthorDetails($author_username) {
+    public function getAuthorDetails($author_username)
+    {
 
         $log = FezLog::get();
         $db = DB_API::get();
 
         $stmt = "SELECT aut_id, aut_org_username,  aut_email,
-aut_display_name, aut_fname, aut_mname, aut_lname, aut_title, aut_position, aut_homepage_link, aut_researcher_id, aut_scopus_id, aut_mypub_url,
-aut_people_australia_id, aut_description, aut_orcid_id, aut_google_scholar_id, aut_rid_last_updated FROM " . APP_TABLE_PREFIX . "author WHERE aut_org_username =  " .$db->quote($author_username);
+aut_display_name, aut_fname, aut_mname, aut_lname, aut_title, aut_position, aut_function, aut_cv_link, aut_homepage_link, aut_researcher_id, aut_scopus_id, aut_mypub_url,
+aut_people_australia_id, aut_description, aut_orcid_id, aut_google_scholar_id, aut_rid_last_updated FROM " . APP_TABLE_PREFIX . "author WHERE aut_org_username =  " . $db->quote($author_username);
 
         try {
             $res = $db->fetchAll($stmt);
-        }
-        catch (Exception $ex) {
+        } catch (Exception $ex) {
             $log->err($ex);
             return false;
         }
         return $res;
     }
 
-    public function getAltmetrics($author_username) {
+    public function getAltmetrics($author_username)
+    {
 
         $log = FezLog::get();
         $db = DB_API::get();
@@ -78,22 +79,22 @@ aut_people_australia_id, aut_description, aut_orcid_id, aut_google_scholar_id, a
                 LEFT JOIN " . APP_TABLE_PREFIX . "record_search_key_author b on rek_pid = rek_author_pid
                 LEFT JOIN " . APP_TABLE_PREFIX . "record_search_key_author_id c on b.rek_author_pid = c.rek_author_id_pid and c.rek_author_id_order = b.rek_author_order
                 LEFT JOIN " . APP_TABLE_PREFIX . "record_search_key_journal_name on rek_pid = rek_journal_name
-                WHERE aut_org_username =" .$db->quote($author_username) . " AND rek_status = 2
+                WHERE aut_org_username =" . $db->quote($author_username) . " AND rek_status = 2
                 GROUP BY as_doi
                 ORDER BY as_1d DESC, as_2d DESC, as_3d DESC, as_4d DESC, as_5d DESC, as_6d DESC, as_1w DESC, as_1m DESC, as_3m DESC, as_6m DESC, as_1y DESC LIMIT 3";
 
 
         try {
             $res = $db->fetchAll($stmt);
-        }
-        catch (Exception $ex) {
+        } catch (Exception $ex) {
             $log->err($ex);
             return false;
         }
         return $res;
     }
 
-    public function setThomsonMetrics($author_username) {
+    public function setThomsonMetrics($author_username)
+    {
 
         $log = FezLog::get();
         $db = DB_API::get();
@@ -110,14 +111,13 @@ aut_people_australia_id, aut_description, aut_orcid_id, aut_google_scholar_id, a
             LEFT JOIN fez_record_search_key_author b on rek_pid = rek_author_pid
             LEFT JOIN " . APP_TABLE_PREFIX . "record_search_key_author_id c on b.rek_author_pid = c.rek_author_id_pid and c.rek_author_id_order = b.rek_author_order
             LEFT JOIN fez_record_search_key_journal_name on rek_pid = rek_journal_name
-            WHERE aut_org_username = " .$db->quote($author_username) . " AND tc_created > UNIX_TIMESTAMP(DATE_ADD(CURDATE(),INTERVAL -180 DAY)) AND tc_diff_previous IS NOT NULL AND tc_diff_previous > 0 AND rek_status = 2
+            WHERE aut_org_username = " . $db->quote($author_username) . " AND tc_created > UNIX_TIMESTAMP(DATE_ADD(CURDATE(),INTERVAL -180 DAY)) AND tc_diff_previous IS NOT NULL AND tc_diff_previous > 0 AND rek_status = 2
             GROUP BY tc_isi_loc, tc_created
             ORDER BY tc_created DESC LIMIT 3";
 
         try {
-            $res= $db->fetchAll($stmt);
-        }
-        catch (Exception $ex) {
+            $res = $db->fetchAll($stmt);
+        } catch (Exception $ex) {
             $log->err($ex);
             return false;
         }
@@ -125,7 +125,8 @@ aut_people_australia_id, aut_description, aut_orcid_id, aut_google_scholar_id, a
         return $res;
     }
 
-    public function setScopusMetrics($author_username) {
+    public function setScopusMetrics($author_username)
+    {
 
         $log = FezLog::get();
         $db = DB_API::get();
@@ -143,14 +144,13 @@ aut_people_australia_id, aut_description, aut_orcid_id, aut_google_scholar_id, a
             LEFT JOIN fez_record_search_key_author b on rek_pid = rek_author_pid
             LEFT JOIN " . APP_TABLE_PREFIX . "record_search_key_author_id c on b.rek_author_pid = c.rek_author_id_pid and c.rek_author_id_order = b.rek_author_order
             LEFT JOIN fez_record_search_key_journal_name on rek_pid = rek_journal_name
-            WHERE aut_org_username = " .$db->quote($author_username) . " AND sc_created > UNIX_TIMESTAMP(DATE_ADD(CURDATE(),INTERVAL -180 DAY)) AND sc_diff_previous IS NOT NULL  AND sc_diff_previous > 0 AND rek_status = 2
+            WHERE aut_org_username = " . $db->quote($author_username) . " AND sc_created > UNIX_TIMESTAMP(DATE_ADD(CURDATE(),INTERVAL -180 DAY)) AND sc_diff_previous IS NOT NULL  AND sc_diff_previous > 0 AND rek_status = 2
             GROUP BY sc_eid, sc_created
             ORDER BY sc_created DESC LIMIT 3";
 
         try {
             $res = $db->fetchAll($stmt);
-        }
-        catch (Exception $ex) {
+        } catch (Exception $ex) {
             $log->err($ex);
             return false;
         }
@@ -203,19 +203,18 @@ aut_people_australia_id, aut_description, aut_orcid_id, aut_google_scholar_id, a
 
         $endYear = (is_numeric($endYear)) ? $endYear + 1 : $endYear; //We plus one since it's inclusive
         $startYear = (is_numeric($startYear)) ? " AND rek_date > " . $db->quote($startYear) . " " : "";
-        $endYear = (is_numeric($endYear)) ? " AND rek_date < " . $db->quote((string) $endYear) . " " : ""; //We need to typecast since the comparison is not to integer
+        $endYear = (is_numeric($endYear)) ? " AND rek_date < " . $db->quote((string)$endYear) . " " : ""; //We need to typecast since the comparison is not to integer
 
         $stmt = "SELECT rek_pid, rek_title, GROUP_CONCAT(rek_author_id) as rek_author_id, rek_date FROM " . APP_TABLE_PREFIX . "record_search_key
                 INNER JOIN " . APP_TABLE_PREFIX . "record_search_key_author_id ON rek_pid = rek_author_id_pid
                 INNER JOIN " . APP_TABLE_PREFIX . "auth_index2_lister ON authi_pid = rek_pid AND authi_arg_id = '11'
                 INNER JOIN " . APP_TABLE_PREFIX . "author on aut_id = rek_author_id
-                WHERE rek_display_type = 371 AND aut_org_username = " .$db->quote($author_username) . " AND rek_status = 2 " . $startYear . $endYear . "
+                WHERE rek_display_type = 371 AND aut_org_username = " . $db->quote($author_username) . " AND rek_status = 2 " . $startYear . $endYear . "
                 GROUP BY(rek_pid)";
 
         try {
             $res = $db->fetchAll($stmt);
-        }
-        catch (Exception $ex) {
+        } catch (Exception $ex) {
             $log->err($ex);
             return false;
         }
@@ -231,7 +230,7 @@ aut_people_australia_id, aut_description, aut_orcid_id, aut_google_scholar_id, a
 
         $endYear = (is_numeric($endYear)) ? $endYear + 1 : $endYear; //We plus one since it's inclusive
         $startYear = (is_numeric($startYear)) ? " AND B.rek_date > " . $db->quote($startYear) . " " : "";
-        $endYear = (is_numeric($endYear)) ? " AND B.rek_date < " . $db->quote((string) $endYear) . " " : "";  //We need to typecast since the comparison is not to integer
+        $endYear = (is_numeric($endYear)) ? " AND B.rek_date < " . $db->quote((string)$endYear) . " " : "";  //We need to typecast since the comparison is not to integer
 
         $stmt = "SELECT rek_isdatasetof as rek_pid,  B.rek_title, GROUP_CONCAT(A.rek_pid) AS rek_is_dataset_of, B.rek_date FROM " . APP_TABLE_PREFIX . "record_search_key AS A
                 INNER JOIN " . APP_TABLE_PREFIX . "record_search_key_author_id ON A.rek_pid = rek_author_id_pid
@@ -239,13 +238,45 @@ aut_people_australia_id, aut_description, aut_orcid_id, aut_google_scholar_id, a
                 INNER JOIN " . APP_TABLE_PREFIX . "record_search_key_isdatasetof ON A.rek_pid = rek_isdatasetof_pid
                 INNER JOIN " . APP_TABLE_PREFIX . "author on aut_id = rek_author_id
                 INNER JOIN " . APP_TABLE_PREFIX . "record_search_key AS B on rek_isdatasetof = B.rek_pid
-                WHERE A.rek_display_type = 371 AND aut_org_username = " .$db->quote($author_username) . " AND A.rek_status = 2 " . $startYear . $endYear . "
+                WHERE A.rek_display_type = 371 AND aut_org_username = " . $db->quote($author_username) . " AND A.rek_status = 2 " . $startYear . $endYear . "
                 GROUP BY(rek_isdatasetof)";
 
         try {
             $res = $db->fetchAll($stmt);
+        } catch (Exception $ex) {
+            $log->err($ex);
+            return false;
         }
-        catch (Exception $ex) {
+
+        return $res;
+        }
+
+    public static function changeId($authorUsername, $id, $idType)
+    {
+        $log = FezLog::get();
+        $db = DB_API::get();
+
+        if (strtolower($idType) == 'orcid' || strtolower($idType) == 1) {
+            $column = 'aut_orcid_id';
+        } else if (strtolower($idType) == 'rid' || strtolower($idType) == 2) {
+            $column = 'aut_researcher_id';
+        } else if (strtolower($idType) == 'scopus' || strtolower($idType) == 3) {
+            $column = 'aut_scopus_id';
+        } else if (strtolower($idType) == 'scholar') {
+            $column = 'aut_google_scholar_id';
+        } else if (strtolower($idType) == 'people') {
+            $column = 'aut_people_australia_id';
+        } else {
+            return false;
+        }
+
+        $stmt = "UPDATE  " . APP_TABLE_PREFIX . "author aut_orcid_id
+            SET " . $column . " = " . $db->quote($id) . "
+            WHERE aut_org_username = " . $db->quote($authorUsername);
+
+        try {
+            $res = $db->exec($stmt);
+        } catch (Exception $ex) {
             $log->err($ex);
             return false;
         }
@@ -253,4 +284,54 @@ aut_people_australia_id, aut_description, aut_orcid_id, aut_google_scholar_id, a
         return $res;
     }
 
+    public static function listId($authorUsername)
+    {
+        $log = FezLog::get();
+        $db = DB_API::get();
+
+        $stmt = "SELECT * FROM " . APP_TABLE_PREFIX . "author
+            WHERE aut_org_username = " . $db->quote($authorUsername);
+
+        try {
+            $res = $db->fetchRow($stmt);
+        } catch (Exception $ex) {
+            $log->err($ex);
+            return false;
+        }
+
+        $results = array();
+        if (!empty($res['aut_orcid_id'])) {
+            $results[] = array('id' => '1', 'name' => 'ORCHID', 'description' => 'ORCID (Open Researcher and Contributor ID) is a nonproprietary alphanumeric code to uniquely identify scientific and other academic authors.',
+                'url' => 'http://orcid.org', 'value' => $res['aut_orcid_id'], status => '');
+        }
+        if (!empty($res['aut_researcher_id'])) {
+            $results[] = array('id' => '2', 'name' => 'Researcher ID', 'description' => 'ResearcherID is a product developed by Thomson Reuters to uniquely identify researchers and associate researchers with their published works.',
+                'url' => 'http://www.researcherid.com ', value => $res['aut_researcher_id'], status => '');
+        }
+        if (!empty($res['aut_scopus_id'])) {
+            $results[] = array('id' => '3', 'name' => 'Scopus Author Identifier', 'description' => 'Scopus Author Identifiers are created automatically when you have had a publication indexed in Scopus.',
+                'url' => 'http://www.scopus.com ', value => $res['aut_scopus_id'], status => '');
+        }
+        return $results;
+    }
+
+    public static function saveGrantInfo($authorUsername, $idType, $name, $status, $expires, $value)
+    {
+        $log = FezLog::get();
+        $db = DB_API::get();
+
+        $authorId = Author::getIDByUsername($authorUsername);
+        $stmt = "INSERT INTO  " . APP_TABLE_PREFIX . "author_identifier_user_grants (aig_author_id, aig_id_type, aig_name, aig_status, aig_expires, aig_details, aig_created, aig_updated)
+            VALUES( " .$db->quote($authorId) . ", " . $db->quote($idType) . ", " . $db->quote($name) . ", " . $db->quote($status) . ", " . $db->quote($expires) . ", " . $db->quote($value) . ", NOW(), NOW()) ON DUPLICATE KEY UPDATE
+            aig_author_id = " . $db->quote($authorId) . ", aig_id_type = " . $db->quote($idType) . ", aig_name = " . $db->quote($name) .
+            ", aig_status = " . $db->quote($status) . ", aig_expires = " . $db->quote($expires) . ", aig_details = " . $db->quote($value) . ", aig_updated = NOW()";
+        try {
+            $res = $db->fetchRow($stmt);
+        } catch (Exception $ex) {
+            $log->err($ex);
+            return false;
+        }
+
+        return $res;
+    }
 }
