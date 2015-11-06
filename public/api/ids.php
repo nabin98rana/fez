@@ -72,7 +72,8 @@ if (!empty($list)) {
     if (!empty($id_type)){
         foreach($result as $details) {
             if ($details['id'] == $id_type) {
-                echo json_encode($details['value']);
+                echo json_encode($details);
+                exit();
             }
         }
         echo json_encode(array(), JSON_FORCE_OBJECT);

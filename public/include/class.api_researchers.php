@@ -299,18 +299,19 @@ aut_people_australia_id, aut_description, aut_orcid_id, aut_google_scholar_id, a
             return false;
         }
 
+        $idDetails = ApiResearchers::idDetails();
+
+
+
         $results = array();
         if (!empty($res['aut_orcid_id'])) {
-            $results[] = array('id' => '1', 'name' => 'ORCHID', 'description' => 'ORCID (Open Researcher and Contributor ID) is a nonproprietary alphanumeric code to uniquely identify scientific and other academic authors.',
-                'url' => 'http://orcid.org', 'value' => $res['aut_orcid_id'], status => '');
+            $results[] = array_merge(array('value' => $res['aut_orcid_id']), $idDetails[1]);
         }
         if (!empty($res['aut_researcher_id'])) {
-            $results[] = array('id' => '2', 'name' => 'Researcher ID', 'description' => 'ResearcherID is a product developed by Thomson Reuters to uniquely identify researchers and associate researchers with their published works.',
-                'url' => 'http://www.researcherid.com ', value => $res['aut_researcher_id'], status => '');
+            $results[] = array_merge(array('value' => $res['aut_researcher_id']), $idDetails[2]);
         }
         if (!empty($res['aut_scopus_id'])) {
-            $results[] = array('id' => '3', 'name' => 'Scopus Author Identifier', 'description' => 'Scopus Author Identifiers are created automatically when you have had a publication indexed in Scopus.',
-                'url' => 'http://www.scopus.com ', value => $res['aut_scopus_id'], status => '');
+            $results[] = array_merge(array('value' => $res['aut_scopus_id']), $idDetails[3]);
         }
         return $results;
     }
@@ -333,5 +334,26 @@ aut_people_australia_id, aut_description, aut_orcid_id, aut_google_scholar_id, a
         }
 
         return $res;
+    }
+
+    public static function idDetails()
+    {
+        $log = FezLog::get();
+        $db = DB_API::get();
+
+        $stmt = "SELECT ai_id_type AS id, ai_name AS 'name', ai_description AS description, ai_url AS url, ai_image AS image FROM " . APP_TABLE_PREFIX . "author_identifier_identifiers;";
+        try {
+            $res = $db->fetchAll($stmt);
+        } catch (Exception $ex) {
+            $log->err($ex);
+            return false;
+        }
+
+        $results = array();
+        foreach ($res as $ids) {
+            $results[$ids['id']] = $ids;
+        }
+
+        return $results;
     }
 }
