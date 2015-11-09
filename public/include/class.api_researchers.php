@@ -299,7 +299,7 @@ aut_people_australia_id, aut_description, aut_orcid_id, aut_google_scholar_id, a
             return false;
         }
 
-        $idDetails = ApiResearchers::idDetails();
+        $idDetails = ApiResearchers::idDetails($authorUsername);
 
         $results = array();
         $results[] = array_merge(array('value' => $res['aut_orcid_id'], status => !empty($res['aut_orcid_id']) ? 1 : null), $idDetails[1]);
@@ -328,22 +328,40 @@ aut_people_australia_id, aut_description, aut_orcid_id, aut_google_scholar_id, a
         return $res;
     }
 
-    public static function idDetails()
+    public static function idDetails($authorUsername)
     {
         $log = FezLog::get();
         $db = DB_API::get();
 
         $stmt = "SELECT ai_id_type AS id, ai_name AS 'name', ai_description AS description, ai_url AS url, ai_image AS image FROM " . APP_TABLE_PREFIX . "author_identifier_identifiers;";
         try {
-            $res = $db->fetchAll($stmt);
+            $res1 = $db->fetchAll($stmt);
         } catch (Exception $ex) {
             $log->err($ex);
             return false;
         }
 
+        $authorId = Author::getIDByUsername($authorUsername);
+
+        $stmt = "SELECT ai_id_type AS 'id', aig_name AS 'name', aig_status AS 'status', aig_expires AS 'valid_until', aig_details AS 'details', aig_created AS 'created', aig_details AS 'details'
+                FROM " . APP_TABLE_PREFIX . "author_identifier_identifiers
+                LEFT JOIN " . APP_TABLE_PREFIX . "author_identifier_user_grants
+                ON aig_author_id = " . $db->quote($authorId) . " AND aig_id_type = ai_id_type";
+        try {
+            $res2 = $db->fetchAll($stmt);
+        } catch (Exception $ex) {
+            $log->err($ex);
+            return false;
+        }
+
+
         $results = array();
-        foreach ($res as $ids) {
+        foreach ($res1 as $ids) {
             $results[$ids['id']] = $ids;
+        }
+
+        foreach ($res2 as $grant) {
+            $results[$grant['id']]['grants'][] = $grant;
         }
 
         return $results;
