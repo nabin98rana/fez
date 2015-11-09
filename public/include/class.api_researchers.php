@@ -346,7 +346,8 @@ aut_people_australia_id, aut_description, aut_orcid_id, aut_google_scholar_id, a
         $stmt = "SELECT ai_id_type AS 'id', aig_name AS 'name', aig_status AS 'status', aig_expires AS 'valid_until', aig_details AS 'details', aig_created AS 'created', aig_details AS 'details'
                 FROM " . APP_TABLE_PREFIX . "author_identifier_identifiers
                 LEFT JOIN " . APP_TABLE_PREFIX . "author_identifier_user_grants
-                ON aig_author_id = " . $db->quote($authorId) . " AND aig_id_type = ai_id_type";
+                ON aig_author_id = " . $db->quote($authorId) . "
+                WHERE aig_id_type = ai_id_type";
         try {
             $res2 = $db->fetchAll($stmt);
         } catch (Exception $ex) {
