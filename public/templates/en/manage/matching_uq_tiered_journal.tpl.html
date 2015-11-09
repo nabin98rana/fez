@@ -157,7 +157,7 @@ function removeAndAddToParentList(matching_id_helper, matching_id)
                         <td align="left" style="vertical-align: 0;">
                         <select id="matching_id_helper" multiple size="20" style="max-width:600px" class="default" name="matching_id_helper">
                             {section name="i" loop=$list}
-                                <option value="{$list[i].matching_id}">{$list[i].title|truncate:125:"...":true} &nbsp;(UQ Tier {$list[i].rank})</option>
+                                <option value="{$list[i].matching_id}">{$list[i].title|truncate:125:"...":true} &nbsp;(UQ Tier {$list[i].rank}) ({$list[i].issn})</option>
                             {/section}
                         </select>
                         </td>
