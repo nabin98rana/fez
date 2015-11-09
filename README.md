@@ -1,5 +1,11 @@
 #Fez
 
+<sub><sup>Developed with</sup></sub><br/>
+[![alt text][2]][1]
+
+  [1]: http://www.jetbrains.com/phpstorm/
+  [2]: http://www.jetbrains.com/phpstorm/documentation/phpstorm_banners/phpstorm1/phpstorm468x60_violet.gif (Smart IDE for PHP development with HTML, CSS &amp; JavaScript support)
+
 Fez is a PHP / MySQL front end to the Fedora repository software. It is developed by the University of Queensland Library 
 as an open source project.
 
@@ -48,7 +54,7 @@ Now mount them:
     $ sudo mount /data/docker/fez/fedora
     $ sudo mount /data/docker/fez/espace_san
 
-NB: This datastore gets refreshed (rsync/hard) each day so it’s safe enough to be a little destructive.
+NB: This datastore gets refreshed (rsync/hard) each day so itâ€™s safe enough to be a little destructive.
 
 Start the docker container using docker-compose:
 
@@ -69,13 +75,13 @@ Install fez using the onscreen setup the credentials at
 This will create a config.inc.php for you and setup some basic configs, but you want to override all that 
 in the next mysql imports.
 
-You can run the "Upgrade" after this but it currently errors. That’s logged as a bug to be fixed ASAP but the mysql 
+You can run the "Upgrade" after this but it currently errors. Thatâ€™s logged as a bug to be fixed ASAP but the mysql 
 commands in this setup next will negate that for us UQ developers, but only if we manually import fez_config from 
 e.g. espace_staging and then run the dev.fez.config.sql over the top of it.
 
 Import the fez and fedora data into the two database servers (one for Fez, the other for Fedora). 
 The Fez one takes about 10 mins to load. The Fedora is less than a minute. The first command installs the preg 
-functions (can’t get this into mysql-first-time.sql until docker update the official mysql container with 
+functions (canâ€™t get this into mysql-first-time.sql until docker update the official mysql container with 
 initialisation SQL commands like they have with postgresql). The second strips the definers from the create 
 view statements (this will be moved somewhere else like the dump file later).
 
