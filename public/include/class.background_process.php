@@ -56,13 +56,14 @@ class BackgroundProcess {
 	var $local_session = array();
 	var $progress = 0;
 	var $wfses_id = null; // id of workflow session to resume when this background process finishes
-
+	var $filename;
 
 	/***** Mixed *****/
 
 	function __construct($bgp_id=null)
 	{
 		$this->bgp_id = $bgp_id;
+		$this->filename = APP_TEMP_DIR."fezbgp/fezbgp_".$this->bgp_id.".log";
 	}
 
 	function getDetails()
@@ -259,7 +260,8 @@ class BackgroundProcess {
           'bgp_usr_id' => $usr_id,
           'bgp_started' => $utc_date,
           'bgp_name' => $this->name,
-          'bgp_include' => $this->include
+          'bgp_include' => $this->include,
+					'bgp_filename' => $this->filename
         );
 
             try {
