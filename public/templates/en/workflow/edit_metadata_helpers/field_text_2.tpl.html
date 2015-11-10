@@ -39,7 +39,8 @@
 		{else}
 			name="xsd_display_fields[{$xsdmf.xsdmf_id}]" value="{$details[$temp_fld_id]}" />
 		{/if}
-		{include file="error_icon.tpl.html" field="aaxsd_display_fields["|cat:$xsdmf.xsdmf_id|cat:"]"|cat:$squares}
+		
+		{include file="error_icon.tpl.html" field="xsd_display_fields["|cat:$xsdmf.xsdmf_id|cat:"]"|cat:$squares}
 
         {if $xsd_display_fields[i].sek_comment_function != ""}
         <span id="{$xsd_display_fields[i].xsdmf_id}_comment"></span>
