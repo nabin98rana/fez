@@ -86,6 +86,7 @@ initialisation SQL commands like they have with postgresql). The second strips t
 view statements (this will be moved somewhere else like the dump file later).
 
     $ scp username@espacedbm3.library.uq.edu.au:/backup/espace_dev/* .
+    $ gunzip *.gz
     $ wget -O installdb.sql https://raw.githubusercontent.com/mysqludf/lib_mysqludf_preg/testing/installdb.sql
     $ mysql -uroot -pdevelopment -h fezdb mysql < installdb.sql
     $ sed -i 's/DEFINER=[^*]*\*/\*/g' fez.sql

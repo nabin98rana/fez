@@ -78,7 +78,7 @@ CREATE TABLE `fez_auth_datastream_index2_not_inherited__shadow` (
   `authdii_did` varchar(64) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT '',
   `authdii_role` int(11) unsigned NOT NULL DEFAULT '0',
   `authdii_arg_id` int(11) unsigned NOT NULL DEFAULT '0',
-  `authdii_edition_stamp` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `authdii_edition_stamp` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`authdii_did`,`authdii_role`,`authdii_arg_id`,`authdii_edition_stamp`),
   KEY `authii_role_arg_id` (`authdii_role`,`authdii_arg_id`),
   KEY `authii_role` (`authdii_did`,`authdii_role`),
@@ -154,7 +154,7 @@ CREATE TABLE `fez_auth_index2_not_inherited__shadow` (
   `authii_pid` varchar(64) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT '',
   `authii_role` int(11) unsigned NOT NULL DEFAULT '0',
   `authii_arg_id` int(11) unsigned NOT NULL DEFAULT '0',
-  `authii_edition_stamp` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `authii_edition_stamp` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`authii_pid`,`authii_role`,`authii_arg_id`,`authii_edition_stamp`),
   KEY `authii_role_arg_id` (`authii_role`,`authii_arg_id`),
   KEY `authii_role` (`authii_pid`,`authii_role`),
@@ -1047,7 +1047,7 @@ CREATE TABLE `fez_group` (
   `grp_id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `grp_title` varchar(30) DEFAULT NULL,
   `grp_status` set('active','archived') NOT NULL DEFAULT 'active',
-  `grp_created_date` datetime DEFAULT '0000-00-00 00:00:00',
+  `grp_created_date` datetime DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`grp_id`)
 ) ENGINE=MyISAM AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -1293,7 +1293,7 @@ DROP TABLE IF EXISTS `fez_mail_queue`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `fez_mail_queue` (
   `maq_id` int(11) unsigned NOT NULL AUTO_INCREMENT,
-  `maq_queued_date` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `maq_queued_date` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `maq_status` varchar(8) NOT NULL DEFAULT 'pending',
   `maq_save_copy` tinyint(1) NOT NULL DEFAULT '1',
   `maq_sender_ip_address` varchar(15) NOT NULL DEFAULT '',
@@ -1315,7 +1315,7 @@ DROP TABLE IF EXISTS `fez_mail_queue_log`;
 CREATE TABLE `fez_mail_queue_log` (
   `mql_id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `mql_maq_id` int(11) unsigned NOT NULL DEFAULT '0',
-  `mql_created_date` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `mql_created_date` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `mql_status` varchar(8) NOT NULL DEFAULT 'error',
   `mql_server_message` text,
   PRIMARY KEY (`mql_id`),
@@ -1443,12 +1443,12 @@ DROP TABLE IF EXISTS `fez_news`;
 CREATE TABLE `fez_news` (
   `nws_id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `nws_usr_id` int(11) unsigned NOT NULL DEFAULT '0',
-  `nws_created_date` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `nws_created_date` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `nws_title` varchar(255) NOT NULL DEFAULT '',
   `nws_message` text NOT NULL,
   `nws_status` varchar(8) NOT NULL DEFAULT 'active',
-  `nws_published_date` datetime DEFAULT '0000-00-00 00:00:00',
-  `nws_updated_date` datetime DEFAULT '0000-00-00 00:00:00',
+  `nws_published_date` datetime DEFAULT CURRENT_TIMESTAMP,
+  `nws_updated_date` datetime DEFAULT CURRENT_TIMESTAMP,
   `nws_admin_only` tinyint(1) DEFAULT '0',
   PRIMARY KEY (`nws_id`),
   UNIQUE KEY `nws_title` (`nws_title`)
@@ -7957,7 +7957,7 @@ DROP TABLE IF EXISTS `fez_user`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `fez_user` (
   `usr_id` int(11) unsigned NOT NULL AUTO_INCREMENT,
-  `usr_created_date` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `usr_created_date` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `usr_status` varchar(8) NOT NULL DEFAULT 'active',
   `usr_password` varchar(32) DEFAULT NULL,
   `usr_full_name` varchar(255) NOT NULL DEFAULT '',
@@ -7971,7 +7971,7 @@ CREATE TABLE `fez_user` (
   `usr_administrator` tinyint(1) DEFAULT '0',
   `usr_ldap_authentication` tinyint(1) DEFAULT '0',
   `usr_login_count` int(11) DEFAULT '0',
-  `usr_last_login_date` datetime DEFAULT '0000-00-00 00:00:00',
+  `usr_last_login_date` datetime DEFAULT CURRENT_TIMESTAMP,
   `usr_shib_login_count` int(11) DEFAULT '0',
   `usr_external_usr_id` int(11) DEFAULT NULL,
   `usr_super_administrator` tinyint(1) DEFAULT '0',
