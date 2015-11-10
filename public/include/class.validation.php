@@ -66,20 +66,15 @@ class Validation
 
 	function isUserFileName($str) {
 		
-		$string="";
 		$fileCount=0;
 		$filePath=APP_PATH; # Specify the path you want to look in. 
 		$dir = opendir($filePath); # Open the path
 		while ($file = readdir($dir)) { 
 			$filePrefix = substr($file, 0, strrpos($file, "."));
-//		  if (eregi("\.php",$file)) { # Look at only files with a .php extension
-//		    $string .= "$file<br />";
-//			echo "$filePrefix<br />";
 			if ($str == strtolower($filePrefix)) {
 				return true;
 			}
 		    $fileCount++;
-//		  }
 		}
 		//Also check its not already a username
 		$authorDetails = Author::getDetailsByUsername($str);
@@ -196,7 +191,7 @@ class Validation
      * @param string $str The string to check
      * @return bool True if valid else false
      */
-    function isGoogleScholarID($str)
+    static function isGoogleScholarID($str)
     {
         return preg_match('/^[A-Za-z0-9_-]+$/', $str);
     }
