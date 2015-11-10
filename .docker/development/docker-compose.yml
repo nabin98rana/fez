@@ -92,6 +92,3 @@ solr:
   volumes_from:
     - cache
     - logs
-
-
-sed -i 's/DEFINER=[^*]*\*/\*/g' fez.sql
