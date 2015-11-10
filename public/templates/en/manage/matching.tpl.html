@@ -185,7 +185,7 @@ function setPage(new_page)
                         <td align="left" style="vertical-align: 0;">
                         <select id="matching_id_helper" multiple size="20" style="max-width:600px" class="default" name="matching_id_helper">
                             {section name="i" loop=$list}
-                                <option value="{$list[i].matching_id}">{$list[i].title|truncate:125:"...":true} &nbsp; ({$list[i].year}) &nbsp; {if $list[i].year == 2010}(Rank {$list[i].rank}){/if}</option>
+                                <option value="{$list[i].matching_id}">{$list[i].title|truncate:125:"...":true} &nbsp; ({$list[i].year}) &nbsp; {if $list[i].year == 2010}(Rank {$list[i].rank}){/if}({$list[i].issn})</option>
                             {/section}
                         </select>
                         </td>
@@ -255,7 +255,7 @@ function setPage(new_page)
                             <td align="left" style="vertical-align: 0;">
                             <select id="matching_id_helper" multiple size="20" style="max-width:600px" class="default" name="matching_id_helper">
                                 {section name="i" loop=$list}
-                                    <option value="{$list[i].matching_id}">{$list[i].title|truncate:125:"...":true} &nbsp; ({$list[i].year}) &nbsp; {if $list[i].year == 2010}(Rank {$list[i].rank}){/if}</option>
+                                    <option value="{$list[i].matching_id}">{$list[i].title|truncate:125:"...":true} &nbsp; ({$list[i].year}) &nbsp; {if $list[i].year == 2010}(Rank {$list[i].rank}){/if}({$list[i].issn})</option>
                                 {/section}
                             </select>
                             </td>
