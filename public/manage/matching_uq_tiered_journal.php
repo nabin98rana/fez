@@ -87,9 +87,12 @@ if ($isAdministrator) {
         $mapping = Record::getRankedUQTieredJournal($pid);
         $listing = Journal::getJournalsUqTiered();
 
+        $issn = implode(",", Record::getSearchKeyIndexValue($pid, "ISSN", false));
+        $citationDetails = $recordDetails[0]['rek_citation'] . '<br />' . 'ISSN/s: ' . $issn;
+
         $tpl->assign("mapping", $mapping);
         $tpl->assign("list", $listing);
-        $tpl->assign("citation", $recordDetails[0]['rek_citation']);
+        $tpl->assign("citation", $citationDetails);
         $tpl->assign("show", "edit-screen");
 
     } elseif ($action == 'add') {

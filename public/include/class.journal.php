@@ -418,10 +418,13 @@ class Journal
 			    jnl_era_year AS year,
 				jnl_era_id AS eraid,
 				jnl_rank AS rank,
-				jnl_journal_name AS title
+				jnl_journal_name AS title,
+				GROUP_CONCAT(jni_issn) AS issn
 			FROM
 				" . APP_TABLE_PREFIX . "journal
+			LEFT JOIN fez_journal_issns ON jni_jnl_id = jnl_id
 	        WHERE jnl_era_year LIKE '%".$year."%'
+	        GROUP BY jni_jnl_id
 			ORDER BY
 				jnl_journal_name ASC, jnl_era_year ASC;
 		";
@@ -451,9 +454,12 @@ class Journal
 			    jnl_era_year AS year,
 				jnl_era_id AS eraid,
 				jnl_rank AS rank,
-				jnl_journal_name AS title
+				jnl_journal_name AS title,
+				GROUP_CONCAT(jni_issn) AS issn
 			FROM
 				" . APP_TABLE_PREFIX . "journal_uq_tiered
+			LEFT JOIN fez_journal_uq_tiered_issns ON jni_jnl_id = jnl_id
+			GROUP BY jni_jnl_id
 			ORDER BY
 				jnl_journal_name ASC, jnl_era_year ASC;
 		";
