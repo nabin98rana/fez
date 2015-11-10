@@ -4,8 +4,20 @@ cache:
 logs:
   build: ./logs/
 
-backend:
-  build: ./backend/
+fez:
+  build: ./backend/nginx/
+  links:
+    - fpm
+  ports:
+    - "8080:80"
+  volumes_from:
+    - fpm
+    - cache
+    - fedoradata
+    - logs
+
+fpm:
+  build: ./backend/fpm/
   environment:
     - APP_ENVIRONMENT=development
     - XDEBUG_CONFIG=idekey=fez
@@ -17,9 +29,6 @@ backend:
     - fedora
     - fedoradb
     - solr
-  ports:
-    - "8080:8080"
-  privileged: true
   volumes:
     - ../../:/var/app/current
   volumes_from:
@@ -36,12 +45,10 @@ fezdb:
     - MYSQL_DATABASE=fez
   ports:
     - "3306:3306"
+  volumes:
+    - data/mysql/fezdb:/var/lib/mysql
   volumes_from:
-    - fezdbdata
     - logs
-
-fezdbdata:
-  build: ./backend/db/data/
 
 fedora:
   build: ./fedora/
@@ -60,6 +67,7 @@ fedoradata:
   volumes:
     - /data/docker/fez/fedora:/espace/data
     - /data/docker/fez/espace_san:/espace_san
+
 fedoradb:
   build: ./fedora/db/
   environment:
@@ -70,21 +78,20 @@ fedoradb:
   ports:
     - "3307:3306"
   privileged: true
+  volumes:
+    - data/mysql/fedoradb:/var/lib/mysql
   volumes_from:
-    - fedoradbdata
     - logs
-
-fedoradbdata:
-  build: ./fedora/db/data/
 
 solr:
   build: ./solr/
   ports:
     - "8983:8983"
+  volumes:
+    - data/solr:/var/lib/solr
   volumes_from:
     - cache
-    - solrdata
     - logs
 
-solrdata:
-  build: ./solr/data/
+
+sed -i 's/DEFINER=[^*]*\*/\*/g' fez.sql

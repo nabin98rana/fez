@@ -60,4 +60,5 @@ init.php
 tests\application\features\bootstrap\LoginHelper.php
 .docker/development/logs/*
 .docker/development/tmp/*
+.docker/development/data/*
 public/testing.php

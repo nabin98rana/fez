@@ -1,4 +1,4 @@
-FROM uqlibrary/docker-base:latest
+FROM uqlibrary/docker-base:3
 
 RUN cd /var/cache/ && \
   mkdir -p file && \

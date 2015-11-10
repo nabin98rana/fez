@@ -1,4 +1,4 @@
-FROM mysql:latest
+FROM mysql:5.6.23
 
 COPY etc/mysql/default.cnf /etc/mysql/conf.d/default.cnf
 

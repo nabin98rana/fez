@@ -14,7 +14,11 @@ Add the following to your hosts file:
 
 Create the data directories:
 
-    $ sudo mkdir -p /data/docker/fez/fedora && \
+    $ cd /path/to/repo/.docker/development && \
+      mkdir -p data/mysql/fedoradb && \
+      mkdir -p data/mysql/fezdb && \
+      mkdir -p data/solr && \
+      sudo mkdir -p /data/docker/fez/fedora && \
       sudo mkdir -p /data/docker/fez/espace_san/incoming && \
       sudo chown -R 999:999 /data/docker/fez
 
@@ -52,7 +56,7 @@ NB: This datastore gets refreshed (rsync/hard) each day so it’s safe enough to b
 
 Start the docker container using docker-compose:
 
-    $ cd /var/shared/.docker/development
+    $ cd /path/to/repo/.docker/development
     $ docker-compose up -d
 
 Once the container is running open the following URL to test the container is working
@@ -67,11 +71,7 @@ Install fez using the onscreen setup the credentials at
 [http://dev-fez.library.uq.edu.au:8080/setup/](http://dev-fez.library.uq.edu.au:8080/setup/)
 
 This will create a config.inc.php for you and setup some basic configs, but you want to override all that 
-in the next mysql imports.
-
-You can run the "Upgrade" after this but it currently errors. That’s logged as a bug to be fixed ASAP but the mysql 
-commands in this setup next will negate that for us UQ developers, but only if we manually import fez_config from 
-e.g. espace_staging and then run the dev.fez.config.sql over the top of it.
+in the next mysql imports. Next run the "Upgrade" once the setup completes.
 
 Import the fez and fedora data into the two database servers (one for Fez, the other for Fedora). 
 The Fez one takes about 10 mins to load. The Fedora is less than a minute. The first command installs the preg 
@@ -79,11 +79,12 @@ functions (can’t get this into mysql-first-time.sql until docker update the offi
 initialisation SQL commands like they have with postgresql). The second strips the definers from the create 
 view statements (this will be moved somewhere else like the dump file later).
 
-    $ wget -O installdb.sql https://raw.githubusercontent.com/mysqludf/lib_mysqludf_preg/testing/installdb.sql && \
-    $ mysql -uroot -pdevelopment -h fezdb mysql < installdb.sql && \
-    $ sed -i 's/DEFINER=[^*]*\*/\*/g' fez.sql && \
-    $ mysql -uroot -pdevelopment -h fezdb fez < fez.sql && \
-    $ mysql -uroot -pdevelopment -h fezdb fez < dev.fez.config.sql && \
+    $ scp username@espacedbm3.library.uq.edu.au:/backup/espace_dev/* .
+    $ wget -O installdb.sql https://raw.githubusercontent.com/mysqludf/lib_mysqludf_preg/testing/installdb.sql
+    $ mysql -uroot -pdevelopment -h fezdb mysql < installdb.sql
+    $ sed -i 's/DEFINER=[^*]*\*/\*/g' fez.sql
+    $ mysql -uroot -pdevelopment -h fezdb fez < fez.sql
+    $ mysql -uroot -pdevelopment -h fezdb fez < dev.fez.config.sql
     $ mysql -uroot -pdevelopment -h fedoradb -P 3307 fedora3 < fedora3.sql
 
 Load up the fez site in your browser and reindex Solr, starting with the communities and collections.
