@@ -50,6 +50,7 @@ $name = trim($_GET['name']);
 $expires = trim($_GET['expires']);
 $status = trim($_GET['status']);
 $grant = trim($_GET['grant']);
+$detailsDump = trim($_GET['details']);
 
 $securityToken = $_SERVER['HTTP_X_API_TOKEN'];
 
@@ -81,8 +82,7 @@ if (!empty($list)) {
     echo json_encode($result);
     }
 } else if (!empty($grant)) {
-    $result = ApiResearchers::saveGrantInfo($author_username, $id_type, $name, $status, $expires, $value);
-    $result = ApiResearchers::changeId($author_username, $id, $id_type);
+    $result = ApiResearchers::saveGrantInfo($author_username, $id_type, $name, $status, $expires, $value, $detailsDump);
     echo json_encode(array("status" => "ok"));
 } else {
     $result = ApiResearchers::changeId($author_username, $id, $id_type);
