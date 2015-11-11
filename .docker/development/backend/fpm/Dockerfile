@@ -1,1 +1,1 @@
-FROM uqlibrary/docker-fpm56-fez:5
+FROM uqlibrary/docker-fpm56-fez:6
