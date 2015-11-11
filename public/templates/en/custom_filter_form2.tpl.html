@@ -22,7 +22,7 @@ function appendDatePickerToDateDropdown(dateText, inst)
     $('select[name="search_keys'+input_name+'[Month]"]').prop('selectedIndex', inst.selectedMonth);
 }
 
-/**
+/**custom_filter_form2.tpl.html
  * Clear search key values
  * @param f Form element
  */
@@ -302,7 +302,7 @@ function clearFilters(f) {
 
                         {html_select_date field_order='DMY' field_array="search_keys[$temp_sek_id][start]" prefix="" start_year="$app_earliest_input_year" end_year="+3" time=$last_key.start_date}
 
-                        {assign var="datepicker_input" value=datepicker[$temp_sek_id][start]}
+                        {assign var="datepicker_input" value="datepicker[$temp_sek_id][start]"}
                         <input type="hidden" name="{$datepicker_input}" value="" />
 
                         {* Instantiate datepicker for start date field *}
@@ -328,7 +328,7 @@ function clearFilters(f) {
                             <span>{$search_keys[i].sek_title}: <i>(End date)</i></span><br />
                             {html_select_date field_order='DMY' field_array="search_keys[$temp_sek_id][end]" prefix="" start_year="$app_earliest_input_year" end_year="+3" time=$last_key.end_date}
 
-                            {assign var="datepicker_input" value=datepicker[$temp_sek_id][end]}
+                            {assign var="datepicker_input" value="datepicker[$temp_sek_id][end]"}
                             <input type="hidden" name="{$datepicker_input}" value="" />
 
                             {* Instantiate datepicker for end date field *}
@@ -422,14 +422,14 @@ function clearFilters(f) {
             {assign var ="last_key" value=$options.$search_key_name}
         
             {if $custom_elements_to_hide != ""}
-                {assign var="custom_elements_to_hide" value=$custom_elements_to_hide,'search_keys[$temp_sek_id]'}
+                {assign var="custom_elements_to_hide" value="$custom_elements_to_hide,'search_keys[$temp_sek_id]'"}
             {else}
-                {assign var="custom_elements_to_hide" value=$custom_elements_to_hide'search_keys[$temp_sek_id]'}
+                {assign var="custom_elements_to_hide" value="$custom_elements_to_hide'search_keys[$temp_sek_id]'"}
             {/if}
         {/if}
     {/section}
 
-    var elements_to_hide = new Array({$custom_elements_to_hide|smarty:nodefaults});
+    var elements_to_hide = new Array({$custom_elements_to_hide nofilter});
     {literal}
     for (var i = 0; i < elements_to_hide.length; i++) {
         toggleVisibility(elements_to_hide[i]);

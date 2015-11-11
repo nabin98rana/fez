@@ -3,7 +3,7 @@
 {if $smarty.const.APP_ENABLE_FLASH_UPLOADER_SWITCH == 'ON'}
     <tbody id="flash_file_uploader_rows" style="display:none">
         <tr>
-            <td colspan="2" width="200" bgcolor="{$cell_color}" class="default" valign="top"><strong>{$xsd_display_fields[i].xsdmf_title}{if $xsd_display_fields[i].xsdmf_required == 1} * {/if}</strong><br /><i>{$xsd_display_fields[i].xsdmf_description|smarty:nodefaults}</i></td>
+            <td colspan="2" width="200" bgcolor="{$cell_color}" class="default" valign="top"><strong>{$xsd_display_fields[i].xsdmf_title}{if $xsd_display_fields[i].xsdmf_required == 1} * {/if}</strong><br /><i>{$xsd_display_fields[i].xsdmf_description nofilter}</i></td>
         </tr>
         <tr>
             <td colspan="2" bgcolor="{$value_color}" class="default">
@@ -56,7 +56,7 @@
                                 {rdelim});
                 </script>
             </td>
-            {include file='workflow/compare_records_helpers/get_right_column.tpl.html input_field_name="xsd_display_fields["|cat:$xsdmf.xsdmf_id|cat:"][]"}
+            {include file='workflow/compare_records_helpers/get_right_column.tpl.html' input_field_name="xsd_display_fields["|cat:$xsdmf.xsdmf_id|cat:"][]"}
         </tr>
     </tbody>
 {/if}
@@ -92,7 +92,7 @@
                                            onChange="javascript:unhideRow('xsd_display_fields_{$xsd_display_fields[a].xsdmf_id}', 'edit_metadata_form_table');">
                                     {include file="error_icon.tpl.html" field="xsd_display_fields["|cat:$xsd_display_fields[a].xsdmf_id|cat:"][]"}
                                     {if $xsd_display_fields[a].xsdmf_long_description != ""}
-                                        <span class="default">{$xsd_display_fields[a].xsdmf_long_description|smarty:nodefaults}</span>
+                                        <span class="default">{$xsd_display_fields[a].xsdmf_long_description nofilter}</span>
                                     {/if}
                                 {/if}
                             {/if}
@@ -110,7 +110,7 @@
                     {/if}
                     *}
                 </td>
-                {include file='workflow/compare_records_helpers/get_right_column.tpl.html input_field_name="xsd_display_fields["|cat:$xsdmf.xsdmf_id|cat:"][]"}
+                {include file='workflow/compare_records_helpers/get_right_column.tpl.html' input_field_name="xsd_display_fields["|cat:$xsdmf.xsdmf_id|cat:"][]"}
             </tr>
         {/section}
     {else}
@@ -146,7 +146,7 @@
                 *}
                 
             </td>
-            {include file='workflow/compare_records_helpers/get_right_column.tpl.html input_field_name="xsd_display_fields["|cat:$xsdmf.xsdmf_id|cat:"]"}
+            {include file='workflow/compare_records_helpers/get_right_column.tpl.html' input_field_name="xsd_display_fields["|cat:$xsdmf.xsdmf_id|cat:"]"}
         </tr>
     {/if}
 </tbody>

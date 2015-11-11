@@ -3,7 +3,7 @@
 				  <td width="200" bgcolor="{$cell_color}" class="default">
 					<b>{$xsdmf.xsdmf_title} {if $xsdmf.xsdmf_required == 1} * {/if}</b>
 					{if $xsd_display_fields[i].xsdmf_description != ""}
-						<br /><i>{$xsd_display_fields[i].xsdmf_description|smarty:nodefaults}</i>
+						<br /><i>{$xsd_display_fields[i].xsdmf_description nofilter}</i>
 					{/if}
 				  </td>
                 <td nowrap bgcolor="{$value_color}">
@@ -57,6 +57,6 @@
 		            </script>
         		    {/if}
                 </td>
- 				  {include file='workflow/compare_records_helpers/get_right_column.tpl.html input_field_name="xsd_display_fields[$temp_xsdmf_id]"}
+ 				  {include file="workflow/compare_records_helpers/get_right_column.tpl.html" input_field_name="xsd_display_fields[$temp_xsdmf_id]"}
               </tr>
 {/if}

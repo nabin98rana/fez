@@ -7,7 +7,7 @@
 							<b><label for="tr_xsd_display_fields_{$xsdmf.xsdmf_id}_{$loop_num}">{$xsdmf.xsdmf_title} {$loop_num}</label></b>{if $xsdmf.xsdmf_required == 1} * {/if}
 							{if $loop_num == 1}
 							{if $xsdmf.xsdmf_description != ""}
-								<br /><i>{$xsdmf.xsdmf_description|smarty:nodefaults}</i>
+								<br /><i>{$xsdmf.xsdmf_description nofilter}</i>
 							{/if}
 							<i><br />(More {$xsdmf.xsdmf_title} input boxes will appear as you type)</i>
 							{/if}
@@ -15,18 +15,18 @@
 						  <td bgcolor="{$value_color}">
 							{assign var="fckpath" value=$rel_url|cat:"js/fckeditor/"}
 							{assign var="InstanceName" value="xsd_display_fields["|cat:$xsd_display_fields[i].xsdmf_id|cat:"][]"}
-							{if isset($details[$temp_fld_id][$loop_num]|smarty:nodefaults)}
-								{assign var="FckValue" value=$details[$temp_fld_id][$loop_num]|smarty:nodefaults}
+							{if isset($details[$temp_fld_id][$loop_num])}
+								{assign var="FckValue" value=$details[$temp_fld_id][$loop_num]}
 							{else}
 								{assign var="FckValue" value=""}
 							{/if}
-							{fckeditor BasePath=$fckpath InstanceName=$InstanceName Width="705px" Height="180px" ToolbarSet="FezBasic" Value=$FckValue|smarty:nodefaults}
+							{fckeditor BasePath=$fckpath InstanceName=$InstanceName Width="705px" Height="180px" ToolbarSet="FezBasic" Value="$FckValue"}
 							{include file="error_icon.tpl.html" field="xsd_display_fields["|cat:$xsdmf.xsdmf_id|cat:"][]"}
 							{if $xsdmf.xsdmf_long_description != ""}
-							  <span class="default">{$xsdmf.xsdmf_long_description|smarty:nodefaults}</span>
+							  <span class="default">{$xsdmf.xsdmf_long_description nofilter}</span>
 							{/if}
 						 </td>
-				        {include file='workflow/compare_records_helpers/get_right_column.tpl.html input_field_name="xsd_display_fields["|cat:$xsdmf.xsdmf_id|cat:"][]"}
+				        {include file='workflow/compare_records_helpers/get_right_column.tpl.html' input_field_name="xsd_display_fields["|cat:$xsdmf.xsdmf_id|cat:"][]"}
 						</tr>
 					{/section}
 {else}
@@ -34,23 +34,23 @@
 						  <td width="200" bgcolor="{$cell_color}" class="default">
 							<b><label for="tr_xsd_display_fields_{$xsdmf.xsdmf_id}_0">{$xsdmf.xsdmf_title}{if $xsdmf.xsdmf_required == 1} * {/if}</label></b>
 							{if $xsdmf.xsdmf_description != ""}
-								<br /><i>{$xsdmf.xsdmf_description|smarty:nodefaults}</i>
+								<br /><i>{$xsdmf.xsdmf_description nofilter}</i>
 							{/if}
 						  </td>
 						  <td bgcolor="{$value_color}">
 							{assign var="fckpath" value=$rel_url|cat:"js/fckeditor/"}
 							{assign var="InstanceName" value="xsd_display_fields["|cat:$xsdmf.xsdmf_id|cat:"]"}
-							{if isset($details[$temp_fld_id]|smarty:nodefaults)}
-								{assign var="FckValue" value=$details[$temp_fld_id]|smarty:nodefaults}
+							{if isset($details[$temp_fld_id])}
+								{assign var="FckValue" value=$details[$temp_fld_id]}
 							{else}
 								{assign var="FckValue" value=""}
 							{/if}
-							{fckeditor BasePath=$fckpath InstanceName=$InstanceName Width="705px" Height="180px" ToolbarSet="FezBasic" Value=$FckValue|smarty:nodefaults}
+							{fckeditor BasePath=$fckpath InstanceName=$InstanceName Width="705px" Height="180px" ToolbarSet="FezBasic" Value="$FckValue"}
 							{include file="error_icon.tpl.html" field="xsd_display_fields["|cat:$xsdmf.xsdmf_id|cat:"]"}
 							{if $xsdmf.xsdmf_long_description != ""}
-								<span class="default">{$xsdmf.xsdmf_long_description|smarty:nodefaults}</span>
+								<span class="default">{$xsdmf.xsdmf_long_description nofilter}</span>
 							{/if}
 						 </td>
-				        {include file='workflow/compare_records_helpers/get_right_column.tpl.html  input_field_name="xsd_display_fields["|cat:$xsdmf.xsdmf_id|cat:"]"}
+				        {include file='workflow/compare_records_helpers/get_right_column.tpl.html'  input_field_name="xsd_display_fields["|cat:$xsdmf.xsdmf_id|cat:"]"}
 						</tr>
 {/if}

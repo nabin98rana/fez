@@ -18,15 +18,15 @@
         </th>
     </tr>
 
-    {foreach from=$display_data|smarty:nodefaults key=key item=data}
+    {foreach from=$display_data nofilter key=key item=data}
         <tr valign="top">
             <th align="right">{$data.xsdmf_title}: </th>
             <td align="left">
-                {foreach from=$data.value|smarty:nodefaults item=value}
-                    {$value|smarty:nodefaults}
+                {foreach from=$data.value nofilter item=value}
+                    {$value nofilter}
                     <br>
                 {foreachelse}
-                    {$data.value|smarty:nodefaults}
+                    {$data.value nofilter}
                 {/foreach}
             </td>
         </tr>

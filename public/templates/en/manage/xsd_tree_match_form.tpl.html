@@ -1,6 +1,6 @@
 {include file="header.tpl.html"}
               <script language="JavaScript">
-              {$najax_register|smarty:nodefaults}
+              {$najax_register nofilter}
               {literal}
 			  <!--
               var editing_option_id = -1;
@@ -891,7 +891,7 @@
                   <b>Label Description:</b>
                 </td>
                 <td bgcolor="{$light_color}">
-                  <input type="text" name="description" size="50" class="default" value="{$info.xsdmf_description|smarty:nodefaults}">
+                  <input type="text" name="description" size="50" class="default" value="{$info.xsdmf_description nofilter}">
                   <span class="small_default">(it will show up by the side of the title)</span>
                 </td>
               </tr>
@@ -900,7 +900,7 @@
                   <b>Field Description:</b>
                 </td>
                 <td bgcolor="{$light_color}">
-                  <textarea name="long_description" rows="10" cols="60" class="default">{$info.xsdmf_long_description|smarty:nodefaults}</textarea>
+                  <textarea name="long_description" rows="10" cols="60" class="default">{$info.xsdmf_long_description nofilter}</textarea>
                   <span class="small_default">(it will show up by the side of the field control)</span>
                 </td>
               </tr>

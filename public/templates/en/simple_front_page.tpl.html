@@ -100,7 +100,7 @@
 			{/if}
 					<li>
 					{if $list[i].rek_citation != ""}
-					{$list[i].rek_citation|smarty:nodefaults}
+					{$list[i].rek_citation nofilter}
 					{else}
 					{if $href_view}<a href='{$href_view}' >{/if}
 					{$list[i].rek_title}
