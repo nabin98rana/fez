@@ -113,7 +113,7 @@ function loadPreview(pid,datastreamID, alt, origami)
 			  <td>
 				  <h1>{$title}</h1>
 				  {if $citation != ""}
-					<span>{$citation|smarty:nodefaults}</span>
+					<span>{$citation nofilter}</span>
 					<br /><br />
 				  {/if}
 			  </td>

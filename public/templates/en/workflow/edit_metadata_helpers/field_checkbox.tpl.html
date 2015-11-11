@@ -11,10 +11,10 @@
 			name="xsd_display_fields[{$xsdmf.xsdmf_id}][]" {if $details[$temp_fld_id][z] =='on'}checked{/if} onKeyUp="javascript:unhideRow('xsd_display_fields_{$xsdmf.xsdmf_id}', 'choicexsd_display_fields_{$xsdmf.xsdmf_id}');" onChange="javascript:unhideRow('xsd_display_fields_{$xsdmf.xsdmf_id}', 'choicexsd_display_fields_{$xsdmf.xsdmf_id}');">
 			{include file="error_icon.tpl.html" field="xsd_display_fields["|cat:$xsdmf.xsdmf_id|cat:"][]"}
 			{if $xsdmf.xsdmf_long_description != ""}
-				<span class="default">{$xsdmf.xsdmf_long_description|smarty:nodefaults}</span>
+				<span class="default">{$xsdmf.xsdmf_long_description nofilter}</span>
 			{/if}
 		 </td>
-        {include file='workflow/compare_records_helpers/get_right_column.tpl.html input_field_name="xsd_display_fields["|cat:$xsdmf.xsdmf_id|cat:"][]"}
+        {include file='workflow/compare_records_helpers/get_right_column.tpl.html' input_field_name="xsd_display_fields["|cat:$xsdmf.xsdmf_id|cat:"][]"}
 		</tr>
 	{/section}
 {else}
@@ -22,7 +22,7 @@
 		  <td width="200" bgcolor="{$cell_color}" class="default">
 			<b><label for="xsd_display_fields_{$xsdmf.xsdmf_id}_0">{$xsdmf.xsdmf_title} {if $xsdmf.xsdmf_required == 1} * {/if}</label></b>
             {if $xsd_display_fields[i].xsdmf_description != ""}
-                <br /><i>{$xsd_display_fields[i].xsdmf_description|smarty:nodefaults}</i>
+                <br /><i>{$xsd_display_fields[i].xsdmf_description nofilter}</i>
             {/if}
 		  </td>
 		  <td bgcolor="{$value_color}">
@@ -30,9 +30,9 @@
 		  name="xsd_display_fields[{$xsdmf.xsdmf_id}]" {if $details[$temp_fld_id] == 'on'}checked{/if}>
 		      {include file="error_icon.tpl.html" field="xsd_display_fields["|cat:$xsdmf.xsdmf_id|cat:"]"}
 			{if $xsdmf.xsdmf_long_description != ""}
-				<span class="default">{$xsdmf.xsdmf_long_description|smarty:nodefaults}</span>
+				<span class="default">{$xsdmf.xsdmf_long_description nofilter}</span>
 			{/if}
 		 </td>
-  {include file='workflow/compare_records_helpers/get_right_column.tpl.html  input_field_name="xsd_display_fields["|cat:$xsdmf.xsdmf_id|cat:"]"}
+  {include file='workflow/compare_records_helpers/get_right_column.tpl.html'  input_field_name="xsd_display_fields["|cat:$xsdmf.xsdmf_id|cat:"]"}
 		</tr>
 {/if}

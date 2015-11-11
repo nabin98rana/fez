@@ -9,13 +9,13 @@ The following are the thesis details that have been submitted:
 {* Submission details *}
 Submitted Details:
 ---------------
-{foreach from=$display_data|smarty:nodefaults key=key item=data}
+{foreach from=$display_data nofilter key=key item=data}
     {$data.xsdmf_title} :
-    {foreach from=$data.value|smarty:nodefaults item=value}
-        {$value|smarty:nodefaults}
+    {foreach from=$data.value nofilter item=value}
+        {$value nofilter}
 
     {foreachelse}
-        {$data.value|smarty:nodefaults}
+        {$data.value nofilter}
 
     {/foreach}
 {foreachelse}

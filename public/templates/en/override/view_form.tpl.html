@@ -44,7 +44,7 @@ function loadPreview(pid,datastreamID, alt, origami)
 {literal}
 <script type="text/javascript">
     var x = noty({
-        text: '{/literal}{$outstandingStatus|smarty:nodefaults|escape:'javascript'}{literal}',
+        text: '{/literal}{$outstandingStatus nofilter|escape:'javascript'}{literal}',
         type: 'warning',
         dismissQueue: true,
         modal: false,
@@ -105,7 +105,7 @@ function loadPreview(pid,datastreamID, alt, origami)
 			  <td>
 				  <h1>{$title}</h1>
 				  {if $citation != ""}
-					<span>{$citation|smarty:nodefaults}</span>
+					<span>{$citation nofilter}</span>
 					<br /><br />
 				  {/if}
 			  </td>
@@ -198,7 +198,7 @@ function loadPreview(pid,datastreamID, alt, origami)
 							<a href='{$wf_url}?pid={$pid}&amp;cat=select_workflow&amp;xdis_id={$xdis_id}&amp;wft_id={$workflows[w].wft_id}&amp;href={$smarty.server.REQUEST_URI}'><img title="{$workflows[w].wfl_title}" src="{$rel_url}{$wf_icon}" alt="{$workflows[w].wfl_title}" /></a>
 						{/if}
 					  {/section}
-					  <a href="{$rel_url}workflow/list_workflows2.php?pid={$pid}&amp;href={$smarty.server.REQUEST_URI|smarty:nodefaults|escape:url}"><img src="{$rel_url}images/options_16.png" alt="More options" title="More options" width="16" height="16" /></a>
+					  <a href="{$rel_url}workflow/list_workflows2.php?pid={$pid}&amp;href={$smarty.server.REQUEST_URI nofilter|escape:url}"><img src="{$rel_url}images/options_16.png" alt="More options" title="More options" width="16" height="16" /></a>
 				  </td>
 		        </tr>
 		{/if}
@@ -483,7 +483,7 @@ function loadPreview(pid,datastreamID, alt, origami)
           </tr>
 
           <tr>
-            <td colspan="5" style="background: {$cell_color}">{$datasetTree|smarty:nodefaults}</td>
+            <td colspan="5" style="background: {$cell_color}">{$datasetTree nofilter}</td>
           </tr>
         <tr>
           <td colspan="5">&nbsp;</td>
@@ -548,7 +548,7 @@ function loadPreview(pid,datastreamID, alt, origami)
                       <a href='{$wf_url}?pid={$pid}&amp;cat=select_workflow&amp;xdis_id={$xdis_id}&amp;wft_id={$workflows[w].wft_id}&amp;href={$smarty.server.REQUEST_URI}'><img title="{$workflows[w].wfl_title}" src="{$rel_url}{$wf_icon}" alt="{$workflows[w].wfl_title}" /></a>
                       {/if}
                       {/section}
-                      <a href="{$rel_url}workflow/list_workflows2.php?pid={$pid}&amp;href={$smarty.server.REQUEST_URI|smarty:nodefaults|escape:url}"><img src="{$rel_url}images/options_16.png" alt="More options" title="More options" width="16" height="16" /></a>
+                      <a href="{$rel_url}workflow/list_workflows2.php?pid={$pid}&amp;href={$smarty.server.REQUEST_URI nofilter|escape:url}"><img src="{$rel_url}images/options_16.png" alt="More options" title="More options" width="16" height="16" /></a>
                   </td>
               </tr>
               {/if}
@@ -621,7 +621,7 @@ function loadPreview(pid,datastreamID, alt, origami)
 		  </tr>
 
 		  <tr>
-			<td colspan="5" style="background: {$cell_color}">{$derivationTree|smarty:nodefaults}</td>
+			<td colspan="5" style="background: {$cell_color}">{$derivationTree nofilter}</td>
 		  </tr>
 	{/if}
 

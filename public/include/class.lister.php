@@ -1164,7 +1164,7 @@ class Lister
 
         $tpl->assign('PAGE_URL', $PAGE_URL);
 
-    if ($tpl->smarty->get_template_vars('active_nav') == '') {
+    if ($tpl->smarty->getTemplateVars('active_nav') == '') {
 			$tpl->assign("active_nav", "list");
         }
         if ($username) {

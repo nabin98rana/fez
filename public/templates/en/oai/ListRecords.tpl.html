@@ -73,7 +73,7 @@
 		<registryObject group="{$org_name}">
 			<key>{$app_hostname}/view/{$list[i].rek_pid}</key>
 			<originatingSource>{$app_hostname}</originatingSource>
-			<collection type="{$list[i].rek_ands_collection_type_lookup|smarty:nodefaults|strip_tags:false|escape:'html'}" dateAccessioned="{$list[i].rek_created_date}" dateModified="{$list[i].rek_updated_date}">
+			<collection type="{$list[i].rek_ands_collection_type_lookup nofilter|strip_tags:false|escape:'html'}" dateAccessioned="{$list[i].rek_created_date}" dateModified="{$list[i].rek_updated_date}">
       {if $list[i].rek_handle}
 			<identifier type="handle">hdl.handle.net/{$list[i].rek_handle}</identifier>
       {/if}
@@ -305,19 +305,19 @@
 			      {/if}
 			{/if}
 			{if $list[i].rek_description}
-			      <description type="full">{$list[i].rek_description|smarty:nodefaults|strip_tags:false|escape:"html"}</description>
+			      <description type="full">{$list[i].rek_description nofilter|strip_tags:false|escape:"html"}</description>
 			{/if}
 			{if $list[i].rek_extent}
-			      <description type="brief">{$list[i].rek_extent|smarty:nodefaults|strip_tags:false|escape:"html"}</description>
+			      <description type="brief">{$list[i].rek_extent nofilter|strip_tags:false|escape:"html"}</description>
 			{/if}
 			{if $list[i].rek_rights}
 			     <description type="rights">&#xA9;{$list[i].rek_rights|trim}</description>
 			{/if}
 			{if $list[i].rek_access_conditions}
-			      <description type="accessRights">{$list[i].rek_access_conditions_lookup|smarty:nodefaults|strip_tags:false|escape:"html"}</description>
+			      <description type="accessRights">{$list[i].rek_access_conditions_lookup nofilter|strip_tags:false|escape:"html"}</description>
 			 {/if}
             {if $list[i].rek_license}
-                 <description type="accessRights">{$list[i].rek_license_lookup|smarty:nodefaults|strip_tags:false|escape:"html"}</description>
+                 <description type="accessRights">{$list[i].rek_license_lookup nofilter|strip_tags:false|escape:"html"}</description>
             {/if}
 			{if $list[i].rek_notes}
 			      {if !is_array($list[i].rek_notes)}
@@ -392,9 +392,9 @@
 	{if $list[i].rek_long_description || $list[i].rek_description}
 		<dc:description>
 		{if $list[i].rek_long_description}
-			{$list[i].rek_long_description|smarty:nodefaults|strip_tags:false|escape:"html"}
+			{$list[i].rek_long_description nofilter|strip_tags:false|escape:"html"}
 		{else}
-			{$list[i].rek_description|smarty:nodefaults|strip_tags:false|escape:"html"}
+			{$list[i].rek_description nofilter|strip_tags:false|escape:"html"}
 		{/if}
 		</dc:description>
 	{/if}

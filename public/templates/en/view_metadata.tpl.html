@@ -32,13 +32,13 @@
 						</th>
 						<td>
 							{if $xsd_display_fields[i].xsdmf_title == 'Handle'}
-								<a href="{$xsd_display_fields[i].xsdmf_value_prefix|smarty:nodefaults|escape:url}{$details[$temp_fld_id]|smarty:nodefaults|escape:url}">{$xsd_display_fields[i].xsdmf_value_prefix}{$details[$temp_fld_id]}</a>
+								<a href="{$xsd_display_fields[i].xsdmf_value_prefix|escape:url nofilter}{$details[$temp_fld_id]|escape:url nofilter}">{$xsd_display_fields[i].xsdmf_value_prefix}{$details[$temp_fld_id]}</a>
 							{elseif $xsd_display_fields[i].xsdmf_html_input == 'rich_text'}
 							<div class="possibly_long">
-								{$xsd_display_fields[i].xsdmf_value_prefix}{$details[$temp_fld_id]|smarty:nodefaults}
+								{$xsd_display_fields[i].xsdmf_value_prefix}{$details[$temp_fld_id] nofilter}
 							</div>
 							{else}
-                {$xsd_display_fields[i].xsdmf_value_prefix}{$details[$temp_fld_id]|smarty:nodefaults}
+                {$xsd_display_fields[i].xsdmf_value_prefix}{$details[$temp_fld_id] nofilter}
 							{/if}
 						</td>
 					</tr>

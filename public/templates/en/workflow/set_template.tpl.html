@@ -36,7 +36,7 @@ function openDetailPage()
 <script language="JavaScript" src="{/literal}{$rel_url}{literal}js/yahoo/utilities.js"></script>
 <script language="JavaScript" src="{/literal}{$rel_url}{literal}js/yahoo/autocomplete.js"></script>
 <script language="JavaScript">
-{/literal}{$najax_register|smarty:nodefaults}{literal}
+{/literal}{$najax_register nofilter}{literal}
 <!--
 var required_xsd_display_fields = new Array();
 var xsd_display_fields = new Array();
@@ -263,7 +263,7 @@ function selectDateField(field_name, day, month, year)
 		{if $xsd_display_fields[i].xsdmf_html_input == 'file_input' && $xsd_display_fields[i].xsdmf_enabled == 1}
 		{if $smarty.const.APP_ENABLE_FLASH_UPLOADER_SWITCH == 'ON'}
 		<tr id="flash_file_uploader_rows" style="display:none">
-			<th><strong>{$xsd_display_fields[i].xsdmf_title} {if $xsd_display_fields[i].xsdmf_required == 1} * {/if} </strong><br /><i>{$xsd_display_fields[i].xsdmf_description|smarty:nodefaults}</i></th>
+			<th><strong>{$xsd_display_fields[i].xsdmf_title} {if $xsd_display_fields[i].xsdmf_required == 1} * {/if} </strong><br /><i>{$xsd_display_fields[i].xsdmf_description nofilter}</i></th>
 			<td>
 				{include file="error_icon.tpl.html" field="uploader_files_uploaded"}
 				<div id="uploader_file_table_container" style="display:none;">
@@ -359,7 +359,7 @@ function selectDateField(field_name, day, month, year)
 						<input class="default" type="checkbox" id="xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_{$loop_num}" name="xsd_display_fields[{$xsd_display_fields[i].xsdmf_id}][]" onKeyUp="javascript:unhideRow('xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}', 'choicexsd_display_fields_{$xsd_display_fields[i].xsdmf_id}');" onChange="javascript:unhideRow('xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}', 'choicexsd_display_fields_{$xsd_display_fields[i].xsdmf_id}');" {if $xsd_display_fields[i].xsdmf_cso_value == 'checked'}checked{/if}>
 							{include file="error_icon.tpl.html" field="xsd_display_fields["|cat:$xsd_display_fields[i].xsdmf_id|cat:"][]"}
 							{if $xsd_display_fields[i].xsdmf_long_description != ""}
-								<span class="default">{$xsd_display_fields[i].xsdmf_long_description|smarty:nodefaults}</span>
+								<span class="default">{$xsd_display_fields[i].xsdmf_long_description nofilter}</span>
 							{/if}
 
 						 </td>
@@ -374,7 +374,7 @@ function selectDateField(field_name, day, month, year)
 						<input class="default" type="checkbox" id="xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_0" name="xsd_display_fields[{$xsd_display_fields[i].xsdmf_id}]" {if $xsd_display_fields[i].xsdmf_cso_value == 'checked'}checked{/if}>
 						{include file="error_icon.tpl.html" field="xsd_display_fields["|cat:$xsd_display_fields[i].xsdmf_id|cat:"]"}
 							{if $xsd_display_fields[i].xsdmf_long_description != ""}
-								<span class="default">{$xsd_display_fields[i].xsdmf_long_description|smarty:nodefaults}</span>
+								<span class="default">{$xsd_display_fields[i].xsdmf_long_description nofilter}</span>
 							{/if}
 
 						 </td>
@@ -489,7 +489,7 @@ function selectDateField(field_name, day, month, year)
 				           {include file="error_icon.tpl.html" 
                                                field="xsd_display_fields["|cat:$xsd_display_fields[i].xsdmf_id|cat:"]"}
                                            {if $xsd_display_fields[i].xsdmf_long_description != ""}
-  	                                    <div class="default">{$xsd_display_fields[i].xsdmf_long_description|smarty:nodefaults}</div>
+  	                                    <div class="default">{$xsd_display_fields[i].xsdmf_long_description nofilter}</div>
                                            {/if}
                                           </td>
                                         </tr>

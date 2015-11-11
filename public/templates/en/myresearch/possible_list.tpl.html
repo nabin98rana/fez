@@ -189,7 +189,7 @@ function checkAll()
                 {/if}
 				{/if}
 				{if $list[i].rek_citation != ""}
-					{$list[i].rek_citation|smarty:nodefaults}
+					{$list[i].rek_citation nofilter}
 				{else}
 					<a href="{$rel_url}view/{$list[i].rek_pid}" target="_blank">{$list[i].rek_title}</a>
 				{/if}
@@ -296,7 +296,7 @@ function checkAll()
 
 	{sectionelse}
 		{if $author_id_message != ''}
-		<p>{$author_id_message|smarty:nodefaults}</p>
+		<p>{$author_id_message nofilter}</p>
 		{else}
 		<p>We could not find any publications that we suspect might be yours.</p>
 		{/if}
