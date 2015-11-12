@@ -1,4 +1,4 @@
-CREATE TABLE %TABLE_PREFIXrecord_search_key_retracted (
+CREATE TABLE %TABLE_PREFIX%record_search_key_retracted (
   rek_retracted_id int(11) NOT NULL auto_increment,
   rek_retracted_pid varchar(64) default NULL,
   rek_retracted_xsdmf_id int(11) default NULL,
