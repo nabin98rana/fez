@@ -58,18 +58,14 @@ Now mount them:
     $ sudo mount /data/docker/fez/fedora
     $ sudo mount /data/docker/fez/espace_san
 
-NB: This datastore gets refreshed (rsync/hard) each day so it’s safe enough to be a little destructive.
+NB: This datastore gets refreshed (rsync/hard) each day so it's safe enough to be a little destructive.
 
 Start the docker container using docker-compose:
 
     $ cd /path/to/repo/.docker/development
     $ docker-compose up -d
 
-Once the container is running open the following URL to test the container is working
-
-    $ curl -v http://dev-fez.library.uq.edu.au:8080/api/ping
-
-If all is well, you should see the response "pong".
+Once the containers are running proceed with the setup steps below.
 
 ## Setup
 
@@ -81,7 +77,7 @@ in the next mysql imports. Next run the "Upgrade" once the setup completes.
 
 Import the fez and fedora data into the two database servers (one for Fez, the other for Fedora). 
 The Fez one takes about 10 mins to load. The Fedora is less than a minute. The first command installs the preg 
-functions (can’t get this into mysql-first-time.sql until docker update the official mysql container with 
+functions (can't get this into mysql-first-time.sql until docker update the official mysql container with 
 initialisation SQL commands like they have with postgresql). The second strips the definers from the create 
 view statements (this will be moved somewhere else like the dump file later).
 
