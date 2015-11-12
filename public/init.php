@@ -36,7 +36,7 @@
 ini_set('allow_url_fopen', 0);
 ini_set("display_errors", 0); // LKDB - tmp (was 1)
 //error_reporting(1);
-error_reporting(E_ALL & ~E_NOTICE & ~E_STRICT);
+error_reporting(E_ALL & ~E_NOTICE & ~E_STRICT & ~E_DEPRECATED & ~E_WARNING);
 set_time_limit(0);
 date_default_timezone_set("Australia/Brisbane");
 
