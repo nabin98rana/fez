@@ -1,10 +1,11 @@
 FROM uqlibrary/docker-base:3
 
 RUN cd /var/cache/ && \
-  mkdir -p file && \
-  mkdir -p solr_upload && \
-  mkdir -p templates_c && \
-  mkdir -p xdebug
+  mkdir file && \
+  mkdir solr_upload && \
+  mkdir templates_c && \
+  mkdir xdebug && \
+  mkdir tmp
 
 VOLUME /var/cache
 
