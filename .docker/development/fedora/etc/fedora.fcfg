@@ -139,7 +139,7 @@ https://wiki.duraspace.org/display/FEDORA36/Spring+Security
       <comment>The java class used to determine the path algorithm; 
 			default is org.fcrepo.server.storage.lowlevel.TimestampPathAlgorithm.</comment>
     </param>
-    <param name="object_store_base" value="data/objects" isFilePath="true">
+    <param name="object_store_base" value="/data/objects" isFilePath="true">
       <comment>The root directory for the internal storage of Fedora 
 			objects. This value should be adjusted based on your installation 
 			environment. This value should not point to the same location as 
@@ -153,7 +153,7 @@ https://wiki.duraspace.org/display/FEDORA36/Spring+Security
 			tables, if running under Windows/DOS. (Set to true for MySQL and 
 			Postgresql, false for Derby and Oracle)</comment>
     </param>
-    <param name="datastream_store_base" value="data/datastreams" isFilePath="true">
+    <param name="datastream_store_base" value="/data/datastreams" isFilePath="true">
       <comment>The root directory for the internal storage of Managed 
 			Content datastreams. This value should be adjusted based on your 
 			installation environment. This value should not point to the same 

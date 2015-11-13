@@ -1,7 +1,9 @@
 FROM uqlibrary/docker-base:3
 
-RUN mkdir -p /espace/data
+RUN mkdir -p /data/objects && \
+    mkdir /data/datastreams && \
+    chmod -R 777 /data
 
-VOLUME /espace/data
+VOLUME /data
 
 ENTRYPOINT /usr/bin/tail -f /dev/null
