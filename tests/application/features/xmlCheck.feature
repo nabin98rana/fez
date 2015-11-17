@@ -34,5 +34,5 @@ Feature: Test that xml is well formed
   #this checks direct fedora file access is working ok
   And I login as administrator
   And I go to the test journal article view page
-  And I press "Preservation metadata"
+  And I follow "Preservation metadata"
   And I check the current page is valid XML
