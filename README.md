@@ -23,43 +23,8 @@ Create the data directories:
     $ cd /path/to/repo/.docker/development && \
       mkdir -p data/mysql/fedoradb && \
       mkdir -p data/mysql/fezdb && \
-      mkdir -p data/solr && \
-      sudo mkdir -p /data/docker/fez/fedora && \
-      sudo mkdir -p /data/docker/fez/espace_san/incoming && \
-      sudo chown -R 999:999 /data/docker/fez
-
-Mount the eSpace staging Fedora datastore (xml, pdfs etc) and production SAN into your docker host by adding 
-the following to your /etc/fstab changing the uid and gid to the user/group you run docker with: 
-    
-    //libzoo.library.uq.edu.au/espacestage/data   /data/docker/fez/fedora       cifs   noauto,credentials=/root/libzoo.credentials,uid=1000,gid=1000,rw          0 0
-    //lib-staff.library.uq.edu.au/espace          /data/docker/fez/espace_san   cifs   auto,credentials=/root/espace.credentials,workgroup=uq,uid=48,gid=10,ro   0 0
-
-Create the credentials file used in the mount command above:
-
-    $ vi /root/libzoo.credentials
-    $ vi /root/espace.credentials
-
-The files above should contain the username/password on a separate line. For libzoo.credentials:
-
-    domain=libzoo
-    username=user
-    password=pass
-
-And for espace.credentials:
-
-    domain=UQ
-    username=user
-    password=pass
-
-NB: The real credentials are stored in corporate vault.
-
-Now mount them:
-
-    $ sudo mount /data/docker/fez/fedora
-    $ sudo mount /data/docker/fez/espace_san
-
-NB: This datastore gets refreshed (rsync/hard) each day so it's safe enough to be a little destructive.
-
+      mkdir -p data/solr
+      
 Start the docker container using docker-compose:
 
     $ cd /path/to/repo/.docker/development
@@ -72,39 +37,27 @@ Once the containers are running proceed with the setup steps below.
 Install fez using the onscreen setup the credentials at 
 [http://dev-fez.library.uq.edu.au:8080/setup/](http://dev-fez.library.uq.edu.au:8080/setup/)
 
-This will create a config.inc.php for you and setup some basic configs, but you want to override all that 
-in the next mysql imports. Next run the "Upgrade" once the setup completes.
+This will create a config.inc.php for you and setup some basic configs. Next run the "Upgrade" once the setup completes. 
+NB: When the upgrade finishes skip running the sanity check until the fez database has been seeded.
 
-Import the fez and fedora data into the two database servers (one for Fez, the other for Fedora). 
-The Fez one takes about 10 mins to load. The Fedora is less than a minute. The first command installs the preg 
-functions (can't get this into mysql-first-time.sql until docker update the official mysql container with 
-initialisation SQL commands like they have with postgresql). The second strips the definers from the create 
-view statements (this will be moved somewhere else like the dump file later).
+Next seed the fez database:
 
-    $ scp username@espacedbm3.library.uq.edu.au:/backup/espace_dev/* .
-    $ gunzip *.gz
-    $ wget -O installdb.sql https://raw.githubusercontent.com/mysqludf/lib_mysqludf_preg/testing/installdb.sql
+    $ cd /path/to/repo/.docker/development/backend/db/seed
     $ mysql -uroot -pdevelopment -h fezdb mysql < installdb.sql
-    $ sed -i 's/DEFINER=[^*]*\*/\*/g' fez.sql
-    $ mysql -uroot -pdevelopment -h fezdb fez < fez.sql
-    $ mysql -uroot -pdevelopment -h fezdb fez < dev.fez.config.sql
-    $ mysql -uroot -pdevelopment -h fedoradb -P 3307 fedora3 < fedora3.sql
+    $ mysql -uroot -pdevelopment -h fezdb fez < cvs.sql
+    $ mysql -uroot -pdevelopment -h fezdb fez < development.sql
+    $ mysql -uroot -pdevelopment -h fezdb fez < workflows.sql
+    $ mysql -uroot -pdevelopment -h fezdb fez < xsd.sql
 
-Load up the fez site in your browser and reindex Solr, starting with the communities and collections.
+Restart all the services:
+ 
+$ docker-compose restart
 
-Run this to index the communities and collections first (most important):
-
-    insert into fez_fulltext_queue (ftq_pid, ftq_op) SELECT rek_pid, 'I' from fez_record_search_key  WHERE rek_object_type = 1 OR rek_object_type = 2;
-    
-Go to [http://dev-fez.library.uq.edu.au:8080/misc/process_fulltext_queue.php](http://dev-fez.library.uq.edu.au:8080/misc/process_fulltext_queue.php) to trigger a process.
-
-You can watch it as it completes in the background process monitor gui at: [http://dev-fez.library.uq.edu.au:8080/my_processes.php](http://dev-fez.library.uq.edu.au:8080/my_processes.php)
-
-Once that has completed run this to index all the other content:
-
-    insert into fez_fulltext_queue (ftq_pid, ftq_op) SELECT rek_pid, 'I' from fez_record_search_key  WHERE rek_object_type = 3;
-
-Go to [http://dev-fez.library.uq.edu.au:8080/misc/process_fulltext_queue.php](http://dev-fez.library.uq.edu.au:8080/misc/process_fulltext_queue.php) to trigger a process
+Once all services have restarted, login at 
+[http://dev-fez.library.uq.edu.au:8080/login.php](http://dev-fez.library.uq.edu.au:8080/login.php) with the superadmin 
+credentials (u: superadmin_test p: Ilovedonkey5) and run the sanity check at: 
+[http://dev-fez.library.uq.edu.au:8080/upgrade/check_sanity.php](http://dev-fez.library.uq.edu.au:8080/upgrade/check_sanity.php)
+NB: You may see "Failed: Connect" for Fedora, this is currently expected and will be resolved with the datastore upgrade.
 
 Celebrate your new Fez dev site!
 
