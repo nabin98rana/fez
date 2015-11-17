@@ -53,10 +53,17 @@ Restart all the services:
  
 $ docker-compose restart
 
-Once all services have restarted, login at 
-[http://dev-fez.library.uq.edu.au:8080/login.php](http://dev-fez.library.uq.edu.au:8080/login.php) with the superadmin 
-credentials (u: superadmin_test p: Ilovedonkey5) and run the sanity check at: 
+Once all services have restarted login:
+
+[http://dev-fez.library.uq.edu.au:8080/login.php](http://dev-fez.library.uq.edu.au:8080/login.php) 
+
+u: superadmin_test
+p: Ilovedonkey5
+
+Run the sanity checks:
+
 [http://dev-fez.library.uq.edu.au:8080/upgrade/check_sanity.php](http://dev-fez.library.uq.edu.au:8080/upgrade/check_sanity.php)
+
 NB: You may see "Failed: Connect" for Fedora, this is currently expected and will be resolved with the datastore upgrade.
 
 Celebrate your new Fez dev site!
