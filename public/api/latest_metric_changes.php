@@ -37,7 +37,6 @@
 include_once('../config.inc.php');
 include_once(APP_INC_PATH . "class.template.php");
 include_once(APP_INC_PATH . "class.db_api.php");
-include_once(APP_INC_PATH . "class.metrics.php");
 include_once(APP_INC_PATH . "class.api_researchers.php");
 
 $log = FezLog::get();
