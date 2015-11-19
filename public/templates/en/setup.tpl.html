@@ -94,28 +94,28 @@ function validateForm(f)
 <tr>
 <td class="left-col">Database host</td>
 <td class="right-col">
-  <input type="text" name="app_sql_dbhost" value="" size="30" />
+  <input type="text" name="app_sql_dbhost" value="fezdb" size="30" />
   {include file="error_icon.tpl.html" field="app_sql_dbhost"}
 </td>
 </tr>
 <tr>
 <td class="left-col">Database name</td>
 <td class="right-col">
-  <input type="text" name="app_sql_dbname" value="" size="30" />
+  <input type="text" name="app_sql_dbname" value="fez" size="30" />
   {include file="error_icon.tpl.html" field="app_sql_dbname"}
 </td>
 </tr>
 <tr>
 <td class="left-col">Database username</td>
 <td class="right-col">
-  <input type="text" name="app_sql_dbuser" value="" size="30" />
+  <input type="text" name="app_sql_dbuser" value="fez" size="30" />
   {include file="error_icon.tpl.html" field="app_sql_dbuser"}
 </td>
 </tr>
 <tr>
 <td class="left-col">Database password</td>
 <td class="right-col">
-  <input type="text" name="app_sql_dbpass" value="" size="30" />
+  <input type="text" name="app_sql_dbpass" value="fez" size="30" />
   {include file="error_icon.tpl.html" field="app_sql_dbpass"}
 </td>
 </tr>
@@ -142,7 +142,7 @@ function validateForm(f)
     {elseif $test_result == '' && $sql_result == ''}
 		<div class="admin-header">Success!</div>
 		<div class="default admin-content">The Fez installation process completed successfully.<br /><br />
-		If you have installed Fez from SVN, please now run <a href="../upgrade/" onclick="javascript:window.open('../upgrade/'); return false;">upgrade</a>.<br /><br />
+		If you have installed Fez from Git, please now run <a href="../upgrade/" onclick="javascript:window.open('../upgrade/'); return false;">upgrade</a>.<br /><br />
 		
 		<div style="border: 2px red solid; padding: 10px;">
 		<b>IMPORTANT SECURITY INFORMATION:</b> Once you have verified that your installation is working, delete the /setup/ directory.
