@@ -23,7 +23,8 @@ Create the data directories:
     $ cd /path/to/repo/.docker/development && \
       mkdir -p data/mysql/fedoradb && \
       mkdir -p data/mysql/fezdb && \
-      mkdir -p data/solr
+      mkdir -p data/solr && \
+      chmod -R 777 data
       
 Start the docker container using docker-compose:
 
