@@ -1,0 +1,61 @@
+Vagrant.configure(2) do |config|
+  #config.vm.box = "phusion/ubuntu-14.04-amd64"
+  config.vm.box = "phusion-open-ubuntu-14.04-amd64"
+  config.vm.box_url = ["https://www.library.uq.edu.au/boxes/ubuntu-14.04-amd64-vbox.box","https://oss-binaries.phusionpassenger.com/vagrant/boxes/latest/ubuntu-14.04-amd64-vbox.box"]
+  config.vm.box_download_checksum_type = "md5"
+  config.vm.box_download_checksum = "e70cb1c527cfd265e5477608cdf99312"
+  config.vm.network "forwarded_port", guest: 8080, host: 8080, host_ip: "127.0.0.1"
+  config.vm.network "forwarded_port", guest: 3306, host: 3306, host_ip: "127.0.0.1"
+  config.vm.network "forwarded_port", guest: 5900, host: 5900, host_ip: "127.0.0.1"
+  #using nfs means vagrant / vbox needs to create a private network for the guest os.
+  config.vm.network "private_network", ip: "192.168.50.4"
+
+  config.nfs.map_uid = 0
+  config.nfs.map_gid = 0
+
+  if (/cygwin|mswin|mingw|bccwin|wince|emx/ =~ RUBY_PLATFORM) == nil
+   # Use nfs when it's not windows because
+   if (/darwin/ =~ RUBY_PLATFORM) != nil
+     #osx nfs likes these options
+     config.vm.synced_folder "../../", "/vagrant_data", :nfs => true, :bsd__nfs_options => ["-maproot=0:0"]
+     #config.vm.synced_folder "../../", "/vagrant_data", :nfs => true
+   else
+     #linux nfs, but really, if you're on linux you'll probably just use docker without vms/vagrant right?
+     config.vm.synced_folder "../../", "/vagrant_data", :nfs => true, :linux__nfs_options => ["no_root_squash"]
+     #config.vm.synced_folder "../../", "/vagrant_data", :nfs => true
+   end
+  else
+   #for windows, you can just use synced folders without issues.. stupid osx
+   config.vm.synced_folder "../../", "/vagrant_data"
+  end
+
+  config.vm.provider "virtualbox" do |config|
+    config.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]
+  end
+
+  config.vm.provision "shell", inline: <<-SHELL
+    sudo apt-get -y install 'python(3?)-bs4$' git
+    sudo git clone https://github.com/jblakeman/apt-select
+    cd apt-select/ && ./apt-select.py -t 1 && sudo mv /etc/apt/sources.list /etc/apt/sources.list.backup && sudo mv sources.list /etc/apt/ && cd ..
+    sudo apt-get -y install mysql-client awscli
+    sudo curl -sSL https://get.docker.com/ | sudo sh
+    sudo curl -L https://github.com/docker/compose/releases/download/1.5.1/docker-compose-`uname -s`-`uname -m` > /usr/local/bin/docker-compose; chmod +x /usr/local/bin/docker-compose
+    sudo gpasswd -a vagrant docker
+    curl -SLo "jet-0.11.14.tar.gz" "https://s3.amazonaws.com/codeship-jet-releases/0.11.14/jet-linux_amd64_0.11.14.tar.gz"
+    sudo tar -xaC /usr/local/bin -f jet-0.11.14.tar.gz
+    sudo chmod +x /usr/local/bin/jet
+  SHELL
+
+  #If it's not windows just use a symlink of the sync'd nfs, otherwise use vboxsf
+  if (/cygwin|mswin|mingw|bccwin|wince|emx/ =~ RUBY_PLATFORM) == nil
+    config.vm.provision "shell", inline: <<-SHELL
+      sudo ln -s /vagrant_data /var/shared
+    SHELL
+  else
+    config.vm.provision "shell", inline: <<-SHELL
+      sudo mkdir /var/shared && sudo chown vagrant:vagrant /var/shared
+      sudo echo "vagrant_data /var/shared  vboxsf  noauto,uid=vagrant,gid=vagrant,umask=0022  0  0" >> /etc/fstab
+      sudo mount /var/shared
+    SHELL
+  end
+end
