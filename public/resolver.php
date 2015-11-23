@@ -30,10 +30,11 @@ limitations under the License.
  *
  * Requires libxml and cURL PHP extensions (and PHP5+)
  */
+include_once "config.inc.php";
+include_once APP_INC_PATH . "class.misc.php";
 
 // Setup HTTP headers so jQuery/browser interprets as JSON
 header('Cache-Control: no-cache, must-revalidate');
-header('Content-type: application/json');
 
 // Some defaults
 $jsonData['status'] = 'ERROR';
@@ -88,8 +89,7 @@ try{
     {
         $jsonData['status'] = 'ERROR';
         $jsonData['exception'] = curl_error($ch);
-        $jsonData = json_encode($jsonData);
-        echo $callback . "(" . $jsonData . ");";
+        Misc::jsonResponse($jsonData, $callback);
         exit();
     }
     curl_setopt($ch, CURLOPT_POST, 1);
@@ -101,8 +101,7 @@ try{
     {
         $jsonData['status'] = 'ERROR';
         $jsonData['exception'] = "NO DATA";
-        $jsonData = json_encode($jsonData);
-        echo $callback . "(" . $jsonData . ");";
+        Misc::jsonResponse($jsonData, $callback);
         exit();
     }
     $gazetteerDoc = new DOMDocument();
@@ -111,8 +110,7 @@ try{
     {
         $jsonData['status'] = 'ERROR';
         $jsonData['exception'] = 'not well formed xml';
-        $jsonData = json_encode($jsonData);
-        echo $callback . "(" . $jsonData . ");";
+        Misc::jsonResponse($jsonData, $callback);
         exit();
     }
     $gXPath = new DOMXpath($gazetteerDoc);
@@ -122,8 +120,7 @@ catch (Exception $e)
 {
     $jsonData['status'] = 'ERROR';
     $jsonData['exception'] = $e->getMessage();
-    $jsonData = json_encode($jsonData);
-    echo $callback . "(" . $jsonData . ");";
+    Misc::jsonResponse($jsonData, $callback);
     exit();
 }
 
@@ -199,6 +196,4 @@ if ($feature) {
     $jsonData['items'] = $items;
 }
 
-// Send the response as JSONP
-$jsonData = json_encode($jsonData);
-echo $callback . "(" . $jsonData . ");";
+Misc::jsonResponse($jsonData, $callback);
