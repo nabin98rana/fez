@@ -102,8 +102,8 @@
          other than the default ./data under the Solr home.  If
          replication is in use, this should match the replication
          configuration.
+         <dataDir>/var/lib/solr</dataDir>
       -->
-    <dataDir>/var/lib/solr</dataDir>
 
 
     <!-- The DirectoryFactory to use for indexes.

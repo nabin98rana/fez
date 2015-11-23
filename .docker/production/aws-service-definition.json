@@ -1,0 +1,15 @@
+{
+    "cluster": "default",
+    "serviceName": "fez",
+    "taskDefinition": "fez:<VERSION_NUMBER>",
+    "loadBalancers": [
+        {
+            "loadBalancerName": "fez",
+            "containerName": "fez",
+            "containerPort": 8008
+        }
+    ],
+    "desiredCount": 2,
+    "clientToken": "",
+    "role": "ecsServiceRole"
+}

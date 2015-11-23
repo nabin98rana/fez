@@ -1,0 +1,4 @@
+.docker/development/data
+.docker/testing/data
+.git
+public/config/config.inc.php

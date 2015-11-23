@@ -1,0 +1,12 @@
+- service: fpmtestrunner
+  command: .codeship/jet.sh
+#- service: fpm
+#  type: push
+#  tag: production # should only push on production branch
+#  image_name: uql-registry.library.uq.edu.au/production/fbs
+#  image_tag: "{{.CommitID}}"
+#  registry: uql-registry.library.uq.edu.au
+#  encrypted_dockercfg_path: ./.codeship/dockercfg.encrypted
+#- service: fpmtestrunner
+#  tag: production
+#  command: bin/deploy.sh

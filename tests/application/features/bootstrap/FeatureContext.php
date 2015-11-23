@@ -65,6 +65,8 @@ define("TEST_ORG_UNIT_NAME", "Mathematics");
  */
 define("TEST_ORG_UNIT_NAME_USERNAME", "maebilli");
 
+define('BEHAT_ERROR_REPORTING', E_ALL & ~E_NOTICE & ~E_STRICT & ~E_DEPRECATED & ~E_WARNING);
+
 
 /**
  * Features context.
