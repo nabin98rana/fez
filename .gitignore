@@ -6,7 +6,7 @@
 *.ser
 test.php
 error_handler.log
-config.inc.php
+public/config.inc.php
 config_test.inc.php
 test.php
 phpinfo.php
