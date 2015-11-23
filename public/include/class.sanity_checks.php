@@ -476,8 +476,6 @@ class SanityChecks
         $results = array(ConfigResult::message('Testing Fedora'));
         $results = array_merge($results, SanityChecks::checkHTTPConnect('APP_BASE_FEDORA_APIA_DOMAIN', APP_BASE_FEDORA_APIA_DOMAIN . '/describe'));
         $results = array_merge($results, SanityChecks::checkHTTPConnect('APP_BASE_FEDORA_APIM_DOMAIN', APP_BASE_FEDORA_APIM_DOMAIN . '/'));
-        $results = array_merge($results, SanityChecks::checkHTTPConnect('APP_FEDORA_ACCESS_API', APP_FEDORA_ACCESS_API));
-        $results = array_merge($results, SanityChecks::checkHTTPConnect('APP_FEDORA_MANAGEMENT_API', APP_FEDORA_MANAGEMENT_API));
         $security_advice = 'Check that you supplied the correct password in ' .
                            'the Fez config.  Ensure APP_FEDORA_SETUP is correct.  Set fedora.fcfg option <param name="ENFORCE-MODE" value="permit-all-requests"/> ' .
                            'to allow requests from remote hosts (or taylor to suit your security requirements - default ' .
