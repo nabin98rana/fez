@@ -23,9 +23,6 @@ fez:
     path: ./.docker/development/backend/nginx/
   links:
     - fpm
-  volumes:
-    - ./.docker/testing/data/fedora:/data
-    - ./.docker/testing/cache:/var/cache
   volumes_from:
     - fezcode
 
@@ -48,9 +45,6 @@ fpm:
     - fedora
     - fedoradb
     - solr
-  volumes:
-    - ./.docker/testing/data/fedora:/data
-    - ./.docker/testing/cache:/var/cache
 
 fezdb:
   build:
@@ -73,8 +67,6 @@ fedora:
     path: ./.docker/development/fedora/
   links:
     - fedoradb
-  volumes:
-    - ./.docker/testing/data/fedora:/data
 
 fedoradb:
   build:

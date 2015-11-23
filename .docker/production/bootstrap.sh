@@ -14,6 +14,12 @@ if [ "${APP_ENVIRONMENT}" == "production" ]; then
   aws s3 cp ${BASE_DIR}/.docker/production/fez.cron s3://uql/ecs/default/services/crond/cron.d/fez
 else
   cp ${BASE_DIR}/.docker/testing/config.inc.php /var/app/current/public/config.inc.php
+  cd /var/cache/ && \
+    mkdir file && \
+    mkdir solr_upload && \
+    mkdir templates_c && \
+    mkdir xdebug && \
+    mkdir tmp
 fi
 
 rm -f /etc/php.d/15-xdebug.ini

@@ -3,6 +3,15 @@ FROM uqlibrary/docker-base:3
 WORKDIR /var/app/current/
 COPY . /var/app/current/
 
+RUN cd /var/cache/ && \
+    mkdir file && \
+    mkdir solr_upload && \
+    mkdir templates_c && \
+    mkdir xdebug && \
+    mkdir tmp && \
+    chown -R nobody /var/cache
+
 COPY ./.docker/testing/config.inc.php /var/app/current/public/config.inc.php
 
 VOLUME /var/app/current
+VOLUME /var/cache
