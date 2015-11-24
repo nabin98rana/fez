@@ -10,6 +10,8 @@ fez:
     - fpm
   ports:
     - "8080:80"
+  environment:
+    - VIRTUAL_HOST=dev-fez.library.uq.edu.au
   volumes_from:
     - fpm
     - cache
