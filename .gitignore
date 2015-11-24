@@ -52,7 +52,6 @@ public/solr_upload/*
 testst.txt.txt
 *nfs*
 apc.php
-init.php
 .idea
 \.tmtags
 tests\application\features\bootstrap\LoginHelper.php
