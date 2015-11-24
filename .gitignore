@@ -11,7 +11,6 @@ config_test.inc.php
 test.php
 phpinfo.php
 ._*
-LoginHelper.php
 Thumbs.db
 tests/api/conf.ini
 
