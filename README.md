@@ -45,9 +45,9 @@ Next seed the fez database:
 
     $ cd /path/to/repo/.docker/development/backend/db/seed
     $ mysql -uroot -pdevelopment -h fezdb mysql < installdb.sql && \
-    mysql -uroot -pdevelopment -h fezdb fez < cvs.sql && \ 
-    mysql -uroot -pdevelopment -h fezdb fez < development.sql && \ 
-    mysql -uroot -pdevelopment -h fezdb fez < workflows.sql && \ 
+    mysql -uroot -pdevelopment -h fezdb fez < cvs.sql && \
+    mysql -uroot -pdevelopment -h fezdb fez < development.sql && \
+    mysql -uroot -pdevelopment -h fezdb fez < workflows.sql && \
     mysql -uroot -pdevelopment -h fezdb fez < xsd.sql
 
 
