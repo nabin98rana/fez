@@ -43,7 +43,7 @@ exit;
 
 /**
  * This is the main method that controls the flow of the setup process, and triggers the different stages.
- * 
+ *
  */
 function startSetup() {
 
@@ -344,7 +344,7 @@ function parseMySQLdump($url, $ignoreerrors = false) {
 
 
 /**
- * This method creates an empty database of the specified name. This is invoked if the requested DB name 
+ * This method creates an empty database of the specified name. This is invoked if the requested DB name
  * cannot be found. If we aren't able to succeed, return a message to the calling function.
  *
  */
@@ -364,22 +364,18 @@ function attemptCreateDB($dbName, $conn) {
  * writeDefaultConfigValues
  *
  * This method writes default values for most configuration variables into the config table.
- * 
+ *
  * Returns true if success
  * Returns false if problem
  */
 function writeDefaultConfigValues() {
-    
+
     $configPairs = Default_Data::getConfDefaults();
     foreach ($configPairs as $key => $value) {
-        $checkQuery = "SELECT * FROM  fez_config WHERE config_name ='" . mysql_real_escape_string($key) . "'";
-        $result = mysql_query($checkQuery);
-        if (mysql_num_rows($result) === 0) {
-            $query = "INSERT INTO fez_config (`config_name`, `config_module`, `config_value`) values ('" . $key . "','core','" . mysql_escape_string($value) . "') ON DUPLICATE KEY UPDATE config_value = '" . mysql_escape_string($value) . "';";
-            mysql_query($query);
-        }
+        $query = "INSERT INTO fez_config (`config_name`, `config_module`, `config_value`) values ('" . $key . "','core','" . mysql_escape_string($value) . "') ON DUPLICATE KEY UPDATE config_value = '" . mysql_escape_string($value) . "';";
+        mysql_query($query);
     }
-    
+
     return true;
 
 }
