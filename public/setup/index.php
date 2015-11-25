@@ -372,8 +372,12 @@ function writeDefaultConfigValues() {
     
     $configPairs = Default_Data::getConfDefaults();
     foreach ($configPairs as $key => $value) {
-        $query = "INSERT INTO fez_config (`config_name`, `config_module`, `config_value`) values ('" . $key . "','core','" . mysql_escape_string($value) . "') ON DUPLICATE KEY UPDATE config_value = '" . mysql_escape_string($value) . "';";
-        mysql_query($query);
+        $checkQuery = "SELECT * FROM  fez_config WHERE config_name ='" . mysql_real_escape_string($key) . "'";
+        $result = mysql_query($checkQuery);
+        if (mysql_num_rows($result) === 0) {
+            $query = "INSERT INTO fez_config (`config_name`, `config_module`, `config_value`) values ('" . $key . "','core','" . mysql_escape_string($value) . "') ON DUPLICATE KEY UPDATE config_value = '" . mysql_escape_string($value) . "';";
+            mysql_query($query);
+        }
     }
     
     return true;
