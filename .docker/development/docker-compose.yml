@@ -82,8 +82,6 @@ fedoradb:
   ports:
     - "3307:3306"
   privileged: true
-  volumes:
-    - /var/lib/mysql
   volumes_from:
     - fedoradbdata
     - logs
@@ -95,8 +93,10 @@ solr:
   build: ./solr/
   ports:
     - "8983:8983"
-  volumes:
-    - ./data/solr:/opt/solr/example/solr/collection1/data
   volumes_from:
     - cache
+    - solrdata
     - logs
+
+solrdata:
+  build: ./solr/data/
