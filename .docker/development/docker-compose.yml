@@ -47,10 +47,13 @@ fezdb:
     - MYSQL_DATABASE=fez
   ports:
     - "3306:3306"
-  volumes:
-    - ./data/mysql/fezdb:/var/lib/mysql
   volumes_from:
+    - fezdbdata
     - logs
+
+fezdbdata:
+  build: ./backend/db/data/
+
 
 fedora:
   build: ./fedora/
@@ -80,9 +83,13 @@ fedoradb:
     - "3307:3306"
   privileged: true
   volumes:
-    - ./data/mysql/fedoradb:/var/lib/mysql
+    - /var/lib/mysql
   volumes_from:
+    - fedoradbdata
     - logs
+
+fedoradbdata:
+  build: ./backend/db/data/
 
 solr:
   build: ./solr/
