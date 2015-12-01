@@ -57,6 +57,8 @@ fezdbdata:
 
 fedora:
   build: ./fedora/
+  environment:
+    - FEDORA_HOME=/opt/fedora
   links:
     - fedoradb
   ports:
