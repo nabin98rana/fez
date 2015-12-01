@@ -1,7 +1,7 @@
 fpmtestrunner:
   build:
     dockerfile_path: "Dockerfile.runner"
-  encrypted_env_file: ./.codeship/dockerenv.encrypted
+  #encrypted_env_file: ./.codeship/dockerenv.encrypted
   environment:
     APP_ENVIRONMENT: "testing"
   links:
@@ -33,7 +33,7 @@ fezcode:
 fpm:
   build:
     dockerfile_path: "Dockerfile"
-  encrypted_env_file: ./.codeship/dockerenv.encrypted
+  #encrypted_env_file: ./.codeship/dockerenv.encrypted
   environment:
     APP_ENVIRONMENT: "testing"
     XDEBUG_CONFIG: "idekey=fez"
