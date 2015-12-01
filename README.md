@@ -20,14 +20,6 @@ Add the following to your hosts file:
 
 If you are using docker-machine, replace the 127.0.0.1 with the result of `docker-machine ip fez-vm`
 
-Create the data directories:
-
-    $ cd /path/to/repo/.docker/development && \
-      mkdir -p data/mysql/fedoradb && \
-      mkdir -p data/mysql/fezdb && \
-      mkdir -p data/solr && \
-      chmod -R 777 data
-
 Start the docker container using docker-compose:
 
     $ cd /path/to/repo/.docker/development
