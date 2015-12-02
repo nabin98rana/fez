@@ -1,5 +1,7 @@
 <?php
 
+include_once(APP_INC_PATH . "class.dsresource.php");
+
 class DigitalObject
 {
     /**

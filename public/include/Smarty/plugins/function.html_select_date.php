@@ -68,17 +68,11 @@ function smarty_function_html_select_date($params)
         $params['time'] = trim($params['time']);
     }
     if(strlen($params['time']) == 10) {
-        if(substr($params['time'], -2, 2) == '00') {
-            $params['day_empty'] = "";
-            $params['time'] = substr_replace($params['time'], '01',-2, 2);
-        }
-        if(substr($params['time'], -5, 2) == '00') {
-            $params['month_empty'] = "";
-            $params['time'] = substr_replace($params['time'], '01',-5, 2);
-        }
-
-        if(substr($params['time'], -10, 4) == '0000') {
-            $params['year_empty'] = "";
+        if( (substr($params['time'], -2, 2) == '00') || (substr($params['time'], -5, 2) == '00') || (substr($params['time'], -10, 4) == '0000') ){
+            $temp['Day'] = substr($params['time'],-2, 2);
+            $temp['Month'] = substr($params['time'],-5, 2);
+            $temp['Year'] = substr($params['time'],-10, 4);
+            $params['time'] = $temp;
         }
     }
 

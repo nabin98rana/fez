@@ -73,6 +73,7 @@ function runDatabaseTasks() {
   parseMySQLdump("./../../.docker/development/backend/db/seed/development.sql");
   parseMySQLdump("./../../.docker/development/backend/db/seed/workflows.sql");
   parseMySQLdump("./../../.docker/development/backend/db/seed/xsd.sql");
+  parseMySQLdump("./../../.docker/development/backend/db/seed/jetsetup.sql");
 }
 
 /**

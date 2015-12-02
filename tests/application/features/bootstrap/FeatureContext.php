@@ -23,7 +23,12 @@ use Behat\MinkExtension\Context\MinkContext;
 //   require_once 'PHPUnit/Framework/Assert/Functions.php';
 //
 
-require_once ('/var/app/current/public/config.inc.php');
+//Hack to get tests running on sky
+if(file_exists('/var/app/current/public/config.inc.php')) {
+  require_once('/var/app/current/public/config.inc.php');
+} else {
+  require_once('../../public/config.inc.php');
+}
 require_once 'LoginHelper.php';
 //require_once 'LinksAMRHelper.php';
 

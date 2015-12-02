@@ -62,3 +62,8 @@ tests\application\features\bootstrap\LoginHelper.php
 .docker/testing/tmp/*
 .docker/testing/data/*
 public/testing.php
+codeship.key
+codeship.aes
+*.env
+dockerenv
+

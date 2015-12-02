@@ -1,0 +1,308 @@
+<foxml:digitalObject PID="UQ:4" VERSION="1.1" xmlns:foxml="info:fedora/fedora-system:def/foxml#"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="info:fedora/fedora-system:def/foxml# http://www.fedora.info/definitions/1/0/foxml1-1.xsd">
+  <foxml:objectProperties>
+    <foxml:property NAME="info:fedora/fedora-system:def/model#state" VALUE="Active"/>
+    <foxml:property NAME="info:fedora/fedora-system:def/model#label" VALUE="Test Collection Sample"/>
+    <foxml:property NAME="info:fedora/fedora-system:def/model#ownerId" VALUE=""/>
+    <foxml:property NAME="info:fedora/fedora-system:def/model#createdDate" VALUE="2015-12-01T00:24:42.182Z"/>
+    <foxml:property NAME="info:fedora/fedora-system:def/view#lastModifiedDate" VALUE="2015-12-01T00:24:45.513Z"/>
+    <foxml:extproperty NAME="http://www.w3.org/1999/02/22-rdf-syntax-ns#type" VALUE="FedoraObject"/>
+  </foxml:objectProperties>
+  <foxml:datastream CONTROL_GROUP="X" ID="AUDIT" STATE="A" VERSIONABLE="false">
+    <foxml:datastreamVersion CREATED="2015-12-01T00:24:42.182Z"
+      FORMAT_URI="info:fedora/fedora-system:format/xml.fedora.audit" ID="AUDIT.0" LABEL="Audit Trail for this object" MIMETYPE="text/xml">
+      <foxml:xmlContent>
+        <audit:auditTrail xmlns:audit="info:fedora/fedora-system:def/audit#">
+          <audit:record ID="AUDREC1">
+            <audit:process type="Fedora API-M"/>
+            <audit:action>modifyDatastreamByValue</audit:action>
+            <audit:componentID>FezMD</audit:componentID>
+            <audit:responsibility>fedoraAdmin</audit:responsibility>
+            <audit:date>2015-12-01T00:24:43.801Z</audit:date>
+            <audit:justification>Modified Datastream</audit:justification>
+          </audit:record>
+          <audit:record ID="AUDREC2">
+            <audit:process type="Fedora API-M"/>
+            <audit:action>addDatastream</audit:action>
+            <audit:componentID>PremisEvent</audit:componentID>
+            <audit:responsibility>fedoraAdmin</audit:responsibility>
+            <audit:date>2015-12-01T00:24:45.310Z</audit:date>
+            <audit:justification>Added Datastream</audit:justification>
+          </audit:record>
+          <audit:record ID="AUDREC3">
+            <audit:process type="Fedora API-M"/>
+            <audit:action>modifyDatastreamByValue</audit:action>
+            <audit:componentID>PremisEvent</audit:componentID>
+            <audit:responsibility>fedoraAdmin</audit:responsibility>
+            <audit:date>2015-12-01T00:24:45.513Z</audit:date>
+            <audit:justification>Added Datastream</audit:justification>
+          </audit:record>
+        </audit:auditTrail>
+      </foxml:xmlContent>
+    </foxml:datastreamVersion>
+  </foxml:datastream>
+  <foxml:datastream CONTROL_GROUP="X" ID="DC" STATE="A" VERSIONABLE="true">
+    <foxml:datastreamVersion CREATED="2015-12-01T00:24:42.182Z" FORMAT_URI="http://www.openarchives.org/OAI/2.0/oai_dc/"
+      ID="DC1.0" LABEL="Dublin Core Record" MIMETYPE="text/xml" SIZE="485">
+      <foxml:xmlContent>
+        <oai_dc:dc xmlns:dc="http://purl.org/dc/elements/1.1/"
+          xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+          <dc:title>Test Collection Sample</dc:title>
+          <dc:description/>
+          <dc:type>Fez_Collection</dc:type>
+          <dc:identifier>UQ:4</dc:identifier>
+          <dc:identifier/>
+        </oai_dc:dc>
+      </foxml:xmlContent>
+    </foxml:datastreamVersion>
+  </foxml:datastream>
+  <foxml:datastream CONTROL_GROUP="X" ID="RELS-EXT" STATE="A" VERSIONABLE="true">
+    <foxml:datastreamVersion CREATED="2015-12-01T00:24:42.182Z" FORMAT_URI="info:fedora/fedora-system:FedoraRELSExt-1.0"
+      ID="RELS-EXT.0" LABEL="Relationships to other objects" MIMETYPE="application/rdf+xml" SIZE="357">
+      <foxml:xmlContent>
+        <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+          xmlns:rel="info:fedora/fedora-system:def/relations-external#" xmlns:xsi="http://www.w3.org/2001/XMLSchema">
+          <rdf:description rdf:about="info:fedora/UQ:4">
+            <rel:isMemberOf rdf:resource="info:fedora/UQ:3"/>
+          </rdf:description>
+        </rdf:RDF>
+      </foxml:xmlContent>
+    </foxml:datastreamVersion>
+  </foxml:datastream>
+  <foxml:datastream CONTROL_GROUP="X" ID="FezMD" STATE="A" VERSIONABLE="true">
+    <foxml:datastreamVersion CREATED="2015-12-01T00:24:42.182Z" ID="Fez1.0" LABEL="Fez extension metadata"
+      MIMETYPE="text/xml" SIZE="1717">
+      <foxml:xmlContent>
+        <FezMD xmlns:xsi="http://www.w3.org/2001/XMLSchema">
+          <xdis_id>9</xdis_id>
+          <sta_id>4</sta_id>
+          <ret_id>2</ret_id>
+          <child_xdis_id_option>263</child_xdis_id_option>
+          <child_xdis_id_option>174</child_xdis_id_option>
+          <child_xdis_id_option>177</child_xdis_id_option>
+          <child_xdis_id_option>130</child_xdis_id_option>
+          <child_xdis_id_option>197</child_xdis_id_option>
+          <child_xdis_id_option>313</child_xdis_id_option>
+          <child_xdis_id_option>371</child_xdis_id_option>
+          <child_xdis_id_option>181</child_xdis_id_option>
+          <child_xdis_id_option>316</child_xdis_id_option>
+          <child_xdis_id_option>228</child_xdis_id_option>
+          <child_xdis_id_option>202</child_xdis_id_option>
+          <child_xdis_id_option>238</child_xdis_id_option>
+          <child_xdis_id_option>294</child_xdis_id_option>
+          <child_xdis_id_option>179</child_xdis_id_option>
+          <child_xdis_id_option>374</child_xdis_id_option>
+          <child_xdis_id_option>191</child_xdis_id_option>
+          <child_xdis_id_option>185</child_xdis_id_option>
+          <child_xdis_id_option>204</child_xdis_id_option>
+          <child_xdis_id_option>275</child_xdis_id_option>
+          <child_xdis_id_option>189</child_xdis_id_option>
+          <child_xdis_id_option>187</child_xdis_id_option>
+          <child_xdis_id_option>310</child_xdis_id_option>
+          <child_xdis_id_option>183</child_xdis_id_option>
+          <keyword>testing</keyword>
+          <created_date>2015-12-01T00:24:41Z</created_date>
+          <updated_date>2015-12-01T00:24:41Z</updated_date>
+          <depositor>999999991</depositor>
+        </FezMD>
+      </foxml:xmlContent>
+    </foxml:datastreamVersion>
+    <foxml:datastreamVersion CREATED="2015-12-01T00:24:43.801Z" ID="FezMD.1" LABEL="Fez extension metadata"
+      MIMETYPE="text/xml" SIZE="1469">
+      <foxml:xmlContent>
+        <FezMD xmlns:xsi="http://www.w3.org/2001/XMLSchema">
+          <xdis_id>9</xdis_id>
+          <sta_id>2</sta_id>
+          <ret_id>2</ret_id>
+          <child_xdis_id_option>263</child_xdis_id_option>
+          <child_xdis_id_option>174</child_xdis_id_option>
+          <child_xdis_id_option>177</child_xdis_id_option>
+          <child_xdis_id_option>130</child_xdis_id_option>
+          <child_xdis_id_option>197</child_xdis_id_option>
+          <child_xdis_id_option>313</child_xdis_id_option>
+          <child_xdis_id_option>371</child_xdis_id_option>
+          <child_xdis_id_option>181</child_xdis_id_option>
+          <child_xdis_id_option>316</child_xdis_id_option>
+          <child_xdis_id_option>228</child_xdis_id_option>
+          <child_xdis_id_option>202</child_xdis_id_option>
+          <child_xdis_id_option>238</child_xdis_id_option>
+          <child_xdis_id_option>294</child_xdis_id_option>
+          <child_xdis_id_option>179</child_xdis_id_option>
+          <child_xdis_id_option>374</child_xdis_id_option>
+          <child_xdis_id_option>191</child_xdis_id_option>
+          <child_xdis_id_option>185</child_xdis_id_option>
+          <child_xdis_id_option>204</child_xdis_id_option>
+          <child_xdis_id_option>275</child_xdis_id_option>
+          <child_xdis_id_option>189</child_xdis_id_option>
+          <child_xdis_id_option>187</child_xdis_id_option>
+          <child_xdis_id_option>310</child_xdis_id_option>
+          <child_xdis_id_option>183</child_xdis_id_option>
+          <keyword>testing</keyword>
+          <created_date>2015-12-01T00:24:41Z</created_date>
+          <updated_date>2015-12-01T00:24:41Z</updated_date>
+          <depositor>999999991</depositor>
+        </FezMD>
+      </foxml:xmlContent>
+    </foxml:datastreamVersion>
+  </foxml:datastream>
+  <foxml:datastream CONTROL_GROUP="X" ID="FezACML" STATE="A" VERSIONABLE="true">
+    <foxml:datastreamVersion CREATED="2015-12-01T00:24:42.182Z" ID="FezACML1.0"
+      LABEL="Fez Access Control Markup Language" MIMETYPE="text/xml" SIZE="4780">
+      <foxml:xmlContent>
+        <FezACML xmlns:xsi="http://www.w3.org/2001/XMLSchema">
+          <rule>
+            <role name="Creator">
+              <AD_Group/>
+              <AD_User/>
+              <AD_DistinguishedName/>
+              <Fez_Group/>
+              <Fez_User/>
+              <eduPersonTargetedID/>
+              <eduPersonAffiliation/>
+              <eduPersonScopedAffiliation/>
+              <eduPersonPrimaryAffiliation/>
+              <eduPersonPrincipalName/>
+              <eduPersonOrgUnitDN/>
+              <eduPersonPrimaryOrgUnitDN/>
+            </role>
+            <role name="Editor">
+              <AD_Group/>
+              <AD_User/>
+              <AD_DistinguishedName/>
+              <Fez_Group/>
+              <Fez_User/>
+              <eduPersonTargetedID/>
+              <eduPersonAffiliation/>
+              <eduPersonScopedAffiliation/>
+              <eduPersonPrimaryAffiliation/>
+              <eduPersonPrincipalName/>
+              <eduPersonOrgUnitDN/>
+              <eduPersonPrimaryOrgUnitDN/>
+            </role>
+            <role name="Approver">
+              <AD_Group/>
+              <AD_User/>
+              <AD_DistinguishedName/>
+              <Fez_Group/>
+              <Fez_User/>
+              <eduPersonTargetedID/>
+              <eduPersonAffiliation/>
+              <eduPersonScopedAffiliation/>
+              <eduPersonPrimaryAffiliation/>
+              <eduPersonPrincipalName/>
+              <eduPersonOrgUnitDN/>
+              <eduPersonPrimaryOrgUnitDN/>
+            </role>
+            <role name="Viewer">
+              <in_AD>off</in_AD>
+              <AD_Group/>
+              <AD_User/>
+              <AD_DistinguishedName/>
+              <in_Fez>off</in_Fez>
+              <Fez_Group/>
+              <Fez_User/>
+              <eduPersonTargetedID/>
+              <eduPersonAffiliation/>
+              <eduPersonScopedAffiliation/>
+              <eduPersonPrimaryAffiliation/>
+              <eduPersonPrincipalName/>
+              <eduPersonOrgUnitDN/>
+              <eduPersonPrimaryOrgUnitDN/>
+            </role>
+            <role name="Lister">
+              <in_AD>off</in_AD>
+              <AD_Group/>
+              <AD_User/>
+              <AD_DistinguishedName/>
+              <in_Fez>off</in_Fez>
+              <Fez_Group/>
+              <Fez_User/>
+              <eduPersonTargetedID/>
+              <eduPersonAffiliation/>
+              <eduPersonScopedAffiliation/>
+              <eduPersonPrimaryAffiliation/>
+              <eduPersonPrincipalName/>
+              <eduPersonOrgUnitDN/>
+              <eduPersonPrimaryOrgUnitDN/>
+            </role>
+            <role name="Commentor">
+              <AD_Group/>
+              <AD_User/>
+              <Fez_Group/>
+              <Fez_User/>
+            </role>
+            <role name="Comment_Viewer">
+              <in_AD>off</in_AD>
+              <AD_Group/>
+              <AD_User/>
+              <Fez_Group/>
+              <Fez_User/>
+            </role>
+            <role name="Annotator">
+              <AD_Group/>
+              <AD_User/>
+              <Fez_Group/>
+              <Fez_User/>
+            </role>
+            <role name="Community_Administrator">
+              <AD_Group/>
+              <AD_User/>
+              <Fez_Group/>
+              <Fez_User/>
+            </role>
+          </rule>
+          <inherit_security>on</inherit_security>
+          <datastream_quickauth_template/>
+        </FezACML>
+      </foxml:xmlContent>
+    </foxml:datastreamVersion>
+  </foxml:datastream>
+  <foxml:datastream CONTROL_GROUP="X" ID="PremisEvent" STATE="A" VERSIONABLE="false">
+    <foxml:datastreamVersion CREATED="2015-12-01T00:24:45.513Z" ID="PremisEvent.1" LABEL="Premis Event Datastream"
+      MIMETYPE="text/xml" SIZE="2283">
+      <foxml:xmlContent>
+        <premis:premis xmlns:premis="http://www.loc.gov/standards/premis">
+          <premis:event>
+            <premis:eventIdentifier>4</premis:eventIdentifier>
+            <premis:eventType>Create Collection In Selected Community by Test Super Admin</premis:eventType>
+            <premis:eventDateTime>2015-12-01T00:24:45Z</premis:eventDateTime>
+            <premis:eventDetail>Create Collection In Selected Community by Test Super Admin</premis:eventDetail>
+            <premis:eventOutcomeInformation>
+              <premis:eventOutcome>Finished</premis:eventOutcome>
+              <premis:eventOutcomeDetail/>
+            </premis:eventOutcomeInformation>
+            <premis:linkingAgentIdentifier>
+              <premis:linkingAgentIdentifierType>ID</premis:linkingAgentIdentifierType>
+              <premis:linkingAgentIdentifierValue>999999991</premis:linkingAgentIdentifierValue>
+            </premis:linkingAgentIdentifier>
+            <premis:linkingAgentIdentifier>
+              <premis:linkingAgentIdentifierType>Full Name</premis:linkingAgentIdentifierType>
+              <premis:linkingAgentIdentifierValue>Test Super Admin</premis:linkingAgentIdentifierValue>
+            </premis:linkingAgentIdentifier>
+            <premis:linkingObjectIdentifier>UQ:4</premis:linkingObjectIdentifier>
+          </premis:event>
+          <premis:event>
+            <premis:eventIdentifier>3</premis:eventIdentifier>
+            <premis:eventType>Published by Test Super Admin</premis:eventType>
+            <premis:eventDateTime>2015-12-01T00:24:45Z</premis:eventDateTime>
+            <premis:eventDetail>Published by Test Super Admin</premis:eventDetail>
+            <premis:eventOutcomeInformation>
+              <premis:eventOutcome/>
+              <premis:eventOutcomeDetail/>
+            </premis:eventOutcomeInformation>
+            <premis:linkingAgentIdentifier>
+              <premis:linkingAgentIdentifierType>ID</premis:linkingAgentIdentifierType>
+              <premis:linkingAgentIdentifierValue>999999991</premis:linkingAgentIdentifierValue>
+            </premis:linkingAgentIdentifier>
+            <premis:linkingAgentIdentifier>
+              <premis:linkingAgentIdentifierType>Full Name</premis:linkingAgentIdentifierType>
+              <premis:linkingAgentIdentifierValue>Test Super Admin</premis:linkingAgentIdentifierValue>
+            </premis:linkingAgentIdentifier>
+            <premis:linkingObjectIdentifier>UQ:4</premis:linkingObjectIdentifier>
+          </premis:event>
+        </premis:premis>
+      </foxml:xmlContent>
+    </foxml:datastreamVersion>
+  </foxml:datastream>
+</foxml:digitalObject>
