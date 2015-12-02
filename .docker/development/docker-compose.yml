@@ -59,6 +59,7 @@ fedora:
   build: ./fedora/
   environment:
     - FEDORA_HOME=/opt/fedora
+    - FEDORA_WEBAPP_HOME=/opt/fedora/tomcat/webapps/fedora
   links:
     - fedoradb
   ports:
