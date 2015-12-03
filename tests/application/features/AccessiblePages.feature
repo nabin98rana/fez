@@ -2,22 +2,41 @@
 @javascript
 Feature: Check that all pages still give correct output
 
-  Scenario: A user needs contact infomation
+  @cloned
+  Scenario: A user needs contact information
     Given I am on "/about"
     Then I should see "General Enquiries"
     And I should see "69775"
     And I should see "UQ eSpace"
 
-  Scenario: A user needs faq infomation
+  @cloned
+  Scenario: A user needs faq information
     Given I am on "/faq"
     Then I should see "Frequently Asked Questions"
     And I should see "How do I find out more about the NHMRC and ARC Mandates?"
 
-  Scenario: A user wants to browser
+  @cloned
+  Scenario: A user wants to browse
     Given I am on "/list/"
     And I should see "List of Communities"
     And I should not see "Create New Community"
     And I should not see "(0 results found)"
+
+  @jet @clean
+  Scenario: A user needs contact information
+    Given I am on "/about"
+    Then I should see "About this site"
+
+  @jet @clean
+  Scenario: A user needs faq information
+    Given I am on "/faq"
+    Then I should see "Frequently Asked Questions"
+
+  @jet @clean
+  Scenario: A user wants to browse
+    Given I am on "/list/"
+    And I should see "List of Communities"
+    And I should see "(0 results found)"
 
   @jet
   Scenario: A user wants to do an advanced search
@@ -48,7 +67,7 @@ Feature: Check that all pages still give correct output
     Given I am on "/favourites"
     Then I should see "Login to"
 
-  @bug @jet
+  @jet
   Scenario: Testing Administrator view
     And I login as administrator
     And I am on "/manage"
