@@ -1,0 +1,358 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<foxml:digitalObject VERSION="1.1" PID="UQ:5"
+xmlns:foxml="info:fedora/fedora-system:def/foxml#"
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+xsi:schemaLocation="info:fedora/fedora-system:def/foxml# http://www.fedora.info/definitions/1/0/foxml1-1.xsd">
+<foxml:objectProperties>
+<foxml:property NAME="info:fedora/fedora-system:def/model#state" VALUE="Active"/>
+<foxml:property NAME="info:fedora/fedora-system:def/model#label" VALUE="Transposing of water policies from developed to developing countries: The case of user pays"/>
+<foxml:property NAME="info:fedora/fedora-system:def/model#ownerId" VALUE=""/>
+<foxml:property NAME="info:fedora/fedora-system:def/model#createdDate" VALUE="2015-12-01T00:38:38.803Z"/>
+<foxml:property NAME="info:fedora/fedora-system:def/view#lastModifiedDate" VALUE="2015-12-01T00:38:42.612Z"/>
+<foxml:extproperty NAME="http://www.w3.org/1999/02/22-rdf-syntax-ns#type" VALUE="FedoraObject"/>
+</foxml:objectProperties>
+<foxml:datastream ID="AUDIT" STATE="A" CONTROL_GROUP="X" VERSIONABLE="false">
+<foxml:datastreamVersion ID="AUDIT.0" LABEL="Audit Trail for this object" CREATED="2015-12-01T00:38:38.803Z" MIMETYPE="text/xml" FORMAT_URI="info:fedora/fedora-system:format/xml.fedora.audit">
+<foxml:xmlContent>
+<audit:auditTrail xmlns:audit="info:fedora/fedora-system:def/audit#">
+<audit:record ID="AUDREC1">
+<audit:process type="Fedora API-M"/>
+<audit:action>modifyDatastreamByValue</audit:action>
+<audit:componentID>FezMD</audit:componentID>
+<audit:responsibility>fedoraAdmin</audit:responsibility>
+<audit:date>2015-12-01T00:38:40.672Z</audit:date>
+<audit:justification>Modified Datastream</audit:justification>
+</audit:record>
+<audit:record ID="AUDREC2">
+<audit:process type="Fedora API-M"/>
+<audit:action>addDatastream</audit:action>
+<audit:componentID>PremisEvent</audit:componentID>
+<audit:responsibility>fedoraAdmin</audit:responsibility>
+<audit:date>2015-12-01T00:38:42.422Z</audit:date>
+<audit:justification>Added Datastream</audit:justification>
+</audit:record>
+<audit:record ID="AUDREC3">
+<audit:process type="Fedora API-M"/>
+<audit:action>modifyDatastreamByValue</audit:action>
+<audit:componentID>PremisEvent</audit:componentID>
+<audit:responsibility>fedoraAdmin</audit:responsibility>
+<audit:date>2015-12-01T00:38:42.612Z</audit:date>
+<audit:justification>Added Datastream</audit:justification>
+</audit:record>
+</audit:auditTrail>
+</foxml:xmlContent>
+</foxml:datastreamVersion>
+</foxml:datastream>
+<foxml:datastream ID="DC" STATE="A" CONTROL_GROUP="X" VERSIONABLE="true">
+<foxml:datastreamVersion ID="DC1.0" LABEL="Dublin Core Record" CREATED="2015-12-01T00:38:38.803Z" MIMETYPE="text/xml" FORMAT_URI="http://www.openarchives.org/OAI/2.0/oai_dc/" SIZE="448">
+<foxml:xmlContent>
+<oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+  <dc:title>Transposing of water policies from developed to developing countries: The case of user pays</dc:title>
+  <dc:identifier>UQ:5</dc:identifier>
+</oai_dc:dc>
+</foxml:xmlContent>
+</foxml:datastreamVersion>
+</foxml:datastream>
+<foxml:datastream ID="FezMD" STATE="A" CONTROL_GROUP="X" VERSIONABLE="true">
+<foxml:datastreamVersion ID="Fez1.0" LABEL="Fez extension metadata" CREATED="2015-12-01T00:38:38.803Z" MIMETYPE="text/xml" SIZE="961">
+<foxml:xmlContent>
+<FezMD xmlns:xsi="http://www.w3.org/2001/XMLSchema">
+          <xdis_id>179</xdis_id>
+          <sta_id>4</sta_id>
+          <ret_id>3</ret_id>
+          <usr_id>999999991</usr_id>
+          <grp_id></grp_id>
+          <copyright>on</copyright>
+          <created_date>2015-12-01T00:38:37Z</created_date>
+          <updated_date>2015-12-01T00:38:37Z</updated_date>
+          <depositor>999999991</depositor>
+          <depositor_affiliation></depositor_affiliation>
+          <additional_notes></additional_notes>
+          <refereed>off</refereed>
+          <refereed_source>453638</refereed_source>
+          <reference_text></reference_text>
+          <herdc_status></herdc_status>
+          <institutional_status></institutional_status>
+          <follow_up></follow_up>
+          <follow_up_imu></follow_up_imu>
+          <scopus_doc_type></scopus_doc_type>
+          <wok_doc_type></wok_doc_type>
+          <author_count></author_count>
+        </FezMD>
+</foxml:xmlContent>
+</foxml:datastreamVersion>
+<foxml:datastreamVersion ID="FezMD.1" LABEL="Fez extension metadata" CREATED="2015-12-01T00:38:40.672Z" MIMETYPE="text/xml" SIZE="397">
+<foxml:xmlContent>
+<FezMD xmlns:xsi="http://www.w3.org/2001/XMLSchema">
+  <xdis_id>179</xdis_id>
+  <sta_id>2</sta_id>
+  <ret_id>3</ret_id>
+  <usr_id>999999991</usr_id>
+  <copyright>on</copyright>
+  <created_date>2015-12-01T00:38:37Z</created_date>
+  <updated_date>2015-12-01T00:38:37Z</updated_date>
+  <depositor>999999991</depositor>
+  <refereed>off</refereed>
+  <refereed_source>453638</refereed_source>
+</FezMD>
+</foxml:xmlContent>
+</foxml:datastreamVersion>
+</foxml:datastream>
+<foxml:datastream ID="MODS" STATE="A" CONTROL_GROUP="X" VERSIONABLE="true">
+<foxml:datastreamVersion ID="MODS.0" LABEL="Metadata Object Description Schema" CREATED="2015-12-01T00:38:38.803Z" MIMETYPE="text/xml" SIZE="4458">
+<foxml:xmlContent>
+<mods:mods xmlns:mods="http://www.loc.gov/mods/v3" xmlns:xsi="http://www.w3.org/2001/XMLSchema">
+          <mods:titleInfo>
+            <mods:title>Transposing of water policies from developed to developing countries: The case of user pays</mods:title>
+          </mods:titleInfo>
+          <mods:titleInfo type="phonetic">
+            <mods:title></mods:title>
+          </mods:titleInfo>
+          <mods:titleInfo type="translated">
+            <mods:title></mods:title>
+          </mods:titleInfo>
+          <mods:titleInfo type="formatted">
+            <mods:title></mods:title>
+          </mods:titleInfo>
+          <mods:titleInfo type="native_script_title">
+            <mods:title></mods:title>
+          </mods:titleInfo>
+          <mods:titleInfo type="roman_script_title">
+            <mods:title></mods:title>
+          </mods:titleInfo>
+          <mods:titleInfo type="language_of_title">
+            <mods:title></mods:title>
+          </mods:titleInfo>
+          <mods:name authority="University of Fez" ID="0">
+            <mods:namePart type="personal">Hunt, C</mods:namePart>
+            <mods:role>
+              <mods:roleTerm type="text">author</mods:roleTerm>
+            </mods:role>
+          </mods:name>
+          <mods:genre type="Article (original research)">Journal Article</mods:genre>
+          <mods:language>eng</mods:language>
+          <mods:physicalDescription>
+            <mods:note type="code"></mods:note>
+            <mods:note type="non-repo-expl"></mods:note>
+            <mods:note type="sensitive-expl"></mods:note>
+          </mods:physicalDescription>
+          <mods:abstract></mods:abstract>
+          <mods:abstract type="formatted"></mods:abstract>
+          <mods:note></mods:note>
+          <mods:note type="herdc"></mods:note>
+          <mods:subject ID="450009" authority="asrc">
+            <mods:topic>C1</mods:topic>
+          </mods:subject>
+          <mods:subject authority="HERDC">
+            <mods:topic></mods:topic>
+          </mods:subject>
+          <mods:relatedItem type="host">
+            <mods:name>
+              <mods:namePart type="journal">Water International</mods:namePart>
+              <mods:namePart type="phonetic"></mods:namePart>
+              <mods:namePart type="translated"></mods:namePart>
+              <mods:namePart type="native_script_journal_name"></mods:namePart>
+              <mods:namePart type="roman_script_journal_name"></mods:namePart>
+              <mods:namePart type="language_of_journal_name"></mods:namePart>
+            </mods:name>
+            <mods:originInfo>
+              <mods:place>
+                <mods:placeTerm>Urbana, III</mods:placeTerm>
+              </mods:place>
+              <mods:publisher>International Water Resources Association</mods:publisher>
+              <mods:dateIssued>1999-01-01</mods:dateIssued>
+              <mods:dateValid></mods:dateValid>
+              <mods:dateOther type="collection_year">1999</mods:dateOther>
+            </mods:originInfo>
+            <mods:identifier type="grant_id"></mods:identifier>
+            <mods:part>
+              <mods:detail type="issue">
+                <mods:number>4</mods:number>
+              </mods:detail>
+              <mods:detail type="volume">
+                <mods:number>24</mods:number>
+              </mods:detail>
+              <mods:extent unit="page">
+                <mods:start>293</mods:start>
+                <mods:end>306</mods:end>
+                <mods:total>14</mods:total>
+              </mods:extent>
+            </mods:part>
+          </mods:relatedItem>
+          <mods:identifier type="isbn"></mods:identifier>
+          <mods:identifier type="issn">0250-8060</mods:identifier>
+          <mods:identifier type="isi_loc">000084814000002</mods:identifier>
+          <mods:identifier type="rm_prn"></mods:identifier>
+          <mods:identifier type="scopus"></mods:identifier>
+          <mods:identifier type="doi"></mods:identifier>
+          <mods:identifier type="pubmed"></mods:identifier>
+          <mods:identifier type="embase"></mods:identifier>
+          <mods:accessCondition type="oa_compliance"></mods:accessCondition>
+          <mods:accessCondition type="oa_notes"></mods:accessCondition>
+          <mods:accessCondition type="retracted">off</mods:accessCondition>
+          <mods:accessCondition type="oa_status"></mods:accessCondition>
+          <mods:accessCondition type="embargo_days"></mods:accessCondition>
+        </mods:mods>
+</foxml:xmlContent>
+</foxml:datastreamVersion>
+</foxml:datastream>
+<foxml:datastream ID="RELS-EXT" STATE="A" CONTROL_GROUP="X" VERSIONABLE="true">
+<foxml:datastreamVersion ID="RELS-EXT.0" LABEL="Relationships to other objects" CREATED="2015-12-01T00:38:38.803Z" MIMETYPE="application/rdf+xml" FORMAT_URI="info:fedora/fedora-system:FedoraRELSExt-1.0" SIZE="357">
+<foxml:xmlContent>
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:rel="info:fedora/fedora-system:def/relations-external#" xmlns:xsi="http://www.w3.org/2001/XMLSchema">
+          <rdf:description rdf:about="info:fedora/UQ:5">
+            <rel:isMemberOf rdf:resource="info:fedora/UQ:4"></rel:isMemberOf>
+          </rdf:description>
+        </rdf:RDF>
+</foxml:xmlContent>
+</foxml:datastreamVersion>
+</foxml:datastream>
+<foxml:datastream ID="FezACML" STATE="A" CONTROL_GROUP="X" VERSIONABLE="true">
+<foxml:datastreamVersion ID="FezACML1.0" LABEL="Fez Access Control Markup Language" CREATED="2015-12-01T00:38:38.803Z" MIMETYPE="text/xml" SIZE="4467">
+<foxml:xmlContent>
+<FezACML xmlns:xsi="http://www.w3.org/2001/XMLSchema">
+          <rule>
+            <role name="Creator">
+              <AD_Group></AD_Group>
+              <AD_User></AD_User>
+              <AD_DistinguishedName></AD_DistinguishedName>
+              <Fez_Group></Fez_Group>
+              <Fez_User></Fez_User>
+              <eduPersonTargetedID></eduPersonTargetedID>
+              <eduPersonAffiliation></eduPersonAffiliation>
+              <eduPersonScopedAffiliation></eduPersonScopedAffiliation>
+              <eduPersonPrimaryAffiliation></eduPersonPrimaryAffiliation>
+              <eduPersonPrincipalName></eduPersonPrincipalName>
+              <eduPersonOrgUnitDN></eduPersonOrgUnitDN>
+              <eduPersonPrimaryOrgUnitDN></eduPersonPrimaryOrgUnitDN>
+            </role>
+            <role name="Editor">
+              <AD_Group></AD_Group>
+              <AD_User></AD_User>
+              <AD_DistinguishedName></AD_DistinguishedName>
+              <Fez_Group></Fez_Group>
+              <Fez_User></Fez_User>
+              <eduPersonTargetedID></eduPersonTargetedID>
+              <eduPersonAffiliation></eduPersonAffiliation>
+              <eduPersonScopedAffiliation></eduPersonScopedAffiliation>
+              <eduPersonPrimaryAffiliation></eduPersonPrimaryAffiliation>
+              <eduPersonPrincipalName></eduPersonPrincipalName>
+              <eduPersonOrgUnitDN></eduPersonOrgUnitDN>
+              <eduPersonPrimaryOrgUnitDN></eduPersonPrimaryOrgUnitDN>
+            </role>
+            <role name="Approver">
+              <AD_Group></AD_Group>
+              <AD_User></AD_User>
+              <AD_DistinguishedName></AD_DistinguishedName>
+              <Fez_Group></Fez_Group>
+              <Fez_User></Fez_User>
+              <eduPersonTargetedID></eduPersonTargetedID>
+              <eduPersonAffiliation></eduPersonAffiliation>
+              <eduPersonScopedAffiliation></eduPersonScopedAffiliation>
+              <eduPersonPrimaryAffiliation></eduPersonPrimaryAffiliation>
+              <eduPersonPrincipalName></eduPersonPrincipalName>
+              <eduPersonOrgUnitDN></eduPersonOrgUnitDN>
+              <eduPersonPrimaryOrgUnitDN></eduPersonPrimaryOrgUnitDN>
+            </role>
+            <role name="Viewer">
+              <AD_Group></AD_Group>
+              <AD_User></AD_User>
+              <AD_DistinguishedName></AD_DistinguishedName>
+              <in_Fez>off</in_Fez>
+              <Fez_Group></Fez_Group>
+              <Fez_User></Fez_User>
+              <eduPersonTargetedID></eduPersonTargetedID>
+              <eduPersonAffiliation></eduPersonAffiliation>
+              <eduPersonScopedAffiliation></eduPersonScopedAffiliation>
+              <eduPersonPrimaryAffiliation></eduPersonPrimaryAffiliation>
+              <eduPersonPrincipalName></eduPersonPrincipalName>
+              <eduPersonOrgUnitDN></eduPersonOrgUnitDN>
+              <eduPersonPrimaryOrgUnitDN></eduPersonPrimaryOrgUnitDN>
+            </role>
+            <role name="Lister">
+              <AD_Group></AD_Group>
+              <AD_User></AD_User>
+              <AD_DistinguishedName></AD_DistinguishedName>
+              <in_Fez>off</in_Fez>
+              <Fez_Group></Fez_Group>
+              <Fez_User></Fez_User>
+              <eduPersonTargetedID></eduPersonTargetedID>
+              <eduPersonAffiliation></eduPersonAffiliation>
+              <eduPersonScopedAffiliation></eduPersonScopedAffiliation>
+              <eduPersonPrimaryAffiliation></eduPersonPrimaryAffiliation>
+              <eduPersonPrincipalName></eduPersonPrincipalName>
+              <eduPersonOrgUnitDN></eduPersonOrgUnitDN>
+              <eduPersonPrimaryOrgUnitDN></eduPersonPrimaryOrgUnitDN>
+            </role>
+            <role name="Commentor">
+              <AD_Group></AD_Group>
+              <AD_User></AD_User>
+              <Fez_Group></Fez_Group>
+              <Fez_User></Fez_User>
+            </role>
+            <role name="Comment_Viewer">
+              <AD_Group></AD_Group>
+              <AD_User></AD_User>
+              <Fez_Group></Fez_Group>
+              <Fez_User></Fez_User>        
+    </role>
+            <role name="Annotator">
+              <AD_Group></AD_Group>
+              <AD_User></AD_User>
+              <Fez_Group></Fez_Group>
+              <Fez_User></Fez_User>
+            </role>
+          </rule>
+          <inherit_security>on</inherit_security>
+          <datastream_quickauth_template></datastream_quickauth_template>
+        </FezACML>
+</foxml:xmlContent>
+</foxml:datastreamVersion>
+</foxml:datastream>
+<foxml:datastream ID="PremisEvent" STATE="A" CONTROL_GROUP="X" VERSIONABLE="false">
+<foxml:datastreamVersion ID="PremisEvent.1" LABEL="Premis Event Datastream" CREATED="2015-12-01T00:38:42.612Z" MIMETYPE="text/xml" SIZE="2217">
+<foxml:xmlContent>
+<premis:premis xmlns:premis="http://www.loc.gov/standards/premis">
+  <premis:event>
+    <premis:eventIdentifier>6</premis:eventIdentifier>
+    <premis:eventType>Create Generic Record In Selected Collection by Test Super Admin</premis:eventType>
+    <premis:eventDateTime>2015-12-01T00:38:42Z</premis:eventDateTime>
+    <premis:eventDetail>Create Generic Record In Selected Collection by Test Super Admin</premis:eventDetail>
+    <premis:eventOutcomeInformation>
+      <premis:eventOutcome>Finished</premis:eventOutcome>
+      <premis:eventOutcomeDetail/>
+    </premis:eventOutcomeInformation>
+    <premis:linkingAgentIdentifier>
+      <premis:linkingAgentIdentifierType>ID</premis:linkingAgentIdentifierType>
+      <premis:linkingAgentIdentifierValue>999999991</premis:linkingAgentIdentifierValue>
+    </premis:linkingAgentIdentifier>
+    <premis:linkingAgentIdentifier>
+      <premis:linkingAgentIdentifierType>Full Name</premis:linkingAgentIdentifierType>
+      <premis:linkingAgentIdentifierValue>Test Super Admin</premis:linkingAgentIdentifierValue>
+    </premis:linkingAgentIdentifier>
+    <premis:linkingObjectIdentifier>UQ:5</premis:linkingObjectIdentifier>
+  </premis:event>
+  <premis:event>
+    <premis:eventIdentifier>5</premis:eventIdentifier>
+    <premis:eventType>Published by Test Super Admin</premis:eventType>
+    <premis:eventDateTime>2015-12-01T00:38:42Z</premis:eventDateTime>
+    <premis:eventDetail>Published by Test Super Admin</premis:eventDetail>
+    <premis:eventOutcomeInformation>
+      <premis:eventOutcome/>
+      <premis:eventOutcomeDetail/>
+    </premis:eventOutcomeInformation>
+    <premis:linkingAgentIdentifier>
+      <premis:linkingAgentIdentifierType>ID</premis:linkingAgentIdentifierType>
+      <premis:linkingAgentIdentifierValue>999999991</premis:linkingAgentIdentifierValue>
+    </premis:linkingAgentIdentifier>
+    <premis:linkingAgentIdentifier>
+      <premis:linkingAgentIdentifierType>Full Name</premis:linkingAgentIdentifierType>
+      <premis:linkingAgentIdentifierValue>Test Super Admin</premis:linkingAgentIdentifierValue>
+    </premis:linkingAgentIdentifier>
+    <premis:linkingObjectIdentifier>UQ:5</premis:linkingObjectIdentifier>
+  </premis:event>
+</premis:premis>
+</foxml:xmlContent>
+</foxml:datastreamVersion>
+</foxml:datastream>
+</foxml:digitalObject>
