@@ -1,4 +1,4 @@
-# features/smoke.feature
+# features/AccessiblePages.feature
 @javascript
 Feature: Check that all pages still give correct output
 
@@ -19,6 +19,7 @@ Feature: Check that all pages still give correct output
     And I should not see "Create New Community"
     And I should not see "(0 results found)"
 
+  @jet
   Scenario: A user wants to do an advanced search
     Given I am on "/adv_search.php"
     And I should see "Advanced Search"
@@ -74,7 +75,7 @@ Feature: Check that all pages still give correct output
     And I should see "Submitted for Approval"
     And I should see "In Review"
 
-  @jetx
+  @jet
   Scenario: Testing UPO view
     Given I login as UPO
     And I am on "/manage"
