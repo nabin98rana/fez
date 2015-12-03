@@ -53,12 +53,12 @@ define("TEST_LINKS_AMR_UT", "000177619700002");
 /**
  * @var string An example Journal Article publication pid in the system you can perform non-destructive tests on
  */
-define("TEST_JOURNAL_ARTICLE_PID", "UQ:10400");
+define("TEST_JOURNAL_ARTICLE_PID", "UQ:5");
 
 /**
  * @var string An example collection pid in the system you can perform non-destructive tests on
  */
-define("TEST_COLLECTION_PID", "UQ:9761");
+define("TEST_COLLECTION_PID", "UQ:4");
 
 /**
  * @var string An example org unit name so you can test on it
