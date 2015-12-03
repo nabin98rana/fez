@@ -10,6 +10,7 @@ RUN cd /var/cache/ && \
     mkdir xdebug && \
     mkdir tmp && \
     chown -R nobody /var/cache && \
+    mkdir -p /var/app/current/public/include/htmlpurifier/library/HTMLPurifier/DefinitionCache/Serializer/HTML && \
     chmod -R 777 /var/app/current/public/include/htmlpurifier/library/HTMLPurifier/DefinitionCache/Serializer/HTML && \
     chown -R nobody /var/app/current/public/include/htmlpurifier/library/HTMLPurifier/DefinitionCache/Serializer/HTML
 
