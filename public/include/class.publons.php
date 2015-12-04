@@ -120,24 +120,71 @@ class Publons
         $psr_date_reviewed = $db->quote($paper['date_reviewed']);
         $psr_verified = $db->quote($paper['verification']['verified']);
         $psr_publisher_id = $db->quote($paper['publisher']['ids']['id']);
-        $psr_publisher_name = $db->quote($paper['publisher']['name']);
         $psr_journal_id  = $db->quote($paper['journal']['ids']['id']);
-        $psr_journal_name = $db->quote($paper['journal']['name']);
-        $psr_journal_issn = $db->quote($paper['journal']['ids']['issn']);
-        $psr_journal_eissn = $db->quote($paper['journal']['ids']['eissn']);
         $psr_journal_article = $db->quote($paper['article']);
 
         $stmt = "INSERT INTO " . APP_TABLE_PREFIX . "publons_reviews
-        (psr_aut_id, psr_publon_id, psr_date_reviewed, psr_verified, psr_publisher_id, psr_publisher_name, psr_journal_id, psr_journal_name, psr_journal_issn, psr_journal_eissn, psr_journal_article, psr_update_data)
-        VALUES(" . $psr_aut_id . ", " . $psr_publon_id . ", " . $psr_date_reviewed . ", " . $psr_verified . ", " . $psr_publisher_id . ",
-               " . $psr_publisher_name . ", " . $psr_journal_id . ", " . $psr_journal_name .
-               ", " . $psr_journal_issn . ", " . $psr_journal_eissn . ", " . $psr_journal_article . ", NOW() )
+        (psr_aut_id, psr_publon_id, psr_date_reviewed, psr_verified,  psr_publisher_id, psr_journal_id, psr_journal_article, psr_update_data)
+        VALUES(" . $psr_aut_id . ", " . $psr_publon_id . ", " . $psr_date_reviewed . ", " . $psr_publisher_id . ", " . $psr_journal_id. ", " . $psr_verified . ", ". $psr_journal_article . ", NOW() )
+        ON DUPLICATE KEY UPDATE
+        psr_date_reviewed=" . $psr_date_reviewed . ", psr_verified=" . $psr_verified . ", psr_publisher_id = ".$psr_publisher_id. ", psr_journal_id = ".$psr_journal_id . ", psr_journal_article = ".$psr_journal_article.", psr_update_data = NOW()";
+
+        try {
+            $res = $db->exec($stmt);
+        }
+        catch(Exception $ex) {
+            $log->err($ex);
+        }
+        Publons::savePublonsJournal($paper);
+        Publons::savePublonsPublisher($paper);
+        return $res;
+    }
+
+    //Expects paper output from getUserData
+    public function savePublonsJournal($paper)
+    {
+        $log = FezLog::get();
+        $db = DB_API::get();
+
+        $psj_journal_id  = $db->quote($paper['journal']['ids']['id']);
+        $psj_journal_name = $db->quote($paper['journal']['name']);
+        $psj_journal_issn = $db->quote($paper['journal']['ids']['issn']);
+        $psj_journal_eissn = $db->quote($paper['journal']['ids']['eissn']);
+
+        $stmt = "INSERT INTO " . APP_TABLE_PREFIX . "publons_journals
+        (psj_journal_id, psj_journal_name, psj_journal_issn, psj_journal_eissn)
+        VALUES( " . $psj_journal_id . ", " . $psj_journal_name .
+            ", " . $psj_journal_issn . ", " . $psj_journal_eissn  . ")
 
         ON DUPLICATE KEY UPDATE
 
-        psr_date_reviewed=" . $psr_date_reviewed . ", psr_verified=" . $psr_verified . ", psr_publisher_id = " . $psr_publisher_id . ",
-        psr_publisher_name = " . $psr_publisher_name . ", psr_journal_id = " . $psr_journal_id . ", psr_journal_name = " . $psr_journal_name . ",
-        psr_journal_issn =  " . $psr_journal_issn . ", psr_journal_eissn =  " .$psr_journal_eissn. ", psr_journal_article = ".$psr_journal_article.", psr_update_data = NOW()";
+        psj_journal_id = " . $psj_journal_id . ", psj_journal_name = " . $psj_journal_name . ",
+        psj_journal_issn =  " . $psj_journal_issn . ", psj_journal_eissn =  " .$psj_journal_eissn;
+
+        try {
+            $res = $db->exec($stmt);
+        }
+        catch(Exception $ex) {
+            $log->err($ex);
+        }
+
+        return $res;
+    }
+
+    //Expects paper output from getUserData
+    public function savePublonsPublisher($paper)
+    {
+        $log = FezLog::get();
+        $db = DB_API::get();
+
+        $psp_publisher_id = $db->quote($paper['publisher']['ids']['id']);
+        $psp_publisher_name = $db->quote($paper['publisher']['name']);
+
+        $stmt = "INSERT INTO " . APP_TABLE_PREFIX . "publons_publishers
+        (psp_publisher_id, psp_publisher_name)
+        VALUES(" . $psp_publisher_id . ", " . $psp_publisher_name . " )
+        ON DUPLICATE KEY UPDATE
+        psp_publisher_id = " . $psp_publisher_id . ", psp_publisher_name = " . $psp_publisher_name;
 
         try {
             $res = $db->exec($stmt);
