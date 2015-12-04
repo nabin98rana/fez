@@ -115,7 +115,7 @@ class Publons
         $log = FezLog::get();
         $db = DB_API::get();
 
-        $psr_author_id = $db->quote($authorId);
+        $psr_aut_id = $db->quote($authorId);
         $psr_publon_id = $db->quote($paper['ids']['academic']['id']);
         $psr_date_reviewed = $db->quote($paper['date_reviewed']);
         $psr_verified = $db->quote($paper['verification']['verified']);
@@ -128,8 +128,8 @@ class Publons
         $psr_journal_article = $db->quote($paper['article']);
 
         $stmt = "INSERT INTO " . APP_TABLE_PREFIX . "publons_reviews
-        (psr_author_id, psr_publon_id, psr_date_reviewed, psr_verified, psr_publisher_id, psr_publisher_name, psr_journal_id, psr_journal_name, psr_journal_issn, psr_journal_eissn, psr_journal_article, psr_update_data)
-        VALUES(" . $psr_author_id . ", " . $psr_publon_id . ", " . $psr_date_reviewed . ", " . $psr_verified . ", " . $psr_publisher_id . ",
+        (psr_aut_id, psr_publon_id, psr_date_reviewed, psr_verified, psr_publisher_id, psr_publisher_name, psr_journal_id, psr_journal_name, psr_journal_issn, psr_journal_eissn, psr_journal_article, psr_update_data)
+        VALUES(" . $psr_aut_id . ", " . $psr_publon_id . ", " . $psr_date_reviewed . ", " . $psr_verified . ", " . $psr_publisher_id . ",
                " . $psr_publisher_name . ", " . $psr_journal_id . ", " . $psr_journal_name .
                ", " . $psr_journal_issn . ", " . $psr_journal_eissn . ", " . $psr_journal_article . ", NOW() )
 
