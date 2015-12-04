@@ -73,9 +73,9 @@ function runDatabaseTasks() {
   parseMySQLdump("./../../.docker/development/backend/db/seed/development.sql");
   parseMySQLdump("./../../.docker/development/backend/db/seed/workflows.sql");
   parseMySQLdump("./../../.docker/development/backend/db/seed/xsd.sql");
-  parseMySQLdump("./../../.docker/development/backend/db/seed/jetsetup.sql");
   parseMySQLdump("./../../.docker/development/backend/db/seed/fez_testdata_load.sql");
   parseMySQLdump("./../../.docker/development/backend/db/seed/fedora_testdata_load.sql");
+  parseMySQLdump("./../../.docker/development/backend/db/seed/jetsetup.sql");
 }
 
 /**

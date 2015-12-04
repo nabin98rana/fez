@@ -1,1 +1,1 @@
-replace into fez_config (config_id, config_name, config_module, config_value) values('139','app_hostname','core','fez');
+UPDATE fez_config SET config_value = 'fez' WHERE config_name = 'app_hostname';
