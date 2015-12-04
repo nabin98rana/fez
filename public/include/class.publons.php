@@ -125,7 +125,7 @@ class Publons
 
         $stmt = "INSERT INTO " . APP_TABLE_PREFIX . "publons_reviews
         (psr_aut_id, psr_publon_id, psr_date_reviewed, psr_verified,  psr_publisher_id, psr_journal_id, psr_journal_article, psr_update_data)
-        VALUES(" . $psr_aut_id . ", " . $psr_publon_id . ", " . $psr_date_reviewed . ", " . $psr_publisher_id . ", " . $psr_journal_id. ", " . $psr_verified . ", ". $psr_journal_article . ", NOW() )
+        VALUES(" . $psr_aut_id . ", " . $psr_publon_id . ", " . $psr_date_reviewed . ", " . $psr_verified . ", ". $psr_publisher_id . ", " . $psr_journal_id. ", " . $psr_journal_article . ", NOW() )
         ON DUPLICATE KEY UPDATE
         psr_date_reviewed=" . $psr_date_reviewed . ", psr_verified=" . $psr_verified . ", psr_publisher_id = ".$psr_publisher_id. ", psr_journal_id = ".$psr_journal_id . ", psr_journal_article = ".$psr_journal_article.", psr_update_data = NOW()";
 
@@ -151,6 +151,9 @@ class Publons
         $psj_journal_issn = $db->quote($paper['journal']['ids']['issn']);
         $psj_journal_eissn = $db->quote($paper['journal']['ids']['eissn']);
 
+        if(empty($psj_journal_id)) { // Ok not to have a Journal name
+            return true;
+        }
         $stmt = "INSERT INTO " . APP_TABLE_PREFIX . "publons_journals
         (psj_journal_id, psj_journal_name, psj_journal_issn, psj_journal_eissn)
         VALUES( " . $psj_journal_id . ", " . $psj_journal_name .
@@ -179,7 +182,9 @@ class Publons
 
         $psp_publisher_id = $db->quote($paper['publisher']['ids']['id']);
         $psp_publisher_name = $db->quote($paper['publisher']['name']);
-
+        if(empty($psp_publisher_id)) { // Ok not to have a publisher
+            return true;
+        }
         $stmt = "INSERT INTO " . APP_TABLE_PREFIX . "publons_publishers
         (psp_publisher_id, psp_publisher_name)
         VALUES(" . $psp_publisher_id . ", " . $psp_publisher_name . " )
