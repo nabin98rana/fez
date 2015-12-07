@@ -87,3 +87,8 @@ solr:
     image: codeship_solr
     dockerfile_path: Dockerfile
     path: ./.docker/development/solr/
+
+awsdeployment:
+  build:
+    dockerfile_path: "Dockerfile.staging.deploy"
+  encrypted_env_file: "deployment.env.encrypted"
