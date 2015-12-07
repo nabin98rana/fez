@@ -1,5 +1,5 @@
 {
-  "family": "fez",
+  "family": "fezstaging",
   "containerDefinitions": [
     {
       "name": "nginx",
@@ -25,13 +25,13 @@
     },
     {
       "name": "fpm",
-      "image": "uql-registry.library.uq.edu.au/production/fez:<COMMIT_HASH>",
+      "image": "uql-registry.library.uq.edu.au/staging/fez:<COMMIT_HASH>",
       "cpu": 256,
       "memory": 1024,
       "environment": [
         {
           "name": "APP_ENVIRONMENT",
-          "value": "production"
+          "value": "staging"
         },
         {
           "name": "NEWRELIC_LICENSE",

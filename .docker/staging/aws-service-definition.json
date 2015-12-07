@@ -1,11 +1,11 @@
 {
     "cluster": "default",
-    "serviceName": "fez",
+    "serviceName": "fezstaging",
     "taskDefinition": "fez:<VERSION_NUMBER>",
     "loadBalancers": [
         {
-            "loadBalancerName": "fez",
-            "containerName": "fez",
+            "loadBalancerName": "fezstaging",
+            "containerName": "fezstaging",
             "containerPort": 8008
         }
     ],

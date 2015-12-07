@@ -7,21 +7,5 @@
 # |  |  |  |  |
 # *  *  *  *  * user-name  command to be executed
 
-## Libstats imports ##
-
-# Imports internal and external class statistics from LibLiaise into Libstats on the 13th of each month
-00 01 13 * * root /usr/bin/wget https://app.library.uq.edu.au/libstats/import/importliaisonclasses?token=WEBCRON_TOKEN > /dev/null 2>&1
-
-# Imports statistics from III web management reports into Libstats on the 5th of each month
-00 02 5 * * root /usr/bin/wget https://app.library.uq.edu.au/libstats/import/importmillenniumstats?token=WEBCRON_TOKEN > /dev/null 2>&1
-
-# Imports Doc Del statistics into Libstats on the 5th of each month
-00 03 5 * * root /usr/bin/wget https://app.library.uq.edu.au/libstats/import/importdocdelstats?token=WEBCRON_TOKEN > /dev/null 2>&1
-
-# Processes rescheduled imports each day
-00 03 * * * root /usr/bin/wget https://app.library.uq.edu.au/libstats/task/processrescheduledimports?token=WEBCRON_TOKEN > /dev/null 2>&1
-
-# Processes mail queue every 5 minutes
-*/5 * * * * root /usr/bin/wget https://app.library.uq.edu.au/libstats/task/processmq?token=WEBCRON_TOKEN > /dev/null 2>&1
-
-## /Libstats imports ##
+## Fez tasks ##
+## /Fez tasks ##
