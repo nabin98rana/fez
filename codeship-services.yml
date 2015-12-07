@@ -90,5 +90,10 @@ solr:
 
 awsdeployment:
   build:
+    dockerfile_path: "Dockerfile.deploy"
+  encrypted_env_file: "deployment.env.encrypted"
+
+awsdeploymentstaging:
+  build:
     dockerfile_path: "Dockerfile.staging.deploy"
   encrypted_env_file: "deployment.env.encrypted"
