@@ -1,0 +1,15 @@
+{
+    "cluster": "default",
+    "serviceName": "fezstaging",
+    "taskDefinition": "fez:<VERSION_NUMBER>",
+    "loadBalancers": [
+        {
+            "loadBalancerName": "fezstaging",
+            "containerName": "fezstaging",
+            "containerPort": 8008
+        }
+    ],
+    "desiredCount": 2,
+    "clientToken": "",
+    "role": "ecsServiceRole"
+}

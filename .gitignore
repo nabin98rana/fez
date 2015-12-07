@@ -66,4 +66,5 @@ codeship.key
 codeship.aes
 *.env
 dockerenv
+dockercfg
 
