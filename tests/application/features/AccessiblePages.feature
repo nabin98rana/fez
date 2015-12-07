@@ -1,31 +1,52 @@
-# features/smoke.feature
+# features/AccessiblePages.feature
 @javascript
 Feature: Check that all pages still give correct output
 
-Scenario: A user needs contact infomation
-  Given I am on "/about"
-  Then I should see "General Enquiries"
-  And I should see "69775"
-  And I should see "UQ eSpace"
+  @cloned
+  Scenario: A user needs contact information
+    Given I am on "/about"
+    Then I should see "General Enquiries"
+    And I should see "69775"
+    And I should see "UQ eSpace"
 
-  Scenario: A user needs faq infomation
+  @cloned
+  Scenario: A user needs faq information
     Given I am on "/faq"
     Then I should see "Frequently Asked Questions"
     And I should see "How do I find out more about the NHMRC and ARC Mandates?"
 
-  Scenario: A user wants to browser
+  @cloned
+  Scenario: A user wants to browse
     Given I am on "/list/"
     And I should see "List of Communities"
     And I should not see "Create New Community"
     And I should not see "(0 results found)"
 
+  @jet @clean
+  Scenario: A user needs contact information
+    Given I am on "/about"
+    Then I should see "About this site"
+
+  @jet @clean
+  Scenario: A user needs faq information
+    Given I am on "/faq"
+    Then I should see "Frequently Asked Questions"
+
+  @jet @clean
+  Scenario: A user wants to browse
+    Given I am on "/list/"
+    And I should see "List of Communities"
+    And I should see "(0 results found)"
+
+  @jet
   Scenario: A user wants to do an advanced search
     Given I am on "/adv_search.php"
     And I should see "Advanced Search"
     And I should see "All Fields"
     And I should see "Title"
 
-  Scenario: Users without logins should not see manage and other loged in pages
+  @jet
+  Scenario: Users without logins should not see manage and other logged in pages
     Given I am on "/manage"
     Then I should see "You must first login to access this resource"
     When I fill in "username" with "doesnotexist"
@@ -46,7 +67,7 @@ Scenario: A user needs contact infomation
     Given I am on "/favourites"
     Then I should see "Login to"
 
-    @bug
+  @jet
   Scenario: Testing Administrator view
     And I login as administrator
     And I am on "/manage"
@@ -60,6 +81,7 @@ Scenario: A user needs contact infomation
     #And I should not see "In Review"
     #And I should not see "Submitted for Approval"
 
+  @jet
   Scenario: Testing Super Administrator view
     Given I login as super administrator
     And I am on "/manage"
@@ -72,6 +94,7 @@ Scenario: A user needs contact infomation
     And I should see "Submitted for Approval"
     And I should see "In Review"
 
+  @jet
   Scenario: Testing UPO view
     Given I login as UPO
     And I am on "/manage"

@@ -367,4 +367,20 @@ aut_people_australia_id, aut_description, aut_orcid_id, aut_google_scholar_id, a
 
         return $results;
     }
+
+    public static function authorIdFromOrcid($orcId)
+    {
+        $log = FezLog::get();
+        $db = DB_API::get();
+
+        $stmt = "SELECT aut_id FROM " . APP_TABLE_PREFIX . "author WHERE aut_orcid_id = " . $db->quote($orcId);
+        try {
+            $res = $db->fetchOne($stmt);
+        } catch (Exception $ex) {
+            $log->err($ex);
+            return false;
+        }
+
+        return $res;
+    }
 }

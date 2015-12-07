@@ -53,12 +53,12 @@ define("TEST_LINKS_AMR_UT", "000177619700002");
 /**
  * @var string An example Journal Article publication pid in the system you can perform non-destructive tests on
  */
-define("TEST_JOURNAL_ARTICLE_PID", "UQ:10400");
+define("TEST_JOURNAL_ARTICLE_PID", "UQ:5");
 
 /**
  * @var string An example collection pid in the system you can perform non-destructive tests on
  */
-define("TEST_COLLECTION_PID", "UQ:9761");
+define("TEST_COLLECTION_PID", "UQ:4");
 
 /**
  * @var string An example org unit name so you can test on it
@@ -70,7 +70,7 @@ define("TEST_ORG_UNIT_NAME", "Mathematics");
  */
 define("TEST_ORG_UNIT_NAME_USERNAME", "maebilli");
 
-define('BEHAT_ERROR_REPORTING', E_ALL & ~E_NOTICE & ~E_STRICT & ~E_DEPRECATED & ~E_WARNING);
+define('BEHAT_ERROR_REPORTING', E_ALL & ~E_NOTICE & ~E_STRICT & ~E_DEPRECATED & ~E_WARNING & ~E_USER_WARNING);
 
 
 /**
@@ -128,6 +128,12 @@ class FeatureContext extends MinkContext
    */
   private $isModal;
 
+  /**
+   * Whether debugging is disabled. When enabled, screenshots of failed scenarios are taken.
+   * @var bool
+   */
+  private $debugDisabled;
+
 
   /**
    * @var string  The Current Subcontext we are working with
@@ -153,6 +159,8 @@ class FeatureContext extends MinkContext
       $this->screenshotDir = isset($parameters["debug"]['screenshot_dir']) ? $parameters["debug"]['screenshot_dir'] : $behatchDir;
       $this->screenId = isset($parameters["debug"]['screen_id']) ? $parameters["debug"]['screen_id'] : ":0";
       $this->zoetropeEnabled = (isset($parameters["debug"]['zoetrope']) && $parameters["debug"]['zoetrope'] == 1) ? true : false;
+      // Debug is by default enabled unless explicitly disabled in the config
+      $this->debugDisabled = (isset($parameters["debug"]['disabled']) && $parameters["debug"]['disabled'] == 1) ? true : false;
     }
 
 //
@@ -470,8 +478,11 @@ class FeatureContext extends MinkContext
    */
   public function failScreenshots(StepEvent $event)
   {
-    if (!($this->getSession()->getDriver() instanceof Behat\Mink\Driver\GoutteDriver) &&
-      !($this->getSession()->getDriver() instanceof Behat\Mink\Driver\ZombieDriver)) {
+    if (
+        !($this->getSession()->getDriver() instanceof Behat\Mink\Driver\GoutteDriver) &&
+        !($this->getSession()->getDriver() instanceof Behat\Mink\Driver\ZombieDriver) &&
+        ! $this->debugDisabled
+    ) {
       if($event->getResult() == StepEvent::FAILED)
       {
         $sn = $event->getStep()->getParent()->getTitle();

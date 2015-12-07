@@ -60,8 +60,6 @@ Run the sanity checks:
 
 [http://dev-fez.library.uq.edu.au:8080/upgrade/check_sanity.php](http://dev-fez.library.uq.edu.au:8080/upgrade/check_sanity.php)
 
-NB: You may see "Failed: Connect" for Fedora, this is currently expected and will be resolved with the datastore upgrade.
-
 Celebrate your new Fez dev site!
 
 ## Useful Links

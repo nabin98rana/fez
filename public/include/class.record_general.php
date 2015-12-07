@@ -1329,6 +1329,13 @@ class RecordGeneral
 
     // Step 1: Match on name
     $authors = $this->getAuthors();
+    if(empty($authors)) {
+      if( $this->_bgp ) {
+        $this->_bgp->setStatus("FAILED to match, no authors in DB table!");
+      }
+      $log->err("No Authors in DB table for " . $this->pid . " when a Author match was attempted on " . $aut_id);
+      return array(FALSE, 'no_authors_in_db');
+    }
     $orig_authors = $authors;
     $known_authors = array();
 

@@ -4,6 +4,8 @@ include_once dirname(dirname(__FILE__)) . DIRECTORY_SEPARATOR . 'config.inc.php'
 include_once APP_INC_PATH.'class.wok_service.php';
 include_once(APP_INC_PATH . 'class.scopus_service.php');
 include_once(APP_INC_PATH . 'class.ulrichs.php');
+include_once(APP_INC_PATH . 'class.publons.php');
+include_once(APP_INC_PATH . 'class.api_researchers.php');
 
 $isUser = Auth::getUsername();
 if (User::isUserAdministrator($isUser)) {
@@ -13,6 +15,7 @@ if (User::isUserAdministrator($isUser)) {
     $id_ulrichs = @$_REQUEST["id_ulrichs"];
     $pid_solr = @$_REQUEST["pid_solr"];
     $links_amr_pid = @$_REQUEST["links_amr_pid"];
+    $url = @$_REQUEST["url"];
 
     if (!empty($id_sherpa)) {
         $sr = new SherpaRomeo();
@@ -52,7 +55,10 @@ if (User::isUserAdministrator($isUser)) {
             echo "No response. It may already be assigned a ISI Loc, in the Temporary Duplicates collection or you may be missing ";
             echo "enough info for the data to be submitted .You need -  DOI or (title vol issue page) or (title vol issue an) or (first_author issn vol issue page) or (first_author issn vol issue an). (an - article number, mostly unused)";
         }
-    }else {
+    } else if ($url) {
+        header("Content-type: application/json; charset=utf-8");
+        echo Publons::returnPublonsData(PUBLONS_BASE_URL ."academic/review/?academic=" . $url . "&pre=true&paginate_by=20");
+    }  else {
 ?>
         <form name="input" method="get">
             <h2>Raw output we receive for Scopus or WOS via their API's we use when we import one record</h2>
@@ -87,6 +93,13 @@ if (User::isUserAdministrator($isUser)) {
             <br />
             PID: <input type="text" name="links_amr_pid">
             <input type="submit" value="Submit PID">
+        </form>
+        <br />
+        <form name="publons" method="get">
+            <h2>Output we receive from publons</h2>
+            <br />
+            Orcid: <input type="text" name="url">
+            <input type="submit" value="Submit Orcid">  <a href="https://publons.com/api/v2/" target="_blank">.</a> Chrome add-on to make the json output pretty <a href="https://chrome.google.com/webstore/detail/jsonview/chklaanhfefbnpoihckbnefhakgolnmc?hl=en" target="_blank">Chrome addon</a>
         </form>
 <?php
     }

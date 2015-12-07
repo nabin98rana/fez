@@ -1,5 +1,9 @@
 # behat.yml
 default:
+  context:
+    parameters:
+      debug:
+        disabled: 1
   extensions:
     Behat\MinkExtension\Extension:
       base_url:  'http://fez'

@@ -1,7 +1,7 @@
 @javascript
 Feature: Check news displays correctly and Admin news displays only to the correct group
 
-  @now @insulated
+  @now @insulated @jet
   Scenario: I login as admin and create a news story and check I can see it but non admin users can't
     Given I login as administrator
     And I am on "/manage/news.php"
@@ -30,19 +30,18 @@ Feature: Check news displays correctly and Admin news displays only to the corre
     Then I should not see "Admin Only News message"
     And I should see "User News Message"
 
-
-  @purge @destructive
+  @purge @destructive @jet
   Scenario: Delete last two news articles created
-  Given I login as administrator
-  And I am on "/manage/news.php"
-  Then I should see "Admin Only News Title"
-  #we assume the new news items are on the top
-  And I should see "User News Title"
-  And I check "items[]"
-  And I turn off waiting checks
-  And I press "Delete"
-  And I confirm the popup
-  And I check "items[]"
-  And I press "Delete"
-  And I confirm the popup
-  And I turn on waiting checks
+    Given I login as administrator
+    And I am on "/manage/news.php"
+    Then I should see "Admin Only News Title"
+    #we assume the new news items are on the top
+    And I should see "User News Title"
+    And I check "items[]"
+    And I turn off waiting checks
+    And I press "Delete"
+    And I confirm the popup
+    And I check "items[]"
+    And I press "Delete"
+    And I confirm the popup
+    And I turn on waiting checks
