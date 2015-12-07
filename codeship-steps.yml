@@ -1,6 +1,7 @@
-- service: fpmtestrunner
-  command: .codeship/jet.sh
-- service: fezstaging
+# disabling whilst working on deployment
+#- service: fpmtestrunner
+#  command: .codeship/jet.sh
+- service: fez
   type: push
   tag: staging # should only push on staging branch
   image_name: uql-registry.library.uq.edu.au/staging/fez
