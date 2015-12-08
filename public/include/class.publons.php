@@ -47,7 +47,6 @@ class Publons
 
     if (empty($url)) {
         $url = PUBLONS_BASE_URL . "academic/review/?academic=".$orcidId . "&pre=true&paginate_by=100";
-       // https://publons.com/api/v2/academic/review/?academic=480479&pre=true
     }
 
     $response = Publons::returnPublonsData($url);
@@ -69,6 +68,25 @@ class Publons
     return $response;
     }
 
+    public function getUniversityData($url = null)
+    {
+        if (empty($url)) {
+            $url = PUBLONS_BASE_URL . 'academic/?institution=The%20University%20of%20Queensland&paginate_by=100';
+        }
+        $response =  Publons::returnPublonsData($url);
+        //use recursion to get all results
+        $responseArray = json_decode( $response, true );
+        if(!empty($responseArray['next'])) {
+            $responseAdditional = Publons::getUniversityData( $responseArray['next']);
+            $res['results'] = array_merge( $responseArray['results'], $responseAdditional['results'] );
+            $res['count'] = $responseAdditional['count'];
+            $response = $res;
+        } else {
+            $response = $responseArray;
+        }
+
+        return $response;
+    }
 
     public function returnPublonsData($url)
     {
