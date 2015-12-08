@@ -10,6 +10,7 @@ echo Deploying ${CI_COMMIT_ID}..
 SQS_MESSAGE=$(<${BASE_DIR}/.docker/staging/aws-task-definition.json)
 SQS_MESSAGE="${SQS_MESSAGE//\<COMMIT_HASH\>/${CI_COMMIT_ID}}"
 SQS_MESSAGE="${SQS_MESSAGE//\<NEWRELIC_LICENSE\>/${NEWRELIC_LICENSE}}"
+SQS_MESSAGE="${SQS_MESSAGE/\<WEBCRON_TOKEN\>/${WEBCRON_TOKEN}}"
 SQS_MESSAGE_ATTRIBUTES='{"service": { "StringValue": "fezstaging", "DataType": "String" } }'
 
 aws sqs send-message \
