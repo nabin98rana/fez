@@ -126,6 +126,27 @@ class Publons
 
         }
     }
+    
+    public function returnOrcidIfHasPublons($author_id)
+    {
+        $log = FezLog::get();
+        $db = DB_API::get();
+
+        $stmt = "SELECT aut_orcid_id FROM fez_author
+            INNER JOIN fez_publons_reviews ON psr_aut_id = aut_id
+            WHERE aut_id = " . $db->quote($author_id) . "
+            LIMIT 1;";
+
+        try {
+            $res = $db->fetchOne($stmt);
+        }
+        catch(Exception $ex) {
+            $log->err($ex);
+        }
+
+        return $res;
+
+    }
 
     //Expects paper output from getUserData
     public function savePublonsReview($authorId, $paper)

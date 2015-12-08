@@ -35,6 +35,11 @@
     <span class="icon"><img src="{$rel_url}images/gscholar.png"/></span> Google Scholar
   </a></li>
 {/if}
+{if $aut_publons_id != ""}
+<li class="btn"><a href="https://publons.com/author/{$aut_publons_id}" title="Publons Profile Page">
+	<span class="icon"><img src="{$rel_url}images/publons.ico"/></span> Publons
+</a></li>
+{/if}
 </ul>
 </div>
 
