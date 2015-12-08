@@ -6,7 +6,7 @@
         {
             "loadBalancerName": "fez",
             "containerName": "fez",
-            "containerPort": 8008
+            "containerPort": 8006
         }
     ],
     "desiredCount": 2,
