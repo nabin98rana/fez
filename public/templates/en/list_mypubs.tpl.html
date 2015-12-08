@@ -11,32 +11,32 @@
     </a></li>
 {/if}
 {if $researcherID != ""}
-  <li class="btn"><a href="http://www.researcherid.com/rid/{$researcherID}" title="ResearcherID Profile Page">
+  <li class="btn"><a href="http://www.researcherid.com/rid/{$researcherID}" title="ResearcherID Profile Page" target="_blank">
     <span class="icon">{if $is_ssl}<img src="{$rel_url}images/rid_22.png"/></span>{else}{include file="rid_badge_sm.tpl.html"}</span>{/if} ResearcherID
   </a></li>
 {/if}
 {if $aut_orcid_id != ""}
-  <li class="btn"><a href="http://orcid.org/{$aut_orcid_id}" title="ORCID Profile Page">
+  <li class="btn"><a href="http://orcid.org/{$aut_orcid_id}" title="ORCID Profile Page" target="_blank">
     <span class="icon"><img src="{$rel_url}images/orcid.gif"/></span> ORCID
   </a></li>
 {/if}
 {if $aut_people_australia_id != ""}
-  <li class="btn"><a href="http://nla.gov.au/{$aut_people_australia_id}" title="People Australia Profile Page">
+  <li class="btn"><a href="http://nla.gov.au/{$aut_people_australia_id}" title="People Australia Profile Page" target="_blank">
     <span class="icon"><img src="{$rel_url}images/trove.png"/></span> People Australia
   </a></li>
 {/if}
 {if $aut_scopus_id != ""}
-  <li class="btn"><a href="http://www.scopus.com/authid/detail.url?authorId={$aut_scopus_id}" title="Scopus ID Profile Page">
+  <li class="btn"><a href="http://www.scopus.com/authid/detail.url?authorId={$aut_scopus_id}" title="Scopus ID Profile Page" target="_blank">
     <span class="icon"><img src="{$rel_url}images/scopus_logo_small.gif"/></span> Scopus ID
   </a></li>
 {/if}
 {if $aut_google_scholar_id != ""}
-  <li class="btn"><a href="http://scholar.google.com/citations?user={$aut_google_scholar_id}" title="Google Scholar Profile Page">
+  <li class="btn"><a href="http://scholar.google.com/citations?user={$aut_google_scholar_id}" title="Google Scholar Profile Page" target="_blank">
     <span class="icon"><img src="{$rel_url}images/gscholar.png"/></span> Google Scholar
   </a></li>
 {/if}
 {if $aut_publons_id != ""}
-<li class="btn"><a href="https://publons.com/author/{$aut_publons_id}" title="Publons Profile Page">
+<li class="btn"><a href="https://publons.com/author/{$aut_publons_id}" title="Publons Profile Page" target="_blank">
 	<span class="icon"><img src="{$rel_url}images/publons.ico"/></span> Publons
 </a></li>
 {/if}
