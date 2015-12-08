@@ -6,7 +6,7 @@
         {
             "loadBalancerName": "fezstaging",
             "containerName": "fezstaging",
-            "containerPort": 8008
+            "containerPort": 8005
         }
     ],
     "desiredCount": 2,
