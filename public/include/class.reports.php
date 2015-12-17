@@ -165,11 +165,12 @@ class Reports
                     }
                 }
             }
+            unset($row);
 
             ?> <table>
                 <thead>
                 <tr>
-                    <th><?php echo implode('</th><th>', array_keys(current($data))); ?></th>
+                    <th></th>
                 </tr>
                 </thead>
                 <tbody>
