@@ -41,7 +41,7 @@ $regex = "/^2-s2\.0-[0-9]{10,11}/";
 $filter = array();
 $filter["searchKey".Search_Key::getID("Status")] = 2; // enforce published records only
 $filter["searchKey".Search_Key::getID("Object Type")] = 3; // records only
-$filter["manualFilter"] = "scopus_id_t_s:[* TO *]"; //only records that have a scopus id assigned
+$filter["manualFilter"] = "scopus_id_t:[* TO *]"; //only records that have a scopus id assigned
 
 $listing = Record::getListing(array(), array(9,10), 0, $max, 'Created Date', false, false, $filter);
 for($i=0; $i<((int)$listing['info']['total_pages']+1); $i++) {
