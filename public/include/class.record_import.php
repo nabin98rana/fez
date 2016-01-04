@@ -340,12 +340,6 @@ abstract class RecordImport
     if (in_array($this->$docTypeCode, $this->_doctypeExceptions)) {
       return false;
     }
-//    if ($this->$primaryId == '2-s2.0-37349064233') {
-//      echo "found it\n";
-//    } else {
-//      return;
-//    }
-
 
     //If the Scopus ID matches something that is already in the Scopus
     //import collection, we need not go any further.
@@ -379,11 +373,9 @@ abstract class RecordImport
 //      }
 //    }
 
-    //set an idcollection array for pids returned by id type
-    $idCollection = array();
     $mirrorMirror = new ReflectionClass($this);
     $associations = array();
-    $return = array();
+
     //See what returns a PID
     foreach ($this->_comparisonIdTypes as $id) {
       //Check that a method exists for retrieving
@@ -642,12 +634,13 @@ abstract class RecordImport
       } elseif (!$this->_inTest) {
         //ST09 - updating
         $this->update($authorativePid);
+
 //      } else {
         /*file_put_contents($this->_statsFile, "ST09 - Updating: ".$authorativePid.". Scopus ID: "
             . $this->_scopusId . "\n\n", FILE_APPEND);*/
         $this->inTestSave($authorativePid, $this->$primaryId, 'ST09', $this->$docTypeCode, $this->$aggregationType, $histMsg);
       }
-      return "UPDATE";
+      return $authorativePid;
     }
   }
 

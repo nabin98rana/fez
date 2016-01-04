@@ -1,4 +1,9 @@
 <?
+
+//This script is deprecated and may be destructive to live data. setInTest has been mostly removed
+exit();
+
+
 //This is an example script of how you could create a dedupe report on a bulk scopus xml file
 
 ini_set("display_errors", 1);
