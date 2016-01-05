@@ -52,7 +52,7 @@ if(!ctype_alnum($author_username) || substr( strtolower($author_username), 0, 1 
     exit();
 }
 
-$return = publons::getPublonsData($author_username);
+$return = Publons::getPublonsReviews($author_username);
 echo json_encode($return);
 
 
