@@ -126,7 +126,7 @@ class Publons
 
         }
     }
-    
+
     public function returnOrcidIfHasPublons($author_id)
     {
         $log = FezLog::get();
@@ -232,6 +232,27 @@ class Publons
 
         try {
             $res = $db->exec($stmt);
+        }
+        catch(Exception $ex) {
+            $log->err($ex);
+        }
+
+        return $res;
+    }
+
+    public function getPublonsReviews($author_username)
+    {
+        $log = FezLog::get();
+        $db = DB_API::get();
+        $stmt = "SELECT aut_id, aut_org_username,aut_display_name, aut_orcid_id, psr_publon_id, psr_date_reviewed, psr_verified, psp_publisher_name, psj_journal_name, psj_journal_issn, psj_journal_tier
+                FROM " . APP_TABLE_PREFIX . "publons_reviews
+                LEFT JOIN " . APP_TABLE_PREFIX . "publons_publishers ON psp_publisher_id = psr_publisher_id
+                LEFT JOIN " . APP_TABLE_PREFIX . "publons_journals ON psj_journal_id = psr_journal_id
+                LEFT JOIN " . APP_TABLE_PREFIX . "author ON aut_id = psr_aut_id
+                WHERE aut_org_username = " . $db->quote($author_username);
+
+        try {
+            $res = $db->fetchAll($stmt);
         }
         catch(Exception $ex) {
             $log->err($ex);
