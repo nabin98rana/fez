@@ -155,19 +155,21 @@ class Publons
         $db = DB_API::get();
 
         if (empty($paper['publisher']['ids']['id'])) {
-            $paper['publisher']['ids']['id'] = null;
+            $psr_publisher_id = 'NULL';
+        } else {
+            $psr_publisher_id = $db->quote($paper['publisher']['ids']['id']);
         }
 
-        if (empty ($paper['journal']['ids']['id'])) {
-            $paper['journal']['ids']['id'] = null;
+        if (empty($paper['journal']['ids']['id'])) {
+            $psr_journal_id = 'NULL';
+        } else {
+            $psr_journal_id = $db->quote($paper['journal']['ids']['id']);
         }
 
         $psr_aut_id = $db->quote($authorId);
         $psr_publon_id = $db->quote($paper['ids']['academic']['id']);
         $psr_date_reviewed = $db->quote($paper['date_reviewed']);
-        $psr_verified = (strtolower($db->quote($paper['verification']['verified'])) == "true") ? 1 : 0;
-        $psr_publisher_id = $db->quote($paper['publisher']['ids']['id']);
-        $psr_journal_id  = $db->quote($paper['journal']['ids']['id']);
+        $psr_verified = ($paper['verification']['verified'] == true) ? 1 : 0;
         $psr_journal_article = $db->quote($paper['article']);
 
         $stmt = "INSERT INTO " . APP_TABLE_PREFIX . "publons_reviews
