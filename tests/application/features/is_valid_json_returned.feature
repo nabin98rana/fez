@@ -106,3 +106,11 @@ Feature: Check that valid json is being returned
   Scenario: Check JSON is valid
     Given I am on "/api/latest_metric_changes.php?author_username=a:4$%@})']\%22({["
     Then should see valid JSON
+
+  Scenario: Check JSON is valid
+    Given I am on "/api/publon_reviews.php?author_username=uqpburn2"
+    Then should see valid JSON
+
+  Scenario: Check JSON is valid
+    Given I am on "/api/publon_reviews.php?author_username=a:4$%@})']\%22({["
+    Then should see valid JSON
