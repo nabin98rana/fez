@@ -170,7 +170,7 @@ class Publons
         $psr_publon_id = $db->quote($paper['ids']['academic']['id']);
         $psr_date_reviewed = $db->quote($paper['date_reviewed']);
         $psr_verified = ($paper['verification']['verified'] == true) ? 1 : 0;
-        $psr_journal_article = $db->quote($paper['article']);
+        $psr_journal_article = $db->quote(serialize($paper['article']));
 
         $stmt = "INSERT INTO " . APP_TABLE_PREFIX . "publons_reviews
         (psr_aut_id, psr_publon_id, psr_date_reviewed, psr_verified,  psr_publisher_id, psr_journal_id, psr_journal_article, psr_update_date)
