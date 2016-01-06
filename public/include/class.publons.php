@@ -154,6 +154,14 @@ class Publons
         $log = FezLog::get();
         $db = DB_API::get();
 
+        if (empty($paper['publisher']['ids']['id'])) {
+            $paper['publisher']['ids']['id'] = null;
+        }
+
+        if (empty ($paper['journal']['ids']['id'])) {
+            $paper['journal']['ids']['id'] = null;
+        }
+
         $psr_aut_id = $db->quote($authorId);
         $psr_publon_id = $db->quote($paper['ids']['academic']['id']);
         $psr_date_reviewed = $db->quote($paper['date_reviewed']);
