@@ -157,7 +157,7 @@ class Publons
         $psr_aut_id = $db->quote($authorId);
         $psr_publon_id = $db->quote($paper['ids']['academic']['id']);
         $psr_date_reviewed = $db->quote($paper['date_reviewed']);
-        $psr_verified = $db->quote($paper['verification']['verified']);
+        $psr_verified = (strtolower($db->quote($paper['verification']['verified'])) == "true") ? 1 : 0;
         $psr_publisher_id = $db->quote($paper['publisher']['ids']['id']);
         $psr_journal_id  = $db->quote($paper['journal']['ids']['id']);
         $psr_journal_article = $db->quote($paper['article']);
@@ -185,14 +185,15 @@ class Publons
         $log = FezLog::get();
         $db = DB_API::get();
 
+        if(empty($paper['journal']['ids']['id'])) { // Ok not to have a Journal name
+            return true;
+        }
+
         $psj_journal_id  = $db->quote($paper['journal']['ids']['id']);
         $psj_journal_name = $db->quote($paper['journal']['name']);
         $psj_journal_issn = $db->quote($paper['journal']['ids']['issn']);
         $psj_journal_eissn = $db->quote($paper['journal']['ids']['eissn']);
 
-        if(empty($psj_journal_id)) { // Ok not to have a Journal name
-            return true;
-        }
         $stmt = "INSERT INTO " . APP_TABLE_PREFIX . "publons_journals
         (psj_journal_id, psj_journal_name, psj_journal_issn, psj_journal_eissn)
         VALUES( " . $psj_journal_id . ", " . $psj_journal_name .
@@ -219,11 +220,13 @@ class Publons
         $log = FezLog::get();
         $db = DB_API::get();
 
-        $psp_publisher_id = $db->quote($paper['publisher']['ids']['id']);
-        $psp_publisher_name = $db->quote($paper['publisher']['name']);
-        if(empty($psp_publisher_id)) { // Ok not to have a publisher
+        if(empty($paper['publisher']['ids']['id'])) { // Ok not to have a publisher
             return true;
         }
+
+        $psp_publisher_id = $db->quote($paper['publisher']['ids']['id']);
+        $psp_publisher_name = $db->quote($paper['publisher']['name']);
+
         $stmt = "INSERT INTO " . APP_TABLE_PREFIX . "publons_publishers
         (psp_publisher_id, psp_publisher_name)
         VALUES(" . $psp_publisher_id . ", " . $psp_publisher_name . " )
