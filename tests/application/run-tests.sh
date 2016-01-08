@@ -10,6 +10,5 @@ export BEHAT_PARAMS='{"extensions" : {"Behat\\MinkExtension\\Extension" : {"sele
 
 #${BASE_DIR}/../behat/bin/behat --retry-scenario 3 --ansi --tags '~@broken' --format=pretty,html,junit --out=,../../build/tests/formattedresults.html,../../build/tests/
 
-php init.php
 ../behat/vendor/behat/behat/bin/behat --tags '@jet&&~@cloned' --format=pretty,html,junit --out=,logs/formattedresults.html,logs/
 #../behat/vendor/behat/behat/bin/behat --retry-scenario 3 --ansi --tags '@jet' --format=pretty,html,junit --out=,../../build/tests/formattedresults.html,../../build/tests/
