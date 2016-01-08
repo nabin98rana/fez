@@ -53,6 +53,7 @@ fi
 
 cd ${BASE_DIR}/.docker/development/backend/db/seed
 mysql -uroot -pdevelopment -h ${VIRTUAL_HOST} mysql < installdb.sql
+mysql -uroot -pdevelopment -h ${VIRTUAL_HOST} fez < citation.sql
 mysql -uroot -pdevelopment -h ${VIRTUAL_HOST} fez < cvs.sql
 mysql -uroot -pdevelopment -h ${VIRTUAL_HOST} fez < development.sql
 mysql -uroot -pdevelopment -h ${VIRTUAL_HOST} fez < workflows.sql
