@@ -61,7 +61,7 @@ mysql -uroot -pdevelopment -h ${VIRTUAL_HOST} fez < jetsetup.sql
 
 cd ${BASE_DIR}/.docker/testing
 
-docker exec testing_feztestrunner_1 ${CONTAINER_BASE_DIR}/tests/application/run-tests.sh
+docker exec testing_feztestrunner_1 sh -c '"'${CONTAINER_BASE_DIR}/tests/application/run-tests.sh'"'
 
 docker-compose stop
 docker-compose rm -f -v
