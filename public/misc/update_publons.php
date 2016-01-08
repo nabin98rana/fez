@@ -64,8 +64,8 @@ if ((php_sapi_name() === "cli") || (User::isUserSuperAdministrator($isUser))) {
 
     echo "Updating publon tiered list\n";
     $stmt = "UPDATE " . APP_TABLE_PREFIX . "publons_journals
-                LEFT JOIN " . APP_TABLE_PREFIX . "journal_uq_tiered_issns ON jni_issn = psj_journal_issn
-                LEFT JOIN " . APP_TABLE_PREFIX . "journal_uq_tiered ON jnl_id = jni_jnl_id
+                INNER JOIN " . APP_TABLE_PREFIX . "journal_uq_tiered_issns ON jni_issn = psj_journal_issn
+                INNER JOIN " . APP_TABLE_PREFIX . "journal_uq_tiered ON jnl_id = jni_jnl_id
                 SET " . APP_TABLE_PREFIX . "publons_journals.psj_journal_tier = " . APP_TABLE_PREFIX . "journal_uq_tiered.jnl_rank
                 WHERE psj_journal_tier IS NULL OR psj_journal_tier = ''";
 
@@ -75,6 +75,21 @@ if ((php_sapi_name() === "cli") || (User::isUserSuperAdministrator($isUser))) {
         $log->err($ex);
         return false;
     }
+
+    #We will also check electronic issn's just in case
+    $stmt = "UPDATE " . APP_TABLE_PREFIX . "publons_journals
+                INNER JOIN " . APP_TABLE_PREFIX . "journal_uq_tiered_issns ON jni_issn = psj_journal_eissn
+                INNER JOIN " . APP_TABLE_PREFIX . "journal_uq_tiered ON jnl_id = jni_jnl_id
+                SET " . APP_TABLE_PREFIX . "publons_journals.psj_journal_tier = " . APP_TABLE_PREFIX . "journal_uq_tiered.jnl_rank
+                WHERE psj_journal_tier IS NULL OR psj_journal_tier = ''";
+
+    try {
+        $res = $db->exec($stmt);
+    } catch (Exception $ex) {
+        $log->err($ex);
+        return false;
+    }
+
 
     echo "Script finished: " . date('Y-m-d H:i:s') . "\n";
 } else {
