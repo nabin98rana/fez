@@ -215,7 +215,7 @@ class FeatureContext extends MinkContext
    */
   public function waitForSolrAfter()
   {
-    if (APP_SOLR_INDEXER == "ON") {
+    /*if (APP_SOLR_INDEXER == "ON") {
       for ($x = 0; $x<30; $x++) {
         $finished = FulltextQueue::isFinishedProcessing();
         if ($finished == true) {
@@ -224,7 +224,7 @@ class FeatureContext extends MinkContext
         sleep(1);
       }
       return;
-    }
+    }*/
   }
 
   /**
@@ -235,7 +235,7 @@ class FeatureContext extends MinkContext
    */
   public function waitForSolrBefore()
   {
-    if (APP_SOLR_INDEXER == "ON") {
+    /*if (APP_SOLR_INDEXER == "ON") {
       for ($x = 0; $x<30; $x++) {
         $finished = FulltextQueue::isFinishedProcessing();
         if ($finished == true) {
@@ -243,7 +243,7 @@ class FeatureContext extends MinkContext
         }
         sleep(1);
       }
-    }
+    }*/
     return;
   }
 
@@ -296,13 +296,13 @@ class FeatureContext extends MinkContext
    */
   public function waitForBGPsAfter()
   {
-    for ($x = 0; $x<60; $x++) {
+    /*for ($x = 0; $x<60; $x++) {
       $finished = BackgroundProcessList::isFinishedProcessing();
       if ($finished == true) {
         return;
       }
       sleep(1);
-    }
+    }*/
     return;
   }
 
@@ -314,13 +314,13 @@ class FeatureContext extends MinkContext
    */
   public function waitForBGPsBefore()
   {
-    for ($x = 0; $x<60; $x++) {
+    /*for ($x = 0; $x<60; $x++) {
       $finished = BackgroundProcessList::isFinishedProcessing();
       if ($finished == true) {
         return;
       }
       sleep(1);
-    }
+    }*/
     return;
   }
 
@@ -439,32 +439,17 @@ class FeatureContext extends MinkContext
   public function waitForSearchEntryBoxToAppear(StepEvent $event)
   {
     // Check this isn't a modal popup
-//    $popupText = $this->assertPopupMessage('');
-//    if (!$this->getSession()->getDriver()->getWebDriverSession()->getAlert()) {
     if (!($this->getSession()->getDriver() instanceof Behat\Mink\Driver\GoutteDriver) &&
       !($this->getSession()->getDriver() instanceof Behat\Mink\Driver\ZombieDriver)) {
 
       if (!$this->isModal) {
-//        echo "apparently i am NOT modal";
-//      $stepTitle = $event->getStep()->getTitle()
-//      if ($event->getStep()->getTitle()
-        $this->getSession()->wait(60000, "dojo.byId('powered-by')");
+        $this->getSession()->wait(1000, "dojo.byId('powered-by')");
         $javascriptError = ($this->getSession()->evaluateScript("return window.jsErrors"));
         if (!empty($javascriptError)) {
           throw new Exception("Javascript Error: ".$javascriptError[0]);
         }
-          $pageContent = $this->getSession()->getPage()->getContent();
-          $pos = strpos($pageContent, '&lt;/') || strpos($pageContent, '/&gt;');
-          /*if ($pos!==false) {
-              echo("&lt; found in Senario: " );
-              print_r($event->getStep()->getParent()->getTitle()."\n");
-              print_r($event->getStep()->getType().' '.$event->getStep()->getText()."\n");
-          };*/
       }
     }
-//      $this->isModal = false;
-//    }
-//    $this->getSession()->wait(10000, "$('search_entry').length > 0");
   }
 
 
@@ -639,19 +624,19 @@ class FeatureContext extends MinkContext
     }
   }
 
-/**
- * @AfterScenario
- *
- * @param Behat\Behat\Event\ScenarioEvent $event
- */
-public function afterScenario($event)
-{
-  $this->getSession()->reset();
-  if (!($this->getSession()->getDriver() instanceof Behat\Mink\Driver\GoutteDriver) &&
-    !($this->getSession()->getDriver() instanceof Behat\Mink\Driver\ZombieDriver)) {
-      $this->getSession()->switchToWindow();
+  /**
+   * @AfterScenario
+   *
+   * @param Behat\Behat\Event\ScenarioEvent $event
+   */
+  public function afterScenario($event)
+  {
+    $this->getSession()->reset();
+    if (!($this->getSession()->getDriver() instanceof Behat\Mink\Driver\GoutteDriver) &&
+      !($this->getSession()->getDriver() instanceof Behat\Mink\Driver\ZombieDriver)) {
+        $this->getSession()->switchToWindow();
+    }
   }
-}
 
   /**
    * @BeforeStep
@@ -774,74 +759,74 @@ public function afterScenario($event)
     }
   }
 
-    /**
-     * @Then /^should see valid JSON$/
-     */
-    public function shouldSeeValidJSON()
-    {
-        $json = $this->getSession()->getPage()->getContent();
-        $data = json_decode($json);
-        if ($data===null) {
-            throw new Exception("Response was not JSON" );
-        };
-    }
+  /**
+   * @Then /^should see valid JSON$/
+   */
+  public function shouldSeeValidJSON()
+  {
+      $json = $this->getSession()->getPage()->getContent();
+      $data = json_decode($json);
+      if ($data===null) {
+          throw new Exception("Response was not JSON" );
+      };
+  }
 
-    /**
-     * @Then /^I should see button "([^"]*)"$/
-     */
-    public function iShouldSeeButton($buttonName) {
-        $fieldElements = $this->getSession()->getPage()->findButton($buttonName, array('field', 'id|name|value|label'));
-        if ($fieldElements===null) {
-            throw new Exception("Button not found" );
-        };
-    }
+  /**
+   * @Then /^I should see button "([^"]*)"$/
+   */
+  public function iShouldSeeButton($buttonName) {
+      $fieldElements = $this->getSession()->getPage()->findButton($buttonName, array('field', 'id|name|value|label'));
+      if ($fieldElements===null) {
+          throw new Exception("Button not found" );
+      };
+  }
 
-    /**
-     * @Then /^I switch to window "([^"]*)"$/
-     * null returns to original window
-     * Possible works on title, by internal JavaScript "name," or by JavaScript variable. Only tested on "internal JavaScript name"
-     */
-    public function iSwitchToWindow($name) {
-        $this->getSession()->switchToWindow($name);
-    }
+  /**
+   * @Then /^I switch to window "([^"]*)"$/
+   * null returns to original window
+   * Possible works on title, by internal JavaScript "name," or by JavaScript variable. Only tested on "internal JavaScript name"
+   */
+  public function iSwitchToWindow($name) {
+      $this->getSession()->switchToWindow($name);
+  }
 
-    /**
-     * @Then /^I should see text "([^"]*)" in code$/
-     */
-    public function iShouldSeeTextInCode($text) {
-        $pageContent = $this->getSession()->getPage()->getContent();
-        $pos = strpos($pageContent, $text);
-        if ($pos===false) {
-            throw new Exception("Text not found in code" );
-        };
-    }
+  /**
+   * @Then /^I should see text "([^"]*)" in code$/
+   */
+  public function iShouldSeeTextInCode($text) {
+      $pageContent = $this->getSession()->getPage()->getContent();
+      $pos = strpos($pageContent, $text);
+      if ($pos===false) {
+          throw new Exception("Text not found in code" );
+      };
+  }
 
-    /**
-     * @Then /^I should not see text "([^"]*)" in code$/
-     */
-    public function iShouldNotSeeTextInCode($text) {
-        $pageContent = $this->getSession()->getPage()->getContent();
-        $pos = strpos($pageContent, $text);
-        if ($pos!==false) {
-            throw new Exception("Text found in code" );
-        };
-    }
-    /**
-     * @Given /^I go to the test journal article view page$/
-     */
-    public function iGoToTheTestJournalArticleViewPage()
-    {
-      $this->visit("/view/".TEST_JOURNAL_ARTICLE_PID);
-    }
+  /**
+   * @Then /^I should not see text "([^"]*)" in code$/
+   */
+  public function iShouldNotSeeTextInCode($text) {
+      $pageContent = $this->getSession()->getPage()->getContent();
+      $pos = strpos($pageContent, $text);
+      if ($pos!==false) {
+          throw new Exception("Text found in code" );
+      };
+  }
 
-    /**
-     * @Given /^I go to the test collection list page$/
-     */
-    public function iGoToTheTestCollectionListPage()
-    {
-      $this->visit("/collection/".TEST_COLLECTION_PID);
-    }
+  /**
+   * @Given /^I go to the test journal article view page$/
+   */
+  public function iGoToTheTestJournalArticleViewPage()
+  {
+    $this->visit("/view/".TEST_JOURNAL_ARTICLE_PID);
+  }
 
+  /**
+   * @Given /^I go to the test collection list page$/
+   */
+  public function iGoToTheTestCollectionListPage()
+  {
+    $this->visit("/collection/".TEST_COLLECTION_PID);
+  }
 
   /**
    * @Given /^I select the test org unit$/
