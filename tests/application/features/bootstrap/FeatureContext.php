@@ -455,11 +455,11 @@ class FeatureContext extends MinkContext
         }
           $pageContent = $this->getSession()->getPage()->getContent();
           $pos = strpos($pageContent, '&lt;/') || strpos($pageContent, '/&gt;');
-          if ($pos!==false) {
+          /*if ($pos!==false) {
               echo("&lt; found in Senario: " );
               print_r($event->getStep()->getParent()->getTitle()."\n");
               print_r($event->getStep()->getType().' '.$event->getStep()->getText()."\n");
-          };
+          };*/
       }
     }
 //      $this->isModal = false;
