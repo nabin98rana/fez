@@ -1,6 +1,7 @@
 @javascript
 Feature: Changing Collection Security
 
+  @jet
   Scenario: I login as admin and set a Collection security to allow inheriting pids to view, then turn it off and check pids can no longer be viewed
     Given I login as administrator
     And I follow "Browse"
@@ -37,8 +38,8 @@ Feature: Changing Collection Security
     And I fill in "Search Entry" with "title:(\"Test Community Security to be changed after pid created\")"
     And I press "search_entry_submit"
     When I follow "Edit Security for Selected Community"
-    Given I choose the "Unit Publication Officers" group for the "Lister" role
-    Given I choose the "Unit Publication Officers" group for the "Viewer" role
+    Given I choose the "Masqueraders" group for the "Lister" role
+    Given I choose the "Masqueraders" group for the "Viewer" role
     And I turn off waiting checks
     And I press "Save"
     And I switch to window ""
@@ -74,7 +75,7 @@ Feature: Changing Collection Security
     And I press "search_entry_submit"
     Then I should see "No records could be found"
 
-  @destructive @purge
+  @destructive @purge @jet
   Scenario: Delete old Communities, collections and pids
     Given I am on "/"
     Then I clean up title "Test Community Security to be changed after pid created"
