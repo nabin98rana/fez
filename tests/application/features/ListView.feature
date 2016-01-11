@@ -49,7 +49,7 @@ Feature: Check list view displays the correct information entered into a pid, co
     Then I should see "123-987"
     Then I should see "(2010)"
 
-  @destructive @purge @insulated
+  @destructive @purge @insulated @jet
   Scenario: Delete old Communities, collections and pids
     Given I am on "/"
     Then I clean up title "Test Community for list view"

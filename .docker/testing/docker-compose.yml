@@ -8,6 +8,7 @@ feztestrunner:
     - JHOVE_HOME=/usr/local/jhove
   links:
     - fez
+    - fedora
     - selenium
     - fezdb
   volumes:
@@ -86,6 +87,7 @@ fedora:
     - fedoradb
   privileged: true
   volumes_from:
+    - cache
     - fedoradata
     - logs
 

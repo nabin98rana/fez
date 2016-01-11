@@ -67,6 +67,7 @@ fedora:
     - "10082:10082"
   privileged: true
   volumes_from:
+    - cache
     - fedoradata
     - logs
 
