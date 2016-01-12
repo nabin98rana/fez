@@ -2,6 +2,7 @@
 @javascript @insulated
 Feature: Test that deleted pid works correctly
 
+  @jet
   Scenario: I login as admin, create a pid, then delete it and check it is not longer accessiable
     Given I login as administrator
     And I go to the test collection list page
@@ -14,10 +15,9 @@ Feature: Test that deleted pid works correctly
     And I check "Copyright Agreement"
     And I select "2010" from "Publication date"
     And I press "Publish"
-    And I wait for "2" seconds
     And I follow "More options"
     And I follow "Delete Selected Record"
-    And I fill in "historyDetail" with "Testing record deletion"
+    And I fill in "History Detail" with "Testing record deletion"
     And I press "Delete"
     And I should see "This record has been deleted."
     And I should not see "Title"
@@ -26,7 +26,7 @@ Feature: Test that deleted pid works correctly
     And I turn off waiting checks
     And I follow "Detailed History"
     And I switch to window "_impact"
-    And I should see "Testing record deletion"
+    And I should see "Delete Selected Record"
     And I press "Close"
     And I switch to window ""
     And I turn on waiting checks

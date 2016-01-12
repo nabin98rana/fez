@@ -45,7 +45,6 @@ Feature: Changing Collection Security
     And I switch to window ""
     And I turn on waiting checks
     And I see "Search Entry" id or wait for "5" seconds
-
     And I fill in "Search Entry" with "title:(\"Test Pid Security to be changed after pid created\")"
     And I press "search_entry_submit"
     Then I should not see "No records could be found"
@@ -58,12 +57,6 @@ Feature: Changing Collection Security
     And I follow "Test Collection Security to be changed after pid created"
     And I follow "Test Pid Security to be changed after pid created"
     And I follow "Logout"
-
-    When I move backward one page
-    Then I should see "You must first login to access this resource"
-    When I move backward one page
-    Then I should see "You must first login to access this resource"
-    When I move backward one page
     Then I should see "You must first login to access this resource"
     And I fill in "Search Entry" with "title:(\"Test Community Security to be changed after pid created\")"
     And I press "search_entry_submit"
@@ -75,7 +68,7 @@ Feature: Changing Collection Security
     And I press "search_entry_submit"
     Then I should see "No records could be found"
 
-  @destructive @purge @jetx
+  @destructive @purge @jet
   Scenario: Delete old Communities, collections and pids
     Given I am on "/"
     Then I clean up title "Test Community Security to be changed after pid created"

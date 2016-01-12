@@ -22,23 +22,23 @@ Feature: Check that all pages still give correct output
     And I should not see "Create New Community"
     And I should not see "(0 results found)"
 
-  @jet @clean
+  @jet @clean @jetx
   Scenario: A user needs contact information
     Given I am on "/about"
     Then I should see "About this site"
 
-  @jet @clean
+  @jet @clean @jetx
   Scenario: A user needs faq information
     Given I am on "/faq"
     Then I should see "Frequently Asked Questions"
 
-  @jet @clean
+  @jet @clean @jetx
   Scenario: A user wants to browse
     Given I am on "/list/"
     And I should see "List of Communities"
     And I should see "(0 results found)"
 
-  @jet
+  @jet @jetx
   Scenario: A user wants to do an advanced search
     Given I am on "/adv_search.php"
     And I should see "Advanced Search"
@@ -52,7 +52,6 @@ Feature: Check that all pages still give correct output
     When I fill in "username" with "doesnotexist"
     And I fill in "passwd" with "does not exist '>?)|"
     And I press "Login"
-    And I wait for "2" seconds
     Then I should see "Error: The username / password combination could not be found in the system"
     Given I am on "/my_fez_traditional.php"
     Then I should see "Login to"
@@ -67,7 +66,7 @@ Feature: Check that all pages still give correct output
     Given I am on "/favourites"
     Then I should see "Login to"
 
-  @jet
+  @jet @jetx
   Scenario: Testing Administrator view
     And I login as administrator
     And I am on "/manage"
@@ -77,11 +76,8 @@ Feature: Check that all pages still give correct output
     Given I am on "/my_fez_traditional.php"
     Then I should see "Background Processes"
     And I should see "Active Work"
-    #Should these be missing from the header?
-    #And I should not see "In Review"
-    #And I should not see "Submitted for Approval"
 
-  @jet
+  @jet @jetx
   Scenario: Testing Super Administrator view
     Given I login as super administrator
     And I am on "/manage"

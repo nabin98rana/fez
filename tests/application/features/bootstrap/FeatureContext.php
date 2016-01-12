@@ -134,6 +134,14 @@ class FeatureContext extends MinkContext
    */
   private $debugDisabled;
 
+  /**
+   * Test community/collection/record
+   * @var string
+   */
+  private $testCommunityPid;
+  private $testCollectionPid;
+  private $testRecordPid;
+
 
   /**
    * @var string  The Current Subcontext we are working with
@@ -161,6 +169,9 @@ class FeatureContext extends MinkContext
       $this->zoetropeEnabled = (isset($parameters["debug"]['zoetrope']) && $parameters["debug"]['zoetrope'] == 1) ? true : false;
       // Debug is by default enabled unless explicitly disabled in the config
       $this->debugDisabled = (isset($parameters["debug"]['disabled']) && $parameters["debug"]['disabled'] == 1) ? true : false;
+      $this->testCommunityPid = 'UQ:1';
+      $this->testCollectionPid = 'UQ:2';
+      $this->testRecordPid = 'UQ:3';
     }
 
 //
@@ -391,7 +402,6 @@ class FeatureContext extends MinkContext
   public function turnOffWaitingChecks()
   {
     $this->isModal = true;
-    return;
   }
 
   /**
@@ -402,7 +412,6 @@ class FeatureContext extends MinkContext
   public function turnOnWaitingChecks()
   {
     $this->isModal = false;
-    return;
   }
 
 
@@ -813,11 +822,11 @@ class FeatureContext extends MinkContext
   }
 
   /**
-   * @Given /^I go to the test journal article view page$/
+   * @Given /^I go to the test community page$/
    */
-  public function iGoToTheTestJournalArticleViewPage()
+  public function iGoToTheTestCommunityListPage()
   {
-    $this->visit("/view/".TEST_JOURNAL_ARTICLE_PID);
+    $this->visit("/community/".$this->testCommunityPid);
   }
 
   /**
@@ -825,7 +834,44 @@ class FeatureContext extends MinkContext
    */
   public function iGoToTheTestCollectionListPage()
   {
-    $this->visit("/collection/".TEST_COLLECTION_PID);
+    $this->visit("/collection/".$this->testCollectionPid);
+  }
+
+
+  /**
+   * @Given /^I go to the test journal article view page$/
+   */
+  public function iGoToTheTestJournalArticleViewPage()
+  {
+    $this->visit("/view/".$this->testRecordPid);
+  }
+
+
+  /**
+   * @Given /^I store the test community pid for future use$/
+   */
+  public function iStoreTheTestCommunityPidForFutureUse()
+  {
+    preg_match('/UQ:(\d+)/', $this->getSession()->getCurrentUrl(), $pid);
+    $this->testCommunityPid = $pid[0];
+  }
+
+  /**
+   * @Given /^I store the test collection pid for future use$/
+   */
+  public function iStoreTheTestCollectionPidForFutureUse()
+  {
+    preg_match('/UQ:(\d+)/', $this->getSession()->getCurrentUrl(), $pid);
+    $this->testCollectionPid = $pid[0];
+  }
+
+  /**
+   * @Given /^I store the test record pid for future use$/
+   */
+  public function iStoreTheTestRecordPidForFutureUse()
+  {
+    preg_match('/UQ:(\d+)/', $this->getSession()->getCurrentUrl(), $pid);
+    $this->testRecordPid = $pid[0];
   }
 
   /**
