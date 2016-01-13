@@ -46,9 +46,7 @@ cd ${BASE_DIR}/.docker/testing
 docker-compose up -d
 waitForServices
 
-docker-compose restart
 echo Running tests..
-waitForServices
 
 docker exec testing_feztestrunner_1 sh -c 'cd '"'${CONTAINER_BASE_DIR}/tests/application'"' && php init.php'
 UPGRADE_RES=$(curl -s http://${VIRTUAL_HOST}:8080/upgrade/index.php?upgradeOnly=1 | grep succeeded)
@@ -66,8 +64,8 @@ mysql -uroot -pdevelopment -h ${VIRTUAL_HOST} fez < xsd.sql
 mysql -uroot -pdevelopment -h ${VIRTUAL_HOST} fez < jetsetup.sql
 
 cd ${BASE_DIR}/.docker/testing
-
 docker exec testing_feztestrunner_1 sh -c '"'${CONTAINER_BASE_DIR}/tests/application/run-tests.sh'"'
 
+cd ${BASE_DIR}/.docker/testing
 docker-compose stop
 docker-compose rm -f -v

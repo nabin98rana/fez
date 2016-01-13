@@ -45,7 +45,7 @@ fez:
 fpm:
   build: ./../development/backend/fpm/
   environment:
-    - APP_ENVIRONMENT=development
+    - APP_ENVIRONMENT=testing
     - XDEBUG_CONFIG=idekey=fez
     - PHP_IDE_CONFIG=serverName=dev-fez.library.uq.edu.au
     - JAVA_HOME=/usr/lib/jvm/jre
