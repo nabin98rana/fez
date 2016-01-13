@@ -57,9 +57,7 @@ Feature: Changing Collection Security
     And I follow "Test Collection Security to be changed after pid created"
     And I follow "Test Pid Security to be changed after pid created"
     And I follow "Logout"
-    And I fill in "Search Entry" with "title:(\"Test Community Security to be changed after pid created\")"
-    And I press "search_entry_submit"
-    Then I should see "No records could be found"
+    And I am on the homepage
     And I fill in "Search Entry" with "title:(\"Test Collection Security to be changed after pid created\")"
     And I press "search_entry_submit"
     Then I should see "No records could be found"
