@@ -15,9 +15,11 @@ Feature: Check news displays correctly and Admin news displays only to the corre
     And I fill in "title" with "User News Title"
     And I fill in "message" with "User News message"
     And I press "Create News Entry"
+    And I wait for solr
+    And I wait for bgps
     Given I am on "/"
     And I follow "Front page news"
-    And I wait for "2" seconds
+    #And I wait for "2" seconds
     Then I should see "Admin Only News Title"
     And I should see "User News Title"
     And I follow "Admin Only News Title"

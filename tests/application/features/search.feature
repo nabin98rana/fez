@@ -5,7 +5,7 @@ Feature: Search
   As a website user
   I need to be able to search for a word
 
-  @smoke
+  @smoke @jet
   Scenario Outline: Searching for pids
     Given I am on "/"
     When I fill in "front_search" with <searchterm>
@@ -13,7 +13,7 @@ Feature: Search
     Then I should see <output>
 
   Examples:
-  | searchterm                                                             | output               |
-  | "Water: AWA/IWA 2nd Australian young water professionals conference"   | "Fogelman"           |
-  | "spaghetti monster_invalid"                                            | "(0 results found)"  |
+  | searchterm                   | output               |
+  | "Test Record"                | "Test Author"        |
+  | "spaghetti monster_invalid"  | "(0 results found)"  |
 
