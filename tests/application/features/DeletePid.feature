@@ -31,12 +31,16 @@ Feature: Test that deleted pid works correctly
     And I switch to window ""
     And I turn on waiting checks
     And I follow "Logout"
+    And I wait for solr
+    And I wait for bgps
     When I move backward one page
     And I should see "This record has been deleted."
     And I should not see "Title"
     And I should not see "Journal Name"
     And I should not see "Sub-type"
     And I should not see "Detailed History"
+    And I wait for solr
+    And I wait for bgps
     And I fill in "Search Entry" with "title:(\"Security Test Name 2012\")"
     And I press "search_entry_submit"
     Then I should see "(0 results found)"

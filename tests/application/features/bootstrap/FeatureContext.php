@@ -452,7 +452,8 @@ class FeatureContext extends MinkContext
       !($this->getSession()->getDriver() instanceof Behat\Mink\Driver\ZombieDriver)) {
 
       if (!$this->isModal) {
-        $this->getSession()->wait(1000, "dojo.byId('powered-by')");
+        //$this->getSession()->wait(1000, "dojo.byId('powered-by')");
+        $this->getSession()->wait(5000, 'typeof window.jQuery == "function"');
         $javascriptError = ($this->getSession()->evaluateScript("return window.jsErrors"));
         if (!empty($javascriptError)) {
           throw new Exception("Javascript Error: ".$javascriptError[0]);
@@ -673,7 +674,7 @@ class FeatureContext extends MinkContext
   }
 
   /**
-   * @when /^(?:|I )confirm the popup$/
+   * @When /^(?:|I )confirm the popup$/
    */
   public function confirmPopup()
   {
@@ -681,7 +682,7 @@ class FeatureContext extends MinkContext
   }
 
   /**
-   * @when /^(?:|I )cancel the popup$/
+   * @When /^(?:|I )cancel the popup$/
    */
   public function cancelPopup()
   {

@@ -18,6 +18,8 @@ Feature: Check list view displays the correct information entered into a pid, co
     And I fill in "Abstract/Summary" with "abstract automated testing"
     And I select "Journal Article Version MODS 1.0" from "XSD Display Document Types"
     And I press "Publish"
+    And I wait for solr
+    And I wait for bgps
     And I press "Create"
     And I fill in "Title" with "Test Pid for list view"
     And I fill in "Journal name" with "List test journal"
@@ -30,6 +32,8 @@ Feature: Check list view displays the correct information entered into a pid, co
     And I check "Copyright Agreement"
     And I select "2010" from "Publication date"
     And I press "Publish"
+    And I wait for solr
+    And I wait for bgps
     And I follow "Logout"
     And I fill in "Search Entry" with "title:(\"Test Community for list view\")"
     And I press "search_entry_submit"
