@@ -25,6 +25,7 @@ Feature: Security
     And I wait for bgps
     And I follow "Logout"
     And I am on the homepage
+    And I see "search_entry" id or wait for "2" seconds
     And I fill in "Search Entry" with "title:(\"Security Test Community\")"
     And I press "search_entry_submit"
     Then I should see "(1 results found)"
@@ -60,6 +61,7 @@ Feature: Security
     And I wait for bgps
     And I follow "Logout"
     And I am on the homepage
+    And I see "search_entry" id or wait for "2" seconds
     And I fill in "Search Entry" with "title:(\"Security Test Collection Masqueraders\")"
     And I press "search_entry_submit"
     Then I should see "(0 results found)"
@@ -79,6 +81,8 @@ Feature: Security
     And I press "Publish"
     And I wait for solr
     And I wait for bgps
+    And I am on the homepage
+    And I see "search_entry" id or wait for "2" seconds
     And I fill in "Search Entry" with "title:(\"Security Test Community Masqueraders\")"
     And I press "search_entry_submit"
     And I follow "Edit Security for Selected Community"
@@ -101,6 +105,7 @@ Feature: Security
     And I wait for bgps
     And I follow "Logout"
     And I am on the homepage
+    And I see "search_entry" id or wait for "2" seconds
     And I fill in "Search Entry" with "title:(\"Security Test Collection Multiple Inheritance Open\")"
     And I press "search_entry_submit"
     Then I should see "(1 results found)"
@@ -110,6 +115,7 @@ Feature: Security
   the child collection will start being inaccessible to logged in users as it is now
   only in the secure community
     Given I login as administrator
+    And I am on the homepage
     And I fill in "Search Entry" with "title:(\"Security Test Community Open\")"
     And I press "search_entry_submit"
     And I press "Select All"
@@ -122,6 +128,7 @@ Feature: Security
     And I wait for solr
     And I wait for bgps
     And I am on the homepage
+    And I see "search_entry" id or wait for "2" seconds
     And I fill in "Search Entry" with "title:(\"Security Test Collection Multiple Inheritance Open\")"
     And I press "search_entry_submit"
     And I wait for "30" seconds
