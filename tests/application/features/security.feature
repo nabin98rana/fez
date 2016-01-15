@@ -62,7 +62,7 @@ Feature: Security
     And I am on the homepage
     And I fill in "Search Entry" with "title:(\"Security Test Collection Masqueraders\")"
     And I press "search_entry_submit"
-    Then I should not see "Security Test Collection Masqueraders"
+    Then I should see "(0 results found)"
 
   @destructive @core @jet
   Scenario: Create a new secure lister community,
@@ -124,6 +124,7 @@ Feature: Security
     And I am on the homepage
     And I fill in "Search Entry" with "title:(\"Security Test Collection Multiple Inheritance Open\")"
     And I press "search_entry_submit"
+    And I wait for "30" seconds
     And I follow "Edit Security for Selected Collection"
     And I press "Save Changes"
     And I follow "Logout"
@@ -132,44 +133,14 @@ Feature: Security
     And I am on the homepage
     And I fill in "Search Entry" with "title:(\"Security Test Collection Multiple Inheritance Open\")"
     And I press "search_entry_submit"
-    Then I should not see "Security Test Collection Multiple Inheritance Open"
+    Then I should see "(0 results found)"
 
-  #also test delete collection functionality
-  @destructive @core @purge @jet
-  Scenario: Delete Security Test Collections
-    Given I login as administrator
-    And I fill in "Search Entry" with "title:(\"Security Test Collection\")"
-    And I press "search_entry_submit"
-    And I press "Select All"
-    And I turn off waiting checks
-    And I press "Delete"
-    And I confirm the popup
-    And I wait for "2" seconds
-    And I confirm the popup
-    And I turn on waiting checks
-    And I wait for solr
-    And I wait for bgps
-    And I am on the homepage
-    And I fill in "Search Entry" with "title:(\"Security Test Collection\")"
-    And I press "search_entry_submit"
-    Then I should not see "Security Test Collection"
-
-  #also test delete community functionality
-  @destructive @core @purge @jet
-  Scenario: Delete Security Test Communities
-    Given I login as administrator
-    And I fill in "Search Entry" with "title:(\"Security Test Community\")"
-    And I press "search_entry_submit"
-    And I press "Select All"
-    And I turn off waiting checks
-    And I press "Delete"
-    And I confirm the popup
-    And I wait for "2" seconds
-    And I confirm the popup
-    And I turn on waiting checks
-    And I wait for solr
-    And I wait for bgps
-    And I am on the homepage
-    And I fill in "Search Entry" with "title:(\"Security Test Community\")"
-    And I press "search_entry_submit"
-    Then I should not see "Security Test Community"
+  @destructive @purge @jet
+  Scenario: Delete old Communities, collections and pids
+    Given I am on "/"
+    Then I clean up title "Security Test Community"
+    Then I clean up title "Security Test Community Open"
+    Then I clean up title "Security Test Community Masqueraders"
+    Then I clean up title "Security Test Collection Multiple Inheritance Open"
+    Then I clean up title "Security Test Collection"
+    Then I clean up title "Security Test Collection Masqueraders"

@@ -142,6 +142,11 @@ class FeatureContext extends MinkContext
   private $testCollectionPid;
   private $testRecordPid;
 
+  /**
+   * Variable to temporarily store a record pid
+   * @var string
+   */
+  private $tempRecordPid;
 
   /**
    * @var string  The Current Subcontext we are working with
@@ -838,7 +843,6 @@ class FeatureContext extends MinkContext
     $this->visit("/collection/".$this->testCollectionPid);
   }
 
-
   /**
    * @Given /^I go to the test journal article view page$/
    */
@@ -847,14 +851,12 @@ class FeatureContext extends MinkContext
     $this->visit("/view/".$this->testRecordPid);
   }
 
-
   /**
    * @Given /^I store the test community pid for future use$/
    */
   public function iStoreTheTestCommunityPidForFutureUse()
   {
-    preg_match('/UQ:(\d+)/', $this->getSession()->getCurrentUrl(), $pid);
-    $this->testCommunityPid = $pid[0];
+    $this->testCommunityPid  = $this->getPidFromUrl();
   }
 
   /**
@@ -862,8 +864,7 @@ class FeatureContext extends MinkContext
    */
   public function iStoreTheTestCollectionPidForFutureUse()
   {
-    preg_match('/UQ:(\d+)/', $this->getSession()->getCurrentUrl(), $pid);
-    $this->testCollectionPid = $pid[0];
+    $this->testCollectionPid  = $this->getPidFromUrl();
   }
 
   /**
@@ -871,8 +872,29 @@ class FeatureContext extends MinkContext
    */
   public function iStoreTheTestRecordPidForFutureUse()
   {
+    $this->testRecordPid = $this->getPidFromUrl();
+  }
+
+  private function getPidFromUrl()
+  {
     preg_match('/UQ:(\d+)/', $this->getSession()->getCurrentUrl(), $pid);
-    $this->testRecordPid = $pid[0];
+    return $pid[0];
+  }
+
+  /**
+   * @Given /^I temporarily store the record pid$/
+   */
+  public function iTemporarilyStoreTheRecordPid()
+  {
+    $this->tempRecordPid = $this->getPidFromUrl();
+  }
+
+  /**
+   * @Given /^I go to the temporary record pid view page$/
+   */
+  public function iGoToTheTemporaryRecordPidViewPage()
+  {
+    $this->visit("/view/".$this->tempRecordPid);
   }
 
   /**

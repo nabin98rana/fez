@@ -4,6 +4,7 @@ BASE_DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 
 cd ${BASE_DIR}
 
+rm -f /etc/php.d/15-xdebug.ini
 export BEHAT_PARAMS='{"extensions" : {"Behat\\MinkExtension\\Extension" : {"selenium2" : { "wd_host" : "http://selenium:4444/wd/hub"}}}}'
 
 #phpunit --no-configuration --log-junit "${WORKSPACE}/phpunit_results/phpunit_results.xml" --include-path ".:${WORKSPACE}/public/" ${WORKSPACE}/tests/application/Unit/ResearcherIdTests.php
