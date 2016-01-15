@@ -55,7 +55,7 @@ Feature: Test that deleting communities/collections/records works correctly
     And I fill in "Title" with "Delete Test Collection"
     And I fill in "Keyword 1" with "automated testing"
     And I select "Journal Article Version MODS 1.0" from "XSD Display Document Types"
-    And I select "Test Community" from "Member of Communities"
+    And I select "Test Data Community" from "Member of Communities"
     And I press "Publish"
     And I wait for solr
     And I wait for bgps
