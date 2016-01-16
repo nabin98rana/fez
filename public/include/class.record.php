@@ -5848,7 +5848,7 @@ function getSearchKeyIndexValueShadow($pid, $searchKeyTitle, $getLookup=true, $s
     }
   }
 
-  function markAsDeleted($pid, $date ='')
+  public static function markAsDeleted($pid, $date ='')
   {
     $shadow = false;
     if ($date == '') {

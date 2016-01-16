@@ -12,5 +12,5 @@ export BEHAT_PARAMS='{"extensions" : {"Behat\\MinkExtension" : {"selenium2" : { 
 #${BASE_DIR}/../behat/bin/behat --retry-scenario 3 --ansi --tags '~@broken' --format=pretty,html,junit --out=,../../build/tests/formattedresults.html,../../build/tests/
 
 #../behat/vendor/behat/behat/bin/behat --tags '@jet&&~@cloned' --ansi --format=pretty,html,junit --out=,logs/formattedresults.html,logs/
-../behat/vendor/behat/behat/bin/behat --tags '@jetx' --format pretty --colors
+../behat/vendor/behat/behat/bin/behat --tags '@jet' --format pretty --colors
 #../behat/vendor/behat/behat/bin/behat --retry-scenario 3 --ansi --tags '@jet' --format=pretty,html,junit --out=,../../build/tests/formattedresults.html,../../build/tests/
