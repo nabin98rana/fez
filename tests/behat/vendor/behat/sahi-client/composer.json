@@ -15,18 +15,28 @@
 
     "require": {
         "php":                 ">=5.3.1",
-        "kriswallsmith/buzz":  ">=0.7,<0.9-dev"
+        "kriswallsmith/buzz":  "~0.7"
+    },
+
+    "require-dev": {
+        "symfony/phpunit-bridge": "~2.7"
     },
 
     "autoload": {
-        "psr-0": {
-            "Behat\\SahiClient":  "src/"
+        "psr-4": {
+            "Behat\\SahiClient\\":  "src/"
+        }
+    },
+
+    "autoload-dev": {
+        "psr-4": {
+            "Test\\Behat\\SahiClient\\":  "tests"
         }
     },
 
     "extra": {
         "branch-alias": {
-            "dev-master": "1.1.x-dev"
+            "dev-master": "1.2.x-dev"
         }
     }
 }

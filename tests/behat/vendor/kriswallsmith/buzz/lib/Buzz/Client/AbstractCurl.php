@@ -6,6 +6,7 @@ use Buzz\Message\Form\FormRequestInterface;
 use Buzz\Message\Form\FormUploadInterface;
 use Buzz\Message\MessageInterface;
 use Buzz\Message\RequestInterface;
+use Buzz\Exception\ClientException;
 
 /**
  * Base client class with helpers for working with cURL.
@@ -14,17 +15,29 @@ abstract class AbstractCurl extends AbstractClient
 {
     protected $options = array();
 
+    public function __construct()
+    {
+        if (defined('CURLOPT_PROTOCOLS')) {
+            $this->options = array(
+                CURLOPT_PROTOCOLS => CURLPROTO_HTTP | CURLPROTO_HTTPS,
+                CURLOPT_REDIR_PROTOCOLS => CURLPROTO_HTTP | CURLPROTO_HTTPS,
+            );
+        }
+    }
+
     /**
      * Creates a new cURL resource.
      *
      * @see curl_init()
      *
      * @return resource A new cURL resource
+     *
+     * @throws ClientException If unable to create a cURL resource
      */
-    static protected function createCurlHandle()
+    protected static function createCurlHandle()
     {
         if (false === $curl = curl_init()) {
-            throw new \RuntimeException('Unable to create a new cURL handle');
+            throw new ClientException('Unable to create a new cURL handle');
         }
 
         curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
@@ -40,20 +53,27 @@ abstract class AbstractCurl extends AbstractClient
      * @param string           $raw      The raw response string
      * @param MessageInterface $response The response object
      */
-    static protected function populateResponse($curl, $raw, MessageInterface $response)
+    protected static function populateResponse($curl, $raw, MessageInterface $response)
     {
-        $pos = curl_getinfo($curl, CURLINFO_HEADER_SIZE);
+        // fixes bug https://sourceforge.net/p/curl/bugs/1204/
+        $version = curl_version();
+        if (version_compare($version['version'], '7.30.0', '<')) {
+            $pos = strlen($raw) - curl_getinfo($curl, CURLINFO_SIZE_DOWNLOAD);
+        } else {
+            $pos = curl_getinfo($curl, CURLINFO_HEADER_SIZE);
+        }
 
         $response->setHeaders(static::getLastHeaders(rtrim(substr($raw, 0, $pos))));
-        $response->setContent(substr($raw, $pos));
+        $response->setContent(strlen($raw) > $pos ? substr($raw, $pos) : '');
     }
 
     /**
      * Sets options on a cURL resource based on a request.
      */
-    static private function setOptionsFromRequest($curl, RequestInterface $request)
+    private static function setOptionsFromRequest($curl, RequestInterface $request)
     {
         $options = array(
+            CURLOPT_HTTP_VERSION  => $request->getProtocolVersion() == 1.0 ? CURL_HTTP_VERSION_1_0 : CURL_HTTP_VERSION_1_1,
             CURLOPT_CUSTOMREQUEST => $request->getMethod(),
             CURLOPT_URL           => $request->getHost().$request->getResource(),
             CURLOPT_HTTPHEADER    => $request->getHeaders(),
@@ -72,6 +92,7 @@ abstract class AbstractCurl extends AbstractClient
             case RequestInterface::METHOD_PUT:
             case RequestInterface::METHOD_DELETE:
             case RequestInterface::METHOD_PATCH:
+            case RequestInterface::METHOD_OPTIONS:
                 $options[CURLOPT_POSTFIELDS] = $fields = static::getPostFields($request);
 
                 // remove the content-type header
@@ -92,7 +113,7 @@ abstract class AbstractCurl extends AbstractClient
      *
      * @return string|array A post fields value
      */
-    static private function getPostFields(RequestInterface $request)
+    private static function getPostFields(RequestInterface $request)
     {
         if (!$request instanceof FormRequestInterface) {
             return $request->getContent();
@@ -102,23 +123,41 @@ abstract class AbstractCurl extends AbstractClient
         $multipart = false;
 
         foreach ($fields as $name => $value) {
-            if ($value instanceof FormUploadInterface) {
-                $multipart = true;
+            if (!$value instanceof FormUploadInterface) {
+                continue;
+            }
 
-                if ($file = $value->getFile()) {
-                    // replace value with upload string
-                    $fields[$name] = '@'.$file;
+            if (!$file = $value->getFile()) {
+                return $request->getContent();
+            }
 
-                    if ($contentType = $value->getContentType()) {
-                        $fields[$name] .= ';type='.$contentType;
-                    }
-                } else {
-                    return $request->getContent();
+            $multipart = true;
+
+            if (version_compare(PHP_VERSION, '5.5', '>=')) {
+                $curlFile = new \CURLFile($file);
+                if ($contentType = $value->getContentType()) {
+                    $curlFile->setMimeType($contentType);
+                }
+
+                if (basename($file) != $value->getFilename()) {
+                    $curlFile->setPostFilename($value->getFilename());
+                }
+
+                $fields[$name] = $curlFile;
+            } else {
+                // replace value with upload string
+                $fields[$name] = '@'.$file;
+
+                if ($contentType = $value->getContentType()) {
+                    $fields[$name] .= ';type='.$contentType;
+                }
+                if (basename($file) != $value->getFilename()) {
+                    $fields[$name] .= ';filename='.$value->getFilename();
                 }
             }
         }
 
-        return $multipart ? $fields : http_build_query($fields);
+        return $multipart ? $fields : http_build_query($fields, '', '&');
     }
 
     /**
@@ -128,7 +167,7 @@ abstract class AbstractCurl extends AbstractClient
      *
      * @return array An array of header lines
      */
-    static private function getLastHeaders($raw)
+    private static function getLastHeaders($raw)
     {
         $headers = array();
         foreach (preg_split('/(\\r?\\n)/', $raw) as $header) {
@@ -169,11 +208,23 @@ abstract class AbstractCurl extends AbstractClient
         static::setOptionsFromRequest($curl, $request);
 
         // apply settings from client
-        curl_setopt($curl, CURLOPT_TIMEOUT, $this->getTimeout());
-        curl_setopt($curl, CURLOPT_FOLLOWLOCATION, 0 < $this->getMaxRedirects());
-        curl_setopt($curl, CURLOPT_MAXREDIRS, $this->getMaxRedirects());
+        if ($this->getTimeout() < 1) {
+            curl_setopt($curl, CURLOPT_TIMEOUT_MS, $this->getTimeout() * 1000);
+        } else {
+            curl_setopt($curl, CURLOPT_TIMEOUT, $this->getTimeout());
+        }
+
+        if ($this->proxy) {
+            curl_setopt($curl, CURLOPT_PROXY, $this->proxy);
+        }
+
+        $canFollow = !ini_get('safe_mode') && !ini_get('open_basedir');
+
+        curl_setopt($curl, CURLOPT_FOLLOWLOCATION, $canFollow && $this->getMaxRedirects() > 0);
+        curl_setopt($curl, CURLOPT_MAXREDIRS, $canFollow ? $this->getMaxRedirects() : 0);
         curl_setopt($curl, CURLOPT_FAILONERROR, !$this->getIgnoreErrors());
         curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, $this->getVerifyPeer());
+        curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, $this->getVerifyHost());
 
         // apply additional options
         curl_setopt_array($curl, $options + $this->options);
