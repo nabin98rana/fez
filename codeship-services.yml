@@ -1,9 +1,15 @@
-fpmtestrunner:
+dind:
   build:
-    dockerfile_path: "Dockerfile.runner"
-  #encrypted_env_file: ./.codeship/dockerenv.encrypted
-  environment:
-    APP_ENVIRONMENT: "testing"
+    dockerfile_path: "Dockerfile.dind"
+  add_docker: true
+  privileged: true
+
+#fpmtestrunner:
+#  build:
+#    dockerfile_path: "Dockerfile.runner"
+#  #encrypted_env_file: ./.codeship/dockerenv.encrypted
+#  environment:
+#    APP_ENVIRONMENT: "testing"
 #  links:
 #    - fez
 #    - fezdb
