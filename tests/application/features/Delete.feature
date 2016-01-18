@@ -73,7 +73,7 @@ Feature: Test that deleting communities/collections/records works correctly
     And I am on the homepage
     And I fill in "Search Entry" with "title:(\"Delete Test Collection\")"
     And I press "search_entry_submit"
-    Then I should not see "Delete Test Collection"
+    Then I should see "(0 results found)"
 
   @jet
   Scenario: Delete Community
@@ -101,4 +101,4 @@ Feature: Test that deleting communities/collections/records works correctly
     And I am on the homepage
     And I fill in "Search Entry" with "title:(\"Delete Test Community\")"
     And I press "search_entry_submit"
-    Then I should not see "Delete Test Community"
+    Then I should see "(0 results found)"
