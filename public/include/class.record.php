@@ -4065,7 +4065,7 @@ class Record
   }
 
   //$get top when given an array returns listed titles only
-  function getSearchKeyIndexValue($pid, $searchKeyTitle, $getLookup=true, $sek_details="", $getTop = null)
+  public static function getSearchKeyIndexValue($pid, $searchKeyTitle, $getLookup=true, $sek_details="", $getTop = null)
   {
     $log = FezLog::get();
     $db = DB_API::get();

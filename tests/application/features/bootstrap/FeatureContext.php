@@ -153,7 +153,7 @@ class FeatureContext extends MinkContext
    */
   protected $_curSubcontext = null;
 
-  //Used to temporarily hold record data between steps
+  // Used to temporarily hold record data between steps
   private $_tempRecordStore;
 
   /**
@@ -791,7 +791,7 @@ class FeatureContext extends MinkContext
       $data = json_decode($json);
       if ($data===null) {
           throw new Exception("Response was not JSON" );
-      };
+      }
   }
 
   /**
@@ -801,7 +801,7 @@ class FeatureContext extends MinkContext
       $fieldElements = $this->getSession()->getPage()->findButton($buttonName, array('field', 'id|name|value|label'));
       if ($fieldElements===null) {
           throw new Exception("Button not found" );
-      };
+      }
   }
 
   /**
@@ -810,6 +810,10 @@ class FeatureContext extends MinkContext
    * Possible works on title, by internal JavaScript "name," or by JavaScript variable. Only tested on "internal JavaScript name"
    */
   public function iSwitchToWindow($name) {
+      $windows = $this->getSession()->getWindowNames();
+      if (empty($name)) {
+          $name = $windows[0];
+      }
       $this->getSession()->switchToWindow($name);
   }
 
