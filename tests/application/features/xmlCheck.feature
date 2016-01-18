@@ -2,6 +2,7 @@
 @javascript
 Feature: Test that xml is well formed
 
+  @jet
   Scenario: I go to XML pages and check the XML is mostly well formed
   Given I turn off waiting checks
   And I am on "/oai.php?verb=ListRecords&metadataPrefix=rif"
@@ -32,7 +33,7 @@ Feature: Test that xml is well formed
   And I am on "/list/?cat=quick_filter&sort_by=searchKey0&&tpl=2"
   And I check the current page is valid XML
   #this checks direct fedora file access is working ok, fedora xml is possibly not valid
-  And I login as administrator
-  And I go to the test journal article view page
-  And I follow "Preservation metadata"
-  And I should see text "xml" in code
+  #And I login as administrator
+  #And I go to the test journal article view page
+  #And I follow "Preservation metadata"
+  #And I should see text "xml" in code
