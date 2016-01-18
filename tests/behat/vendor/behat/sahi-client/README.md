@@ -1,7 +1,13 @@
 SahiClient
 ==========
 
-[![Build Status](https://secure.travis-ci.org/Behat/SahiClient.png)](http://travis-ci.org/Behat/SahiClient)
+[![Latest Stable Version](https://poser.pugx.org/behat/sahi-client/v/stable.svg)](https://packagist.org/packages/behat/sahi-client)
+[![Latest Unstable Version](https://poser.pugx.org/behat/sahi-client/v/unstable.svg)](https://packagist.org/packages/behat/sahi-client)
+[![Total Downloads](https://poser.pugx.org/behat/sahi-client/downloads.svg)](https://packagist.org/packages/behat/sahi-client)
+[![Build Status](https://travis-ci.org/minkphp/SahiClient.svg)](https://travis-ci.org/minkphp/SahiClient)
+[![Scrutinizer Quality Score](https://scrutinizer-ci.com/g/minkphp/SahiClient/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/minkphp/SahiClient/)
+[![Code Coverage](https://scrutinizer-ci.com/g/minkphp/SahiClient/badges/coverage.png?b=master)](https://scrutinizer-ci.com/g/minkphp/SahiClient/)
+[![License](https://poser.pugx.org/behat/sahi-client/license.svg)](https://packagist.org/packages/behat/sahi-client)
 
 Driver to [Sahi](http://sahi.co.in/w/sahi) JS test automation tool.
 
@@ -12,8 +18,8 @@ Usage
 2. Install `SahiClient` deps:
 
     ``` bash
-    wget -nc http://getcomposer.org/composer.phar
-    php composer.phar install
+    curl -sS https://getcomposer.org/installer | php
+    php composer.phar require behat/sahi-client '~1.1'
     ```
 
 2. After that, you could write/run initial script like this:
@@ -29,7 +35,7 @@ Usage
     $client->start('firefox');
     ```
 
-3. And now, you can work with `$browser` object as with Sahi remote controll:
+3. And now, you can work with `$client` object as with Sahi remote controll:
 
     ``` php
     <?php

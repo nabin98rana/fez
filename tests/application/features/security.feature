@@ -131,7 +131,7 @@ Feature: Security
     And I see "search_entry" id or wait for "2" seconds
     And I fill in "Search Entry" with "title:(\"Security Test Collection Multiple Inheritance Open\")"
     And I press "search_entry_submit"
-    And I wait for "30" seconds
+    And I wait for "2" seconds
     And I follow "Edit Security for Selected Collection"
     And I press "Save Changes"
     And I follow "Logout"

@@ -70,7 +70,7 @@ define("TEST_ORG_UNIT_NAME", "Mathematics");
  */
 define("TEST_ORG_UNIT_NAME_USERNAME", "maebilli");
 
-define('BEHAT_ERROR_REPORTING', E_ALL & ~E_NOTICE & ~E_STRICT & ~E_DEPRECATED & ~E_WARNING & ~E_USER_WARNING);
+define('BEHAT_ERROR_REPORTING', E_ALL & ~E_NOTICE & ~E_STRICT & ~E_DEPRECATED & ~E_WARNING & ~E_USER_WARNING & ~E_USER_NOTICE);
 
 
 /**
@@ -153,7 +153,7 @@ class FeatureContext extends MinkContext
    */
   protected $_curSubcontext = null;
 
-  //Used to temporarily hold record data between steps
+  // Used to temporarily hold record data between steps
   private $_tempRecordStore;
 
   /**
@@ -162,7 +162,7 @@ class FeatureContext extends MinkContext
      *
      * @param   array   $parameters     context parameters (set them up through behat.yml)
      */
-    public function __construct(array $parameters)
+    public function __construct(array $parameters = array())
     {
         // Initialize your context here
       $this->isModal = false;
@@ -450,7 +450,7 @@ class FeatureContext extends MinkContext
    *
    * @AfterStep
    */
-  public function waitForSearchEntryBoxToAppear(StepEvent $event)
+  public function waitForSearchEntryBoxToAppear($scope)
   {
     // Check this isn't a modal popup
     if (!($this->getSession()->getDriver() instanceof Behat\Mink\Driver\GoutteDriver) &&
@@ -476,27 +476,27 @@ class FeatureContext extends MinkContext
    *
    * @param Behat\Behat\Event\StepEvent $event
    */
-  public function failScreenshots(StepEvent $event)
-  {
-    if (
-        !($this->getSession()->getDriver() instanceof Behat\Mink\Driver\GoutteDriver) &&
-        !($this->getSession()->getDriver() instanceof Behat\Mink\Driver\ZombieDriver) &&
-        ! $this->debugDisabled
-    ) {
-      if($event->getResult() == StepEvent::FAILED)
-      {
-        $sn = $event->getStep()->getParent()->getTitle();
-        $sn = Foxml::makeNCName($sn);
-        $scenarioName = preg_replace('/\s+/', '_', str_replace(" ", "_", $sn));
-        $scenarioName = (strlen($scenarioName) < 200) ? $scenarioName : substr($scenarioName, 0, 200);
-        $imageName = sprintf("fail_%s_%s.png", time(), $scenarioName);
-        $this->saveScreenshot($imageName);
-        if ($this->screencast) {
-          $this->screencast->addPosterImage($imageName);
-        }
-      }
-    }
-  }
+//  public function failScreenshots(StepEvent $event)
+//  {
+//    if (
+//        !($this->getSession()->getDriver() instanceof Behat\Mink\Driver\GoutteDriver) &&
+//        !($this->getSession()->getDriver() instanceof Behat\Mink\Driver\ZombieDriver) &&
+//        ! $this->debugDisabled
+//    ) {
+//      if($event->getResult() == StepEvent::FAILED)
+//      {
+//        $sn = $event->getStep()->getParent()->getTitle();
+//        $sn = Foxml::makeNCName($sn);
+//        $scenarioName = preg_replace('/\s+/', '_', str_replace(" ", "_", $sn));
+//        $scenarioName = (strlen($scenarioName) < 200) ? $scenarioName : substr($scenarioName, 0, 200);
+//        $imageName = sprintf("fail_%s_%s.png", time(), $scenarioName);
+//        $this->saveScreenshot($imageName);
+//        if ($this->screencast) {
+//          $this->screencast->addPosterImage($imageName);
+//        }
+//      }
+//    }
+//  }
 
 
   /**
@@ -573,18 +573,26 @@ class FeatureContext extends MinkContext
   * It's the reason we are not setting Mink's cookie here but on Login definition.
   * Please update it if you have better solution.
   */
-  public function setupTest($event)
-  {
-    // Assign subcontext for current tested feature, if any.
-    if (empty($this->_curSubcontext) && $this->_curSubcontext !== 'none') {
-      if ($this->getSubcontext($GLOBALS['behat_current_feature'])) {
-        $this->_curSubcontext = $GLOBALS['behat_current_feature'];
-      } else {
-        $this->_curSubcontext = 'self';
-      }
-    }
-  }
+//  public function setupTest($event)
+//  {
+//    // Assign subcontext for current tested feature, if any.
+//    if (empty($this->_curSubcontext) && $this->_curSubcontext !== 'none') {
+//      if ($this->getSubcontext($GLOBALS['behat_current_feature'])) {
+//        $this->_curSubcontext = $GLOBALS['behat_current_feature'];
+//      } else {
+//        $this->_curSubcontext = 'self';
+//      }
+//    }
+//  }
 
+
+  /** @BeforeScenario */
+//  public function gatherContexts(BeforeScenarioScope $scope)
+//  {
+//    $environment = $scope->getEnvironment();
+//
+//    $this->minkContext = $environment->getContext('Behat\MinkExtension\Context\MinkContext');
+//  }
 
 
  /**
@@ -619,37 +627,37 @@ class FeatureContext extends MinkContext
    *
    * @param Behat\Behat\Event\ScenarioEvent $event
    */
-  public function endScreencast($event)
-  {
-    if (!($this->getSession()->getDriver() instanceof Behat\Mink\Driver\GoutteDriver) &&
-      !($this->getSession()->getDriver() instanceof Behat\Mink\Driver\ZombieDriver)) {
-      // Result returns the resulting (highest) step run code so this checks to see
-      // if a failure occurred - if one hasn't delete the screencast else the screencast
-      // is kept
-      if($event->getResult() < StepEvent::FAILED) {
-        if ($this->screencast) {
-          $this->screencast->delete();
-        }
-      }
-    }
-
-    // Stop the screencast if one is active.
-    if (isset($this->screencast)) {
-      unset($this->screencast);
-    }
-  }
+//  public function endScreencast($event)
+//  {
+//    if (!($this->getSession()->getDriver() instanceof Behat\Mink\Driver\GoutteDriver) &&
+//      !($this->getSession()->getDriver() instanceof Behat\Mink\Driver\ZombieDriver)) {
+//      // Result returns the resulting (highest) step run code so this checks to see
+//      // if a failure occurred - if one hasn't delete the screencast else the screencast
+//      // is kept
+//      if($event->getResult() < StepEvent::FAILED) {
+//        if ($this->screencast) {
+//          $this->screencast->delete();
+//        }
+//      }
+//    }
+//
+//    // Stop the screencast if one is active.
+//    if (isset($this->screencast)) {
+//      unset($this->screencast);
+//    }
+//  }
 
   /**
    * @AfterScenario
    *
    * @param Behat\Behat\Event\ScenarioEvent $event
    */
-  public function afterScenario($event)
+  public function afterScenario($scope)
   {
     $this->getSession()->reset();
     if (!($this->getSession()->getDriver() instanceof Behat\Mink\Driver\GoutteDriver) &&
       !($this->getSession()->getDriver() instanceof Behat\Mink\Driver\ZombieDriver)) {
-        $this->getSession()->switchToWindow();
+        //$this->getSession()->switchToWindow();
     }
   }
 
@@ -668,11 +676,11 @@ class FeatureContext extends MinkContext
 
   /** @AfterStep
    * *
-   * @param Behat\Behat\Event\StepEvent $event
+   * @param $scope
    */
-  public function afterStep($event)
+  public function afterStep($scope)
   {
-    $result = $event->getResult();
+    $result = $scope->getTestResult();
     if ($this->screencast) {
       $this->screencast->endCaption($result);
     }
@@ -779,11 +787,11 @@ class FeatureContext extends MinkContext
    */
   public function shouldSeeValidJSON()
   {
-      $json = $this->getSession()->getPage()->getContent();
+      $json = $this->getSession()->getPage()->getText();
       $data = json_decode($json);
       if ($data===null) {
           throw new Exception("Response was not JSON" );
-      };
+      }
   }
 
   /**
@@ -793,7 +801,7 @@ class FeatureContext extends MinkContext
       $fieldElements = $this->getSession()->getPage()->findButton($buttonName, array('field', 'id|name|value|label'));
       if ($fieldElements===null) {
           throw new Exception("Button not found" );
-      };
+      }
   }
 
   /**
@@ -802,6 +810,10 @@ class FeatureContext extends MinkContext
    * Possible works on title, by internal JavaScript "name," or by JavaScript variable. Only tested on "internal JavaScript name"
    */
   public function iSwitchToWindow($name) {
+      $windows = $this->getSession()->getWindowNames();
+      if (empty($name)) {
+          $name = $windows[0];
+      }
       $this->getSession()->switchToWindow($name);
   }
 

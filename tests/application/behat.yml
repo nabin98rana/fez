@@ -1,13 +1,10 @@
 # behat.yml
 default:
-  context:
-    parameters:
-      debug:
-        disabled: 1
+  calls:
+    error_reporting: 7 # value of E_ERROR | E_WARNING | E_PARSE
   extensions:
-    Behat\MinkExtension\Extension:
+    Behat\MinkExtension:
       base_url:  'http://fez'
-      goutte:    ~
+      goutte: ~
       selenium2:
-        browser: firefox
-
+        browser: chrome

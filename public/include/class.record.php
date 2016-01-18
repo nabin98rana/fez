@@ -4065,7 +4065,7 @@ class Record
   }
 
   //$get top when given an array returns listed titles only
-  function getSearchKeyIndexValue($pid, $searchKeyTitle, $getLookup=true, $sek_details="", $getTop = null)
+  public static function getSearchKeyIndexValue($pid, $searchKeyTitle, $getLookup=true, $sek_details="", $getTop = null)
   {
     $log = FezLog::get();
     $db = DB_API::get();
@@ -5848,7 +5848,7 @@ function getSearchKeyIndexValueShadow($pid, $searchKeyTitle, $getLookup=true, $s
     }
   }
 
-  function markAsDeleted($pid, $date ='')
+  public static function markAsDeleted($pid, $date ='')
   {
     $shadow = false;
     if ($date == '') {
