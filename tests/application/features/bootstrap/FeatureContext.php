@@ -787,7 +787,7 @@ class FeatureContext extends MinkContext
    */
   public function shouldSeeValidJSON()
   {
-      $json = $this->getSession()->getPage()->getContent();
+      $json = $this->getSession()->getPage()->getText();
       $data = json_decode($json);
       if ($data===null) {
           throw new Exception("Response was not JSON" );

@@ -1513,7 +1513,6 @@ class Search_Key
         return $res;
     }
 
-
     /**
      * Method used to get the details of a specific search key.
      *
@@ -1521,7 +1520,7 @@ class Search_Key
      * @param   string $sek_title The search key title
      * @return  array The search key details
      */
-    function getBasicDetailsByTitle($sek_title)
+    public static function getBasicDetailsByTitle($sek_title)
     {
         $log = FezLog::get();
         $db = DB_API::get();
