@@ -7,7 +7,7 @@ include_once(APP_INC_PATH . "class.workflow_status.php");
 $pid = $_GET['pid'];
 $type = $_GET['type'];
 
-header("Content-Type: text/javascript");
+header("Content-Type: application/json");
 
 switch ($type) {
 

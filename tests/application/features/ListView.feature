@@ -2,7 +2,7 @@
 @javascript
 Feature: Check list view displays the correct information entered into a pid, collection or community
 
-  @now @jet @jetx
+  @now @jet
   Scenario: I login as admin and create communities, collections and pids and see all the information displays in lists correctly
     Given I login as administrator
     And I follow "Browse"
