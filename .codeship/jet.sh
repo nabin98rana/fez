@@ -9,4 +9,6 @@ sleep 30
 
 echo Running tests..
 
-tests/application/run-tests.sh
+# tests/application/run-tests.sh
+docker -v
+docker-compose -v

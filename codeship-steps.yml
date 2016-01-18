@@ -1,6 +1,6 @@
 # disabling whilst working on deployment
-#- service: fpmtestrunner
-#  command: .codeship/jet.sh
+- service: fpmtestrunner
+  command: .codeship/jet.sh
 - service: fez
   type: push
   tag: staging # should only push on staging branch
