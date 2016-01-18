@@ -54,9 +54,9 @@ $tpl->setTemplate('upgrade.tpl.html');
 $tpl->assign('setup', true);
 
 $skip = 0;
+$up = new upgrade;
 
 if ($_GET["upgradeOnly"]) {
-    $up = new upgrade;
     list($res, $message) = $up->upgrade('');
     echo $message;
     exit;
@@ -93,5 +93,3 @@ switch ($step) {
 
 $tpl->assign('step', $step);
 $tpl->displayTemplate();
-
-?>
