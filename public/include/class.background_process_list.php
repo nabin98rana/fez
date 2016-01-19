@@ -84,7 +84,7 @@ class BackgroundProcessList
 	}
 
   //Used in testing
-  function isFinishedProcessing()
+  public static function isFinishedProcessing()
   {
     $log = FezLog::get();
     $db = DB_API::get();

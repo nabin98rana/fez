@@ -92,6 +92,7 @@ Feature: Check that valid json is being returned
     Given I am on "/pid_suggest_proxy.php?query=a:4$%@})']\%22({["
     Then should see valid JSON
 
+  @cloned
   Scenario: Check JSON is valid
     Given I am on "/pid_suggest_proxy.php?query=water"
     Then I should see "water"
@@ -114,7 +115,7 @@ Feature: Check that valid json is being returned
 
   @jet
   Scenario: Check JSON is valid
-    Given I am on "/oembed.php?format=json"
+    Given I am on "/oembed.php?format_type=json"
     Then should see valid JSON
 
   @jet
@@ -132,6 +133,7 @@ Feature: Check that valid json is being returned
     Given I am on "/api/latest_metric_changes.php?author_username=a:4$%@})']\%22({["
     Then should see valid JSON
 
+  @cloned
   Scenario: Check JSON is valid
     Given I am on "/api/publon_reviews.php?author_username=uqpburn2"
     Then should see valid JSON

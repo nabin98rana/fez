@@ -153,7 +153,9 @@ class fileCache {
 	{
 		$locations = $this->getAllCacheLocations();
 		foreach ($locations as $dir) {
-			@unlink($dir . $this->cacheFileName);
+			if (file_exists($dir . $this->cacheFileName)) {
+				@unlink($dir . $this->cacheFileName);
+			}
 		}
 
 		return;

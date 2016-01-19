@@ -250,7 +250,7 @@ class BackgroundProcess {
 		$dbtp =  APP_TABLE_PREFIX;
 		// keep background log files in a subdir so that they don't clutter up the /tmp dir so much
 		if (!is_dir(APP_TEMP_DIR."fezbgp")) {
-			mkdir(APP_TEMP_DIR."fezbgp");
+			@mkdir(APP_TEMP_DIR."fezbgp");
 		}
 
 		$utc_date = Date_API::getSimpleDateUTC();

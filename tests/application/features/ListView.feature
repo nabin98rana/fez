@@ -7,20 +7,23 @@ Feature: Check list view displays the correct information entered into a pid, co
     Given I login as administrator
     And I follow "Browse"
     And I follow "Create New Community"
+    And I wait for "2" seconds
     And I fill in "Name" with "Test Community for list view"
-    And I fill in "Keyword 1" with "keyword automated testing"
+    And I fill in "Keyword 1" with "automated testing"
     And I fill in "Abstract/Summary" with "abstract automated testing"
     And I select "Fedora Collection Display Version Dublin Core 1.0" from "XSD Display Document Types"
     And I press "Publish"
     And I press "Create"
+    And I wait for "2" seconds
     And I fill in "Title" with "Test Collection for list view"
     And I fill in "Keyword 1" with "automated testing"
-    And I fill in "Abstract/Summary" with "abstract automated testing"
+    And I fill in "Abstract/Summary" with "automated testing"
     And I select "Journal Article Version MODS 1.0" from "XSD Display Document Types"
     And I press "Publish"
     And I wait for solr
     And I wait for bgps
     And I press "Create"
+    And I wait for "2" seconds
     And I fill in "Title" with "Test Pid for list view"
     And I fill in "Journal name" with "List test journal"
     And I fill in "Author 1" with "List Test Author name 1"
