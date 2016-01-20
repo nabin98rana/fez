@@ -184,7 +184,7 @@ class Publons
         catch(Exception $ex) {
             $log->err($ex);
         }
-        Publons::savePublonsId($authorId, $paper['ids']['academic']['id']);
+        Publons::savePublonsId($authorId, '1');  //Currently we don't want to store the publons id
         Publons::savePublonsJournal($paper);
         Publons::savePublonsPublisher($paper);
         return $res;
