@@ -249,7 +249,7 @@ aut_people_australia_id, aut_description, aut_orcid_id, aut_google_scholar_id, a
         }
 
         return $res;
-        }
+    }
 
     public static function changeId($authorUsername, $id, $idType)
     {
@@ -308,14 +308,14 @@ aut_people_australia_id, aut_description, aut_orcid_id, aut_google_scholar_id, a
         return $results;
     }
 
-    public static function saveGrantInfo($authorUsername, $idType, $name, $status, $expires, $value,$detailsDump)
+    public static function saveGrantInfo($authorUsername, $idType, $name, $status, $expires, $value, $detailsDump)
     {
         $log = FezLog::get();
         $db = DB_API::get();
 
         $authorId = Author::getIDByUsername($authorUsername);
         $stmt = "INSERT INTO  " . APP_TABLE_PREFIX . "author_identifier_user_grants (aig_author_id, aig_id_type, aig_name, aig_status, aig_expires, aig_details, aig_created, aig_updated, aig_details_dump)
-            VALUES( " .$db->quote($authorId) . ", " . $db->quote($idType) . ", " . $db->quote($name) . ", " . $db->quote($status) . ", " . $db->quote($expires) . ", " . $db->quote($value) . ", NOW(), NOW(), " . $db->quote($detailsDump) . ") ON DUPLICATE KEY UPDATE
+            VALUES( " . $db->quote($authorId) . ", " . $db->quote($idType) . ", " . $db->quote($name) . ", " . $db->quote($status) . ", " . $db->quote($expires) . ", " . $db->quote($value) . ", NOW(), NOW(), " . $db->quote($detailsDump) . ") ON DUPLICATE KEY UPDATE
             aig_author_id = " . $db->quote($authorId) . ", aig_id_type = " . $db->quote($idType) . ", aig_name = " . $db->quote($name) .
             ", aig_status = " . $db->quote($status) . ", aig_expires = " . $db->quote($expires) . ", aig_details = " . $db->quote($value) . ", aig_updated = NOW()" . ", aig_details_dump = " . $db->quote($detailsDump);
         try {

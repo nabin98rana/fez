@@ -184,8 +184,29 @@ class Publons
         catch(Exception $ex) {
             $log->err($ex);
         }
+        Publons::savePublonsId($authorId, $paper['ids']['academic']['id']);
         Publons::savePublonsJournal($paper);
         Publons::savePublonsPublisher($paper);
+        return $res;
+    }
+
+    public function savePublonsId($authorId, $publonsId)
+    {
+        $log = FezLog::get();
+        $db = DB_API::get();
+
+        if (empty($publonsId)) {
+            return false;
+        }
+
+        $stmt = "UPDATE fez_author SET aut_publons_id = " . $db->quote($publonsId) . " WHERE aut_id = " . $db->quote($authorId);
+
+        try {
+            $res = $db->exec($stmt);
+        }
+        catch(Exception $ex) {
+            $log->err($ex);
+        }
         return $res;
     }
 
