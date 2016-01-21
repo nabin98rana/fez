@@ -48,14 +48,12 @@ function runDatabaseTasks() {
   $user       = 'fez';
   $pass       = 'fez';
 
-//  $conn = @mysql_connect($host, $user, $pass);
   $conn = new PDO('mysql:host='.$host, $user, $pass);
   if (!$conn) {
     return "Could not connect to the specified database host with these credentials.";
   }
 
   // Connect to the specified database.
-//  if (!mysql_select_db($database)) {
   if (!$conn->query('use '.$database)) {
     // If we can't, attempt to create it.
     $dbCreateResult = attemptCreateDB($database, $conn);
