@@ -48,33 +48,35 @@ function runDatabaseTasks() {
   $user       = 'fez';
   $pass       = 'fez';
 
-  $conn = @mysql_connect($host, $user, $pass);
+//  $conn = @mysql_connect($host, $user, $pass);
+  $conn = new PDO('mysql:host='.$host, $user, $pass);
   if (!$conn) {
     return "Could not connect to the specified database host with these credentials.";
   }
 
   // Connect to the specified database.
-  if (!mysql_select_db($database)) {
+//  if (!mysql_select_db($database)) {
+  if (!$conn->query('use '.$database)) {
     // If we can't, attempt to create it.
     $dbCreateResult = attemptCreateDB($database, $conn);
     if ($dbCreateResult !== "") {
       return $dbCreateResult;
     } else {
       // Second attempt database connection with the supplied credentials.
-      if (!mysql_select_db($database)) {
+      if (!$conn->query('use '.$database)) {
         return "Could not connect to the newly created database with the nominated credentials.";
       }
     }
   }
-  parseMySQLdump("./../../public/setup/schema.sql");
-  parseMySQLdump("./../../public/setup/data.sql");
+  parseMySQLdump($conn, "./../../public/setup/schema.sql");
+  parseMySQLdump($conn, "./../../public/setup/data.sql");
 }
 
 /**
  * This method grabs an SQL dump file and runs whatever it finds inside. Thrills for the whole family!
  *
  */
-function parseMySQLdump($url, $ignoreerrors = false) {
+function parseMySQLdump($conn, $url, $ignoreerrors = false) {
   $file_content = file($url);
   $query = "";
   foreach($file_content as $ln => $sql_line) {
@@ -83,9 +85,9 @@ function parseMySQLdump($url, $ignoreerrors = false) {
     if (($sql_line != "") && (substr($tsl, 0, 2) != "--") && (substr($tsl, 0, 1) != "#")) {
       $query .= $sql_line;
       if(preg_match("/;\s*$/", $sql_line)) {
-        $result = mysql_query($query);
+        $result = $conn->query($query);
         if (!$result && !$ignoreerrors) {
-          return mysql_error();
+          return $conn->errorInfo();
         }
         $query = "";
       }
