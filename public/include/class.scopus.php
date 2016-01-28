@@ -48,26 +48,6 @@ include_once(APP_INC_PATH . 'class.scopus_service.php');
 
 class Scopus
 {
-// Production Addresses - updated 20120521 bh 
-
-	const WSDL = 'http://services.elsevier.com/EWSXAbstractsMetadataWebSvc/services/XAbstractsMetadataServiceV10/META-INF/absmet_service_v10.wsdl';
-	const ENDPOINT = 'http://services.elsevier.com/EWSXAbstractsMetadataWebSvc/XAbstractsMetadataServiceV10';
-
-//New Tomcat addresses to go live March 17 2012
-//    const WSDL = 'http://services.elsevier.com/EWSXAbstractsMetadataWebSvc/XAbstractsMetadataServiceV10/WEB-INF/wsdl/absmet_service_v10.wsdl';
-//    const ENDPOINT = 'http://services.elsevier.com/EWSXAbstractsMetadataWebSvc/XAbstractsMetadataServiceV10';
-// const WSDL = 'http://cdc310-services.elsevier.com/EWSXAbstractsMetadataWebSvc/services/XAbstractsMetadataServiceV10/META-INF/absmet_service_v10.wsdl';
-// const ENDPOINT = 'http://cdc310-services.elsevier.com/EWSXAbstractsMetadataWebSvc/XAbstractsMetadataServiceV10
-
-// Development addresses	
-//	const WSDL = 'http://cdc315-services.elsevier.com/EWSXAbstractsMetadataWebSvc/XAbstractsMetadataServiceV10/WEB-INF/wsdl/absmet_service_v10.wsdl';
-//	const ENDPOINT = 'http://cdc315-services.elsevier.com/EWSXAbstractsMetadataWebSvc/XAbstractsMetadataServiceV10';
-//	const WSDL = 'http://cdc310-services.elsevier.com/EWSXAbstractsMetadataWebSvc/XAbstractsMetadataServiceV10/WEB-INF/wsdl/absmet_service_v10.wsdl';
-//	const ENDPOINT = 'http://cdc310-services.elsevier.com/EWSXAbstractsMetadataWebSvc/XAbstractsMetadataServiceV10';
-// old V8
-//	const WSDL = 'http://cdc315-services.elsevier.com/EWSXAbstractsMetadataWebSvc/XAbstractsMetadataServiceV8/WEB-INF/wsdl/absmet_service_v8.wsdl';
-//	const ENDPOINT = 'http://cdc315-services.elsevier.com/EWSXAbstractsMetadataWebSvc/XAbstractsMetadataServiceV8';
-
 	function __construct()
 	{
 				
@@ -128,7 +108,7 @@ GROUP BY rek_pid
     * @return array of PIDs which contains for each pid, an array of eid, scopusID and citedByCount
     * eg Array
     *(
-    *    [DU:30001379] => Array
+    *    [UQ:30001] => Array
     *        (
     *            [eid] => 2-s2.0-0035584235
     *            [scopusID] => 0035584235
@@ -148,8 +128,8 @@ GROUP BY rek_pid
             
         // Test input
         /*
-        $input_keys = array('DU:30032170' => array('eid' => '2-s2.0-77749318564'),  //123
-        'DU:30032226' => array('eid' => '2-s2.0-78650218172'), //0
+        $input_keys = array('UQ:30031' => array('eid' => '2-s2.0-77749318564'),  //123
+        'UQ:30032' => array('eid' => '2-s2.0-78650218172'), //0
         ); 
         */
 
