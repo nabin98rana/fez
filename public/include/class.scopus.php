@@ -44,12 +44,13 @@
 include_once(APP_INC_PATH . "class.error_handler.php");
 include_once(APP_INC_PATH . 'nusoap.php');
 include_once(APP_INC_PATH . "class.misc.php");
+include_once(APP_INC_PATH . 'class.scopus_service.php');
 
 class Scopus
 {
-// Production Addresses
+// Production Addresses - updated 20120521 bh 
 
-	const WSDL = 'http://services.elsevier.com/EWSXAbstractsMetadataWebSvc/XAbstractsMetadataServiceV10/WEB-INF/wsdl/absmet_service_v10.wsdl';
+	const WSDL = 'http://services.elsevier.com/EWSXAbstractsMetadataWebSvc/services/XAbstractsMetadataServiceV10/META-INF/absmet_service_v10.wsdl';
 	const ENDPOINT = 'http://services.elsevier.com/EWSXAbstractsMetadataWebSvc/XAbstractsMetadataServiceV10';
 
 //New Tomcat addresses to go live March 17 2012
@@ -119,103 +120,112 @@ GROUP BY rek_pid
 		return $res;
 	}	
 
+  
+     /**
+    * Retrieve cited by count information for a list of articles
+    *
+    * @param array $input_keys
+    * @return array of PIDs which contains for each pid, an array of eid, scopusID and citedByCount
+    * eg Array
+    *(
+    *    [DU:30001379] => Array
+    *        (
+    *            [eid] => 2-s2.0-0035584235
+    *            [scopusID] => 0035584235
+    *            [citedByCount] => 2
+    *        )
+    *    [DU: etc...
+    *
+    * JH 20160111
+    */
+    public static function getCitedByCount($input_keys)
+      {
 
+        // Developer info:  
+        //http://dev.elsevier.com/index.html 
+        //http://dev.elsevier.com/tecdoc_cited_by_in_scopus.html  *Note: Scopus ID example is not quite right...
+        //http://api.elsevier.com/documentation/SCOPUSSearchAPI.wadl
+            
+        // Test input
+        /*
+        $input_keys = array('DU:30032170' => array('eid' => '2-s2.0-77749318564'),  //123
+        'DU:30032226' => array('eid' => '2-s2.0-78650218172'), //0
+        ); 
+        */
 
-		
+        // Initialize arrays
+        $result = array();
+        $scopus_counts = array();
+           
+        // Set up Get request
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);  // Return as string
+        curl_setopt($ch, CURLOPT_HTTPHEADER, array(
+          'X-ELS-APIKey: ' . APP_SCOPUS_API_KEY,
+          'Accept: application/xml'
+          ));
+          
+        // Set up API URL  
+        $url = 'http://api.elsevier.com/content/search/index:SCOPUS?query=';
+            
+        //  Loop through the input keys (includes PIDs and Scopus IDs) to set up the default result array
+        foreach($input_keys as $pid => $v) {
+            
+          
+          foreach($v as $eid => $_v) {
+           
+            // Build return array
+            $scopus_info = array();
+            $scopus_info[$eid] = $_v;
+            $scopus_info['scopusID'] = str_ireplace('2-s2.0-', '', $_v);
+            // Set default citation count to 0
+            $scopus_info['citedByCount'] = 0;
+            $result[$pid] = $scopus_info;
+            
+            // Add this Scopus ID to the query string
+            $url = $url . "eid(". $_v . ")+OR+";
+          }
+          
+        }
+        // Remove last +OR+ and add field info, start and count info, etc to URL
+        $url = substr($url, 0, strlen($url)-4) . '&field=citedby-count&suppressNavLinks&start=0&count=' . sizeof($input_keys);
+
+        // Set the CURL URL
+        curl_setopt($ch, CURLOPT_URL,$url);
+
+        // Make Get request
+        $scopus_result=curl_exec($ch);
+            
+        curl_close($ch);
+
+        // Load results to xml document for xpath parsing
+        $doc = DOMDocument::loadXML($scopus_result);
+        $xpath = new DOMXPath($doc);
+        $xpath->registerNamespace("atom","http://www.w3.org/2005/Atom"); // must register namespace
+        $entries = $xpath->query("/atom:search-results/atom:entry/atom:citedby-count");
+
+        // Parse the xml and put the resulting citation counts in the scopus_counts array
+        foreach ($entries as $entry) {
+          $scopusID = $entry->previousSibling->nodeValue;
+          $scopusID = substr($scopusID, strrpos($scopusID,'/')+1);
+          $count = $entry->nodeValue;
+          $scopus_counts[$scopusID] = $count;
+        }
+
+        // Put citation counts into the results array
+        foreach ($result as $pid => $value) {
+          $result[$pid]['citedByCount'] = $scopus_counts[$result[$pid]['scopusID']];
+        }
+        return $result;
+
+    }	
+    
 	/**
 	 * Retrieve cited by count information for a list of articles
 	 *
 	 * @param array $input_keys
 	 * @return SimpleXMLElement The object containing records found in Scopus matching the input key(s) specified 
 	 */
-	public static function getCitedByCount($input_keys) 
-	{		
-		$log = FezLog::get();
-//		$input_keys = array('UQ:6002' => array('eid' => '2-s2.0-0020818831'),
-//            'UQ:6003' => array('eid' => '2-s2.0-0020818835'),
-//            'UQ:6004' => array('eid' => '2-s2.0-0020818837'),
-//            'UQ:6005' => array('eid' => '2-s2.0-0346778587')
-//        );
-		$client = new soapclient_internal(self::ENDPOINT, false);
-        $client->soap_defencoding = 'UTF-8';
-		
-		$err = $client->getError();
-		if ($err) {
-			$log->err('Error occurred while creating new soap client: '.$err, __FILE__, __LINE__);
-			return false;
-		}		
-        // XSD now found at http://schema.elsevier.com/waldo/easi/v1-0-0/requestheader/EASIRequestSchema.xsd
-		$headers = '<EASIReq xmlns="http://webservices.elsevier.com/schemas/easi/headers/types/v1">
-						<ReqId xmlns="">001</ReqId>
-						<Ver xmlns="">2</Ver>
-						<Consumer xmlns="">' . substr(APP_SCOPUS_CONSUMER_NAME, 0, 20) . '</Consumer>
-						<ConsumerClient xmlns="">tester_client</ConsumerClient>
-						<OpaqueInfo xmlns="">prodId=1053;acctId=53745</OpaqueInfo>
-						<LogLevel xmlns="">Default</LogLevel>
-					</EASIReq>';
-		
-		$params = '<getCitedByCount xmlns="http://webservices.elsevier.com/schemas/metadata/abstracts/types/v10">
-					<getCitedByCountReqPayload>
-					 <dataResponseStyle>MESSAGE</dataResponseStyle>
-					 <absMetSource>all</absMetSource>
-					 <responseStyle>wellDefined</responseStyle>';		
-		foreach($input_keys as $k => $v) {			
-			$params .= '<inputKey><clientCRF xmlns="">'.trim($k).'</clientCRF>';
-			foreach($v as $_k => $_v) {
-				$params .= '<'.trim($_k).' xmlns="">'.htmlspecialchars(trim($_v)).'</'.trim($_k).'>';
-			}
-			$params .= '</inputKey>';
-		}
-		$params .= '</getCitedByCountReqPayload></getCitedByCount>';
-		
-		$result = $client->call('getCitedByCount', $params, null, null, $headers, null, false, false);
-//		$result = $client->call('getCitedByCount', $params, null, null, $headers, null, 'document', 'encoded');
-//        $x = $client->response;
-//        $y = $client->document;
-//        $z = $client->request;
-//        $z1 = $client->requestHeaders;
-
-		if ($client->fault) {
-            $err = $client->getError();
-			$log->err('Fault occurred while retrieving records from Scopus:\n'.$err.' '.$client->fault."\n\nREQUEST:\n".$client->request."\n\nREQUEST HEADERS\n".$client->requestHeaders."\n\nRESPONSE:\n".$client->response, __FILE__, __LINE__);
-			return false;
-		} else {
-			$err = $client->getError();
-			if ($err) {
-				$log->err('Error occurred while retrieving records from Scopus: '.$err, __FILE__, __LINE__);
-				return false;
-			} else {				
-				$cited_by_count = @$result['getCitedByCountRspPayload']['citedByCountList']['citedByCount'];
-				if(is_array($cited_by_count)) {
-					$return = array();
-					if(array_key_exists('inputKey', $cited_by_count)) {	
-						// Only 1 result					
-						$key = $cited_by_count['inputKey']['clientCRF'];
-						$return[$key] = array(
-											'eid' => $cited_by_count['linkData']['eid'],
-											'scopusID' => $cited_by_count['linkData']['scopusID'],
-											'citedByCount' => $cited_by_count['linkData']['citedByCount']
-										); 
-					}
-					else {
-						foreach($cited_by_count as $cited) {
-							$key = $cited['inputKey']['clientCRF'];
-							$return[$key] = array(
-												'eid' => $cited['linkData']['eid'],
-												'scopusID' => $cited['linkData']['scopusID'],
-												'citedByCount' => $cited['linkData']['citedByCount']
-											); 
-						}
-					}
-					return $return;
-				}
-				else {
-					return false;
-				}
-			}
-		}
-	}
-
 
     /**
      * Returns a list of Scopus document types
