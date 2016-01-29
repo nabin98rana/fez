@@ -48,8 +48,8 @@ class ApiResearchers
         $db = DB_API::get();
 
         $stmt = "SELECT aut_id, aut_org_username,  aut_email,
-aut_display_name, aut_fname, aut_mname, aut_lname, aut_title, aut_position, aut_function, aut_cv_link, aut_homepage_link, aut_researcher_id, aut_scopus_id, aut_mypub_url,
-aut_people_australia_id, aut_description, aut_orcid_id, aut_google_scholar_id, aut_rid_last_updated FROM " . APP_TABLE_PREFIX . "author WHERE aut_org_username =  " . $db->quote($author_username);
+aut_display_name, aut_fname, aut_mname, aut_lname, aut_title, aut_position, aut_homepage_link, aut_researcher_id, aut_scopus_id, aut_mypub_url,
+aut_people_australia_id, aut_description, aut_orcid_id, aut_google_scholar_id, aut_rid_last_updated, aut_publons_id FROM " . APP_TABLE_PREFIX . "author WHERE aut_org_username =  " . $db->quote($author_username);
 
         try {
             $res = $db->fetchAll($stmt);
