@@ -256,16 +256,19 @@ aut_people_australia_id, aut_description, aut_orcid_id, aut_google_scholar_id, a
         $log = FezLog::get();
         $db = DB_API::get();
 
-        if (strtolower($idType) == 'orcid' || strtolower($idType) == 1) {
+        //We'll allow either the number of the id from UQLApp or a string
+        if (strtolower($idType) == 'orcid' || $idType == 1) {
             $column = 'aut_orcid_id';
-        } else if (strtolower($idType) == 'rid' || strtolower($idType) == 2) {
+        } else if (strtolower($idType) == 'rid' || $idType == 2) {
             $column = 'aut_researcher_id';
-        } else if (strtolower($idType) == 'scopus' || strtolower($idType) == 3) {
+        } else if (strtolower($idType) == 'scopus' || $idType == 3) {
             $column = 'aut_scopus_id';
         } else if (strtolower($idType) == 'scholar') {
             $column = 'aut_google_scholar_id';
         } else if (strtolower($idType) == 'people') {
             $column = 'aut_people_australia_id';
+        } else if (strtolower($idType) == 'publons' || $idType == 4) {
+            $column = 'aut_publons_id';
         } else {
             return false;
         }
