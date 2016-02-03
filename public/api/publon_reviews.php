@@ -38,11 +38,25 @@ include_once('../config.inc.php');
 include_once(APP_INC_PATH . "class.db_api.php");
 include_once(APP_INC_PATH . "class.publons.php");
 
+//usefull for getting raw data
+$user = Auth::getUsername();
+$isSuperAdministrator = User::isUserSuperAdministrator($user);
+
+
 $callback = $_REQUEST['callback'];
 $callback = !empty($callback) ? preg_replace('/[^a-z0-9\.$_]/si', '', $callback) : false;
 header('Access-Control-Allow-Origin: *');
 header('Content-Type: ' . ($callback ? 'application/javascript' : 'application/json') . ';charset=UTF-8');
 echo ($callback ? '/**/'.$callback . '(' : '');
+
+$securityToken = $_SERVER['HTTP_X_API_TOKEN'];
+
+if (($securityToken == APP_API_IDS_TOKEN) && !$isSuperAdministrator) {
+    http_response_code(401);
+    echo json_encode("Not authorized");
+    echo $callback ? ');' : '';
+    exit();
+} 
 
 $author_username = $_REQUEST['author_username'];
 
