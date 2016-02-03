@@ -142,3 +142,18 @@ Feature: Check that valid json is being returned
   Scenario: Check JSON is valid
     Given I am on "/api/publon_reviews.php?author_username=a:4$%@})']\%22({["
     Then should see valid JSON
+
+  @jet
+  Scenario: Check authentication is checked
+    Given I am on "/api/publon_reviews.php?author_username=uqpburn2"
+    Then the response status code should be 401
+
+  @jet
+  Scenario: Check JSON is valid
+    Given I am on "/api/ids.php?author_username=a:4$%@})']\%22({["
+    Then should see valid JSON
+
+  @jet
+  Scenario: Check authentication is checked
+    Given I am on "/api/ids.php?author_username=uqpburn2"
+    Then the response status code should be 401
