@@ -1,4 +1,4 @@
-FROM uqlibrary/docker-base:3
+FROM uqlibrary/docker-base:4
 
 RUN mkdir /var/log/fez && cd /var/log/fez/ && \
   mkdir -p backend/app && \

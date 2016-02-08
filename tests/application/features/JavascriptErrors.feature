@@ -2,7 +2,7 @@
 Feature: Test pages for javascript errors
 #We have added Javascript tests to all pages tested so for now we just have to visit pages that do not have tests on them already
 
-  @now1
+  @now1 @jet
   Scenario: I go to heaps of pages Then see if there are javascript errors present
     Given I am on "/"
     Given I follow "Recently Added"
@@ -20,11 +20,11 @@ Feature: Test pages for javascript errors
     Given I am on "news.php"
     Given I go to the test collection list page
     Given I go to the test journal article view page
-    Given I am on "/stats_map.php"
-    Given I am on "/stats.php?browse=top50papers"
-    Given I am on "/stat_details.php?action=cumulative_usage&range=all"
+    #Given I am on "/stats_map.php"
+    #Given I am on "/stats.php?browse=top50papers"
+    #Given I am on "/stat_details.php?action=cumulative_usage&range=all"
 
-  @now2
+  @now2 @jet
   Scenario: I go to heaps of pages Then see if there are javascript errors present as super administrator
     Given I login as super administrator
     Given I am on "/"
@@ -44,10 +44,10 @@ Feature: Test pages for javascript errors
     Given I am on "/search_favourites.php"
     Given I go to the test collection list page
     Given I go to the test journal article view page
-    Given I am on "/my_research_claimed.php"
-    Given I am on "/my_research_possible.php"
-    Given I am on "/my_research_add.php"
-    Given I am on "/my_upo_tools.php"
+    #Given I am on "/my_research_claimed.php"
+    #Given I am on "/my_research_possible.php"
+    #Given I am on "/my_research_add.php"
+    #Given I am on "/my_upo_tools.php"
     #Admin independent
     Given I am on "/my_processes.php"
     Given I am on "/my_collections.php"
@@ -67,7 +67,7 @@ Feature: Test pages for javascript errors
     Given I am on "/manage/languages.php"
     Given I am on "/manage/orgstructure.php"
     Given I am on "/manage/matching.php"
-    Given I am on "/manage/integrity.php"
+    #Given I am on "/manage/integrity.php"
     Given I am on "/manage/links.php"
     Given I am on "/manage/faqs.php"
     Given I am on "/manage/pages.php"
@@ -99,13 +99,11 @@ Feature: Test pages for javascript errors
     Given I am on "/manage/reports.php"
     Given I am on "/manage/quick_match.php?match_type=conference"
     Given I am on "/manage/matching_uq_tiered_journal.php"
-    Given I am on "/my_research_data_claimed.php"
+    #Given I am on "/my_research_data_claimed.php"
     Given I am on "/solr_help.php"
-
-  #Mostly espace specific.
     Given I am on "/manage/xsd_source_edit.php?cat=edit&xsd_id=28"
-    Given I am on "/uqabro13"
-  #These frames don't use dojo so we turn off waiting checks
+    #Given I am on "/uqabro13"
+    #These frames don't use dojo so we turn off waiting checks
     Given I turn off waiting checks
     Given I am on "/manage/top.php"
     Then I check there are no Javascript errors

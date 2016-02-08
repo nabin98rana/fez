@@ -1386,7 +1386,7 @@ class FeatureContext extends BehatContext
         $rec = new Record($this->pid);
         $recs = $rec->getDetailsLite($this->pid);
         list($first) = $recs;
-        $subjects = $rec->getSearchKeyIndexValue($this->pid, 'Subject');
+        $subjects = Record::getSearchKeyIndexValue($this->pid, 'Subject');
         $fixture = Fixtures::display_type_instance('doc-with-cont-vocab');
         $cvo_id = $fixture->fields['subjects'][0]['cvo_id'];
 

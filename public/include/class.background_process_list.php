@@ -84,7 +84,7 @@ class BackgroundProcessList
 	}
 
   //Used in testing
-  function isFinishedProcessing()
+  public static function isFinishedProcessing()
   {
     $log = FezLog::get();
     $db = DB_API::get();
@@ -245,7 +245,11 @@ class BackgroundProcessList
 
 	function getLog($bgp_id)
 	{
-		return file_get_contents(APP_TEMP_DIR."fezbgp/fezbgp_".$bgp_id.".log");
+		$file = APP_TEMP_DIR."fezbgp/fezbgp_".$bgp_id.".log";
+		if (file_exists($file)) {
+			return file_get_contents($file);
+		}
+		return false;
 	}
 
 	function deleteLog($bgp_id)

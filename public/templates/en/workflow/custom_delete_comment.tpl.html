@@ -25,10 +25,11 @@ function validateForm(f)
 
 		<tr id="historyComment">
 				  <td width="150" bgcolor="{$cell_color}" class="default">
-					<b>Please enter a reason why you are deleting this object</b>
+					  <label for="historyDetail">History Detail</label>
+					  <b>Please enter a reason why you are deleting this object</b>
 				  </td>
 				  <td width="90%" bgcolor="{$light_color}">
-					<textarea name="historyDetail" cols="40" rows="10"></textarea>
+					<textarea name="historyDetail" id="historyDetail" cols="40" rows="10"></textarea>
 				</td>
 		</tr>
         </table>             

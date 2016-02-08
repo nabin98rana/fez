@@ -48,8 +48,8 @@ class ApiResearchers
         $db = DB_API::get();
 
         $stmt = "SELECT aut_id, aut_org_username,  aut_email,
-aut_display_name, aut_fname, aut_mname, aut_lname, aut_title, aut_position, aut_function, aut_cv_link, aut_homepage_link, aut_researcher_id, aut_scopus_id, aut_mypub_url,
-aut_people_australia_id, aut_description, aut_orcid_id, aut_google_scholar_id, aut_rid_last_updated FROM " . APP_TABLE_PREFIX . "author WHERE aut_org_username =  " . $db->quote($author_username);
+aut_display_name, aut_fname, aut_mname, aut_lname, aut_title, aut_position, aut_homepage_link, aut_researcher_id, aut_scopus_id, aut_mypub_url,
+aut_people_australia_id, aut_description, aut_orcid_id, aut_google_scholar_id, aut_rid_last_updated, aut_publons_id FROM " . APP_TABLE_PREFIX . "author WHERE aut_org_username =  " . $db->quote($author_username);
 
         try {
             $res = $db->fetchAll($stmt);
@@ -249,23 +249,26 @@ aut_people_australia_id, aut_description, aut_orcid_id, aut_google_scholar_id, a
         }
 
         return $res;
-        }
+    }
 
     public static function changeId($authorUsername, $id, $idType)
     {
         $log = FezLog::get();
         $db = DB_API::get();
 
-        if (strtolower($idType) == 'orcid' || strtolower($idType) == 1) {
+        //We'll allow either the number of the id from UQLApp or a string
+        if (strtolower($idType) == 'orcid' || $idType == 1) {
             $column = 'aut_orcid_id';
-        } else if (strtolower($idType) == 'rid' || strtolower($idType) == 2) {
+        } else if (strtolower($idType) == 'rid' || $idType == 2) {
             $column = 'aut_researcher_id';
-        } else if (strtolower($idType) == 'scopus' || strtolower($idType) == 3) {
+        } else if (strtolower($idType) == 'scopus' || $idType == 3) {
             $column = 'aut_scopus_id';
         } else if (strtolower($idType) == 'scholar') {
             $column = 'aut_google_scholar_id';
         } else if (strtolower($idType) == 'people') {
             $column = 'aut_people_australia_id';
+        } else if (strtolower($idType) == 'publons' || $idType == 4) {
+            $column = 'aut_publons_id';
         } else {
             return false;
         }
@@ -305,17 +308,18 @@ aut_people_australia_id, aut_description, aut_orcid_id, aut_google_scholar_id, a
         $results[] = array_merge(array('value' => $res['aut_orcid_id'], status => !empty($res['aut_orcid_id']) ? 1 : null), $idDetails[1]);
         $results[] = array_merge(array('value' => $res['aut_researcher_id'], status => !empty($res['aut_researcher_id']) ? 1 : null), $idDetails[2]);
         $results[] = array_merge(array('value' => $res['aut_scopus_id'], status => !empty($res['aut_scopus_id']) ? 1 : null), $idDetails[3]);
+        $results[] = array_merge(array('value' => $res['aut_publons_id'], status => !empty($res['aut_publons_id']) ? 1 : null), $idDetails[4]);
         return $results;
     }
 
-    public static function saveGrantInfo($authorUsername, $idType, $name, $status, $expires, $value,$detailsDump)
+    public static function saveGrantInfo($authorUsername, $idType, $name, $status, $expires, $value, $detailsDump)
     {
         $log = FezLog::get();
         $db = DB_API::get();
 
         $authorId = Author::getIDByUsername($authorUsername);
         $stmt = "INSERT INTO  " . APP_TABLE_PREFIX . "author_identifier_user_grants (aig_author_id, aig_id_type, aig_name, aig_status, aig_expires, aig_details, aig_created, aig_updated, aig_details_dump)
-            VALUES( " .$db->quote($authorId) . ", " . $db->quote($idType) . ", " . $db->quote($name) . ", " . $db->quote($status) . ", " . $db->quote($expires) . ", " . $db->quote($value) . ", NOW(), NOW(), " . $db->quote($detailsDump) . ") ON DUPLICATE KEY UPDATE
+            VALUES( " . $db->quote($authorId) . ", " . $db->quote($idType) . ", " . $db->quote($name) . ", " . $db->quote($status) . ", " . $db->quote($expires) . ", " . $db->quote($value) . ", NOW(), NOW(), " . $db->quote($detailsDump) . ") ON DUPLICATE KEY UPDATE
             aig_author_id = " . $db->quote($authorId) . ", aig_id_type = " . $db->quote($idType) . ", aig_name = " . $db->quote($name) .
             ", aig_status = " . $db->quote($status) . ", aig_expires = " . $db->quote($expires) . ", aig_details = " . $db->quote($value) . ", aig_updated = NOW()" . ", aig_details_dump = " . $db->quote($detailsDump);
         try {

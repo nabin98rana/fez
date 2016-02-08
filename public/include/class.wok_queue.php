@@ -404,13 +404,13 @@ class WokQueue extends Queue
 //            $pid = $rec->save();
             //Instead of saving, now use the new liken/dedupe method to compare with existing content missing the ISI Loc
             $rec->setLikenAction(true);
-            $pid = $rec->liken();
+            $result = $rec->liken();
 
-            if ($pid) {
+            if (strpos($result, "UQ") === 0) {
               if ($this->_bgp) {
-                $this->_bgp->setStatus('Created new PID: '.$pid." for UT: ".$rec->ut);
+                $this->_bgp->setStatus('Created new PID: '.$result." for UT: ".$rec->ut);
               }
-              $processed[$rec->ut] = $pid;
+              $processed[$rec->ut] = $result;
             }
           }
         }

@@ -2,6 +2,7 @@
 @javascript @insulated
 Feature: Test that the history for pids is working
 
+  @jet
   Scenario: I login as admin, make a change and see it is in the history
     Given I login as administrator
     And I go to the test collection list page
@@ -27,6 +28,8 @@ Feature: Test that the history for pids is working
     And I follow "Update Selected Record - Generic"
     And I fill in "edit_reason" with "Testing edit reason in history"
     And I press "Publish"
+    And I wait for solr
+    And I wait for bgps
     And I follow "Detailed History"
     And I turn off waiting checks
     And I switch to window "_impact"
@@ -36,10 +39,11 @@ Feature: Test that the history for pids is working
     And I press "Close"
     And I switch to window ""
     And I turn on waiting checks
+    And I wait for solr
+    And I wait for bgps
     And I go to the test collection list page
 
-
-  @destructive @purge
+  @destructive @purge @jet
   Scenario: Delete old pids
     Given I am on "/"
     Then I clean up title "Test History Journal Title"

@@ -3,7 +3,7 @@
   "containerDefinitions": [
     {
       "name": "nginx",
-      "image": "uqlibrary/docker-nginx:3",
+      "image": "uqlibrary/docker-nginx:4",
       "cpu": 128,
       "memory": 256,
       "portMappings": [

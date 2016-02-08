@@ -2,10 +2,12 @@
 
 namespace Buzz\Client;
 
+use Buzz\Exception\RequestException;
 use Buzz\Message\MessageInterface;
 use Buzz\Message\RequestInterface;
+use Buzz\Exception\LogicException;
 
-class Curl extends AbstractCurl implements ClientInterface
+class Curl extends AbstractCurl
 {
     private $lastCurl;
 
@@ -24,7 +26,10 @@ class Curl extends AbstractCurl implements ClientInterface
             $errorMsg = curl_error($this->lastCurl);
             $errorNo  = curl_errno($this->lastCurl);
 
-            throw new \RuntimeException($errorMsg, $errorNo);
+            $e = new RequestException($errorMsg, $errorNo);
+            $e->setRequest($request);
+
+            throw $e;
         }
 
         static::populateResponse($this->lastCurl, $data, $response);
@@ -34,14 +39,16 @@ class Curl extends AbstractCurl implements ClientInterface
      * Introspects the last cURL request.
      *
      * @see curl_getinfo()
+     *
+     * @throws LogicException If there is no cURL resource
      */
     public function getInfo($opt = 0)
     {
         if (!is_resource($this->lastCurl)) {
-            throw new \LogicException('There is no cURL resource');
+            throw new LogicException('There is no cURL resource');
         }
 
-        return curl_getinfo($this->lastCurl, $opt);
+        return 0 === $opt ? curl_getinfo($this->lastCurl) : curl_getinfo($this->lastCurl, $opt);
     }
 
     public function __destruct()

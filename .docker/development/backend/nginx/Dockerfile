@@ -1,4 +1,4 @@
-FROM uqlibrary/docker-nginx:3
+FROM uqlibrary/docker-nginx:4
 
 COPY etc/nginx/conf.d/ /etc/nginx/conf.d/
 COPY etc/nginx/espace_rewrite_rules.conf /etc/nginx/espace_rewrite_rules.conf

@@ -41,7 +41,7 @@ $regex = "/^2-s2\.0-[0-9]{10,11}/";
 $filter = array();
 $filter["searchKey".Search_Key::getID("Status")] = 2; // enforce published records only
 $filter["searchKey".Search_Key::getID("Object Type")] = 3; // records only
-$filter["manualFilter"] = "scopus_id_t_s:[* TO *]"; //only records that have a scopus id assigned
+$filter["manualFilter"] = "scopus_id_t:[* TO *]"; //only records that have a scopus id assigned
 
 $listing = Record::getListing(array(), array(9,10), 0, $max, 'Created Date', false, false, $filter);
 for($i=0; $i<((int)$listing['info']['total_pages']+1); $i++) {
@@ -62,16 +62,17 @@ for($i=0; $i<((int)$listing['info']['total_pages']+1); $i++) {
             }
          }
 	}
-	
+  
 	if(count($input_keys) > 0) {		
 		$result = Scopus::getCitedByCount($input_keys);
-        //first check that all the pids came back in the response, otherwise set that eid/pid to 0
-        foreach ($input_keys as $input_pid => $input_array) {
-            if (is_array($result) && !array_key_exists($input_pid, $result)) {
-                //can't find this pid in the response so set this eid to 0
-                Record::updateScopusCitationCount($input_pid, 0, $input_array['eid']);
-            }
+
+    //first check that all the pids came back in the response, otherwise set that eid/pid to 0
+    foreach ($input_keys as $input_pid => $input_array) {
+        if (is_array($result) && !array_key_exists($input_pid, $result)) {
+            //can't find this pid in the response so set this eid to 0
+            Record::updateScopusCitationCount($input_pid, 0, $input_array['eid']);
         }
+    }
 		foreach($result as $pid => $link_data) {
 			$eid = $link_data['eid'];
 			if (is_numeric($link_data['citedByCount'])) {
@@ -79,7 +80,10 @@ for($i=0; $i<((int)$listing['info']['total_pages']+1); $i++) {
 			} else {
 				$count = 0;
 			}
-			Record::updateScopusCitationCount($pid, $count, $eid);
+			// Only update the count if the result is nonzero - 20150107 jh
+      if ($count > 0) {
+        Record::updateScopusCitationCount($pid, $count, $eid);
+      }
 		}
         if ( APP_SOLR_INDEXER == "ON" ) {
           FulltextQueue::singleton()->commit();

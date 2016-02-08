@@ -162,7 +162,13 @@ function prepareForSuperHappyFun() {
 
 }
 
-
+function getPostVar($key) {
+    if (array_key_exists($key, $_POST)) {
+        return $_POST[$key];
+    } else {
+        return "";
+    }
+}
 
 /**
  * This method tests the core variables for basic sanity. If things look reasonable, we will proceed to the next step.
@@ -171,13 +177,12 @@ function prepareForSuperHappyFun() {
 function testBaseConfigValues() {
 
     // Extract the form values
-    $path       = $_POST['app_path'];
-    $relURL     = $_POST['app_relative_url'];
-    $dbtype     = $_POST['app_sql_dbtype'];
-    $host       = $_POST['app_sql_dbhost'];
-    $database   = $_POST['app_sql_dbname'];
-    $user       = $_POST['app_sql_dbuser'];
-    $pass       = $_POST['app_sql_dbpass'];
+    $path       = getPostVar('app_path');
+    $relURL     = getPostVar('app_relative_url');
+    $host       = getPostVar('app_sql_dbhost');
+    $database   = getPostVar('app_sql_dbname');
+    $user       = getPostVar('app_sql_dbuser');
+    $pass       = getPostVar('app_sql_dbpass');
 
     // Make sure we're not obviously going to crash and burn.
     if ($path == "" || $host == "" || $database == "" || $user == "" || $pass == "" || $relURL == "") {
@@ -188,15 +193,10 @@ function testBaseConfigValues() {
     if (!file_exists($path)) {
         return "The specified path does not exist.";
     }
-    // Attempt database connection with the supplied credentials.
-    if ($dbtype == 'pdo_mysql' and !function_exists('mysql_connect')) {
-        return "The MySQL PHP extension is not installed. Please correct the problem and refresh this page.";
-    }
-    $conn = @mysql_connect($_POST['app_sql_dbhost'], $_POST['app_sql_dbuser'], $_POST['app_sql_dbpass']);
+    $conn = new PDO('mysql:host='.$_POST['app_sql_dbhost'], $_POST['app_sql_dbuser'], $_POST['app_sql_dbpass']);
     if (!$conn) {
         return "Could not connect to the specified database host with these credentials.";
     }
-    mysql_close($conn);
 
     // If we get to here, we're probably OK to proceed.
     return "";
@@ -270,43 +270,43 @@ function runDatabaseTasks() {
     $pass       = $_POST['app_sql_dbpass'];
 
     // Attempt database connection with the supplied credentials.
-    $conn = @mysql_connect($host, $user, $pass);
+    $conn = new PDO('mysql:host='.$host, $user, $pass);
     if (!$conn) {
         return "Could not connect to the specified database host with these credentials.";
     }
 
     // Connect to the specified database.
-    if (!mysql_select_db($database)) {
+    if (!$conn->query('use '.$database)) {
         // If we can't, attempt to create it.
         $dbCreateResult = attemptCreateDB($database, $conn);
         if ($dbCreateResult !== "") {
             return $dbCreateResult;
         } else {
             // Second attempt database connection with the supplied credentials.
-            if (!mysql_select_db($database)) {
+            if (!$conn->query('use '.$database)) {
                 return "Could not connect to the newly created database with the nominated credentials.";
             }
         }
     }
 
     // Once we have a database, and can successfully connect to it ... execute the SQL schema dump.
-    $attemptSQLparse = parseMySQLdump("schema.sql");
+    $attemptSQLparse = parseMySQLdump($conn, "schema.sql");
     if ($attemptSQLparse !== "") {
         return $attemptSQLparse;
     }
 
     // Provided this went off without a hitch, insert some minimal data.
-    $attemptSQLparse = parseMySQLdump("data.sql");
+    $attemptSQLparse = parseMySQLdump($conn, "data.sql");
     if ($attemptSQLparse !== "") {
         return $attemptSQLparse;
     }
 
     // Add some other crucial stuff to the config table that is reliant on form-based variables.
     $query = "INSERT INTO fez_config (`config_name`, `config_module`, `config_value`) values ('app_relative_url','core','" . $relURL . "');";
-    mysql_query($query);
+    $conn->query($query);
 
     // Build and write configuration stuff.
-    if (!writeDefaultConfigValues()) {
+    if (!writeDefaultConfigValues($conn)) {
         return "There was a problem writing the default configuration values to the config table.";
     }
 
@@ -320,7 +320,7 @@ function runDatabaseTasks() {
  * This method grabs an SQL dump file and runs whatever it finds inside. Thrills for the whole family!
  *
  */
-function parseMySQLdump($url, $ignoreerrors = false) {
+function parseMySQLdump($conn, $url, $ignoreerrors = false) {
     $file_content = file($url);
     $query = "";
     foreach($file_content as $ln => $sql_line) {
@@ -329,9 +329,9 @@ function parseMySQLdump($url, $ignoreerrors = false) {
         if (($sql_line != "") && (substr($tsl, 0, 2) != "--") && (substr($tsl, 0, 1) != "#")) {
             $query .= $sql_line;
             if(preg_match("/;\s*$/", $sql_line)) {
-                $result = mysql_query($query);
+                $result = $conn->query($query);
                 if (!$result && !$ignoreerrors) {
-                    return mysql_error();
+                    return $conn->errorInfo();
                 }
                 $query = "";
             }
@@ -350,8 +350,8 @@ function parseMySQLdump($url, $ignoreerrors = false) {
  */
 function attemptCreateDB($dbName, $conn) {
 
-    if (!mysql_query('CREATE DATABASE ' . $dbName, $conn)) {
-        return getErrorMessage('create_db', mysql_error());
+    if (!$conn->query('CREATE DATABASE ' . $dbName, $conn)) {
+        return getErrorMessage('create_db', $conn->errorInfo());
     }
 
     return "";
@@ -368,12 +368,12 @@ function attemptCreateDB($dbName, $conn) {
  * Returns true if success
  * Returns false if problem
  */
-function writeDefaultConfigValues() {
+function writeDefaultConfigValues($conn) {
 
     $configPairs = Default_Data::getConfDefaults();
     foreach ($configPairs as $key => $value) {
-        $query = "INSERT INTO fez_config (`config_name`, `config_module`, `config_value`) values ('" . $key . "','core','" . mysql_escape_string($value) . "') ON DUPLICATE KEY UPDATE config_value = '" . mysql_escape_string($value) . "';";
-        mysql_query($query);
+        $query = "INSERT INTO fez_config (`config_name`, `config_module`, `config_value`) values ('" . $key . "','core','" . $conn->quote($value) . "') ON DUPLICATE KEY UPDATE config_value = '" . $conn->quote($value) . "';";
+        $conn->query($query);
     }
 
     return true;

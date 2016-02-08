@@ -44,7 +44,7 @@ $regex = "/^2-s2\.0-[0-9]{10,11}/";
 $filter = array();
 $filter["searchKey".Search_Key::getID("Status")] = 2; // enforce published records only
 $filter["searchKey".Search_Key::getID("Object Type")] = 3; // records only
-$filter["manualFilter"] = "scopus_id_t_s:[* TO *] AND !scopus_citation_count_i:[* TO *] "; //only records that have a scopus id assigned and don't already have a citation count set
+$filter["manualFilter"] = "scopus_id_t:[* TO *] AND !scopus_citation_count_i:[* TO *] "; //only records that have a scopus id assigned and don't already have a citation count set
 
 //$listing = Record::getListing(array(), array(9,10), 0, $max, 'Created Date', false, false, $filter);
 //echo "Found ".$listing['info']['total_rows']." pids that have a scopus id to update their citation count \n";

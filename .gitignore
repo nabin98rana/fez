@@ -55,6 +55,8 @@ apc.php
 .idea
 \.tmtags
 tests\application\features\bootstrap\LoginHelper.php
+tests/application/logs/*.xml
+tests/application/logs/*.html
 .docker/development/logs/*
 .docker/development/tmp/*
 .docker/development/data/*

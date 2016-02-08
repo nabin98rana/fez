@@ -149,7 +149,7 @@ class FulltextQueue
 		}
 	}
 
-  public function isFinishedProcessing() {
+  public static function isFinishedProcessing() {
 
     $log = FezLog::get();
     $db = DB_API::get();
@@ -194,7 +194,7 @@ class FulltextQueue
 
   }
 
-	public function	triggerUpdate()
+	public static function	triggerUpdate()
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
@@ -340,7 +340,7 @@ class FulltextQueue
 
 		// reset cached pids
 		$this->pids = array();
-		$this->triggerUpdate();
+		FulltextQueue::triggerUpdate();
 		return true;
 	}
 
@@ -406,7 +406,7 @@ class FulltextQueue
 		return $res;
 	}
 
-	public function size()
+	public static function size()
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();

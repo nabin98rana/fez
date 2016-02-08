@@ -64,7 +64,7 @@ define("MONTH", WEEK * 4);
 
 class Date_API
 {
-	function dateDiff($interval,$dateTimeBegin,$dateTimeEnd) 
+	function dateDiff($interval,$dateTimeBegin,$dateTimeEnd)
 	{
 		//Parse about any English textual datetime
 		//$dateTimeBegin, $dateTimeEnd
@@ -142,9 +142,9 @@ class Date_API
 	 * @access  public
 	 * @return  integer The current UNIX timestamp in GMT
 	 */
-	function getCurrentUnixTimestampGMT()
+	public static function getCurrentUnixTimestampGMT()
 	{
-		return gmmktime();
+		return time();
 	}
 
 
@@ -157,7 +157,7 @@ class Date_API
 	 * @param   integer $old_ts The old UNIX timestamp
 	 * @return  string The formatted difference in time
 	 */
-	function getFormattedDateDiff($now_ts, $old_ts)
+	public static function getFormattedDateDiff($now_ts, $old_ts)
 	{
 		$value = (integer) (($now_ts - $old_ts) / DAY);
 		$ret = sprintf("%d", round($value, 1)) . "d";
@@ -176,7 +176,7 @@ class Date_API
 	 * @param   string $timezone The needed timezone
 	 * @return  integer The UNIX timestamp representing the user's current time
 	 */
-	function getUnixTimestamp($timestamp, $timezone = FALSE)
+	public static function getUnixTimestamp($timestamp, $timezone = FALSE)
 	{
 		if (empty($timezone)) {
 			$timezone = Date_API::getPreferredTimezone();
@@ -195,7 +195,7 @@ class Date_API
 	 * @access  public
 	 * @return  string The current GMT date
 	 */
-	function getRFC822Date($timestamp)
+	public static function getRFC822Date($timestamp)
 	{
 		$timezone = Date_API::getPreferredTimezone();
 		$date = new Date($timestamp);
@@ -211,7 +211,7 @@ class Date_API
 	 * @access  public
 	 * @return  string The current GMT date
 	 */
-	function getCurrentDateGMT($includeMilliseconds=false)
+	public static function getCurrentDateGMT($includeMilliseconds=false)
 	{
 		if( $includeMilliseconds ) {
 			if (version_compare(phpversion(), "5.2.0", "<")) {
@@ -231,7 +231,7 @@ class Date_API
 	 * @access  public
 	 * @return  array The list of timezones
 	 */
-	function getTimezoneList()
+	public static function getTimezoneList()
 	{
 		ksort($GLOBALS['_DATE_TIMEZONE_DATA']);     // Because nobody should have to look at that crazy randomised list ever again.
 		return Date_TimeZone::getAvailableIDs();
@@ -248,7 +248,7 @@ class Date_API
      * @param   boolean $dateIsUTC We assume the entered time is UTC else assume it's local
 	 * @return  string
 	 */
-	function getFormattedDate($timestamp, $timezone = FALSE, $dateIsUTC = TRUE)
+	public static function getFormattedDate($timestamp, $timezone = FALSE, $dateIsUTC = TRUE)
 	{
 		if ($timezone === FALSE) {
 			$timezone = Date_API::getPreferredTimezone();
@@ -272,7 +272,7 @@ class Date_API
 	 * @param   string $timezone The timezone name
 	 * @return  string
 	 */
-	function getFormattedSimpleDate($timestamp, $timezone = FALSE)
+	public static function getFormattedSimpleDate($timestamp, $timezone = FALSE)
 	{
 		if ($timezone === FALSE) {
 			$timezone = Date_API::getPreferredTimezone();
@@ -290,7 +290,7 @@ class Date_API
 	 * @param   string $timestamp The date timestamp to be formatted
 	 * @return  string
 	 */
-	function getFedoraFormattedDate($timestamp = null)
+	public static function getFedoraFormattedDate($timestamp = null)
 	{
 		if ($timestamp == null) {
 			$timestamp = Date_API::getUnixTimestamp();
@@ -309,7 +309,7 @@ class Date_API
 	 * @param   string $timestamp The date timestamp to be formatted
 	 * @return  string
 	 */
-	function getFedoraFormattedDateUTC($timestamp = null)
+	public static function getFedoraFormattedDateUTC($timestamp = null)
 	{
 		if ($timestamp == null) {
 			//			$timestamp = Date_API::getCurrentUnixTimestampGMT();
@@ -321,8 +321,8 @@ class Date_API
 		return $date->format('%Y-%m-%dT%H:%M:%SZ');
 	}
 
-	function getSimpleDateUTC($timestamp = null)
-	{			
+	public static function getSimpleDateUTC($timestamp = null)
+	{
 		if ($timestamp == null) {
 			$timestamp = Date_API::getCurrentUnixTimestampGMT();
 		}
@@ -338,7 +338,7 @@ class Date_API
 	 * @param   string $timestamp The date timestamp to be formatted
 	 * @return  string
 	 */
-	function getSimpleDate($timestamp)
+	public static function getSimpleDate($timestamp)
 	{
 		$timezone = Date_API::getPreferredTimezone();
 		$date = new Date($timestamp);
@@ -347,7 +347,7 @@ class Date_API
 		return $date->format('%d %b %Y');
 	}
 
-	function getSimpleDateTime($timestamp)
+	public static function getSimpleDateTime($timestamp)
 	{
 		$timezone = Date_API::getPreferredTimezone();
 		$date = new Date($timestamp);
@@ -364,7 +364,7 @@ class Date_API
 	 * @param   integer $usr_id The user ID
 	 * @return  string The timezone preferred by the user
 	 */
-	function getPreferredTimezone($usr_id = FALSE)
+	public static function getPreferredTimezone($usr_id = FALSE)
 	{
 		if ($usr_id === FALSE) {
 			$usr_id = Auth::getUserID();
@@ -419,7 +419,7 @@ class Date_API
 	 * @param   integer $timestamp The user based date
 	 * @return  string The date in the GMT timezone
 	 */
-	function getDateGMTByTS($timestamp)
+	public static function getDateGMTByTS($timestamp)
 	{
 		return gmdate('Y-m-d H:i:s', $timestamp);
 	}
@@ -433,7 +433,7 @@ class Date_API
 	 * @param   integer $weeks_future The number of weeks in the future to include.
 	 * @return  array An array of weeks.
 	 */
-	function getWeekOptions($weeks_past, $weeks_future)
+	public static function getWeekOptions($weeks_past, $weeks_future)
 	{
 		$options = array();
 
@@ -465,7 +465,7 @@ class Date_API
 	 * @access  public
 	 * @return  string A string containg the current week.
 	 */
-	function getCurrentWeek()
+	public static function getCurrentWeek()
 	{
 		$value_format = "Y-m-d";
 		$start = date("U") - (DAY * (date("w") - 1));
@@ -480,7 +480,7 @@ class Date_API
 	 * @param   integer $start The start date of the week.
 	 * @return  array An array usable as an option in getWeekOptions.
 	 */
-	function formatWeekOption($start)
+	public static function formatWeekOption($start)
 	{
 		$value_format = "Y-m-d";
 		$display_format = "M jS";

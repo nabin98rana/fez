@@ -63,6 +63,7 @@ include_once(APP_INC_PATH . "class.custom_view.php");
 include_once(APP_INC_PATH . "class.favourites.php");
 include_once(APP_INC_PATH . "najax_classes.php");
 include_once(APP_INC_PATH . "class.api.php");
+include_once(APP_INC_PATH . "class.publons.php");
 
 class Lister
 {
@@ -718,6 +719,7 @@ class Lister
 		} elseif ($browse == "mypubs") {
       $author_id = $params['author_id'];
       $authorDetails = Author::getDetails($author_id);
+      $authorDetails["aut_publons_id"] = Publons::returnOrcidIfHasPublons($author_id);
       $tpl->assign("list_heading", "Publications by " . htmlspecialchars($authorDetails["aut_display_name"]));
 
 			$log->debug('Browse MyPubs');
@@ -879,6 +881,7 @@ class Lister
             $tpl->assign("aut_people_australia_id", $authorDetails['aut_people_australia_id']);
             $tpl->assign("aut_scopus_id", $authorDetails['aut_scopus_id']);
             $tpl->assign("aut_orcid_id", $authorDetails['aut_orcid_id']);
+            $tpl->assign("aut_publons_id", $authorDetails['aut_publons_id']);
             $tpl->assign("aut_google_scholar_id", $authorDetails['aut_google_scholar_id']);
       $tpl->assign("aut_org_username", $authorDetails['aut_org_username']);
 

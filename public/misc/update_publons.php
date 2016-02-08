@@ -28,7 +28,7 @@
 // +----------------------------------------------------------------------+
 // | Authors: Aaron Brown <a.brown@library.uq.edu.au>                |
 // +----------------------------------------------------------------------+
-include_once dirname(dirname(__FILE__)).DIRECTORY_SEPARATOR.'config.inc.php';
+include_once dirname(dirname(__FILE__)) . DIRECTORY_SEPARATOR . 'config.inc.php';
 include_once(APP_INC_PATH . "class.db_api.php");
 include_once(APP_INC_PATH . 'class.publons.php');
 include_once(APP_INC_PATH . 'class.api_researchers.php');
@@ -38,7 +38,7 @@ include_once(APP_INC_PATH . 'class.api_researchers.php');
 
 echo "Script started: " . date('Y-m-d H:i:s') . "\n";
 $isUser = Auth::getUsername();
-if ((php_sapi_name()==="cli") || (User::isUserSuperAdministrator($isUser))) {
+if ((php_sapi_name() === "cli") || (User::isUserSuperAdministrator($isUser))) {
     $log = FezLog::get();
     $db = DB_API::get();
 
@@ -51,7 +51,7 @@ if ((php_sapi_name()==="cli") || (User::isUserSuperAdministrator($isUser))) {
         return false;
     }
 
-    foreach($res as $orcid) {
+    foreach ($res as $orcid) {
         $results = Publons::getUserData($orcid);
 
         $authorId = ApiResearchers::authorIdFromOrcid($orcid);
@@ -61,6 +61,36 @@ if ((php_sapi_name()==="cli") || (User::isUserSuperAdministrator($isUser))) {
         }
         usleep(800000);  // Rate limited to 60 per second
     }
+
+    echo "Updating publon tiered list\n";
+    $stmt = "UPDATE " . APP_TABLE_PREFIX . "publons_journals
+                INNER JOIN " . APP_TABLE_PREFIX . "journal_uq_tiered_issns ON jni_issn = psj_journal_issn
+                INNER JOIN " . APP_TABLE_PREFIX . "journal_uq_tiered ON jnl_id = jni_jnl_id
+                SET " . APP_TABLE_PREFIX . "publons_journals.psj_journal_tier = " . APP_TABLE_PREFIX . "journal_uq_tiered.jnl_rank
+                WHERE psj_journal_tier IS NULL OR psj_journal_tier = ''";
+
+    try {
+        $res = $db->exec($stmt);
+    } catch (Exception $ex) {
+        $log->err($ex);
+        return false;
+    }
+
+    #We will also check electronic issn's just in case
+    $stmt = "UPDATE " . APP_TABLE_PREFIX . "publons_journals
+                INNER JOIN " . APP_TABLE_PREFIX . "journal_uq_tiered_issns ON jni_issn = psj_journal_eissn
+                INNER JOIN " . APP_TABLE_PREFIX . "journal_uq_tiered ON jnl_id = jni_jnl_id
+                SET " . APP_TABLE_PREFIX . "publons_journals.psj_journal_tier = " . APP_TABLE_PREFIX . "journal_uq_tiered.jnl_rank
+                WHERE psj_journal_tier IS NULL OR psj_journal_tier = ''";
+
+    try {
+        $res = $db->exec($stmt);
+    } catch (Exception $ex) {
+        $log->err($ex);
+        return false;
+    }
+
+
     echo "Script finished: " . date('Y-m-d H:i:s') . "\n";
 } else {
     echo "Please run from command line or logged in as a super user";
