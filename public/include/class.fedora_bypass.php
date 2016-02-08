@@ -37,8 +37,9 @@ require_once(APP_INC_PATH . "nusoap.php");
 include_once(APP_PEAR_PATH . "/HTTP/Request.php");
 require_once(APP_INC_PATH . "class.fedora_direct_access.php");
 include_once(APP_INC_PATH . "class.dsresource.php");
+include_once(APP_INC_PATH . "class.fedora_api_interface.php");
 
-class Fedora_API {
+class Fedora_API implements FedoraApiInterface {
 
 	/**
 	 * If we can produce a non-Fedora equivalent of all the functions in the Fedora class,
