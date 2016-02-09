@@ -42,75 +42,114 @@ include_once(APP_INC_PATH . "class.fedora_api_interface.php");
 class Fedora_API implements FedoraApiInterface {
 
 	/**
-	 * If we can produce a non-Fedora equivalent of all the functions in the Fedora class,
-	 * we'll be at least some way towards removing Fedora, without having to impose too
-	 * many heinous changes in the rest of the codebase.
-	 */
-
-	/**
-	 *
-	 * @access  public
-	 * @return  void (Logs an error message)
-	 */
-	function checkFedoraServer()
-	{
-
-	}
-
-	/**
-	 * Opens a given URL and reads it into a variable and returns the string variable.
-	 *
-	 * @access  public
-	 * @param string $ur1 The URL of the website to read
-	 * @return  string $result The URL in text
-	 */
-	function URLopen($url)
-	{
-		// Fake the browser type
-		ini_set('user_agent','MSIE 4\.0b2;');
-		$i = 0;
-		do {
-			$dh = fopen("$url",'r');
-			$i++;
-		} while ($i < 2 && $dh !== FALSE); // RCA - give up after three attempts
-		if (!$dh) return;
-		$result = "";
-		$temp_result = "";
-		while ($temp_result = fread($dh,8192)) {
-			$result .= $temp_result;
-		}
-		fclose($dh);
-		return $result;
-	}
-
-	/**
-	 * REPLACED
 	 * Gets the next available persistent identifier.
 	 *
-	 * @access  public
-	 * @return  string $pid The next available PID in from the PID handler
+	 * @return string $pid The next available PID in from the PID handler
 	 */
-	function getNextPID()
+	public function getNextPID()
 	{
-    $digObj = new DigitalObject();
-    $pid = $digObj->save(array());
+		$digObj = new DigitalObject();
+		$pid = $digObj->save(array());
 		return $pid;
 	}
 
+	/**
+	 * Gets the XML of a given object by PID.
+	 *
+	 * @param string $pid The persistent identifier
+	 * @return string $result The XML of the object
+	 */
+	public function getObjectXMLByPID($pid)
+	{
 
+	}
 
+	/**
+	 * Gets the audit trail for an object.
+	 *
+	 * @param string $pid The persistent identifier
+	 * @return array of audit trail
+	 */
+	public function getAuditTrail($pid)
+	{
 
+	}
+
+	/**
+	 * This function ingests a FOXML object and base64 encodes it
+	 *
+	 * @access  public
+	 * @param string $foxml The XML object itself in FOXML format
+	 * @param string $pid The persistent identifier
+	 * @return bool
+	 */
+	public function callIngestObject($foxml, $pid = "")
+	{
+
+	}
+
+	/**
+	 * Exports an associative array
+	 *
+	 * @param string $pid
+	 * @param string $format
+	 * @param string $context
+	 * @return array
+	 */
+	public function export($pid, $format = "info:fedora/fedora-system:FOXML-1.0", $context = "migrate")
+	{
+
+	}
+
+	/**
+	 * Returns an associative array
+	 *
+	 * @param array $resultFields
+	 * @param int $maxResults
+	 * @param string $query_terms
+	 * @return array
+	 */
+	public function callFindObjects($resultFields = array(
+		'pid',
+		'title',
+		'identifier',
+		'description',
+		'state'
+	), $maxResults = 10, $query_terms = "")
+	{
+
+	}
+
+	/**
+	 * Resumes a find
+	 *
+	 * @param string $token
+	 * @return array
+	 */
+	public function callResumeFindObjects($token)
+	{
+
+	}
+
+	/**
+	 * This function uses Fedora's simple search service which only really works against Dublin Core records.
+	 * @param string $query The query by which the search will be carried out.
+	 *		See http://www.fedora.info/wiki/index.php/API-A-Lite_findObjects#Parameters: for
+	 *		documentation of the syntax of the query.
+	 * @param array $fields The list of DC and Fedora basic fields to search against.
+	 * @return array $resultList The search results.
+	 */
+	// Deprecate this function and replace calls to it
+	//public function searchQuery($query, $fields = array('pid', 'title'));
 
 	/**
 	 * This function removes an object and all its datastreams from Fedora
 	 *
-	 * @access  public
-	 * @param string $pid The persistant identifier of the object to be purged
-	 * @return  integer
+	 * @param string $pid The persistent identifier of the object to be purged
+	 * @return bool
 	 */
-	function callPurgeObject($pid)
+	public function callPurgeObject($pid)
 	{
-    return true;
 
 	}
 
@@ -118,162 +157,92 @@ class Fedora_API implements FedoraApiInterface {
 	 * This function uses curl to upload a file into the fedora upload manager and calls the addDatastream or modifyDatastream as needed.
 	 *
 	 * @access  public
-	 * @param string $pid The persistant identifier of the object to be purged
+	 * @param string $pid The persistent identifier of the object to be purged
 	 * @param string $dsIDName The datastream name
+	 * @param string $file The file name
 	 * @param string $dsLabel The datastream label
 	 * @param string $mimetype The mimetype of the datastream
 	 * @param string $controlGroup The control group of the datastream
 	 * @param string $dsID The ID of the datastream
-	 * @param boolean $versionable Whether to version control this datastream or not
-	 * @return  integer
+	 * @param bool|string $versionable Whether to version control this datastream or not
+	 * @return string
 	 */
-	function getUploadLocation ($pid, $dsIDName, $file, $dsLabel, $mimetype='text/xml', $controlGroup='M', $dsID=NULL,$versionable='false')
+	public function getUploadLocation($pid, $dsIDName, $file, $dsLabel, $mimetype = 'text/xml', $controlGroup = 'M', $dsID = NULL, $versionable = FALSE)
 	{
-//		$log = FezLog::get();
-//		if (!is_numeric(strpos($dsIDName, "/"))) {
-//			$loc_dir = APP_TEMP_DIR;
-//		}
-//
-//		if (!empty($file) && (trim($file) != "")) {
-//			$file_full = $loc_dir.str_replace(":", "_", $pid)."_".$dsIDName.".xml";
-//			$fp = fopen($file_full, "w"); //@@@ CK - 28/7/2005 - Trying to make the file name in /tmp the uploaded file name
-//			fwrite($fp, $file);
-//			fclose($fp);
-//		}
-    $file_full = $file;
+		$file_full = $file;
 
 		$versionable = $versionable === true ? 'true' : $versionable === false ? 'false' : $versionable;
 		$dsExists = Fedora_API::datastreamExists($pid, $dsIDName, true);
+
 		if ($dsExists !== true) {
-			// Call callAddDatastream
-			$dsID = Fedora_API::callAddDatastream($pid, $dsIDName, $file_full, $dsLabel, "A", $mimetype, $controlGroup, $versionable, '');
-			if(is_file($file_full))
-			{
-			    unlink($file_full);
-			}
-			return $dsID;
-		} elseif (!empty($dsIDName)) {
-			// Let fedora handle versioning
-			Fedora_API::callModifyDatastream($pid, $dsIDName, $file_full, $dsLabel, "A", $mimetype, $versionable, '');
-      if(is_file($file_full)) {
-        unlink($file_full);
-      }
-			return $dsIDName;
+			Fedora_API::callAddDatastream($pid, $dsIDName, $file_full, $dsLabel, "A", $mimetype, $controlGroup, $versionable, '');
+		} else {
+			self::_callModifyDatastream($pid, $dsIDName, $file_full, $dsLabel, "A", $mimetype, $versionable, '');
 		}
 
+		if (is_file($file_full)) {
+			unlink($file_full);
+		}
+		return $dsIDName;
 	}
 
 	/**
-	 * This function uses curl to geta file from a local file location and upload it into the fedora upload manager and calls the addDatastream or modifyDatastream as needed.
+	 * This function uses curl to get a file from a local file location and upload it into the fedora upload manager and calls the addDatastream or modifyDatastream as needed.
 	 *
 	 * Developer Note: Mainly used by batch import of a SAN directory
 	 *
-	 * @access  public
-	 * @param string $pid The persistant identifier of the object to be purged
+	 * @param string $pid The persistent identifier of the object to be purged
 	 * @param string $dsIDName The datastream name
-	 * @param string $local_file_location The location of the file on a local server directory
+	 * @param string $dsLocation The location of the file on a local server directory
 	 * @param string $dsLabel The datastream label
 	 * @param string $mimetype The mimetype of the datastream
 	 * @param string $controlGroup The control group of the datastream
 	 * @param string $dsID The ID of the datastream
-	 * @param boolean $versionable Whether to version control this datastream or not
-	 * @return  integer
+	 * @param bool|string $versionable Whether to version control this datastream or not
+	 * @return integer
 	 */
-	function getUploadLocationByLocalRef ($pid, $dsIDName, $dsLocation, $dsLabel, $mimetype, $controlGroup='M', $dsID=NULL,$versionable='false')
+	public function getUploadLocationByLocalRef($pid, $dsIDName, $dsLocation, $dsLabel, $mimetype, $controlGroup = 'M', $dsID = NULL, $versionable = FALSE)
 	{
-//		$log = FezLog::get();
-
-
-
-
-    if(!Zend_Registry::isRegistered('version')) {
-      Zend_Registry::set('version', Date_API::getCurrentDateGMT());
-    }
-
-    $now = Zend_Registry::get('version');
-
-    $resourceDataLocation = $dsLocation;
-    $filesDataSize = filesize($dsLocation);
-    $meta = array('mimetype' => $mimetype,
-      'filename' => $dsIDName,
-      'label' => $dsLabel,
-      'controlgroup' => 'M',
-      'state' => 'A',
-      'size' => $filesDataSize,
-      'updateTS' => $now,
-      'pid' => $pid);
-    $dsr = new DSResource(APP_DSTREE_PATH, $resourceDataLocation, $meta);
-    $dsr->save();
-    $meta = $dsr->getMeta();
-    return $meta['id'];
-
-
-		/*if (!is_numeric(strpos($local_file_location,"/"))) {
-			$local_file_location = APP_TEMP_DIR.$local_file_location;
-		}
-		if ($mimetype == "") {
-			$mimetype = Misc::mime_content_type($local_file_location);
+		if(!Zend_Registry::isRegistered('version')) {
+			Zend_Registry::set('version', Date_API::getCurrentDateGMT());
 		}
 
+		$now = Zend_Registry::get('version');
 
-		$local_file_location = trim(str_replace("\n", "", $local_file_location));
-		$versionable = $versionable === true ? 'true' : $versionable === false ? 'false' : $versionable;
-		$dsExists = Fedora_API::datastreamExists($pid, $dsIDName);
-		if ($dsExists !== true) {
-			//Call callAddDatastream
-			$dsID = Fedora_API::callAddDatastream($pid, $dsIDName, $local_file_location, $dsLabel, "A", $mimetype, $controlGroup, $versionable);
-			return $dsID;
-		} elseif (!empty($dsIDName)) {
-			// Let fedora handle versioning
-			Fedora_API::callModifyDatastream($pid, $dsIDName, $local_file_location, $dsLabel, "A", $mimetype, $versionable);
-			return $dsIDName;
-		}      */
+		$resourceDataLocation = $dsLocation;
+		$filesDataSize = filesize($dsLocation);
+		$meta = array('mimetype' => $mimetype,
+			'filename' => $dsIDName,
+			'label' => $dsLabel,
+			'controlgroup' => 'M',
+			'state' => 'A',
+			'size' => $filesDataSize,
+			'updateTS' => $now,
+			'pid' => $pid);
+		$dsr = new DSResource(APP_DSTREE_PATH, $resourceDataLocation, $meta);
+		$dsr->save();
+		$meta = $dsr->getMeta();
+		return $meta['id'];
 	}
-
-  /**
-   * This function modifies non-in-line datastreams, either a chunk o'text, a url, or a file.
-   *
-   * @access  public
-   * @param string $pid The persistant identifier of the object
-   * @param string $dsID The name of the datastream
-   * @param string $dsLabel The datastream label
-   * @param string $dsLocation The location of the datastream
-   * @param boolean $versionable Whether to version control this datastream or not
-   * @return void
-   */
-  function callModifyDatastreamByReference($pid, $dsID, $dsLabel, $dsLocation=NULL, $mimetype,$versionable='inherit')
-  {
-
-    $dsr = new DSResource();
-    $dsr->load($dsID, $pid);
-    $meta = $dsr->getMeta();
-    $meta['filename'] = $dsID;
-    $meta['label'] = $dsLabel;
-    $dsr->setMeta($meta);
-    $dsr->save();
-  }
-
-
 
 	/**
 	 * This function adds datastreams to object $pid.
 	 *
-	 * @access  public
-	 * @param string $pid The persistant identifier of the object to be purged
+	 * @param string $pid The persistent identifier of the object to be purged
 	 * @param string $dsID The ID of the datastream
-	 * @param string $uploadLocation The location of the file to add
+	 * @param string $dsLocation The location of the file to add
 	 * @param string $dsLabel The datastream label
 	 * @param string $dsState The datastream state
 	 * @param string $mimetype The mimetype of the datastream
 	 * @param string $controlGroup The control group of the datastream
-	 * @param boolean $versionable Whether to version control this datastream or not
-	 * @param boolean $xmlContent If it an X based xml content file then it uses a var rather than a file location
+	 * @param bool|string $versionable Whether to version control this datastream or not
+	 * @param string $xmlContent If it an X based xml content file then it uses a var rather than a file location
+	 * @param int $current_tries A counter of how many times this function has retried the addition of a datastream
 	 * @return void
 	 */
-	function callAddDatastream ($pid, $dsID, $dsLocation, $dsLabel, $dsState, $mimetype, $controlGroup='M',$versionable='false', $xmlContent="")
+	public function callAddDatastream($pid, $dsID, $dsLocation, $dsLabel, $dsState, $mimetype, $controlGroup = 'M', $versionable = FALSE, $xmlContent = "", $current_tries = 0)
 	{
-
-	    if ($mimetype == "") {
+		if ($mimetype == "") {
 			$mimetype = "text/xml";
 		}
 		$dsIDOld = $dsID;
@@ -288,441 +257,191 @@ class Fedora_API implements FedoraApiInterface {
 			$dsIDName = substr($dsIDName, strrpos($dsIDName, "/")+1);
 		}
 
-//		$versionable = $versionable === true ? 'true' : $versionable === false ? 'false' : $versionable;
-//        $log = FezLog::get();
-
-
-    if(!Zend_Registry::isRegistered('version')) {
-      Zend_Registry::set('version', Date_API::getCurrentDateGMT());
-    }
-
-    $now = Zend_Registry::get('version');
-
-    $resourceDataLocation = $dsLocation;
-    $filesDataSize = filesize($dsLocation);
-    $meta = array('mimetype' => $mimetype,
-      'filename' => $dsIDName,
-      'label' => $dsLabel,
-      'controlgroup' => 'M',
-      'state' => 'A',
-      'size' => $filesDataSize,
-      'updateTS' => $now,
-      'pid' => $pid);
-    $dsr = new DSResource(APP_DSTREE_PATH, $resourceDataLocation, $meta);
-    $dsr->save();
-
-    /*
-		$getString = APP_SIMPLE_FEDORA_APIM_DOMAIN."/objects/".$pid."/datastreams/".$dsIDName."?dsLabel=".urlencode($dsLabel)."&versionable=".$versionable."&mimeType=".$mimetype.
-			          "&controlGroup=".$controlGroup."&dsState=A&logMessage=Added%20Datastream";
-
-		if ($dsLocation != "" && $controlGroup == "X") {
-			$xmlContent = file_get_contents($dsLocation);
+		if (!Zend_Registry::isRegistered('version')) {
+			Zend_Registry::set('version', Date_API::getCurrentDateGMT());
 		}
-		if ($dsLocation != "" && $controlGroup == "R") {
-			$getString .= "&dsLocation=".$dsLocation;
-			$ch = curl_init($getString);
- 		 	curl_setopt($ch, CURLOPT_POST, 1);
 
-			curl_setopt($ch, CURLOPT_POSTFIELDS, array("dsLocation" => $dsLocation,
-														"dsLabel" => urlencode($dsLabel),
-														"versionable" => $versionable,
-														"mimeType" => $mimeType,
-														"controlGroup" => $controlGroup,
-														"dsState" => "A",
-														"logMessage" => "Added Link"
-														));
+		$now = Zend_Registry::get('version');
 
-
-		} elseif ($xmlContent != "") {
-
-		    /* Comment reason: redundant code. This class will only get called when Fedora Bypass is ON. See TODO */
-            /*
-		    if(APP_FEDORA_BYPASS != 'ON')
-		    {
-    			$ch = curl_init($getString);
-     		 	curl_setopt($ch, CURLOPT_POST, 1);
-    			if ($controlGroup == 'X') {
-    				$xmlContent = Fedora_API::tidyXML($xmlContent);
-    				$tempFile = APP_TEMP_DIR.str_replace(":", "_", $pid)."_".$dsID.".xml";
-    			} else {
-    				$tempFile = APP_TEMP_DIR.$dsID;
-    			}
-    			$fp = fopen($tempFile, "w");
-    			if (fwrite($fp, $xmlContent) === FALSE) {
-    			        echo "Cannot write to file ($tempFile)";
-    			        exit;
-    			}
-    			fclose($fp);
-    			curl_setopt($ch, CURLOPT_POSTFIELDS, array("file[]" => "@".$tempFile.";type=".$mimetype,
-    											"dsLabel" => urlencode($dsLabel),
-    											"versionable" => $versionable,
-    											"mimeType" => $mimeType,
-    											"controlGroup" => $controlGroup,
-    											"dsState" => "A",
-    											"logMessage" => "Added Datastream"
-    											));
-		    }
-            */
-
-            // @TODO: Add non-Fedora processing when $xmlContent is empty.
-            /*
-
-		} elseif ($dsLocation != "" && $controlGroup == "M") {
-
-			$ch = curl_init($getString);
-	 		curl_setopt($ch, CURLOPT_POST, 1);
-			curl_setopt($ch, CURLOPT_POSTFIELDS, array("file_name" => "@".$dsLocation.";type=".$mimetype,
-														"dsLabel" => urlencode($dsLabel),
-														"versionable" => $versionable,
-														"mimeType" => $mimeType,
-														"controlGroup" => $controlGroup,
-														"dsState" => "A",
-														"logMessage" => "Added Datastream",
-														"submit" => "UPLOAD"
-														));
-		}
-		 curl_setopt($ch, CURLOPT_USERPWD, APP_FEDORA_USERNAME.":".APP_FEDORA_PWD);
-
-		 curl_setopt($ch, CURLOPT_VERBOSE, 1);
-		 curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-		 if (APP_HTTPS_CURL_CHECK_CERT == "OFF" && APP_FEDORA_APIA_PROTOCOL_TYPE == 'https://')  {
-		         curl_setopt ($ch, CURLOPT_SSL_VERIFYPEER, 0);
-		         curl_setopt ($ch, CURLOPT_SSL_VERIFYHOST, 0);
-		 }
-
-		 $results = curl_exec($ch);
-		 if ($results) {
-		         curl_close ($ch);
-             if (is_file($tempFile)) {
-						  unlink($tempFile);
-             }
-		         return true;
-		 } else {
-		         $log->err(array(print_r($results, true).print_r(curl_error($ch), true).print_r(curl_getinfo($ch), true),__FILE__,__LINE__).$getString.$tempFile.$xmlContent);
-		         curl_close ($ch);
-		         return false;
-		 } */
-
+		$resourceDataLocation = $dsLocation;
+		$filesDataSize = filesize($dsLocation);
+		$meta = array('mimetype' => $mimetype,
+			'filename' => $dsIDName,
+			'label' => $dsLabel,
+			'controlgroup' => 'M',
+			'state' => 'A',
+			'size' => $filesDataSize,
+			'updateTS' => $now,
+			'pid' => $pid);
+		$dsr = new DSResource(APP_DSTREE_PATH, $resourceDataLocation, $meta);
+		$dsr->save();
 	}
 
-
-    function callModifyDatastream ($pid, $dsID, $dsLocation, $dsLabel, $dsState, $mimetype, $versionable='false', $xmlContent="")
-    {
-        if ($mimetype == "") {
-            $mimetype = "text/xml";
-        }
-        $dsIDOld = $dsID;
-        if (is_numeric(strpos($dsID, chr(92)))) {
-            $dsID = substr($dsID, strrpos($dsID, chr(92))+1);
-            if ($dsLabel == $dsIDOld) {
-                $dsLabel = $dsID;
-            }
-        }
-
-      if(!Zend_Registry::isRegistered('version')) {
-        Zend_Registry::set('version', Date_API::getCurrentDateGMT());
-      }
-
-      $now = Zend_Registry::get('version');
-
-      $resourceDataLocation = $dsLocation;
-      $filesDataSize = filesize($dsLocation);
-      $meta = array('mimetype' => $mimetype,
-        'filename' => $dsID,
-        'label' => $dsLabel,
-        'controlgroup' => 'M',
-        'state' => 'A',
-        'size' => $filesDataSize,
-        'updateTS' => $now,
-        'pid' => $pid);
-      $dsr = new DSResource(APP_DSTREE_PATH, $resourceDataLocation, $meta);
-      $dsr->save();
-
-      /*
-        $versionable = $versionable === true ? 'true' : $versionable === false ? 'false' : 'false';
-        $log = FezLog::get();
-        $getString = APP_SIMPLE_FEDORA_APIM_DOMAIN."/objects/".$pid."/datastreams/".$dsID;
-
-        $ch = curl_init($getString);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-        curl_setopt($ch, CURLOPT_POST, 1);
-        curl_setopt($ch, CURLOPT_USERPWD, APP_FEDORA_USERNAME.":".APP_FEDORA_PWD);
-
-        $isLink = false;
-
-        if (is_numeric(strpos($dsID, "Link"))) {
-          $isLink = true;
-        }
-        if ($dsLocation != "" && $isLink != true) {
-            $xmlContent = file_get_contents($dsLocation);
-        }
-
-        if ($dsLocation != "" && $isLink == true) {
-            $log->err("sending this as a link => got a location of ".$dsLocation);
-            exit;
-            $getString .= "&dsLocation=".$dsLocation;
-            curl_setopt($ch, CURLOPT_POSTFIELDS, array("dsLocation" => $dsLocation,
-                                                        "dsLabel" => urlencode($dsLabel),
-                                                        "versionable" => $versionable,
-                                                        "mimeType" => $mimetype,
-                                                        "formatURI" => $formatURI,
-                                                        "dsState" => "A",
-                                                        "logMessage" => "Modified Datastream"
-
-            ));
-        } elseif ($xmlContent != "") {
-            $xmlContent = Fedora_API::tidyXML($xmlContent);
-            $tempFile = APP_TEMP_DIR.str_replace(":", "_", $pid)."_".$dsID.".xml";
-            $fp = fopen($tempFile, "w");
-            if (fwrite($fp, $xmlContent) === FALSE) {
-                    echo "Cannot write to file ($tempFile)";
-                    exit;
-            }
-            fclose($fp);
-            curl_setopt($ch, CURLOPT_POSTFIELDS, array("file" => "@".$tempFile.";type=".$mimetype,
-                                                        "dsLabel" => urlencode($dsLabel),
-                                                        "versionable" => $versionable,
-                                                        "mimeType" => $mimetype,
-                                                        "formatURI" => $formatURI,
-                                                        "dsState" => "A",
-                                                        "logMessage" => "Modified Datastream"
-            ));
-        } elseif ($dsLocation != "") {
-            curl_setopt($ch, CURLOPT_POSTFIELDS, array("file" => "@".$dsLocation.";type=".$mimetype,
-                                                        "dsLabel" => urlencode($dsLabel),
-                                                        "versionable" => $versionable,
-                                                        "mimeType" => $mimetype,
-                                                        "formatURI" => $formatURI,
-                                                        "dsState" => "A",
-                                                        "logMessage" => "Modified Datastream"
-            ));
-            $log->err("sending this as a file => got a location of ".$dsLocation);
-        }
-
-         if (APP_HTTPS_CURL_CHECK_CERT == "OFF" && APP_FEDORA_APIA_PROTOCOL_TYPE == 'https://')  {
-                 curl_setopt ($ch, CURLOPT_SSL_VERIFYPEER, 0);
-                 curl_setopt ($ch, CURLOPT_SSL_VERIFYHOST, 0);
-         }
-         $results = curl_exec($ch);
-
-         if ($results) {
-                $info = curl_getinfo($ch);
-                if ($info['http_code'] != '200' && $info['http_code'] != '201') {
-                    $log->err(array(curl_error($ch), $info,__FILE__,__LINE__));
-                    curl_close($ch);
-                    exit;
-                    return false;
-                }
-                 curl_close ($ch);
-                 return true;
-         } else {
-                 $info = curl_getinfo($ch);
-                 $log->err(array(curl_error($ch), $info,__FILE__,__LINE__));
-                 curl_close ($ch);
-                 return false;
-         }
-             */
-    }
-
 	/**
-	 * This function adds datastreams to object $pid.
+	 *This function creates an array of all the datastreams for a specific object.
 	 *
-	 * @access  public
-	 * @param string $pid The persistant identifier of the object to be purged
-	 * @param string $dsIDName The name of the datastream
-	 * @param string $uploadLocation The location of the file to add
-	 * @param string $dsLabel The datastream label
+	 * @param string $pid The persistent identifier of the object
+	 * @param string $createdDT Fedora timestamp of version to retrieve
 	 * @param string $dsState The datastream state
-	 * @param string $mimetype The mimetype of the datastream
-	 * @param string $controlGroup The control group of the datastream
-	 * @param boolean $versionable Whether to version control this datastream or not
-	 * @return void
-	 */
-	function callCreateDatastream($pid, $dsIDName, $uploadLocation, $dsLabel, $mimetype, $controlGroup='M',$versionable='false')
-	{
-           return Fedora_API::callAddDatastream($pid, $dsIDName, $uploadLocation, $dsLabel, 'A', $mimetype, $controlGroup, $versionable);
-	}
-
-	/**
-	 *This function creates an array of all the datastreams for a specific object.
-	 *
-	 * @access  public
-	 * @param string $pid The persistant identifier of the object
-	 * @param string $createdDT (optional) Fedora timestamp of version to retrieve
 	 * @return array $dsIDListArray The list of datastreams in an array.
 	 */
-	function callGetDatastreams($pid, $createdDT=NULL, $dsState='A')
+	public function callGetDatastreams($pid, $createdDT = NULL, $dsState = 'A')
 	{
+		$dob = new DSResource();
+		$dsIDListArray = $dob->listStreams($pid);
 
-      $dob = new DSResource();
-      $dsIDListArray = $dob->listStreams($pid);
 
-
-      if (empty($dsIDListArray) || (is_array($dsIDListArray) && isset($dsIDListArray['faultcode']))) {
-				return false;
-			}
-			if (!is_array($dsIDListArray[0])){
-				// when only one datastream, it returns as a datastream instead of
-				// array of datastreams so rewrite as array of datastreams to match
-				// multiple datastreams format
-				$ds = array();
-				$ds[controlGroup] = $dsIDListArray[controlGroup];
-				$ds[ID]           = $dsIDListArray[ID];
-				$ds[versionID]    = $dsIDListArray[versionID];
-				$ds[altIDs]       = $dsIDListArray[altIDs];
-				$ds[label]        = $dsIDListArray[label];
-				$ds[versionable]  = $dsIDListArray[versionable];
-				$ds[MIMEType]     = $dsIDListArray[MIMEType];
-				$ds[formatURI]    = $dsIDListArray[formatURI];
-				$ds[createDate]   = $dsIDListArray[createDate];
-				$ds[size]         = $dsIDListArray[size];
-				$ds[state]        = $dsIDListArray[state];
-				$ds[location]     = $dsIDListArray[location];
-				$ds[checksumType] = $dsIDListArray[checksumType];
-				$ds[checksum]     = $dsIDListArray[checksum];
-
-				$dsIDListArray = array();
-				$dsIDListArray[0] = $ds;
-			}
-			sort($dsIDListArray);
-			reset($dsIDListArray);
-			return $dsIDListArray;
-	}
-
-	/**
-	 *This function creates an array of all the datastreams for a specific object.
-	 *
-	 * @access  public
-	 * @param string $pid The persistant identifier of the object
-	 * @return array $dsIDListArray The list of datastreams in an array.
-	 */
-	function callListDatastreams($pid)
-	{
-		if (!is_numeric($pid)) {
-      $dob = new DSResource();
-      $dsIDListArray = $dob->listStreams($pid);
-			sort($dsIDListArray);
-			reset($dsIDListArray);
-			return $dsIDListArray;
-		} else {
-			return array();
+		if (empty($dsIDListArray) || (is_array($dsIDListArray) && isset($dsIDListArray['faultcode']))) {
+			return false;
 		}
+		if (!is_array($dsIDListArray[0])) {
+			// when only one datastream, it returns as a datastream instead of
+			// array of datastreams so rewrite as array of datastreams to match
+			// multiple datastreams format
+			$ds = array();
+			$ds['controlGroup'] = $dsIDListArray['controlGroup'];
+			$ds['ID']           = $dsIDListArray['ID'];
+			$ds['versionID']    = $dsIDListArray['versionID'];
+			$ds['altIDs']       = $dsIDListArray['altIDs'];
+			$ds['label']        = $dsIDListArray['label'];
+			$ds['versionable']  = $dsIDListArray['versionable'];
+			$ds['MIMEType']     = $dsIDListArray['MIMEType'];
+			$ds['formatURI']    = $dsIDListArray['formatURI'];
+			$ds['createDate']   = $dsIDListArray['createDate'];
+			$ds['size']         = $dsIDListArray['size'];
+			$ds['state']        = $dsIDListArray['state'];
+			$ds['location']     = $dsIDListArray['location'];
+			$ds['checksumType'] = $dsIDListArray['checksumType'];
+			$ds['checksum']     = $dsIDListArray['checksum'];
+
+			$dsIDListArray = array();
+			$dsIDListArray[0] = $ds;
+		}
+		sort($dsIDListArray);
+		reset($dsIDListArray);
+
+		return $dsIDListArray;
 	}
 
 	/**
-	 *This function creates an array of all the datastreams for a specific object using the API-A-LITE rather than soap
+	 * This function creates an array of all the datastreams for a specific object using the API-A-LITE rather than soap
 	 *
-	 * @access  public
-	 * @param string $pid The persistant identifier of the object
+	 * @param string $pid The persistent identifier of the object
+	 * @param bool $refresh Avoid a cached copy
+	 * @param int $current_tries A counter of how many times this function has retried the addition of a datastream
 	 * @return array $dsIDListArray The list of datastreams in an array.
 	 */
-	function callListDatastreamsLite($pid, $refresh=false)
+	public function callListDatastreamsLite($pid, $refresh = FALSE, $current_tries = 0)
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
 
 		if (!is_numeric($pid)) {
 
-            $sql = "SELECT fat_filename, fat_mimetype, fat_version FROM "
-                . APP_TABLE_PREFIX . "file_attachments WHERE fat_pid = :pid GROUP BY fat_filename";
+			$rows = array();
 
-            try
-            {
-                $stmt = $db->query($sql, array(':pid' => $pid));
-                $rows = $stmt->fetchAll();
-            }
-            catch(Exception $e)
-            {
-                $log->err($e->getMessage());
-            }
+			$sql = "SELECT fat_filename, fat_mimetype, fat_version FROM "
+				. APP_TABLE_PREFIX . "file_attachments WHERE fat_pid = :pid GROUP BY fat_filename";
 
-            $resultlist = array();
-            foreach($rows as $row)
-            {
-                $resultlist[] = array('dsid' => $row['fat_filename'],
-                    'label' => $row['fat_filename'],
-                    'mimeType' => $row['fat_mimetype']);
-            }
+			try
+			{
+				$stmt = $db->query($sql, array(':pid' => $pid));
+				$rows = $stmt->fetchAll();
+			}
+			catch(Exception $e)
+			{
+				$log->err($e->getMessage());
+			}
+
+			$resultlist = array();
+			foreach($rows as $row)
+			{
+				$resultlist[] = array('dsid' => $row['fat_filename'],
+					'label' => $row['fat_filename'],
+					'mimeType' => $row['fat_mimetype']);
+			}
 			return $resultlist;
 		} else {
 			return array();
 		}
 	}
 
-
-
-	function objectExists($pid, $refresh = false)
+	/**
+	 * @param string $pid The persistent identifier of the object
+	 * @param bool $refresh
+	 * @return bool
+	 */
+	public function objectExists($pid, $refresh = FALSE)
 	{
-        $log = FezLog::get();
-        $db = DB_API::get();
-        $stmt = "SELECT rek_pid
+		$log = FezLog::get();
+		$db = DB_API::get();
+		$stmt = "SELECT rek_pid
                 FROM ". APP_TABLE_PREFIX . "record_search_key
                 WHERE rek_pid = ".$db->quote($pid);
-        try {
-                $res = $db->fetchOne($stmt);
-            }
-        catch(Exception $ex) {
-            $log->err($ex);
-            return array();
-        }
-        if ($res == $pid) {
-            return true;
-        }
+		try {
+			$res = $db->fetchOne($stmt);
+		}
+		catch(Exception $ex) {
+			$log->err($ex);
+			return array();
+		}
+		if ($res == $pid) {
+			return true;
+		}
 
-        $stmt = "SELECT rek_pid
+		$stmt = "SELECT rek_pid
                 FROM ". APP_TABLE_PREFIX . "record_search_key__shadow
                 WHERE rek_pid = ".$db->quote($pid);
-        try {
-            $res = $db->fetchOne($stmt);
-        }
-        catch(Exception $ex) {
-            $log->err($ex);
-            return array();
-        }
-        return ($res == $pid);
-
+		try {
+			$res = $db->fetchOne($stmt);
+		}
+		catch(Exception $ex) {
+			$log->err($ex);
+			return array();
+		}
+		return ($res == $pid);
 	}
 
 	/**
 	 * This function creates an array of a specific datastream of a specific object
 	 *
-	 * @access  public
-	 * @param string $pid The persistant identifier of the object
+	 * @param string $pid The persistent identifier of the object
 	 * @param string $dsID The ID of the datastream
-	 * @return array $dsIDListArray The requested of datastream in an array.
+	 * @param string $createdDT Date time stamp as a string
+	 * @return array The requested of datastream in an array.
 	 */
-	function callGetDatastream($pid, $dsID)
+	public function callGetDatastream($pid, $dsID, $createdDT = NULL)
 	{
-        $dsr = new DSResource(APP_DSTREE_PATH);
-        $dsr->load($dsID, $pid);
-        $dsArray = $dsr->getDSRev($dsID, $pid);
-        $dsArray['ID'] = $dsID;
-        $vers = $dsr->getDSRevs($dsID, $pid);
-        $vers = $vers[$dsArray['version']];
-        $dsArray['versionID'] = $vers;
-        $dsArray['label'] = $dsID;
-        $dsArray['controlGroup'] = $dsArray['controlgroup'];
-        $dsArray['MIMEType'] = $dsArray['mimetype'];
-        $dsArray['createDate'] = $dsArray['version'];
-        $dsArray['location'] = NULL; //TODO Check if this is needed and if so fill with a real value.
-        $dsArray['formatURI'] = NULL; //TODO Check if this is needed and if so fill with a real value.
-        $dsArray['checksumType'] = 'DISABLED'; //TODO Check if this is needed and if so fill with a real value.
-        $dsArray['checksum'] = 'none'; //TODO Check if this is needed and if so fill with a real value.
-        $dsArray['versionable'] = FALSE; //TODO Check if this is needed and if so fill with a real value.
+		$dsr = new DSResource(APP_DSTREE_PATH);
+		$dsr->load($dsID, $pid);
+		$dsArray = $dsr->getDSRev($dsID, $pid);
+		$dsArray['ID'] = $dsID;
+		$vers = $dsr->getDSRevs($dsID, $pid);
+		$vers = $vers[$dsArray['version']];
+		$dsArray['versionID'] = $vers;
+		$dsArray['label'] = $dsID;
+		$dsArray['controlGroup'] = $dsArray['controlgroup'];
+		$dsArray['MIMEType'] = $dsArray['mimetype'];
+		$dsArray['createDate'] = $dsArray['version'];
+		$dsArray['location'] = NULL; //TODO Check if this is needed and if so fill with a real value.
+		$dsArray['formatURI'] = NULL; //TODO Check if this is needed and if so fill with a real value.
+		$dsArray['checksumType'] = 'DISABLED'; //TODO Check if this is needed and if so fill with a real value.
+		$dsArray['checksum'] = 'none'; //TODO Check if this is needed and if so fill with a real value.
+		$dsArray['versionable'] = FALSE; //TODO Check if this is needed and if so fill with a real value.
 
-        return $dsArray;
+		return $dsArray;
 	}
 
 	/**
 	 * Does a datastream with a given ID already exist in an object
 	 *
-	 * @access  public
-	 * @param string $pid The persistant identifier of the object
+	 * @param string $pid The persistent identifier of the object
 	 * @param string $dsID The ID of the datastream to be checked
-	 * @param string $pattern a regex pattern to search against if given instead of ==/equivalence
+	 * @param bool $refresh Avoid a cached copy
+	 * @param bool $pattern a regex pattern to search against if given instead of ==/equivalence
 	 * @return boolean
 	 */
-	function datastreamExists ($pid, $dsID, $refresh=false, $pattern=false)
+	public function datastreamExists($pid, $dsID, $refresh = FALSE, $pattern = FALSE)
 	{
 		if (Misc::isPid($pid) != true) {
 			return false;
@@ -751,12 +470,11 @@ class Fedora_API implements FedoraApiInterface {
 	/**
 	 * Does a datastream with a given ID already exist in existing list array of datastreams
 	 *
-	 * @access  public
 	 * @param string $existing_list The existing list of datastreams
 	 * @param string $dsID The ID of the datastream to be checked
 	 * @return boolean
 	 */
-	function datastreamExistsInArray ($existing_list, $dsID)
+	public function datastreamExistsInArray($existing_list, $dsID)
 	{
 		$dsExists = false;
 		$rs = $existing_list;
@@ -771,71 +489,67 @@ class Fedora_API implements FedoraApiInterface {
 	/**
 	 * This function creates an array of a specific datastream of a specific object
 	 *
-	 * @access  public
-	 * @param string $pid The persistant identifier of the object
+	 * @param string $pid The persistent identifier of the object
 	 * @param string $dsID The ID of the datastream to be checked
-	 * @param string $asofDateTime Optional Gets a specified version at a datetime stamp
-	 * @return array $dsIDListArray The datastream returned in an array
+	 * @param string $asofDateTime Gets a specified version at a datetime stamp
+	 * @return array The datastream returned in an array
 	 */
-	function callGetDatastreamDissemination($pid, $dsID, $asofDateTime="")
+	public function callGetDatastreamDissemination($pid, $dsID, $asofDateTime = "")
 	{
 		// Redirect all calls to the REST Version for now - CK added 17/7/2009
-    $return = array();
-    $return['stream']= Fedora_API::callGetDatastreamContents($pid, $dsID, true);
+		$return = array();
+		$return['stream']= Fedora_API::callGetDatastreamContents($pid, $dsID, true);
 		return $return;
 	}
-
-
-
-
 
 	/**
 	 * This function creates an array of a specific datastream of a specific object
 	 *
-	 * @access  public
-	 * @param string $pid The persistant identifier of the object
+	 * @param string $pid The persistent identifier of the object
 	 * @param string $dsID The ID of the datastream
-	 * @param boolean $getxml Get as xml
+	 * @param boolean $getraw Get as xml
+	 * @param resource $filehandle
+	 * @param int $current_tries A counter of how many times this function has retried
 	 * @return array $resultlist The requested of datastream in an array.
 	 */
-	function callGetDatastreamContents($pid, $dsID, $getraw = false, $filehandle = null)
+	public function callGetDatastreamContents($pid, $dsID, $getraw = FALSE, $filehandle = NULL, $current_tries = 0)
 	{
-		//$filehandle is a legacy arg left here to keep the API intact.
-        $dsr = new DSResource(APP_DSTREE_PATH);
-        $dsMeta = $dsr->getDSRev($dsID, $pid);
+		// $filehandle is a legacy arg left here to keep the API intact.
+		$dsr = new DSResource(APP_DSTREE_PATH);
+		$dsMeta = $dsr->getDSRev($dsID, $pid);
 
-        $dsExists = Fedora_API::datastreamExists($pid, $dsID);
-        if($dsExists)
-        {
-            if($dsMeta['mimetype'] != 'text/xml' || $getraw)
-            {
-                $return =  $dsr->getDSData($dsMeta['hash']);
-                if (!is_null($filehandle)) {
-                  fwrite($filehandle, $return);
-                }
-            }
-            else
-            {
-                $return = array(
-                    'date' => array($dsMeta['version']),
-                    'repInfo' => array($dsr->getDSData($dsMeta['hash'])),
-                    'uri' => array($dsr->createPath($dsMeta['hash']) . $dsMeta['hash'])
-                );
-            }
-            return $return;
-        }
-    }
+		$dsExists = Fedora_API::datastreamExists($pid, $dsID);
+		if($dsExists)
+		{
+			if($dsMeta['mimetype'] != 'text/xml' || $getraw)
+			{
+				$return =  $dsr->getDSData($dsMeta['hash']);
+				if (!is_null($filehandle)) {
+					fwrite($filehandle, $return);
+				}
+			}
+			else
+			{
+				$return = array(
+					'date' => array($dsMeta['version']),
+					'repInfo' => array($dsr->getDSData($dsMeta['hash'])),
+					'uri' => array($dsr->createPath($dsMeta['hash']) . $dsMeta['hash'])
+				);
+			}
+			return $return;
+		}
+	}
 
 	/**
 	 * This function creates an array of specific fields from a specific datastream of a specific object
 	 *
-	 * @access  public
-	 * @param string $pid The persistant identifier of the object
+	 * @param string $pid The persistent identifier of the object
 	 * @param string $dsID The ID of the datastream
 	 * @param array $returnfields
-	 * @return array $dsIDListArray The requested of datastream in an array.
+	 * @param string $asOfDateTime Gets a specified version at a datetime stamp
+	 * @return array The requested of datastream in an array.
 	 */
-	function callGetDatastreamContentsField($pid, $dsID, $returnfields, $asOfDateTime="")
+	public function callGetDatastreamContentsField($pid, $dsID, $returnfields, $asOfDateTime = "")
 	{
 		static $counter;
 		if (!isset($counter)) {
@@ -865,94 +579,174 @@ class Fedora_API implements FedoraApiInterface {
 	/**
 	 * This function modifies inline xml datastreams (ByValue)
 	 *
-	 * @access  public
-	 * @param string $pid The persistant identifier of the object
+	 * @param string $pid The persistent identifier of the object
 	 * @param string $dsID The name of the datastream
 	 * @param string $state The datastream state
 	 * @param string $label The datastream label
 	 * @param string $dsContent The datastream content
 	 * @param string $mimetype The mimetype of the datastream
-	 * @param boolean $versionable Whether to version control this datastream or not
+	 * @param bool|string $versionable Whether to version control this datastream or not
 	 * @return void
 	 */
-	function callModifyDatastreamByValue ($pid, $dsID, $state, $label, $dsContent, $mimetype='text/xml', $versionable='inherit')
+	public function callModifyDatastreamByValue($pid, $dsID, $state, $label, $dsContent, $mimetype = 'text/xml', $versionable = 'inherit')
 	{
-		Fedora_API::callModifyDatastream($pid, $dsID, "", $label, "A", $mimetype, $versionable, $dsContent);
+		self::_callModifyDatastream($pid, $dsID, "", $label, "A", $mimetype, $versionable, $dsContent);
 	}
 
+	/**
+	 * This function modifies non-in-line datastreams, either a chunk o'text, a url, or a file.
+	 *
+	 * @param string $pid The persistent identifier of the object
+	 * @param string $dsID The name of the datastream
+	 * @param string $dsLabel The datastream label
+	 * @param string $dsLocation The location of the datastream
+	 * @param string $mimetype The mimetype of the datastream
+	 * @param bool|string $versionable Whether to version control this datastream or not
+	 * @return void
+	 */
+	public function callModifyDatastreamByReference($pid, $dsID, $dsLabel, $dsLocation = NULL, $mimetype, $versionable = 'inherit')
+	{
+		$dsr = new DSResource();
+		$dsr->load($dsID, $pid);
+		$meta = $dsr->getMeta();
+		$meta['filename'] = $dsID;
+		$meta['label'] = $dsLabel;
+		$dsr->setMeta($meta);
+		$dsr->save();
+	}
 
+	/**
+	 * Changes the state and/or label of the object.
+	 *
+	 * @param string $pid The pid of the object
+	 * @param string $state The new state, A, I or D. Null means leave unchanged
+	 * @param string $label The new label. Null means leave unchanged
+	 * @param string $logMessage A log message
+	 */
+	public function callModifyObject($pid, $state, $label, $logMessage = 'Deleted by Fez')
+	{
+
+	}
 
 	/**
 	 * This function marks a datastream as deleted by setting the state.
 	 *
-	 * @access  public
-	 * @param string $pid The persistant identifier of the object
+	 * @param string $pid The persistent identifier of the object
 	 * @param string $dsID The ID of the datastream
-	 * @return boolean
+	 * @return bool
 	 */
-	function deleteDatastream($pid, $dsID)
+	public function deleteDatastream($pid, $dsID)
 	{
-    $dresource = new DSResource();
-    $dresource->load($dsID, $pid);
-    $dresource->dereference();
-    return true;
-	}
-
-	/**
-	 * Format the version of the a file to conform to Fedora_API
-	 * @param <string> $filename
-	 * @param <string> $pid
-	 */
-	function formatVersion($filename, $pid)
-	{
-	    $versions = array();
-	    $ver = 0;
-	    $dsr = new DSResource(APP_DSTREE_PATH);
-	    $revs = $dsr->getDSRevs($filename, $pid);
-	    foreach($revs as $rev)
-	    {
-	        $versions[$rev['version']] = $filename . "." . $ver;
-	        $ver++;
-	    }
-
-	    return $versions;
-	}
-
-	/**
-	 * This function sets the state flag on a datastream
-	 *
-	 * @access  public
-	 * @param string $pid The persistent identifier of the object to be purged
-	 * @param string $dsID The name of the datastream
-	 * @param string $state The new state of the datastream
-	 * @param string $logMessage
-	 * @return boolean
-	 */
-	function callSetDatastreamState ($pid, $dsID, $state='A', $logMessage="Changed Datastream State from Fez")
-	{
-    return;
+		$dresource = new DSResource();
+		$dresource->load($dsID, $pid);
+		$dresource->dereference();
+		return true;
 	}
 
 	/**
 	 * This function deletes a datastream
 	 *
-	 * @access  public
 	 * @param string $pid The persistent identifier of the object to be purged
 	 * @param string $dsID The name of the datastream
+	 * @param string $startDT The start datetime of the purge
 	 * @param string $endDT The end datetime of the purge
 	 * @param string $logMessage
-	 * @param boolean $force
-	 * @return boolean
+	 * @param bool $force
+	 * @return bool
 	 */
-	function callPurgeDatastream ($pid, $dsID, $startDT=NULL, $endDT=NULL, $logMessage="Purged Datastream from Fez", $force=false)
+	public function callPurgeDatastream($pid, $dsID, $startDT = NULL, $endDT = NULL, $logMessage = "Purged Datastream from Fez", $force = FALSE)
 	{
-    $dresource = new DSResource();
-    $dresource->load($dsID, $pid);
-    $dresource->dereference();
-    return true;
+		$dresource = new DSResource();
+		$dresource->load($dsID, $pid);
+		$dresource->dereference();
+		return true;
 	}
 
+	/**
+	 * This function modifies a datastream
+	 *
+	 * @param string $pid The persistent identifier of the object to be purged
+	 * @param string $dsID The ID of the datastream
+	 * @param string $dsLocation The location of the file to add
+	 * @param string $dsLabel The datastream label
+	 * @param string $dsState The datastream state
+	 * @param string $mimetype The mimetype of the datastream
+	 * @param bool|string $versionable Whether to version control this datastream or not
+	 * @param string $xmlContent If it an X based xml content file then it uses a var rather than a file location
+	 * @return void
+	 */
+	private function _callModifyDatastream ($pid, $dsID, $dsLocation, $dsLabel, $dsState, $mimetype, $versionable='false', $xmlContent="")
+	{
+		if ($mimetype == "") {
+			$mimetype = "text/xml";
+		}
+		$dsIDOld = $dsID;
+		if (is_numeric(strpos($dsID, chr(92)))) {
+			$dsID = substr($dsID, strrpos($dsID, chr(92))+1);
+			if ($dsLabel == $dsIDOld) {
+				$dsLabel = $dsID;
+			}
+		}
 
+		if(!Zend_Registry::isRegistered('version')) {
+			Zend_Registry::set('version', Date_API::getCurrentDateGMT());
+		}
 
+		$now = Zend_Registry::get('version');
 
+		$resourceDataLocation = $dsLocation;
+		$filesDataSize = filesize($dsLocation);
+		$meta = array('mimetype' => $mimetype,
+			'filename' => $dsID,
+			'label' => $dsLabel,
+			'controlgroup' => 'M',
+			'state' => 'A',
+			'size' => $filesDataSize,
+			'updateTS' => $now,
+			'pid' => $pid);
+		$dsr = new DSResource(APP_DSTREE_PATH, $resourceDataLocation, $meta);
+		$dsr->save();
+	}
+
+	/**
+	 * This function creates an array of all the datastreams for a specific object.
+	 *
+	 * @param string $pid The persistent identifier of the object
+	 * @return array The list of datastreams in an array.
+	 */
+	private function _callListDatastreams($pid)
+	{
+		if (!is_numeric($pid)) {
+			$dob = new DSResource();
+			$dsIDListArray = $dob->listStreams($pid);
+			sort($dsIDListArray);
+			reset($dsIDListArray);
+			return $dsIDListArray;
+		} else {
+			return array();
+		}
+	}
+
+	/**
+	 * Format the version of the a file to conform to Fedora_API
+	 *
+	 * @param string $filename
+	 * @param string $pid
+	 *
+	 * @return array
+	 */
+	private function _formatVersion($filename, $pid)
+	{
+		$versions = array();
+		$ver = 0;
+		$dsr = new DSResource(APP_DSTREE_PATH);
+		$revs = $dsr->getDSRevs($filename, $pid);
+		foreach($revs as $rev)
+		{
+			$versions[$rev['version']] = $filename . "." . $ver;
+			$ver++;
+		}
+
+		return $versions;
+	}
 }

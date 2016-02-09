@@ -99,6 +99,7 @@ interface FedoraApiInterface
      * @access  public
      * @param string $pid The persistent identifier of the object to be purged
      * @param string $dsIDName The datastream name
+     * @param string $file The file name
      * @param string $dsLabel The datastream label
      * @param string $mimetype The mimetype of the datastream
      * @param string $controlGroup The control group of the datastream
@@ -182,7 +183,7 @@ interface FedoraApiInterface
     /**
      * Does a datastream with a given ID already exist in an object
      *
-     * @param string $pid The persistant identifier of the object
+     * @param string $pid The persistent identifier of the object
      * @param string $dsID The ID of the datastream to be checked
      * @param bool $refresh Avoid a cached copy
      * @param bool $pattern a regex pattern to search against if given instead of ==/equivalence
@@ -202,7 +203,7 @@ interface FedoraApiInterface
     /**
      * This function creates an array of a specific datastream of a specific object
      *
-     * @param string $pid The persistant identifier of the object
+     * @param string $pid The persistent identifier of the object
      * @param string $dsID The ID of the datastream to be checked
      * @param string $asofDateTime Gets a specified version at a datetime stamp
      * @return array The datastream returned in an array
@@ -212,7 +213,7 @@ interface FedoraApiInterface
     /**
      * This function creates an array of a specific datastream of a specific object
      *
-     * @param string $pid The persistant identifier of the object
+     * @param string $pid The persistent identifier of the object
      * @param string $dsID The ID of the datastream
      * @param boolean $getraw Get as xml
      * @param string $filehandle
@@ -224,7 +225,7 @@ interface FedoraApiInterface
     /**
      * This function creates an array of specific fields from a specific datastream of a specific object
      *
-     * @param string $pid The persistant identifier of the object
+     * @param string $pid The persistent identifier of the object
      * @param string $dsID The ID of the datastream
      * @param array $returnfields
      * @param string $asOfDateTime Gets a specified version at a datetime stamp
@@ -235,7 +236,7 @@ interface FedoraApiInterface
     /**
      * This function modifies inline xml datastreams (ByValue)
      *
-     * @param string $pid The persistant identifier of the object
+     * @param string $pid The persistent identifier of the object
      * @param string $dsID The name of the datastream
      * @param string $state The datastream state
      * @param string $label The datastream label
@@ -249,7 +250,7 @@ interface FedoraApiInterface
     /**
      * This function modifies non-in-line datastreams, either a chunk o'text, a url, or a file.
      *
-     * @param string $pid The persistant identifier of the object
+     * @param string $pid The persistent identifier of the object
      * @param string $dsID The name of the datastream
      * @param string $dsLabel The datastream label
      * @param string $dsLocation The location of the datastream
@@ -283,6 +284,7 @@ interface FedoraApiInterface
      *
      * @param string $pid The persistent identifier of the object to be purged
      * @param string $dsID The name of the datastream
+     * @param string $startDT The start datetime of the purge
      * @param string $endDT The end datetime of the purge
      * @param string $logMessage
      * @param bool $force
