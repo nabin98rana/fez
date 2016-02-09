@@ -204,7 +204,7 @@ class Fedora_API {
   function getAuditTrail($pid) {
     $auditTrail = array();
 
-    $obj_xml = Fedora_API::getObjectXMLByPID($pid);
+    $obj_xml = Fedora_API::getObjectXML($pid);
 
     $xmldoc = new DomDocument();
     $xmldoc->preserveWhiteSpace = FALSE;
