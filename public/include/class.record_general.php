@@ -2324,7 +2324,7 @@ class RecordGeneral
 
   function getObjectXML()
   {
-    return Fedora_API::getObjectXMLByPID($this->pid);
+    return Fedora_API::getObjectXML($this->pid);
   }
 
   function getDatastreams($dsState='A')

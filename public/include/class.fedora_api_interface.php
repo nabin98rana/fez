@@ -20,7 +20,7 @@ interface FedoraApiInterface
      * @param string $pid The persistent identifier
      * @return string $result The XML of the object
      */
-    public function getObjectXMLByPID($pid);
+    public function getObjectXML($pid);
 
     /**
      * Gets the audit trail for an object.

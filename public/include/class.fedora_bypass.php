@@ -59,7 +59,7 @@ class Fedora_API implements FedoraApiInterface {
 	 * @param string $pid The persistent identifier
 	 * @return string $result The XML of the object
 	 */
-	public function getObjectXMLByPID($pid)
+	public function getObjectXML($pid)
 	{
 
 	}
@@ -203,7 +203,7 @@ class Fedora_API implements FedoraApiInterface {
 	 */
 	public function getUploadLocationByLocalRef($pid, $dsIDName, $dsLocation, $dsLabel, $mimetype, $controlGroup = 'M', $dsID = NULL, $versionable = FALSE)
 	{
-		if(!Zend_Registry::isRegistered('version')) {
+		if (! Zend_Registry::isRegistered('version')) {
 			Zend_Registry::set('version', Date_API::getCurrentDateGMT());
 		}
 
@@ -257,7 +257,7 @@ class Fedora_API implements FedoraApiInterface {
 			$dsIDName = substr($dsIDName, strrpos($dsIDName, "/")+1);
 		}
 
-		if (!Zend_Registry::isRegistered('version')) {
+		if (! Zend_Registry::isRegistered('version')) {
 			Zend_Registry::set('version', Date_API::getCurrentDateGMT());
 		}
 
@@ -289,7 +289,6 @@ class Fedora_API implements FedoraApiInterface {
 	{
 		$dob = new DSResource();
 		$dsIDListArray = $dob->listStreams($pid);
-
 
 		if (empty($dsIDListArray) || (is_array($dsIDListArray) && isset($dsIDListArray['faultcode']))) {
 			return false;
