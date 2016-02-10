@@ -167,7 +167,7 @@ class Fedora_API {
    * @param string $pid The persistent identifier
    * @return  string $result The XML of the object
    */
-  function getObjectXMLByPID($pid) {
+  function getObjectXML($pid) {
     if (APP_FEDORA_APIA_DIRECT == "ON") {
       $fda = new Fedora_Direct_Access();
       return $fda->getObjectXML($pid);
@@ -204,7 +204,7 @@ class Fedora_API {
   function getAuditTrail($pid) {
     $auditTrail = array();
 
-    $obj_xml = Fedora_API::getObjectXMLByPID($pid);
+    $obj_xml = Fedora_API::getObjectXML($pid);
 
     $xmldoc = new DomDocument();
     $xmldoc->preserveWhiteSpace = FALSE;

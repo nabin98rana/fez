@@ -2324,7 +2324,7 @@ class RecordGeneral
 
   function getObjectXML()
   {
-    return Fedora_API::getObjectXMLByPID($this->pid);
+    return Fedora_API::getObjectXML($this->pid);
   }
 
   function getDatastreams($dsState='A')
@@ -2544,7 +2544,7 @@ class RecordGeneral
         $new_pid = Fedora_API::getNextPID();
         $new_xml = "";
         // need to get hold of a copy of the fedora XML, and substitute the PIDs in it then ingest it.
-        $xml_str = Fedora_API::getObjectXMLByPID($pid);
+        $xml_str = Fedora_API::getObjectXML($pid);
         $xml_str = str_replace($pid, $new_pid, $xml_str);  // change to new pid
         // strip off datastreams - we'll add them later.  This gets rid of the internal fedora audit datastream
         $doc = DOMDocument::loadXML($xml_str);
