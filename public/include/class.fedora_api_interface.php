@@ -33,7 +33,6 @@ interface FedoraApiInterface
     /**
      * This function ingests a FOXML object and base64 encodes it
      *
-     * @access  public
      * @param string $foxml The XML object itself in FOXML format
      * @param string $pid The persistent identifier
      * @return bool
@@ -96,7 +95,6 @@ interface FedoraApiInterface
     /**
      * This function uses curl to upload a file into the fedora upload manager and calls the addDatastream or modifyDatastream as needed.
      *
-     * @access  public
      * @param string $pid The persistent identifier of the object to be purged
      * @param string $dsIDName The datastream name
      * @param string $file The file name
