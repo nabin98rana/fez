@@ -7,21 +7,6 @@
  */
 class SelectSearchKey {
 
-    public $tpl = null;
-
-    /**
-     * Class constructor
-     */
-    public function __construct()
-    {
-        $this->tpl = new Template_API();
-        $this->tpl->setTemplate("workflow/select_search_key_values.tpl.html");
-        $this->tpl->assign('rel_url', APP_RELATIVE_URL);
-        $this->tpl->assign('input_name', 'sek_value');
-        $this->tpl->assign('field_type', "select_single");
-    }
-
-
     /**
      * Returns array of value & text for the search key replacement value drop down.
      * @param $sek_id
@@ -73,8 +58,9 @@ class SelectSearchKey {
      */
     protected function _getSelectInputGeneral($result = array())
     {
-        $this->tpl->assign("options", $result);
-        $output = $this->tpl->getTemplateContents();
+        $xtpl = Zend_Registry::get('xtpl');
+        $xtpl->assign("options", $result);
+        $output = $xtpl->getTemplateContents();
 
         return $output;
     }
@@ -86,7 +72,7 @@ class SelectSearchKey {
      */
     protected function _getSelectInputYear()
     {
-
+        $xtpl = Zend_Registry::get('xtpl');
         $result = array();
         $start_year = 1900;
         $end_year = strftime("%Y") + 3;
@@ -94,8 +80,8 @@ class SelectSearchKey {
             $result[$year] = $year;
         }
 
-        $this->tpl->assign("options", $result);
-        $output = $this->tpl->getTemplateContents();
+        $xtpl->assign("options", $result);
+        $output = $xtpl->getTemplateContents();
 
         return $output;
     }
@@ -107,6 +93,7 @@ class SelectSearchKey {
      */
     protected function _getSelectInputDate()
     {
+        $xtpl = Zend_Registry::get('xtpl');
         $reverse_years = true;
         $start_year = '1900';
         $end_year = strftime("%Y") + 3;
@@ -116,18 +103,18 @@ class SelectSearchKey {
         $full_date = "0000-00-00";
 
         // Rewrite pre-set value of the expected type of input field
-        $this->tpl->assign('field_type', "select_date");
+        $xtpl->assign('field_type', "select_date");
 
-        $this->tpl->assign('rel_url', APP_RELATIVE_URL);
-        $this->tpl->assign("reverse_years", $reverse_years);
-        $this->tpl->assign("start_year", $start_year);
-        $this->tpl->assign("end_year", $end_year);
-        $this->tpl->assign("display_days", $display_days);
-        $this->tpl->assign("display_months", $display_months);
-        $this->tpl->assign("display_years", $display_years);
-        $this->tpl->assign("full_date", $full_date);
+        $xtpl->assign('rel_url', APP_RELATIVE_URL);
+        $xtpl->assign("reverse_years", $reverse_years);
+        $xtpl->assign("start_year", $start_year);
+        $xtpl->assign("end_year", $end_year);
+        $xtpl->assign("display_days", $display_days);
+        $xtpl->assign("display_months", $display_months);
+        $xtpl->assign("display_years", $display_years);
+        $xtpl->assign("full_date", $full_date);
 
-        $output = $this->tpl->getTemplateContents();
+        $output = $xtpl->getTemplateContents();
 
         return $output;
     }
