@@ -175,3 +175,7 @@ insert ignore into fez_config (config_name, config_module, config_value) values 
 UPDATE fez_xsd_display_matchfields SET xsdmf_invisible = '1' WHERE xsdmf_title = 'Description for File Upload';
 
 INSERT INTO fez_group_user (gpu_grp_id, gpu_usr_id) VALUES (90, 999999991);
+
+UPDATE fez_config
+SET config_value = ''
+WHERE config_value = "'";
