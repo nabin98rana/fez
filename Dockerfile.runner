@@ -1,4 +1,4 @@
-FROM uqlibrary/docker-fpm56:5
+FROM uqlibrary/docker-fpm56:7
 
 WORKDIR /var/app/current/
 COPY . /var/app/current/
