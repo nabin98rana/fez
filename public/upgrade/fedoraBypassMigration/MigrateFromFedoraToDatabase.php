@@ -411,7 +411,7 @@ class MigrateFromFedoraToDatabase
     public function migrateManagedContent()
     {
         echo chr(10) . "\n<br /> Start migrating Fedora ManagedContent to Fez CAS system....";
-        echo chr(10) . "\n<br /> This may take a while depending on the size of datastreams on dir /opt/fedora/fedora_3_5/data/datastreams";
+        echo chr(10) . "\n<br /> This may take a while depending on the size of datastreams";
         ob_flush();
         include ("./migrate_fedora_managedcontent_to_fezCAS.php");
     }
@@ -481,7 +481,7 @@ class MigrateFromFedoraToDatabase
 
 
         if ( sizeof($pids) > 0 ){
-            Workflow::start($wft_id, $pid, $xdis_id, $href, $dsID, $pids);
+            //Workflow::start($wft_id, $pid, $xdis_id, $href, $dsID, $pids);
 
             echo chr(10) . "\n<br /> BGP of Reindexing the PIDS has been triggered.
                  See the progress at http://" . APP_HOSTNAME . "/my_processes.php";
@@ -807,7 +807,7 @@ class MigrateFromFedoraToDatabase
         try {
             $this->_db->exec($stmt);
         } catch (Exception $ex) {
-            echo "<br />No constraint to remove " . $ex;
+            echo "<br />No constraint to remove ";
             return false;
         }
         echo "ok!\n";

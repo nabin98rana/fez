@@ -53,7 +53,7 @@ try {
     echo "Failed to retrieve exif data. Error: " . $ex;
 } */
 
-$fedoraPids = Fedora_Direct_Access::fetchAllFedoraPIDs('','', true);
+$fedoraPids = Fedora_Direct_Access::fetchAllFedoraPIDs('','', false);
 //$fedoraPids[] = array('pid' => 'UQ:17552');
 $totalPids = count($fedoraPids);
 $counter = 0;

@@ -5,7 +5,8 @@ RUN cd /var/cache/ && \
   mkdir solr_upload && \
   mkdir templates_c && \
   mkdir xdebug && \
-  mkdir tmp
+  mkdir tmp && \
+  mkdir dstree
 
 VOLUME /var/cache
 
