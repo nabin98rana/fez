@@ -230,43 +230,10 @@ class Bulk_Image_Import
       }
     }
 
-    //////------------------------------------------------------------------------------------------------------------------------
-
     // SourceField
     $xsdmf = XSD_HTML_Match::getDetailsBySekIDXDIS_ID(Search_Key::getID('Source'), $xdis_str);
     if ($xsdmf) {
-      $params['xsd_display_fields'][$xsdmf['xsdmf_id']] = $recData['SourceField'];
-    }
-
-    // Duration
-    $xsdmf = XSD_HTML_Match::getDetailsBySekIDXDIS_ID(Search_Key::getID('Length'), $xdis_str);
-    if ($xsdmf) {
-      $params['xsd_display_fields'][$xsdmf['xsdmf_id']] = $recData['Duration'];
-    }
-
-    // RecordingDate
-    $xsdmf = XSD_HTML_Match::getDetailsBySekIDXDIS_ID(Search_Key::getID('Date Recorded'), $xdis_str);
-    if ($xsdmf) {
-      $recDate = explode('/', $recData['RecordingDate']);
-      $year = $recDate[2];
-      if (strlen($year) === 2) {
-        $year = '19' . $year;
-      }
-      $params['xsd_display_fields'][$xsdmf['xsdmf_id']]['Year'] = $year;
-      $params['xsd_display_fields'][$xsdmf['xsdmf_id']]['Month'] = $recDate[1];
-      $params['xsd_display_fields'][$xsdmf['xsdmf_id']]['Day'] = $recDate[0];
-    }
-
-    // RecordingPlace
-    $xsdmf = XSD_HTML_Match::getDetailsBySekIDXDIS_ID(Search_Key::getID('Location'), $xdis_str);
-    if ($xsdmf) {
-      $params['xsd_display_fields'][$xsdmf['xsdmf_id']] = $recData['RecordingPlace'];
-    }
-
-    // Transcript
-    $xsdmf = XSD_HTML_Match::getDetailsBySekIDXDIS_ID(Search_Key::getID('Transcript'), $xdis_str);
-    if ($xsdmf) {
-      $params['xsd_display_fields'][$xsdmf['xsdmf_id']] = $recData['Transcript'];
+      $params['xsd_display_fields'][$xsdmf['xsdmf_id']] = $recData['Source'];
     }
 
     // Series
@@ -275,34 +242,122 @@ class Bulk_Image_Import
       $params['xsd_display_fields'][$xsdmf['xsdmf_id']] = $recData['Series'];
     }
 
+    // Geographic area
+    $xsdmf = XSD_HTML_Match::getDetailsBySekIDXDIS_ID(Search_Key::getID('Geographic Area'), $xdis_str);
+    if ($xsdmf) {
+      $params['xsd_display_fields'][$xsdmf['xsdmf_id']] = $recData['Geographic co-ordinates'];
+    }
+
+    // Advisory Statement
+    $xsdmf = XSD_HTML_Match::getDetailsBySekIDXDIS_ID(Search_Key::getID('Advisory Statement'), $xdis_str);
+    if ($xsdmf) {
+      $params['xsd_display_fields'][$xsdmf['xsdmf_id']] = $recData['Advisory Statement'];
+    }
+
+    // Acknowledgements
+    $xsdmf = XSD_HTML_Match::getDetailsBySekIDXDIS_ID(Search_Key::getID('Acknowledgements'), $xdis_str);
+    if ($xsdmf) {
+      $params['xsd_display_fields'][$xsdmf['xsdmf_id']] = $recData['Acknowledgements'];
+    }
+
+    // Additional Notes
+    $xsdmf = XSD_HTML_Match::getDetailsBySekIDXDIS_ID(Search_Key::getID('Notes'), $xdis_str);
+    if ($xsdmf) {
+      $params['xsd_display_fields'][$xsdmf['xsdmf_id']] = $recData['Additional Notes'];
+    }
+
     // Type
     $xsdmf = XSD_HTML_Match::getDetailsBySekIDXDIS_ID(Search_Key::getID('Genre'), $xdis_str);
     if ($xsdmf) {
-      $params['xsd_display_fields'][$xsdmf['xsdmf_id']] = 'audio/wav'; // Hardcoded
+      $params['xsd_display_fields'][$xsdmf['xsdmf_id']] = $recData['Type'];
     }
 
-    // Group
-    $xsdmf = XSD_HTML_Match::getDetailsBySekIDXDIS_ID(Search_Key::getID('Identifier'), $xdis_str);
+    // Rights
+    $xsdmf = XSD_HTML_Match::getDetailsBySekIDXDIS_ID(Search_Key::getID('Rights'), $xdis_str);
     if ($xsdmf) {
-      $params['xsd_display_fields'][$xsdmf['xsdmf_id']] = 'Group ' . $recData['GroupID'];
+      $params['xsd_display_fields'][$xsdmf['xsdmf_id']] = $recData['Rights'];
     }
 
-    // Link
-    $xsdmf = XSD_HTML_Match::getDetailsBySekIDXDIS_ID(Search_Key::getID('Link'), $xdis_str);
-    $xsdmfDesc = XSD_HTML_Match::getDetailsBySekIDXDIS_ID(Search_Key::getID('Link Description'), $xdis_str);
-    if ($xsdmf && $xsdmfDesc) {
-      $params['xsd_display_fields'][$xsdmf['xsdmf_id']] = array();
-      $params['xsd_display_fields'][$xsdmfDesc['xsdmf_id']] = array();
-      $params['xsd_display_fields'][$xsdmf['xsdmf_id']][0] = 'https://www.library.uq.edu.au/fryer-library/indigenous-voices';
-      $params['xsd_display_fields'][$xsdmfDesc['xsdmf_id']][0] = 'Browse Indigenous language resources from this collection online';
+    // Publication date
+    $xsdmf = XSD_HTML_Match::getDetailsBySekIDXDIS_ID(Search_Key::getID('Date'), $xdis_str);
+    if ($xsdmf) {
+      $params['xsd_display_fields'][$xsdmf['xsdmf_id']]['Year'] = $recData['Publication date'];
     }
 
+    // Year available
+    $xsdmf = XSD_HTML_Match::getDetailsBySekIDXDIS_ID(Search_Key::getID('Date Available'), $xdis_str);
+    if ($xsdmf) {
+      $params['xsd_display_fields'][$xsdmf['xsdmf_id']]['Year'] = $recData['Year available'];
+    }
+
+    // Publisher
+    $xsdmf = XSD_HTML_Match::getDetailsBySekIDXDIS_ID(Search_Key::getID('Publisher'), $xdis_str);
+    if ($xsdmf) {
+      $params['xsd_display_fields'][$xsdmf['xsdmf_id']] = $recData['Publisher'];
+    }
+
+    // Place of Publication
+    $xsdmf = XSD_HTML_Match::getDetailsBySekIDXDIS_ID(Search_Key::getID('Place of Publication'), $xdis_str);
+    if ($xsdmf) {
+      $params['xsd_display_fields'][$xsdmf['xsdmf_id']] = $recData['Place of Publication'];
+    }
+
+    // Formatted Abstract/Summary
+    $xsdmf = XSD_HTML_Match::getDetailsBySekIDXDIS_ID(Search_Key::getID('Formatted Abstract'), $xdis_str);
+    if ($xsdmf) {
+      $params['xsd_display_fields'][$xsdmf['xsdmf_id']] = $recData['Formatted Abstract/Summary'];
+    }
+
+
+    // Abstract/Summary
+    $xsdmf = XSD_HTML_Match::getDetailsBySekIDXDIS_ID(Search_Key::getID('Description'), $xdis_str);
+    if ($xsdmf) {
+      $params['xsd_display_fields'][$xsdmf['xsdmf_id']] = $recData['Abstract/Summary'];
+    }
+
+    // Open Access Status
+    $xsdmf = XSD_HTML_Match::getDetailsBySekIDXDIS_ID(Search_Key::getID('OA Status'), $xdis_str);
+    if ($xsdmf) {
+      $refDetails =  XSD_HTML_Match::getDetailsByXSDMF_ID($xsdmf['xsdmf_id_ref']);
+      $cvo_id = Controlled_Vocab::getIDByTitleAndParentID($recData['OA Status'], $refDetails['xsdmf_cvo_id']);
+      if ($cvo_id) {
+        $params['xsd_display_fields'][$refDetails['xsdmf_id']] = array(); // Clear any previous values
+        $params['xsd_display_fields'][$refDetails['xsdmf_id']][] = $cvo_id;
+      }
+    }
+
+    // License
+    $xsdmf = XSD_HTML_Match::getDetailsBySekIDXDIS_ID(Search_Key::getID('License'), $xdis_str);
+    if ($xsdmf) {
+      $refDetails =  XSD_HTML_Match::getDetailsByXSDMF_ID($xsdmf['xsdmf_id_ref']);
+      $cvo_id = Controlled_Vocab::getIDByTitleAndParentID($recData['License'], $refDetails['xsdmf_cvo_id']);
+      if ($cvo_id) {
+        $params['xsd_display_fields'][$refDetails['xsdmf_id']] = array(); // Clear any previous values
+        $params['xsd_display_fields'][$refDetails['xsdmf_id']][] = $cvo_id;
+      }
+    }
+
+    // Keywords
+    $xsdmf = XSD_HTML_Match::getDetailsBySekIDXDIS_ID(Search_Key::getID('Keywords'), $xdis_str);
+    if ($xsdmf) {
+      $keywords = explode('|', $recData['Keywords']);
+      foreach( $keywords as $keyword ) {
+        $params['xsd_display_fields'][$xsdmf['xsdmf_id']][] = trim($keyword);
+      }
+    }
+
+    // Original Format
+    $xsdmf = XSD_HTML_Match::getDetailsBySekIDXDIS_ID(Search_Key::getID('Format'), $xdis_str);
+    if ($xsdmf) {
+      $params['xsd_display_fields'][8567] = $recData['Format'];  //Has no searchkey
+    }
+    
     // Remove published date
     $xsdmf = XSD_HTML_Match::getDetailsBySekIDXDIS_ID(Search_Key::getID('Date'), $xdis_str);
     if ($xsdmf && array_key_exists($xsdmf['xsdmf_id'], $params['xsd_display_fields'])) {
       unset($params['xsd_display_fields'][$xsdmf['xsdmf_id']]);
     }
-    //////------------------------------------------------------------------------------------------------------------------------
+
     $record = new RecordObject();
     $pid = $record->fedoraInsertUpdate(array(), array(), $params);
 
