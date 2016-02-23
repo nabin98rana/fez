@@ -52,19 +52,20 @@ ini_set('implicit_flush', 1);
 error_reporting(E_ALL & ~E_NOTICE & ~E_STRICT);
 ob_end_flush();
 echo "here we go!..\n";
-foreach ($argv as $arg){
-    $arg = explode("=", $arg);
-    if (!array_key_exists(0, $arg) || !array_key_exists(1, $arg)){
-        continue;
-    }
+if ($argv) {
+    foreach ($argv as $arg) {
+        $arg = explode("=", $arg);
+        if (!array_key_exists(0, $arg) || !array_key_exists(1, $arg)) {
+            continue;
+        }
 
-    switch ($arg[0]){
-        case 'config':
-            $configFile = $arg[1];
-            break;
+        switch ($arg[0]) {
+            case 'config':
+                $configFile = $arg[1];
+                break;
+        }
     }
 }
-
 if (empty($configFile)){
     echo "Forgotten to specify config file?";
     exit;
