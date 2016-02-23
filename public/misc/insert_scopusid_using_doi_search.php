@@ -52,7 +52,7 @@ if ((php_sapi_name()==="cli") || (User::isUserSuperAdministrator($isUser))) {
             ON rek_doi_pid = rek_pid
             WHERE rek_scopus_id_pid IS NULL";
 
-    //Add a second argument to run over all published dates
+    //Add a second argument to run over all published dates //This script probably should run over all years and as such a argv should be used
     if (empty($argv[1])) {
         $stmt .= " AND rek_date >= '2008-01-01 00:00:00'";
     }
@@ -80,14 +80,16 @@ if ((php_sapi_name()==="cli") || (User::isUserSuperAdministrator($isUser))) {
         if(count($input_keys) > 0 ) {
             $result = Scopus::getCitedByCount($input_keys);
             foreach($result as $pid => $link_data) {
-                echo "$pid: ". $link_data['eid']. "\n";
-                ob_flush();
-                // Update record with new Scopus ID
-                $record = new RecordObject($pid);
-                $search_keys = array("Scopus ID");
-                $values = array($link_data['eid']);
-                $record->addSearchKeyValueList($search_keys, $values, true, ' was added based on Scopus Service data given current doi');
-                $sq->add($link_data['eid']);
+                if (!empty($link_data['eid'])) {
+                    echo "$pid: " . $link_data['eid'] . "\n";
+                    ob_flush();
+                    // Update record with new Scopus ID
+                    $record = new RecordObject($pid);
+                    $search_keys = array("Scopus ID");
+                    $values = array($link_data['eid']);
+                    $record->addSearchKeyValueList($search_keys, $values, true, ' was added based on Scopus Service data given current doi');
+                    $sq->add($link_data['eid']);
+                }
             }
 
             sleep($sleep); // Wait before using the service again
