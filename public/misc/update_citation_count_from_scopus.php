@@ -66,28 +66,26 @@ for($i=0; $i<((int)$listing['info']['total_pages']+1); $i++) {
 	if(count($input_keys) > 0) {		
 		$result = Scopus::getCitedByCount($input_keys);
 
-    //first check that all the pids came back in the response, otherwise set that eid/pid to 0
-    foreach ($input_keys as $input_pid => $input_array) {
-        if (is_array($result) && !array_key_exists($input_pid, $result)) {
-            //can't find this pid in the response so set this eid to 0
-            Record::updateScopusCitationCount($input_pid, 0, $input_array['eid']);
-        }
-    }
+		//first check that all the pids came back in the response, otherwise set that eid/pid to 0
+		foreach ($input_keys as $input_pid => $input_array) {
+			if (is_array($result) && !array_key_exists($input_pid, $result)) {
+				//can't find this pid in the response so set this eid to 0
+				Record::updateScopusCitationCount($input_pid, 0, $input_array['eid']);
+			}
+		}
 		foreach($result as $pid => $link_data) {
 			$eid = $link_data['eid'];
 			if (is_numeric($link_data['citedByCount'])) {
-				$count = $link_data['citedByCount']; 
+				$count = $link_data['citedByCount'];
 			} else {
 				$count = 0;
 			}
-			// Only update the count if the result is nonzero - 20150107 jh
-      if ($count > 0) {
-        Record::updateScopusCitationCount($pid, $count, $eid);
-      }
+
+			Record::updateScopusCitationCount($pid, $count, $eid);
 		}
-        if ( APP_SOLR_INDEXER == "ON" ) {
-          FulltextQueue::singleton()->commit();
-        }
-		sleep($sleep); // Wait before using the service again		
+		if ( APP_SOLR_INDEXER == "ON" ) {
+		  	FulltextQueue::singleton()->commit();
+		}
+		sleep($sleep); // Wait before using the service again
 	}
 }
