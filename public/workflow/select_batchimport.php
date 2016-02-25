@@ -32,7 +32,7 @@
 // +----------------------------------------------------------------------+
 //
 //
-include_once(dirname(dirname(__FILE__)).DIRECTORY_SEPARATOR."config.inc.php");
+include_once(dirname(dirname(__FILE__)) . DIRECTORY_SEPARATOR . "config.inc.php");
 include_once(APP_INC_PATH . "class.template.php");
 include_once(APP_INC_PATH . "class.auth.php");
 include_once(APP_INC_PATH . "class.record.php");
@@ -63,15 +63,13 @@ $xdis_id = $wfstatus->getXDIS_ID();
 if ($pid == -1 || !$pid) {
     $access_ok = $isAdministrator;
 } else {
-    $community_pid = $pid;
-    $collection_pid = $pid;
     $record = new RecordObject($pid);
     $access_ok = $record->canCreate();
 }
 if ($access_ok) {
     if (@$_POST["cat"] == "submit") {
         $wftpl = $wfstatus->getvar('template');
-		if ( !empty($_POST['directory'])) {
+        if (!empty($_POST['directory'])) {
             $wfstatus->assign('batch_directory', $_POST['directory']);
         }
         $wfstatus->setCreatedPid($pid);
@@ -80,19 +78,19 @@ if ($access_ok) {
 
     $tpl->assign("xdis_id", $xdis_id);
     $tpl->assign("pid", $pid);
-    $jtaskData = "";
-    $maxG = 0;
+
     //open the current directory
     $directory = opendir(APP_SAN_IMPORT_DIR);
-    while (false !== ($file = readdir($directory))) { 
+    while (false !== ($file = readdir($directory))) {
         if (!is_numeric(strpos($file, "."))) {
             $filenames[$file] = $file;
         }
     }
+
+    sort($filenames);
     $tpl->assign("filenames", $filenames);
     $tpl->assign("form_title", "Batch Import Records");
     $tpl->assign("form_submit_button", "Batch Import Records");
 }
 
 $tpl->displayTemplate();
-?>
