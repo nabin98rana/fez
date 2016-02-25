@@ -32,7 +32,7 @@
 // +----------------------------------------------------------------------+
 //
 //
-include_once(dirname(dirname(__FILE__)).DIRECTORY_SEPARATOR."config.inc.php");
+include_once(dirname(dirname(__FILE__)) . DIRECTORY_SEPARATOR . "config.inc.php");
 include_once(APP_INC_PATH . "class.template.php");
 include_once(APP_INC_PATH . "class.auth.php");
 include_once(APP_INC_PATH . "class.record.php");
@@ -56,15 +56,13 @@ $wfstatus->setTemplateVars($tpl);
 // get the xdis_id of what we're creating
 $xdis_id = $wfstatus->getXDIS_ID();
 
-$community_pid = $pid;
-$collection_pid = $pid;
 $record = new RecordObject($pid);
 $access_ok = $record->canCreate();
 
 if ($access_ok) {
     if (@$_POST["cat"] == "submit") {
         $wftpl = $wfstatus->getvar('template');
-		if (!empty($_POST['files'])) {
+        if (!empty($_POST['files'])) {
             $wfstatus->assign('files', $_POST['files']);
         }
         $wfstatus->setCreatedPid($pid);
@@ -73,24 +71,24 @@ if ($access_ok) {
 
     $tpl->assign("xdis_id", $xdis_id);
     $tpl->assign("pid", $pid);
-    $jtaskData = "";
-    $maxG = 0;
 
     $username = Auth::getUsername();
     //open the current directory
-    $dir_loc = APP_SAN_IMPORT_DIR.$username;
-    
-	if (!is_dir($dir_loc)) {
-		$message = "The direct import SAN directory for your username has not been setup. Ask an administrator to set this up for you and try again.";
-	} else {
-	    $directory = opendir($dir_loc);
-	    while (false !== ($file = readdir($directory))) { 
-	        if (!is_dir($dir_loc.$file) && ($file != '..') && ($file != '.')) {
-	            $filenames[$file] = $file;
-	        }
-	    }
-	    closedir($directory);
-	}
+    $dir_loc = APP_SAN_IMPORT_DIR . $username;
+
+    if (!is_dir($dir_loc)) {
+        $message = "The direct import SAN directory for your username has not been setup. Ask an administrator to set this up for you and try again.";
+    } else {
+        $directory = opendir($dir_loc);
+        while (false !== ($file = readdir($directory))) {
+            if (!is_dir($dir_loc . $file) && ($file != '..') && ($file != '.')) {
+                $filenames[$file] = $file;
+            }
+        }
+        closedir($directory);
+    }
+    usort($filenames, 'strnatcasecmp');
+
     $tpl->assign("title", $record->getTitle());
     $tpl->assign("message", $message);
     $tpl->assign("filenames", $filenames);
@@ -99,4 +97,4 @@ if ($access_ok) {
 }
 
 $tpl->displayTemplate();
-?>
+
