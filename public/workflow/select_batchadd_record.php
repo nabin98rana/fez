@@ -87,7 +87,7 @@ if ($access_ok) {
         }
         closedir($directory);
     }
-    usort($filenames, 'strnatcasecmp');
+    uasort($filenames, 'strnatcasecmp');
 
     $tpl->assign("title", $record->getTitle());
     $tpl->assign("message", $message);

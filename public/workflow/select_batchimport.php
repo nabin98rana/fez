@@ -87,7 +87,7 @@ if ($access_ok) {
         }
     }
 
-    usort($filenames, 'strnatcasecmp');
+    uasort($filenames, 'strnatcasecmp');
     $tpl->assign("filenames", $filenames);
     $tpl->assign("form_title", "Batch Import Records");
     $tpl->assign("form_submit_button", "Batch Import Records");
