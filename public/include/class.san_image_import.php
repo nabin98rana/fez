@@ -7,7 +7,7 @@ require_once(__DIR__ . '/class.record.php');
  * Class for images records batch import. Based on class.flint.php
  *
  */
-class Bulk_Image_Import
+class San_image_import
 {
   private $_importBgp;
   private $_log;
@@ -64,6 +64,14 @@ class Bulk_Image_Import
         $metadata_files[] = $file;
       }
     }
+    if (count($metadata_files) === 0) {  // Lets grab .csv if _ingest.csv not found
+      foreach ($files as $file) {
+        if (Misc::endsWith(strtolower($file), '.csv')) {
+          $metadata_files[] = $file;
+        }
+      }
+    }
+
     if (count($metadata_files) === 0) {
       $error = 'San image batch import - no metadata files found in directory "' . $directory . '".';
       $this->_importBgp->setStatus($error);
@@ -121,13 +129,13 @@ class Bulk_Image_Import
     }
 
     $headings = array();
-    while (($line = fgets($handle)) !== false) {
+    while (($line = fgetcsv($handle)) !== false) {
       if (count($headings) === 0) {
         // First line contains the column headings
-        $headings = str_getcsv($line);
+        $headings = $line;
         $expectedHeadings = array(
             'Filename 1', 'Filename 2', 'Filename 3', 'Creator', 'Title', 'Place of publication', 'Publisher', 'Open Access Status',
-            'Publication date', 'Year available', 'Contributor 1', 'Contributor 2', 'Series', 'Type', 'Format', 'Source',
+            'Publication date', 'Year available', 'Contributor(s)', 'Series', 'Type', 'Format', 'Source',
             'Rights', 'License', 'Abstract/Summary', 'Formatted Abstract/Summary', 'Keywords', 'Geographic co-ordinates',
             'Advisory Statement', 'Acknowledgements', 'Additional Notes'
         );
@@ -146,10 +154,10 @@ class Bulk_Image_Import
       }
       else {
         $values = array();
-        $data = str_getcsv($line);
+        $data = $line;
         if (count($data) !== count($headings)) {
           // Headings do not match with values, bailing..
-          $this->_log->err('San image batch import - while parsing the metadata file, found a line '.  $data['0'] .' which does not match file headings.');
+          $this->_log->err('San image batch import - while parsing the metadata file, found a line '.  $data['0'] .' which does not match file headings ' . count($data) . ' vs ' . count($headings));
           return false;
         }
         for ($i = 0; $i < count($data); $i++) {
@@ -218,15 +226,13 @@ class Bulk_Image_Import
       $params['xsd_display_fields'][$xsdmf['xsdmf_id']][] = $recData['Creator'];
     }
 
-    // Contributors
+    // Contributor(s)
     $xsdmf = XSD_HTML_Match::getDetailsBySekIDXDIS_ID(Search_Key::getID('Contributor'), $xdis_str);
     if ($xsdmf) {
-      // Split input from file using comma
       $params['xsd_display_fields'][$xsdmf['xsdmf_id']] = array(); // Clear any previous values
-      $contributors[] = $recData['Contributor 1'];
-      $contributors[] = $recData['Contributor 2'];
-      foreach ($contributors as $c) {
-        $params['xsd_display_fields'][$xsdmf['xsdmf_id']][] = $c;
+      $contributors = explode('|', $recData['Contributor(s)']);
+      foreach( $contributors as $contributor ) {
+        $params['xsd_display_fields'][$xsdmf['xsdmf_id']][] = trim($contributor);
       }
     }
 
@@ -351,7 +357,7 @@ class Bulk_Image_Import
     if ($xsdmf) {
       $params['xsd_display_fields'][8567] = $recData['Format'];  //Has no searchkey
     }
-    
+
     // Remove published date
     $xsdmf = XSD_HTML_Match::getDetailsBySekIDXDIS_ID(Search_Key::getID('Date'), $xdis_str);
     if ($xsdmf && array_key_exists($xsdmf['xsdmf_id'], $params['xsd_display_fields'])) {
