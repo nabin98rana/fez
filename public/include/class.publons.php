@@ -278,8 +278,8 @@ class Publons
     {
         $log = FezLog::get();
         $db = DB_API::get();
-        $stmt = "SELECT aut_id as espace_author_id, aut_org_username as username,aut_display_name as display_name, aut_orcid_id as orcid_id,
-                 psr_publons_id as publons_id, psr_date_reviewed as date_reviewed,  as verified, psp_publisher_name as publisher_name,
+        $stmt = "SELECT aut_id as espace_author_id, aut_org_username as username, aut_display_name as display_name, aut_orcid_id as orcid_id,
+                 psr_publons_id as publons_id, psr_date_reviewed as date_reviewed, psr_verified as verified, psp_publisher_name as publisher_name,
                  psj_journal_name as journal_name, psj_journal_issn as journal_issn, psj_journal_tier as journal_tier
                 FROM fez_publons_reviews
                 LEFT JOIN fez_publons_publishers ON psp_publisher_id = psr_publisher_id
