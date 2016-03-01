@@ -56,6 +56,8 @@ $wfstatus->setTemplateVars($tpl);
 // get the xdis_id of what we're creating
 $xdis_id = $wfstatus->getXDIS_ID();
 
+$community_pid = $pid;
+$collection_pid = $pid;
 $record = new RecordObject($pid);
 $access_ok = $record->canCreate();
 

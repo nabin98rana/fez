@@ -63,6 +63,8 @@ $xdis_id = $wfstatus->getXDIS_ID();
 if ($pid == -1 || !$pid) {
     $access_ok = $isAdministrator;
 } else {
+    $community_pid = $pid;
+    $collection_pid = $pid;
     $record = new RecordObject($pid);
     $access_ok = $record->canCreate();
 }
