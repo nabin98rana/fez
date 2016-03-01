@@ -34,7 +34,7 @@ include_once(APP_INC_PATH . 'class.publons.php');
 include_once(APP_INC_PATH . 'class.api_researchers.php');
 
 
-//Script to update publon information
+//Script to update publons information
 
 echo "Script started: " . date('Y-m-d H:i:s') . "\n";
 $isUser = Auth::getUsername();

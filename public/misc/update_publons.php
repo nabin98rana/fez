@@ -34,7 +34,7 @@ include_once(APP_INC_PATH . 'class.publons.php');
 include_once(APP_INC_PATH . 'class.api_researchers.php');
 
 
-//Script to update publon information
+//Script to update publons information
 
 echo "Script started: " . date('Y-m-d H:i:s') . "\n";
 $isUser = Auth::getUsername();
@@ -62,7 +62,7 @@ if ((php_sapi_name() === "cli") || (User::isUserSuperAdministrator($isUser))) {
         usleep(800000);  // Rate limited to 60 per second
     }
 
-    echo "Updating publon tiered list\n";
+    echo "Updating publons tiered list\n";
     $stmt = "UPDATE " . APP_TABLE_PREFIX . "publons_journals
                 INNER JOIN " . APP_TABLE_PREFIX . "journal_uq_tiered_issns ON jni_issn = psj_journal_issn
                 INNER JOIN " . APP_TABLE_PREFIX . "journal_uq_tiered ON jnl_id = jni_jnl_id
