@@ -31,7 +31,6 @@ class San_image_import
   public function batchImport(&$bgp, $directory, $xdis_id, $collection_pid, $dsarray)
   {
     $this->_log = FezLog::get();
-
     // Expect to be run in the context of a background process.
     if (! $bgp || ! $bgp instanceof BackgroundProcess) {
       $this->_log->err('San image batch import - not running within a background process.');
@@ -130,55 +129,56 @@ class San_image_import
 
     $headings = array();
     while (($line = fgetcsv($handle)) !== false) {
-      if (count($headings) === 0) {
-        // First line contains the column headings
-        $headings = $line;
-        $expectedHeadings = array(
-            'Filename 1', 'Filename 2', 'Filename 3', 'Creator', 'Title', 'Place of publication', 'Publisher', 'Open Access Status',
-            'Publication date', 'Year available', 'Contributor(s)', 'Series', 'Type', 'Format', 'Source',
-            'Rights', 'License', 'Abstract/Summary', 'Formatted Abstract/Summary', 'Keywords', 'Geographic co-ordinates',
-            'Advisory Statement', 'Acknowledgements', 'Additional Notes'
-        );
+      if (array_filter($line)) {  // ignore empty lines
+        if (count($headings) === 0) {
+          // First line contains the column headings
+          $headings = $line;
+          $expectedHeadings = array(
+              'Filename 1', 'Filename 2', 'Filename 3', 'Creator', 'Title', 'Place of publication', 'Publisher', 'Open Access Status',
+              'Publication date', 'Year available', 'Contributor(s)', 'Series', 'Type', 'Format', 'Source',
+              'Rights', 'License', 'Abstract/Summary', 'Formatted Abstract/Summary', 'Keywords', 'Geographic co-ordinates',
+              'Advisory Statement', 'Acknowledgements', 'Additional Notes'
+          );
 
-        foreach ($expectedHeadings as $k) {
-          if (! in_array($k, $headings)) {
-            if ($k == 'Filename 3') {
-              $expectedHeadings = array_diff($expectedHeadings, array('Filename 3'));  //Remove Filename 3 from headings
-            } else {
-              // Not all expected headings were found, bailing..
-              $this->_log->err('San image batch import - while parsing metadata file, the file headings were found to be missing an expected value "' . $k . '".');
-              return false;
+          foreach ($expectedHeadings as $k) {
+            if (!in_array($k, $headings)) {
+              if ($k == 'Filename 3') {
+                $expectedHeadings = array_diff($expectedHeadings, array('Filename 3'));  //Remove Filename 3 from headings
+              } else {
+                // Not all expected headings were found, bailing..
+                $this->_log->err('San image batch import - while parsing metadata file, the file headings were found to be missing an expected value "' . $k . '".');
+                return false;
+              }
             }
+          };
+        } else {
+          $values = array();
+          $data = $line;
+          if (count($data) !== count($headings)) {
+            // Headings do not match with values, bailing..
+            $this->_log->err('San image batch import - while parsing the metadata file, found a line ' . $data['0'] . ' which does not match file headings ' . count($data) . ' vs ' . count($headings));
+            return false;
           }
-        };
-      }
-      else {
-        $values = array();
-        $data = $line;
-        if (count($data) !== count($headings)) {
-          // Headings do not match with values, bailing..
-          $this->_log->err('San image batch import - while parsing the metadata file, found a line '.  $data['0'] .' which does not match file headings ' . count($data) . ' vs ' . count($headings));
-          return false;
-        }
-        for ($i = 0; $i < count($data); $i++) {
-          $k = $headings[$i];
-          $values[$k] = trim($data[$i]);
-        }
-        $values['ImportDirectory'] = dirname($file) . '/';
-        if (! is_file($values['ImportDirectory'] . $values['Filename 1'])) {
-          $this->_log->err('San image batch import - the jpg file ' . $values['Filename 1'] . ' was not found.');
-          return false;
-        }
-        if (! is_file($values['ImportDirectory'] . $values['Filename 2'])) {
-          $this->_log->err('San image batch import - the tif file ' . $values['Filename 2'] . '  was not found.');
-          return false;
-        }
-        if (!empty($values['Filename 3']) && !is_file($values['ImportDirectory'] . $values['Filename 3'])) {
-          $this->_log->err('San image batch import - the 2nd tif file ' . $values['Filename 3'] . '  was not found.');
-          return false;
-        }
+          for ($i = 0; $i < count($data); $i++) {
+            $k = $headings[$i];
+            $values[$k] = trim($data[$i]);
+          }
+          $values['ImportDirectory'] = dirname($file) . '/';
+          if (!is_file($values['ImportDirectory'] . $values['Filename 1'])) {
+            $this->_log->err('San image batch import - the jpg file ' . $values['Filename 1'] . ' was not found.');
+            return false;
+          }
+          if (!is_file($values['ImportDirectory'] . $values['Filename 2'])) {
+            $this->_log->err('San image batch import - the tif file ' . $values['Filename 2'] . '  was not found.');
+            return false;
+          }
+          if (!empty($values['Filename 3']) && !is_file($values['ImportDirectory'] . $values['Filename 3'])) {
+            $this->_log->err('San image batch import - the 2nd tif file ' . $values['Filename 3'] . '  was not found.');
+            return false;
+          }
 
-        $importData[] = $values;
+          $importData[] = $values;
+        }
       }
     }
     fclose($handle);
@@ -284,12 +284,6 @@ class San_image_import
       $params['xsd_display_fields'][$xsdmf['xsdmf_id']] = $recData['Rights'];
     }
 
-    // Publication date
-    $xsdmf = XSD_HTML_Match::getDetailsBySekIDXDIS_ID(Search_Key::getID('Date'), $xdis_str);
-    if ($xsdmf) {
-      $params['xsd_display_fields'][$xsdmf['xsdmf_id']]['Year'] = $recData['Publication date'];
-    }
-
     // Year available
     $xsdmf = XSD_HTML_Match::getDetailsBySekIDXDIS_ID(Search_Key::getID('Date Available'), $xdis_str);
     if ($xsdmf) {
@@ -305,7 +299,7 @@ class San_image_import
     // Place of Publication
     $xsdmf = XSD_HTML_Match::getDetailsBySekIDXDIS_ID(Search_Key::getID('Place of Publication'), $xdis_str);
     if ($xsdmf) {
-      $params['xsd_display_fields'][$xsdmf['xsdmf_id']] = $recData['Place of Publication'];
+      $params['xsd_display_fields'][$xsdmf['xsdmf_id']] = $recData['Place of publication'];
     }
 
     // Formatted Abstract/Summary
@@ -362,6 +356,12 @@ class San_image_import
     $xsdmf = XSD_HTML_Match::getDetailsBySekIDXDIS_ID(Search_Key::getID('Date'), $xdis_str);
     if ($xsdmf && array_key_exists($xsdmf['xsdmf_id'], $params['xsd_display_fields'])) {
       unset($params['xsd_display_fields'][$xsdmf['xsdmf_id']]);
+    }
+
+    // Publication date
+    $xsdmf = XSD_HTML_Match::getDetailsBySekIDXDIS_ID(Search_Key::getID('Date'), $xdis_str);
+    if ($xsdmf) {
+      $params['xsd_display_fields'][$xsdmf['xsdmf_id']]['Year'] = $recData['Publication date'];
     }
 
     $record = new RecordObject();
