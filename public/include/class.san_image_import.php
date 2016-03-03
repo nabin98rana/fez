@@ -318,11 +318,10 @@ class San_image_import
     // Open Access Status
     $xsdmf = XSD_HTML_Match::getDetailsBySekIDXDIS_ID(Search_Key::getID('OA Status'), $xdis_str);
     if ($xsdmf) {
-      $refDetails =  XSD_HTML_Match::getDetailsByXSDMF_ID($xsdmf['xsdmf_id_ref']);
+      $refDetails =  XSD_HTML_Match::getDetailsByXSDMF_ID($xsdmf['xsdmf_id']);
       $cvo_id = Controlled_Vocab::getIDByTitleAndParentID($recData['Open Access Status'], $refDetails['xsdmf_cvo_id']);
       if ($cvo_id) {
-        $params['xsd_display_fields'][$refDetails['xsdmf_id']] = array(); // Clear any previous values
-        $params['xsd_display_fields'][$refDetails['xsdmf_id']][] = $cvo_id;
+        $params['xsd_display_fields'][$refDetails['xsdmf_id']] = $cvo_id;
       }
     }
 
@@ -332,8 +331,7 @@ class San_image_import
       $refDetails =  XSD_HTML_Match::getDetailsByXSDMF_ID($xsdmf['xsdmf_id_ref']);
       $cvo_id = Controlled_Vocab::getIDByTitleAndParentID($recData['License'], $refDetails['xsdmf_cvo_id']);
       if ($cvo_id) {
-        $params['xsd_display_fields'][$refDetails['xsdmf_id']] = array(); // Clear any previous values
-        $params['xsd_display_fields'][$refDetails['xsdmf_id']][] = $cvo_id;
+        $params['xsd_display_fields'][$refDetails['xsdmf_id']] = $cvo_id;
       }
     }
 
