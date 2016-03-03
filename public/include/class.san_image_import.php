@@ -319,7 +319,7 @@ class San_image_import
     $xsdmf = XSD_HTML_Match::getDetailsBySekIDXDIS_ID(Search_Key::getID('OA Status'), $xdis_str);
     if ($xsdmf) {
       $refDetails =  XSD_HTML_Match::getDetailsByXSDMF_ID($xsdmf['xsdmf_id_ref']);
-      $cvo_id = Controlled_Vocab::getIDByTitleAndParentID($recData['OA Status'], $refDetails['xsdmf_cvo_id']);
+      $cvo_id = Controlled_Vocab::getIDByTitleAndParentID($recData['Open Access Status'], $refDetails['xsdmf_cvo_id']);
       if ($cvo_id) {
         $params['xsd_display_fields'][$refDetails['xsdmf_id']] = array(); // Clear any previous values
         $params['xsd_display_fields'][$refDetails['xsdmf_id']][] = $cvo_id;
@@ -349,7 +349,7 @@ class San_image_import
     // Original Format
     $xsdmf = XSD_HTML_Match::getDetailsBySekIDXDIS_ID(Search_Key::getID('Format'), $xdis_str);
     if ($xsdmf) {
-      $params['xsd_display_fields'][8567] = $recData['Format'];  //Has no searchkey
+      $params['xsd_display_fields'][8567][] = $recData['Format'];  //Has no searchkey
     }
 
     // Remove published date
