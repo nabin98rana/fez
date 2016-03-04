@@ -321,17 +321,17 @@ class San_image_import
       $refDetails =  XSD_HTML_Match::getDetailsByXSDMF_ID($xsdmf['xsdmf_id']);
       $cvo_id = Controlled_Vocab::getIDByTitleAndParentID($recData['Open Access Status'], $refDetails['xsdmf_cvo_id']);
       if ($cvo_id) {
-        $params['xsd_display_fields'][$refDetails['xsdmf_id']] = $cvo_id;
+        $params['xsd_display_fields'][$refDetails['xsdmf_id']][] = $cvo_id;
       }
     }
 
     // License
     $xsdmf = XSD_HTML_Match::getDetailsBySekIDXDIS_ID(Search_Key::getID('License'), $xdis_str);
     if ($xsdmf) {
-      $refDetails =  XSD_HTML_Match::getDetailsByXSDMF_ID($xsdmf['xsdmf_id_ref']);
+      $refDetails =  XSD_HTML_Match::getDetailsByXSDMF_ID($xsdmf['xsdmf_id']);
       $cvo_id = Controlled_Vocab::getIDByTitleAndParentID($recData['License'], $refDetails['xsdmf_cvo_id']);
       if ($cvo_id) {
-        $params['xsd_display_fields'][$refDetails['xsdmf_id']] = $cvo_id;
+        $params['xsd_display_fields'][$refDetails['xsdmf_id']][] = $cvo_id;
       }
     }
 
@@ -345,10 +345,7 @@ class San_image_import
     }
 
     // Original Format
-    $xsdmf = XSD_HTML_Match::getDetailsBySekIDXDIS_ID(Search_Key::getID('Format'), $xdis_str);
-    if ($xsdmf) {
-      $params['xsd_display_fields'][8567][] = $recData['Format'];  //Has no searchkey
-    }
+      $params['xsd_display_fields']['8567'] = $recData['Format'];  //Has no searchkey
 
     // Remove published date
     $xsdmf = XSD_HTML_Match::getDetailsBySekIDXDIS_ID(Search_Key::getID('Date'), $xdis_str);
