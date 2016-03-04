@@ -792,7 +792,7 @@ class UQTJL
   			FROM
   				" . APP_TABLE_PREFIX . "journal_uq_tiered INNER JOIN
   				" . APP_TABLE_PREFIX . "matched_uq_tiered_journals ON jnl_id = mtj_jnl_id
-  			WHERE jnl_era_year = " . $year . " AND mtj_pid = '" . $pid . "'
+  			WHERE jnl_era_year = '" . $year . "' AND mtj_pid = '" . $pid . "'
   		";
 
         try {
