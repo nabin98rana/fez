@@ -70,3 +70,5 @@ codeship.aes
 dockerenv
 dockercfg
 
+
+scripts/deploy.sh
