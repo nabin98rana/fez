@@ -42,24 +42,8 @@
           "value": "<WEBCRON_TOKEN>"
         }
       ],
-      "mountPoints": [
-        {
-          "sourceVolume": "templates_c",
-          "containerPath": "/var/app/templates_c"
-        },
-        {
-          "sourceVolume": "tmp",
-          "containerPath": "/var/app/tmp"
-        }
-      ],
       "essential": true
     }
   ],
-  "volumes": [{
-    "name": "templates_c",
-    "host": {}
-    },{
-    "name": "tmp",
-    "host": {}
-    }]
+  "volumes": []
 }

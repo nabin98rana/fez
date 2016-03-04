@@ -1,7 +1,7 @@
 FROM uqlibrary/docker-nginx:6
 
 COPY etc/nginx/conf.d/ /etc/nginx/conf.d/
-COPY etc/nginx/espace_rewrite_rules.conf /etc/nginx/espace_rewrite_rules.conf
+COPY etc/nginx/rules/ /etc/nginx/rules/
 
 RUN mkdir -p /espace/data && \
   mkdir -p /espace_san/incoming && \

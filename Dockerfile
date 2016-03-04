@@ -1,7 +1,9 @@
-FROM uqlibrary/docker-fpm56:7
+FROM uqlibrary/docker-fpm56-fez:11
 
 WORKDIR /var/app/current/
 COPY . /var/app/current/
+COPY .docker/development/backend/nginx/etc/nginx/conf.d/ /etc/nginx/conf.d/
+COPY .docker/development/backend/nginx/etc/nginx/rules/ /etc/nginx/rules/
 
 RUN cd /var/cache/ && \
     mkdir file && \
@@ -9,14 +11,20 @@ RUN cd /var/cache/ && \
     mkdir templates_c && \
     mkdir xdebug && \
     mkdir tmp && \
+    mkdir /var/log/espacestage && \
+    chown -R nobody /var/log/espacestage && \
     chown -R nobody /var/cache && \
     mkdir -p /var/app/current/public/include/htmlpurifier/library/HTMLPurifier/DefinitionCache/Serializer/HTML && \
     chmod -R 777 /var/app/current/public/include/htmlpurifier/library/HTMLPurifier/DefinitionCache/Serializer/HTML && \
-    chown -R nobody /var/app/current/public/include/htmlpurifier/library/HTMLPurifier/DefinitionCache/Serializer/HTML
+    chown -R nobody /var/app/current/public/include/htmlpurifier/library/HTMLPurifier/DefinitionCache/Serializer/HTML && \
+    chmod -R 777 /var/app/current/public/templates_c && \
+    chown -R nobody /var/app/current/public/templates_c
 
-RUN chmod +x .docker/production/bootstrap.sh
+RUN chmod +x .docker/staging/bootstrap.sh
 
 VOLUME /var/app/current
 VOLUME /var/cache
+VOLUME /etc/nginx/conf.d
+VOLUME /etc/nginx/rules
 
-ENTRYPOINT [".docker/production/bootstrap.sh"]
+ENTRYPOINT [".docker/staging/bootstrap.sh"]
