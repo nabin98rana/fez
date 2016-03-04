@@ -11,6 +11,8 @@ RUN cd /var/cache/ && \
     mkdir templates_c && \
     mkdir xdebug && \
     mkdir tmp && \
+    mkdir /var/log/espacestage && \
+    chown -R nobody /var/log/espacestage && \
     chown -R nobody /var/cache && \
     mkdir -p /var/app/current/public/include/htmlpurifier/library/HTMLPurifier/DefinitionCache/Serializer/HTML && \
     chmod -R 777 /var/app/current/public/include/htmlpurifier/library/HTMLPurifier/DefinitionCache/Serializer/HTML && \
