@@ -472,7 +472,7 @@ class BatchImport
           if (count($parts) === 2) {
             $file = strtolower($parts[1]);
             if (
-              preg_match('/^([a-z0-9]*)$/', $file) &&
+              preg_match('/^([a-z0-9_]*)$/', $file) &&
               is_file(APP_INC_PATH . 'class.' . $file . '.php')
             ) {
               include_once(APP_INC_PATH . 'class.' . $file . '.php');

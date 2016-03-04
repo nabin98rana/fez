@@ -167,14 +167,14 @@ class Publons
         }
 
         $psr_aut_id = $db->quote($authorId);
-        $psr_publon_id = $db->quote($paper['ids']['academic']['id']);
+        $psr_publons_id = $db->quote($paper['ids']['academic']['id']);
         $psr_date_reviewed = $db->quote($paper['date_reviewed']);
         $psr_verified = ($paper['verification']['verified'] == true) ? 1 : 0;
         $psr_journal_article = $db->quote(serialize($paper['article']));
 
-        $stmt = "INSERT INTO " . APP_TABLE_PREFIX . "publons_reviews
-        (psr_aut_id, psr_publon_id, psr_date_reviewed, psr_verified,  psr_publisher_id, psr_journal_id, psr_journal_article, psr_update_date)
-        VALUES(" . $psr_aut_id . ", " . $psr_publon_id . ", " . $psr_date_reviewed . ", " . $psr_verified . ", ". $psr_publisher_id . ", " . $psr_journal_id. ", " . $psr_journal_article . ", NOW() )
+        $stmt = "INSERT INTO fez_publons_reviews
+        (psr_aut_id, psr_publons_id, psr_date_reviewed, psr_verified,  psr_publisher_id, psr_journal_id, psr_journal_article, psr_update_date)
+        VALUES(" . $psr_aut_id . ", " . $psr_publons_id . ", " . $psr_date_reviewed . ", " . $psr_verified . ", ". $psr_publisher_id . ", " . $psr_journal_id. ", " . $psr_journal_article . ", NOW() )
         ON DUPLICATE KEY UPDATE
         psr_date_reviewed=" . $psr_date_reviewed . ", psr_verified=" . $psr_verified . ", psr_publisher_id = ".$psr_publisher_id. ", psr_journal_id = ".$psr_journal_id . ", psr_journal_article = ".$psr_journal_article.", psr_update_date = NOW()";
 
@@ -225,7 +225,7 @@ class Publons
         $psj_journal_issn = $db->quote($paper['journal']['ids']['issn']);
         $psj_journal_eissn = $db->quote($paper['journal']['ids']['eissn']);
 
-        $stmt = "INSERT INTO " . APP_TABLE_PREFIX . "publons_journals
+        $stmt = "INSERT INTO fez_publons_journals
         (psj_journal_id, psj_journal_name, psj_journal_issn, psj_journal_eissn)
         VALUES( " . $psj_journal_id . ", " . $psj_journal_name .
             ", " . $psj_journal_issn . ", " . $psj_journal_eissn  . ")
@@ -258,7 +258,7 @@ class Publons
         $psp_publisher_id = $db->quote($paper['publisher']['ids']['id']);
         $psp_publisher_name = $db->quote($paper['publisher']['name']);
 
-        $stmt = "INSERT INTO " . APP_TABLE_PREFIX . "publons_publishers
+        $stmt = "INSERT INTO fez_publons_publishers
         (psp_publisher_id, psp_publisher_name)
         VALUES(" . $psp_publisher_id . ", " . $psp_publisher_name . " )
         ON DUPLICATE KEY UPDATE
@@ -278,11 +278,13 @@ class Publons
     {
         $log = FezLog::get();
         $db = DB_API::get();
-        $stmt = "SELECT aut_id, aut_org_username,aut_display_name, aut_orcid_id, psr_publon_id, psr_date_reviewed, psr_verified, psp_publisher_name, psj_journal_name, psj_journal_issn, psj_journal_tier
-                FROM " . APP_TABLE_PREFIX . "publons_reviews
-                LEFT JOIN " . APP_TABLE_PREFIX . "publons_publishers ON psp_publisher_id = psr_publisher_id
-                LEFT JOIN " . APP_TABLE_PREFIX . "publons_journals ON psj_journal_id = psr_journal_id
-                LEFT JOIN " . APP_TABLE_PREFIX . "author ON aut_id = psr_aut_id
+        $stmt = "SELECT aut_id as espace_author_id, aut_org_username as username, aut_display_name as display_name, aut_orcid_id as orcid_id,
+                 psr_publons_id as publons_id, psr_date_reviewed as date_reviewed, psr_verified as verified, psp_publisher_name as publisher_name,
+                 psj_journal_name as journal_name, psj_journal_issn as journal_issn, psj_journal_tier as journal_tier
+                FROM fez_publons_reviews
+                LEFT JOIN fez_publons_publishers ON psp_publisher_id = psr_publisher_id
+                LEFT JOIN fez_publons_journals ON psj_journal_id = psr_journal_id
+                LEFT JOIN fez_author ON aut_id = psr_aut_id
                 WHERE aut_org_username = " . $db->quote($author_username);
 
         try {

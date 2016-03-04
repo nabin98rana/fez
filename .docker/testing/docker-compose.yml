@@ -12,8 +12,13 @@ feztestrunner:
     - fedora
     - selenium
     - fezdb
+    - fedoradb
   volumes:
     - ../../:/var/app/current
+  volumes_from:
+    - cache
+    - fedoradata
+    - logs
 
 selenium:
   image: selenium/standalone-chrome-debug:2.48.2

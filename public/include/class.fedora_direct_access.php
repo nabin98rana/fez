@@ -88,7 +88,7 @@ class Fedora_Direct_Access {
 		}
 
     if ($notInCAS == true) {
-      $state_sql .= " AND pid not in (SELECT fat_pid from ".APP_TABLE_PREFIX."_file_attachment GROUP BY fat_pid) ";
+      $state_sql .= " AND pid not in (SELECT fat_pid from ".APP_TABLE_PREFIX."file_attachments GROUP BY fat_pid) ";
     }
 
 		$no_result = false;

@@ -32,8 +32,9 @@
 // +----------------------------------------------------------------------+
 //
 //
-include_once(dirname(dirname(__FILE__)) . DIRECTORY_SEPARATOR . "config.inc.php");
+//include_once(dirname(dirname(__FILE__)) . DIRECTORY_SEPARATOR . "config.inc.php");
 
+include_once("../config.inc.php");
 include_once(APP_INC_PATH . "class.template.php");
 include_once(APP_INC_PATH . "class.auth.php");
 include_once(APP_INC_PATH . "class.user.php");
@@ -48,6 +49,13 @@ include_once(APP_INC_PATH . "class.xsd_html_match.php");
 include_once(APP_INC_PATH . "najax/najax.php");
 include_once(APP_INC_PATH . "najax_objects/class.select_search_key.php");
 
+$xtpl = new Template_API();
+$xtpl->setTemplate("workflow/select_search_key_values.tpl.html");
+$xtpl->assign('rel_url', APP_RELATIVE_URL);
+$xtpl->assign('input_name', 'sek_value');
+$xtpl->assign('field_type', "select_single");
+Zend_Registry::set('xtpl', $xtpl);
+
 NAJAX_Server::allowClasses('SelectSearchKey');
 if (NAJAX_Server::runServer()) {
     exit;
@@ -55,17 +63,16 @@ if (NAJAX_Server::runServer()) {
 
 Auth::checkAuthentication(APP_SESSION);
 
-$tpl = new Template_API();
+$tpl = new Template_API('workflow');
 $tpl->setTemplate("workflow/index.tpl.html");
 $tpl->assign("type", "change_search_key_form");
 $tpl->assign("type_name", "Select Search Key");
 
 $tpl->assign("jqueryUI", true);
 
-
 $wfstatus = &WorkflowStatusStatic::getSession(); // restores WorkflowStatus object from the session
-
 $wfstatus->setTemplateVars($tpl);
+
 $cat = $_REQUEST['cat'];
 
 if ($cat == 'submit') {
@@ -95,7 +102,7 @@ $tpl->assign('search_keys_list', $search_keys_list);
 $tpl->assign('search_keys_list_selected', $search_keys_list[0]);
 
 $tpl->assign('najax_header', NAJAX_Utilities::header(APP_RELATIVE_URL . 'include/najax'));
-$tpl->registerNajax(NAJAX_Client::register('SelectSearchKey', 'change_search_key.php'));
+$tpl->registerNajax(NAJAX_Client::register('SelectSearchKey', APP_RELATIVE_URL.'workflow/change_search_key.php'));
 
 $tpl->displayTemplate();
 

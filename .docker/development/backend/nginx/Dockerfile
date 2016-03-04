@@ -1,4 +1,4 @@
-FROM uqlibrary/docker-nginx:4
+FROM uqlibrary/docker-nginx:6
 
 COPY etc/nginx/conf.d/ /etc/nginx/conf.d/
 COPY etc/nginx/rules/ /etc/nginx/rules/

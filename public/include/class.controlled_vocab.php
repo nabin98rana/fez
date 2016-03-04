@@ -555,13 +555,13 @@ class Controlled_Vocab
 
     $stmt = "SELECT cvo_id FROM " . APP_TABLE_PREFIX . "controlled_vocab ";
 
-    if (!empty($parent) && !empty($cvo_parent_id)) {
+    if (!empty($cvo_parent_id)) {
       $stmt .= " LEFT JOIN " . APP_TABLE_PREFIX . "controlled_vocab_relationship ON cvr_child_cvo_id = cvo_id ";
     }
 
     $stmt .= " WHERE cvo_title LIKE ".$db->quote($cvo_title."%");
 
-    if (!empty($parent) && !empty($cvo_parent_id)) {
+    if (!empty($cvo_parent_id)) {
       $stmt .= " AND cvr_parent_cvo_id = ".$db->quote($cvo_parent_id);
     }
 

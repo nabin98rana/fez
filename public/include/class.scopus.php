@@ -104,17 +104,17 @@ GROUP BY rek_pid
      /**
     * Retrieve cited by count information for a list of articles
     *
-    * @param array $input_keys
+    * @param array $input_keys  //eid or doi
     * @return array of PIDs which contains for each pid, an array of eid, scopusID and citedByCount
     * eg Array
     *(
     *    [UQ:30001] => Array
     *        (
-    *            [eid] => 2-s2.0-0035584235
+    *            [eid] => 2-s2.0-0035584235    // or [doi]
     *            [scopusID] => 0035584235
     *            [citedByCount] => 2
     *        )
-    *    [DU: etc...
+    *    [UQ: etc...
     *
     * JH 20160111
     */
@@ -128,15 +128,20 @@ GROUP BY rek_pid
             
         // Test input
         /*
-        $input_keys = array('UQ:30031' => array('eid' => '2-s2.0-77749318564'),  //123
-        'UQ:30032' => array('eid' => '2-s2.0-78650218172'), //0
-        ); 
+        $input_keys = array('UQ:30031' => array('eid' => '2-s2.0-77749318564'),
+        'UQ:30032' => array('eid' => '2-s2.0-78650218172'),
+        );
+
+        $input_keys = array('UQ:30031' => array('doi' => '10.1149/1.2840015'),
+        'UQ:30032' => array('doi' => '10.1016/S0020-7519(07)00459-6'),
+        );
+
         */
 
         // Initialize arrays
         $result = array();
-        $scopus_counts = array();
-           
+        $log = FezLog::get();
+
         // Set up Get request
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);  // Return as string
@@ -150,25 +155,30 @@ GROUP BY rek_pid
             
         //  Loop through the input keys (includes PIDs and Scopus IDs) to set up the default result array
         foreach($input_keys as $pid => $v) {
-            
-          
-          foreach($v as $eid => $_v) {
+          foreach($v as $type => $_v) {
            
             // Build return array
             $scopus_info = array();
-            $scopus_info[$eid] = $_v;
-            $scopus_info['scopusID'] = str_ireplace('2-s2.0-', '', $_v);
+            $scopus_info[$type] = $_v;
+
+            if ($type == 'eid') {  //make sure prefix is striped
+              $scopus_info['scopusID'] = str_ireplace('2-s2.0-', '', $_v);
+            }
             // Set default citation count to 0
             $scopus_info['citedByCount'] = 0;
             $result[$pid] = $scopus_info;
             
-            // Add this Scopus ID to the query string
-            $url = $url . "eid(". $_v . ")+OR+";
+            // Add this Scopus ID or DOI to the query string
+            if ($type == 'doi') {
+                $url = $url . "doi(" . $_v . ")+OR+";
+            } else {
+              $url = $url . "eid(" . $_v . ")+OR+";
+            }
           }
           
         }
         // Remove last +OR+ and add field info, start and count info, etc to URL
-        $url = substr($url, 0, strlen($url)-4) . '&field=citedby-count&suppressNavLinks&start=0&count=' . sizeof($input_keys);
+        $url = substr($url, 0, strlen($url)-4) . '&field=citedby-count,doi&suppressNavLinks&start=0&count=' . sizeof($input_keys);
 
         // Set the CURL URL
         curl_setopt($ch, CURLOPT_URL,$url);
@@ -180,21 +190,32 @@ GROUP BY rek_pid
 
         // Load results to xml document for xpath parsing
         $doc = DOMDocument::loadXML($scopus_result);
-        $xpath = new DOMXPath($doc);
-        $xpath->registerNamespace("atom","http://www.w3.org/2005/Atom"); // must register namespace
-        $entries = $xpath->query("/atom:search-results/atom:entry/atom:citedby-count");
 
-        // Parse the xml and put the resulting citation counts in the scopus_counts array
-        foreach ($entries as $entry) {
-          $scopusID = $entry->previousSibling->nodeValue;
-          $scopusID = substr($scopusID, strrpos($scopusID,'/')+1);
-          $count = $entry->nodeValue;
-          $scopus_counts[$scopusID] = $count;
+        if ($doc === false) {
+            $log->err($scopus_result);
+            return false;
         }
 
-        // Put citation counts into the results array
-        foreach ($result as $pid => $value) {
-          $result[$pid]['citedByCount'] = $scopus_counts[$result[$pid]['scopusID']];
+        $xpath = new DOMXPath($doc);
+        $xpath->registerNamespace("atom","http://www.w3.org/2005/Atom"); // must register namespace
+        $countEntries = $xpath->query("/atom:search-results/atom:entry/atom:citedby-count");
+        $doiEntries = $xpath->query("/atom:search-results/atom:entry/atom:citedby-count");
+
+        // Parse the xml and put the resulting citation counts in the scopus_counts array
+        foreach ($countEntries as $entry) {
+          $scopusID = $entry->previousSibling->previousSibling->nodeValue;
+          $scopusID = substr($scopusID, strrpos($scopusID,'/')+1);
+          $count = $entry->nodeValue;
+          $doi = $entry->previousSibling->nodeValue;
+          foreach($result as $pid => $value) {
+              if (($result[$pid]['doi'] == $doi) || ($result[$pid]['scopusID'] == $scopusID)) {
+                  $result[$pid]['doi'] = $doi;
+                  $result[$pid]['eid'] = '2-s2.0-'.trim($scopusID);
+                  $result[$pid]['scopusID'] = trim($scopusID);
+                  $result[$pid]['citedByCount'] = $count;
+              }
+          }
+
         }
         return $result;
 

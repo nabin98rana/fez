@@ -138,6 +138,10 @@ UPDATE fez_config
 SET config_value = '/var/cache/tmp/'
 WHERE config_name = 'app_temp_dir';
 
+UPDATE fez_config
+SET config_value = '/var/cache/dstree/'
+WHERE config_name = 'app_dstree_path';
+
 REPLACE INTO fez_user (usr_id, usr_username, usr_password, usr_full_name, usr_administrator, usr_super_administrator,
 usr_ldap_authentication, usr_email, usr_preferences) VALUES
 (999999990, 'admin_test', md5('Ilovedonkey5'), 'Test Admin', true, false, false, 'uqckorte@uq.edu.au', 'a:14:{s:7:"updated";N;s:6:"closed";N;s:6:"emails";N;s:5:"files";N;s:19:"close_popup_windows";N;s:23:"receive_assigned_emails";N;s:18:"receive_new_emails";N;s:8:"timezone";s:18:"Australia/Brisbane";s:17:"list_refresh_rate";N;s:19:"emails_refresh_rate";N;s:15:"email_signature";N;s:10:"front_page";s:10:"front_page";s:15:"auto_append_sig";N;s:22:"remember_search_params";s:3:"yes";}');
@@ -175,3 +179,7 @@ insert ignore into fez_config (config_name, config_module, config_value) values 
 UPDATE fez_xsd_display_matchfields SET xsdmf_invisible = '1' WHERE xsdmf_title = 'Description for File Upload';
 
 INSERT INTO fez_group_user (gpu_grp_id, gpu_usr_id) VALUES (90, 999999991);
+
+UPDATE fez_config
+SET config_value = ''
+WHERE config_value = "'";
