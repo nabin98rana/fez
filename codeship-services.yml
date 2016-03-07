@@ -9,9 +9,6 @@ fezstaging:
     dockerfile_path: Dockerfile.staging
 
 awsdeployment:
-  image: uqlibrary/docker-base:5
-  encrypted_env_file: "deployment.env.encrypted"
-
-awsdeploymentstaging:
-  image: uqlibrary/docker-base:5
+  build:
+    dockerfile_path: "Dockerfile.deploy"
   encrypted_env_file: "deployment.env.encrypted"
