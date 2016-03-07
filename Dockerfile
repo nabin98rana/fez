@@ -14,6 +14,7 @@ RUN cd /var/cache/ && \
     mkdir /var/log/espacestage && \
     chown -R nobody /var/log/espacestage && \
     chown -R nobody /var/cache && \
+    chmod -R 777 /var/cache && \
     mkdir -p /var/app/current/public/include/htmlpurifier/library/HTMLPurifier/DefinitionCache/Serializer/HTML && \
     chmod -R 777 /var/app/current/public/include/htmlpurifier/library/HTMLPurifier/DefinitionCache/Serializer/HTML && \
     chown -R nobody /var/app/current/public/include/htmlpurifier/library/HTMLPurifier/DefinitionCache/Serializer/HTML && \
