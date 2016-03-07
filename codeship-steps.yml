@@ -5,6 +5,6 @@
   image_tag: "{{.CommitID}}"
   registry: uql-registry.library.uq.edu.au
   encrypted_dockercfg_path: dockercfg.encrypted
-- service: awsdeploymentstaging
+- service: awsdeployment
   tag: staging
   command: scripts/backend-deployment-staging.sh
