@@ -1,3 +1,12 @@
+fez:
+  build:
+    image: codeship_fez
+    dockerfile_path: Dockerfile
+
+fezcode:
+  build:
+    dockerfile_path: "Dockerfile.code"
+
 awsdeployment:
   build:
     dockerfile_path: "Dockerfile"
