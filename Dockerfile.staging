@@ -1,4 +1,4 @@
-FROM uqlibrary/docker-fpm56-fez:11
+FROM uqlibrary/docker-fpm56-fez:12
 
 WORKDIR /var/app/current/
 COPY . /var/app/current/
@@ -18,6 +18,7 @@ RUN cd /var/cache/ && \
     mkdir -p /var/app/current/public/include/htmlpurifier/library/HTMLPurifier/DefinitionCache/Serializer/HTML && \
     chmod -R 777 /var/app/current/public/include/htmlpurifier/library/HTMLPurifier/DefinitionCache/Serializer/HTML && \
     chown -R nobody /var/app/current/public/include/htmlpurifier/library/HTMLPurifier/DefinitionCache/Serializer/HTML && \
+    mkdir -p /var/app/current/public/templates_c && \
     chmod -R 777 /var/app/current/public/templates_c && \
     chown -R nobody /var/app/current/public/templates_c
 
