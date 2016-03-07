@@ -1,4 +1,4 @@
-FROM uqlibrary/docker-base:4
+FROM uqlibrary/docker-base:5
 
 VOLUME /var/lib/mysql
 

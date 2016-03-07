@@ -63,6 +63,8 @@ fpm:
     - solr
   volumes:
     - ../../:/var/app/current
+    - ../etc/nginx/conf.d:/etc/nginx/conf.d
+    - ../etc/nginx/rules:/etc/nginx/rules
   volumes_from:
     - cache
     - fedoradata

@@ -1,8 +1,0 @@
-FROM docker:dind
-
-WORKDIR /var/app/current/
-COPY . /var/app/current/
-
-COPY ./.docker/testing/config.inc.php /var/app/current/public/config.inc.php
-
-ENTRYPOINT ["/bin/bash"]

@@ -1,8 +1,5 @@
 FROM uqlibrary/docker-nginx:6
 
-COPY etc/nginx/conf.d/ /etc/nginx/conf.d/
-COPY etc/nginx/rules/ /etc/nginx/rules/
-
 RUN mkdir -p /espace/data && \
   mkdir -p /espace_san/incoming && \
   sed -i "s/keepalive_timeout 5 5;/keepalive_timeout 10 10;/" /etc/nginx/nginx.conf && \
