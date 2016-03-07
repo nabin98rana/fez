@@ -1,6 +1,0 @@
-FROM uqlibrary/docker-base:4
-
-WORKDIR /var/app/current/
-COPY . /var/app/current/
-
-RUN chmod +x scripts/backend-deployment-staging.sh

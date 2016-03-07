@@ -21,11 +21,11 @@ RUN cd /var/cache/ && \
     chmod -R 777 /var/app/current/public/templates_c && \
     chown -R nobody /var/app/current/public/templates_c
 
-RUN chmod +x .docker/production/bootstrap.sh
+RUN chmod +x .docker/staging/bootstrap.sh
 
 VOLUME /var/app/current
 VOLUME /var/cache
 VOLUME /etc/nginx/conf.d
 VOLUME /etc/nginx/rules
 
-ENTRYPOINT [".docker/production/bootstrap.sh"]
+ENTRYPOINT [".docker/staging/bootstrap.sh"]
