@@ -3,9 +3,10 @@ fez:
     image: codeship_fez
     dockerfile_path: Dockerfile
 
-fezcode:
+fezstaging:
   build:
-    dockerfile_path: "Dockerfile.code"
+    image: codeship_fezstaging
+    dockerfile_path: Dockerfile.staging
 
 awsdeployment:
   build:

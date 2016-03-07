@@ -1,4 +1,4 @@
-- service: fez
+- service: fezstaging
   type: push
   tag: staging
   image_name: uql-registry.library.uq.edu.au/staging/fez
