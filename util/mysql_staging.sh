@@ -6,7 +6,7 @@ function usage {
   echo "    Loads a dumped Fez database into staging."
   echo
   echo "USAGE"
-  echo "    mysql_staging.sh <MYSQL_DUMP_FILE> <MYSQL_DB_FEZ_STAGING> <MYSQL_HOST_FEZ_STAGING>"
+  echo "    mysql_staging.sh <MYSQL_DUMP_DIR> <MYSQL_DB_FEZ_STAGING> <MYSQL_HOST_FEZ_STAGING>"
   echo
   echo "    MYSQL_DUMP_DIR         = The directory to dump the database files to."
   echo "    MYSQL_DB_FEZ_STAGING   = The Fez staging database name."
@@ -41,14 +41,15 @@ if [ ! -f "fez.sql.gz" ]; then
   usage
 fi
 
-gunzip fez.sql.gz
+cp fez.sql.gz fezstaging.sql.gz
+gunzip fezstaging.sql.gz
 
 if [ -f "staging.fez.config.sql" ]; then
-  cat staging.fez.config.sql >> fez.sql
+  cat staging.fez.config.sql >> fezstaging.sql
 fi
 
 MYSQL_CMD="mysql -u${MYSQL_USER} -p${MYSQL_PASS}";
 
-${MYSQL_CMD} -h${MYSQL_HOST_FEZ_STAGING} --compress ${MYSQL_DB_FEZ_STAGING} < "fez.sql"
+${MYSQL_CMD} -h${MYSQL_HOST_FEZ_STAGING} --compress ${MYSQL_DB_FEZ_STAGING} < "fezstaging.sql"
 
-rm -f "fez.sql"
+rm -f "fezstaging.sql"
