@@ -41,14 +41,15 @@ if [ ! -f "fez.sql.gz" ]; then
   usage
 fi
 
-gunzip fez.sql.gz
+cp fez.sql.gz fezstaging.sql.gz
+gunzip fezstaging.sql.gz
 
 if [ -f "staging.fez.config.sql" ]; then
-  cat staging.fez.config.sql >> fez.sql
+  cat staging.fez.config.sql >> fezstaging.sql
 fi
 
 MYSQL_CMD="mysql -u${MYSQL_USER} -p${MYSQL_PASS}";
 
-${MYSQL_CMD} -h${MYSQL_HOST_FEZ_STAGING} --compress ${MYSQL_DB_FEZ_STAGING} < "fez.sql"
+${MYSQL_CMD} -h${MYSQL_HOST_FEZ_STAGING} --compress ${MYSQL_DB_FEZ_STAGING} < "fezstaging.sql"
 
-rm -f "fez.sql"
+rm -f "fezstaging.sql"
