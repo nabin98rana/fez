@@ -6,7 +6,7 @@ function usage {
   echo "    Loads a dumped Fez database into staging."
   echo
   echo "USAGE"
-  echo "    mysql_staging.sh <MYSQL_DUMP_FILE> <MYSQL_DB_FEZ_STAGING> <MYSQL_HOST_FEZ_STAGING>"
+  echo "    mysql_staging.sh <MYSQL_DUMP_DIR> <MYSQL_DB_FEZ_STAGING> <MYSQL_HOST_FEZ_STAGING>"
   echo
   echo "    MYSQL_DUMP_DIR         = The directory to dump the database files to."
   echo "    MYSQL_DB_FEZ_STAGING   = The Fez staging database name."
