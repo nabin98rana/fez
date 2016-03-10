@@ -30,6 +30,9 @@
 // +----------------------------------------------------------------------+
 
 //Class for crossref
+//http://www.crossref.org/02publishers/parser.html
+//http://www.crossref.org/help/schema_doc/4.3.6/4.3.6.html
+
 class Crossref {
   //Returns xml to upload or false if error
   private function loadXML($details, $doi, $xdis_id_name) {

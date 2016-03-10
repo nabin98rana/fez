@@ -38,6 +38,9 @@
  * @version 1.0
  * @author Aaron Brown <a.brown@library.uq.edu.au>
  */
+
+include_once(APP_INC_PATH . "class.crossref.php");
+
 class ApiResearchers
 {
 
@@ -284,8 +287,62 @@ aut_people_australia_id, aut_description, aut_orcid_id, aut_google_scholar_id, a
             return false;
         }
 
+        if (strtolower($idType) == 'orcid' || $idType == 1) {
+            ApiResearchers::onOrcidChange(author::getIDByUsername($authorUsername), $id);
+        }
+
         return $res;
     }
+
+    public static function onOrcidChange($authorId, $newOrcid) {
+        if(empty($newOrcid)) {
+            ApiResearchers::deleteGrants($authorId);
+        }
+        $pids = ApiResearchers::getCrossrefPids($authorId);
+
+        foreach ($pids as $pid) {
+            $cr = new Crossref;
+            $cr->updateCrossrefFromPid($pid, "Update Crossref info with orcid's");
+        }
+
+    }
+
+    //Get pids that have a UQ doi
+    public static function getCrossrefPids($authorId)
+    {
+        $log = FezLog::get();
+        $db = DB_API::get();
+
+        $stmt = "SELECT dcr_pid FROM fez_doi_created
+            INNER JOIN fez_record_search_key_author_id ON rek_author_id_pid = dcr_pid
+            WHERE rek_author_id = " . $db->quote($authorId) . "
+            GROUP BY dcr_pid;";
+
+        try {
+            $res = $db->fetchCol($stmt);
+        } catch (Exception $ex) {
+            $log->err($ex);
+            return false;
+        }
+        return $res;
+    }
+
+    public static function deleteGrants($authorId) {
+        $log = FezLog::get();
+        $db = DB_API::get();
+
+        $stmt = "DELETE FROM fez_author_identifier_user_grants WHERE aig_author_id =  " . $db->quote($authorId);
+
+        try {
+            $res = $db->exec($stmt);
+        } catch (Exception $ex) {
+            $log->err($ex);
+            return false;
+        }
+        return $res;
+
+    }
+
 
     public static function listId($authorUsername)
     {
@@ -332,6 +389,7 @@ aut_people_australia_id, aut_description, aut_orcid_id, aut_google_scholar_id, a
         return $res;
     }
 
+    //Static info about  the 5 id types such as URL's like - orcid.org
     public static function idDetails($authorUsername)
     {
         $log = FezLog::get();

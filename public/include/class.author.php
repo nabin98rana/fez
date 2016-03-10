@@ -49,6 +49,8 @@ include_once(APP_INC_PATH . "class.validation.php");
 include_once(APP_INC_PATH . "class.date.php");
 include_once(APP_INC_PATH . "class.org_structure.php");
 include_once(APP_INC_PATH . "class.status.php");
+include_once(APP_INC_PATH . "class.api_researchers.php");
+
 
 class Author
 {
@@ -438,6 +440,9 @@ class Author
 	$tags = '<b><i><sup><sub><em><strong><u><br>';
 	$stripped_description = strip_tags($_POST["description"], $tags);
 
+    $authorDetails = Author::getDetails($_POST["id"]);
+    $preOrcid =  $authorDetails['aut_orcid_id'];
+
     $stmt = "UPDATE
                     " . APP_TABLE_PREFIX . "author
                  SET
@@ -481,6 +486,11 @@ class Author
       $log->err($ex);
       return -1;
     }
+
+    if ($preOrcid != $db->quote(trim($_POST["orcid_id"]))) {  //Orcid has changed, update relevent crossref doi info and delete orcid grants if needed
+      ApiResearchers::onOrcidChange($_POST["id"], trim($_POST["orcid_id"]));
+    }
+
     return 1;
   }
 
