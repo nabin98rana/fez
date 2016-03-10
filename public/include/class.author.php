@@ -487,7 +487,7 @@ class Author
       return -1;
     }
 
-    if ($preOrcid != $db->quote(trim($_POST["orcid_id"]))) {  //Orcid has changed, update relevent crossref doi info and delete orcid grants if needed
+    if ($preOrcid != trim($_POST["orcid_id"])) {  //Orcid has changed, update relevent crossref doi info and delete orcid grants if needed
       ApiResearchers::onOrcidChange($_POST["id"], trim($_POST["orcid_id"]));
     }
 
