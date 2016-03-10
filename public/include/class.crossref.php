@@ -214,4 +214,21 @@ class Crossref {
 
     return (is_array($res)) ? CROSSREF_DOI_PREFIX . '.' . $res['dcr_doi_year'] . '.' . $res['dcr_doi_num'] : FALSE;
   }
+
+  public function updateCrossrefFromPid($pid, $history = 'Send update to crossref') {
+    $log = FezLog::get();
+    $xdis_id = XSD_HTML_Match::getDisplayType($pid);
+    $xdis_id_name = XSD_Display::getTitle($xdis_id);
+    $crossref = new Crossref;
+    $existingDoi = $crossref->hasDoi($pid);
+    if ($existingDoi) {
+      $crossref->upload($crossref->xmlForPid($pid, $existingDoi, $xdis_id_name));
+      History::addHistory($pid, null, "", "", false, $history);
+    } else {
+      $log->err('Error, Crossref update run on pid without current doi');
+      return FALSE;
+    }
+    return $existingDoi;
+  }
+
 }
