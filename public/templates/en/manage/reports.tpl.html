@@ -9,8 +9,8 @@
 
 <script type="text/javascript">
     $( document ).ready(function() {
-        $(".more").click(function (e) {
-            e.stopPropagation();
+        $(".more").click(function (event) {
+            event.preventDefault();
             $(this).prev().css({
                 'max-height': 'none'
             });
