@@ -30,6 +30,9 @@
 // +----------------------------------------------------------------------+
 
 //Class for crossref
+//http://www.crossref.org/02publishers/parser.html
+//http://www.crossref.org/help/schema_doc/4.3.6/4.3.6.html
+
 class Crossref {
   //Returns xml to upload or false if error
   private function loadXML($details, $doi, $xdis_id_name) {
@@ -39,11 +42,14 @@ class Crossref {
       if ($details[0]['rek_author_id'][$i]) {
         $details[0]['rek_author_firstname'][$i] = Author::getFirstname($details[0]['rek_author_id'][$i]);
         $details[0]['rek_author_lastname'][$i] = Author::getLastname($details[0]['rek_author_id'][$i]);
+        $authorDetails = Author::getDetails($details[0]['rek_author_id'][$i]);
+        $details[0]['rek_author_orcid'][$i] = empty($authorDetails) ? null : $authorDetails['aut_orcid_id'];
       }
       else {
         $names = Author::guessFirstLastName($author);
         $details[0]['rek_author_firstname'][$i] = $names['firstname'];
         $details[0]['rek_author_lastname'][$i] = $names['lastname'];
+        $details[0]['rek_author_orcid'][$i] = null;
       }
     }
 
@@ -75,7 +81,6 @@ class Crossref {
     $tpl->assign("details", $details[0]);
     $uniqid = uniqid();
     $tpl->assign("uniqid", $uniqid);
-    //$tpl->assign("org_acronym", APP_ORG_ACRONYM);
     $tpl->assign("published_day", date('d', strtotime($publishedDate)));
     $tpl->assign("published_month", date('m', strtotime($publishedDate)));
     $tpl->assign("published_year", date('Y', strtotime($publishedDate)));
@@ -93,7 +98,6 @@ class Crossref {
     $record = new Record($pid);
     $result[0]["rek_pid"] = $pid;
     $details = $record->getSearchKeysByPIDS($result, TRUE);
-
     return $this->loadXML($result, $doi, $xdis_id_name);
   }
 
@@ -213,4 +217,21 @@ class Crossref {
 
     return (is_array($res)) ? CROSSREF_DOI_PREFIX . '.' . $res['dcr_doi_year'] . '.' . $res['dcr_doi_num'] : FALSE;
   }
+
+  public function updateCrossrefFromPid($pid, $history = 'Send update to crossref') {
+    $log = FezLog::get();
+    $xdis_id = XSD_HTML_Match::getDisplayType($pid);
+    $xdis_id_name = XSD_Display::getTitle($xdis_id);
+    $crossref = new Crossref;
+    $existingDoi = $crossref->hasDoi($pid);
+    if ($existingDoi) {
+      $crossref->upload($crossref->xmlForPid($pid, $existingDoi, $xdis_id_name));
+      History::addHistory($pid, null, "", "", false, $history);
+    } else {
+      $log->err('Error, Crossref update run on pid without current doi');
+      return FALSE;
+    }
+    return $existingDoi;
+  }
+
 }

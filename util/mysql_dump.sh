@@ -39,7 +39,7 @@ fi
 cd ${MYSQL_DUMP_DIR}
 rm -f *.gz
 
-MYSQL_CMD="mysql -u${MYSQL_USER} -p${MYSQL_PASS}";
+MYSQL_CMD="mysql -u${MYSQL_USER} -p${MYSQL_PASS}"
 MYSQL_DUMP_CMD="mysqldump -u${MYSQL_USER} -p${MYSQL_PASS} --max_allowed_packet=2048M --quick --compress --opt --order-by-primary --single-transaction --force --skip-lock-tables"
 
 ${MYSQL_CMD} -e 'stop slave'

@@ -58,7 +58,7 @@ echo($callback ? '/**/' . $callback . '(' : '');
 
 if ($securityToken != APP_API_IDS_TOKEN) {
     http_response_code(401);
-    echo json_encode("Not authorized");
+    echo json_encode("Not authorized. Missing token");
     echo $callback ? ');' : '';
     exit();
 } else if (!ctype_alnum($author_username) || substr(strtolower($author_username), 0, 1) === "s" || empty($author_username)) {   //is alphanumeric and not a student, has permissions and required data
@@ -81,12 +81,18 @@ if (!empty($list)) {
     } else {
     echo json_encode($result);
     }
-} else if (!empty($grant)) {
-    $result = ApiResearchers::saveGrantInfo($author_username, $id_type, $name, $status, $expires, $value, $detailsDump);
-    echo json_encode(array("status" => "ok"));
 } else {
-    $result = ApiResearchers::changeId($author_username, $id, $id_type);
-    echo json_encode(array("status" => "ok"));
+    if (!empty($grant)) {
+        $result = ApiResearchers::saveGrantInfo($author_username, $id_type, $name, $status, $expires, $value, $detailsDump);
+    } else {
+        $result = ApiResearchers::changeId($author_username, $id, $id_type);
+    }
+    if ($result !== false) {
+        echo json_encode(array("status" => "ok"));
+    } else {
+        http_response_code(400);
+        echo json_encode(array("status" => "fail"));
+    }
 }
 
 echo $callback ? ');' : '';

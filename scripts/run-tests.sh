@@ -46,8 +46,11 @@ cd ${BASE_DIR}/.docker/testing
 docker-compose up -d
 waitForServices
 
-echo Running tests..
+if [ ! -f "../../public/config.inc.php" ]; then
+    cp config.inc.php ../../public/
+fi
 
+echo Running tests..
 docker exec testing_feztestrunner_1 sh -c 'cd '"'${CONTAINER_BASE_DIR}/tests/application'"' && php init.php'
 UPGRADE_RES=$(curl -s http://${VIRTUAL_HOST}:8080/upgrade/index.php?upgradeOnly=1 | grep succeeded)
 if [ "${UPGRADE_RES}" == "" ]; then
