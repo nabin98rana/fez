@@ -201,7 +201,7 @@ class FulltextQueue
 
 		if (!self::USE_LOCKING) {
 			$log->debug("not using locking - starting background process directly");
-			$this->createUpdateProcess();
+			FulltextQueue::createUpdateProcess();
 			return;
 		}
 
