@@ -4,7 +4,7 @@ if ($_SERVER['APPLICATION_ENV'] !== 'staging') {
   echo 'Not in staging..';
   exit;
 }
-
+set_time_limit(0);
 include_once(dirname(dirname(__FILE__)).DIRECTORY_SEPARATOR."config.inc.php");
 
 $log = FezLog::get();

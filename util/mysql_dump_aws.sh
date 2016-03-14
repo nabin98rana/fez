@@ -6,7 +6,7 @@ function usage {
   echo "    Dumps Fez database and copies the compressed export to S3. This script should be run on slave database servers only."
   echo
   echo "USAGE"
-  echo "    mysql_dump_aws.sh <MYSQL_DUMP_DIR> <MYSQL_DB_FEZ>"
+  echo "    mysql_dump_aws.sh <MYSQL_DUMP_DIR> <MYSQL_DB_FEZ> <FEZ_STAGING_SITE>"
   echo
   echo "    MYSQL_DUMP_DIR     = The directory to dump the database files to."
   echo "    MYSQL_DB_FEZ       = The Fez database."
@@ -17,12 +17,13 @@ function usage {
   exit
 }
 
-if [ "$#" -ne 2 ]; then
+if [ "$#" -ne 3 ]; then
   usage
 fi
 
 MYSQL_DUMP_DIR=$1
 MYSQL_DB_FEZ=$2
+FEZ_STAGING_SITE=$3
 
 if [ ! -d "${MYSQL_DUMP_DIR}" ]; then
   echo
@@ -100,3 +101,5 @@ curl -X PUT -T "${file}" \
     -H "Content-Type: ${contentType}" \
     -H "Authorization: AWS ${s3Key}:${signature}" \
     https://${bucket}.s3.amazonaws.com/fez/${file}
+
+curl ${FEZ_STAGING_SITE}/misc/staging.php
