@@ -34,7 +34,7 @@ $files = glob($path . "/*.txt");
 foreach ($files as $txt) {
   $db->query(
     "LOAD DATA LOCAL INFILE ? INTO TABLE ? FIELDS TERMINATED BY ',' ENCLOSED BY '\"' LINES TERMINATED BY '0x0d0a'",
-    array(basename($txt) , $txt)
+    array($txt, basename($txt))
   );
 }
 if (! system("cd ${path}/.. && rm -Rf tmp")) {
