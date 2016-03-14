@@ -11,7 +11,8 @@ function usage {
   echo "    MYSQL_DUMP_DIR     = The directory to dump the database files to."
   echo "    MYSQL_DB_FEZ       = The Fez database."
   echo
-  echo "    The script expects the MySQL username/password to be set as the environment variables MYSQL_USER / MYSQL_PASS respectively."
+  echo "    The script expects the MySQL username/password to be set as the environment variables MYSQL_USER / MYSQL_PASS respectively,"
+  echo "    and S3_KEY / S3_SECRET which provide access to the S3 bucket to store the dumped file."
   echo
   exit
 }
@@ -84,4 +85,18 @@ cp staging.fez.config.sql export/fez_config.sql
 tar -zcvf fezstaging.tar.gz export
 rm -Rf export
 
-#aws s3 cp fezstaging.tar.gz s3://uql/fez/fezstaging.tar.gz
+bucket="uql"
+file="fezstaging.tar.gz"
+resource="/${bucket}/fez/${file}"
+contentType="application/x-compressed-tar"
+dateValue=`date -R`
+stringToSign="PUT\n\n${contentType}\n${dateValue}\n${resource}"
+s3Key=${S3_KEY}
+s3Secret=${S3_SECRET}
+signature=`echo -en ${stringToSign} | openssl sha1 -hmac ${s3Secret} -binary | base64`
+curl -X PUT -T "${file}" \
+    -H "Host: ${bucket}.s3.amazonaws.com" \
+    -H "Date: ${dateValue}" \
+    -H "Content-Type: ${contentType}" \
+    -H "Authorization: AWS ${s3Key}:${signature}" \
+    https://${bucket}.s3.amazonaws.com/fez/${file}
