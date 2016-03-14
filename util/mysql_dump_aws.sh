@@ -66,7 +66,7 @@ rm -f ${MYSQL_DUMP_DIR}/export/fez_statistics_all.txt
 rm -f ${MYSQL_DUMP_DIR}/export/fez_thomson_citations.txt
 rm -f ${MYSQL_DUMP_DIR}/export/fez_scopus_citations.txt
 
-cp ${MYSQL_DUMP_DIR}/fez.config.sql ${MYSQL_DUMP_DIR}/export/config.sql
+cp ${MYSQL_DUMP_DIR}/staging.fez.config.sql ${MYSQL_DUMP_DIR}/export/config.sql
 
 tar -zcvf fezstaging.tar.gz ${MYSQL_DUMP_DIR}/export
 aws s3 cp fezstaging.tar.gz s3://uql/fez/fezstaging.tar.gz
