@@ -32,8 +32,10 @@ foreach ($files as $sql) {
 
 $files = glob($path . "/*.txt");
 foreach ($files as $txt) {
-  $db->query("LOAD DATA INFILE ? INTO TABLE users FIELDS TERMINATED BY ',' ENCLOSED BY '\"' LINES TERMINATED BY '0x0d0a'",
-    array($i));
+  $db->query(
+    "LOAD DATA LOCAL INFILE ? INTO TABLE ? FIELDS TERMINATED BY ',' ENCLOSED BY '\"' LINES TERMINATED BY '0x0d0a'",
+    array($txt, basename($txt))
+  );
 }
 if (! system("cd ${path}/.. && rm -Rf tmp")) {
   $log->err('Staging import failed: Unable to remove extracted files');

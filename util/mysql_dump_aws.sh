@@ -6,26 +6,22 @@ function usage {
   echo "    Dumps Fez database and copies the compressed export to S3. This script should be run on slave database servers only."
   echo
   echo "USAGE"
-  echo "    mysql_dump_aws.sh <MYSQL_DUMP_DIR> <MYSQL_DB_FEZ> <MYSQL_DB_STAGING> <MYSQL_HOST_STAGING>"
+  echo "    mysql_dump_aws.sh <MYSQL_DUMP_DIR> <MYSQL_DB_FEZ>"
   echo
   echo "    MYSQL_DUMP_DIR     = The directory to dump the database files to."
   echo "    MYSQL_DB_FEZ       = The Fez database."
-  echo "    MYSQL_DB_STAGING   = The Fez staging database."
-  echo "    MYSQL_HOST_STAGING = The Fez staging host."
   echo
   echo "    The script expects the MySQL username/password to be set as the environment variables MYSQL_USER / MYSQL_PASS respectively."
   echo
   exit
 }
 
-if [ "$#" -ne 4 ]; then
+if [ "$#" -ne 2 ]; then
   usage
 fi
 
 MYSQL_DUMP_DIR=$1
 MYSQL_DB_FEZ=$2
-MYSQL_DB_STAGING=$3
-MYSQL_HOST_STAGING=$4
 
 if [ ! -d "${MYSQL_DUMP_DIR}" ]; then
   echo
@@ -57,6 +53,15 @@ mysqldump \
     --events=0 \
     -u${MYSQL_USER} \
     -p${MYSQL_PASS}
+
+mysqldump \
+    --routines \
+    --no-create-info \
+    --no-data \
+    --no-create-db \
+    --skip-opt ${MYSQL_DB_FEZ} \
+    > ${MYSQL_DUMP_DIR}/export/spandtriggers.sql
+
 ${MYSQL_CMD} -e 'start slave'
 
 rm -f ${MYSQL_DUMP_DIR}/export/__*
@@ -64,9 +69,11 @@ rm -f ${MYSQL_DUMP_DIR}/export/fez_statistics_all.txt
 rm -f ${MYSQL_DUMP_DIR}/export/fez_sessions.txt
 rm -f ${MYSQL_DUMP_DIR}/export/fez_statistics_all.txt
 rm -f ${MYSQL_DUMP_DIR}/export/fez_thomson_citations.txt
+rm -f ${MYSQL_DUMP_DIR}/export/fez_thomson_citations_cache.txt
 rm -f ${MYSQL_DUMP_DIR}/export/fez_scopus_citations.txt
+rm -f ${MYSQL_DUMP_DIR}/export/fez_scopus_citations_cache.txt
 
-cp ${MYSQL_DUMP_DIR}/fez.config.sql ${MYSQL_DUMP_DIR}/export/config.sql
+cp ${MYSQL_DUMP_DIR}/staging.fez.config.sql ${MYSQL_DUMP_DIR}/export/config.sql
 
 tar -zcvf fezstaging.tar.gz ${MYSQL_DUMP_DIR}/export
-aws s3 cp fezstaging.tar.gz s3://uql/fez/fezstaging.tar.gz
+#aws s3 cp fezstaging.tar.gz s3://uql/fez/fezstaging.tar.gz
