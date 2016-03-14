@@ -85,16 +85,22 @@ include_once(APP_INC_PATH . "class.configuration.php");
 include_once(APP_INC_PATH . "class.language.php");
 
 $params = array(
-            'host' => APP_SQL_DBHOST,
-            'username' => APP_SQL_DBUSER,
-            'password' => APP_SQL_DBPASS,
-            'dbname' => APP_SQL_DBNAME,
-  'charset' => 'utf8',
-            'profiler' => array(
-                'enabled'     => APP_DB_USE_PROFILER,
-                'class'     => 'Zend_Db_Profiler_Firebug'
-            )
+  'host' => APP_SQL_DBHOST,
+  'username' => APP_SQL_DBUSER,
+  'password' => APP_SQL_DBPASS,
+  'dbname'   => APP_SQL_DBNAME,
+  'charset'  => 'utf8',
+  'profiler' => array(
+    'enabled' => APP_DB_USE_PROFILER,
+    'class'   => 'Zend_Db_Profiler_Firebug'
+  )
 );
+
+if ($_SERVER['APPLICATION_ENV'] === 'staging') {
+  $params['driver_options'] = array(
+    PDO::MYSQL_ATTR_LOCAL_INFILE => '1'
+  );
+}
 
 if (defined("APP_SQL_DBPORT")) {
 	$params['port'] = APP_SQL_DBPORT;
