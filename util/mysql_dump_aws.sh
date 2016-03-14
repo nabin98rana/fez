@@ -31,12 +31,15 @@ if [ ! -d "${MYSQL_DUMP_DIR}" ]; then
 fi
 
 cd ${MYSQL_DUMP_DIR}
-rm -f *.gz
+rm -f fezstaging.tar.gz
 
-if [ ! -d "${MYSQL_DUMP_DIR}/export" ]; then
-    mkdir ${MYSQL_DUMP_DIR}/export
-    chown root:mysql ${MYSQL_DUMP_DIR}/export
+if [ -d "export" ]; then
+    rm -Rf export
 fi
+
+mkdir export
+chown root:mysql export
+chmod 775 export
 
 MYSQL_CMD="mysql -u${MYSQL_USER} -p${MYSQL_PASS}"
 ${MYSQL_CMD} -e 'stop slave'
@@ -44,7 +47,7 @@ mysqldump \
     --tab=${MYSQL_DUMP_DIR}/export \
     --fields-terminated-by ',' \
     --fields-enclosed-by '"' \
-    --lines-terminated-by 0x0d0a \
+    --lines-terminated-by '\r\n' \
     ${MYSQL_DB_FEZ} \
     --single-transaction \
     --order-by-primary \
@@ -60,20 +63,25 @@ mysqldump \
     --no-data \
     --no-create-db \
     --skip-opt ${MYSQL_DB_FEZ} \
-    > ${MYSQL_DUMP_DIR}/export/spandtriggers.sql
+    > export/spandtriggers.sql
 
 ${MYSQL_CMD} -e 'start slave'
 
-rm -f ${MYSQL_DUMP_DIR}/export/__*
-rm -f ${MYSQL_DUMP_DIR}/export/fez_statistics_all.txt
-rm -f ${MYSQL_DUMP_DIR}/export/fez_sessions.txt
-rm -f ${MYSQL_DUMP_DIR}/export/fez_statistics_all.txt
-rm -f ${MYSQL_DUMP_DIR}/export/fez_thomson_citations.txt
-rm -f ${MYSQL_DUMP_DIR}/export/fez_thomson_citations_cache.txt
-rm -f ${MYSQL_DUMP_DIR}/export/fez_scopus_citations.txt
-rm -f ${MYSQL_DUMP_DIR}/export/fez_scopus_citations_cache.txt
+rm -f export/__*
+rm -f export/fez_config.sql
+rm -f export/fez_config.txt
+rm -f export/fez_statistics_all.txt
+rm -f export/fez_statistics_buffer.txt
+rm -f export/fez_sessions.txt
+rm -f export/fez_statistics_all.txt
+rm -f export/fez_thomson_citations.txt
+rm -f export/fez_thomson_citations_cache.txt
+rm -f export/fez_scopus_citations.txt
+rm -f export/fez_scopus_citations_cache.txt
 
-cp ${MYSQL_DUMP_DIR}/staging.fez.config.sql ${MYSQL_DUMP_DIR}/export/config.sql
+cp staging.fez.config.sql export/fez_config.sql
 
-tar -zcvf fezstaging.tar.gz ${MYSQL_DUMP_DIR}/export
+tar -zcvf fezstaging.tar.gz export
+rm -Rf export
+
 #aws s3 cp fezstaging.tar.gz s3://uql/fez/fezstaging.tar.gz

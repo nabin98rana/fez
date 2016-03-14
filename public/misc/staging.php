@@ -31,10 +31,11 @@ foreach ($files as $sql) {
 }
 
 $files = glob($path . "/*.txt");
+chdir($path);
 foreach ($files as $txt) {
   $db->query(
-    "LOAD DATA LOCAL INFILE ? INTO TABLE ? FIELDS TERMINATED BY ',' ENCLOSED BY '\"' LINES TERMINATED BY '0x0d0a'",
-    array($txt, basename($txt))
+    "LOAD DATA LOCAL INFILE '" . basename($txt) . "' INTO TABLE " . basename($txt, '.txt') .
+    " FIELDS TERMINATED BY ',' ENCLOSED BY '\"' LINES TERMINATED BY '\r\n'"
   );
 }
 if (! system("cd ${path}/.. && rm -Rf tmp")) {
