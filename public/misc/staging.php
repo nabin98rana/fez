@@ -22,7 +22,7 @@ if (! system("aws s3 cp s3://uql/fez/fezstaging.tar.gz ${path}/fezstaging.tar.gz
   exit;
 }
 
-system("tar xzvf ${path}/fezstaging.tar.gz --no-same-owner --strip-components 1");
+system("cd ${path} && tar xzvf ${path}/fezstaging.tar.gz --no-same-owner --strip-components 1");
 
 $files = glob($path . "/*.sql");
 foreach ($files as $sql) {
