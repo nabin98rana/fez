@@ -59,14 +59,17 @@ if (($securityToken != APP_API_IDS_TOKEN) && !$isSuperAdministrator) {
 }
 
 $author_username = $_REQUEST['author_username'];
+$startYear = $_REQUEST['start_year'];
+$endYear = $_REQUEST['end_year'];
 
-if(!ctype_alnum($author_username) || substr( strtolower($author_username), 0, 1 ) === "s" || empty($author_username)) {   //is alphanumeric and not a student
+if(!ctype_alnum($author_username) || substr( strtolower($author_username), 0, 1 ) === "s" || empty($author_username)
+    || (!is_numeric($startYear) && !empty($startYear)) || (!is_numeric($endYear) && !empty($endYear)) ) {   //is alphanumeric and not a student and valid years
     echo json_encode(array(), JSON_FORCE_OBJECT);
     echo $callback ? ');' : '';
     exit();
 }
 
-$return = Publons::getPublonsReviews($author_username);
+$return = Publons::getPublonsReviews($author_username, $startYear, $endYear);
 echo json_encode($return);
 
 
