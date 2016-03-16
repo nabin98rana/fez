@@ -31,7 +31,7 @@ feznginxb:
   environment:
     - VIRTUAL_HOST=dev-fez.library.uq.edu.au
   links:
-    - fpma:fpm
+    - fpmb:fpm
   ports:
     - 8082:80
   volumes_from:
