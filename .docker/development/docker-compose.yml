@@ -5,20 +5,62 @@ logs:
   build: ./logs/
 
 fez:
-  build: ./backend/nginx/
-  links:
-    - fpm
+  build: ./backend/haproxy/
   ports:
-    - "8080:80"
+    - 8080:80
+  links:
+    - feznginxa
+    - feznginxb
+
+feznginxa:
+  build: ./backend/nginx/
+  ports:
+  - 8081:80
+  links:
+    - fpma:fpm
   environment:
     - VIRTUAL_HOST=dev-fez.library.uq.edu.au
   volumes_from:
-    - fpm
+    - fpma
     - cache
     - fedoradata
     - logs
 
-fpm:
+feznginxb:
+  build: ./backend/nginx/
+  links:
+    - fpmb:fpm
+  environment:
+    - VIRTUAL_HOST=dev-fez.library.uq.edu.au
+  volumes_from:
+    - fpmb
+    - cache
+    - fedoradata
+    - logs
+
+fpma:
+  build: ./backend/fpm/
+  environment:
+    - APP_ENVIRONMENT=development
+    - XDEBUG_CONFIG=idekey=fez
+    - PHP_IDE_CONFIG=serverName=dev-fez.library.uq.edu.au
+    - JAVA_HOME=/usr/lib/jvm/jre
+    - JHOVE_HOME=/usr/local/jhove
+  links:
+    - fezdb
+    - fedora
+    - fedoradb
+    - solr
+  volumes:
+    - ../../:/var/app/current
+    - ../etc/nginx/conf.d:/etc/nginx/conf.d
+    - ../etc/nginx/rules:/etc/nginx/rules
+  volumes_from:
+    - cache
+    - fedoradata
+    - logs
+
+fpmb:
   build: ./backend/fpm/
   environment:
     - APP_ENVIRONMENT=development
