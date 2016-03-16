@@ -14,12 +14,12 @@ fez:
 
 feznginxa:
   build: ./backend/nginx/
-  ports:
-  - 8081:80
-  links:
-    - fpma:fpm
   environment:
     - VIRTUAL_HOST=dev-fez.library.uq.edu.au
+  links:
+    - fpma:fpm
+  ports:
+    - 8081:80
   volumes_from:
     - fpma
     - cache
@@ -28,10 +28,12 @@ feznginxa:
 
 feznginxb:
   build: ./backend/nginx/
-  links:
-    - fpmb:fpm
   environment:
     - VIRTUAL_HOST=dev-fez.library.uq.edu.au
+  links:
+    - fpma:fpm
+  ports:
+    - 8082:80
   volumes_from:
     - fpmb
     - cache
