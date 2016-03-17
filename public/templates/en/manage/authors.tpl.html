@@ -24,12 +24,6 @@
                     selectField(f, 'mypubs_url');
                     returnValue = false;
                 }
-                if (!isWhitespace(f.orcid_id.value) && !isORCID(f.orcid_id.value)) {
-                    alert('ORCID ID incorrect');
-                    selectField(f, 'orcid_id');
-                    returnValue = false;
-                }
-
                 if (!isWhitespace(f.google_scholar_id.value) && !isGoogleScholarID(f.google_scholar_id.value)) {
                     alert('Google Scholar ID incorrect');
                     selectField(f, 'google_scholar_id');
@@ -437,15 +431,6 @@
             </tr>
             <tr>
                 <td style="width: 120px" class="default cell-colour">
-                    <b>ORCID ID: </b>
-                </td>
-                <td style="background: {$light_color}; width: 80%">
-                    <input type="text" name="orcid_id" size="40" class="default" value="{$info.aut_orcid_id}" />
-                    {include file="error_icon.tpl.html" field="orcid_id"}
-                </td>
-            </tr>
-            <tr>
-                <td style="width: 120px" class="default cell-colour">
                     <b>Google Scholar ID: </b>
                 </td>
                 <td style="background: {$light_color}; width: 80%">
@@ -460,6 +445,14 @@
                 <td style="background: {$light_color}; width: 80%">
                     <input type="text" name="people_australia_id" size="40" class="default" value="{$info.aut_people_australia_id}" />
                     {include file="error_icon.tpl.html" field="people_australia_id"}
+                </td>
+            </tr>
+            <tr>
+                <td style="width: 120px" class="default cell-colour">
+                    <b>ORCID ID: </b>
+                </td>
+                <td style="background: {$light_color}; width: 80%">
+                    <br />{$info.aut_orcid_id}  ( To add or edit the user goes here - <a href="https://app.library.uq.edu.au/#/id" target="_blank">UQ Researcher Identifiers</a> )<br /><br />
                 </td>
             </tr>
             <tr>

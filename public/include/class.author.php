@@ -441,7 +441,6 @@ class Author
 	$stripped_description = strip_tags($_POST["description"], $tags);
 
     $authorDetails = Author::getDetails($_POST["id"]);
-    $preOrcid =  $authorDetails['aut_orcid_id'];
 
     $stmt = "UPDATE
                     " . APP_TABLE_PREFIX . "author
@@ -456,7 +455,6 @@ class Author
                     aut_homepage_link=" . $db->quote(trim($_POST["homepage_link"])) . ",
                     aut_ref_num=" . $db->quote(trim($_POST["aut_ref_num"])) . ",
                     aut_scopus_id=" . $db->quote(trim($_POST["scopus_id"])).",
-                    aut_orcid_id=" . $db->quote(trim($_POST["orcid_id"])).",
                     aut_google_scholar_id=" . $db->quote(trim($_POST["google_scholar_id"])).",
 					          aut_people_australia_id=" . $db->quote(trim($_POST["people_australia_id"])).",
                     aut_mypub_url=" . $db->quote(trim($_POST["mypub_url"])).",
@@ -485,10 +483,6 @@ class Author
     catch(Exception $ex) {
       $log->err($ex);
       return -1;
-    }
-
-    if ($preOrcid != trim($_POST["orcid_id"])) {  //Orcid has changed, update relevent crossref doi info and delete orcid grants if needed
-      ApiResearchers::onOrcidChange($_POST["id"], trim($_POST["orcid_id"]));
     }
 
     return 1;
@@ -645,9 +639,6 @@ class Author
     if ($_POST["scopus_id"] !== "") {
       $insert .= ", aut_scopus_id ";
     }
-    if ($_POST["orcid_id"] !== "") {
-      $insert .= ", aut_orcid_id ";
-    }
     if ($_POST["google_scholar_id"] !== "") {
       $insert .= ", aut_google_scholar_id ";
     }
@@ -703,9 +694,6 @@ class Author
     }
     if ($_POST["scopus_id"] !== "") {
       $values .= ", " . $db->quote(trim($_POST["scopus_id"]));
-    }
-    if ($_POST["orcid_id"] !== "") {
-      $values .= ", " . $db->quote(trim($_POST["orcid_id"]));
     }
     if ($_POST["google_scholar_id"] !== "") {
       $values .= ", " . $db->quote(trim($_POST["google_scholar_id"]));
