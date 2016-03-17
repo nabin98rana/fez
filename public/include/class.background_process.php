@@ -280,7 +280,7 @@ class BackgroundProcess {
 
 		if (defined('AWS_ENABLED') && AWS_ENABLED == 'true') {
 			$aws = new AWS();
-			$aws->sendSqsMessage(AWS_BGP_TASK_QUEUE, $this->bgp_id);
+			$aws->sendSqsMessage(AWS_BGP_QUEUE_URL, $this->bgp_id);
 
 		} else {
 			$command = APP_PHP_EXEC . " \"" . APP_PATH . "misc/run_background_process.php\" " . $this->bgp_id . " \""
