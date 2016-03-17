@@ -31,6 +31,7 @@ function hideAllSubPages()
     document.getElementById('altmetric').style.display = "none";
     document.getElementById('crossref').style.display = "none";
     document.getElementById('sherpa').style.display = "none";
+	document.getElementById('aws').style.display = "none";
 }
 
 function updatePreviewColour(el)
@@ -2469,6 +2470,14 @@ function restoreDefaultColours(el)
 							</select>
 							<br />Enable Amazon Web Services features.
 							{include file="error_icon.tpl.html" field="aws_enabled"}
+						</td>
+					</tr>
+					<tr>
+						<th>API Region</th>
+						<td>
+							<input type="text" name="aws_region" value="{$config_settings.aws_region}" size="20" />
+							<br />The AWS region to use.
+							{include file="error_icon.tpl.html" field="aws_region"}
 						</td>
 					</tr>
 					<tr>
