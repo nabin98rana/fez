@@ -279,8 +279,17 @@ class BackgroundProcess {
 		$this->serialize();
 
 		if (defined('AWS_ENABLED') && AWS_ENABLED == 'true') {
+
 			$aws = new AWS();
-			$aws->sendSqsMessage(AWS_BGP_QUEUE_URL, $this->bgp_id);
+
+			$env = strtolower($_SERVER['APPLICATION_ENV']);
+			$message = file_get_contents(APP_PATH . '/.docker/' . $env . '/aws-bgp-task-definition.json');
+			$message = str_replace('<BGP_ID>', $this->bgp_id, $message);
+			$message = str_replace('<COMMIT_HASH>', $_SERVER['APPLICATION_COMMIT_HASH'], $message);
+			$message = str_replace('<NEWRELIC_LICENSE>', $_SERVER['NEWRELIC_LICENSE'], $message);
+
+			$attributes = '{"service": { "StringValue": "fez' . $env . '", "DataType": "String" } }';
+			$aws->sendSqsMessage(AWS_BGP_QUEUE_URL, $message, $attributes);
 
 		} else {
 			$command = APP_PHP_EXEC . " \"" . APP_PATH . "misc/run_background_process.php\" " . $this->bgp_id . " \""

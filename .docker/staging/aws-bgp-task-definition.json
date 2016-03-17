@@ -12,12 +12,12 @@
           "value": "staging"
         },
         {
-          "name": "NEWRELIC_LICENSE",
-          "value": "<NEWRELIC_LICENSE>"
-        },
-        {
           "name": "BGP_ID",
           "value": "<BGP_ID>"
+        },
+        {
+          "name": "NEWRELIC_LICENSE",
+          "value": "<NEWRELIC_LICENSE>"
         }
       ],
       "mountPoints": [

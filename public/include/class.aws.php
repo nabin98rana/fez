@@ -35,14 +35,19 @@ class AWS
   /**
    * @param string $queueUrl The queue to send the message to
    * @param string $message The message to send
+   * @param array $attributes The message attributes to send
    */
-  public function sendSqsMessage($queueUrl, $message) {
+  public function sendSqsMessage($queueUrl, $message, $attributes= []) {
     $sqs = $this->sdk->createSqs([
 
     ]);
-    $sqs->sendMessage(array(
+    $message = [
       'QueueUrl'    => $queueUrl,
       'MessageBody' => $message,
-    ));
+    ];
+    if (count($attributes) > 0) {
+      $message['MessageAttributes'] = $attributes;
+    }
+    $sqs->sendMessage($message);
   }
 }

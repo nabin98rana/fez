@@ -9,15 +9,15 @@
       "environment": [
         {
           "name": "APP_ENVIRONMENT",
-          "value": "staging"
-        },
-        {
-          "name": "NEWRELIC_LICENSE",
-          "value": "<NEWRELIC_LICENSE>"
+          "value": "production"
         },
         {
           "name": "BGP_ID",
           "value": "<BGP_ID>"
+        },
+        {
+          "name": "NEWRELIC_LICENSE",
+          "value": "<NEWRELIC_LICENSE>"
         }
       ],
       "mountPoints": [
