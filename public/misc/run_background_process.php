@@ -42,7 +42,7 @@ $base = $ARGV[2];
 include_once dirname(dirname(__FILE__)).DIRECTORY_SEPARATOR.'config.inc.php';
 include_once(APP_INC_PATH.'class.background_process.php');
 
-if (FALSE) { // TODO: add config check
+if (defined('AWS_ENABLED') && AWS_ENABLED == 'true') {
   $bgp_id = $_ENV['BGP_ID'];
 } else {
   $bgp_id = $ARGV[1];

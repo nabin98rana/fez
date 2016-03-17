@@ -278,7 +278,7 @@ class BackgroundProcess {
 
 		$this->serialize();
 
-		if (FALSE) { // TODO: add config check
+		if (defined('AWS_ENABLED') && AWS_ENABLED == 'true') {
 			$aws = new AWS();
 			$aws->sendSqsMessage(AWS_BGP_TASK_QUEUE, $this->bgp_id);
 
