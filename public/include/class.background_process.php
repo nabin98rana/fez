@@ -35,7 +35,7 @@
 define('BGP_UNDEFINED', 0);
 define('BGP_RUNNING',   1);
 define('BGP_FINISHED',  2);
-
+include_once(APP_INC_PATH . "class.aws.php")
 include_once(APP_INC_PATH . "class.date.php");
 include_once(APP_INC_PATH . "class.background_process_pids.php");
 /**
@@ -239,6 +239,7 @@ class BackgroundProcess {
 	 * @param string $inputs A serialized array or object that is the inputs to the process to be run.
 	 *                       e.g. serialize(compact('pid','dsID'))
 	 * @param int $usr_id The user who will own the process.
+	 * @return int The background process ID or -1 if registering the process failed
 	 */
 	function register($inputs, $usr_id, $wfses_id = null)
 	{
@@ -255,16 +256,16 @@ class BackgroundProcess {
 
 		$utc_date = Date_API::getSimpleDateUTC();
 
-        $data = array(
-          'bgp_usr_id' => $usr_id,
-          'bgp_started' => $utc_date,
-          'bgp_name' => $this->name,
-          'bgp_include' => $this->include
-        );
+		$data = array(
+			'bgp_usr_id' => $usr_id,
+			'bgp_started' => $utc_date,
+			'bgp_name' => $this->name,
+			'bgp_include' => $this->include
+		);
 
-            try {
-          $db->insert(APP_TABLE_PREFIX . 'background_process', $data);
-        }
+		try {
+			$db->insert(APP_TABLE_PREFIX . 'background_process', $data);
+		}
 		catch(Exception $ex) {
 			$log->err($ex);
 			return -1;
@@ -276,12 +277,20 @@ class BackgroundProcess {
 		$bgpPids->insertPids($this->bgp_id, $inputs);
 
 		$this->serialize();
-		$command = APP_PHP_EXEC." \"".APP_PATH."misc/run_background_process.php\" ".$this->bgp_id." \""
-		.APP_PATH."\" > ".APP_TEMP_DIR."fezbgp/fezbgp_".$this->bgp_id.".log";
-		if ((stristr(PHP_OS, 'win')) && (!stristr(PHP_OS, 'darwin'))) { // Windows Server
-			pclose(popen("start /min /b ".$command,'r'));
+
+		if (FALSE) { // TODO: add config check
+			$aws = new AWS();
+			$aws->sendSqsMessage(AWS_BGP_TASK_QUEUE, $this->bgp_id);
+
 		} else {
-			exec($command." 2>&1 &");
+			$command = APP_PHP_EXEC . " \"" . APP_PATH . "misc/run_background_process.php\" " . $this->bgp_id . " \""
+				. APP_PATH . "\" > " . APP_TEMP_DIR . "fezbgp/fezbgp_" . $this->bgp_id . ".log";
+			if ((stristr(PHP_OS, 'win')) && (!stristr(PHP_OS, 'darwin'))) { // Windows Server
+				pclose(popen("start /min /b " . $command, 'r'));
+			}
+			else {
+				exec($command . " 2>&1 &");
+			}
 		}
 		return $this->bgp_id;
 	}

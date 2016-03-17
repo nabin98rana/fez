@@ -11,10 +11,38 @@ require_once(__DIR__ . '/autoload.php'); // since AWS SDK is pulled in via compo
 class AWS
 {
 
-  private $_log;
+  /**
+   * @var FezLog
+   */
+  private $log;
 
+  /**
+   * @var Aws\Sdk
+   */
+  private $sdk;
+
+  /**
+   * AWS constructor.
+   */
   public function __construct() {
-
+    $this->log = FezLog::get();
+    $this->sdk = new Aws\Sdk([
+      'region'  => AWS_REGION,
+      'version' => 'latest'
+    ]);
   }
 
+  /**
+   * @param string $queueUrl The queue to send the message to
+   * @param string $message The message to send
+   */
+  public function sendSqsMessage($queueUrl, $message) {
+    $sqs = $this->sdk->createSqs([
+
+    ]);
+    $sqs->sendMessage(array(
+      'QueueUrl'    => $queueUrl,
+      'MessageBody' => $message,
+    ));
+  }
 }
