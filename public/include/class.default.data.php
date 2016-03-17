@@ -321,6 +321,12 @@ class Default_Data
         $defaultData['crossref_service_username']       = "";
         $defaultData['crossref_service_password']       = "";
         $defaultData['crossref_doi_prefix']             = "";
+		$defaultData['aws_enabled']       = "false";
+		$defaultData['aws_region']        = "ap-southeast-2";
+		$defaultData['aws_key']           = "";
+		$defaultData['aws_secret']        = "";
+		$defaultData['aws_bgp_queue_url'] = "";
+
 		return $defaultData;
 	}
 

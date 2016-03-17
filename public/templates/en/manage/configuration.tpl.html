@@ -137,6 +137,7 @@ function restoreDefaultColours(el)
 		  <a href="#" onclick="javascript:showSubPage('researcherid');">ResearcherID Web Service Settings</a><br />
         <a href="#" onclick="javascript:showSubPage('scopus');">Scopus Settings</a><br />
         <a href="#" onclick="javascript:showSubPage('altmetric');">Altmetric API Settings</a><br />
+				<a href="#" onclick="javascript:showSubPage('aws');">Amazon Web Services Settings</a><br />
 		</td>
 	  </tr>
 	</table>
@@ -2447,6 +2448,58 @@ function restoreDefaultColours(el)
                 </tbody>
             </table>
         </div>
+
+
+			<div id="aws" style="display: none;">
+				<table width="100%" class="admin-edit">
+					<thead>
+					<tr>
+						<th colspan="2">
+							<h2>Amazon Web Services Settings</h2>
+						</th>
+					</tr>
+					</thead>
+					<tbody>
+					<tr>
+						<th>Enabled</th>
+						<td>
+							<select name="aws_enabled">
+								<option value="false"{if $config_settings.aws_enabled == "false"} selected="selected"{/if}>No</option>
+								<option value="true"{if $config_settings.aws_enabled == "true"} selected="selected"{/if}>Yes</option>
+							</select>
+							<br />Enable Amazon Web Services features.
+							{include file="error_icon.tpl.html" field="aws_enabled"}
+						</td>
+					</tr>
+					<tr>
+						<th>API Key</th>
+						<td>
+							<input type="text" name="aws_key" value="{$config_settings.aws_key}" size="50" />
+							<br />The API key to access AWS.
+							{include file="error_icon.tpl.html" field="aws_key"}
+						</td>
+					</tr>
+					<tr>
+						<th>API Secret</th>
+						<td>
+							<input type="text" name="aws_secret" value="{$config_settings.aws_secret}" size="50" />
+							<br />The API secret to access AWS.
+							{include file="error_icon.tpl.html" field="aws_secret"}
+						</td>
+					</tr>
+					<tr>
+						<th>API URL</th>
+						<td>
+							<input type="text" name="aws_bgp_queue_url" value="{$config_settings.aws_bgp_queue_url}" size="100" />
+							<br />The URL of the queue in SQS for launching background process tasks.
+							{include file="error_icon.tpl.html" field="aws_bgp_queue_url"}
+						</td>
+					</tr>
+
+					</tbody>
+				</table>
+			</div>
+
 
         <div id="submit" style="display: none;">
 		<br />&nbsp;&nbsp;&nbsp;<input type="submit" name="button" value="Save changes" class="submit" /> &nbsp; <input type="reset" value="Discard changes" /><br /><br />
