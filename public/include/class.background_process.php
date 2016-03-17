@@ -35,7 +35,7 @@
 define('BGP_UNDEFINED', 0);
 define('BGP_RUNNING',   1);
 define('BGP_FINISHED',  2);
-include_once(APP_INC_PATH . "class.aws.php")
+include_once(APP_INC_PATH . "class.aws.php");
 include_once(APP_INC_PATH . "class.date.php");
 include_once(APP_INC_PATH . "class.background_process_pids.php");
 /**
@@ -356,7 +356,7 @@ class BackgroundProcess {
     {
         $eta_cfg = array();
         $eta_cfg['bgp_details'] = $this->getDetails();
-        $eta_cfg['timezone'] = Date_API::getPreferredTimezone($bgp_details["bgp_usr_id"]);
+        $eta_cfg['timezone'] = Date_API::getPreferredTimezone($eta_cfg['bgp_details']["bgp_usr_id"]);
 
         return $eta_cfg;
     }
