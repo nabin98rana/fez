@@ -1,28 +1,6 @@
 {
-  "family": "fez",
+  "family": "fezbgp",
   "containerDefinitions": [
-    {
-      "name": "nginx",
-      "image": "uqlibrary/docker-nginx:6",
-      "cpu": 128,
-      "memory": 256,
-      "portMappings": [
-        {
-          "hostPort": 8006,
-          "containerPort": 80,
-          "protocol": "tcp"
-        }
-      ],
-      "links": [
-        "fpm:fpm"
-      ],
-      "volumesFrom": [
-        {
-          "sourceContainer": "fpm"
-        }
-      ],
-      "essential": true
-    },
     {
       "name": "fpm",
       "image": "uql-registry.library.uq.edu.au/production/fez:<COMMIT_HASH>",
@@ -31,22 +9,18 @@
       "environment": [
         {
           "name": "APP_ENVIRONMENT",
-          "value": "production"
+          "value": "staging"
         },
         {
           "name": "NEWRELIC_LICENSE",
           "value": "<NEWRELIC_LICENSE>"
         },
         {
-          "name": "WEBCRON_TOKEN",
-          "value": "<WEBCRON_TOKEN>"
+          "name": "BGP_ID",
+          "value": "<BGP_ID>"
         }
       ],
       "mountPoints": [
-        {
-          "sourceVolume": "templates_c",
-          "containerPath": "/var/app/templates_c"
-        },
         {
           "sourceVolume": "tmp",
           "containerPath": "/var/app/tmp"
@@ -56,10 +30,7 @@
     }
   ],
   "volumes": [{
-    "name": "templates_c",
-    "host": {}
-    },{
     "name": "tmp",
     "host": {}
-    }]
+  }]
 }
