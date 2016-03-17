@@ -50,11 +50,6 @@ function validateAuthorIdentifiers(f)
     selectField(f, 'aut_scopus_id');
     return false;
   }
-  if (!isWhitespace(f.aut_orcid_id.value) && !isORCID(f.aut_orcid_id.value)) {
-    alert('Please enter a valid ORCID');
-    selectField(f, 'aut_orcid_id');
-    return false;
-  }
   if (!isWhitespace(f.aut_google_scholar_id.value) && !isGoogleScholarID(f.aut_google_scholar_id.value)) {
     alert('Please enter a valid Google Scholar ID');
     selectField(f, 'aut_google_scholar_id');
@@ -421,25 +416,11 @@ function validateAuthorIdentifiers(f)
             {include file="error_icon.tpl.html" field="aut_scopus_id"}
           </td>
         </tr>
-
         <tr>
           <td style="width: 150px; background: {$cell_color};" class="default">
-            <b>ORCID:</b>
-          </td>
-          <td style="background: {$cell_color};">
-            <input type="text" name="aut_orcid_id" size="40" class="default" value="{$aut_orcid_id}" />
-            <br />
-            <span style="font-size: 10px;">Your ORCID ID
-              (for example <a href="http://orcid.org/0000-0002-1205-0342" target="_blank">0000-0002-1205-0342</a>).</span></span>
-            {include file="error_icon.tpl.html" field="aut_orcid_id"}
-          </td>
-        </tr>
-
-        <tr>
-          <td style="width: 150px; background: {$light_color};" class="default">
             <b>Google Scholar:</b>
           </td>
-          <td style="background: {$light_color};">
+          <td style="background: {$cell_color};">
             <input type="text" name="aut_google_scholar_id" size="40" class="default" value="{$aut_google_scholar_id}" />
             <br />
             <span style="font-size: 10px;">Your Google Scholar ID
@@ -447,10 +428,25 @@ function validateAuthorIdentifiers(f)
             {include file="error_icon.tpl.html" field="aut_google_scholar_id"}
           </td>
         </tr>
+        <tr>
+          <td style="width: 150px; background: {$light_color};" class="default">
+            <b>ORCID:</b>
+          </td>
+          <td style="background: {$light_color};">
+              <br />
+            {$aut_orcid_id} ( To add or edit - <a href="https://app.library.uq.edu.au/#/id" target="_blank">UQ Researcher Identifiers</a> )
+              <br /> <br />
+          </span>
+          </td>
+        </tr>
+
+
+
 
         <tr>
           <td colspan="2" style="background: {$cell_color};" align="center">
             <input type="hidden" name="cat" value="aut_update_identifiers" />
+            <input  type="hidden" name="aut_orcid_id" size="40" class="default" value="{$aut_orcid_id}" />
             <input class="button" type="submit" value="Update My Author Identifiers" />
             <input class="button" type="reset" value="Reset" />
           </td>

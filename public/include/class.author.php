@@ -525,7 +525,7 @@ class Author
 
 
     /**
-     * Updates an author's identifiers (NLA/Scopus ID/ORCID/Google Scholar)
+     * Updates an author's identifiers (NLA/Scopus ID/Google Scholar)
      * @access public
      * @param string $org_username The org. username to update identifiers for
      * @param array $ids Array of identifiers to update (ID => value)
@@ -539,7 +539,6 @@ class Author
         $data = array(
             'aut_people_australia_id' => '',
             'aut_scopus_id' => '',
-            'aut_orcid_id' => '',
             'aut_google_scholar_id' => '',
         );
 
@@ -556,13 +555,6 @@ class Author
             Validation::isScopusID($ids['aut_scopus_id'])
         ) {
             $data['aut_scopus_id'] = $ids['aut_scopus_id'];
-        }
-        if (
-            array_key_exists('aut_orcid_id', $ids) &&
-            !Validation::isWhitespace($ids['aut_orcid_id']) &&
-            Validation::isORCID($ids['aut_orcid_id'])
-        ) {
-            $data['aut_orcid_id'] = $ids['aut_orcid_id'];
         }
         if (
             array_key_exists('aut_google_scholar_id', $ids) &&
@@ -1358,7 +1350,7 @@ class Author
             $tempTerm = str_replace(array(',', ' '),'',$tempTerm);
             $stmt .= ' , aut_lname = "'.$tempTerm.'" AS Relevance';
         } else {
-            $stmt .= " , MATCH(aut_display_name) AGAINST (".$db->quote($term).") as Relevance ";
+            $stmt .= " , aut_display_name = ".$db->quote($term)." as Relevance ";
         }
     }
 
