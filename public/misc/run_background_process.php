@@ -42,7 +42,11 @@ $base = $ARGV[2];
 include_once dirname(dirname(__FILE__)).DIRECTORY_SEPARATOR.'config.inc.php';
 include_once(APP_INC_PATH.'class.background_process.php');
 
-$bgp_id = $ARGV[1];
+if (FALSE) { // TODO: add config check
+  $bgp_id = $_ENV['BGP_ID'];
+} else {
+  $bgp_id = $ARGV[1];
+}
 
 if (!is_numeric($bgp_id)) {
 	echo "bgp_id is not numeric so exiting $bgp_id";
