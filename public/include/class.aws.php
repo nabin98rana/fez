@@ -123,8 +123,8 @@ class AWS
       ];
 
       $client->putObject([
-          'Bucket' => AWS_S3_BUCKET . "/" . $src,
-          'Key' => $key,
+          'Bucket' => AWS_S3_BUCKET,
+          'Key' => $src . '/' .$key,
           'SourceFile' => $file,
           'ContentType' => $mimeType,
           'ServerSideEncryption' => 'AES256',
