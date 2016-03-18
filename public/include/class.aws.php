@@ -96,7 +96,7 @@ class AWS
     // Create an Amazon S3 client using the shared configuration data.
     $client = $this->sdk->createS3();
 
-    if (sizeof($files) < 1) {
+    if (count($files) < 1) {
       $this->log->err('No files in request');
       return false;
     }
@@ -105,8 +105,9 @@ class AWS
 
     $results = [];
     foreach ($files as $file) {
+      $fileSize = filesize($file);
 
-      if (sizeof($file) > $maxSize) {
+      if (filesize($file) > $maxSize) {
         $this->log->err('File size greater than maximum allowed');
         return false;
       }
@@ -117,12 +118,12 @@ class AWS
       $meta = [
           'key'  => $key,
           'type' => $mimeType,
-          'name' => $file->getClientOriginalName(),
-          'size' => $file->getSize(),
+          'name' => basename($file),
+          'size' => $fileSize,
       ];
 
       $client->putObject([
-          'Bucket' => AWS_S3_BUCKET . '/' . $src,
+          'Bucket' => AWS_S3_BUCKET . "/" . $src,
           'Key' => $key,
           'SourceFile' => $file,
           'ContentType' => $mimeType,
