@@ -288,7 +288,12 @@ class BackgroundProcess {
 			$message = str_replace('<COMMIT_HASH>', $_SERVER['APPLICATION_COMMIT_HASH'], $message);
 			$message = str_replace('<NEWRELIC_LICENSE>', $_SERVER['NEWRELIC_LICENSE'], $message);
 
-			$attributes = '{"service": { "StringValue": "fez' . $env . '", "DataType": "String" } }';
+			$attributes = [
+				'service' => [
+          'StringValue' => 'fez' . $env,
+          'DataType' => 'String',
+        ]
+      ];
 			$aws->sendSqsMessage(AWS_BGP_QUEUE_URL, $message, $attributes);
 
 		} else {

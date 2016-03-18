@@ -30,24 +30,35 @@ class AWS
       'region'  => AWS_REGION,
       'version' => 'latest'
     ]);
+    putenv("AWS_ACCESS_KEY_ID=" . AWS_KEY);
+    putenv("AWS_SECRET_ACCESS_KEY=" . AWS_SECRET);
   }
 
   /**
    * @param string $queueUrl The queue to send the message to
    * @param string $message The message to send
    * @param array $attributes The message attributes to send
+   * @return bool Whether the message was sent successfully
    */
   public function sendSqsMessage($queueUrl, $message, $attributes= []) {
-    $sqs = $this->sdk->createSqs([
+    $sqs = $this->sdk->createSqs();
 
-    ]);
     $message = [
-      'QueueUrl'    => $queueUrl,
+      'QueueUrl' => $queueUrl,
       'MessageBody' => $message,
     ];
     if (count($attributes) > 0) {
       $message['MessageAttributes'] = $attributes;
     }
-    $sqs->sendMessage($message);
+
+    try {
+
+      $sqs->sendMessage($message);
+      return true;
+
+    } catch (Exception $ex) {
+      $this->log->err($ex->getMessage());
+      return false;
+    }
   }
 }
