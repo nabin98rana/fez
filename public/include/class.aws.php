@@ -51,14 +51,14 @@ class AWS
       $message['MessageAttributes'] = $attributes;
     }
 
-    try {
+    //try {
 
       $sqs->sendMessage($message);
       return true;
 
-    } catch (Exception $ex) {
+    /*} catch (Exception $ex) {
       $this->log->err($ex->getMessage());
       return false;
-    }
+    }*/
   }
 }
