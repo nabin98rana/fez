@@ -283,9 +283,7 @@ class BackgroundProcess {
 			$aws = new AWS();
 
 			$env = strtolower($_SERVER['APPLICATION_ENV']);
-      //$serviceName = 'fezbgp' . $env;
-      $serviceName = 'fezstaging';
-
+      $serviceName = 'fezbgp' . $env;
       $service = $aws->describeEcsService($serviceName);
 
       // If a service is available to handle background processes, and it isn't already running a task..

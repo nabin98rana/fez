@@ -62,16 +62,21 @@ class AWS
     }
   }
 
+  /**
+   * @param string $service The name of the service to describe
+   * @return \Aws\Result|bool The result of describing the service or false if
+   *                          an error occurred attempting to describe the service
+   */
   public function describeEcsService($service) {
     $ecs = $this->sdk->createEcs();
 
     try {
-    $result = $ecs->describeServices([
-      'cluster' => AWS_ECS_CLUSTER,
-      'services' => [
-        $service
-      ]
-    ]);
+      $result = $ecs->describeServices([
+        'cluster' => AWS_ECS_CLUSTER,
+        'services' => [
+          $service
+        ]
+      ]);
       return $result;
 
     } catch (Exception $ex) {
