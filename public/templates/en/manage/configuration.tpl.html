@@ -2504,7 +2504,38 @@ function restoreDefaultColours(el)
 							{include file="error_icon.tpl.html" field="aws_bgp_queue_url"}
 						</td>
 					</tr>
-
+					<tr>
+						<th>S3 Bucket</th>
+						<td>
+							<input type="text" name="aws_s3_bucket" value="{$config_settings.aws_s3_bucket}" size="100" />
+							<br />The bucket name for storing all Fez S3 related content.
+							{include file="error_icon.tpl.html" field="aws_s3_bucket"}
+						</td>
+					</tr>
+					<tr>
+						<th>File Serve URL (CloudFront)</th>
+						<td>
+							<input type="text" name="aws_file_serve_url" value="{$config_settings.aws_file_serve_url}" size="100" />
+							<br />The url for serving up the AWS content - usually a CloudFront based url.
+							{include file="error_icon.tpl.html" field="aws_file_serve_url"}
+						</td>
+					</tr>
+					<tr>
+						<th>CloudFront Private Key File</th>
+						<td>
+							<input type="text" name="aws_cf_private_key_file" value="{$config_settings.aws_cf_private_key_file}" size="100" />
+							<br />The full path and filename of the cloudfront private key file (used for signing the urls).
+							{include file="error_icon.tpl.html" field="aws_cf_private_key_file"}
+						</td>
+					</tr>
+					<tr>
+						<th>CloudFront Key Pair ID</th>
+						<td>
+							<input type="text" name="aws_cf_key_pair_id" value="{$config_settings.aws_cf_key_pair_id}" size="100" />
+							<br /> Also used for signing the urls.
+							{include file="error_icon.tpl.html" field="aws_cf_key_pair_id"}
+						</td>
+					</tr>
 					</tbody>
 				</table>
 			</div>
