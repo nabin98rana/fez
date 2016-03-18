@@ -61,4 +61,22 @@ class AWS
       return false;
     }
   }
+
+  public function describeEcsService($service) {
+    $ecs = $this->sdk->createEcs();
+
+    try {
+    $result = $ecs->describeServices([
+      'cluster' => AWS_ECS_CLUSTER,
+      'services' => [
+        $service
+      ]
+    ]);
+      return $result;
+
+    } catch (Exception $ex) {
+      $this->log->err($ex->getMessage());
+      return false;
+    }
+  }
 }
