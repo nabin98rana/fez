@@ -97,7 +97,8 @@ class AWS
     $client = $this->sdk->createS3();
 
     if (sizeof($files) < 1) {
-      return $this->log->err('No files in request');
+      $this->log->err('No files in request');
+      return false;
     }
 
     $maxSize = 9999999999;
@@ -106,7 +107,8 @@ class AWS
     foreach ($files as $file) {
 
       if (sizeof($file) > $maxSize) {
-        return $this->log->err('File size greater than maximum allowed');
+        $this->log->err('File size greater than maximum allowed');
+        return false;
       }
 
       $mimeType = Misc::mime_content_type($file);
