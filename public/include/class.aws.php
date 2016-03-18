@@ -43,22 +43,22 @@ class AWS
   public function sendSqsMessage($queueUrl, $message, $attributes= []) {
     $sqs = $this->sdk->createSqs();
 
-    $message = [
+    $m = [
       'QueueUrl' => $queueUrl,
       'MessageBody' => $message,
     ];
     if (count($attributes) > 0) {
-      $message['MessageAttributes'] = $attributes;
+      $m['MessageAttributes'] = $attributes;
     }
 
-    //try {
+    try {
 
-      $sqs->sendMessage($message);
+      $sqs->sendMessage($m);
       return true;
 
-    /*} catch (Exception $ex) {
+    } catch (Exception $ex) {
       $this->log->err($ex->getMessage());
       return false;
-    }*/
+    }
   }
 }
