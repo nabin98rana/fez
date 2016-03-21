@@ -1,0 +1,10 @@
+{
+  "name": "uqlibrary/fez",
+  "description": "Fez Institutional Repository software",
+  "require": {
+    "aws/aws-sdk-php": "3.16.0"
+  },
+  "config": {
+    "vendor-dir": "public/include"
+  }
+}

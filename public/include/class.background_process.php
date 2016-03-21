@@ -35,7 +35,7 @@
 define('BGP_UNDEFINED', 0);
 define('BGP_RUNNING',   1);
 define('BGP_FINISHED',  2);
-
+include_once(APP_INC_PATH . "class.aws.php");
 include_once(APP_INC_PATH . "class.date.php");
 include_once(APP_INC_PATH . "class.background_process_pids.php");
 /**
@@ -239,6 +239,7 @@ class BackgroundProcess {
 	 * @param string $inputs A serialized array or object that is the inputs to the process to be run.
 	 *                       e.g. serialize(compact('pid','dsID'))
 	 * @param int $usr_id The user who will own the process.
+	 * @return int The background process ID or -1 if registering the process failed
 	 */
 	function register($inputs, $usr_id, $wfses_id = null)
 	{
@@ -255,16 +256,16 @@ class BackgroundProcess {
 
 		$utc_date = Date_API::getSimpleDateUTC();
 
-        $data = array(
-          'bgp_usr_id' => $usr_id,
-          'bgp_started' => $utc_date,
-          'bgp_name' => $this->name,
-          'bgp_include' => $this->include
-        );
+		$data = array(
+			'bgp_usr_id' => $usr_id,
+			'bgp_started' => $utc_date,
+			'bgp_name' => $this->name,
+			'bgp_include' => $this->include
+		);
 
-            try {
-          $db->insert(APP_TABLE_PREFIX . 'background_process', $data);
-        }
+		try {
+			$db->insert(APP_TABLE_PREFIX . 'background_process', $data);
+		}
 		catch(Exception $ex) {
 			$log->err($ex);
 			return -1;
@@ -276,12 +277,40 @@ class BackgroundProcess {
 		$bgpPids->insertPids($this->bgp_id, $inputs);
 
 		$this->serialize();
-		$command = APP_PHP_EXEC." \"".APP_PATH."misc/run_background_process.php\" ".$this->bgp_id." \""
-		.APP_PATH."\" > ".APP_TEMP_DIR."fezbgp/fezbgp_".$this->bgp_id.".log";
-		if ((stristr(PHP_OS, 'win')) && (!stristr(PHP_OS, 'darwin'))) { // Windows Server
-			pclose(popen("start /min /b ".$command,'r'));
+
+		if (defined('AWS_ENABLED') && AWS_ENABLED == 'true') {
+
+			$aws = new AWS();
+
+			$env = strtolower($_SERVER['APPLICATION_ENV']);
+      $serviceName = 'fezbgp' . $env;
+      $service = $aws->describeEcsService($serviceName);
+
+      // If a service is available to handle background processes, and it isn't already running a task..
+      if ($service && @$service['services'][0]['runningCount'] === 0) {
+        $message = file_get_contents(APP_PATH . '/../.docker/' . $env . '/aws-bgp-task-definition.json');
+        $message = str_replace('<BGP_ID>', $this->bgp_id, $message);
+        $message = str_replace('<COMMIT_HASH>', $_SERVER['APPLICATION_COMMIT_HASH'], $message);
+        $message = str_replace('<NEWRELIC_LICENSE>', $_SERVER['NEWRELIC_LICENSE'], $message);
+
+        $attributes = [
+          'service' => [
+            'StringValue' => 'fezbgp' . $env,
+            'DataType' => 'String',
+          ]
+        ];
+        $aws->sendSqsMessage(AWS_BGP_QUEUE_URL, $message, $attributes);
+      }
+
 		} else {
-			exec($command." 2>&1 &");
+			$command = APP_PHP_EXEC . " \"" . APP_PATH . "misc/run_background_process.php\" " . $this->bgp_id . " \""
+				. APP_PATH . "\" > " . APP_TEMP_DIR . "fezbgp/fezbgp_" . $this->bgp_id . ".log";
+			if ((stristr(PHP_OS, 'win')) && (!stristr(PHP_OS, 'darwin'))) { // Windows Server
+				pclose(popen("start /min /b " . $command, 'r'));
+			}
+			else {
+				exec($command . " 2>&1 &");
+			}
 		}
 		return $this->bgp_id;
 	}
@@ -347,7 +376,7 @@ class BackgroundProcess {
     {
         $eta_cfg = array();
         $eta_cfg['bgp_details'] = $this->getDetails();
-        $eta_cfg['timezone'] = Date_API::getPreferredTimezone($bgp_details["bgp_usr_id"]);
+        $eta_cfg['timezone'] = Date_API::getPreferredTimezone($eta_cfg['bgp_details']["bgp_usr_id"]);
 
         return $eta_cfg;
     }
