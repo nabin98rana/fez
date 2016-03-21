@@ -274,10 +274,15 @@ class Publons
         return $res;
     }
 
-    public function getPublonsReviews($author_username)
+    public function getPublonsReviews($author_username, $startYear, $endYear)
     {
         $log = FezLog::get();
         $db = DB_API::get();
+
+        $endYear = (is_numeric($endYear)) ? $endYear + 1 : $endYear; //We plus one since it's inclusive
+        $startYear = (is_numeric($startYear)) ? " AND psr_date_reviewed > " . $db->quote($startYear) . " " : "";
+        $endYear = (is_numeric($endYear)) ? " AND psr_date_reviewed < " . $db->quote((string)$endYear) . " " : ""; //We need to typecast since the comparison is not to integer
+
         $stmt = "SELECT aut_id as espace_author_id, aut_org_username as username, aut_display_name as display_name, aut_orcid_id as orcid_id,
                  psr_publons_id as publons_id, psr_date_reviewed as date_reviewed, psr_verified as verified, psp_publisher_name as publisher_name,
                  psj_journal_name as journal_name, psj_journal_issn as journal_issn, psj_journal_tier as journal_tier
@@ -285,7 +290,7 @@ class Publons
                 LEFT JOIN fez_publons_publishers ON psp_publisher_id = psr_publisher_id
                 LEFT JOIN fez_publons_journals ON psj_journal_id = psr_journal_id
                 LEFT JOIN fez_author ON aut_id = psr_aut_id
-                WHERE aut_org_username = " . $db->quote($author_username);
+                WHERE aut_org_username = " . $db->quote($author_username) . $startYear . $endYear;
 
         try {
             $res = $db->fetchAll($stmt);

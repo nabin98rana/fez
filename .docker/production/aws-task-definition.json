@@ -34,6 +34,10 @@
           "value": "production"
         },
         {
+          "name": "COMMIT_HASH",
+          "value": "<COMMIT_HASH>"
+        },
+        {
           "name": "NEWRELIC_LICENSE",
           "value": "<NEWRELIC_LICENSE>"
         },

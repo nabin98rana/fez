@@ -41,7 +41,7 @@
  */
 class FezLog
 {
-    private $_logs = null;
+	private $_logs = null;
 	private $_stopwatch = null;
 	private $_use_firebug = false;
 	public $log_trace = false;
@@ -49,12 +49,14 @@ class FezLog
 	private $_response= null;
   public $solr_query_time = array();
   public $solr_query_string = array();
+	private $_logLevel = null;
 
 	public function __construct($logs, $use_firebug = false, $log_trace = false)
 	{
 		$this->_logs = $logs;
 		$this->_firebug = false;
 		$this->log_trace = $log_trace;
+		$this->_logLevel = intval(APP_LOG_LEVEL);
 
 		if($use_firebug) {
 			$this->_use_firebug = true;
@@ -111,22 +113,33 @@ class FezLog
 	{
 		foreach($this->_logs as $log)
 			$log['log']->emerg($this->format_message($log['type'], $message));
+
+		error_log($this->format_message('file', $message));
 	}
 
 	public function alert($message)
 	{
 		foreach($this->_logs as $log)
 			$log['log']->alert($this->format_message($log['type'], $message));
+
+		if ($this->_logLevel >= 1) {
+			error_log($this->format_message('file', $message));
+		}
 	}
 
 	public function crit($message)
 	{
 		foreach($this->_logs as $log)
 			$log['log']->crit($this->format_message($log['type'], $message));
+
+		if ($this->_logLevel >= 2) {
+			error_log($this->format_message('file', $message));
+		}
 	}
 
 	public function err($message)
 	{
+
         if (is_array($message)) {
             $message[] = $this->generateStacktrace();
 
@@ -136,30 +149,50 @@ class FezLog
 
 		foreach($this->_logs as $log)
 			$log['log']->err($this->format_message($log['type'], $message));
+
+		if ($this->_logLevel >= 3) {
+			error_log($this->format_message('file', $message));
+		}
 	}
 
 	public function warn($message)
 	{
 		foreach($this->_logs as $log)
 			$log['log']->warn($this->format_message($log['type'], $message));
+
+		if ($this->_logLevel >= 4) {
+			error_log($this->format_message('file', $message));
+		}
 	}
 
 	public function notice($message)
 	{
 		foreach($this->_logs as $log)
 			$log['log']->notice($this->format_message($log['type'], $message));
+
+		if ($this->_logLevel >= 5) {
+			error_log($this->format_message('file', $message));
+		}
 	}
 
 	public function info($message)
 	{
 		foreach($this->_logs as $log)
 			$log['log']->info($this->format_message($log['type'], $message));
+
+		if ($this->_logLevel >= 6) {
+			error_log($this->format_message('file', $message));
+		}
 	}
 
 	public function debug($message)
 	{
 		foreach($this->_logs as $log)
 			$log['log']->debug($this->format_message($log['type'], $message));
+
+		if ($this->_logLevel >= 7) {
+			error_log($this->format_message('file', $message));
+		}
 	}
 
 	public function debug_method($name)
