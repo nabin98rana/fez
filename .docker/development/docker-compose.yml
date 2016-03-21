@@ -49,6 +49,8 @@ fpma:
     - JAVA_HOME=/usr/lib/jvm/jre
     - JHOVE_HOME=/usr/local/jhove
     - COMMIT_HASH
+    - AWS_ACCESS_KEY_ID
+    - AWS_SECRET_ACCESS_KEY
   links:
     - fezdb
     - fedora
@@ -72,6 +74,8 @@ fpmb:
     - JAVA_HOME=/usr/lib/jvm/jre
     - JHOVE_HOME=/usr/local/jhove
     - COMMIT_HASH
+    - AWS_ACCESS_KEY_ID
+    - AWS_SECRET_ACCESS_KEY
   links:
     - fezdb
     - fedora
