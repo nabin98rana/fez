@@ -412,14 +412,27 @@ class FulltextIndex_Solr_CSV extends FulltextIndex
       if ($localSolrFile && defined('APP_SOLR_LOCAL_FILE_PATH')) {
         $path = APP_SOLR_LOCAL_FILE_PATH;
       }
-      $tmpfname = tempnam($path, "solrCsv");
+      $tmpfname = tempnam($path, "solrCsv").".csv";
 
       $handle = fopen($tmpfname, "w");
       fwrite($handle, $csvHeader);
       fwrite($handle, $csv);
       fclose($handle);
 
-      // This is so solr has permissions to read the file
+      //Send the file to AWS S3 bucket as a central location
+      $cfURL = "";
+      $useS3 = false;
+      if (defined('AWS_S3_ENABLED') && AWS_S3_ENABLED == 'true') {
+        $useS3 = true;
+      }
+      if ($useS3 == true) {
+        $aws = new AWS();
+        $aws->postFile("solr_upload", array($tmpfname));
+        $cfURL = $aws->getById("solr_upload", $tmpfname);
+      }
+
+
+        // This is so solr has permissions to read the file
       chmod($tmpfname, 0755);
       $postFields = array();
       foreach ($mtColumnsHeader as $mtHeader) {
@@ -436,6 +449,9 @@ class FulltextIndex_Solr_CSV extends FulltextIndex
         $postFields["stream.file"] = $tmpfname;
       } else {
         $url_loc = "https://" . APP_HOSTNAME . APP_RELATIVE_URL . "solr_upload/" . substr($tmpfname, (strrpos($tmpfname, "/") + 1));
+        if ($useS3 == true) {
+          $url_loc = $cfURL;
+        }
         $postFields["stream.url"] = $url_loc;
       }
 
@@ -465,6 +481,9 @@ class FulltextIndex_Solr_CSV extends FulltextIndex
       // Dont delete csv if there is an error
       if ($uploaded == true && is_file($tmpfname)) {
 				unlink($tmpfname);
+        if ($useS3 == true) {
+          $aws->deleteById("solr_upload", $tmpfname);
+        }
       }
 
       $countDocs += count($chunk);
