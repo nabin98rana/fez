@@ -10,6 +10,7 @@ function usage {
   echo
   echo "    MYSQL_DUMP_DIR     = The directory to dump the database files to."
   echo "    MYSQL_DB_FEZ       = The Fez database."
+  echo "    FEZ_STAGING_SITE   = The Fez staging URL."
   echo
   echo "    The script expects the MySQL username/password to be set as the environment variables MYSQL_USER / MYSQL_PASS respectively,"
   echo "    and S3_KEY / S3_SECRET which provide access to the S3 bucket to store the dumped file."
@@ -86,9 +87,9 @@ cp staging.fez.config.sql export/fez_config.sql
 tar -zcvf fezstaging.tar.gz export
 rm -Rf export
 
-bucket="uql"
+bucket="uql-fez-staging"
 file="fezstaging.tar.gz"
-resource="/${bucket}/fez/${file}"
+resource="/${bucket}/${file}"
 contentType="application/x-compressed-tar"
 dateValue=`date -R`
 stringToSign="PUT\n\n${contentType}\n${dateValue}\n${resource}"
