@@ -13,13 +13,11 @@ $db = DB_API::get();
 $path = '/tmp/staging';
 $aws = new AWS();
 
-if (file_exists($path)) {
-  $log->err('Staging import failed: A tmp staging directory already exists');
-  exit;
-}
+system("rm -Rf ${path}");
 mkdir($path);
+chdir($path);
 
-if (! exec("AWS_ACCESS_KEY_ID=" .
+if (! system("AWS_ACCESS_KEY_ID=" .
   AWS_KEY. " AWS_SECRET_ACCESS_KEY=" .
   AWS_SECRET .
   " bash -c \"aws s3 cp s3://uql-fez-staging/fezstaging.tar.gz ${path}/fezstaging.tar.gz\"")
@@ -37,14 +35,9 @@ foreach ($files as $sql) {
 }
 
 $files = glob($path . "/*.txt");
-chdir($path);
 foreach ($files as $txt) {
   $db->query(
     "LOAD DATA LOCAL INFILE '" . basename($txt) . "' INTO TABLE " . basename($txt, '.txt') .
     " FIELDS TERMINATED BY ',' ENCLOSED BY '\"' LINES TERMINATED BY '\r\n'"
   );
-}
-if (! system("cd ${path}/.. && rm -Rf staging")) {
-  $log->err('Staging import failed: Unable to remove extracted files');
-  exit;
 }
