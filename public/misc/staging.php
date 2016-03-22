@@ -6,10 +6,12 @@ if ($_SERVER['APPLICATION_ENV'] !== 'staging') {
 }
 set_time_limit(0);
 include_once(dirname(dirname(__FILE__)).DIRECTORY_SEPARATOR."config.inc.php");
+include_once(APP_INC_PATH . "class.aws.php");
 
 $log = FezLog::get();
 $db = DB_API::get();
 $path = '/var/app/current/tmp';
+$aws = new AWS();
 
 if (file_exists($path)) {
   $log->err('Staging import failed: A tmp directory already exists');
@@ -17,7 +19,11 @@ if (file_exists($path)) {
 }
 mkdir($path);
 
-if (! system("aws s3 cp s3://uql/fez/fezstaging.tar.gz ${path}/fezstaging.tar.gz")) {
+if (! exec("AWS_ACCESS_KEY_ID=" .
+  AWS_ACCESS_KEY_ID. " AWS_SECRET_ACCESS_KEY=" .
+  AWS_SECRET_ACCESS_KEY .
+  " aws s3 cp s3://fez-staging/fezstaging.tar.gz ${path}/fezstaging.tar.gz")
+) {
   $log->err('Staging import failed: Unable to copy Fez staging DB from S3');
   exit;
 }
