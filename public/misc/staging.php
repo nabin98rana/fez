@@ -22,7 +22,7 @@ mkdir($path);
 if (! exec("AWS_ACCESS_KEY_ID=" .
   AWS_ACCESS_KEY_ID. " AWS_SECRET_ACCESS_KEY=" .
   AWS_SECRET_ACCESS_KEY .
-  " aws s3 cp s3://uql-fez-staging/fezstaging.tar.gz ${path}/fezstaging.tar.gz")
+  " bash -c aws s3 cp s3://uql-fez-staging/fezstaging.tar.gz ${path}/fezstaging.tar.gz")
 ) {
   $log->err('Staging import failed: Unable to copy Fez staging DB from S3');
   exit;
