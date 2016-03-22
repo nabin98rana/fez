@@ -87,7 +87,7 @@ cp staging.fez.config.sql export/fez_config.sql
 tar -zcvf fezstaging.tar.gz export
 rm -Rf export
 
-bucket="fez-staging"
+bucket="uql-fez-staging"
 file="fezstaging.tar.gz"
 resource="/${bucket}/${file}"
 contentType="application/x-compressed-tar"
