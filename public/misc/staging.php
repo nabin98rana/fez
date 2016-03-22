@@ -10,11 +10,11 @@ include_once(APP_INC_PATH . "class.aws.php");
 
 $log = FezLog::get();
 $db = DB_API::get();
-$path = '/var/app/current/tmp';
+$path = '/tmp/staging';
 $aws = new AWS();
 
 if (file_exists($path)) {
-  $log->err('Staging import failed: A tmp directory already exists');
+  $log->err('Staging import failed: A tmp staging directory already exists');
   exit;
 }
 mkdir($path);
@@ -44,7 +44,7 @@ foreach ($files as $txt) {
     " FIELDS TERMINATED BY ',' ENCLOSED BY '\"' LINES TERMINATED BY '\r\n'"
   );
 }
-if (! system("cd ${path}/.. && rm -Rf tmp")) {
+if (! system("cd ${path}/.. && rm -Rf staging")) {
   $log->err('Staging import failed: Unable to remove extracted files');
   exit;
 }
