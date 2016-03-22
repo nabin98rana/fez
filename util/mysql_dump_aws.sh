@@ -101,6 +101,6 @@ curl -X PUT -T "${file}" \
     -H "Date: ${dateValue}" \
     -H "Content-Type: ${contentType}" \
     -H "Authorization: AWS ${s3Key}:${signature}" \
-    https://${bucket}.s3.amazonaws.com/fez/${file}
+    https://${bucket}.s3.amazonaws.com/${file}
 
 curl ${FEZ_STAGING_SITE}/misc/staging.php
