@@ -52,15 +52,12 @@ if (!is_numeric($bgp_id)) {
 	echo "bgp_id is not numeric so exiting $bgp_id";
 	exit;
 }
+
 $bgp = new BackgroundProcess($bgp_id);
-$res = $bgp->getDetails();
+$bgp->runCurrent();
 
-include_once(APP_INC_PATH.$res['bgp_include']);
-$bgp = unserialize($res['bgp_serialized']);
-$bgp->setAuth();
-$bgp->run();
-
-if (!empty($bgp->wfses_id)) {
-    $wfstatus = WorkflowStatusStatic::getSession($bgp->wfses_id);
-    $wfstatus->auto_next();
+if (defined('AWS_ENABLED') && AWS_ENABLED == 'true') {
+  // Continue to process any remaining background processes (going back to 100 IDs ago)
+  // before exiting the task
+  BackgroundProcess::runRemaining(((int)$bgp_id-100));
 }
