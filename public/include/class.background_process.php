@@ -319,6 +319,29 @@ class BackgroundProcess {
 	/***** CLI SIDE *****/
 
 	/**
+	 * Runs the current background process
+	 */
+	public function runCurrent() {
+		$res = $this->getDetails();
+
+		if (! is_null($res['bpg_state'])) {
+			// Bail as the state has changed
+			return;
+		}
+
+		include_once(APP_INC_PATH . $res['bgp_include']);
+		$bgp = unserialize($res['bgp_serialized']);
+		$bgp->setAuth();
+		$bgp->setState(1);
+		$bgp->run();
+
+		if (!empty($bgp->wfses_id)) {
+			$wfstatus = WorkflowStatusStatic::getSession($bgp->wfses_id);
+			$wfstatus->auto_next();
+		}
+	}
+
+	/**
 	 * subclass this function for your background process
 	 */
 	function run()
@@ -411,5 +434,33 @@ class BackgroundProcess {
         return $eta;
     }
 
+	/**
+	 * Gets the next background process which has yet to be started
+	 * @param int $from The ID to start from
+	 * @return bool|array The next ID after $from or false if
+	 */
+	public static function nextUnstarted($from) {
+		$log = FezLog::get();
+		$db = DB_API::get();
 
+		$dbtp = APP_TABLE_PREFIX;
+		$stmt = "SELECT * FROM " . $dbtp . "background_process WHERE bgp_id > $from AND bgp_state IS NULL ORDER BY bgp_id ASC";
+		try {
+			return $db->fetchRow($stmt, array(), Zend_Db::FETCH_ASSOC);
+		} catch (Exception $ex) {
+			$log->err($ex);
+			return false;
+		}
+	}
+
+	/**
+	 * Runs all remaining background processes
+	 * @param int $from The ID to start from
+	 */
+	public static function runRemaining($from) {
+		while ($next = self::nextUnstarted($from)) {
+			$bgp = new BackgroundProcess($next['bgp_id']);
+			$bgp->runCurrent();
+		}
+	}
 }
