@@ -111,20 +111,19 @@ class AWS
         $this->log->err('File size greater than maximum allowed');
         return false;
       }
-
+      $baseFile = basename($file);
       $mimeType = Misc::mime_content_type($file);
-      $key = '' . uniqid() . '.' . pathinfo($file, PATHINFO_EXTENSION);
 
       $meta = [
-          'key'  => $key,
+          'key'  => $baseFile,
           'type' => $mimeType,
-          'name' => basename($file),
+          'name' => $baseFile,
           'size' => $fileSize,
       ];
 
       $client->putObject([
           'Bucket' => AWS_S3_BUCKET,
-          'Key' => $src . '/' .$key,
+          'Key' => $src . '/' .$baseFile,
           'SourceFile' => $file,
           'ContentType' => $mimeType,
           'ServerSideEncryption' => 'AES256',
@@ -143,12 +142,13 @@ class AWS
    */
   public function getById($src, $id)
   {
+    $id = basename($id);
     $resource = AWS_FILE_SERVE_URL . '/' . $src . '/' . $id;
 
     // expiration date must be in Unix time format and Coordinated Universal Time (UTC)
     date_default_timezone_set('UTC');
     $expires = time() + 86400;
-    //date_default_timezone_set(Config::get('app.timezone'));
+    date_default_timezone_set(APP_DEFAULT_USER_TIMEZONE);
 
     $json = '{"Statement":[{"Resource":"'.$resource.'","Condition":{"DateLessThan":{"AWS:EpochTime":'.$expires.'}}}]}';
 
@@ -156,6 +156,24 @@ class AWS
 
     return $signedUrl;
   }
+
+  /**
+   * @param string $src
+   * @param string $id
+   * @return boolean
+   */
+  public function deleteById($src, $id) {
+    $id = basename($id);
+
+    $client = $this->sdk->createS3();
+    $client->deleteObject(
+      array(
+          'Bucket' => AWS_S3_BUCKET,
+          'Key'    => $src . '/' . $id
+      ));
+    return true;
+  }
+
 
   /**
    * @param string $src

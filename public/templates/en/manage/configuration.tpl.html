@@ -2473,6 +2473,17 @@ function restoreDefaultColours(el)
 						</td>
 					</tr>
 					<tr>
+						<th>S3 Enabled</th>
+						<td>
+							<select name="aws_s3_enabled">
+								<option value="false"{if $config_settings.aws_s3_enabled == "false"} selected="selected"{/if}>No</option>
+								<option value="true"{if $config_settings.aws_s3_enabled == "true"} selected="selected"{/if}>Yes</option>
+							</select>
+							<br />Enable Amazon Web Services S3 features. Can be used while other features are on or off.
+							{include file="error_icon.tpl.html" field="aws_s3_enabled"}
+						</td>
+					</tr>
+					<tr>
 						<th>API Region</th>
 						<td>
 							<input type="text" name="aws_region" value="{$config_settings.aws_region}" size="20" />
