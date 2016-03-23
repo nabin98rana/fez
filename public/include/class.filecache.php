@@ -50,6 +50,7 @@ class fileCache {
 			$aws = new AWS();
 			if ($aws->checkExistsById("cache", $this->cacheFileName)) {
 				$htmlContent = $aws->getFileContent("cache", $this->cacheFileName);
+				$usingCache = true;
 			} else {
 				$usingCache = false;
 			}
