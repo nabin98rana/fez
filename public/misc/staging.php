@@ -36,8 +36,9 @@ foreach ($files as $sql) {
 
 $files = glob($path . "/*.txt");
 foreach ($files as $txt) {
+  $tbl = basename($txt, '.txt');
   $db->query(
-    "LOAD DATA LOCAL INFILE '" . basename($txt) . "' INTO TABLE " . basename($txt, '.txt') .
-    " FIELDS TERMINATED BY ',' ENCLOSED BY '\"' LINES TERMINATED BY '\r\n'"
+    "LOCK TABLE ${tbl} WRITE; LOAD DATA LOCAL INFILE '" . basename($txt) . "' INTO TABLE ${tbl}" .
+    " FIELDS TERMINATED BY ',' ENCLOSED BY '\"' LINES TERMINATED BY '\r\n'; UNLOCK TABLE ${tbl};"
   );
 }
