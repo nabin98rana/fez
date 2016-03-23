@@ -107,7 +107,7 @@ class AWS
     foreach ($files as $file) {
       $fileSize = filesize($file);
 
-      if (filesize($file) > $maxSize) {
+      if ($fileSize > $maxSize) {
         $this->log->err('File size greater than maximum allowed');
         return false;
       }
@@ -120,16 +120,72 @@ class AWS
           'name' => $baseFile,
           'size' => $fileSize,
       ];
+      try {
+        $client->putObject([
+            'Bucket' => AWS_S3_BUCKET,
+            'Key' => $src . '/' . $baseFile,
+            'SourceFile' => $file,
+            'ContentType' => $mimeType,
+            'ServerSideEncryption' => 'AES256',
+            'Metadata' => $meta
+        ]);
+        $results[] = $meta;
+      } catch (\Aws\S3\Exception\S3Exception $e) {
+        $this->log->err($e->getMessage());
+        return false;
+      }
+    }
 
+    return true; // TODO: return false when the response didn't work, log an error
+  }
+
+  /**
+   * @param string $src
+   * @param string $content
+   * @param string $filename
+   * @return boolean
+   */
+  public function postContent($src, $content, $fileName, $mimeType)
+  {
+    // Create an Amazon S3 client using the shared configuration data.
+    $client = $this->sdk->createS3();
+
+    if (strlen($fileName) < 1) {
+      $this->log->err('No file name in request');
+      return false;
+    }
+
+    $maxSize = 9999999999;
+
+    $results = [];
+
+    $fileSize = sizeof($content);
+
+    if ($fileSize > $maxSize) {
+      $this->log->err('File size greater than maximum allowed');
+      return false;
+    }
+
+    $meta = [
+        'key'  => $fileName,
+        'type' => $mimeType,
+        'name' => $fileName,
+        'size' => $fileSize,
+    ];
+
+    try {
       $client->putObject([
           'Bucket' => AWS_S3_BUCKET,
-          'Key' => $src . '/' .$baseFile,
-          'SourceFile' => $file,
+          'Key' => $src . '/' . $fileName,
+          'Body' => $content,
           'ContentType' => $mimeType,
           'ServerSideEncryption' => 'AES256',
           'Metadata' => $meta
       ]);
       $results[] = $meta;
+    } catch (\Aws\S3\Exception\S3Exception $e) {
+      $this->log->err($e->getMessage());
+      return false;
     }
 
     return true; // TODO: return false when the response didn't work, log an error
@@ -158,19 +214,59 @@ class AWS
   }
 
   /**
+   * @param string $match
+   * @return boolean
+   */
+  public function deleteMatchingObjects($match) {
+    if (strlen($match) > 1) {
+      try {
+        $client = $this->sdk->createS3();
+        $client->deleteMatchingObjects(AWS_S3_BUCKET, $match);
+      } catch (\Aws\S3\Exception\S3Exception $e) {
+        $this->log->err($e->getMessage());
+        return false;
+      }
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  /**
+   * @param string $src
+   * @param string $id
+   * @return boolean
+   */
+  public function checkExistsById($src, $id) {
+    $id = basename($id);
+    try {
+      $client = $this->sdk->createS3();
+      $found = $client->doesObjectExist(AWS_S3_BUCKET, $src . '/' . $id);
+    } catch (\Aws\S3\Exception\S3Exception $e) {
+      $this->log->err($e->getMessage());
+      return false;
+    }
+    return $found;
+  }
+
+  /**
    * @param string $src
    * @param string $id
    * @return boolean
    */
   public function deleteById($src, $id) {
     $id = basename($id);
-
-    $client = $this->sdk->createS3();
-    $client->deleteObject(
-      array(
-          'Bucket' => AWS_S3_BUCKET,
-          'Key'    => $src . '/' . $id
-      ));
+    try {
+      $client = $this->sdk->createS3();
+      $client->deleteObject(
+        array(
+            'Bucket' => AWS_S3_BUCKET,
+            'Key'    => $src . '/' . $id
+        ));
+    } catch (\Aws\S3\Exception\S3Exception $e) {
+      $this->log->err($e->getMessage());
+      return false;
+    }
     return true;
   }
 
@@ -182,14 +278,39 @@ class AWS
    */
   public function getMetadata($src, $id)
   {
-    $client = $this->sdk->createS3();
+    try {
+      $client = $this->sdk->createS3();
 
-    $result = $client->getObject(array(
-        'Bucket' => AWS_S3_BUCKET . '/' . $src,
-        'Key' => $id
-    ));
-
+      $result = $client->getObject(array(
+          'Bucket' => AWS_S3_BUCKET,
+          'Key' => $src . '/'. $id
+      ));
+    } catch (\Aws\S3\Exception\S3Exception $e) {
+      $this->log->err($e->getMessage());
+      return "";
+    }
     return $result['Metadata'];
+  }
+
+  /**
+   * @param string $src
+   * @param string $id
+   * @return Json Response
+   */
+  public function getFileContent($src, $id)
+  {
+    try {
+      $client = $this->sdk->createS3();
+
+      $result = $client->getObject(array(
+          'Bucket' => AWS_S3_BUCKET,
+          'Key' => $src . '/'. $id
+      ));
+    } catch (\Aws\S3\Exception\S3Exception $e) {
+      $this->log->err($e->getMessage());
+      return "";
+    }
+    return (string) $result['Body'];
   }
 
   /**

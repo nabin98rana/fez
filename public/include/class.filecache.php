@@ -3,6 +3,7 @@
 include_once(APP_INC_PATH . "class.custom_view.php");
 include_once(APP_INC_PATH . "class.record_view.php");
 include_once(APP_INC_PATH . "class.sherpa_romeo.php");
+include_once(APP_INC_PATH . "class.aws.php");
 
 
 class fileCache {
@@ -12,6 +13,7 @@ class fileCache {
 	var $pid;
 	var $cachePath;
 	var $flushCache;
+	var $useS3;
 
 	function fileCache($pid, $cacheid, $flushCache = false)
 	{
@@ -24,6 +26,12 @@ class fileCache {
 		$this->pid = $pid;
 		$this->cacheFileName = md5($cacheid);
 		$this->cachePath = $this->getPathFileOnDisk();
+		if (defined('AWS_S3_ENABLED') && AWS_S3_ENABLED == 'true') {
+			$this->useS3 = true;
+		} else {
+			$this->useS3 = false;
+		}
+
 	}
 
 	/**
@@ -36,10 +44,23 @@ class fileCache {
 	function checkForCacheFile($dontUseCache = false)
 	{
 
-		if(file_exists($this->cachePath.$this->cacheFileName) && !$this->flushCache) {
-			Statistics::addBuffer($this->pid);
+		$usingCache = false;
 
+		if ($this->useS3 == true && !$this->flushCache) {
+			$aws = new AWS();
+			if ($aws->checkExistsById("cache", $this->cacheFileName)) {
+				$htmlContent = $aws->getFileContent("cache", $this->cacheFileName);
+			} else {
+				$usingCache = false;
+			}
+		} elseif (file_exists($this->cachePath.$this->cacheFileName) && !$this->flushCache) {
+			$usingCache = true;
 			$htmlContent = file_get_contents($this->cachePath.$this->cacheFileName);
+		}
+
+
+		if ($usingCache == true) {
+			Statistics::addBuffer($this->pid);
 
 			$views = Record::getSearchKeyIndexValue($this->pid, "Views");
 			$dls = Record::getSearchKeyIndexValue($this->pid, "File Downloads");
@@ -108,7 +129,7 @@ class fileCache {
 	 *
 	 * @access public
 	 */
-	function saveCacheFile($save = true) 
+	function saveCacheFile($save = true)
 	{
 		$log = FezLog::get();
 
@@ -121,24 +142,29 @@ class fileCache {
 		 */
 		if($save) {
 
-			if(!is_dir($this->cachePath)) {
-				$ret = mkdir($this->cachePath, 0775, true);
+			if ($this->useS3) {
+				$aws = new AWS();
+				$aws->postContent("cache", $content, $this->cacheFileName, "text/html");
+			} else {
+				if(!is_dir($this->cachePath)) {
+					$ret = mkdir($this->cachePath, 0775, true);
 
-				if(!$ret) {
-					$log->err(array("Cache Page Failed - Could not create folder " . $this->cachePath, __FILE__ , __LINE__ ));
+					if(!$ret) {
+						$log->err(array("Cache Page Failed - Could not create folder " . $this->cachePath, __FILE__ , __LINE__ ));
+						return;
+					}
+				}
+
+				$handle = fopen($this->cachePath.$this->cacheFileName, 'w');
+				if(!$handle) {
+					$log->err(array("Cache Page Failed - Could not open cache file for saving " . $this->cachePath, __FILE__ , __LINE__ ));
 					return;
 				}
+
+				fwrite($handle, $content);
+				fclose($handle);
+
 			}
-
-			$handle = fopen($this->cachePath.$this->cacheFileName, 'w');
-			if(!$handle) {
-				$log->err(array("Cache Page Failed - Could not open cache file for saving " . $this->cachePath, __FILE__ , __LINE__ ));
-				return;
-			}
-
-			fwrite($handle, $content);
-			fclose($handle);
-
 		}
 
 	}
@@ -151,20 +177,30 @@ class fileCache {
 
 	function poisonAllCaches()
 	{
-		$locations = $this->getAllCacheLocations();
-		foreach ($locations as $dir) {
-			if (file_exists($dir . $this->cacheFileName)) {
-				@unlink($dir . $this->cacheFileName);
+		if ($this->useS3 == true) {
+			$aws = new AWS();
+			$aws->deleteById("cache", $this->cacheFileName);
+		} else {
+			$locations = $this->getAllCacheLocations();
+			foreach ($locations as $dir) {
+				if (file_exists($dir . $this->cacheFileName)) {
+					@unlink($dir . $this->cacheFileName);
+				}
 			}
 		}
 
 		return;
 	}
 
-    function checkCacheFileExists()
-    {
-        return (file_exists($this->cachePath.$this->cacheFileName));
-    }
+	function checkCacheFileExists()
+	{
+		if ($this->useS3 == true) {
+			$aws = new AWS();
+			return $aws->checkExistsById("cache", $this->cacheFileName);
+		} else {
+			return (file_exists($this->cachePath . $this->cacheFileName));
+		}
+	}
 
 	function getPathFileOnDisk()
 	{
