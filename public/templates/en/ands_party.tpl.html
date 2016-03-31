@@ -56,6 +56,10 @@
 				<identifier type="uri">http://www.researcherid.com/rid/{$list[i].aut_researcher_id}</identifier>
 			{/if}
 
+			{if $list[i].aut_orcid_id}
+				<identifier type="orcid">http://orcid.org/{$list[i].aut_orcid_id}</identifier>
+			{/if}
+
 			{if $list[i].aut_description}
 				<description type="brief">{$list[i].aut_description|strip_tags}</description>
 			{/if}
