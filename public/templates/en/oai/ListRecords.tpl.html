@@ -481,16 +481,6 @@
 				{/section}
 			{/if}
 		{/if}
-		{*if $list[i].rek_ismemberof_title}
-			{if !is_array($list[i].rek_ismemberof_title)}
-	        	<dc:relation>isMemberOf: {$is_memberof_title} collection {$app_base_url}list/{$list[i].rek_ismemberof}</dc:relation>
-			{else}
-		        {assign var="loop_relation" value=$list[i].rek_ismemberof_title}
-				{section name="s" loop=$loop_relation}
-			        <dc:relation>isMemberOf: {$loop_relation[s]} collection {$app_base_url}list/{$list[i].rek_ismemberof[s]}</dc:relation>
-				{/section}
-			{/if}
-		{/if*}
 		{if $list[i].rek_language}
 			{if !is_array($list[i].rek_language)}
 		       	<dc:language>{$list[i].rek_language}</dc:language>

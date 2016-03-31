@@ -30,7 +30,6 @@
 // | Authors: Aaron Brown <a.brown@library.uq.edu.au>                     |
 // +----------------------------------------------------------------------+
 //
-//  authi_arg_id = '11' is assumed to give all lister permissions for public access. It is not necessarily aways the the case it's this simple.
 //
 
 
