@@ -18,10 +18,10 @@ class BackgroundProcess_Generate_Bookreader_Images extends BackgroundProcess
 	function run()
 	{
         $this->setState(BGP_RUNNING);
-		extract(unserialize($this->inputs));
+			  extract(unserialize($this->inputs));
 
         $this->pdfConverter->setPIDQueue($pid, 'pdfToJpg');
-        $this->pdfConverter->runQueue();
+        $this->pdfConverter->runQueue($pid);
         $this->setState(BGP_FINISHED);
     }
 }

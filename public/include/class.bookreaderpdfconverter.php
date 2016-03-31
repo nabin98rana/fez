@@ -224,10 +224,11 @@ class bookReaderPDFConverter
 
     /**
      * Run the bookreader job queue.
+     * @param string $pid
      * @param bool $forceRegenerate
      * @return void
      */
-    public function runQueue($forceRegenerate=false)
+    public function runQueue($pid, $forceRegenerate=false)
     {
         foreach($this->queue as $job)
         {
