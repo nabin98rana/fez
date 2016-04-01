@@ -37,8 +37,15 @@ foreach ($files as $sql) {
 $files = glob($path . "/*.txt");
 foreach ($files as $txt) {
   $tbl = basename($txt, '.txt');
-  $db->query(
-    "LOCK TABLE ${tbl} WRITE; LOAD DATA LOCAL INFILE '" . basename($txt) . "' INTO TABLE ${tbl}" .
-    " FIELDS TERMINATED BY ',' ENCLOSED BY '\"' LINES TERMINATED BY '\r\n'; UNLOCK TABLE ${tbl};"
-  );
+
+  $sql = "LOCK TABLE ${tbl} WRITE; LOAD DATA LOCAL INFILE '" . basename($txt) . "' INTO TABLE ${tbl}" .
+      " FIELDS TERMINATED BY ',' ENCLOSED BY '\"' LINES TERMINATED BY '\r\n'; UNLOCK TABLE ${tbl};";
+  $dsn = "mysql:host=".APP_SQL_DBHOST.";dbname=".APP_SQL_DBNAME;
+  $con = new PDO($dsn, APP_SQL_DBUSER, APP_SQL_DBPASS,
+      array(
+          PDO::MYSQL_ATTR_LOCAL_INFILE => 1,
+      ));
+  $stmt = $con->prepare($sql);
+
+  $stmt->execute();
 }
