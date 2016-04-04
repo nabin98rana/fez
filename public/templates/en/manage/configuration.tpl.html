@@ -277,12 +277,22 @@ function restoreDefaultColours(el)
 		    <th>Secure logins</th>
 			<td>
 			  <select name="app_https">
-			    <option value="ON"{if $config_settings.app_https == ""} selected="selected"{/if}>On</option>
+			    <option value="ON"{if $config_settings.app_https == "ON"} selected="selected"{/if}>On</option>
 				<option value="OFF"{if $config_settings.app_https == "OFF"} selected="selected"{/if}>Off</option>
 			  </select>
 			  <br />Whether you want users redirected to SSL/HTTPS for login/password screens.
 			</td>
 		  </tr>
+			<tr>
+				<th>Redirect if URL doesn't match</th>
+				<td>
+					<select name="app_redirect_check">
+						<option value="ON"{if $config_settings.app_redirect_check == "ON"} selected="selected"{/if}>On</option>
+						<option value="OFF"{if $config_settings.app_redirect_check == "OFF"} selected="selected"{/if}>Off</option>
+					</select>
+					<br />This makes the system check the client url is the same as the server url, and if not redirect. Also overrides secure logins so disable WITH CAUTION.
+				</td>
+			</tr>
 		  <tr>
 		    <th>Disable password checking</th>
 			<td>
