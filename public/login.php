@@ -47,7 +47,7 @@ function generateCookieArray($value){
 	// Decodes and splits cookie value
 	$CookieArray = preg_split('/ /', $value);
 	$CookieArray = array_map('base64_decode', $CookieArray);
-	
+
 	return $CookieArray;
 }
 
@@ -64,12 +64,12 @@ function generateCookieValue($CookieArray){
 /******************************************************************************/
 
 function appendCookieValue($value, $CookieArray){
-	
+
 	array_push($CookieArray, $value);
 	$CookieArray = array_reverse($CookieArray);
 	$CookieArray = array_unique($CookieArray);
 	$CookieArray = array_reverse($CookieArray);
-	
+
 	return $CookieArray;
 }
 /******************************************************************************/
@@ -84,14 +84,14 @@ function checkIDP($IDP, $IDProviders){
 		Error_Handler::logError($message, __FILE__, __LINE__);
 		return false;
 	}
-	
+
 	return true;
 }
 
 /******************************************************************************/
 
 function getLoginHostName($string){
-	
+
 	if (preg_match('/([a-zA-Z0-9\-\.]+\.[a-zA-Z0-9\-\.]{2,6})/', $string, $matches))
 		return $matches[0];
 	else
@@ -101,18 +101,18 @@ function getLoginHostName($string){
 /******************************************************************************/
 
 function parseSSO($string, $IDProviders, $redirectCookieName){
-	
+
 	// Remove redirect statement
 //	$IDPurl = eregi_replace($redirectCookieName, '', $string);
 	$IDPurl = str_ireplace($redirectCookieName, '', $string);
-	
+
 	// Remove slashes
 	$IDPurl = preg_replace('/\//', '', $IDPurl);
-	
+
 	// Do we still have something
 	if ($IDPurl != ''){
-		
-		// Find a matching IdP SSO, must be matching the IdP urn 
+
+		// Find a matching IdP SSO, must be matching the IdP urn
 		// or at least the last part of the urn
 		foreach ($IDProviders as $key => $value){
 			if (preg_match('/'.$IDPurl.'$/', $key)){
@@ -120,7 +120,7 @@ function parseSSO($string, $IDProviders, $redirectCookieName){
 			}
 		}
 	}
-	
+
 	return '-';
 }
 
@@ -152,7 +152,7 @@ else if (isset($_SERVER['HTTP_X_FORWARDED_PROTO'])) {
 
 // Redirect for secure login.
 
-if ((!$is_https && (APP_HTTPS == "ON")) || ($_SERVER['HTTP_HOST'] != APP_HOSTNAME))  {
+if (((!$is_https && (APP_HTTPS == "ON")) || ($_SERVER['HTTP_HOST'] != APP_HOSTNAME)) && APP_REDIRECT_CHECK != 'OFF')  {
    header ("HTTP 302 Redirect");
    if (APP_HTTPS == "ON") {
        header ("Location: https://".APP_HOSTNAME.APP_RELATIVE_URL."login.php"."?".$_SERVER['QUERY_STRING']);
@@ -165,7 +165,7 @@ $tpl = new Template_API();
 $tpl->setTemplate("index.tpl.html");
 $_GET['url'] = base64_decode($_GET['url']);
 if (Auth::hasValidSession(APP_SESSION)) {
-    if ($_SESSION["autologin"]) {    	
+    if ($_SESSION["autologin"]) {
         if (!empty($_GET["url"])) {
             $extra = '?url=' . $_GET["url"];
         } else {
@@ -180,13 +180,13 @@ if (Auth::hasValidSession(APP_SESSION)) {
 }
 $tpl->assign("SHIB_SWITCH", SHIB_SWITCH);
 if (SHIB_SWITCH == "ON" && SHIB_VERSION == "1") {
-	
-	// set the url session for shib logins so redirects 
+
+	// set the url session for shib logins so redirects
 	// to index.php (front page) then redirecto to the original url
 	if (!empty($_GET["url"])) {
-		$_SESSION["url"] = $_GET["url"];			
+		$_SESSION["url"] = $_GET["url"];
 	}
-	
+
 	// Configuration
 	$commonDomain = '.'; // Must start with a .
 	$redirectCookieName = 'redirect';
@@ -201,9 +201,9 @@ if (SHIB_SWITCH == "ON" && SHIB_VERSION == "1") {
 	} else {
 		$redirectIDP = '-';
 	}
-	
+
 	// IDP determined by resource hint
-	if ($_SERVER['PATH_INFO'] 
+	if ($_SERVER['PATH_INFO']
 		&& ($tmp = parseSSO($_SERVER['PATH_INFO'], $IDProviders, $redirectCookieName))
 		&& $tmp != '-'
 		&& checkIDP($tmp, $IDProviders)
@@ -225,8 +225,8 @@ if (SHIB_SWITCH == "ON" && SHIB_VERSION == "1") {
 		$IDPArray = array();
 		$previousIDP = '-';
 	}
-	
-	
+
+
 	// Determine selected IDP
 	if ($hintedIDP != '-'){
 		$selectedIDP = $hintedIDP;
@@ -237,11 +237,11 @@ if (SHIB_SWITCH == "ON" && SHIB_VERSION == "1") {
 	} else {
 		$selectedIDP = '-';
 	}
-	
+
 	// Delete permanent cookie
 	if ($_REQUEST['clear_permanent_cookie']){
 		setcookie ($redirectCookieName, '', time() - 3600, '/', $commonDomain, true);
-		
+
 		if ($_REQUEST['getArguments']){
 			header('Location: ?'.$_REQUEST['getArguments']);
 		} else {
@@ -250,38 +250,38 @@ if (SHIB_SWITCH == "ON" && SHIB_VERSION == "1") {
 		exit;
 	} elseif ($_REQUEST['set_permanent_cookie'] && checkIDP($_REQUEST['set_permanent_cookie'], $IDProviders)){
 		setcookie ($redirectCookieName, $_REQUEST['set_permanent_cookie'], time() + (1000*24*3600), '/', $commonDomain, true);
-		
+
 		header('Location: '.$_SERVER['PHP_SELF']);
 	}
-	
+
 	// Coming from a resource with proper GET arguments or from WAYF
 	if ( ($_REQUEST['shire'] && $_REQUEST['target']) || $_REQUEST['getArguments']) {
-		
+
 		// User returned selection
 		if($_REQUEST['origin'] && $_REQUEST['origin'] != '-' && checkIDP($_REQUEST['origin'], $IDProviders)) {
 			// Set Cookie to remember the selection
 			// Expiration in 1000 days
 			// Add origin as most recent to idp cookie
 			$IDPArray = appendCookieValue($_REQUEST['origin'], $IDPArray);
-			
+
 			setcookie ($SAMLDomainCookieName, generateCookieValue($IDPArray) , time() + (1000*24*3600), '/', $commonDomain, true);
-			
+
 			// Set cookie permanent or for session for automatic redirection
 			if ($_REQUEST['permanent_redirect']){
 				setcookie ($redirectCookieName, $_REQUEST['origin'], time() + (1000*24*3600), '/', $commonDomain, true);
-				
+
 				// Go to settings page
 				header(
 					'Location: ?redirectArguments='.urlencode($_REQUEST['getArguments'])
 					);
 				exit;
 			} else {
-				
+
 				// Do we have to set the refresh cookie?
 				if ($_REQUEST[$redirectCookieName]){
 					setcookie ($redirectCookieName, $_REQUEST['origin'], null, '/', $commonDomain, true);
 				}
-				
+
 				// Go to Identity Provider
 				$_SESSION['IDP_LOGIN_FLAG'] = 1; // set the login flag to that fez will know the next time (only) it goes to index.php it has to get the shib attribs
 				Auth::setHomeIDPCookie($_REQUEST['origin']); // set the origin cookie
@@ -292,7 +292,7 @@ if (SHIB_SWITCH == "ON" && SHIB_VERSION == "1") {
 				exit;
 			}
 		}
-		
+
 		// Redirect if cookie is set
 		elseif ( $redirectIDP != '-'){
 			header(
@@ -301,7 +301,7 @@ if (SHIB_SWITCH == "ON" && SHIB_VERSION == "1") {
 				);
 			exit;
 		}
-		
+
 		// Redirect if resource gives a hint and forces a refresh
 		elseif ($hintedIDP != '-' && stristr($_SERVER['PATH_INFO'], $redirectCookieName)){
 			header(
@@ -311,9 +311,9 @@ if (SHIB_SWITCH == "ON" && SHIB_VERSION == "1") {
 			exit;
 		}
 	}
-	
+
 	elseif((!$_REQUEST['shire'] && $_REQUEST['target']) || ($_REQUEST['shire'] && !$_REQUEST['target'])){
-		
+
 		$invalidstring = urldecode($_SERVER['QUERY_STRING']);
 		$invalidstring = preg_replace('/&/i',"&\n",$invalidstring);
 		if ($invalidstring == '')
@@ -323,14 +323,14 @@ if (SHIB_SWITCH == "ON" && SHIB_VERSION == "1") {
 		echo $message;
 		exit;
 	}
-	
+
 	$tpl->assign("SHIB_IDP_LIST", $IDPList['List']);
 } else {
 	if (SHIB_VERSION == "2" && SHIB_SWITCH == "ON") { // so easy with shib 2.. all the above taken care of by the embedded wayf
-		// set the url session for shib logins so redirects 
+		// set the url session for shib logins so redirects
 		// to index.php (front page) then redirecto to the original url
-		if (!empty($_GET["url"])) { 		
-			$_SESSION["url"] = $_GET["url"];			
+		if (!empty($_GET["url"])) {
+			$_SESSION["url"] = $_GET["url"];
 		}
 		// Set  refresh rate of the login page to 3 mins/ 180 secs so that the shib 2.x time doesnt go beyond the 5 min limit of the IDPs
     	$tpl->assign('refresh_rate', 180);
@@ -341,7 +341,7 @@ if (SHIB_SWITCH == "ON" && SHIB_VERSION == "1") {
 
 	if (SHIB_VERSION == "3" && SHIB_SWITCH == "ON") { // so easy with simple saml.. all the above taken care of by the embedded wayf from Simple SAML PHP
 		if (!empty($_GET["url"])) {
-			$_SESSION["url"] = $_GET["url"];			
+			$_SESSION["url"] = $_GET["url"];
 		}
 		$auth = new SimpleSAML_Auth_Simple('default-sp');
 
@@ -354,11 +354,11 @@ if (SHIB_SWITCH == "ON" && SHIB_VERSION == "1") {
 			$SSPUrl = $auth->getLoginURL("https://".APP_HOSTNAME);
 			Auth::redirect($SSPUrl);
 			exit;
-		} 
+		}
 		$SSPUrl = $_SERVER['PHP_SELF']."?wayf-idp=true";
 		$tpl->assign("SSP_URL", $SSPUrl);
 		$SSPDirectUrl = $_SERVER['PHP_SELF']."?default-idp=true";
-		$tpl->assign("SSP_DIRECT_URL", $SSPDirectUrl);		
+		$tpl->assign("SSP_DIRECT_URL", $SSPDirectUrl);
 	}
 }
 $shib_home_idp = Auth::getHomeIDPCookie();

@@ -38,7 +38,7 @@ include_once(APP_INC_PATH . "class.auth.php");
 include_once(APP_INC_PATH . "class.misc.php");
 include_once(APP_INC_PATH . "class.record_object.php");
 
-if ((($_SERVER["SERVER_PORT"] != 443) && (APP_HTTPS == "ON"))) { //should be ssl when using basic auth
+if (((($_SERVER["SERVER_PORT"] != 443) && (APP_HTTPS == "ON"))) && APP_REDIRECT_CHECK != 'OFF') { //should be ssl when using basic auth
 	header ("Location: https://".APP_HOSTNAME.APP_RELATIVE_URL."basicview.php"."?".$_SERVER['QUERY_STRING']);
 	exit;
 }
