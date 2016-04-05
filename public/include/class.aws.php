@@ -85,6 +85,73 @@ class AWS
     }
   }
 
+  /**
+   * @param string $family
+   * @param array $overrides
+   * @return bool
+   */
+  public function runBackgroundTask($family, $overrides) {
+    if ($this->countTasksRunningOrPendingInFamily($family) === 0) {
+      $result = $this->runTask($family, $overrides, 1);
+
+      return true;
+    }
+    return false;
+  }
+  
+  /**
+   * @param string $family
+   * @return int|bool
+   */
+  public function countTasksRunningOrPendingInFamily($family) {
+    $ecs = $this->sdk->createEcs();
+
+    try {
+      $result = $ecs->listTasks([
+        'cluster' => AWS_ECS_CLUSTER,
+        'desiredStatus' => 'RUNNING',
+        'family' => $family
+      ]);
+      $count = count($result['taskArns']);
+      
+      $result = $ecs->listTasks([
+        'cluster' => AWS_ECS_CLUSTER,
+        'desiredStatus' => 'PENDING',
+        'family' => $family
+      ]);
+      $count += count($result['taskArns']);
+
+      return $count;
+
+    } catch (Exception $ex) {
+      $this->log->err($ex->getMessage());
+      return false;
+    }
+  }
+
+  /**
+   * @param string $taskDefinition
+   * @param array $overrides
+   * @param int $count
+   * @return \Aws\Result|bool
+   */
+  public function runTask($taskDefinition, $overrides, $count) {
+    $ecs = $this->sdk->createEcs();
+
+    try {
+      $result = $ecs->runTask([
+        'cluster' => AWS_ECS_CLUSTER,
+        'count' => $count,
+        'overrides' => $overrides,
+        'taskDefinition' => $taskDefinition,
+      ]);
+      return $result;
+
+    } catch (Exception $ex) {
+      $this->log->err($ex->getMessage());
+      return false;
+    }
+  }
 
   /**
    * @param string $src

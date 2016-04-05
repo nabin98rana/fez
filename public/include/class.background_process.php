@@ -283,25 +283,20 @@ class BackgroundProcess {
 			$aws = new AWS();
 
 			$env = strtolower($_SERVER['APPLICATION_ENV']);
-      $serviceName = 'fezbgp' . $env;
-      $service = $aws->describeEcsService($serviceName);
-
-      // If a service is available to handle background processes, and it isn't already running a task..
-      if ($service && @$service['services'][0]['runningCount'] === 0) {
-        $message = file_get_contents(APP_PATH . '/../.docker/' . $env . '/aws-bgp-task-definition.json');
-        $message = str_replace('<BGP_ID>', $this->bgp_id, $message);
-        $message = str_replace('<COMMIT_HASH>', $_SERVER['APPLICATION_COMMIT_HASH'], $message);
-        $message = str_replace('<NEWRELIC_LICENSE>', $_SERVER['NEWRELIC_LICENSE'], $message);
-
-        $attributes = [
-          'service' => [
-            'StringValue' => 'fezbgp' . $env,
-            'DataType' => 'String',
-          ]
-        ];
-        $aws->sendSqsMessage(AWS_BGP_QUEUE_URL, $message, $attributes);
-      }
-
+      $family = 'fezbgp' . $env;
+			$aws->runBackgroundTask($family, [
+				'containerOverrides' => [
+					'environment' => [
+						'name' => 'BGP_ID',
+						'value' => $this->bgp_id
+					],
+					'name' => 'fpm'
+				],
+				[
+					'name' => 'nginx',
+					'command' => ' /usr/bin/tail -f /dev/null'
+				]
+			]);
 		} else {
 			$command = APP_PHP_EXEC . " \"" . APP_PATH . "misc/run_background_process.php\" " . $this->bgp_id . " \""
 				. APP_PATH . "\" > " . APP_TEMP_DIR . "fezbgp/fezbgp_" . $this->bgp_id . ".log";
