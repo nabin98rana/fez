@@ -280,40 +280,16 @@ class BackgroundProcess {
 		$bgpPids->insertPids($this->bgp_id, $inputs);
 
 		$this->serialize();
-
-		if (defined('AWS_ENABLED') && AWS_ENABLED == 'true') {
-
-			$aws = new AWS();
-
-			$env = strtolower($_SERVER['APPLICATION_ENV']);
-      $family = 'fez' . $env;
-
-			$aws->runBackgroundTask($family, ['containerOverrides' => [
-				[
-					'environment' => [
-						[
-							'name' => 'BGP_ID',
-							'value' => $this->bgp_id,
-						],
-					],
-					'name' => 'fpm',
-				],
-				[
-					'command' => ['/usr/bin/tail -f /dev/null'],
-					'name' => 'nginx',
-				],
-			],]);
-
-		} else {
-			$command = APP_PHP_EXEC . " \"" . APP_PATH . "misc/run_background_process.php\" " . $this->bgp_id . " \""
-				. APP_PATH . "\" > " . APP_TEMP_DIR . "fezbgp/fezbgp_" . $this->bgp_id . ".log";
-			if ((stristr(PHP_OS, 'win')) && (!stristr(PHP_OS, 'darwin'))) { // Windows Server
-				pclose(popen("start /min /b " . $command, 'r'));
-			}
-			else {
-				exec($command . " 2>&1 &");
-			}
+		
+		$command = APP_PHP_EXEC . " \"" . APP_PATH . "misc/run_background_process.php\" " . $this->bgp_id . " \""
+			. APP_PATH . "\" \"1\"> " . APP_TEMP_DIR . "fezbgp/fezbgp_" . $this->bgp_id . ".log";
+		if ((stristr(PHP_OS, 'win')) && (!stristr(PHP_OS, 'darwin'))) { // Windows Server
+			pclose(popen("start /min /b " . $command, 'r'));
 		}
+		else {
+			exec($command . " 2>&1 &");
+		}
+		
 		return $this->bgp_id;
 	}
 
