@@ -289,15 +289,17 @@ class BackgroundProcess {
       $family = 'fez' . $env;
 			$aws->runBackgroundTask($family, [
 				'containerOverrides' => [
-					'environment' => [
-						'name' => 'BGP_ID',
-						'value' => $this->bgp_id
+					[
+						'environment' => [
+							'name' => 'BGP_ID',
+							'value' => $this->bgp_id
+						],
+						'name' => 'fpm'
 					],
-					'name' => 'fpm'
-				],
-				[
-					'name' => 'nginx',
-					'command' => ' /usr/bin/tail -f /dev/null'
+					[
+						'command' => ' /usr/bin/tail -f /dev/null',
+						'name' => 'nginx',
+					]
 				]
 			]);
 		} else {
