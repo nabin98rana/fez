@@ -440,8 +440,6 @@ class Author
 	$tags = '<b><i><sup><sub><em><strong><u><br>';
 	$stripped_description = strip_tags($_POST["description"], $tags);
 
-    $authorDetails = Author::getDetails($_POST["id"]);
-
     $stmt = "UPDATE
                     " . APP_TABLE_PREFIX . "author
                  SET
@@ -604,8 +602,8 @@ class Author
                     " . APP_TABLE_PREFIX . "author
                  (
                     aut_title,
-          aut_fname,
-          aut_lname,
+                    aut_fname,
+                    aut_lname,
                     aut_created_date,
                     aut_display_name";
 
@@ -653,11 +651,11 @@ class Author
     }
 
     $values = ") VALUES (
-                    " . $db->quote(trim($_POST["title"])) . ",
-          " . $db->quote(trim($_POST["fname"])) . ",
-          " . $db->quote(trim($_POST["lname"])) . ",
-                    " . $db->quote(Date_API::getCurrentDateGMT()) . "
-                  ";
+    
+    " . $db->quote(trim($_POST["title"])) . ",
+    " . $db->quote(trim($_POST["fname"])) . ",
+    " . $db->quote(trim($_POST["lname"])) . ",
+    " . $db->quote(Date_API::getCurrentDateGMT());
 
     if ($_POST["dname"] !== "") {
       $values .= ", " . $db->quote(trim($_POST["dname"]));
@@ -705,6 +703,7 @@ class Author
         $values .= ", " . $db->quote(trim($_POST["mypub_url"]));
     }
     if ($_POST["description"] !== "") {
+      $tags = '<b><i><sup><sub><em><strong><u><br>';
 	  $stripped_description = strip_tags(trim($_POST["description"]), $tags); //strip HTML tags
       $values .= ", " . $db->quote($stripped_description);
     }
@@ -1336,9 +1335,9 @@ class Author
         if (strlen($term) < 8 && (strpos($term, ' ') !== FALSE)) {
             $tempTerm = substr($term, 0, strpos($term, ' '));;
             $tempTerm = str_replace(array(',', ' '),'',$tempTerm);
-            $stmt .= ' , aut_lname = "'.$tempTerm.'" AS Relevance';
+            $stmt .= ' , MATCH (aut_lname) AGAINST ("'.$tempTerm.'") AS Relevance';
         } else {
-            $stmt .= " , aut_display_name = ".$db->quote($term)." as Relevance ";
+            $stmt .= " , MATCH (aut_display_name) AGAINST (".$db->quote($term).") as Relevance ";
         }
     }
 

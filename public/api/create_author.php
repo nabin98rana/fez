@@ -27,59 +27,43 @@
 // | 59 Temple Place - Suite 330                                          |
 // | Boston, MA 02111-1307, USA.                                          |
 // +----------------------------------------------------------------------+
-// | Authors: Christiaan Kortekaas <c.kortekaas@library.uq.edu.au>,       |
-// |          Matthew Smith <m.smith@library.uq.edu.au>                   |
+// | Authors: Aaron Brown <a.brown@library.uq.edu.au>                     |
 // +----------------------------------------------------------------------+
 //
 //
-include_once("config.inc.php");
-//include_once(APP_INC_PATH . "class.db_api.php");
-include_once(APP_INC_PATH . "class.auth.php");
-include_once(APP_INC_PATH . "class.misc.php");
-include_once(APP_INC_PATH . "class.record_object.php");
 
-if (((($_SERVER["SERVER_PORT"] != 443) && (APP_HTTPS == "ON"))) && APP_REDIRECT_CHECK != 'OFF') { //should be ssl when using basic auth
-	header ("Location: https://".APP_HOSTNAME.APP_RELATIVE_URL."basicview.php"."?".$_SERVER['QUERY_STRING']);
-	exit;
+
+include_once('../config.inc.php');
+include_once(APP_INC_PATH . "class.db_api.php");
+include_once(APP_INC_PATH . "class.publons.php");
+
+//usefull for getting raw data
+$user = Auth::getUsername();
+$isSuperAdministrator = User::isUserSuperAdministrator($user);
+
+$callback = $_REQUEST['callback'];
+$callback = !empty($callback) ? preg_replace('/[^a-z0-9\.$_]/si', '', $callback) : false;
+header('Access-Control-Allow-Origin: *');
+header('Content-Type: ' . ($callback ? 'application/javascript' : 'application/json') . ';charset=UTF-8');
+
+echo ($callback ? '/**/'.$callback . '(' : '');
+
+$securityToken = $_SERVER['HTTP_X_API_TOKEN'];
+
+if (($securityToken != APP_API_IDS_TOKEN) && !$isSuperAdministrator) {
+    http_response_code(401);
+    echo json_encode("Not authorized");
+    echo $callback ? ');' : '';
+    exit();
 }
-if (!Auth::isValidSession($session)) { // if user not already logged in
-	$ipPool = array();
-	if (defined('APP_BASIC_AUTH_IP')) {
-		$ipPool = Auth::getBasicAuthIPs();
-	}
 
-	# Check pool of Basic Auth IP addresses
-	if (defined('APP_BASIC_AUTH_IP') && (!in_array($_SERVER['REMOTE_ADDR'], $ipPool))) {
-		$record = new RecordObject($_GET['pid']);
-		$canView = $record->canView();
-		if ($canView) {
-			header("Location: https://" . APP_HOSTNAME . APP_RELATIVE_URL . "view/" . $_GET['pid']);
-			exit;
-		}
-	}
-}
+$result = Author::insert();
 
-if (!isset($_SERVER['PHP_AUTH_USER'])) {
-    header('WWW-Authenticate: Basic realm="'.APP_HOSTNAME.'"');
-    header('HTTP/1.0 401 Unauthorized');
-    echo 'You must login to access this service';
-    exit;
+if ($result === 1) {
+    echo json_encode(array("status" => "ok"));
 } else {
-	// Check for basic authentication (over ssl) to bypass authorisation and login the user coming directly to eserv.php (and bypass usual login)
-	if (!Auth::isValidSession($session)) { // if user not already logged in
-		//print_r($_SERVER); exit;
-		if (isset($_SERVER['PHP_AUTH_USER'])) { // check to see if there is some basic auth login..
-			$username = $_SERVER['PHP_AUTH_USER'];
-			$pw = $_SERVER['PHP_AUTH_PW'];
-			if (Auth::isCorrectPassword($username, $pw)) {
-				Auth::LoginAuthenticatedUser($username, $pw, false);
-				header ("Location: https://".APP_HOSTNAME.APP_RELATIVE_URL."view/".$_GET['pid']);
-				exit;
-			} else {
-				header('WWW-Authenticate: Basic realm="'.APP_HOSTNAME.'"');
-				header('HTTP/1.0 401 Unauthorized');
-				exit;
-			}
-		}
-	}
+    http_response_code(400);
+    echo json_encode(array("status" => "fail " . $result));
 }
+
+echo $callback ? ');' : '';

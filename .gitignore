@@ -1,6 +1,8 @@
 *~
 .DS_Store
 .idea
+.credentials
+*.fstab
 *.orig
 *.bak
 *.ser
