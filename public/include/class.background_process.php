@@ -286,7 +286,7 @@ class BackgroundProcess {
 			$aws = new AWS();
 
 			$env = strtolower($_SERVER['APPLICATION_ENV']);
-      $family = 'fezbgp' . $env;
+      $family = 'fez' . $env;
 			$aws->runBackgroundTask($family, [
 				'containerOverrides' => [
 					'environment' => [
