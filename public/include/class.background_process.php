@@ -287,21 +287,23 @@ class BackgroundProcess {
 
 			$env = strtolower($_SERVER['APPLICATION_ENV']);
       $family = 'fez' . $env;
-			$aws->runBackgroundTask($family, [
-				'containerOverrides' => [
-					[
-						'environment' => [
+
+			$aws->runBackgroundTask($family, ['containerOverrides' => [
+				[
+					'environment' => [
+						[
 							'name' => 'BGP_ID',
-							'value' => $this->bgp_id
+							'value' => $this->bgp_id,
 						],
-						'name' => 'fpm'
 					],
-					[
-						'command' => ' /usr/bin/tail -f /dev/null',
-						'name' => 'nginx',
-					]
-				]
-			]);
+					'name' => 'fpm',
+				],
+				[
+					'command' => ['/usr/bin/tail -f /dev/null'],
+					'name' => 'nginx',
+				],
+			],]);
+
 		} else {
 			$command = APP_PHP_EXEC . " \"" . APP_PATH . "misc/run_background_process.php\" " . $this->bgp_id . " \""
 				. APP_PATH . "\" > " . APP_TEMP_DIR . "fezbgp/fezbgp_" . $this->bgp_id . ".log";
