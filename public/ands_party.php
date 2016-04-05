@@ -61,6 +61,7 @@ $stmt = "SELECT aut_id,
 				aut_scopus_id,
 				aut_people_australia_id,
 				aut_researcher_id,
+				aut_orcid_id,
 				aut_description,
 				aut_update_date
 			FROM " . APP_TABLE_PREFIX . "author as t1
@@ -80,6 +81,7 @@ $stmt = "SELECT aut_id,
 				aut_scopus_id,
 				aut_people_australia_id,
 				aut_researcher_id,
+				aut_orcid_id,
 				aut_description,
 				aut_update_date
 		FROM " . APP_TABLE_PREFIX . "author as t1
