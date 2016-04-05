@@ -37,9 +37,9 @@ include_once("config.inc.php");
 include_once(APP_INC_PATH . "class.auth.php");
 include_once(APP_INC_PATH . "class.misc.php");
 
-if ((($_SERVER["SERVER_PORT"] != 443) && (APP_HTTPS == "ON"))) { //should be ssl when using basic auth
+if (((($_SERVER["SERVER_PORT"] != 443) && (APP_HTTPS == "ON"))) && APP_REDIRECT_CHECK != 'OFF') { //should be ssl when using basic auth
 	header ("Location: https://".APP_HOSTNAME.APP_RELATIVE_URL."basiceserv.php"."?".$_SERVER['QUERY_STRING']);
-	exit;        		
+	exit;
 }
 $pid = $_GET['pid'];
 if (!Auth::isValidSession($session)) { // if user not already logged in
@@ -69,7 +69,7 @@ if (!isset($_SERVER['PHP_AUTH_USER'])) {
 			if (Auth::isCorrectPassword($username, $pw)) {
 				Auth::LoginAuthenticatedUser($username, $pw, false);
 				header ("Location: https://".APP_HOSTNAME.APP_RELATIVE_URL."view/".$_GET['pid']."/".$_GET['dsid']);
-				exit;        		        			
+				exit;
 			} else {
 				header('WWW-Authenticate: Basic realm="'.APP_HOSTNAME.'"');
 				header('HTTP/1.0 401 Unauthorized');

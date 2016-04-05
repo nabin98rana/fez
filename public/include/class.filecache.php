@@ -3,7 +3,9 @@
 include_once(APP_INC_PATH . "class.custom_view.php");
 include_once(APP_INC_PATH . "class.record_view.php");
 include_once(APP_INC_PATH . "class.sherpa_romeo.php");
-include_once(APP_INC_PATH . "class.aws.php");
+if (defined('AWS_S3_ENABLED') && AWS_S3_ENABLED == 'true') {
+	include_once(APP_INC_PATH . "class.aws.php");
+}
 
 
 class fileCache {

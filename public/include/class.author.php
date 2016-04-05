@@ -1335,9 +1335,9 @@ class Author
         if (strlen($term) < 8 && (strpos($term, ' ') !== FALSE)) {
             $tempTerm = substr($term, 0, strpos($term, ' '));;
             $tempTerm = str_replace(array(',', ' '),'',$tempTerm);
-            $stmt .= ' , aut_lname = "'.$tempTerm.'" AS Relevance';
+            $stmt .= ' , MATCH (aut_lname) AGAINST ("'.$tempTerm.'") AS Relevance';
         } else {
-            $stmt .= " , aut_display_name = ".$db->quote($term)." as Relevance ";
+            $stmt .= " , MATCH (aut_display_name) AGAINST (".$db->quote($term).") as Relevance ";
         }
     }
 
