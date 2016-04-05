@@ -23,4 +23,8 @@ if [ "${NEWRELIC_LICENSE}" != "" ]; then
 fi
 set -x
 
-exec /usr/sbin/php-fpm --nodaemonize
+if [ "${BGP_ID}" != "" ]; then
+  php ${BASE_DIR}/public/misc/run_background_process.php ${BGP_ID}
+else
+  exec /usr/sbin/php-fpm --nodaemonize
+fi

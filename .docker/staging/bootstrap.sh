@@ -1,11 +1,10 @@
 #!/bin/bash
 
 set -xe
-BASE_DIR=/var/app/current
+BASE_DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && cd ../../ && pwd )
 
 cd ${BASE_DIR}/.docker/staging
 
-# turn off output whilst we work with private variables
 set +x
 if [ "${WEBCRON_TOKEN}" != "" ]; then
   sed -i "s/WEBCRON_TOKEN/${WEBCRON_TOKEN}/" ${BASE_DIR}/.docker/staging/fez.cron
@@ -25,4 +24,8 @@ if [ "${NEWRELIC_LICENSE}" != "" ]; then
 fi
 set -x
 
-exec /usr/sbin/php-fpm --nodaemonize
+if [ "${BGP_ID}" != "" ]; then
+  php ${BASE_DIR}/public/misc/run_background_process.php ${BGP_ID}
+else
+  exec /usr/sbin/php-fpm --nodaemonize
+fi
