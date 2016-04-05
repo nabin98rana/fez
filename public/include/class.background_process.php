@@ -280,41 +280,16 @@ class BackgroundProcess {
 		$bgpPids->insertPids($this->bgp_id, $inputs);
 
 		$this->serialize();
-
-		if (defined('AWS_ENABLED') && AWS_ENABLED == 'true') {
-
-			$aws = new AWS();
-
-			$env = strtolower($_SERVER['APPLICATION_ENV']);
-      $serviceName = 'fezbgp' . $env;
-      $service = $aws->describeEcsService($serviceName);
-
-      // If a service is available to handle background processes, and it isn't already running a task..
-      if ($service && @$service['services'][0]['runningCount'] === 0) {
-        $message = file_get_contents(APP_PATH . '/../.docker/' . $env . '/aws-bgp-task-definition.json');
-        $message = str_replace('<BGP_ID>', $this->bgp_id, $message);
-        $message = str_replace('<COMMIT_HASH>', $_SERVER['APPLICATION_COMMIT_HASH'], $message);
-        $message = str_replace('<NEWRELIC_LICENSE>', $_SERVER['NEWRELIC_LICENSE'], $message);
-
-        $attributes = [
-          'service' => [
-            'StringValue' => 'fezbgp' . $env,
-            'DataType' => 'String',
-          ]
-        ];
-        $aws->sendSqsMessage(AWS_BGP_QUEUE_URL, $message, $attributes);
-      }
-
-		} else {
-			$command = APP_PHP_EXEC . " \"" . APP_PATH . "misc/run_background_process.php\" " . $this->bgp_id . " \""
-				. APP_PATH . "\" > " . APP_TEMP_DIR . "fezbgp/fezbgp_" . $this->bgp_id . ".log";
-			if ((stristr(PHP_OS, 'win')) && (!stristr(PHP_OS, 'darwin'))) { // Windows Server
-				pclose(popen("start /min /b " . $command, 'r'));
-			}
-			else {
-				exec($command . " 2>&1 &");
-			}
+		
+		$command = APP_PHP_EXEC . " \"" . APP_PATH . "misc/run_background_process.php\" " . $this->bgp_id . " \""
+			. APP_PATH . "\" \"1\"> " . APP_TEMP_DIR . "fezbgp/fezbgp_" . $this->bgp_id . ".log";
+		if ((stristr(PHP_OS, 'win')) && (!stristr(PHP_OS, 'darwin'))) { // Windows Server
+			pclose(popen("start /min /b " . $command, 'r'));
 		}
+		else {
+			exec($command . " 2>&1 &");
+		}
+		
 		return $this->bgp_id;
 	}
 

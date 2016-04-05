@@ -35,29 +35,55 @@
 if (!(stristr(PHP_OS, 'win') && !stristr(PHP_OS, 'darwin'))) {
     proc_nice(10);
 }
-
-$ARGV = $_SERVER['argv'];
-$base = $ARGV[2];
+array_shift($argv);
+$ARGS = $argv;
 
 include_once dirname(dirname(__FILE__)).DIRECTORY_SEPARATOR.'config.inc.php';
 include_once(APP_INC_PATH.'class.background_process.php');
 
+$useAws = false;
 if (defined('AWS_ENABLED') && AWS_ENABLED == 'true') {
-  $bgp_id = $_ENV['BGP_ID'];
-} else {
-  $bgp_id = $ARGV[1];
+  $useAws = true;
 }
+
+$bgp_id = (@$ARGS[0]) ? @$ARGS[0] : @$_ENV['BGP_ID'];
+$base = @$ARGS[1];
+$launchTask = @$ARGS[2];
 
 if (!is_numeric($bgp_id)) {
-	echo "bgp_id is not numeric so exiting $bgp_id";
-	exit;
+  echo "bgp_id is not numeric so exiting $bgp_id";
+  exit;
 }
 
-$bgp = new BackgroundProcess($bgp_id);
-$bgp->runCurrent();
+if ($useAws && $launchTask == 1) {
+  $aws = new AWS();
+  $env = strtolower($_ENV['APP_ENVIRONMENT']);
+  $family = 'fez' . $env;
+  $aws->runBackgroundTask($family, [
+    'containerOverrides' => [
+      [
+        'environment' => [
+          [
+            'name' => 'BGP_ID',
+            'value' => $bgp_id,
+          ],
+        ],
+        'name' => 'fpm',
+      ],
+      [
+        'command' => ['/usr/bin/tail -f /dev/null'],
+        'name' => 'nginx',
+      ],
+    ],
+  ]);
 
-if (defined('AWS_ENABLED') && AWS_ENABLED == 'true') {
-  // Continue to process any remaining background processes (going back to 100 IDs ago)
-  // before exiting the task
-  BackgroundProcess::runRemaining(((int)$bgp_id-100));
+} else {
+  $bgp = new BackgroundProcess($bgp_id);
+  $bgp->runCurrent();
+
+  if ($useAws) {
+    // Continue to process any remaining background processes (going back to 100 IDs ago)
+    // before exiting the task
+    BackgroundProcess::runRemaining(((int) $bgp_id - 100));
+  }
 }

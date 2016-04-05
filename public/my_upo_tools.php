@@ -59,6 +59,7 @@ if ($isUPO && $action == 'change-user') {
 	Auth::setActingUsername(@$_POST['change-user']); // Change to a new acting user
 } elseif ($isUPO && $action == 'change-org-unit') {
 	$_SESSION['my_researcher_aou'] = @$_POST['change-org-unit']; // Change to a new org unit
+	setcookie('my_researcher_aou', @$_POST['change-org-unit'], time()+(60*60*24*365));
 }
 
 $tpl = new Template_API();
@@ -75,7 +76,11 @@ $actingUserArray['org_unit_description'] = MyResearch::getHRorgUnit($actingUser)
 
 /* Get &&|| set the AOU */
 if (!isset($_SESSION['my_researcher_aou'])) {
-	$_SESSION['my_researcher_aou'] = MyResearch::getDefaultAOU($username);
+	if (!isset($_COOKIE['my_researcher_aou'])) {
+		$_SESSION['my_researcher_aou'] = MyResearch::getDefaultAOU($username);
+	} else {
+		$_SESSION['my_researcher_aou'] = $_COOKIE['my_researcher_aou'];
+	}
 }
 $currentAOU = $_SESSION['my_researcher_aou'];
 
