@@ -6,12 +6,11 @@ if ($_SERVER['APPLICATION_ENV'] !== 'staging') {
 }
 set_time_limit(0);
 include_once(dirname(dirname(__FILE__)).DIRECTORY_SEPARATOR."config.inc.php");
-include_once(APP_INC_PATH . "class.aws.php");
 
 $log = FezLog::get();
 $db = DB_API::get();
+$aws = AWS::get();
 $path = '/tmp/staging';
-$aws = new AWS();
 
 system("rm -Rf ${path}");
 mkdir($path);

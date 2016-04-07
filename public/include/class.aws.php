@@ -35,6 +35,15 @@ class AWS
   }
 
   /**
+   *
+   * @return AWS
+   */
+  public static function get()
+  {
+    return Zend_Registry::get('aws');
+  }
+
+  /**
    * @param string $queueUrl The queue to send the message to
    * @param string $message The message to send
    * @param array $attributes The message attributes to send

@@ -426,7 +426,7 @@ class FulltextIndex_Solr_CSV extends FulltextIndex
         $useS3 = true;
       }
       if ($useS3 == true) {
-        $aws = new AWS();
+        $aws = AWS::get();
         $aws->postFile("solr_upload", array($tmpfname));
         $cfURL = $aws->getById("solr_upload", $tmpfname);
       }

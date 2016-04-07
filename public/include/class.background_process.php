@@ -38,9 +38,7 @@ define('BGP_FINISHED',  2);
 
 include_once(APP_INC_PATH . "class.date.php");
 include_once(APP_INC_PATH . "class.background_process_pids.php");
-if (defined('AWS_S3_ENABLED') && AWS_S3_ENABLED == 'true') {
-	include_once(APP_INC_PATH . "class.aws.php");
-}
+
 /**
  * This is a virtual class.
  * Subclass this to make a background process with a customised 'run' method.
