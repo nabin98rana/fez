@@ -3,10 +3,6 @@
 include_once(APP_INC_PATH . "class.custom_view.php");
 include_once(APP_INC_PATH . "class.record_view.php");
 include_once(APP_INC_PATH . "class.sherpa_romeo.php");
-if (defined('AWS_S3_ENABLED') && AWS_S3_ENABLED == 'true') {
-	include_once(APP_INC_PATH . "class.aws.php");
-}
-
 
 class fileCache {
 
@@ -49,7 +45,7 @@ class fileCache {
 		$usingCache = false;
 
 		if ($this->useS3 == true && !$this->flushCache) {
-			$aws = new AWS();
+			$aws = AWS::get();
 			if ($aws->checkExistsById("cache", $this->cacheFileName)) {
 				$htmlContent = $aws->getFileContent("cache", $this->cacheFileName);
 				$usingCache = true;
@@ -146,7 +142,7 @@ class fileCache {
 		if($save) {
 
 			if ($this->useS3) {
-				$aws = new AWS();
+				$aws = AWS::get();
 				$aws->postContent("cache", $content, $this->cacheFileName, "text/html");
 			} else {
 				if(!is_dir($this->cachePath)) {
@@ -181,7 +177,7 @@ class fileCache {
 	function poisonAllCaches()
 	{
 		if ($this->useS3 == true) {
-			$aws = new AWS();
+			$aws = AWS::get();
 			$aws->deleteById("cache", $this->cacheFileName);
 		} else {
 			$locations = $this->getAllCacheLocations();
@@ -198,7 +194,7 @@ class fileCache {
 	function checkCacheFileExists()
 	{
 		if ($this->useS3 == true) {
-			$aws = new AWS();
+			$aws = AWS::get();
 			return $aws->checkExistsById("cache", $this->cacheFileName);
 		} else {
 			return (file_exists($this->cachePath . $this->cacheFileName));

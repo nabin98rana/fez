@@ -227,6 +227,12 @@ else {
 }
 
 
+if (defined('AWS_ENABLED') && AWS_ENABLED == 'true') {
+  include_once(APP_INC_PATH . "class.aws.php");
+  $aws = new AWS();
+  Zend_Registry::set('aws', $aws);
+}
+
 //@define('APP_HOSTNAME','fezdemo.library.uq.edu.au');
 //@define('APP_RELATIVE_URL','/uqckorte/staging/');
 @define('EPRINTS_DB_TYPE', 'pdo_mysql');
