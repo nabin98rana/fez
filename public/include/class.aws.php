@@ -22,6 +22,11 @@ class AWS
   private $sdk;
 
   /**
+   * @var int
+   */
+  private $launchedTasks;
+
+  /**
    * AWS constructor.
    */
   public function __construct() {
@@ -30,6 +35,7 @@ class AWS
       'region'  => AWS_REGION,
       'version' => 'latest'
     ]);
+    $this->launchedTasks = 0;
     putenv("AWS_ACCESS_KEY_ID=" . AWS_KEY);
     putenv("AWS_SECRET_ACCESS_KEY=" . AWS_SECRET);
   }
@@ -100,9 +106,15 @@ class AWS
    * @return bool
    */
   public function runBackgroundTask($family, $overrides) {
+    // Only launch one task per run..
+    if ($this->launchedTasks > 0) {
+      return true;
+    }
+    // Make sure there aren't any existing running tasks (except the service tasks)
+    // TODO(am): Use a config var instead of hard coding the number..
     if ($this->countTasksRunningOrPendingInFamily($family) === 1) {
-      $result = $this->runTask($family, $overrides, 1);
-
+      $this->launchedTasks++;
+      $this->runTask($family, $overrides, 1);
       return true;
     }
     return false;
