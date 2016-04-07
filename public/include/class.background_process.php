@@ -281,8 +281,9 @@ class BackgroundProcess {
 
 		$this->serialize();
 		
-		$command = APP_PHP_EXEC . " \"" . APP_PATH . "misc/run_background_process.php\" " . $this->bgp_id . " \""
-			. APP_PATH . "\" \"1\"> " . APP_TEMP_DIR . "fezbgp/fezbgp_" . $this->bgp_id . ".log";
+		$command = APP_PHP_EXEC . " \"" . APP_PATH . "misc/run_background_process.php\" \"" . $this->bgp_id . "\" \""
+			. APP_PATH . "\" \"" . strtolower($_SERVER['APPLICATION_ENV']) . "\"> "
+			. APP_TEMP_DIR . "fezbgp/fezbgp_" . $this->bgp_id . ".log";
 		if ((stristr(PHP_OS, 'win')) && (!stristr(PHP_OS, 'darwin'))) { // Windows Server
 			pclose(popen("start /min /b " . $command, 'r'));
 		}
