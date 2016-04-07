@@ -45,8 +45,8 @@ $con = new PDO($dsn, APP_SQL_DBUSER, APP_SQL_DBPASS,
 foreach ($files as $txt) {
   $tbl = basename($txt, '.txt');
 
-  $sql = "LOCK TABLE ${tbl} WRITE; LOAD DATA LOCAL INFILE '" . basename($txt) . "' INTO TABLE ${tbl}" .
-      " FIELDS TERMINATED BY ',' ENCLOSED BY '\"' LINES TERMINATED BY '\r\n'; UNLOCK TABLE ${tbl};";
+  $sql = "LOAD DATA LOCAL INFILE '${path}/" . basename($txt) . "' INTO TABLE ${tbl}" .
+      " FIELDS TERMINATED BY ',' ENCLOSED BY '\"' LINES TERMINATED BY '\\r\\n'";
   $stmt = $con->prepare($sql);
 
   $stmt->execute();
