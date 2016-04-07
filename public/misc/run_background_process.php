@@ -43,6 +43,7 @@ include_once(APP_INC_PATH.'class.background_process.php');
 
 $useAws = false;
 if (defined('AWS_ENABLED') && AWS_ENABLED == 'true') {
+  include_once(APP_INC_PATH . "class.aws.php");
   $useAws = true;
 }
 
@@ -55,10 +56,9 @@ if (!is_numeric($bgp_id)) {
   exit;
 }
 
-if ($useAws && $launchTask == 1) {
+if ($useAws && ($launchTask == 'staging' || $launchTask == 'production')) {
   $aws = new AWS();
-  $env = strtolower($_ENV['APP_ENVIRONMENT']);
-  $family = 'fez' . $env;
+  $family = 'fez' . $launchTask;
   $aws->runBackgroundTask($family, [
     'containerOverrides' => [
       [

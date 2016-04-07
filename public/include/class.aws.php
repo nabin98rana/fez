@@ -91,7 +91,7 @@ class AWS
    * @return bool
    */
   public function runBackgroundTask($family, $overrides) {
-    if ($this->countTasksRunningOrPendingInFamily($family) === 0) {
+    if ($this->countTasksRunningOrPendingInFamily($family) === 1) {
       $result = $this->runTask($family, $overrides, 1);
 
       return true;
