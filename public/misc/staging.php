@@ -50,3 +50,7 @@ foreach ($files as $txt) {
 
   $stmt->execute();
 }
+
+$stmt = $con->prepare('DELETE FROM fez_user WHERE usr_username LIKE \'%\_test\'');
+$stmt->execute();
+
