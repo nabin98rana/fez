@@ -420,6 +420,15 @@ function restoreDefaultColours(el)
 			  {include file="error_icon.tpl.html" field="app_log_level"}
 			</td>
 		  </tr>
+			<tr>
+				<th>Papertrail API Token</th>
+				<td>
+					<input type="text" name="app_papertrail_token" value="{$config_settings.app_papertrail_token}" size="50" />
+					<br />The API token for accessing the Papertrail API. This requires Fez to be configured to send log events to Papertrail,
+					including background process events. Leave this blank if you are not using Papertrail for logging.
+					{include file="error_icon.tpl.html" field="app_papertrail_token"}
+				</td>
+			</tr>
 		  <tr>
 		    <th>SMTP server</th>
 			<td>
@@ -2515,14 +2524,6 @@ function restoreDefaultColours(el)
 							<input type="text" name="aws_secret" value="{$config_settings.aws_secret}" size="50" />
 							<br />The API secret to access AWS.
 							{include file="error_icon.tpl.html" field="aws_secret"}
-						</td>
-					</tr>
-					<tr>
-						<th>BGP SQS URL</th>
-						<td>
-							<input type="text" name="aws_bgp_queue_url" value="{$config_settings.aws_bgp_queue_url}" size="100" />
-							<br />The URL of the queue in SQS for launching background process tasks.
-							{include file="error_icon.tpl.html" field="aws_bgp_queue_url"}
 						</td>
 					</tr>
 					<tr>
