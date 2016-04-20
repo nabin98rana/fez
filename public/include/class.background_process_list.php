@@ -36,6 +36,7 @@ include_once(APP_INC_PATH.'class.background_process.php');
 include_once(APP_INC_PATH.'class.workflow_status.php');
 include_once(APP_INC_PATH.'class.background_process_pids.php');
 include_once(APP_INC_PATH . "class.date.php");
+include_once(APP_INC_PATH.'class.papertrail.php');
 
 class BackgroundProcessList
 {
@@ -245,9 +246,31 @@ class BackgroundProcessList
 
 	function getLog($bgp_id)
 	{
-		$file = APP_TEMP_DIR."fezbgp/fezbgp_".$bgp_id.".log";
-		if (file_exists($file)) {
-			return file_get_contents($file);
+		if (APP_PAPERTRAIL_TOKEN) {
+			$log = FezLog::get();
+			$db = DB_API::get();
+
+			$dbtp =  APP_TABLE_PREFIX;
+			$stmt = "SELECT bgp_host FROM ".$dbtp."background_process WHERE bgp_id=".$db->quote($bgp_id,'INTEGER');
+			try {
+				$bgp_host = $db->fetchOne($stmt);
+			}
+			catch(Exception $ex) {
+				$log->err($ex);
+				return false;
+			}
+			if (! $bgp_host) {
+				return false;
+			}
+
+			$papertrail = new Papertrail();
+			return $papertrail->search('system_id=' . $bgp_host);
+
+		} else {
+			$file = APP_TEMP_DIR . "fezbgp/fezbgp_" . $bgp_id . ".log";
+			if (file_exists($file)) {
+				return file_get_contents($file);
+			}
 		}
 		return false;
 	}
