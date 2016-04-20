@@ -264,7 +264,10 @@ class BackgroundProcessList
 			}
 
 			$papertrail = new Papertrail();
-			return $papertrail->search('system_id=' . $bgp_host);
+			$message = json_decode($papertrail->search('system_id=' . $bgp_host), true);
+			return array_reduce($message['events'], function ($pre, $item) {
+				return $pre . "\n" . $item['severity'] . ': ' . $item['message'];
+			});
 
 		} else {
 			$file = APP_TEMP_DIR . "fezbgp/fezbgp_" . $bgp_id . ".log";
