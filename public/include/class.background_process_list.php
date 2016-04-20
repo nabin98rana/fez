@@ -247,26 +247,22 @@ class BackgroundProcessList
 	function getLog($bgp_id)
 	{
 		if (APP_PAPERTRAIL_TOKEN) {
-			$log = FezLog::get();
-			$db = DB_API::get();
+			$bgp = new BackgroundProcess($bgp_id);
+			$details = $bgp->getDetails();
 
-			$dbtp =  APP_TABLE_PREFIX;
-			$stmt = "SELECT bgp_host FROM ".$dbtp."background_process WHERE bgp_id=".$db->quote($bgp_id,'INTEGER');
-			try {
-				$bgp_host = $db->fetchOne($stmt);
-			}
-			catch(Exception $ex) {
-				$log->err($ex);
-				return false;
-			}
-			if (! $bgp_host) {
+			if (! $details['bgp_host']) {
 				return false;
 			}
 
 			$papertrail = new Papertrail();
-			$message = json_decode($papertrail->search('system_id=' . $bgp_host), true);
+			$message = json_decode(
+				$papertrail->search(
+					'system_id=' . $details['bgp_host'] . '&min_time=' .
+					strtotime($details['bgp_started'])),
+				true
+			);
 			return array_reduce($message['events'], function ($pre, $item) {
-				return $pre . "\n" . $item['severity'] . ': ' . $item['message'];
+				return $pre . "\n" . $item['message'];
 			});
 
 		} else {
