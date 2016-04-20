@@ -299,6 +299,7 @@ class BackgroundProcess {
 	 * Runs the current background process
 	 */
 	public function runCurrent() {
+		$this->setHostname($_SERVER['HOSTNAME']);
 		$res = $this->getDetails();
 
 		if (! is_null($res['bpg_state'])) {
@@ -323,6 +324,27 @@ class BackgroundProcess {
 	 */
 	function run()
 	{
+	}
+
+	/**
+	 * Stores the name of the host running the current background process
+	 * @param $hostname
+	 */
+	function setHostname($hostname)
+	{
+		$log = FezLog::get();
+		$db = DB_API::get();
+
+		$dbtp =  APP_TABLE_PREFIX;
+		$stmt = "UPDATE ".$dbtp."background_process SET
+            bgp_host=".$db->quote($hostname)." 
+            WHERE bgp_id=".$db->quote($this->bgp_id, 'INTEGER');
+		try {
+			$db->exec($stmt);
+		}
+		catch(Exception $ex) {
+			$log->err($ex);
+		}
 	}
 
 	/**
