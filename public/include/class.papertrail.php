@@ -34,7 +34,7 @@ class Papertrail {
    * @return string Search response
    */
   public function search($searchString) {
-    return $this->doRequest(self::PAPERTRAIL_SEARCH_API_URL . '?' . urlencode($searchString));
+    return $this->doRequest(self::PAPERTRAIL_SEARCH_API_URL . '?' . $searchString);
   }
 
   /**
