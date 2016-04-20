@@ -9,5 +9,9 @@
 
 ## Fez staging tasks ##
 
+# Update the GeoIP and GeoLiteCity data files in S3 every month on the 3rd at 3:33am
+33 3    3 * *   root    /usr/bin/wget -nd -q -O /tmp/GeoIP.dat.gz http://www.maxmind.com/download/geoip/database/GeoIP.dat.gz && aws s3 cp /tmp/GeoIP.dat.gz s3://uql-fez-staging/GeoIP.dat.gz > /dev/null 2>&1
+33 3    3 * *   root    /usr/bin/wget -nd -q -O /tmp/GeoLiteCity.dat.gz http://www.maxmind.com/download/geoip/database/GeoLiteCity.dat.gz && aws s3 cp /tmp/GeoIP.dat.gz s3://uql-fez-staging/GeoLiteCity.dat.gz> /dev/null 2>&1
+
 ## /Fez staging tasks ##
 
