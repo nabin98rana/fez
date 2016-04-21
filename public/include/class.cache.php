@@ -38,7 +38,6 @@
  * Class to manage all tasks related to the cache abstraction module.
  *
  * @version 1.0
- * @author João Prado Maia <jpm@mysql.com>
  */
 
 class FezCache
