@@ -1,5 +1,3 @@
-$bgp = new BackgroundProcess();
-$bgp->register(array(), Auth::getUserID());
 <?php
 /* vim: set expandtab tabstop=4 shiftwidth=4: */
 // +----------------------------------------------------------------------+

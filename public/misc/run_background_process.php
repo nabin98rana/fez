@@ -69,10 +69,6 @@ if ($useAws && ($launchTask == 'staging' || $launchTask == 'production')) {
         ],
         'name' => 'fpm',
       ],
-      [
-        'command' => ['/usr/bin/tail -f /dev/null'],
-        'name' => 'nginx',
-      ],
     ],
   ]);
 
