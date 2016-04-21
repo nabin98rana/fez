@@ -170,7 +170,7 @@ class IntegrityCheck
       // find all items
       $solrQuery = 'id:[* TO *]';
 
-      $response = doSolrSearch($solrQuery);
+      $response = $this->doSolrSearch($solrQuery);
       foreach ($response->response->docs as $doc) {
         $solrPids[] = $doc->id;
       }
