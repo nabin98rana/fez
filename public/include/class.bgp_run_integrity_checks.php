@@ -43,14 +43,10 @@ class BackgroundProcess_Run_Integrity_Checks extends BackgroundProcess
   }
 
   function run() {
-    $this->setState(1);
-
-    function run() {
-      $this->setState(BGP_RUNNING);
-      extract(unserialize($this->inputs));      
-      $check = new IntegrityCheck();
-      $check->run($runType);
-      $this->setState(BGP_FINISHED);
-    }
+    $this->setState(BGP_RUNNING);
+    extract(unserialize($this->inputs));
+    $check = new IntegrityCheck();
+    $check->run($runType);
+    $this->setState(BGP_FINISHED);
   }
 }
