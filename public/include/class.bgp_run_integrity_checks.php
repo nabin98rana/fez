@@ -1,10 +1,9 @@
 <?php
-
 /* vim: set expandtab tabstop=4 shiftwidth=4: */
 // +----------------------------------------------------------------------+
 // | Fez - Digital Repository System                                      |
 // +----------------------------------------------------------------------+
-// | Copyright (c) 2005-2010 The University of Queensland,                |
+// | Copyright (c) 2005, 2006 The University of Queensland,               |
 // | Australian Partnership for Sustainable Repositories,                 |
 // | eScholarship Project                                                 |
 // |                                                                      |
@@ -28,52 +27,30 @@
 // | 59 Temple Place - Suite 330                                          |
 // | Boston, MA 02111-1307, USA.                                          |
 // +----------------------------------------------------------------------+
-// | Authors: Marko Tsoi <m.tsoi@library.uq.edu.au>                       |
+// | Authors: Rhys Palmer <r.palmer@library.uq.edu.au>                    |
 // +----------------------------------------------------------------------+
 
-include_once dirname(dirname(__FILE__)).DIRECTORY_SEPARATOR.'config.inc.php';
-include_once(APP_INC_PATH.'/class.integrity_check.php');
+include_once(APP_INC_PATH.'class.integrity_check.php');
+include_once(APP_INC_PATH.'class.background_process.php');
 
-// get the command line options (show warning message if nothing passed in)
-if( $argc != 2 ) {
-	displayUsage();
-    exit(-1);
-}
+class BackgroundProcess_Run_Integrity_Checks extends BackgroundProcess
+{
+  function __construct()
+  {
+    parent::__construct();
+    $this->include = 'class.bgp_run_integrity_checks.php';
+    $this->name = 'Runs integrity checks';
+  }
 
-$runType = strtolower($argv[1]);
-if (!in_array($runType, array('check','fix','both'))) {
-	echo "\nERROR: Invalid mode '{$runType}'\n";
-	displayUsage();
-	exit(-2);
-}
+  function run() {
+    $this->setState(1);
 
-echo "Script started: " . date("Y-m-d H:i:s") . "\n";
-main($runType);
-echo "Script Finished: " . date("Y-m-d H:i:s") . "\n";
-
-/**
- * Main function, runs everything
- *
- * @param string $runType
- * @return void
- **/
-function main($runType = "check") {
-	// run checks
-	$check = new IntegrityCheck();
-	$check->run($runType);
-}
-
-/**
- * helper function to display the usage of this script
- *
- * @return void
- **/
-function displayUsage() {
-	$prefix = APP_TABLE_PREFIX;
-	$scriptName = basename(__FILE__);
-	echo "\nUsage: php {$scriptName} [check|fix|both]\n";
-	echo " - check = Run the checks, output into the {$prefix}integrity_* tables\n";
-	echo " - fix = Fix the problems based on a previous run of this script with the 'check' option\n";
-	echo " - both = Run the checks, then the deletes\n";
-	echo "\n";
+    function run() {
+      $this->setState(BGP_RUNNING);
+      extract(unserialize($this->inputs));      
+      $check = new IntegrityCheck();
+      $check->run($runType);
+      $this->setState(BGP_FINISHED);
+    }
+  }
 }

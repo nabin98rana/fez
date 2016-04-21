@@ -1,10 +1,11 @@
+$bgp = new BackgroundProcess();
+$bgp->register(array(), Auth::getUserID());
 <?php
-
 /* vim: set expandtab tabstop=4 shiftwidth=4: */
 // +----------------------------------------------------------------------+
 // | Fez - Digital Repository System                                      |
 // +----------------------------------------------------------------------+
-// | Copyright (c) 2005-2010 The University of Queensland,                |
+// | Copyright (c) 2005, 2006, 2007 The University of Queensland,         |
 // | Australian Partnership for Sustainable Repositories,                 |
 // | eScholarship Project                                                 |
 // |                                                                      |
@@ -28,52 +29,53 @@
 // | 59 Temple Place - Suite 330                                          |
 // | Boston, MA 02111-1307, USA.                                          |
 // +----------------------------------------------------------------------+
-// | Authors: Marko Tsoi <m.tsoi@library.uq.edu.au>                       |
+// | Authors: Aaron Brown <a.brown@library.uq.edu.au>                     |
 // +----------------------------------------------------------------------+
+//
+include_once('../config.inc.php');
+include_once(APP_INC_PATH . "class.background_process.php");
 
-include_once dirname(dirname(__FILE__)).DIRECTORY_SEPARATOR.'config.inc.php';
-include_once(APP_INC_PATH.'/class.integrity_check.php');
+$callback = $_GET['callback'];
+$callback = !empty($callback) ? preg_replace('/[^a-z0-9\.$_]/si', '', $callback) : false;
+header('Access-Control-Allow-Origin: *');
+header('Content-Type: ' . ($callback ? 'application/javascript' : 'application/json') . ';charset=UTF-8');
 
-// get the command line options (show warning message if nothing passed in)
-if( $argc != 2 ) {
-	displayUsage();
-    exit(-1);
+echo ($callback ? '/**/'.$callback . '(' : '');
+
+$response = -1;
+$error = '';
+$file = APP_INC_PATH . 'class.' . preg_replace('/[^a-z0-9__]/si', '', $_GET['file']) . '.php';
+$class = preg_replace('/[^a-z0-9_]/si', '', $_GET['class']);
+$allowedBgps = [
+  'BackgroundProcess_Run_Integrity_Checks'
+];
+
+if ($_GET['token'] !== $_SERVER["APPLICATION_WEBCRON_TOKEN"]) {
+  $error = 'Invalid token';
+}
+else if (! in_array($class, $allowedBgps)) {
+  $error = 'Invalid BackgroundProcess subclass';
+}
+else if (file_exists($file)) {
+  include_once($file);
+  $bgp = new $class;
+  if (is_subclass_of($bgp, 'BackgroundProcess')) {
+    $response = $bgp->register(serialize($_GET['input']), User::getUserIDByUsername('webcron'));
+    if ($response === -1) {
+      $error = 'Failed to register background process';
+    }
+  } else {
+    $error = 'Not a subclass of BackgroundProcess';
+  }
+} else {
+  $error = 'Background process class file not found';
 }
 
-$runType = strtolower($argv[1]);
-if (!in_array($runType, array('check','fix','both'))) {
-	echo "\nERROR: Invalid mode '{$runType}'\n";
-	displayUsage();
-	exit(-2);
+if ($response !== -1) {
+  echo json_encode(["status" => "ok", "bgp_id" => $response]);
+} else {
+  http_response_code(400);
+  echo json_encode(["status" => "fail", "message" => $error]);
 }
 
-echo "Script started: " . date("Y-m-d H:i:s") . "\n";
-main($runType);
-echo "Script Finished: " . date("Y-m-d H:i:s") . "\n";
-
-/**
- * Main function, runs everything
- *
- * @param string $runType
- * @return void
- **/
-function main($runType = "check") {
-	// run checks
-	$check = new IntegrityCheck();
-	$check->run($runType);
-}
-
-/**
- * helper function to display the usage of this script
- *
- * @return void
- **/
-function displayUsage() {
-	$prefix = APP_TABLE_PREFIX;
-	$scriptName = basename(__FILE__);
-	echo "\nUsage: php {$scriptName} [check|fix|both]\n";
-	echo " - check = Run the checks, output into the {$prefix}integrity_* tables\n";
-	echo " - fix = Fix the problems based on a previous run of this script with the 'check' option\n";
-	echo " - both = Run the checks, then the deletes\n";
-	echo "\n";
-}
+echo $callback ? ');' : '';
