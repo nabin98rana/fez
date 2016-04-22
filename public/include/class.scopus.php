@@ -105,7 +105,7 @@ GROUP BY rek_pid
     * Retrieve cited by count information for a list of articles
     *
     * @param array $input_keys  //eid or doi
-    * @return array of PIDs which contains for each pid, an array of eid, scopusID and citedByCount
+    * @return mixed Array of PIDs which contains for each pid, an array of eid, scopusID and citedByCount; or false
     * eg Array
     *(
     *    [UQ:30001] => Array
@@ -141,6 +141,12 @@ GROUP BY rek_pid
         // Initialize arrays
         $result = array();
         $log = FezLog::get();
+
+        // Prevent update if we don't have credentials.
+        if (empty(APP_SCOPUS_API_KEY)) {
+            $log->err("getCitedByCount: APP_SCOPUS_API_KEY not set, not updating scopus counts.");
+            return false;
+        }
 
         // Set up Get request
         $ch = curl_init();
@@ -185,8 +191,17 @@ GROUP BY rek_pid
 
         // Make Get request
         $scopus_result=curl_exec($ch);
-            
+
+        $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+
         curl_close($ch);
+
+        // Handle unauthorised or other bad statuses.
+        if ($httpcode != 200) {
+            $log->err("getCitedByCount: http status was $httpcode not updating scopus count(s)." .
+                      PHP_EOL . "Scopus api:" . PHP_EOL . $scopus_result);
+            return false;
+        }
 
         // Load results to xml document for xpath parsing
         $doc = DOMDocument::loadXML($scopus_result);
