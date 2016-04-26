@@ -105,9 +105,9 @@ class Template_API
 	 * @access public
 	 * @param  string $tpl_name The filename of the template
 	 */
-	function setTemplate($tpl_name)
+	function setTemplate($tpl_name, $idx = 0)
 	{
-		$_curr_path = $this->smarty->template_dir;
+		$_curr_path = $this->smarty->getTemplateDir($idx);
 		if (!empty($this->smarty->custom_view_dir)) {
 			$_fullpath = $_curr_path . "/". $this->smarty->custom_view_dir. "/" .  $tpl_name;
 			if (file_exists($_fullpath) && is_file($_fullpath)) {
