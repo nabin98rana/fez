@@ -16,8 +16,8 @@ RUN cd /var/cache/ && \
     chown -R nobody /var/cache && \
     chmod -R 777 /var/cache && \
     mkdir -p /var/app/current/public/include/htmlpurifier/library/HTMLPurifier/DefinitionCache/Serializer/HTML && \
-    chmod -R 777 /var/app/current/public/include/htmlpurifier/library/HTMLPurifier/DefinitionCache/Serializer/HTML && \
-    chown -R nobody /var/app/current/public/include/htmlpurifier/library/HTMLPurifier/DefinitionCache/Serializer/HTML && \
+    chmod -R 777 /var/app/current/public/include/htmlpurifier/library/HTMLPurifier/DefinitionCache/Serializer && \
+    chown -R nobody /var/app/current/public/include/htmlpurifier/library/HTMLPurifier/DefinitionCache/Serializer && \
     mkdir -p /var/app/current/public/templates_c && \
     chmod -R 777 /var/app/current/public/templates_c && \
     chown -R nobody /var/app/current/public/templates_c
