@@ -309,9 +309,11 @@ class BackgroundProcess {
 
 		include_once(APP_INC_PATH . $res['bgp_include']);
 		$bgp = unserialize($res['bgp_serialized']);
+		echo 'Starting ' . $bgp->name . '..';
 		$bgp->setAuth();
-		$bgp->setState(1);
+		$bgp->setState(BGP_RUNNING);
 		$bgp->run();
+		echo 'Finished run of ' . $bgp->name . '.';
 
 		if (!empty($bgp->wfses_id)) {
 			$wfstatus = WorkflowStatusStatic::getSession($bgp->wfses_id);
