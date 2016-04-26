@@ -2349,6 +2349,14 @@ function restoreDefaultColours(el)
               {include file="error_icon.tpl.html" field="app_scopus_import_collection"}
             </td>
           </tr>
+          <tr>
+            <th>Scopus API records fetched per request</th>
+            <td>
+              <input type="text" name="app_scopus_api_records_per_request" value="{$config_settings.app_scopus_api_records_per_request}" size="5" />
+              <br />Records to fetch per request to Scopus API.
+              {include file="error_icon.tpl.html" field="app_scopus_api_records_per_request"}
+            </td>
+          </tr>
 		  </tbody>
 		 </table>
 		</div>

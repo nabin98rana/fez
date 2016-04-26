@@ -35,7 +35,7 @@ include_once(APP_INC_PATH . 'class.scopus.php');
 include_once(APP_INC_PATH . "class.record.php");
 include_once(APP_INC_PATH . "class.fulltext_queue.php");
 
-$max = 100; 	// Max number of primary key IDs to send with each service request call
+$max = APP_SCOPUS_API_RECORDS_PER_REQUEST; 	// Max number of primary key IDs to send with each service request call
 $sleep = 1; 	// Number of seconds to wait for between successive service calls 
 $regex = "/^2-s2\.0-[0-9]{10,11}/";
 $filter = array();
@@ -63,29 +63,33 @@ for($i=0; $i<((int)$listing['info']['total_pages']+1); $i++) {
          }
 	}
   
-	if(count($input_keys) > 0) {		
+	if (count($input_keys) > 0) {
 		$result = Scopus::getCitedByCount($input_keys);
+        if ($result) { // non-empty array
 
-		//first check that all the pids came back in the response, otherwise set that eid/pid to 0
-		foreach ($input_keys as $input_pid => $input_array) {
-			if (is_array($result) && !array_key_exists($input_pid, $result)) {
-				//can't find this pid in the response so set this eid to 0
-				Record::updateScopusCitationCount($input_pid, 0, $input_array['eid']);
-			}
-		}
-		foreach($result as $pid => $link_data) {
-			$eid = $link_data['eid'];
-			if (is_numeric($link_data['citedByCount'])) {
-				$count = $link_data['citedByCount'];
-			} else {
-				$count = 0;
-			}
+            // Check that all the pids came back in the response,
+            // otherwise set eid/pid to 0.
 
-			Record::updateScopusCitationCount($pid, $count, $eid);
-		}
-		if ( APP_SOLR_INDEXER == "ON" ) {
-		  	FulltextQueue::singleton()->commit();
-		}
+            foreach ($input_keys as $input_pid => $input_array) {
+                if (is_array($result) && !array_key_exists($input_pid, $result)) {
+                    //can't find this pid in the response so set this eid to 0
+                    Record::updateScopusCitationCount($input_pid, 0, $input_array['eid']);
+                }
+            }
+            foreach ($result as $pid => $link_data) {
+                $eid = $link_data['eid'];
+                if (is_numeric($link_data['citedByCount'])) {
+                    $count = $link_data['citedByCount'];
+                } else {
+                    $count = 0;
+                }
+
+                Record::updateScopusCitationCount($pid, $count, $eid);
+            }
+            if (APP_SOLR_INDEXER == "ON") {
+                FulltextQueue::singleton()->commit();
+            }
+        }
 		sleep($sleep); // Wait before using the service again
 	}
 }
