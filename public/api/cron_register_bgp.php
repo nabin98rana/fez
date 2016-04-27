@@ -48,6 +48,7 @@ $allowedBgps = [
   'BackgroundProcess_Cache_Rebuild',
   'BackgroundProcess_Process_Wok_Queue',
   'BackgroundProcess_Run_Integrity_Checks',
+  'BackgroundProcess_Update_Citation_Counts',
   'BackgroundProcess_Update_Statistics_Summary_Tables',
 ];
 

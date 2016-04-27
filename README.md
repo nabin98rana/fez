@@ -4,7 +4,7 @@
 [![alt text][2]][1]
 
   [1]: http://www.jetbrains.com/phpstorm/
-  [2]: http://www.jetbrains.com/phpstorm/documentation/phpstorm_banners/phpstorm1/phpstorm468x60_violet.gif (Smart IDE for PHP development with HTML, CSS &amp; JavaScript support)
+  [2]: http://resources.jetbrains.com/assets/banners/jetbrains-com/phpstorm/phpstorm468x60_violet.gif (Smart IDE for PHP development with HTML, CSS &amp; JavaScript support)
 
 Fez is a PHP / MySQL front end to the Fedora repository software. It is developed by the University of Queensland Library
 as an open source project.
