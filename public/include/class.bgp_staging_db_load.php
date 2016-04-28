@@ -38,7 +38,7 @@ class BackgroundProcess_Staging_Db_Load extends BackgroundProcess
   {
     parent::__construct();
     $this->include = 'class.bgp_staging_db_load.php';
-    $this->name = 'Links AMR check';
+    $this->name = 'Staging DB load';
   }
 
   function run() {
