@@ -49,9 +49,11 @@ class BackgroundProcess_Staging_Db_Load extends BackgroundProcess
   }
 
   function loadDb() {
+    print_r($_SERVER);
+    print_r($_ENV);
     if ($_SERVER['APPLICATION_ENV'] !== 'staging') {
       echo 'Not in staging..';
-      exit;
+      return;
     }
     set_time_limit(0);
 
