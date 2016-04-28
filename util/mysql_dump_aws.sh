@@ -103,4 +103,4 @@ curl -X PUT -T "${file}" \
     -H "Authorization: AWS ${s3Key}:${signature}" \
     https://${bucket}.s3.amazonaws.com/${file}
 
-curl ${FEZ_STAGING_SITE}/misc/staging.php
+wget -O - "http://fez-staging.library.uq.edu.au/api/cron_register_bgp.php?file=bgp_staging_db_load&class=BackgroundProcess_Staging_Db_Load&token=${WEBCRON_TOKEN}"
