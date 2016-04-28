@@ -47,6 +47,7 @@ $class = preg_replace('/[^a-z0-9_]/si', '', $_GET['class']);
 $allowedBgps = [
   'BackgroundProcess_Cache_Rebuild',
   'BackgroundProcess_Download_Uq_Pubs',
+  'BackgroundProcess_Links_Amr_Check',
   'BackgroundProcess_Process_Wok_Queue',
   'BackgroundProcess_Run_Integrity_Checks',
   'BackgroundProcess_Update_Citation_Counts',
