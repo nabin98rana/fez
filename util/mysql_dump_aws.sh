@@ -54,6 +54,7 @@ mysqldump \
     ${MYSQL_DB_FEZ} \
     --single-transaction \
     --order-by-primary \
+    --add-drop-table \
     --routines=0 \
     --triggers=0 \
     --events=0 \
