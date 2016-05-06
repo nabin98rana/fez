@@ -49,9 +49,7 @@ class BackgroundProcess_Staging_Db_Load extends BackgroundProcess
   }
 
   function loadDb() {
-    print_r($_SERVER);
-    print_r($_ENV);
-    if ($_SERVER['APPLICATION_ENV'] !== 'staging') {
+    if ($_SERVER['APP_ENVIRONMENT'] !== 'staging') {
       echo 'Not in staging..';
       return;
     }
@@ -93,7 +91,7 @@ class BackgroundProcess_Staging_Db_Load extends BackgroundProcess
     foreach ($files as $txt) {
       $tbl = basename($txt, '.txt');
 
-      $sql = "LOAD DATA LOCAL INFILE '${path}/" . basename($txt) . "' TRUNCATE INTO TABLE ${tbl}" .
+      $sql = "LOAD DATA LOCAL INFILE '${path}/" . basename($txt) . "' INTO TABLE ${tbl}" .
         " FIELDS TERMINATED BY ',' ENCLOSED BY '\"' LINES TERMINATED BY '\\r\\n'";
       $stmt = $con->prepare($sql);
 
