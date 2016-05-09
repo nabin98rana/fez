@@ -345,7 +345,7 @@ class LinksAmrQueue extends Queue
         $maps[] = $map;
       } else {
           if (isset($this->_bgp)) {
-            $this->_bgp->setStatus("Not enough bib data to do a safe match for PID ".$record['rek_pid'].": \n".print_r($map, true));
+            $this->_bgp->setStatus("Not enough bib data to do a safe match for PID ".$record['rek_pid']."\n");
           }
       }
     }

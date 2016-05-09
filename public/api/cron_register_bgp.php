@@ -45,18 +45,22 @@ $error = '';
 $file = APP_INC_PATH . 'class.' . preg_replace('/[^a-z0-9__]/si', '', $_GET['file']) . '.php';
 $class = preg_replace('/[^a-z0-9_]/si', '', $_GET['class']);
 $allowedBgps = [
+  'BackgroundProcess_Alert_Datastream_Policy_Conflicts',
   'BackgroundProcess_Cache_Rebuild',
   'BackgroundProcess_Check_Links',
   'BackgroundProcess_Clean_Researcherid_Xml',
   'BackgroundProcess_Download_Uq_Pubs',
   'BackgroundProcess_Embargo_Period_Complete_Check',
+  'BackgroundProcess_Find_Expired_Eids',
   'BackgroundProcess_Insert_Scopus_Id_Using_Doi_Search',
   'BackgroundProcess_Links_Amr_Check',
   'BackgroundProcess_Match_Ranked_Journals',
   'BackgroundProcess_Match_Uq_Tiered_Journals',
   'BackgroundProcess_Process_Wok_Queue',
   'BackgroundProcess_Run_Integrity_Checks',
+  'BackgroundProcess_Set_Refereed_Details',
   'BackgroundProcess_Staging_Db_Load',
+  'BackgroundProcess_Update_All_Publons_Reviews',
   'BackgroundProcess_Update_Altmetric_Info',
   'BackgroundProcess_Update_Citation_Counts',
   'BackgroundProcess_Update_Oa_Pids_With_Ulrichs',
