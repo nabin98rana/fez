@@ -60,6 +60,7 @@ $allowedBgps = [
   'BackgroundProcess_Run_Integrity_Checks',
   'BackgroundProcess_Set_Refereed_Details',
   'BackgroundProcess_Staging_Db_Load',
+  'BackgroundProcess_Update_All_Publons_Reviews',
   'BackgroundProcess_Update_Altmetric_Info',
   'BackgroundProcess_Update_Citation_Counts',
   'BackgroundProcess_Update_Oa_Pids_With_Ulrichs',
