@@ -21,7 +21,7 @@
 30 13   * * *   root    /usr/bin/wget -O - "http://fez-staging.library.uq.edu.au/api/cron_register_bgp.php?file=bgp_update_statistics_summary_tables&class=BackgroundProcess_Update_Statistics_Summary_Tables&token=WEBCRON_TOKEN" > /dev/null 2>&1
 
 # Cache table rebuild
-30 13   * * *   root    /usr/bin/wget -O - "http://fez-staging.library.uq.edu.au/api/cron_register_bgp.php?file=bgp_cache_rebuild&class=BackgroundProcess_Cache_Rebuild&token=WEBCRON_TOKEN" > /dev/null 2>&1
+30 13          * * *   root    /usr/bin/wget -O - "http://fez-staging.library.uq.edu.au/api/cron_register_bgp.php?file=bgp_cache_rebuild&class=BackgroundProcess_Cache_Rebuild&token=WEBCRON_TOKEN" > /dev/null 2>&1
 00 1-6,18-23   * * *   root    /usr/bin/wget -O - "http://fez-staging.library.uq.edu.au/api/cron_register_bgp.php?file=bgp_cache_rebuild&class=BackgroundProcess_Cache_Rebuild&input[runRebuild][]=CloudTags&input[runRebuild][]=RecentDownloads&input[recentDownloadsLimit]=5&token=WEBCRON_TOKEN" > /dev/null 2>&1
 00         *   * * *   root    /usr/bin/wget -O - "http://fez-staging.library.uq.edu.au/api/cron_register_bgp.php?file=bgp_cache_rebuild&class=BackgroundProcess_Cache_Rebuild&input[runRebuild][]=RecentItems&input[recentItemsLimit]=5&token=WEBCRON_TOKEN" > /dev/null 2>&1
 
@@ -45,7 +45,7 @@
 0 19    * * *   root    /usr/bin/wget -O - "http://fez-staging.library.uq.edu.au/api/cron_register_bgp.php?file=bgp_match_ranked_journals&class=BackgroundProcess_Match_Ranked_Journals&token=WEBCRON_TOKEN" > /dev/null 2>&1
 
 # UQ Tiered Journal matching
-0 01    * * *   root    /usr/bin/wget -O - "http://fez-staging.library.uq.edu.au/api/cron_register_bgp.php?file=bgp_match_uq_tiered_journals&class=BackgroundProcess_Match_Uq_Tiered_Journals&token=WEBCRON_TOKEN" > /dev/null 2>&1
+0 1     * * *   root    /usr/bin/wget -O - "http://fez-staging.library.uq.edu.au/api/cron_register_bgp.php?file=bgp_match_uq_tiered_journals&class=BackgroundProcess_Match_Uq_Tiered_Journals&token=WEBCRON_TOKEN" > /dev/null 2>&1
 
 # Link Status Report
 0 0     1 * *   root    /usr/bin/wget -O - "http://fez-staging.library.uq.edu.au/api/cron_register_bgp.php?file=bgp_check_links&class=BackgroundProcess_Check_Links&token=WEBCRON_TOKEN" > /dev/null 2>&1
@@ -67,5 +67,8 @@
 
 # Update pids with Ulrichs data
 0 15    * * 1   root    /usr/bin/wget -O - "http://fez-staging.library.uq.edu.au/api/cron_register_bgp.php?file=bgp_update_oa_pids_with_ulrichs&class=BackgroundProcess_Update_Oa_Pids_With_Ulrichs&token=WEBCRON_TOKEN" > /dev/null 2>&1
+
+# Look for missing Scopus IDs given DOI
+0 5     * * 6   root    /usr/bin/wget -O - "http://fez-staging.library.uq.edu.au/api/cron_register_bgp.php?file=bgp_insert_scopus_id_using_doi_search&class=BackgroundProcess_Insert_Scopus_Id_Using_Doi_Search&token=WEBCRON_TOKEN" > /dev/null 2>&1
 
 ## /Fez staging tasks ##
