@@ -3,7 +3,7 @@
 // +----------------------------------------------------------------------+
 // | Fez - Digital Repository System                                      |
 // +----------------------------------------------------------------------+
-// | Copyright (c) 2005, 2006, 2007 The University of Queensland,         |
+// | Copyright (c) 2005, 2006 The University of Queensland,               |
 // | Australian Partnership for Sustainable Repositories,                 |
 // | eScholarship Project                                                 |
 // |                                                                      |
@@ -27,62 +27,32 @@
 // | 59 Temple Place - Suite 330                                          |
 // | Boston, MA 02111-1307, USA.                                          |
 // +----------------------------------------------------------------------+
-// | Authors: Aaron Brown <a.brown@library.uq.edu.au>                     |
+// | Authors: Rhys Palmer <r.palmer@library.uq.edu.au>                    |
 // +----------------------------------------------------------------------+
-//
-include_once('../config.inc.php');
-include_once(APP_INC_PATH . "class.background_process.php");
 
-$callback = $_GET['callback'];
-$callback = !empty($callback) ? preg_replace('/[^a-z0-9\.$_]/si', '', $callback) : false;
-header('Access-Control-Allow-Origin: *');
-header('Content-Type: ' . ($callback ? 'application/javascript' : 'application/json') . ';charset=UTF-8');
+include_once(APP_INC_PATH . 'class.background_process.php');
+include_once(APP_INC_PATH . "class.matching_journals_uq_tiered.php");
 
-echo ($callback ? '/**/'.$callback . '(' : '');
-
-$response = -1;
-$error = '';
-$file = APP_INC_PATH . 'class.' . preg_replace('/[^a-z0-9__]/si', '', $_GET['file']) . '.php';
-$class = preg_replace('/[^a-z0-9_]/si', '', $_GET['class']);
-$allowedBgps = [
-  'BackgroundProcess_Cache_Rebuild',
-  'BackgroundProcess_Download_Uq_Pubs',
-  'BackgroundProcess_Links_Amr_Check',
-  'BackgroundProcess_Match_Ranked_Journals',
-  'BackgroundProcess_Match_Uq_Tiered_Journals',
-  'BackgroundProcess_Process_Wok_Queue',
-  'BackgroundProcess_Run_Integrity_Checks',
-  'BackgroundProcess_Staging_Db_Load',
-  'BackgroundProcess_Update_Citation_Counts',
-  'BackgroundProcess_Update_Statistics_Summary_Tables',
-];
-
-if ($_GET['token'] !== $_SERVER["APPLICATION_WEBCRON_TOKEN"]) {
-  $error = 'Invalid token';
-}
-else if (! in_array($class, $allowedBgps)) {
-  $error = 'Invalid BackgroundProcess subclass';
-}
-else if (file_exists($file)) {
-  include_once($file);
-  $bgp = new $class;
-  if (is_subclass_of($bgp, 'BackgroundProcess')) {
-    $response = $bgp->register(serialize($_GET['input']), User::getUserIDByUsername('webcron'));
-    if ($response === -1) {
-      $error = 'Failed to register background process';
-    }
-  } else {
-    $error = 'Not a subclass of BackgroundProcess';
+class BackgroundProcess_Match_Uq_Tiered_Journals extends BackgroundProcess
+{
+  function __construct()
+  {
+    parent::__construct();
+    $this->include = 'class.bgp_match_uq_tiered_journals.php';
+    $this->name = 'Match UQ tiered journals';
   }
-} else {
-  $error = 'Background process class file not found';
-}
 
-if ($response !== -1) {
-  echo json_encode(["status" => "ok", "bgp_id" => $response]);
-} else {
-  http_response_code(400);
-  echo json_encode(["status" => "fail", "message" => $error]);
-}
+  function run() {
+    $this->setState(BGP_RUNNING);
+    extract(unserialize($this->inputs));
 
-echo $callback ? ');' : '';
+    //$runType = strtolower($runType);
+
+    $m = new UQTJL();
+    // Cron job is currently configured to run matching with the defaults.
+    // $m->runType = $runType;
+    $m->matchAll();
+
+    $this->setState(BGP_FINISHED);
+  }
+}
