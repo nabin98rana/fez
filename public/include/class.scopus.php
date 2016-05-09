@@ -143,7 +143,7 @@ GROUP BY rek_pid
         $log = FezLog::get();
 
         // Prevent update if we don't have credentials.
-        if (! defined('APP_SCOPUS_API_KEY')) {
+        if (! defined('APP_SCOPUS_API_KEY') || APP_SCOPUS_API_KEY == "") {
             $log->err("getCitedByCount: APP_SCOPUS_API_KEY not set, not updating scopus counts.");
             return false;
         }
