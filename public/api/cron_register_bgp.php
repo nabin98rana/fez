@@ -46,9 +46,12 @@ $file = APP_INC_PATH . 'class.' . preg_replace('/[^a-z0-9__]/si', '', $_GET['fil
 $class = preg_replace('/[^a-z0-9_]/si', '', $_GET['class']);
 $allowedBgps = [
   'BackgroundProcess_Cache_Rebuild',
+  'BackgroundProcess_Check_Links',
+  'BackgroundProcess_Clean_Researcherid_Xml',
   'BackgroundProcess_Download_Uq_Pubs',
   'BackgroundProcess_Links_Amr_Check',
   'BackgroundProcess_Match_Ranked_Journals',
+  'BackgroundProcess_Match_Uq_Tiered_Journals',
   'BackgroundProcess_Process_Wok_Queue',
   'BackgroundProcess_Run_Integrity_Checks',
   'BackgroundProcess_Staging_Db_Load',
