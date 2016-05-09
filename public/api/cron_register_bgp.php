@@ -45,6 +45,7 @@ $error = '';
 $file = APP_INC_PATH . 'class.' . preg_replace('/[^a-z0-9__]/si', '', $_GET['file']) . '.php';
 $class = preg_replace('/[^a-z0-9_]/si', '', $_GET['class']);
 $allowedBgps = [
+  'BackgroundProcess_Alert_Datastream_Policy_Conflicts',
   'BackgroundProcess_Cache_Rebuild',
   'BackgroundProcess_Check_Links',
   'BackgroundProcess_Clean_Researcherid_Xml',

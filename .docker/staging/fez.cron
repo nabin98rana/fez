@@ -77,4 +77,7 @@
 # Find all EIDs that have expired
 30 18   * * 1   root    /usr/bin/wget -O - "http://fez-staging.library.uq.edu.au/api/cron_register_bgp.php?file=bgp_find_expired_eids&class=BackgroundProcess_Find_Expired_Eids&token=WEBCRON_TOKEN" > /dev/null 2>&1
 
+# Check for datastream policy conflicts. It could cause security issues so will need an alert ASAP.
+0 0-23/2 * * *  root    /usr/bin/wget -O - "http://fez-staging.library.uq.edu.au/api/cron_register_bgp.php?file=bgp_alert_datastream_policy_conflicts&class=BackgroundProcess_Alert_Datastream_Policy_Conflicts&token=WEBCRON_TOKEN" > /dev/null 2>&1
+
 ## /Fez staging tasks ##
