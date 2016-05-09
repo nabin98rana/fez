@@ -60,6 +60,7 @@ $allowedBgps = [
   'BackgroundProcess_Update_Citation_Counts',
   'BackgroundProcess_Update_Sherpa_Romeo_Data',
   'BackgroundProcess_Update_Statistics_Summary_Tables',
+  'BackgroundProcess_Update_Ulrichs',
 ];
 
 if ($_GET['token'] !== $_SERVER["APPLICATION_WEBCRON_TOKEN"]) {
