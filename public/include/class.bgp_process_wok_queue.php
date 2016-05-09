@@ -46,7 +46,8 @@ class BackgroundProcess_Process_Wok_Queue extends BackgroundProcess
     $this->setState(BGP_RUNNING);
     extract(unserialize($this->inputs));
     $q = WokQueue::get();
-    $q->triggerUpdate();
+    $q->setBGP($this);
+    $q->bgProcess();
     $this->setState(BGP_FINISHED);
   }
 }
