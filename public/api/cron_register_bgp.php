@@ -56,6 +56,7 @@ $allowedBgps = [
   'BackgroundProcess_Run_Integrity_Checks',
   'BackgroundProcess_Staging_Db_Load',
   'BackgroundProcess_Update_Citation_Counts',
+  'BackgroundProcess_Update_Sherpa_Romeo_Data',
   'BackgroundProcess_Update_Statistics_Summary_Tables',
 ];
 
