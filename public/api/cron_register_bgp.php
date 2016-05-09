@@ -50,6 +50,7 @@ $allowedBgps = [
   'BackgroundProcess_Clean_Researcherid_Xml',
   'BackgroundProcess_Download_Uq_Pubs',
   'BackgroundProcess_Embargo_Period_Complete_Check',
+  'BackgroundProcess_Find_Expired_Eids',
   'BackgroundProcess_Insert_Scopus_Id_Using_Doi_Search',
   'BackgroundProcess_Links_Amr_Check',
   'BackgroundProcess_Match_Ranked_Journals',
