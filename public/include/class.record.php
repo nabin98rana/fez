@@ -4294,7 +4294,7 @@ function getSearchKeyIndexValueShadow($pid, $searchKeyTitle, $getLookup=true, $s
       $searchKey_join[SK_KEY_ID] = 1;
       $searchKey_join[SK_SEARCH_TXT] .= "Title, Abstract, Keywords:\"".trim(htmlspecialchars($searchKeys["0"]))."\", ";
 
-      if (APP_MYSQL_INNODB_FLAG == "ON" || APP_SQL_DBTYPE != "mysql") {
+      if (APP_SQL_DBTYPE != "mysql") {
 
         $where_stmt .= " WHERE ";
         $names = explode(" ", $escapedInput);

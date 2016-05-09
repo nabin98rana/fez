@@ -119,7 +119,7 @@ class AWS
     }
     return false;
   }
-  
+
   /**
    * @param string $family
    * @return int|bool
@@ -134,7 +134,7 @@ class AWS
         'family' => $family
       ]);
       $count = count($result['taskArns']);
-      
+
       $result = $ecs->listTasks([
         'cluster' => AWS_ECS_CLUSTER,
         'desiredStatus' => 'PENDING',
@@ -321,6 +321,47 @@ class AWS
   }
 
   /**
+   * @param string $src - the path inside the bucket
+   * @return array  - iterator
+   */
+  public function listObjects($path) {
+    $iterator = array();
+    try {
+      $client = $this->sdk->createS3();
+      $iterator = $client->getIterator('ListObjects', array(
+          'Bucket' => AWS_S3_BUCKET,
+          "Prefix" => $path . '/'
+      ));
+    } catch (\Aws\S3\Exception\S3Exception $e) {
+      $this->log->err($e->getMessage());
+    }
+    return $iterator;
+  }
+
+  /**
+   * @param string $key - the full path to the file eg data/UQ_3/hai.jpg
+   * @param string $versionId (optional) - the version to return. If empty will return latest.
+   * @return array $result - the object
+   */
+  public function getObject($key, $versionId = NULL) {
+    try {
+      $client = $this->sdk->createS3();
+      $args = array(
+          'Bucket' => AWS_S3_BUCKET,
+          'Key' => $key,
+      );
+      if (!is_null($versionId)) {
+        $args['VersionId'] = $versionId;
+      }
+      $result = $client->getObject($args);
+
+    } catch (\Aws\S3\Exception\S3Exception $e) {
+      $this->log->err($e->getMessage());
+    }
+    return $result;
+  }
+
+  /**
    * @param string $src
    * @param string $id
    * @return boolean
@@ -358,6 +399,77 @@ class AWS
     return true;
   }
 
+  /**
+   * @param string $src
+   * @param string $id
+   * @return boolean
+   */
+  public function purgeById($src, $id) {
+    $id = basename($id);
+    try {
+      $client = $this->sdk->createS3();
+
+      // get all versions of the key
+      $versions = $client->listObjectVersions(array(
+          'Bucket' => AWS_S3_BUCKET,
+          'Key'       =>  $src . '/' . $id,
+      ))->getPath('Versions');
+      // delete all the versions
+      $result = $client->deleteObjects(array(
+          'Bucket'  => AWS_S3_BUCKET,
+          'Objects' => array_map(function ($version) {
+            return array(
+                'Key'       => $version['Key'],
+                'VersionId' => $version['VersionId']
+            );
+          }, $versions),
+      ));
+    } catch (\Aws\S3\Exception\S3Exception $e) {
+      $this->log->err($e->getMessage());
+      return false;
+    }
+    return true;
+  }
+
+
+
+
+  /**
+   * @param string $src
+   * @param string $id
+   * @param string $newSrc
+   * @param string @newId
+   * @param string @newLabel
+   * @return boolean
+   */
+  public function rename($src, $id, $newSrc, $newId, $newLabel) {
+    $id = basename($id);
+    try {
+      $client = $this->sdk->createS3();
+      //TODO: may need to add 'label' metadata as new param inputs
+      $client->copyObject(
+          array(
+              'Bucket' => AWS_S3_BUCKET,
+              'Key'    => $src . '/' . $id
+          ),
+          array(
+              'Bucket' => AWS_S3_BUCKET,
+              'Key'    => $newSrc . '/' . $newId
+          )
+      );
+
+      $client->deleteObject(
+          array(
+              'Bucket' => AWS_S3_BUCKET,
+              'Key'    => $src . '/' . $id
+          ));
+    } catch (\Aws\S3\Exception\S3Exception $e) {
+      $this->log->err($e->getMessage());
+      return false;
+    }
+    return true;
+  }
+
 
   /**
    * @param string $src
@@ -385,15 +497,19 @@ class AWS
    * @param string $id
    * @return Json Response
    */
-  public function getFileContent($src, $id)
+  public function getFileContent($src, $id, $versionId = NULL)
   {
     try {
       $client = $this->sdk->createS3();
 
-      $result = $client->getObject(array(
+      $args = array(
           'Bucket' => AWS_S3_BUCKET,
-          'Key' => $src . '/'. $id
-      ));
+          'Key' => $src . '/'. $id,
+      );
+      if (!is_null($versionId)) {
+        $args['VersionId'] = $versionId;
+      }
+      $result = $client->getObject($args);
     } catch (\Aws\S3\Exception\S3Exception $e) {
       $this->log->err($e->getMessage());
       return "";

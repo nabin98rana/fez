@@ -34,7 +34,11 @@
 //
 
 if (APP_FEDORA_BYPASS == "ON") {
-	include_once(APP_INC_PATH . "class.fedora_bypass.php");
+	if (defined('AWS_S3_ENABLED') && AWS_S3_ENABLED == 'true') {
+		include_once(APP_INC_PATH . "class.fedora_bypass_aws.php");
+	} else {
+		include_once(APP_INC_PATH . "class.fedora_bypass.php");
+	}
 } else {
 	include_once(APP_INC_PATH . "class.fedora_api_3.php");
 }
