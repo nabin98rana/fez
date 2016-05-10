@@ -26,61 +26,61 @@
 00         *   * * *   root    /usr/bin/wget -O - "http://fez-staging.library.uq.edu.au/api/cron_register_bgp.php?file=bgp_cache_rebuild&class=BackgroundProcess_Cache_Rebuild&input[runRebuild][]=RecentItems&input[recentItemsLimit]=5&token=WEBCRON_TOKEN" > /dev/null 2>&1
 
 # TR Web Services Premium Wok Queue processor
-0 1     * * *   root    /usr/bin/wget -O - "http://fez-staging.library.uq.edu.au/api/cron_register_bgp.php?file=bgp_process_wok_queue&class=BackgroundProcess_Process_Wok_Queue&token=WEBCRON_TOKEN" > /dev/null 2>&1
+#0 1     * * *   root    /usr/bin/wget -O - "http://fez-staging.library.uq.edu.au/api/cron_register_bgp.php?file=bgp_process_wok_queue&class=BackgroundProcess_Process_Wok_Queue&token=WEBCRON_TOKEN" > /dev/null 2>&1
 
 # Get citation count from WoS and Scopus
-0 0     * * 0   root    /usr/bin/wget -O - "http://fez-staging.library.uq.edu.au/api/cron_register_bgp.php?file=bgp_update_citation_counts&class=BackgroundProcess_Update_Citation_Counts&input[runType]=wsp&token=WEBCRON_TOKEN" > /dev/null 2>&1
-7 2     * * 0   root    /usr/bin/wget -O - "http://fez-staging.library.uq.edu.au/api/cron_register_bgp.php?file=bgp_update_citation_counts&class=BackgroundProcess_Update_Citation_Counts&input[runType]=scopus&token=WEBCRON_TOKEN" > /dev/null 2>&1
-0 0     * * 0   root    /usr/bin/wget -O - "http://fez-staging.library.uq.edu.au/api/cron_register_bgp.php?file=bgp_update_citation_counts&class=BackgroundProcess_Update_Citation_Counts&input[runType]=scopus-empty&token=WEBCRON_TOKEN" > /dev/null 2>&1
+#0 0     * * 0   root    /usr/bin/wget -O - "http://fez-staging.library.uq.edu.au/api/cron_register_bgp.php?file=bgp_update_citation_counts&class=BackgroundProcess_Update_Citation_Counts&input[runType]=wsp&token=WEBCRON_TOKEN" > /dev/null 2>&1
+#7 2     * * 0   root    /usr/bin/wget -O - "http://fez-staging.library.uq.edu.au/api/cron_register_bgp.php?file=bgp_update_citation_counts&class=BackgroundProcess_Update_Citation_Counts&input[runType]=scopus&token=WEBCRON_TOKEN" > /dev/null 2>&1
+#0 0     * * 0   root    /usr/bin/wget -O - "http://fez-staging.library.uq.edu.au/api/cron_register_bgp.php?file=bgp_update_citation_counts&class=BackgroundProcess_Update_Citation_Counts&input[runType]=scopus-empty&token=WEBCRON_TOKEN" > /dev/null 2>&1
 
 # Download new UQ pubs from WoS / Scopus / ResearcherID
-0 0     * * 0   root    /usr/bin/wget -O - "http://fez-staging.library.uq.edu.au/api/cron_register_bgp.php?file=bgp_download_uq_pubs&class=BackgroundProcess_Era_Download_Uq_Pubs&input[runType]=wos&token=WEBCRON_TOKEN" > /dev/null 2>&1
-0 0     * * 2   root    /usr/bin/wget -O - "http://fez-staging.library.uq.edu.au/api/cron_register_bgp.php?file=bgp_download_uq_pubs&class=BackgroundProcess_Era_Download_Uq_Pubs&input[runType]=scopus&token=WEBCRON_TOKEN" > /dev/null 2>&1
-4 18    * * 5   root    /usr/bin/wget -O - "http://fez-staging.library.uq.edu.au/api/cron_register_bgp.php?file=bgp_download_uq_pubs&class=BackgroundProcess_Era_Download_Uq_Pubs&input[runType]=researcherid&token=WEBCRON_TOKEN" > /dev/null 2>&1
+#0 0     * * 0   root    /usr/bin/wget -O - "http://fez-staging.library.uq.edu.au/api/cron_register_bgp.php?file=bgp_download_uq_pubs&class=BackgroundProcess_Era_Download_Uq_Pubs&input[runType]=wos&token=WEBCRON_TOKEN" > /dev/null 2>&1
+#0 0     * * 2   root    /usr/bin/wget -O - "http://fez-staging.library.uq.edu.au/api/cron_register_bgp.php?file=bgp_download_uq_pubs&class=BackgroundProcess_Era_Download_Uq_Pubs&input[runType]=scopus&token=WEBCRON_TOKEN" > /dev/null 2>&1
+#4 18    * * 5   root    /usr/bin/wget -O - "http://fez-staging.library.uq.edu.au/api/cron_register_bgp.php?file=bgp_download_uq_pubs&class=BackgroundProcess_Era_Download_Uq_Pubs&input[runType]=researcherid&token=WEBCRON_TOKEN" > /dev/null 2>&1
 
 # Run Links AMR check
-0 0     * * 3   root    /usr/bin/wget -O - "http://fez-staging.library.uq.edu.au/api/cron_register_bgp.php?file=bgp_links_amr_check&class=BackgroundProcess_Links_Amr_Check&token=WEBCRON_TOKEN" > /dev/null 2>&1
+#0 0     * * 3   root    /usr/bin/wget -O - "http://fez-staging.library.uq.edu.au/api/cron_register_bgp.php?file=bgp_links_amr_check&class=BackgroundProcess_Links_Amr_Check&token=WEBCRON_TOKEN" > /dev/null 2>&1
 
 # ERA Ranked Journal matching
-0 19    * * *   root    /usr/bin/wget -O - "http://fez-staging.library.uq.edu.au/api/cron_register_bgp.php?file=bgp_match_ranked_journals&class=BackgroundProcess_Match_Ranked_Journals&token=WEBCRON_TOKEN" > /dev/null 2>&1
+#0 19    * * *   root    /usr/bin/wget -O - "http://fez-staging.library.uq.edu.au/api/cron_register_bgp.php?file=bgp_match_ranked_journals&class=BackgroundProcess_Match_Ranked_Journals&token=WEBCRON_TOKEN" > /dev/null 2>&1
 
 # UQ Tiered Journal matching
-0 1     * * *   root    /usr/bin/wget -O - "http://fez-staging.library.uq.edu.au/api/cron_register_bgp.php?file=bgp_match_uq_tiered_journals&class=BackgroundProcess_Match_Uq_Tiered_Journals&token=WEBCRON_TOKEN" > /dev/null 2>&1
+#0 1     * * *   root    /usr/bin/wget -O - "http://fez-staging.library.uq.edu.au/api/cron_register_bgp.php?file=bgp_match_uq_tiered_journals&class=BackgroundProcess_Match_Uq_Tiered_Journals&token=WEBCRON_TOKEN" > /dev/null 2>&1
 
 # Link Status Report
-0 0     1 * *   root    /usr/bin/wget -O - "http://fez-staging.library.uq.edu.au/api/cron_register_bgp.php?file=bgp_check_links&class=BackgroundProcess_Check_Links&token=WEBCRON_TOKEN" > /dev/null 2>&1
+#0 0     1 * *   root    /usr/bin/wget -O - "http://fez-staging.library.uq.edu.au/api/cron_register_bgp.php?file=bgp_check_links&class=BackgroundProcess_Check_Links&token=WEBCRON_TOKEN" > /dev/null 2>&1
 
 # Delete downloaded XML content for ResearcherID Profile & Publications that are older than 2 weeks
-0 2     * * 1   root    /usr/bin/wget -O - "http://fez-staging.library.uq.edu.au/api/cron_register_bgp.php?file=bgp_clean_researcherid_xml&class=BackgroundProcess_Clean_Researcherid_Xml&token=WEBCRON_TOKEN" > /dev/null 2>&1
+#0 2     * * 1   root    /usr/bin/wget -O - "http://fez-staging.library.uq.edu.au/api/cron_register_bgp.php?file=bgp_clean_researcherid_xml&class=BackgroundProcess_Clean_Researcherid_Xml&token=WEBCRON_TOKEN" > /dev/null 2>&1
 
 # Re-download Sherpa Romeo data in case it has updated
-0 15    * * 6   root    /usr/bin/wget -O - "http://fez-staging.library.uq.edu.au/api/cron_register_bgp.php?file=bgp_update_sherpa_romeo_data&class=BackgroundProcess_Update_Sherpa_Romeo_Data&token=WEBCRON_TOKEN" > /dev/null 2>&1
+#0 15    * * 6   root    /usr/bin/wget -O - "http://fez-staging.library.uq.edu.au/api/cron_register_bgp.php?file=bgp_update_sherpa_romeo_data&class=BackgroundProcess_Update_Sherpa_Romeo_Data&token=WEBCRON_TOKEN" > /dev/null 2>&1
 
 # Download Altmetric scores using the Altmetric API
-0 1     * * 1   root    /usr/bin/wget -O - "http://fez-staging.library.uq.edu.au/api/cron_register_bgp.php?file=bgp_update_altmetric_info&class=BackgroundProcess_Update_Altmetric_Info&token=WEBCRON_TOKEN" > /dev/null 2>&1
+#0 1     * * 1   root    /usr/bin/wget -O - "http://fez-staging.library.uq.edu.au/api/cron_register_bgp.php?file=bgp_update_altmetric_info&class=BackgroundProcess_Update_Altmetric_Info&token=WEBCRON_TOKEN" > /dev/null 2>&1
 
 # Open up open access documents past embargo
-15 18   * * *   root    /usr/bin/wget -O - "http://fez-staging.library.uq.edu.au/api/cron_register_bgp.php?file=bgp_embargo_period_complete_check&class=BackgroundProcess_Embargo_Period_Complete_Check&token=WEBCRON_TOKEN" > /dev/null 2>&1
+#15 18   * * *   root    /usr/bin/wget -O - "http://fez-staging.library.uq.edu.au/api/cron_register_bgp.php?file=bgp_embargo_period_complete_check&class=BackgroundProcess_Embargo_Period_Complete_Check&token=WEBCRON_TOKEN" > /dev/null 2>&1
 
 # Re-download Ulrichs data in case it has updated
-0 15    * * 6   root    /usr/bin/wget -O - "http://fez-staging.library.uq.edu.au/api/cron_register_bgp.php?file=bgp_update_ulrichs&class=BackgroundProcess_Update_Ulrichs&token=WEBCRON_TOKEN" > /dev/null 2>&1
+#0 15    * * 6   root    /usr/bin/wget -O - "http://fez-staging.library.uq.edu.au/api/cron_register_bgp.php?file=bgp_update_ulrichs&class=BackgroundProcess_Update_Ulrichs&token=WEBCRON_TOKEN" > /dev/null 2>&1
 
 # Update pids with Ulrichs data
-0 15    * * 1   root    /usr/bin/wget -O - "http://fez-staging.library.uq.edu.au/api/cron_register_bgp.php?file=bgp_update_oa_pids_with_ulrichs&class=BackgroundProcess_Update_Oa_Pids_With_Ulrichs&token=WEBCRON_TOKEN" > /dev/null 2>&1
+#0 15    * * 1   root    /usr/bin/wget -O - "http://fez-staging.library.uq.edu.au/api/cron_register_bgp.php?file=bgp_update_oa_pids_with_ulrichs&class=BackgroundProcess_Update_Oa_Pids_With_Ulrichs&token=WEBCRON_TOKEN" > /dev/null 2>&1
 
 # Look for missing Scopus IDs given DOI
-0 5     * * 6   root    /usr/bin/wget -O - "http://fez-staging.library.uq.edu.au/api/cron_register_bgp.php?file=bgp_insert_scopus_id_using_doi_search&class=BackgroundProcess_Insert_Scopus_Id_Using_Doi_Search&token=WEBCRON_TOKEN" > /dev/null 2>&1
+#0 5     * * 6   root    /usr/bin/wget -O - "http://fez-staging.library.uq.edu.au/api/cron_register_bgp.php?file=bgp_insert_scopus_id_using_doi_search&class=BackgroundProcess_Insert_Scopus_Id_Using_Doi_Search&token=WEBCRON_TOKEN" > /dev/null 2>&1
 
 # Find auto refereed matches
-30 6    * * *   root    /usr/bin/wget -O - "http://fez-staging.library.uq.edu.au/api/cron_register_bgp.php?file=bgp_set_refereed_details&class=BackgroundProcess_Set_Refereed_Details&token=WEBCRON_TOKEN" > /dev/null 2>&1
+#30 6    * * *   root    /usr/bin/wget -O - "http://fez-staging.library.uq.edu.au/api/cron_register_bgp.php?file=bgp_set_refereed_details&class=BackgroundProcess_Set_Refereed_Details&token=WEBCRON_TOKEN" > /dev/null 2>&1
 
 # Find all EIDs that have expired
-30 18   * * 1   root    /usr/bin/wget -O - "http://fez-staging.library.uq.edu.au/api/cron_register_bgp.php?file=bgp_find_expired_eids&class=BackgroundProcess_Find_Expired_Eids&token=WEBCRON_TOKEN" > /dev/null 2>&1
+#30 18   * * 1   root    /usr/bin/wget -O - "http://fez-staging.library.uq.edu.au/api/cron_register_bgp.php?file=bgp_find_expired_eids&class=BackgroundProcess_Find_Expired_Eids&token=WEBCRON_TOKEN" > /dev/null 2>&1
 
 # Check for datastream policy conflicts. It could cause security issues so will need an alert ASAP.
-0 0-23/2 * * *  root    /usr/bin/wget -O - "http://fez-staging.library.uq.edu.au/api/cron_register_bgp.php?file=bgp_alert_datastream_policy_conflicts&class=BackgroundProcess_Alert_Datastream_Policy_Conflicts&token=WEBCRON_TOKEN" > /dev/null 2>&1
+#0 0-23/2 * * *  root    /usr/bin/wget -O - "http://fez-staging.library.uq.edu.au/api/cron_register_bgp.php?file=bgp_alert_datastream_policy_conflicts&class=BackgroundProcess_Alert_Datastream_Policy_Conflicts&token=WEBCRON_TOKEN" > /dev/null 2>&1
 
 # Update all Publons reviews
-25 7    * * *   root    /usr/bin/wget -O - "http://fez-staging.library.uq.edu.au/api/cron_register_bgp.php?file=bgp_update_all_publons_reviews&class=BackgroundProcess_Update_All_Publons_Reviews&token=WEBCRON_TOKEN" > /dev/null 2>&1
+#25 7    * * *   root    /usr/bin/wget -O - "http://fez-staging.library.uq.edu.au/api/cron_register_bgp.php?file=bgp_update_all_publons_reviews&class=BackgroundProcess_Update_All_Publons_Reviews&token=WEBCRON_TOKEN" > /dev/null 2>&1
 
 ## /Fez staging tasks ##
