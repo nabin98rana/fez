@@ -80,6 +80,7 @@ include_once(APP_INC_PATH . "class.links_amr_queue.php");
 include_once(APP_INC_PATH . "class.internal_notes.php");
 include_once(APP_INC_PATH . "ForceUTF8/Encoding.php");
 include_once(APP_INC_PATH . "class.ulrichs.php");
+include_once(APP_INC_PATH . "class.fedora_direct_access.php");
 
 
 define('SK_JOIN', 0);
@@ -5800,7 +5801,7 @@ function getSearchKeyIndexValueShadow($pid, $searchKeyTitle, $getLookup=true, $s
 
   function isDeleted($pid)
   {
-    if (APP_FEDORA_APIA_DIRECT == "ON") {
+    if (APP_FEDORA_APIA_DIRECT == "ON" && APP_FEDORA_BYPASS != 'ON') {
       $fda = new Fedora_Direct_Access();
       return $fda->isDeleted($pid);
     }
