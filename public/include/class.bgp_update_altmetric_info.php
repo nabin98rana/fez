@@ -40,7 +40,7 @@ class BackgroundProcess_Update_Altmetric_Info extends BackgroundProcess
   {
     parent::__construct();
     $this->include = 'class.bgp_update_altmetric_info.php';
-    $this->name = 'Check links';
+    $this->name = 'Update Altmetric Info';
   }
 
   function run() {
