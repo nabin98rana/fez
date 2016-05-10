@@ -46,7 +46,17 @@ class UQTJL
     var $userManualMatches = array();
     var $userManualMatchCount = 0;
     var $unMatched = "0";
+    var $bgp = null;
 
+    /**
+     * Links this instance to a corresponding background process
+     *
+     * @param BackgroundProcess_Match_Uq_Tiered_Journals $bgp
+     */
+    public function setBGP(&$bgp)
+    {
+        $this->bgp = &$bgp;
+    }
 
     function matchAll()
     {
@@ -464,8 +474,13 @@ class UQTJL
     function lookForMatchesByISSN($check, $against, &$matches)
     {
         echo "Running ISSN match ... \n";
-        $bgp = new BackgroundProcess();
-        $bgp->register(array(), Auth::getUserID());
+
+        if ($this->bgp === null) {
+            $bgp = new BackgroundProcess();
+            $bgp->register(array(), Auth::getUserID());
+        } else {
+            $bgp = &$this->bgp;
+        }
         $eta_cfg = $bgp->getETAConfig();
         /* Step through each source item */
         $counter = 0;
@@ -533,8 +548,12 @@ class UQTJL
     function lookForMatchesByStringComparison($check, $against, &$matches, $type)
     {
         echo "Running normalised string match ... ";
-        $bgp = new BackgroundProcess();
-        $bgp->register(array(), Auth::getUserID());
+        if ($this->bgp === null) {
+            $bgp = new BackgroundProcess();
+            $bgp->register(array(), Auth::getUserID());
+        } else {
+            $bgp = &$this->bgp;
+        }
         $eta_cfg = $bgp->getETAConfig();
         /* Step through each source item */
         $counter = 0;
@@ -608,8 +627,12 @@ class UQTJL
         echo "Running similar strings match ... ";
 
 
-        $bgp = new BackgroundProcess();
-        $bgp->register(array(), Auth::getUserID());
+        if ($this->bgp === null) {
+            $bgp = new BackgroundProcess();
+            $bgp->register(array(), Auth::getUserID());
+        } else {
+            $bgp = &$this->bgp;
+        }
         $eta_cfg = $bgp->getETAConfig();
         /* Step through each source item */
         $counter = 0;
@@ -678,8 +701,12 @@ class UQTJL
     function lookForManualMatches($check, $manualMatches, &$matches)
     {
         echo "Checking un-matched journals for manual matches... \n";
-        $bgp = new BackgroundProcess();
-        $bgp->register(array(), Auth::getUserID());
+        if ($this->bgp === null) {
+            $bgp = new BackgroundProcess();
+            $bgp->register(array(), Auth::getUserID());
+        } else {
+            $bgp = &$this->bgp;
+        }
         $eta_cfg = $bgp->getETAConfig();
         /* Step through each source item */
         $counter = 0;
