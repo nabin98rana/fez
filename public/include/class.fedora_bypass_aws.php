@@ -305,22 +305,22 @@ class Fedora_API implements FedoraApiInterface {
 		$dsIDListArray = $aws->listObjects($dataPath);
 
 		foreach ($dsIDListArray as $object) {
-			$baseKey = basename($dsIDListArray['Key']);
-			if ($baseKey != "") {
+			$baseKey = basename($object['Key']);
+			if ($baseKey != basename($dataPath)) {
 				$ds = array();
 				//TODO: Add created date and mimetype from custom metadata PUT onto the object by Fez
 				$ds['controlGroup'] = "M";
 				$ds['ID']           = $baseKey;
-				$ds['versionID']    = $dsIDListArray['LastModified'];
-				$ds['altIDs']       = "";
+				$ds['versionID']    = $object['VersionId'];
+//				$ds['altIDs']       = "";
 				$ds['label']        = $baseKey;
 				$ds['versionable']  = "true";
-				$ds['MIMEType']     = "";
+//				$ds['MIMEType']     = $object['ContentType'];
 				$ds['formatURI']    = "";
-				$ds['createDate']   = $dsIDListArray['LastModified'];
+				$ds['createDate']   = (string)$object['LastModified'];
 				$ds['size']         = $object['Size'];
-				$ds['state']        = $dsIDListArray['state'];
-				$ds['location']     = $dsIDListArray['location'];
+				$ds['state']        = 'A';
+//				$ds['location']     = $object['location'];
 				$ds['checksumType'] = "MD5";
 				$ds['checksum']     = $object['eTag'];
 				$datastreams[] = $ds;
