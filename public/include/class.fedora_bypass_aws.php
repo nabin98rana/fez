@@ -423,23 +423,20 @@ class Fedora_API implements FedoraApiInterface {
 		$dataPath = Fedora_API::getDataPath($pid);
 
 		$dsArray = $aws->getObject($dataPath."/".$dsID, $createdDT);
-//$x = new Aws\Result(array());
-//		$x->get();
-//$dsData = array();
-//$x = $dsArray->get('data');
+		$dsData = array();
 
-
-			$dsData['versionID'] = $dsArray['data']['versionId'];
-			$dsData['label'] = ''; //TODO: convert to use PUT'd metadata for label
-			$dsData['controlGroup'] = "M";
-			$dsData['MIMEType'] = $dsData['ContentType'];
-			$dsData['createDate'] = $dsData['LastModified']['date']; //TODO: convert to saved meta
-			$dsData['location'] = NULL; //TODO Check if this is needed and if so fill with a real value.
-			$dsArray['formatURI'] = NULL; //TODO Check if this is needed and if so fill with a real value.
-			$dsArray['checksumType'] = 'MD5';
-			$dsArray['checksum'] = $dsData['ETag'];
-			$dsArray['versionable'] = FALSE; //TODO Check if this is needed and if so fill with a real value.
-			$dsArray['checksumType'] = $dsData['ContentLength'];
+		$dsData['versionID'] = $dsArray['VersionId'];
+		$dsData['label'] = ''; //TODO: convert to use PUT'd metadata for label
+		$dsData['controlGroup'] = "M";
+		$dsData['MIMEType'] = $dsArray['ContentType'];
+		$dsData['createDate'] = (string)$dsArray['LastModified']; //TODO: convert to saved meta
+		$dsData['location'] = NULL; //TODO Check if this is needed and if so fill with a real value.
+		$dsData['formatURI'] = NULL; //TODO Check if this is needed and if so fill with a real value.
+		$dsData['checksumType'] = 'MD5';
+		$dsData['checksum'] = str_replace('"', '', $dsArray['ETag']);
+		$dsData['versionable'] = FALSE; //TODO Check if this is needed and if so fill with a real value.
+		$dsData['size'] = $dsArray['ContentLength'];
+		$dsData['state'] = 'A';
 
 		return $dsData;
 	}
