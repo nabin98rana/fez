@@ -206,7 +206,6 @@ class LinkCheck
 			return false;
 		}
 		
-		echo "* " . $result['url'] . " :: " . $result['status'] . "\n"; // LKDB
 		return true;
 	}
 	
