@@ -96,7 +96,7 @@ class Sitemap {
     fclose($fp);
 
     if ($this->aws !== null) {
-      $this->aws->postFile("sitemap", array($file));
+      $this->aws->postFile("sitemap", array($this->path . $file));
     }
 
     $this->index++;
@@ -137,7 +137,7 @@ class Sitemap {
     fwrite($fp, $xml);
     fclose($fp);
     if ($this->aws !== null) {
-      $this->aws->postFile("sitemap", array($file));
+      $this->aws->postFile("sitemap", array($this->path . $index));
     }
   }
 
