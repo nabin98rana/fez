@@ -297,14 +297,14 @@ class Collection
 
   //Returns sql string to use to restrict content by Auth
   //Possibly does not work as as expected, use with caution
-  function getAuthIndexStmt($roles = array(), $joinPrefix="r2.rek_pid")
+  function getAuthIndexStmt($roles = array(), $joinPrefix="r2.rek_pid", $adminCheck = true)
   {
     $db = DB_API::get();
     $log = FezLog::get();
 
     // If the user is a Fez Administrator then don't check for security, give them everything
     $isAdministrator = Auth::isAdministrator();
-    if ($isAdministrator === true) {
+    if ($isAdministrator === true && $adminCheck) {
       return array('authStmt' => '', 'joinStmt' => ''); // turned off for testing
     }
 
