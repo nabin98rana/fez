@@ -58,7 +58,7 @@ class BackgroundProcess_Generate_Sitemap extends BackgroundProcess
     $approved_roles=array(9,10);
     // Get listing of all published pids, which CLI will be publicly viewable pids
     $stmt = "SELECT rek_pid, rek_updated_date FROM " . APP_TABLE_PREFIX . "record_search_key";
-    $authArray = Collection::getAuthIndexStmt($approved_roles, "rek_pid");
+    $authArray = Collection::getAuthIndexStmt($approved_roles, "rek_pid", false);
     $stmt .= $authArray['authStmt'];
     $stmt .= " AND rek_status = '2' ORDER BY rek_updated_date DESC";
     $pidList = $db->fetchAll($stmt);
