@@ -113,7 +113,7 @@ class Sitemap {
     $sitemaps = array();
     $index = "sitemap-index.xml{$this->compress}";
     if (file_exists($this->path . $index)) {
-      $xml = (!empty($this->compress)) ? gzfile($this->baseUri . $index) : file($this->baseUri . $index);
+      $xml = (!empty($this->compress)) ? gzfile($this->path . $index) : file($this->path . $index);
       $tags = $this->xml_tag(implode('', $xml), array('sitemap'));
       foreach ($tags as $xml) {
         $loc = str_replace($this->baseUrl . $this->baseUri, '', $this->xml_tag($xml, 'loc'));
