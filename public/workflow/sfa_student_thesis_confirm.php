@@ -52,7 +52,7 @@ if (empty($wfstatus)) {
 $pid = $wfstatus->pid;
 
 // Email Settings
-$subject = '['.APP_NAME.'] - Your submission has been completed';
+$subject = '['.APP_NAME.'] - Your upload has been completed';
 $thesis_office_email = "libtheses@library.uq.edu.au";
 
 // Set background process for sending email confirmation

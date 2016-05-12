@@ -124,7 +124,7 @@ class Fez_BackgroundProcess_Sfa_ConfirmEmail extends BackgroundProcess{
      * @param bool $show_url
      * @return bool
      */
-    protected function _sendEmail($recipient = array(), $subject = "Your submission has been completed", $show_url = false)
+    protected function _sendEmail($recipient = array(), $subject = "Your upload has been completed", $show_url = false)
     {
         if ( !isset($recipient["email"]) || empty($recipient["email"]) ){
             return false;
