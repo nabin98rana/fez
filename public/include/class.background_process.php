@@ -465,4 +465,31 @@ class BackgroundProcess {
 			$bgp->runCurrent();
 		}
 	}
+
+	/**
+	 * Checks whether a background process is either running or is scheduled to run
+	 * @param int $sinceTimestamp A timestamp of when to check from
+	 * @return bool True if a process is scheduled or running, false if not
+	 */
+	public function isScheduledOrRunning($sinceTimestamp) {
+		$log = FezLog::get();
+		$db = DB_API::get();
+
+		$sinceDate = Date_API::getSimpleDateUTC($sinceTimestamp);
+
+		$dbtp = APP_TABLE_PREFIX;
+		$stmt = "SELECT bgp_id FROM " . $dbtp . "background_process WHERE bgp_started >= ".$db->quote($sinceDate).
+			" AND (bgp_state IS NULL OR bgp_state = ".$db->quote(BGP_RUNNING, 'INTEGER').
+			") AND bgp_name = " . $db->quote($this->name);
+		try {
+			$res = $db->fetchOne($stmt);
+			if (! empty($res)) {
+				return true;
+			}
+		} catch (Exception $ex) {
+			$log->err($ex);
+		}
+
+		return false;
+	}
 }

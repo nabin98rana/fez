@@ -48,6 +48,7 @@ $allowedBgps = [
   'BackgroundProcess_Alert_Datastream_Policy_Conflicts',
   'BackgroundProcess_Cache_Rebuild',
   'BackgroundProcess_Check_Links',
+  'BackgroundProcess_Check_Researcherid_Download_Status',
   'BackgroundProcess_Clean_Researcherid_Xml',
   'BackgroundProcess_Download_Uq_Pubs',
   'BackgroundProcess_Email_Subscribed_Search_Users',
@@ -82,7 +83,11 @@ else if (file_exists($file)) {
   include_once($file);
   $bgp = new $class;
   if (is_subclass_of($bgp, 'BackgroundProcess')) {
-    $response = $bgp->register(serialize($_GET['input']), User::getUserIDByUsername('webcron'));
+    if (method_exists($bgp, 'registerCheck') && !$bgp->registerCheck()) {
+      $response = -1;
+    } else {
+      $response = $bgp->register(serialize($_GET['input']), User::getUserIDByUsername('webcron'));
+    }
     if ($response === -1) {
       $error = 'Failed to register background process';
     }
