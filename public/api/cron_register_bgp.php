@@ -50,6 +50,7 @@ $allowedBgps = [
   'BackgroundProcess_Check_Links',
   'BackgroundProcess_Clean_Researcherid_Xml',
   'BackgroundProcess_Download_Uq_Pubs',
+  'BackgroundProcess_Email_Subscribed_Search_Users',
   'BackgroundProcess_Embargo_Period_Complete_Check',
   'BackgroundProcess_Find_Expired_Eids',
   'BackgroundProcess_Generate_Sitemap',
