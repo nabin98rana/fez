@@ -30,6 +30,8 @@
 // | Authors: Rhys Palmer <r.palmer@library.uq.edu.au>                    |
 // +----------------------------------------------------------------------+
 
+include_once(APP_INC_PATH . 'class.eventum.php');
+include_once(APP_INC_PATH . 'class.my_research.php');
 include_once(APP_INC_PATH . 'class.background_process.php');
 
 class BackgroundProcess_Sync_Eventum_Jobs extends BackgroundProcess
