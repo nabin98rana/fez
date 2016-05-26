@@ -95,4 +95,7 @@
 # ResearcherID Batch Download - Checks the status of jobs created using the ResearcherID Batch Download service
 #*/5 0-23 * * *  root    /usr/bin/wget -O - "http://fez-staging.library.uq.edu.au/api/cron_register_bgp.php?file=bgp_check_researcherid_download_status&class=BackgroundProcess_Check_Researcherid_Download_Status&token=WEBCRON_TOKEN" > /dev/null 2>&1
 
+# Process mail queue
+#*/2 *    * * *  root    /usr/bin/wget -O - "http://fez-staging.library.uq.edu.au/api/cron_register_bgp.php?file=bgp_process_mail_queue&class=BackgroundProcess_Process_Mail_Queue&token=WEBCRON_TOKEN" > /dev/null 2>&1
+
 ## /Fez staging tasks ##
