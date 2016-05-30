@@ -60,6 +60,7 @@ $allowedBgps = [
   'BackgroundProcess_Match_Ranked_Journals',
   'BackgroundProcess_Match_Uq_Tiered_Journals',
   'BackgroundProcess_Process_Mail_Queue',
+  'BackgroundProcess_Process_Researcherid_Upload_Emails',
   'BackgroundProcess_Process_Wok_Queue',
   'BackgroundProcess_Run_Integrity_Checks',
   'BackgroundProcess_Set_Refereed_Details',
