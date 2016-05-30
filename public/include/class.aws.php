@@ -402,6 +402,29 @@ class AWS
   }
 
   /**
+   * @param string $prefix
+   * @return array
+   */
+  public function listObjectsInBucket($prefix)
+  {
+    $objects = [];
+    try {
+      $client = $this->sdk->createS3();
+
+      $result = $client->listObjects([
+        'Bucket' => AWS_S3_BUCKET,
+        'Prefix' => $prefix,
+      ]);
+
+      return $result['Contents'];
+
+    } catch (\Aws\S3\Exception\S3Exception $e) {
+      $this->log->err($e->getMessage());
+    }
+    return $objects;
+  }
+
+  /**
    * @param string $resource
    * @param string $policy
    * @param int $expires

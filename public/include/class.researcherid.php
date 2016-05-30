@@ -53,6 +53,8 @@ include_once(APP_INC_PATH . "class.record_object.php");
 include_once(APP_INC_PATH . "class.record_general.php");
 
 class ResearcherID {
+  const AWS_S3_MAIL_PREFIX   = 'mail/researcherid';
+
   /**
    * Returns the full path to the file that keeps the process ID of the
    * running script.
@@ -436,16 +438,26 @@ class ResearcherID {
     $dir = RID_UL_SERVICE_ROUTED_EMAIL_PATH;
     $emails = ResearcherID::getRoutedEmails($dir);
 
+    // DEBUG
+    $log->err(print_r($emails, true));
+
     if (!is_array($emails)) {
       return FALSE;
     }
 
     foreach ($emails as $email) {
-      if (ResearcherID::emailHasBeenProcessed($email)) {
+      $email_filename = ResearcherID::getEmailFilename($email);
+      if (ResearcherID::emailHasBeenProcessed($email_filename)) {
         continue;
       }
-      $full_message = file_get_contents($dir . '/' . $email);
-      $email_date = date('Y-m-d H:i:s', filemtime($dir . '/' . $email));
+      $full_message = ResearcherID::getEmailMessageContents($email);
+      $email_date = ResearcherID::getEmailMessageDate($email);
+
+      // DEBUG
+      $log->err($email_filename);
+      $log->err($full_message);
+      $log->err($email_date);
+      continue;
 
       // join the Content-Type line (for easier parsing?)
       if (preg_match('/^boundary=/m', $full_message)) {
@@ -485,7 +497,7 @@ class ResearcherID {
 
         // Save response retrieved from the URL on RID Status Report email
         $data = array(
-          "rpu_email_filename" => $email,
+          "rpu_email_filename" => $email_filename,
           "rpu_email_file_date" => $email_date,
           "rpu_response_url" => $url,
           "rpu_response" => $result['response'],
@@ -523,19 +535,16 @@ class ResearcherID {
         if (isset($xml_report->publicationList)) {
           $publications = $xml_report->publicationList->{'successfully-uploaded'}->{'researcher-profile'};
         }
-        ResearcherID::markEmailAsProcessed($email);
-
-
-        // Move any other emails to "processed" directory
+        ResearcherID::markEmailAsProcessed($email_filename);
       }
       else {
 
         // Log to Fez error when unknown email is received
         // Except email with subject "ResearcherID Batch Processing Status"
         if ($subject != 'ResearcherID Batch Processing Status') {
-          $log->err('Received an unknown email ' . $email);
+          $log->err('Received an unknown email ' . $email_filename);
         }
-        ResearcherID::markEmailAsProcessed($email);
+        ResearcherID::markEmailAsProcessed($email_filename);
       }
     }
     return TRUE;
@@ -560,6 +569,43 @@ class ResearcherID {
       return FALSE;
     }
     return TRUE;
+  }
+
+  /**
+   * @param string|array $email
+   * @return string
+   */
+  private static function getEmailMessageContents($email) {
+    if (defined('AWS_ENABLED') && AWS_ENABLED == 'true') {
+      $aws = AWS::get();
+      return $aws->getFileContent(self::AWS_S3_MAIL_PREFIX, $email['Key']);
+    }
+
+    return file_get_contents(RID_UL_SERVICE_ROUTED_EMAIL_PATH . '/' . $email);
+  }
+
+  /**
+   * @param string|array $email
+   * @return bool|string
+   */
+  private static function getEmailMessageDate($email) {
+    if (defined('AWS_ENABLED') && AWS_ENABLED == 'true') {
+      return $email['LastModified']->format('Y-m-d H:i:s');
+    }
+
+    return date('Y-m-d H:i:s', filemtime(RID_UL_SERVICE_ROUTED_EMAIL_PATH . '/' . $email));
+  }
+
+  /**
+   * @param string|array $email
+   * @return bool|string
+   */
+  private static function getEmailFilename($email) {
+    if (defined('AWS_ENABLED') && AWS_ENABLED == 'true') {
+      return 's3://' . AWS_S3_BUCKET . '/' . self::AWS_S3_MAIL_PREFIX . '/' . $email['Key'];
+    }
+
+    return $email;
   }
 
   /**
@@ -665,12 +711,15 @@ class ResearcherID {
   /**
    * Method used to get a list of routed email file names
    *
-   * @access  public
    * @return  mixed The array of routed email file names or false on error
    */
   private static function getRoutedEmails($dir) {
     $log = FezLog::get();
     $db = DB_API::get();
+
+    if (defined('AWS_S3_ENABLED') && AWS_S3_ENABLED == 'true') {
+      return ResearcherID::getRoutedEmailsFromS3();
+    }
 
     $emails = array();
 
@@ -686,6 +735,21 @@ class ResearcherID {
       $log->err('Unable to open routed emails directory');
       return FALSE;
     }
+
+    return $emails;
+  }
+
+  /**
+   * Method used to get a list of routed email file names from an S3 bucket
+   *
+   * @return  mixed The array of routed email file names or false on error
+   */
+  private static function getRoutedEmailsFromS3() {
+    $log = FezLog::get();
+    $db = DB_API::get();
+    $aws = AWS::get();
+
+    $emails = $aws->listObjectsInBucket(self::AWS_S3_MAIL_PREFIX);
 
     return $emails;
   }
