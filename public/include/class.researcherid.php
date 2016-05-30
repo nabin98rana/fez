@@ -578,7 +578,7 @@ class ResearcherID {
   private static function getEmailMessageContents($email) {
     if (defined('AWS_ENABLED') && AWS_ENABLED == 'true') {
       $aws = AWS::get();
-      return $aws->getFileContent(self::AWS_S3_MAIL_PREFIX, $email['Key']);
+      return $aws->getFileContent('/', $email['Key']);
     }
 
     return file_get_contents(RID_UL_SERVICE_ROUTED_EMAIL_PATH . '/' . $email);
@@ -602,7 +602,7 @@ class ResearcherID {
    */
   private static function getEmailFilename($email) {
     if (defined('AWS_ENABLED') && AWS_ENABLED == 'true') {
-      return 's3://' . AWS_S3_BUCKET . '/' . self::AWS_S3_MAIL_PREFIX . '/' . $email['Key'];
+      return 's3://' . AWS_S3_BUCKET . '/' . $email['Key'];
     }
 
     return $email;
@@ -749,7 +749,7 @@ class ResearcherID {
     $db = DB_API::get();
     $aws = AWS::get();
 
-    $emails = $aws->listObjectsInBucket(self::AWS_S3_MAIL_PREFIX);
+    $emails = $aws->listObjectsInBucket(self::AWS_S3_MAIL_PREFIX . '/');
 
     return $emails;
   }
