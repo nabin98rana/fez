@@ -389,10 +389,11 @@ class AWS
   {
     try {
       $client = $this->sdk->createS3();
+      $key = empty($src) ? $id :  $src . '/' . $id;
 
       $result = $client->getObject(array(
           'Bucket' => AWS_S3_BUCKET,
-          'Key' => $src . '/'. $id
+          'Key' => $key
       ));
     } catch (\Aws\S3\Exception\S3Exception $e) {
       $this->log->err($e->getMessage());
