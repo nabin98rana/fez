@@ -21,6 +21,12 @@ class AWS
    */
   private $sdk;
 
+
+  /**
+   * @var s3Bucket
+   */
+  private $s3Bucket;
+
   /**
    * @var int
    */
@@ -29,13 +35,14 @@ class AWS
   /**
    * AWS constructor.
    */
-  public function __construct() {
+  public function __construct($s3Bucket = AWS_S3_BUCKET) {
     $this->log = FezLog::get();
     $this->sdk = new Aws\Sdk([
       'region'  => AWS_REGION,
       'version' => 'latest'
     ]);
     $this->launchedTasks = 0;
+    $this->s3Bucket = $s3Bucket;
     putenv("AWS_ACCESS_KEY_ID=" . AWS_KEY);
     putenv("AWS_SECRET_ACCESS_KEY=" . AWS_SECRET);
   }
@@ -210,7 +217,7 @@ class AWS
       ];
       try {
         $client->putObject([
-            'Bucket' => AWS_S3_BUCKET,
+            'Bucket' => $this->s3Bucket,
             'Key' => $src . '/' . $baseFile,
             'SourceFile' => $file,
             'ContentType' => $mimeType,
@@ -263,7 +270,7 @@ class AWS
 
     try {
       $client->putObject([
-          'Bucket' => AWS_S3_BUCKET,
+          'Bucket' => $this->s3Bucket,
           'Key' => $src . '/' . $fileName,
           'Body' => $content,
           'ContentType' => $mimeType,
@@ -309,7 +316,7 @@ class AWS
     if (strlen($match) > 1) {
       try {
         $client = $this->sdk->createS3();
-        $client->deleteMatchingObjects(AWS_S3_BUCKET, $match);
+        $client->deleteMatchingObjects($this->s3Bucket, $match);
       } catch (\Aws\S3\Exception\S3Exception $e) {
         $this->log->err($e->getMessage());
         return false;
@@ -329,7 +336,7 @@ class AWS
     try {
       $client = $this->sdk->createS3();
       $iterator = $client->getIterator('ListObjects', array(
-          'Bucket' => AWS_S3_BUCKET,
+          'Bucket' => $this->s3Bucket,
           "Prefix" => $path . '/'
       ));
     } catch (\Aws\S3\Exception\S3Exception $e) {
@@ -347,7 +354,7 @@ class AWS
     try {
       $client = $this->sdk->createS3();
       $args = array(
-          'Bucket' => AWS_S3_BUCKET,
+          'Bucket' => $this->s3Bucket,
           'Key' => $key,
       );
       if (!is_null($versionId)) {
@@ -370,7 +377,7 @@ class AWS
     $id = basename($id);
     try {
       $client = $this->sdk->createS3();
-      $found = $client->doesObjectExist(AWS_S3_BUCKET, $src . '/' . $id);
+      $found = $client->doesObjectExist($this->s3Bucket, $src . '/' . $id);
     } catch (\Aws\S3\Exception\S3Exception $e) {
       $this->log->err($e->getMessage());
       return false;
@@ -389,7 +396,7 @@ class AWS
       $client = $this->sdk->createS3();
       $client->deleteObject(
         array(
-            'Bucket' => AWS_S3_BUCKET,
+            'Bucket' => $this->s3Bucket,
             'Key'    => $src . '/' . $id
         ));
     } catch (\Aws\S3\Exception\S3Exception $e) {
@@ -411,12 +418,12 @@ class AWS
 
       // get all versions of the key
       $versions = $client->listObjectVersions(array(
-          'Bucket' => AWS_S3_BUCKET,
+          'Bucket' => $this->s3Bucket,
           'Key'       =>  $src . '/' . $id,
       ))->getPath('Versions');
       // delete all the versions
       $result = $client->deleteObjects(array(
-          'Bucket'  => AWS_S3_BUCKET,
+          'Bucket'  => $this->s3Bucket,
           'Objects' => array_map(function ($version) {
             return array(
                 'Key'       => $version['Key'],
@@ -449,18 +456,18 @@ class AWS
       //TODO: may need to add 'label' metadata as new param inputs
       $client->copyObject(
           array(
-              'Bucket' => AWS_S3_BUCKET,
+              'Bucket' => $this->s3Bucket,
               'Key'    => $src . '/' . $id
           ),
           array(
-              'Bucket' => AWS_S3_BUCKET,
+              'Bucket' => $this->s3Bucket,
               'Key'    => $newSrc . '/' . $newId
           )
       );
 
       $client->deleteObject(
           array(
-              'Bucket' => AWS_S3_BUCKET,
+              'Bucket' => $this->s3Bucket,
               'Key'    => $src . '/' . $id
           ));
     } catch (\Aws\S3\Exception\S3Exception $e) {
@@ -482,7 +489,7 @@ class AWS
       $client = $this->sdk->createS3();
 
       $result = $client->getObject(array(
-          'Bucket' => AWS_S3_BUCKET,
+          'Bucket' => $this->s3Bucket,
           'Key' => $src . '/'. $id
       ));
     } catch (\Aws\S3\Exception\S3Exception $e) {
@@ -503,7 +510,7 @@ class AWS
       $client = $this->sdk->createS3();
 
       $args = array(
-          'Bucket' => AWS_S3_BUCKET,
+          'Bucket' => $this->s3Bucket,
           'Key' => $src . '/'. $id,
       );
       if (!is_null($versionId)) {

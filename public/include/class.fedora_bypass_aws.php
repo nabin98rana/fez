@@ -210,7 +210,7 @@ class Fedora_API implements FedoraApiInterface {
 		$resourceDataLocation = $dsLocation;
 		$filesDataSize = filesize($dsLocation);
 
-		$aws = new AWS();
+		$aws = AWS::get();
 		$dataPath = Fedora_API::getDataPath($pid);
 		if ($aws->postFile($dataPath, $dsLocation)) {
 			$success = 1;
@@ -280,7 +280,7 @@ class Fedora_API implements FedoraApiInterface {
 //		$dsr = new DSResource(APP_DSTREE_PATH, $resourceDataLocation, $meta);
 //		$dsr->save();
 
-		$aws = new AWS();
+		$aws = AWS::get();
 		$dataPath = Fedora_API::getDataPath($pid);
 		if ($aws->postFile($dataPath, $dsLocation)) {
 			$success = 1;
@@ -299,7 +299,7 @@ class Fedora_API implements FedoraApiInterface {
 	public function callGetDatastreams($pid, $createdDT = NULL, $dsState = 'A')
 	{
 
-		$aws = new AWS();
+		$aws = AWS::get();
 		$dataPath = Fedora_API::getDataPath($pid);
 		$datastreams = array();
 		$dsIDListArray = $aws->listObjects($dataPath);
@@ -419,7 +419,7 @@ class Fedora_API implements FedoraApiInterface {
 	 */
 	public function callGetDatastream($pid, $dsID, $createdDT = NULL)
 	{
-		$aws = new AWS();
+		$aws = AWS::get();
 		$dataPath = Fedora_API::getDataPath($pid);
 
 		$dsArray = $aws->getObject($dataPath."/".$dsID, $createdDT);
@@ -456,7 +456,7 @@ class Fedora_API implements FedoraApiInterface {
 			return false;
 		}
 
-		$aws = new AWS();
+		$aws = AWS::get();
 		$dataPath = Fedora_API::getDataPath($pid);
 		$dsExists = $aws->checkExistsById($dataPath, $dsID); //TODO: implement $pattern if necessary
 
@@ -494,7 +494,7 @@ class Fedora_API implements FedoraApiInterface {
 	{
 		$return = array();
 
-		$aws = new AWS();
+		$aws = AWS::get();
 		$dataPath = Fedora_API::getDataPath($pid);
 		$return['stream'] = $aws->getFileContent($dataPath, $dsID, $asofDateTime);
 
@@ -607,7 +607,7 @@ class Fedora_API implements FedoraApiInterface {
 	 */
 	public function callModifyDatastreamByReference($pid, $dsID, $dsLabel, $dsLocation = NULL, $mimetype, $versionable = 'inherit')
 	{
-			$aws = new AWS();
+			$aws = AWS::get();
 			$dataPath = Fedora_API::getDataPath($pid);
 			$aws->rename($dataPath, $dsID, $dataPath, $dsID, $dsLabel);
 	}
@@ -634,7 +634,7 @@ class Fedora_API implements FedoraApiInterface {
 	 */
 	public function deleteDatastream($pid, $dsID)
 	{
-		$aws = new AWS();
+		$aws = AWS::get();
 		$dataPath = Fedora_API::getDataPath($pid);
 		return $aws->deleteById($dataPath, $dsID);
 	}
@@ -652,7 +652,7 @@ class Fedora_API implements FedoraApiInterface {
 	 */
 	public function callPurgeDatastream($pid, $dsID, $startDT = NULL, $endDT = NULL, $logMessage = "Purged Datastream from Fez", $force = FALSE)
 	{
-		$aws = new AWS();
+		$aws = AWS::get();
 		$dataPath = Fedora_API::getDataPath($pid);
 		return $aws->purgeById($dataPath, $dsID);
 	}

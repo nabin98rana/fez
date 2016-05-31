@@ -557,9 +557,7 @@ if (!empty($pid) && $record->checkExists()) {
       }
 
 
-
-      $dob = new DSResource();
-      $streams = $dob->listStreams($pid);
+      $streams = $datastreams;
       foreach ($streams as &$stream) {
         $stream['downloads'] = Statistics::getStatsByDatastream($pid, $stream['filename']);
         $stream['base64ID'] = base64_encode($stream['filename']);
