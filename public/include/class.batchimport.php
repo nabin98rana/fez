@@ -674,20 +674,23 @@ class BatchImport
 	/**
 	 * Method used to get a list of dir names in the import dir
 	 *
+	 * @param   string $subdir
 	 * @return  mixed The array of dir names or false on error
 	 */
-	public static function getImportDirs() {
+	public static function getImportDirs($subdir = '') {
 		$log = FezLog::get();
+		$subdir = str_replace('/', '', $subdir);
 
 		if (defined('AWS_S3_ENABLED') && AWS_S3_ENABLED == 'true') {
-			return self::getImportDirsFromS3();
+			return self::getImportDirsFromS3($subdir);
 		}
 
 		$dirs = array();
 
-		if ($handle = opendir(APP_SAN_IMPORT_DIR)) {
+		$parent = empty($subdir) ? APP_SAN_IMPORT_DIR : APP_SAN_IMPORT_DIR . '/' . $subdir;
+		if ($handle = opendir($parent)) {
 			while (FALSE !== ($dir = readdir($handle))) {
-				if (!(is_dir(APP_SAN_IMPORT_DIR . $dir) || $dir == '.' || $dir == '..')) {
+				if (!(is_dir($parent . $dir) || $dir == '.' || $dir == '..')) {
 					$dirs[$dir] = $dir;
 				}
 			}
@@ -695,7 +698,6 @@ class BatchImport
 		}
 		else {
 			$log->err('Unable to open directory');
-			return FALSE;
 		}
 
 		return $dirs;
@@ -704,19 +706,21 @@ class BatchImport
 	/**
 	 * Method used to get a list of file names from an S3 bucket
 	 *
+	 * @param   string $subdir
 	 * @return  mixed The array of file names
 	 */
-	private static function getImportDirsFromS3() {
-		$log = FezLog::get();
+	private static function getImportDirsFromS3($subdir = '') {
 		$aws = AWS::get();
 
 		$return = [];
-		$dirs = $aws->listObjectsInBucket(self::AWS_SAN_IMPORT_PREFIX);
+		$prefix = empty($subdir) ? self::AWS_SAN_IMPORT_PREFIX : self::AWS_SAN_IMPORT_PREFIX . '/' . $subdir;
+		$dirs = $aws->listObjectsInBucket($prefix);
 
 		foreach($dirs as $dir) {
 			// Skip the files
 			if ($dir['Size'] === 0) {
-				preg_match('/^' . self::AWS_SAN_IMPORT_PREFIX . '\/([^\/]+)\//', $dir['Key'], $matches);
+				$pattern = empty($subdir) ? self::AWS_SAN_IMPORT_PREFIX : self::AWS_SAN_IMPORT_PREFIX . '\/' . $subdir;
+				preg_match('/^' . $pattern . '\/([^\/]+)\//', $dir['Key'], $matches);
 				if (count($matches) === 2) {
 					$d = trim($matches[1], '/');
 					if (! empty($d) && ! array_key_exists($d, $return)) {

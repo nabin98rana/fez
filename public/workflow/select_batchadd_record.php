@@ -76,19 +76,8 @@ if ($access_ok) {
 
     $username = Auth::getUsername();
     //open the current directory
-    $dir_loc = APP_SAN_IMPORT_DIR . $username;
+    $filenames = BatchImport::getImportDirs($username);
 
-    if (!is_dir($dir_loc)) {
-        $message = "The direct import SAN directory for your username has not been setup. Ask an administrator to set this up for you and try again.";
-    } else {
-        $directory = opendir($dir_loc);
-        while (false !== ($file = readdir($directory))) {
-            if (!is_dir($dir_loc . $file) && ($file != '..') && ($file != '.')) {
-                $filenames[$file] = $file;
-            }
-        }
-        closedir($directory);
-    }
     uasort($filenames, 'strnatcasecmp');
 
     $tpl->assign("title", $record->getTitle());
