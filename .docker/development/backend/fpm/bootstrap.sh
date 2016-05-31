@@ -8,7 +8,8 @@ BASE_DIR=/var/app/current
 
 cd ${BASE_DIR}/.docker/development
 
-#sed -i "s|xdebug.remote_enable=1|xdebug.remote_enable=0\nxdebug.remote_host=<your_ip_here>"
+# its remote connect back that needs to be 0, and host setup right, remote enable needs to be 1
+#sed -i "s|xdebug.remote_enable=1|xdebug.remote_enable=1\nxdebug.remote_host=<your_ip_here>"
 
 
 if [ "${APP_ENVIRONMENT}" == "testing" ]; then
