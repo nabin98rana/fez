@@ -229,6 +229,13 @@ class Fedora_API implements FedoraApiInterface {
 		return "data/".str_replace(":", "_", $pid);
 	}
 
+	public function getCloudFrontUrl($pid, $dsid) {
+		$aws = AWS::get();
+		$path = Fedora_API::getDataPath($pid);
+		$cfURL = $aws->getById($path, $dsid);
+		return $cfURL;
+	}
+
 	/**
 	 * This function adds datastreams to object $pid.
 	 *
