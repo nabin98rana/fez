@@ -84,30 +84,20 @@ $acceptable_roles = array("Viewer", "Community_Admin", "Editor", "Creator", "Ann
 
 if (!empty($pid) && !empty($dsID)) {
 
-    if(APP_FEDORA_BYPASS == 'ON')
-    {
-        if(!$bookpage)//Test for existence of bookpage further down.
-        {
-            $dsr = new DSResource();
-    		$dsr->load($dsID, $pid);
-    		$hash = $dsr->getHash();
-    		$dsMeta = $dsr->getMeta();
-    		$isDeleted = ($dsr->resourceExists()) ? false : true;
-        }
-    } else {
-        //Need to check if the datastream is deleted
-        //if a book page the folder name it's in is the datastream name plus a .pdf
-        $dsIDTemp = !$bookpage ? $dsID : current(explode("/", $dsID)).'.pdf';
-        $isDeleted = TRUE ;
-        $dsCheck = Fedora_API::callGetDatastreams($pid);
-        foreach ($dsCheck as $pidDatastream)
-        {
-            if ($pidDatastream[ID] == $dsIDTemp) {
-                $isDeleted = FALSE;
-            }
-        }
-        $isDeleted = Record::isDeleted($pid) || $isDeleted;
-    }
+
+	//Need to check if the datastream is deleted
+	//if a book page the folder name it's in is the datastream name plus a .pdf
+	$dsIDTemp = !$bookpage ? $dsID : current(explode("/", $dsID)).'.pdf';
+	$isDeleted = TRUE ;
+	$dsCheck = Fedora_API::callGetDatastreams($pid);
+	foreach ($dsCheck as $pidDatastream)
+	{
+			if ($pidDatastream[ID] == $dsIDTemp) {
+					$isDeleted = FALSE;
+			}
+	}
+	$isDeleted = Record::isDeleted($pid) || $isDeleted;
+
 
 	if($isDeleted) {
 		header("HTTP/1.0 404 Not Found");
@@ -246,7 +236,10 @@ if (!empty($pid) && !empty($dsID)) {
 				$seekat = -1;
 			}
 
-	        $size = (APP_FEDORA_BYPASS == 'ON') ? $dsMeta['size'] : Misc::remote_filesize($urldata);
+//			$size = (APP_FEDORA_BYPASS == 'ON') ? $dsMeta['size'] : Misc::remote_filesize($urldata);
+			$dsDetails = Fedora_API::getDatastream($pid, $dsID, $dsVersionID);
+
+			$size = $dsDetails['size'];
 
 			# content headers
 			header("Content-Type: video/x-flv");

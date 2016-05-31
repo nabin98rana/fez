@@ -509,20 +509,8 @@ if (!empty($pid) && $record->checkExists()) {
     $linkCount = 0;
     $fileCount = 0;
 
-    if (APP_FEDORA_BYPASS == 'ON') {
-      //This retrieves the datastreams
-      //Metadata is retrieved by XSD_DisplayObject::getXSDMF_Values
-      $dob = new DigitalObject();
-      $params = array('pid' => $pid);
 
-      if ($requestedVersionDate) {
-        $params['rev'] = $requestedVersionDate;
-      }
-
-      $datastreams = $dob->getDatastreams($params);
-    } else {
-      $datastreams = Fedora_API::callGetDatastreams($pid, $requestedVersionDate, 'A');
-    }
+    $datastreams = Fedora_API::callGetDatastreams($pid, $requestedVersionDate, 'A');
 
     // Extact and generate list of timestamps for the datastreams of the record
     generateTimestamps($pid, $datastreams, $requestedVersionDate, $tpl);

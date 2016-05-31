@@ -621,16 +621,7 @@ class RecordEditForm
      {
         $pid = $record->pid;
 
-        if(APP_FEDORA_BYPASS == 'ON')
-        {
-            $dob = new DigitalObject();
-            $datastreams = $dob->getDatastreams(array('pid' => $pid));
-
-        }
-        else
-        {
-            $datastreams = Fedora_API::callGetDatastreams($pid);
-        }
+        $datastreams = Fedora_API::callGetDatastreams($pid);
 
         $datastreams = Misc::cleanDatastreamListLite($datastreams, $pid);
 
