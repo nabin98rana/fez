@@ -716,10 +716,12 @@ class BatchImport
 		foreach($dirs as $dir) {
 			// Skip the files
 			if ($dir['Size'] === 0) {
-				$d = str_ireplace(self::AWS_SAN_IMPORT_PREFIX . '/', '', $dir['Key']);
-				$d = trim($d, '/');
-				if (! empty($d)) {
-					$return[$d] = $d;
+				preg_match('/^' . self::AWS_SAN_IMPORT_PREFIX . '\/([^\/]+)\//', $dir['Key'], $matches);
+				if (count($matches) === 2) {
+					$d = trim($matches[1], '/');
+					if (! empty($d) && ! array_key_exists($d, $return)) {
+						$return[$d] = $d;
+					}
 				}
 			}
 		}
