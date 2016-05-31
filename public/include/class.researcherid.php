@@ -438,9 +438,6 @@ class ResearcherID {
     $dir = RID_UL_SERVICE_ROUTED_EMAIL_PATH;
     $emails = ResearcherID::getRoutedEmails($dir);
 
-    // DEBUG
-    $log->err(print_r($emails, true));
-
     if (!is_array($emails)) {
       return FALSE;
     }
@@ -452,12 +449,6 @@ class ResearcherID {
       }
       $full_message = ResearcherID::getEmailMessageContents($email);
       $email_date = ResearcherID::getEmailMessageDate($email);
-
-      // DEBUG
-      $log->err($email_filename);
-      $log->err($full_message);
-      $log->err($email_date);
-      continue;
 
       // join the Content-Type line (for easier parsing?)
       if (preg_match('/^boundary=/m', $full_message)) {
