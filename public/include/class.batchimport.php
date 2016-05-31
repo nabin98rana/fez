@@ -67,6 +67,8 @@ include_once(APP_INC_PATH . "class.error_handler.php");
  */
 class BatchImport
 {
+	const AWS_SAN_IMPORT_PREFIX   = 'san_import';
+
 	var $pid;
 	var $externalDatastreams;
 	var $bgp; // background process object for keeping track of status since batchimport runs in background
@@ -667,6 +669,62 @@ class BatchImport
 		else {
 			$array[$key] = $value;
 		}
+	}
+
+	/**
+	 * Method used to get a list of dir names in the import dir
+	 *
+	 * @return  mixed The array of dir names or false on error
+	 */
+	public static function getImportDirs() {
+		$log = FezLog::get();
+
+		if (defined('AWS_S3_ENABLED') && AWS_S3_ENABLED == 'true') {
+			return self::getImportDirsFromS3();
+		}
+
+		$dirs = array();
+
+		if ($handle = opendir(APP_SAN_IMPORT_DIR)) {
+			while (FALSE !== ($dir = readdir($handle))) {
+				if (!(is_dir(APP_SAN_IMPORT_DIR . $dir) || $dir == '.' || $dir == '..')) {
+					$dirs[$dir] = $dir;
+				}
+			}
+			closedir($handle);
+		}
+		else {
+			$log->err('Unable to open directory');
+			return FALSE;
+		}
+
+		return $dirs;
+	}
+
+	/**
+	 * Method used to get a list of file names from an S3 bucket
+	 *
+	 * @return  mixed The array of file names
+	 */
+	private static function getImportDirsFromS3() {
+		$log = FezLog::get();
+		$aws = AWS::get();
+
+		$return = [];
+		$dirs = $aws->listObjectsInBucket(self::AWS_SAN_IMPORT_PREFIX);
+
+		foreach($dirs as $dir) {
+			// Skip the files
+			if ($dir['Size'] === 0) {
+				$d = str_ireplace(self::AWS_SAN_IMPORT_PREFIX . '/', '', $dir['Key']);
+				$d = trim($d, '/');
+				if (! empty($d)) {
+					$return[$d] = $d;
+				}
+			}
+		}
+
+		return $return;
 	}
 
 }
