@@ -67,172 +67,173 @@ include_once(APP_INC_PATH . "class.error_handler.php");
  */
 class BatchImport
 {
-	const AWS_SAN_IMPORT_PREFIX   = 'san_import';
+  const AWS_SAN_IMPORT_PREFIX = 'san_import';
 
-	var $pid;
-	var $externalDatastreams;
-	var $bgp; // background process object for keeping track of status since batchimport runs in background
+  var $pid;
+  var $externalDatastreams;
+  var $bgp; // background process object for keeping track of status since batchimport runs in background
 
-	function setBackgroundObject($bgp)
-	{
-		$this->bgp = $bgp;
-	}
+  function setBackgroundObject($bgp)
+  {
+    $this->bgp = $bgp;
+  }
 
-	function getEprintsDate($year, $month)
-	{
-		$eprintsDate = "";
-		$eprintMonth = array("jan" => "01",
-							 "feb" => "02",
-							 "mar" => "03",
-							 "apr" => "04",
-							 "may" => "05",
-							 "jun" => "06",
-							 "jul" => "07",
-							 "aug" => "08",							 							 							 							 							 							 
-							 "sep" => "09",
-							 "oct" => "10",
-							 "nov" => "11",
-							 "dec" => "12");
+  function getEprintsDate($year, $month)
+  {
+    $eprintsDate = "";
+    $eprintMonth = array("jan" => "01",
+      "feb" => "02",
+      "mar" => "03",
+      "apr" => "04",
+      "may" => "05",
+      "jun" => "06",
+      "jul" => "07",
+      "aug" => "08",
+      "sep" => "09",
+      "oct" => "10",
+      "nov" => "11",
+      "dec" => "12");
 
-		if ($year != "" && $month != "") {
-			$eprintsDate = $year."-".$eprintMonth[$month]."-01";
+    if ($year != "" && $month != "") {
+      $eprintsDate = $year . "-" . $eprintMonth[$month] . "-01";
 
-		} elseif ($year != "") {
-			$eprintsDate = $year."-01-01";
-		}
-		return $eprintsDate;
-	}
+    } elseif ($year != "") {
+      $eprintsDate = $year . "-01-01";
+    }
+    return $eprintsDate;
+  }
 
-	function getEprintsPages($pages)
-	{
-		$pageArray = array(0 => "", 1=>"");
-		if (is_numeric(strpos($pages, "-"))) {
-			$pageArray = preg_split("/-/", $pages);
-		}
-		return $pageArray;
-	}
+  function getEprintsPages($pages)
+  {
+    $pageArray = array(0 => "", 1 => "");
+    if (is_numeric(strpos($pages, "-"))) {
+      $pageArray = preg_split("/-/", $pages);
+    }
+    return $pageArray;
+  }
 
-	function getEprintsKeywords($keywords)
-	{
-		$keywords = str_replace(",", ";", $keywords);
-		$keywordArray = preg_split("/;/", $keywords);
-		return $keywordArray;
-	}
+  function getEprintsKeywords($keywords)
+  {
+    $keywords = str_replace(",", ";", $keywords);
+    $keywordArray = preg_split("/;/", $keywords);
+    return $keywordArray;
+  }
 
-	function createMODSSubject($subjectArray, $document_type, $key)
-	{
-		$xmlDocumentType = "";
-		if (is_array(@$subjectArray)) {
-			foreach (@$subjectArray as $subject) {
-				if (is_array($subject)) {
-					$subject = $subject['subjects'];
-				}
-				if ($subject != "") {
-					$cv_title = Controlled_Vocab::getTitleByExternalID($subject);
-				}
-				if ($cv_title != "" && EPRINTS_SUBJECT_AUTHORITY != "") {
-					$xmlDocumentType .= '
-                        <mods:subject ID="'.htmlspecialchars($subject).'" authority="'.EPRINTS_SUBJECT_AUTHORITY.'"><mods:topic>'.$cv_title.'</mods:topic></mods:subject>
-                        ';	    
-				} elseif ($cv_title != "") {
-					$xmlDocumentType .= '
-                        <mods:subject ID="'.htmlspecialchars($subject).'"><mods:topic>'.$cv_title.'</mods:topic></mods:subject>
-                        ';	    							
-				} else {
-					$xmlDocumentType .= '
-                        <mods:subject><mods:topic>'.htmlspecialchars($subject).'</mods:topic></mods:subject>
-                        ';	    							
-				}
-			}
-		}
-		return $xmlDocumentType;
-	}
+  function createMODSSubject($subjectArray, $document_type, $key)
+  {
+    $xmlDocumentType = "";
+    if (is_array(@$subjectArray)) {
+      foreach (@$subjectArray as $subject) {
+        if (is_array($subject)) {
+          $subject = $subject['subjects'];
+        }
+        if ($subject != "") {
+          $cv_title = Controlled_Vocab::getTitleByExternalID($subject);
+        }
+        if ($cv_title != "" && EPRINTS_SUBJECT_AUTHORITY != "") {
+          $xmlDocumentType .= '
+                        <mods:subject ID="' . htmlspecialchars($subject) . '" authority="' . EPRINTS_SUBJECT_AUTHORITY . '"><mods:topic>' . $cv_title . '</mods:topic></mods:subject>
+                        ';
+        } elseif ($cv_title != "") {
+          $xmlDocumentType .= '
+                        <mods:subject ID="' . htmlspecialchars($subject) . '"><mods:topic>' . $cv_title . '</mods:topic></mods:subject>
+                        ';
+        } else {
+          $xmlDocumentType .= '
+                        <mods:subject><mods:topic>' . htmlspecialchars($subject) . '</mods:topic></mods:subject>
+                        ';
+        }
+      }
+    }
+    return $xmlDocumentType;
+  }
 
-	function createMODSName($nameArrayExtra, $key, $name_term) {
-		$xmlDocumentType = "";
-		if (is_array(@$nameArrayExtra[$key])) {
-			foreach ($nameArrayExtra[$key] as $name) {
-				if (array_key_exists("id", (array)$name)) {
-					$xmlDocumentType .= '<mods:name ID="'.$name["id"].'" authority="The University of Queensland">';
-				} else {
-					$xmlDocumentType .= '<mods:name>';
-				}
-				$xmlDocumentType .= '<mods:namePart type="personal">'.htmlspecialchars($name["fullname"]).'</mods:namePart>
+  function createMODSName($nameArrayExtra, $key, $name_term)
+  {
+    $xmlDocumentType = "";
+    if (is_array(@$nameArrayExtra[$key])) {
+      foreach ($nameArrayExtra[$key] as $name) {
+        if (array_key_exists("id", (array)$name)) {
+          $xmlDocumentType .= '<mods:name ID="' . $name["id"] . '" authority="The University of Queensland">';
+        } else {
+          $xmlDocumentType .= '<mods:name>';
+        }
+        $xmlDocumentType .= '<mods:namePart type="personal">' . htmlspecialchars($name["fullname"]) . '</mods:namePart>
 							<mods:role>
-							  <mods:roleTerm type="text">'.$name_term.'</mods:roleTerm>
+							  <mods:roleTerm type="text">' . $name_term . '</mods:roleTerm>
 							</mods:role>
 						  </mods:name>';
-			}
-		}
-		return $xmlDocumentType;
-	}
+      }
+    }
+    return $xmlDocumentType;
+  }
 
-	/**
-	 * Method used to ingest a FOXML object xml string into fedora.
-	 *
-	 * Developer Note: This was separated into a seperate function as it will be made more complicated in future.
-	 *
-	 * @access  public
-	 * @param   string $xmlObj The string read from the eprints export_xml xml file
-	 * @return  void
-	 */
-	function handleFOXMLImport($xmlObj)
-	{
-		// xml is already in fedora object xml format so just add it
-		Fedora_API::callIngestObject($xmlObj);
+  /**
+   * Method used to ingest a FOXML object xml string into fedora.
+   *
+   * Developer Note: This was separated into a seperate function as it will be made more complicated in future.
+   *
+   * @access  public
+   * @param   string $xmlObj The string read from the eprints export_xml xml file
+   * @return  void
+   */
+  function handleFOXMLImport($xmlObj)
+  {
+    // xml is already in fedora object xml format so just add it
+    Fedora_API::callIngestObject($xmlObj);
 
-	}
+  }
 
-	/**
-	 * Method used to import a METS xml file.
-	 *
-	 * Developer Note: This function works, but probably needs more work to make more user friendly and more testing and work done with METS files for import in general.
-	 *
-	 * @access  public
-	 * @param   string $pid The current persistent identifier
-	 * @param   string $xmlObj The string read from the eprints export_xml xml file
-	 * @param   string $xmlBegin The already started xml string for ingestion (the FOXML headers already generated).
-	 * @param   string $xdis_id The XSD Display ID
-	 * @return  void
-	 */
-	function handleMETSImport($pid, $xmlObj, $xmlBegin, $xdis_id)
-	{
-		$externalDatastreams = array();
-		// check for oai_dc, if so add it
-		$oai_dc = $this->getOAI_DC($xmlObj);
-		if ($oai_dc != false) {
-			$this->getExternalDatastreams($oai_dc, $externalDatastreams);
-			foreach($externalDatastreams as $ds) {
-				if (is_numeric(strpos($ds, "/"))) {
-					$short_ds = substr($ds, strrpos($ds, "/")+1); // take out any nasty slashes from the ds name itself
-				}
-				$short_ds = str_replace(" ", "_", $short_ds);
-				$mimetype = Misc::get_content_type($ds);
-				$xmlBegin .= '
-                    <foxml:datastream ID="'.$short_ds.'" CONTROL_GROUP="M" STATE="A">
-                    <foxml:datastreamVersion ID="'.$short_ds.'.0" MIMETYPE="'.$mimetype.'" LABEL="'.$short_ds.'">
-                    <foxml:contentLocation REF="'.$ds.'" TYPE="URL"/>
+  /**
+   * Method used to import a METS xml file.
+   *
+   * Developer Note: This function works, but probably needs more work to make more user friendly and more testing and work done with METS files for import in general.
+   *
+   * @access  public
+   * @param   string $pid The current persistent identifier
+   * @param   string $xmlObj The string read from the eprints export_xml xml file
+   * @param   string $xmlBegin The already started xml string for ingestion (the FOXML headers already generated).
+   * @param   string $xdis_id The XSD Display ID
+   * @return  void
+   */
+  function handleMETSImport($pid, $xmlObj, $xmlBegin, $xdis_id)
+  {
+    $externalDatastreams = array();
+    // check for oai_dc, if so add it
+    $oai_dc = $this->getOAI_DC($xmlObj);
+    if ($oai_dc != false) {
+      $this->getExternalDatastreams($oai_dc, $externalDatastreams);
+      foreach ($externalDatastreams as $ds) {
+        if (is_numeric(strpos($ds, "/"))) {
+          $short_ds = substr($ds, strrpos($ds, "/") + 1); // take out any nasty slashes from the ds name itself
+        }
+        $short_ds = str_replace(" ", "_", $short_ds);
+        $mimetype = Misc::get_content_type($ds);
+        $xmlBegin .= '
+                    <foxml:datastream ID="' . $short_ds . '" CONTROL_GROUP="M" STATE="A">
+                    <foxml:datastreamVersion ID="' . $short_ds . '.0" MIMETYPE="' . $mimetype . '" LABEL="' . $short_ds . '">
+                    <foxml:contentLocation REF="' . $ds . '" TYPE="URL"/>
                     </foxml:datastreamVersion>
                     </foxml:datastream>';
-			}
+      }
 
-			$oai_dc = $this->stripTag($oai_dc, "<dc:format>");
-			$oai_dc = $this->stripTag($oai_dc, "<dc:identifier>");
-			$xmlBegin .= '
+      $oai_dc = $this->stripTag($oai_dc, "<dc:format>");
+      $oai_dc = $this->stripTag($oai_dc, "<dc:identifier>");
+      $xmlBegin .= '
                 <foxml:datastream ID="DC" VERSIONABLE="true" CONTROL_GROUP="X" STATE="A">
                 <foxml:datastreamVersion MIMETYPE="text/xml" ID="DC1.0" LABEL="Dublin Core Record">
                 <foxml:xmlContent>
-                '.$oai_dc.'
+                ' . $oai_dc . '
                 </foxml:xmlContent>
                 </foxml:datastreamVersion>
                 </foxml:datastream>';
-		} else {
-			$xmlBegin .= '
+    } else {
+      $xmlBegin .= '
                 <foxml:datastream ID="DC" VERSIONABLE="true" CONTROL_GROUP="X" STATE="A">
                 <foxml:datastreamVersion MIMETYPE="text/xml" ID="DC1.0" LABEL="Dublin Core Record">
                 <foxml:xmlContent>
                 <oai_dc:dc xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:xsi="http://www.w3.org/2001/XMLSchema">
-                <dc:title>'.$short_name.'</dc:title>
+                <dc:title>' . $short_name . '</dc:title>
                 <dc:creator/>
                 <dc:subject/>
                 <dc:description/>
@@ -249,89 +250,90 @@ class BatchImport
                 </foxml:xmlContent>
                 </foxml:datastreamVersion>
                 </foxml:datastream>';
-		}
+    }
 
-		$xmlBegin .= '
+    $xmlBegin .= '
             </foxml:digitalObject>
             ';
 
-		Fedora_API::callIngestObject($xmlBegin);
-		foreach($externalDatastreams as $ds) {
-			// add directory to the name
-			$presmd_check = Workflow::checkForPresMD($ds); // we are not indexing presMD so just upload the presmd if found
-			if ($presmd_check != false) {
-				$pres_dsID = basename($presmd_check);
-				//				$presmd_check = APP_TEMP_DIR.$presmd_check;
-				Fedora_API::getUploadLocationByLocalRef($pid, $pres_dsID, $presmd_check, $presmd_check, "text/xml", "M");
-			}
-			if (is_numeric(strpos($ds, "/"))) {
-				$ds = substr($ds, strrpos($ds, "/")+1); // take out any nasty slashes from the ds name itself
-			}
-			$ds = str_replace(" ", "_", $ds);
-			//Record::insertIndexMatchingField($pid, 122, 'varchar', $ds); // add the thumbnail to the Fez index
-			$mimetype = Misc::get_content_type($ds);
-			Workflow::processIngestTrigger($pid, $ds, $mimetype);
-		}
-		Record::setIndexMatchingFields($pid);
-
-		return $xmlBegin;
-	}
-
-	/**
-	 * Method used to import a standard file as a datastream to a new FOXML object.
-	 *
-	 * Developer Note: This function works, but probably needs more work to make more user friendly and more testing.
-	 *
-	 * @access  public
-	 * @param   string $pid The current persistent identifier
-	 * @param   string $full_name The full directory path inclusive filename
-	 * @param   string $short_name The basic filename without the directory path
-	 * @param   string $xdis_id The XSD Display ID the object will have.
-	 * @return  void
-	 */
-	function handleStandardFileImport($pid, $full_name, $short_name, $xdis_id)
-	{
-		$dsIDName = $short_name;
-		$return_array = array();
-		$ncName = Foxml::makeNCName($dsIDName);
-
-		$temp_store = APP_TEMP_DIR.$ncName;
-		copy($full_name,$temp_store);
-
-		$mimetype = Misc::mime_content_type($temp_store);
-		if ($mimetype == 'text/xml') {
-			$controlgroup = 'X';
-		} else {
-			$controlgroup = 'M';
-		}
-
-		if (Fedora_API::datastreamExists($pid, $ncName)) {
-			Fedora_API::callPurgeDatastream($pid, $ncName);
-		}
-
-		if (APP_VERSION_UPLOADS_AND_LINKS == "ON") {
-			$versionable = "true";
-		} else {
-			$versionable = "false";
-		}
-
-		Fedora_API::getUploadLocationByLocalRef($pid, $ncName, $temp_store, "",
-		$mimetype, $controlgroup,null,$versionable);
-		Record::generatePresmd($pid, $ncName);
-		// Now check for post upload workflow events like thumbnail resizing of images and add them as datastreams if required
-		Workflow::processIngestTrigger($pid, $ncName, $mimetype);
-		if (is_file($temp_store)) {
-			unlink($temp_store);
-		}
+    Fedora_API::callIngestObject($xmlBegin);
+    foreach ($externalDatastreams as $ds) {
+      // add directory to the name
+      $presmd_check = Workflow::checkForPresMD($ds); // we are not indexing presMD so just upload the presmd if found
+      if ($presmd_check != false) {
+        $pres_dsID = basename($presmd_check);
+        //				$presmd_check = APP_TEMP_DIR.$presmd_check;
+        Fedora_API::getUploadLocationByLocalRef($pid, $pres_dsID, $presmd_check, $presmd_check, "text/xml", "M");
+      }
+      if (is_numeric(strpos($ds, "/"))) {
+        $ds = substr($ds, strrpos($ds, "/") + 1); // take out any nasty slashes from the ds name itself
+      }
+      $ds = str_replace(" ", "_", $ds);
+      //Record::insertIndexMatchingField($pid, 122, 'varchar', $ds); // add the thumbnail to the Fez index
+      $mimetype = Misc::get_content_type($ds);
+      Workflow::processIngestTrigger($pid, $ds, $mimetype);
+    }
     Record::setIndexMatchingFields($pid);
-	}
 
-	function saveEprintPID($eprint_id, $pid)
-	{
-		$log = FezLog::get();
-		$db = DB_API::get();
+    return $xmlBegin;
+  }
 
-		$stmt = "INSERT INTO
+  /**
+   * Method used to import a standard file as a datastream to a new FOXML object.
+   *
+   * Developer Note: This function works, but probably needs more work to make more user friendly and more testing.
+   *
+   * @access  public
+   * @param   string $pid The current persistent identifier
+   * @param   string $full_name The full directory path inclusive filename
+   * @param   string $short_name The basic filename without the directory path
+   * @param   string $xdis_id The XSD Display ID the object will have.
+   * @return  void
+   */
+  function handleStandardFileImport($pid, $full_name, $short_name, $xdis_id)
+  {
+    $dsIDName = $short_name;
+    $return_array = array();
+    $ncName = Foxml::makeNCName($dsIDName);
+
+    $temp_store = APP_TEMP_DIR . $ncName;
+    $this->getFileContent($full_name, $temp_store);
+
+    $mimetype = Misc::mime_content_type($temp_store);
+    if ($mimetype == 'text/xml') {
+      $controlgroup = 'X';
+    } else {
+      $controlgroup = 'M';
+    }
+
+    if (Fedora_API::datastreamExists($pid, $ncName)) {
+      Fedora_API::callPurgeDatastream($pid, $ncName);
+    }
+
+    if (APP_VERSION_UPLOADS_AND_LINKS == "ON") {
+      $versionable = "true";
+    } else {
+      $versionable = "false";
+    }
+
+    Fedora_API::getUploadLocationByLocalRef(
+      $pid, $ncName, $temp_store, "", $mimetype, $controlgroup, null, $versionable
+    );
+    Record::generatePresmd($pid, $ncName);
+    // Now check for post upload workflow events like thumbnail resizing of images and add them as datastreams if required
+    Workflow::processIngestTrigger($pid, $ncName, $mimetype);
+    if (is_file($temp_store)) {
+      unlink($temp_store);
+    }
+    Record::setIndexMatchingFields($pid);
+  }
+
+  function saveEprintPID($eprint_id, $pid)
+  {
+    $log = FezLog::get();
+    $db = DB_API::get();
+
+    $stmt = "INSERT INTO
 				" . APP_TABLE_PREFIX . "eprints_import_pids
 			 (
 				epr_eprints_id,
@@ -341,117 +343,104 @@ class BatchImport
 				" . $db->quote($eprint_id, 'INTEGER') . ",
 				" . $db->quote($pid) . ",
 				NOW()
-			 )"; 
-		try {
-			$db->exec($stmt);
-		}
-		catch(Exception $ex) {
-			$log->err($ex);
-			return -1;
-		}
-		return 1;
-	}
+			 )";
+    try {
+      $db->exec($stmt);
+    } catch (Exception $ex) {
+      $log->err($ex);
+      return -1;
+    }
+    return 1;
+  }
 
-	/**
-	 * The main method for batch importing. It opens up each file in the specified directory,
-	 * scans for content type and imports accordingly. It can also handle custom imports based on
-	 * a selected collection.
-	 *
-	 * @access  public
-	 * @param   array $dsarray
-	 * @return  void
-	 */
-	function insert($directory, $xdis_id, $collection_pid, $dsarray=null)
-	{
-		$importClass = $this->getCollectionSpecificImport($xdis_id, $collection_pid);
-		if ($importClass) {
+  /**
+   * The main method for batch importing. It opens up each file in the specified directory,
+   * scans for content type and imports accordingly. It can also handle custom imports based on
+   * a selected collection.
+   *
+   * @access  public
+   * @param   array $dsarray
+   * @return  void
+   */
+  function insert($directory, $xdis_id, $collection_pid, $dsarray = null)
+  {
+    $importClass = $this->getCollectionSpecificImport($xdis_id, $collection_pid);
+    $files = $this->getFileList($directory);
 
-			//check is .csv file exists
-			$files = Misc::getFileList($directory, true, true);
-			$metadata_files = array();
-			if (count($metadata_files) === 0) {  // Lets grab .csv if _ingest.csv not found
-				foreach ($files as $file) {
-					if (Misc::endsWith(strtolower($file), '.csv')) {
-						$metadata_files[] = $file;
-					}
-				}
-			}
-			if (count($metadata_files) != 0) {
-				$this->handleCollectionSpecificImport($importClass, $directory, $xdis_id, $collection_pid, $dsarray);
-			} else {
-				$importClass = false; //no csv file!
-			}
+    if ($importClass) {
+      // Check is .csv file exists
+      $metadata_files = array();
+      if (count($metadata_files) === 0) {  // Lets grab .csv if _ingest.csv not found
+        foreach ($files as $file) {
+          if (Misc::endsWith(strtolower($file), '.csv')) {
+            $metadata_files[] = $file;
+          }
+        }
+      }
+      if (count($metadata_files) != 0) {
+        $this->handleCollectionSpecificImport($importClass, $files, $xdis_id, $collection_pid, $dsarray);
+      } else {
+        $importClass = false; // no csv file!
+      }
+    }
 
-		}
-		if (!$importClass){
-			//open the current directory
-			$ret_id = 3; // standard record type id
-			$sta_id = Status::getID("In Creation"); // standard status type id
-			$parent_pid = $collection_pid;
-			$dir_name = APP_SAN_IMPORT_DIR.$directory;
-			$directory_h = opendir($dir_name);
-			while (false !== ($file = readdir($directory_h))) {
-				if (is_file($dir_name."/".$file)) {
-					$filenames[$dir_name."/".$file] = $file;
-				}
-			}
-			closedir($directory_h);
-			$counter = 0;
+    if (!$importClass) {
+      $ret_id = 3; // standard record type id
+      $sta_id = Status::getID("In Creation"); // standard status type id
+      $parent_pid = $collection_pid;
 
-			foreach ($filenames as $full_name => $short_name) {
-				$counter++;
-				$handled_as_xml = FALSE;
-				$pid = Fedora_API::getNextPID();
-				// Also need to add the FezMD and RELS-EXT - FezACML probably not necessary as it can be inhereted
-				// and the FezMD can have status - 'freshly uploaded' or something.
+      $counter = 0;
+      foreach ($files as $file) {
+        $counter++;
+        $handled_as_xml = FALSE;
+        $pid = Fedora_API::getNextPID();
+        $short_name = basename($file);
 
-				$filename_ext = strtolower(substr($short_name, (strrpos($short_name, ".") + 1)));
-				if ($filename_ext == "xml") {
-					$xmlObj = file_get_contents($full_name);
-					if (is_numeric(strpos($xmlObj, "foxml:digitalObject"))) {
-						$this->handleFOXMLImport($xmlObj);
-						Record::setIndexMatchingFields($pid);
-						$handled_as_xml = TRUE;
-						// Newer versions of eprints have URIs so took out the ">"
-					}
-					elseif (is_numeric(strpos($xmlObj, "METS:mets"))) {
-						$xmlBegin = $this->ConvertMETSToFOXML($pid, $xmlObj, $collection_pid, $short_name, $xdis_id, $ret_id, $sta_id);
-						$xmlObj = $this->handleMETSImport($pid, $xmlObj, $xmlBegin, $xdis_id);
-						$handled_as_xml = TRUE;
-					}
-				}
-				if (!$handled_as_xml) {
-					if ($this->bgp) {
-						$this->bgp->setProgress(intval($counter * 100 / count($filenames)));
-						$this->bgp->setStatus($pid . " - " . $short_name);
-					}
-					// Create the Record in Fedora
-					if (empty($dsarray)) {
-						// use default metadata
-						$xmlObj = Foxml::GenerateSingleFOXMLTemplate($pid, $parent_pid, $full_name, $short_name,
-							$xdis_id, $ret_id, $sta_id);
-						//Insert the generated foxml object
-						Fedora_API::callIngestObject($xmlObj);
-					}
-					else {
-						// use metadata from a user template
-						Record::insertFromTemplate($pid, $xdis_id, $short_name, $dsarray);
-					}
-					// add the binary batch import file.
-					$this->handleStandardFileImport($pid, $full_name, $short_name, $xdis_id);
-					Record::setIndexMatchingFields($pid);
-					if ($this->bgp) {
-						$this->bgp->setStatus('Imported ' . $counter . ' files');
-					}
-				}
+        if (Misc::endsWith(strtolower($file), '.csv')) {
+          $xmlObj = $this->getFileContent($file);
+          if (is_numeric(strpos($xmlObj, "foxml:digitalObject"))) {
+            $this->handleFOXMLImport($xmlObj);
+            Record::setIndexMatchingFields($pid);
+            $handled_as_xml = TRUE;
+          } else if (is_numeric(strpos($xmlObj, "METS:mets"))) {
+            $xmlBegin = $this->ConvertMETSToFOXML($pid, $xmlObj, $collection_pid, $short_name, $xdis_id, $ret_id, $sta_id);
+            $this->handleMETSImport($pid, $xmlObj, $xmlBegin, $xdis_id);
+            $handled_as_xml = TRUE;
+          }
+        }
+        if (!$handled_as_xml) {
+          if ($this->bgp) {
+            $this->bgp->setProgress(intval($counter * 100 / count($files)));
+            $this->bgp->setStatus($pid . " - " . $short_name);
+          }
+          // Create the Record in Fedora
+          if (empty($dsarray)) {
+            // Use default metadata
+            $xmlObj = Foxml::GenerateSingleFOXMLTemplate(
+              $pid, $parent_pid, $file, $short_name, $xdis_id, $ret_id, $sta_id
+            );
+            // Insert the generated foxml object
+            Fedora_API::callIngestObject($xmlObj);
+          } else {
+            // Use metadata from a user template
+            Record::insertFromTemplate($pid, $xdis_id, $short_name, $dsarray);
+          }
+          // Add the binary batch import file.
+          $this->handleStandardFileImport($pid, $file, $short_name, $xdis_id);
+          Record::setIndexMatchingFields($pid);
 
-			}
-		}
+          if ($this->bgp) {
+            $this->bgp->setStatus('Imported ' . $counter . ' files');
+          }
+        }
 
-		if ($this->bgp) {
-			$this->bgp->setProgress(100);
-		}
-	}
+      }
+    }
+
+    if ($this->bgp) {
+      $this->bgp->setProgress(100);
+    }
+  }
 
   /**
    * Checks to see if the selected collection PID has a specific import associated with it by checking
@@ -473,7 +462,7 @@ class BatchImport
 
     if ($xsdmf && array_key_exists($xsdmf['xsdmf_id'], $details)) {
       $keywords = $details[$xsdmf['xsdmf_id']];
-      if (! is_array($keywords)) {
+      if (!is_array($keywords)) {
         // Force into an array
         $keywords = array($keywords);
       }
@@ -506,134 +495,128 @@ class BatchImport
    *
    * @access  public
    * @param   object $importClass
-   * @param   string $directory
+   * @param   array $files
    * @param   int $xdis_id
    * @param   string $collection_pid
    * @param   array $dsarray
    * @return  void
    */
-  function handleCollectionSpecificImport($importClass, $directory, $xdis_id, $collection_pid, $dsarray)
+  function handleCollectionSpecificImport($importClass, $files, $xdis_id, $collection_pid, $dsarray)
   {
-    // Check if flint import using a lookup of $collection_pid
-    $dir_name = APP_SAN_IMPORT_DIR;
-    if (substr($dir_name, -1) !== '/') {
-      $dir_name .= '/';
-    }
-    $dir_name .= $directory;
-    $importClass->batchImport($this->bgp, $dir_name, $xdis_id, $collection_pid, $dsarray);
+    $importClass->batchImport($this->bgp, $files, $xdis_id, $collection_pid, $dsarray);
     if ($this->bgp) {
       $this->bgp->setProgress(100);
     }
   }
 
-	/**
-	 * Method used to extra the OAI dublin core metadata from an xml string.
-	 *
-	 * @access  public
-	 * @return  string $xmlObj The xml object
-	 * @return  string $xmlCut The OAI DC extracted, or boolean false if not found
-	 */
-	function getOAI_DC($xmlObj)
-	{
-		$tagOpen = '<oai_dc:dc';
-		$tagClose = "</oai_dc:dc>";
-		$IDPos = stripos($xmlObj, $tagOpen); // stripos is a php5 function
-		if (is_numeric($IDPos)) {
-			$searchScopeEnd = strpos($xmlObj, $tagClose, $IDPos);
-			if (is_numeric($searchScopeEnd)) {
-				$startCut = ($IDPos);
-				$xmlCut = substr($xmlObj, $startCut, ($searchScopeEnd-$startCut+strlen($tagClose)));
-				return $xmlCut;
-			} else {
-				return false;
-			}
-		} else {
-			return false;
-		}
-	}
+  /**
+   * Method used to extra the OAI dublin core metadata from an xml string.
+   *
+   * @access  public
+   * @return  string $xmlObj The xml object
+   * @return  string $xmlCut The OAI DC extracted, or boolean false if not found
+   */
+  function getOAI_DC($xmlObj)
+  {
+    $tagOpen = '<oai_dc:dc';
+    $tagClose = "</oai_dc:dc>";
+    $IDPos = stripos($xmlObj, $tagOpen); // stripos is a php5 function
+    if (is_numeric($IDPos)) {
+      $searchScopeEnd = strpos($xmlObj, $tagClose, $IDPos);
+      if (is_numeric($searchScopeEnd)) {
+        $startCut = ($IDPos);
+        $xmlCut = substr($xmlObj, $startCut, ($searchScopeEnd - $startCut + strlen($tagClose)));
+        return $xmlCut;
+      } else {
+        return false;
+      }
+    } else {
+      return false;
+    }
+  }
 
-	/**
-	 * Method used to remove a specific tag from an xml string.
-	 *
-	 * @access  public
-	 * @return  string $xmlObj The xml object
-	 * @return  string $tag The tag to be removed
-	 * @return  string $xmlObj The xml string without the tag
-	 */
-	function stripTag($xmlObj, $tag)
-	{
-		$tagClose = "\<\/".substr($tag, 1);
-		$xmlObj = preg_replace("/(\\".$tag.")(.*?)(".$tagClose.")/", "", $xmlObj);
-		return $xmlObj;
-	}
+  /**
+   * Method used to remove a specific tag from an xml string.
+   *
+   * @access  public
+   * @return  string $xmlObj The xml object
+   * @return  string $tag The tag to be removed
+   * @return  string $xmlObj The xml string without the tag
+   */
+  function stripTag($xmlObj, $tag)
+  {
+    $tagClose = '\<\/' . substr($tag, 1);
+    $xmlObj = preg_replace("/(\\" . $tag . ")(.*?)(" . $tagClose . ")/", "", $xmlObj);
+    return $xmlObj;
+  }
 
-	/**
-	 * Method get the external datastreams from an ePrints object.
-	 *
-	 * @access  public
-	 * @return  string $xmlObj The xml object
-	 * @return  array $externalDatastreams
-	 * @return  array $externalDatastreams by reference with all the ePrints files (pdfs)
-	 */
-	function getExternalDatastreams($xmlObj, &$externalDatastreams)
-	{
-		// get all the URLs - especially from ePrints exported METS objects
-		// checks DC:Format for http:// urls and returns the urls as an array
-		// finds the first one if can and then
-		$tagOpen = '<dc:format>';
-		$tagClose = "</dc:format>";
-		$httpFind = "http://";
+  /**
+   * Method get the external datastreams from an ePrints object.
+   *
+   * @access  public
+   * @return  string $xmlObj The xml object
+   * @return  array $externalDatastreams
+   * @return  array $externalDatastreams by reference with all the ePrints files (pdfs)
+   */
+  function getExternalDatastreams($xmlObj, &$externalDatastreams)
+  {
+    // get all the URLs - especially from ePrints exported METS objects
+    // checks DC:Format for http:// urls and returns the urls as an array
+    // finds the first one if can and then
+    $tagOpen = '<dc:format>';
+    $tagClose = "</dc:format>";
+    $httpFind = "http://";
 
-		$IDPos = stripos($xmlObj, $tagOpen); // stripos is a php5 function
-		if (is_numeric($IDPos)) {
-			$searchScopeEnd = strpos($xmlObj, $tagClose, $IDPos);
-			if (is_numeric($searchScopeEnd)) {
-				$startCut = ($IDPos+strlen($tagOpen));
-				$xmlCut = substr($xmlObj, $startCut, ($searchScopeEnd-$startCut));
-				$httpPos = strpos($xmlCut, $httpFind);
-				if (is_numeric($httpPos)) { // found a url
-					$url = substr($xmlCut, $httpPos);
-					array_push($externalDatastreams, $url);
-				}
-				//Remove the used tag from the xml
-				$xmlObj = str_replace($tagOpen.$xmlCut.$tagClose, "", $xmlObj);
-				// find any others
-				$this->getExternalDatastreams($xmlObj, $externalDatastreams);
-			}
-		}
-	}
+    $IDPos = stripos($xmlObj, $tagOpen); // stripos is a php5 function
+    if (is_numeric($IDPos)) {
+      $searchScopeEnd = strpos($xmlObj, $tagClose, $IDPos);
+      if (is_numeric($searchScopeEnd)) {
+        $startCut = ($IDPos + strlen($tagOpen));
+        $xmlCut = substr($xmlObj, $startCut, ($searchScopeEnd - $startCut));
+        $httpPos = strpos($xmlCut, $httpFind);
+        if (is_numeric($httpPos)) { // found a url
+          $url = substr($xmlCut, $httpPos);
+          array_push($externalDatastreams, $url);
+        }
+        //Remove the used tag from the xml
+        $xmlObj = str_replace($tagOpen . $xmlCut . $tagClose, "", $xmlObj);
+        // find any others
+        $this->getExternalDatastreams($xmlObj, $externalDatastreams);
+      }
+    }
+  }
 
-	/**
-	 * Method used to convert a METS xml record into a FOXML record.
-	 *
-	 * @access  public
-	 * @param   string $pid The current persistent identifier
-	 * @param   string $xmlImport the string of the METS xml file
-	 * @param   string $collection_pid The pid of the collection this will belong to.
-	 * @param   string $short_name The filename of the file being imported, without the directory path (basic filename)
-	 * @param   string $xdis_id The XSD Display ID the object will have.
-	 * @param   string $ret_id The object type ID the object will have.
-	 * @param   string $sta_id The initial status ID the object will have.
-	 * @return  string $xmlObj The xml object
-	 */
-	function ConvertMETSToFOXML($pid, $xmlImport, $collection_pid, $short_name, $xdis_id, $ret_id, $sta_id)
-	{
-		$xmlObj = '<?xml version="1.0" ?>
-            <foxml:digitalObject PID="'.$pid.'"
+  /**
+   * Method used to convert a METS xml record into a FOXML record.
+   *
+   * @access  public
+   * @param   string $pid The current persistent identifier
+   * @param   string $xmlImport the string of the METS xml file
+   * @param   string $collection_pid The pid of the collection this will belong to.
+   * @param   string $short_name The filename of the file being imported, without the directory path (basic filename)
+   * @param   string $xdis_id The XSD Display ID the object will have.
+   * @param   string $ret_id The object type ID the object will have.
+   * @param   string $sta_id The initial status ID the object will have.
+   * @return  string $xmlObj The xml object
+   */
+  function ConvertMETSToFOXML($pid, $xmlImport, $collection_pid, $short_name, $xdis_id, $ret_id, $sta_id)
+  {
+    $xmlObj = '<?xml version="1.0" ?>
+            <foxml:digitalObject PID="' . $pid . '"
             fedoraxsi:schemaLocation="info:fedora/fedora-system:def/foxml# http://www.fedora.info/definitions/1/0/foxml1-0.xsd" xmlns:fedoraxsi="http://www.w3.org/2001/XMLSchema-instance"
             xmlns:foxml="info:fedora/fedora-system:def/foxml#" xmlns:xsi="http://www.w3.org/2001/XMLSchema">
             <foxml:objectProperties>
             <foxml:property NAME="http://www.w3.org/1999/02/22-rdf-syntax-ns#type" VALUE="FedoraObject"/>
             <foxml:property NAME="info:fedora/fedora-system:def/model#state" VALUE="Active"/>
-            <foxml:property NAME="info:fedora/fedora-system:def/model#label" VALUE="Batch Import '.$short_name.'"/>
+            <foxml:property NAME="info:fedora/fedora-system:def/model#label" VALUE="Batch Import ' . $short_name . '"/>
             </foxml:objectProperties>
             <foxml:datastream ID="RELS-EXT" VERSIONABLE="true" CONTROL_GROUP="X" STATE="A">
             <foxml:datastreamVersion MIMETYPE="text/xml" ID="RELS-EXT.0" LABEL="Relationships to other objects">
             <foxml:xmlContent>
             <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
             xmlns:rel="info:fedora/fedora-system:def/relations-external#" xmlns:xsi="http://www.w3.org/2001/XMLSchema">
-            <rdf:description rdf:about="info:fedora/'.$pid.'">
-            <rel:isMemberOf rdf:resource="info:fedora/'.$collection_pid.'"/>
+            <rdf:description rdf:about="info:fedora/' . $pid . '">
+            <rel:isMemberOf rdf:resource="info:fedora/' . $collection_pid . '"/>
             </rdf:description>
             </rdf:RDF>
             </foxml:xmlContent>
@@ -643,94 +626,150 @@ class BatchImport
             <foxml:datastreamVersion MIMETYPE="text/xml" ID="Fez1.0" LABEL="Fez extension metadata">
             <foxml:xmlContent>
             <FezMD xmlns:xsi="http://www.w3.org/2001/XMLSchema">
-            <xdis_id>'.$xdis_id.'</xdis_id>
-            <sta_id>'.$sta_id.'</sta_id>
-            <ret_id>'.$ret_id.'</ret_id>
+            <xdis_id>' . $xdis_id . '</xdis_id>
+            <sta_id>' . $sta_id . '</sta_id>
+            <ret_id>' . $ret_id . '</ret_id>
             </FezMD>
             </foxml:xmlContent>
             </foxml:datastreamVersion>
             </foxml:datastream>
-            ';				 		 
-		return $xmlObj;
-	}
-	/**
-	 ** Takes what should be added to the array, it creates the key if not exists
-	 ** @param array reference
-	 ** @param string key
-	 ** @param string value to be added
-	 **
-	 ** @return void
-	 */
-	function addToArray(&$array, $key, $value)
-	{
-		if($array[$key]) {
-			$array[$key] = array_merge((array)$array[$key], (array)$value);
-		}
-		else {
-			$array[$key] = $value;
-		}
-	}
+            ';
+    return $xmlObj;
+  }
 
-	/**
-	 * Method used to get a list of dir names in the import dir
-	 *
-	 * @param   string $subdir
-	 * @return  mixed The array of dir names or false on error
-	 */
-	public static function getImportDirs($subdir = '') {
-		$log = FezLog::get();
-		$subdir = str_replace('/', '', $subdir);
+  /**
+   ** Takes what should be added to the array, it creates the key if not exists
+   ** @param array reference
+   ** @param string key
+   ** @param string value to be added
+   **
+   ** @return void
+   */
+  function addToArray(&$array, $key, $value)
+  {
+    if ($array[$key]) {
+      $array[$key] = array_merge((array)$array[$key], (array)$value);
+    } else {
+      $array[$key] = $value;
+    }
+  }
 
-		if (defined('AWS_S3_ENABLED') && AWS_S3_ENABLED == 'true') {
-			return self::getImportDirsFromS3($subdir);
-		}
+  /**
+   * Method used to get a list of dir names in the import dir
+   *
+   * @param   string $subdir
+   * @return  mixed The array of dir names or false on error
+   */
+  public static function getImportDirs($subdir = '')
+  {
+    $log = FezLog::get();
+    $subdir = str_replace('/', '', $subdir);
 
-		$dirs = array();
+    if (defined('AWS_S3_ENABLED') && AWS_S3_ENABLED == 'true') {
+      return self::getImportDirsFromS3($subdir);
+    }
 
-		$parent = empty($subdir) ? APP_SAN_IMPORT_DIR : APP_SAN_IMPORT_DIR . '/' . $subdir;
-		if ($handle = opendir($parent)) {
-			while (FALSE !== ($dir = readdir($handle))) {
-				if (!(is_dir($parent . $dir) || $dir == '.' || $dir == '..')) {
-					$dirs[$dir] = $dir;
-				}
-			}
-			closedir($handle);
-		}
-		else {
-			$log->err('Unable to open directory');
-		}
+    $dirs = array();
 
-		return $dirs;
-	}
+    $parent = empty($subdir) ? APP_SAN_IMPORT_DIR : APP_SAN_IMPORT_DIR . '/' . $subdir;
+    if ($handle = opendir($parent)) {
+      while (FALSE !== ($dir = readdir($handle))) {
+        if (!(is_dir($parent . $dir) || $dir == '.' || $dir == '..')) {
+          $dirs[$dir] = $dir;
+        }
+      }
+      closedir($handle);
+    } else {
+      $log->err('Unable to open directory');
+    }
 
-	/**
-	 * Method used to get a list of file names from an S3 bucket
-	 *
-	 * @param   string $subdir
-	 * @return  mixed The array of file names
-	 */
-	private static function getImportDirsFromS3($subdir = '') {
-		$aws = AWS::get();
+    return $dirs;
+  }
 
-		$return = [];
-		$prefix = empty($subdir) ? self::AWS_SAN_IMPORT_PREFIX : self::AWS_SAN_IMPORT_PREFIX . '/' . $subdir;
-		$dirs = $aws->listObjectsInBucket($prefix);
+  /**
+   * Method used to get a list of file names from an S3 bucket
+   *
+   * @param   string $subdir
+   * @return  mixed The array of file names
+   */
+  private static function getImportDirsFromS3($subdir = '')
+  {
+    $aws = AWS::get();
 
-		foreach($dirs as $dir) {
-			// Skip the files
-			if ($dir['Size'] === 0) {
-				$pattern = empty($subdir) ? self::AWS_SAN_IMPORT_PREFIX : self::AWS_SAN_IMPORT_PREFIX . '\/' . $subdir;
-				preg_match('/^' . $pattern . '\/([^\/]+)\//', $dir['Key'], $matches);
-				if (count($matches) === 2) {
-					$d = trim($matches[1], '/');
-					if (! empty($d) && ! array_key_exists($d, $return)) {
-						$return[$d] = $d;
-					}
-				}
-			}
-		}
+    $return = [];
+    $prefix = empty($subdir) ? self::AWS_SAN_IMPORT_PREFIX : self::AWS_SAN_IMPORT_PREFIX . '/' . $subdir;
+    $dirs = $aws->listObjectsInBucket($prefix);
 
-		return $return;
-	}
+    foreach ($dirs as $dir) {
+      // Skip the files
+      if ($dir['Size'] === 0) {
+        $pattern = empty($subdir) ? self::AWS_SAN_IMPORT_PREFIX : self::AWS_SAN_IMPORT_PREFIX . '\/' . $subdir;
+        preg_match('/^' . $pattern . '\/([^\/]+)\//', $dir['Key'], $matches);
+        if (count($matches) === 2) {
+          $d = trim($matches[1], '/');
+          if (!empty($d) && !array_key_exists($d, $return)) {
+            $return[$d] = $d;
+          }
+        }
+      }
+    }
 
+    return $return;
+  }
+
+  /**
+   * @param String $directory
+   * @return array
+   */
+  private function getFileList($directory)
+  {
+    if (defined('AWS_S3_ENABLED') && AWS_S3_ENABLED == 'true') {
+      return $this->getFileListFromS3($directory);
+    }
+    return Misc::getFileList($directory, true, true);
+  }
+
+  /**
+   * @param String $directory
+   * @return array
+   */
+  private function getFileListFromS3($directory)
+  {
+    $aws = AWS::get();
+
+    $return = [];
+    $files = $aws->listObjectsInBucket(self::AWS_SAN_IMPORT_PREFIX . '/' . $directory);
+
+    foreach ($files as $file) {
+      // Skip the folders
+      if ($file['Size'] !== 0) {
+        $return[] = $file['Key'];
+      }
+    }
+    return $return;
+  }
+
+  /**
+   * @param string $file
+   * @param string $saveAs
+   * @return string
+   */
+  private function getFileContent($file, $saveAs = '')
+  {
+    if (defined('AWS_ENABLED') && AWS_ENABLED == 'true') {
+      $aws = AWS::get();
+
+      $params = [];
+      if (! empty($saveAs)) {
+        $params['SaveAs'] = $saveAs;
+      }
+
+      return $aws->getFileContent('', $file, $params);
+    }
+
+    if (! empty($saveAs)) {
+      copy($file, $saveAs);
+    }
+    return file_get_contents($file);
+  }
 }

@@ -383,18 +383,23 @@ class AWS
   /**
    * @param string $src
    * @param string $id
+   * @param array $params
    * @return Json Response
    */
-  public function getFileContent($src, $id)
+  public function getFileContent($src, $id, $params = [])
   {
     try {
       $client = $this->sdk->createS3();
       $key = empty($src) ? $id :  $src . '/' . $id;
 
-      $result = $client->getObject(array(
-          'Bucket' => AWS_S3_BUCKET,
-          'Key' => $key
-      ));
+      $p = [
+        'Bucket' => AWS_S3_BUCKET,
+        'Key' => $key
+      ];
+      if (count($params) > 0) {
+        $p = array_merge($p, $params);
+      }
+      $result = $client->getObject($p);
     } catch (\Aws\S3\Exception\S3Exception $e) {
       $this->log->err($e->getMessage());
       return "";

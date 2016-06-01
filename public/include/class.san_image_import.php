@@ -22,13 +22,13 @@ class San_image_import
    * collection was selected in a batch import workflow
    *
    * @param BackgroundProcess $bgp The background process which triggered this import
-   * @param string $directory The SAN directory of files to import
+   * @param array $files
    * @param int $xdis_id The type of document
    * @param string $collection_pid The collection being imported into
    * @param array $dsarray An array of template fields
    * @return bool True if the import succeeded, otherwise false
    */
-  public function batchImport(&$bgp, $directory, $xdis_id, $collection_pid, $dsarray)
+  public function batchImport(&$bgp, $files, $xdis_id, $collection_pid, $dsarray)
   {
     $this->_log = FezLog::get();
     // Expect to be run in the context of a background process.
@@ -38,9 +38,9 @@ class San_image_import
     }
     $this->_importBgp = $bgp;
 
-    // Expect a valid import directory.
-    if (! is_dir($directory)) {
-      $error = 'San image batch import - the batch import directory "' . $directory . '" does not exist.';
+    // Expect a list of files to import.
+    if (count($files) === 0) {
+      $error = 'San image batch import - no file to import.';
       $this->_importBgp->setStatus($error);
       $this->_log->err($error);
       return false;
@@ -56,7 +56,6 @@ class San_image_import
     }
 
     // Get a list of file names ending in *_ingest.csv.
-    $files = Misc::getFileList($directory, true, true);
     $metadata_files = array();
     foreach ($files as $file) {
       if (Misc::endsWith(strtolower($file), '_ingest.csv')) {
@@ -72,7 +71,7 @@ class San_image_import
     }
 
     if (count($metadata_files) === 0) {
-      $error = 'San image batch import - no metadata files found in directory "' . $directory . '".';
+      $error = 'San image batch import - no metadata files found".';
       $this->_importBgp->setStatus($error);
       $this->_log->err($error);
       return false;
@@ -81,7 +80,9 @@ class San_image_import
     // Loop through each metadata file and parse the data to import. Bail if there is a parse error.
     $importData = array();
     foreach ($metadata_files as $file) {
-      $parsedData = $this->_parseBatchImportMetadataFile($file);
+      $temp_store = tempnam(APP_TEMP_DIR, "batchImportCsv").".csv";
+      $this->getFileContent($file, $temp_store);
+      $parsedData = $this->_parseBatchImportMetadataFile($temp_store);
       if ($parsedData === false) {
         $error = 'San image batch import  - failed to parse metadata file "' . $file . '"';
         $this->_importBgp->setStatus($error);
@@ -94,6 +95,9 @@ class San_image_import
         return false;
       }
       $importData[] = $parsedData;
+      if (is_file($temp_store)) {
+        unlink($temp_store);
+      }
     }
 
     // Loop through parsed data and import.
