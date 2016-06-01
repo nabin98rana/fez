@@ -952,7 +952,12 @@ public static function multi_implode($glue, $pieces)
           $ds['thumbnail'] = 0;
           foreach ($original_dsList as $o_key => $o_ds) {
             if ($thumbnail == $o_ds['ID']) {  // found the thumbnail datastream so save it against the record
+              $thumbnailCF = "";
+              if (defined('AWS_S3_ENABLED') && AWS_S3_ENABLED == 'true') {
+                $thumbnailCF = Fedora_API::getCloudFrontUrl($pid, $thumbnail);
+              }
               $ds['thumbnail'] = $thumbnail;
+              $ds['thumbnail_cloudfront'] = $thumbnailCF;
             }
           }
           // now try and find a stream datastream of this datastream as long as the datastream is a video or audio
