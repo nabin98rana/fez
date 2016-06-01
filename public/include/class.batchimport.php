@@ -86,7 +86,7 @@ class BatchImport
 							 "may" => "05",
 							 "jun" => "06",
 							 "jul" => "07",
-							 "aug" => "08",							 							 							 							 							 							 
+							 "aug" => "08",
 							 "sep" => "09",
 							 "oct" => "10",
 							 "nov" => "11",
@@ -131,15 +131,15 @@ class BatchImport
 				if ($cv_title != "" && EPRINTS_SUBJECT_AUTHORITY != "") {
 					$xmlDocumentType .= '
                         <mods:subject ID="'.htmlspecialchars($subject).'" authority="'.EPRINTS_SUBJECT_AUTHORITY.'"><mods:topic>'.$cv_title.'</mods:topic></mods:subject>
-                        ';	    
+                        ';
 				} elseif ($cv_title != "") {
 					$xmlDocumentType .= '
                         <mods:subject ID="'.htmlspecialchars($subject).'"><mods:topic>'.$cv_title.'</mods:topic></mods:subject>
-                        ';	    							
+                        ';
 				} else {
 					$xmlDocumentType .= '
                         <mods:subject><mods:topic>'.htmlspecialchars($subject).'</mods:topic></mods:subject>
-                        ';	    							
+                        ';
 				}
 			}
 		}
@@ -270,7 +270,9 @@ class BatchImport
 			$mimetype = Misc::get_content_type($ds);
 			Workflow::processIngestTrigger($pid, $ds, $mimetype);
 		}
-		Record::setIndexMatchingFields($pid);
+		if (APP_FEDORA_BYPASS != 'ON') {
+			Record::setIndexMatchingFields($pid);
+		}
 
 		return $xmlBegin;
 	}
@@ -321,7 +323,9 @@ class BatchImport
 		if (is_file($temp_store)) {
 			unlink($temp_store);
 		}
-    Record::setIndexMatchingFields($pid);
+		if (APP_FEDORA_BYPASS != 'ON') {
+			Record::setIndexMatchingFields($pid);
+		}
 	}
 
 	function saveEprintPID($eprint_id, $pid)
@@ -339,7 +343,7 @@ class BatchImport
 				" . $db->quote($eprint_id, 'INTEGER') . ",
 				" . $db->quote($pid) . ",
 				NOW()
-			 )"; 
+			 )";
 		try {
 			$db->exec($stmt);
 		}
@@ -398,7 +402,9 @@ class BatchImport
           $xmlObj = file_get_contents($full_name);
           if (is_numeric(strpos($xmlObj, "foxml:digitalObject"))) {
             $this->handleFOXMLImport($xmlObj);
-            Record::setIndexMatchingFields($pid);
+						if (APP_FEDORA_BYPASS != 'ON') {
+							Record::setIndexMatchingFields($pid);
+						}
             $handled_as_xml = TRUE;
             // Newer versions of eprints have URIs so took out the ">"
           }
@@ -427,7 +433,9 @@ class BatchImport
           }
           // add the binary batch import file.
           $this->handleStandardFileImport($pid, $full_name, $short_name, $xdis_id);
-          Record::setIndexMatchingFields($pid);
+					if (APP_FEDORA_BYPASS != 'ON') {
+						Record::setIndexMatchingFields($pid);
+					}
           if ($this->bgp) {
             $this->bgp->setStatus('Imported ' . $counter . ' files');
           }
@@ -638,7 +646,7 @@ class BatchImport
             </foxml:xmlContent>
             </foxml:datastreamVersion>
             </foxml:datastream>
-            ';				 		 
+            ';
 		return $xmlObj;
 	}
 	/**

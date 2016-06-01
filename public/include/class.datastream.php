@@ -72,7 +72,9 @@ class Datastream
                 }
                 Workflow::processIngestTrigger($pid, $newFileName, $mimetype);
                 Record::generatePresmd($pid, $newFileName);
-                Record::setIndexMatchingFields($pid);
+                if (APP_FEDORA_BYPASS != 'ON') {
+                    Record::setIndexMatchingFields($pid);
+                }
                 if (is_file($newFile)) {
                     $deleteCommand = APP_DELETE_CMD." ".$deleteFile;
                     exec($deleteCommand);
@@ -182,7 +184,7 @@ class Datastream
             $log->err($ex);
             return array();
         }
-        
+
         History::addHistory($pid, null, "", "", false, $historyDetail);
         return $res;
     }

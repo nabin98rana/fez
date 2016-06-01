@@ -38,7 +38,7 @@ class DigitalObject
      * The next PID should be at least this
      * to prevent clashes with existing pids.
      */
-    const PID_NO_CLASH = 200000;
+    const PID_NO_CLASH = 0;
 
     /**
      * Set up the object.

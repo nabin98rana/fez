@@ -59,10 +59,10 @@ class ePrints
 
 {
 
-	function ePrints() 
+	function ePrints()
 	{
 		$params = array(
-		            'host' => EPRINTS_DB_HOST,            
+		            'host' => EPRINTS_DB_HOST,
 		            'username' => EPRINTS_DB_USERNAME,
 		            'password' => EPRINTS_DB_PASSWD,
 		        	'dbname' => EPRINTS_DB_DATABASE_NAME,
@@ -71,23 +71,23 @@ class ePrints
 						'class' 	=> 'Zend_Db_Profiler_Firebug'
 					)
 		);
-		        
+
 		try {
 			$db = Zend_Db::factory(EPRINTS_DB_TYPE, $params);
 			$db->getConnection();
-			Zend_Registry::set('eprintsdb', $db);   
+			Zend_Registry::set('eprintsdb', $db);
 		}
 		catch (Exception $ex) {
-			$log->err($ex);		        
+			$log->err($ex);
 			exit;
 		}
 	}
 
-	function getUserDetails($usr_id) 
+	function getUserDetails($usr_id)
 	{
 		$log = FezLog::get();
 		$db = DB_API::get('eprintsdb');
-		
+
 		$stmt = "select * from ".EPRINTS_DB_DATABASE_NAME.".users where userid = ".$db->quote($usr_id, 'INTEGER');
 		try {
 			$res = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
@@ -99,11 +99,11 @@ class ePrints
 		return $res;
 	}
 
-	function getList($table) 
+	function getList($table)
 	{
 		$log = FezLog::get();
 		$db = DB_API::get('eprintsdb');
-		
+
 		$stmt = "select * from ".EPRINTS_DB_DATABASE_NAME.".$table order by eprintid desc";
 		try {
 			$res = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
@@ -115,11 +115,11 @@ class ePrints
 		return $res;
 	}
 
-	function getUserList($table) 
+	function getUserList($table)
 	{
 		$log = FezLog::get();
 		$db = DB_API::get('eprintsdb');
-		
+
 		$stmt = "select distinct u.* from ".EPRINTS_DB_DATABASE_NAME.".$table u, archive a where a.userid = u.userid and a.userid is not null order by u.userid asc";
 		try {
 			$res = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
@@ -131,11 +131,11 @@ class ePrints
 		return $res;
 	}
 
-	function getListCount($table) 
+	function getListCount($table)
 	{
 		$log = FezLog::get();
 		$db = DB_API::get('eprintsdb');
-		
+
 		$stmt = "select count(*) as list_count from ".EPRINTS_DB_DATABASE_NAME.".$table";
 		try {
 			$res = $db->fetchOne($stmt);
@@ -146,12 +146,12 @@ class ePrints
 		}
 		return $res;
 	}
-		
-	function getSucceeds($eprint_id, $table) 
+
+	function getSucceeds($eprint_id, $table)
 	{
 		$log = FezLog::get();
 		$db = DB_API::get('eprintsdb');
-		
+
 		$stmt = "select succeeds from ".EPRINTS_DB_DATABASE_NAME.".$table where eprintid = ".$db->quote($eprint_id, 'INTEGER');
 		try {
 			$res = $db->fetchOne($stmt);
@@ -163,11 +163,11 @@ class ePrints
 		return $res;
 	}
 
-	function getPIDfromePrintID($eprint_id) 
+	function getPIDfromePrintID($eprint_id)
 	{
 		$log = FezLog::get();
 		$db = DB_API::get('eprintsdb');
-		
+
 		$stmt = "select epr_fez_pid from  " . APP_TABLE_PREFIX . "eprints_import_pids where epr_eprints_id = ".$db->quote($eprint_id, 'INTEGER');
 		$stmt = "select succeeds from ".EPRINTS_DB_DATABASE_NAME.".$table where eprintid = ".$db->quote($eprint_id, 'INTEGER');
 		try {
@@ -180,11 +180,11 @@ class ePrints
 		return $res;
 	}
 
-	function getListEprintID($eprintid, $table, $extension) 
+	function getListEprintID($eprintid, $table, $extension)
 	{
 		$log = FezLog::get();
 		$db = DB_API::get('eprintsdb');
-		
+
 		$stmt = "select * from ".EPRINTS_DB_DATABASE_NAME.".$table$extension where eprintid = ".$db->quote($eprintid, 'INTEGER')." order by pos asc";
 		try {
 			$res = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
@@ -227,7 +227,7 @@ class ePrints
 				}
 			}
 		}
-			
+
 		foreach ($object_types as $table => $sta_id) {
 			$list = $this->getList($table);
 			foreach ($list as $record) {
@@ -279,7 +279,7 @@ class ePrints
 					if ($fez_editor_id != "") {
 						$editorArrayExtra[$eprintid][$author_counter]["id"] =  $fez_editor_id;
 					}
-						
+
 					array_push($editorArray[$eprintid], $family.", ".$given);
 					$author_counter++;
 				}
@@ -291,7 +291,7 @@ class ePrints
 				$keywordXML = "";
 				foreach ($keywordArray as $kw) {
 					$keywordXML .= '<mods:subject authority="keyword"><mods:topic>'.$kw.'</mods:topic></mods:subject>';
-						
+
 				}
 
 				switch ($document_type) {
@@ -304,7 +304,7 @@ class ePrints
 								<mods:mods xmlns:mods="http://www.loc.gov/mods/v3" xmlns:xsi="http://www.w3.org/2001/XMLSchema">
 								  <mods:titleInfo>
 								    <mods:title>'.htmlspecialchars(@$record['title']).'</mods:title>
-								  </mods:titleInfo>';	
+								  </mods:titleInfo>';
 							$xmlDocumentType .= BatchImport::createMODSName($authorArrayExtra, $eprintid, "author");
 							$xmlDocumentType .= BatchImport::createMODSName($editorArrayExtra, $eprintid, "editor");
 							$xmlDocumentType .= BatchImport::createMODSSubject($record['subjects'], $document_type, $eprintid);
@@ -341,7 +341,7 @@ class ePrints
 								</mods:mods>								  
 	                            </foxml:xmlContent>
 	                            </foxml:datastreamVersion>
-	                            </foxml:datastream>'; 															
+	                            </foxml:datastream>';
 						} else {
 							$xmlDocumentType = '<foxml:datastream ID="ConferencePaperMD" VERSIONABLE="true" CONTROL_GROUP="X" STATE="A">
 	                            <foxml:datastreamVersion MIMETYPE="text/xml" ID="ConferencePaperMD1.0" LABEL="Fez extension metadata for Conference Papers">
@@ -355,7 +355,7 @@ class ePrints
 	                            </ConferencePaperMD>
 	                            </foxml:xmlContent>
 	                            </foxml:datastreamVersion>
-	                            </foxml:datastream>'; 																							
+	                            </foxml:datastream>';
 						}
 						break;
 					case 'journale':
@@ -367,7 +367,7 @@ class ePrints
 								<mods:mods xmlns:mods="http://www.loc.gov/mods/v3" xmlns:xsi="http://www.w3.org/2001/XMLSchema">
 								  <mods:titleInfo>
 								    <mods:title>'.htmlspecialchars(@$record['title']).'</mods:title>
-								  </mods:titleInfo>';	
+								  </mods:titleInfo>';
 							$xmlDocumentType .= BatchImport::createMODSName($authorArrayExtra, $eprintid, "author");
 							$xmlDocumentType .= BatchImport::createMODSName($editorArrayExtra, $eprintid, "editor");
 							$xmlDocumentType .= BatchImport::createMODSSubject($record['subjects'], $document_type, $eprintid);
@@ -394,7 +394,7 @@ class ePrints
 								</mods:mods>								  
 	                            </foxml:xmlContent>
 	                            </foxml:datastreamVersion>
-	                            </foxml:datastream>'; 						
+	                            </foxml:datastream>';
 						} else {
 							$xmlDocumentType = '<foxml:datastream ID="OnlineJournalArticleMD" VERSIONABLE="true" CONTROL_GROUP="X" STATE="A">
 	                            <foxml:datastreamVersion MIMETYPE="text/xml" ID="OnlineJournalArticleMD1.0" LABEL="Fez extension metadata for Online Journal Articles">
@@ -418,7 +418,7 @@ class ePrints
 								<mods:mods xmlns:mods="http://www.loc.gov/mods/v3" xmlns:xsi="http://www.w3.org/2001/XMLSchema">
 								  <mods:titleInfo>
 								    <mods:title>'.htmlspecialchars(@$record['title']).'</mods:title>
-								  </mods:titleInfo>';	
+								  </mods:titleInfo>';
 							$xmlDocumentType .= BatchImport::createMODSName($authorArrayExtra, $eprintid, "author");
 							$xmlDocumentType .= BatchImport::createMODSName($editorArrayExtra, $eprintid, "editor");
 							$xmlDocumentType .= BatchImport::createMODSSubject($record['subjects'], $document_type, $eprintid);
@@ -449,7 +449,7 @@ class ePrints
 								</mods:mods>								  
 	                            </foxml:xmlContent>
 	                            </foxml:datastreamVersion>
-	                            </foxml:datastream>'; 						
+	                            </foxml:datastream>';
 						} else {
 							$xmlDocumentType = '<foxml:datastream ID="JournalArticleMD" VERSIONABLE="true" CONTROL_GROUP="X" STATE="A">
 	                            <foxml:datastreamVersion MIMETYPE="text/xml" ID="JournalArticleMD1.0" LABEL="Fez extension metadata for Journal Articles">
@@ -462,7 +462,7 @@ class ePrints
 	                            </JournalArticleMD>
 	                            </foxml:xmlContent>
 	                            </foxml:datastreamVersion>
-	                            </foxml:datastream>'; 
+	                            </foxml:datastream>';
 						}
 						break;
 					case 'preprint':
@@ -474,7 +474,7 @@ class ePrints
 								<mods:mods xmlns:mods="http://www.loc.gov/mods/v3" xmlns:xsi="http://www.w3.org/2001/XMLSchema">
 								  <mods:titleInfo>
 								    <mods:title>'.htmlspecialchars(@$record['title']).'</mods:title>
-								  </mods:titleInfo>';	
+								  </mods:titleInfo>';
 							$xmlDocumentType .= BatchImport::createMODSName($authorArrayExtra, $eprintid, "author");
 							$xmlDocumentType .= BatchImport::createMODSName($editorArrayExtra, $eprintid, "editor");
 							$xmlDocumentType .= BatchImport::createMODSSubject($record['subjects'], $document_type, $eprintid);
@@ -488,7 +488,7 @@ class ePrints
 								</mods:mods>								  
 	                            </foxml:xmlContent>
 	                            </foxml:datastreamVersion>
-	                            </foxml:datastream>'; 						
+	                            </foxml:datastream>';
 						} else {
 							// Preprints are basically generic documents but with a better flag
 						}
@@ -503,7 +503,7 @@ class ePrints
 								<mods:mods xmlns:mods="http://www.loc.gov/mods/v3" xmlns:xsi="http://www.w3.org/2001/XMLSchema">
 								  <mods:titleInfo>
 								    <mods:title>'.htmlspecialchars(@$record['title']).'</mods:title>
-								  </mods:titleInfo>';	
+								  </mods:titleInfo>';
 							$xmlDocumentType .= BatchImport::createMODSName($authorArrayExtra, $eprintid, "author");
 							$xmlDocumentType .= BatchImport::createMODSName($editorArrayExtra, $eprintid, "editor");
 							$xmlDocumentType .= BatchImport::createMODSSubject($record['subjects'], $document_type, $eprintid);
@@ -517,7 +517,7 @@ class ePrints
 								</mods:mods>								  
 	                            </foxml:xmlContent>
 	                            </foxml:datastreamVersion>
-	                            </foxml:datastream>'; 						
+	                            </foxml:datastream>';
 						} else {
 							//
 						}
@@ -531,7 +531,7 @@ class ePrints
 								<mods:mods xmlns:mods="http://www.loc.gov/mods/v3" xmlns:xsi="http://www.w3.org/2001/XMLSchema">
 								  <mods:titleInfo>
 								    <mods:title>'.htmlspecialchars(@$record['title']).'</mods:title>
-								  </mods:titleInfo>';	
+								  </mods:titleInfo>';
 							$xmlDocumentType .= BatchImport::createMODSName($authorArrayExtra, $eprintid, "author");
 							$xmlDocumentType .= BatchImport::createMODSName($editorArrayExtra, $eprintid, "editor");
 							$xmlDocumentType .= BatchImport::createMODSSubject($record['subjects'], $document_type, $eprintid);
@@ -554,7 +554,7 @@ class ePrints
 								</mods:mods>								  
 	                            </foxml:xmlContent>
 	                            </foxml:datastreamVersion>
-	                            </foxml:datastream>'; 						
+	                            </foxml:datastream>';
 						} else {
 							$xmlDocumentType = '<foxml:datastream ID="ThesisMD" VERSIONABLE="true" CONTROL_GROUP="X" STATE="A">
 	                            <foxml:datastreamVersion MIMETYPE="text/xml" ID="ThesisMD1.0" LABEL="Fez extension metadata for Theses">
@@ -566,7 +566,7 @@ class ePrints
 	                            </ThesisMD>
 	                            </foxml:xmlContent>
 	                            </foxml:datastreamVersion>
-	                            </foxml:datastream>'; 
+	                            </foxml:datastream>';
 						}
 						break;
 					case 'newsarticle':
@@ -578,7 +578,7 @@ class ePrints
 								<mods:mods xmlns:mods="http://www.loc.gov/mods/v3" xmlns:xsi="http://www.w3.org/2001/XMLSchema">
 								  <mods:titleInfo>
 								    <mods:title>'.htmlspecialchars(@$record['title']).'</mods:title>
-								  </mods:titleInfo>';	
+								  </mods:titleInfo>';
 							$xmlDocumentType .= BatchImport::createMODSName($authorArrayExtra, $eprintid, "author");
 							$xmlDocumentType .= BatchImport::createMODSName($editorArrayExtra, $eprintid, "editor");
 							$xmlDocumentType .= BatchImport::createMODSSubject($record['subjects'], $document_type, $eprintid);
@@ -607,7 +607,7 @@ class ePrints
 								</mods:mods>								  
 	                            </foxml:xmlContent>
 	                            </foxml:datastreamVersion>
-	                            </foxml:datastream>'; 						
+	                            </foxml:datastream>';
 						} else {
 							$xmlDocumentType = '<foxml:datastream ID="NewspaperArticleMD" VERSIONABLE="true" CONTROL_GROUP="X" STATE="A">
 	                            <foxml:datastreamVersion MIMETYPE="text/xml" ID="NewspaperArticleMD1.0" LABEL="Fez extension metadata for Newspaper Articles">
@@ -620,7 +620,7 @@ class ePrints
 	                            </NewspaperArticleMD>
 	                            </foxml:xmlContent>
 	                            </foxml:datastreamVersion>
-	                            </foxml:datastream>'; 
+	                            </foxml:datastream>';
 						}
 						break;
 					case 'book':
@@ -632,7 +632,7 @@ class ePrints
 								<mods:mods xmlns:mods="http://www.loc.gov/mods/v3" xmlns:xsi="http://www.w3.org/2001/XMLSchema">
 								  <mods:titleInfo>
 								    <mods:title>'.htmlspecialchars(@$record['title']).'</mods:title>
-								  </mods:titleInfo>';	
+								  </mods:titleInfo>';
 							$xmlDocumentType .= BatchImport::createMODSName($authorArrayExtra, $eprintid, "author");
 							$xmlDocumentType .= BatchImport::createMODSName($editorArrayExtra, $eprintid, "editor");
 							$xmlDocumentType .= BatchImport::createMODSSubject($record['subjects'], $document_type, $eprintid);
@@ -652,7 +652,7 @@ class ePrints
 								</mods:mods>								  
 	                            </foxml:xmlContent>
 	                            </foxml:datastreamVersion>
-	                            </foxml:datastream>'; 						
+	                            </foxml:datastream>';
 						} else {
 							$xmlDocumentType = '<foxml:datastream ID="BookMD" VERSIONABLE="true" CONTROL_GROUP="X" STATE="A">
 	                            <foxml:datastreamVersion MIMETYPE="text/xml" ID="BookMD1.0" LABEL="Fez extension metadata for Books">
@@ -676,7 +676,7 @@ class ePrints
 								<mods:mods xmlns:mods="http://www.loc.gov/mods/v3" xmlns:xsi="http://www.w3.org/2001/XMLSchema">
 								  <mods:titleInfo>
 								    <mods:title>'.htmlspecialchars(@$record['title']).'</mods:title>
-								  </mods:titleInfo>';	
+								  </mods:titleInfo>';
 							$xmlDocumentType .= BatchImport::createMODSName($authorArrayExtra, $eprintid, "author");
 							$xmlDocumentType .= BatchImport::createMODSName($editorArrayExtra, $eprintid, "editor");
 							$xmlDocumentType .= BatchImport::createMODSSubject($record['subjects'], $document_type, $eprintid);
@@ -708,7 +708,7 @@ class ePrints
 								</mods:mods>								  
 	                            </foxml:xmlContent>
 	                            </foxml:datastreamVersion>
-	                            </foxml:datastream>'; 						
+	                            </foxml:datastream>';
 						} else {
 							$xmlDocumentType = '<foxml:datastream ID="BookChapterMD" VERSIONABLE="true" CONTROL_GROUP="X" STATE="A">
 	                            <foxml:datastreamVersion MIMETYPE="text/xml" ID="BookChapterMD1.0" LABEL="Fez extension metadata for Book Chapters">
@@ -732,7 +732,7 @@ class ePrints
 								<mods:mods xmlns:mods="http://www.loc.gov/mods/v3" xmlns:xsi="http://www.w3.org/2001/XMLSchema">
 								  <mods:titleInfo>
 								    <mods:title>'.htmlspecialchars(@$record['title']).'</mods:title>
-								  </mods:titleInfo>';	
+								  </mods:titleInfo>';
 							$xmlDocumentType .= BatchImport::createMODSName($authorArrayExtra, $eprintid, "author");
 							$xmlDocumentType .= BatchImport::createMODSName($editorArrayExtra, $eprintid, "editor");
 							$xmlDocumentType .= BatchImport::createMODSSubject($record['subjects'], $document_type, $eprintid);
@@ -790,7 +790,7 @@ class ePrints
 								<mods:mods xmlns:mods="http://www.loc.gov/mods/v3" xmlns:xsi="http://www.w3.org/2001/XMLSchema">
 								  <mods:titleInfo>
 								    <mods:title>'.htmlspecialchars(@$record['title']).'</mods:title>
-								  </mods:titleInfo>';	
+								  </mods:titleInfo>';
 							$xmlDocumentType .= BatchImport::createMODSName($authorArrayExtra, $eprintid, "author");
 							$xmlDocumentType .= BatchImport::createMODSName($editorArrayExtra, $eprintid, "editor");
 							$xmlDocumentType .= BatchImport::createMODSSubject($record['subjects'], $document_type, $eprintid);
@@ -827,7 +827,7 @@ class ePrints
 								</mods:mods>								  
 	                            </foxml:xmlContent>
 	                            </foxml:datastreamVersion>
-	                            </foxml:datastream>'; 															
+	                            </foxml:datastream>';
 						} else {
 							$xmlDocumentType = '<foxml:datastream ID="ConferenceProceedingsMD" VERSIONABLE="true" CONTROL_GROUP="X" STATE="A">
 	                            <foxml:datastreamVersion MIMETYPE="text/xml" ID="ConferenceProceedingsMD1.0" LABEL="Fez extension metadata for Conference Proceedings">
@@ -855,7 +855,7 @@ class ePrints
 								<mods:mods xmlns:mods="http://www.loc.gov/mods/v3" xmlns:xsi="http://www.w3.org/2001/XMLSchema">
 								  <mods:titleInfo>
 								    <mods:title>'.htmlspecialchars(@$record['title']).'</mods:title>
-								  </mods:titleInfo>';	
+								  </mods:titleInfo>';
 							$xmlDocumentType .= BatchImport::createMODSName($authorArrayExtra, $eprintid, "author");
 							$xmlDocumentType .= BatchImport::createMODSName($editorArrayExtra, $eprintid, "editor");
 							$xmlDocumentType .= BatchImport::createMODSSubject($record['subjects'], $document_type, $eprintid);
@@ -892,7 +892,7 @@ class ePrints
 								</mods:mods>								  
 	                            </foxml:xmlContent>
 	                            </foxml:datastreamVersion>
-	                            </foxml:datastream>'; 															
+	                            </foxml:datastream>';
 						} else {
 							$xmlDocumentType = '<foxml:datastream ID="ConferencePostersMD" VERSIONABLE="true" CONTROL_GROUP="X" STATE="A">
 	                            <foxml:datastreamVersion MIMETYPE="text/xml" ID="ConferencePostersMD1.0" LABEL="Fez extension metadata for Conference Posters">
@@ -907,7 +907,7 @@ class ePrints
 	                            </ConferencePostersMD>
 	                            </foxml:xmlContent>
 	                            </foxml:datastreamVersion>
-	                            </foxml:datastream>'; 
+	                            </foxml:datastream>';
 						}
 						break;
 					default:
@@ -924,7 +924,7 @@ class ePrints
 						<mods:mods xmlns:mods="http://www.loc.gov/mods/v3" xmlns:xsi="http://www.w3.org/2001/XMLSchema">
 						  <mods:titleInfo>
 						    <mods:title>'.htmlspecialchars(@$record['title']).'</mods:title>
-						  </mods:titleInfo>';	
+						  </mods:titleInfo>';
 					$xmlDocumentType .= BatchImport::createMODSName($authorArrayExtra, $eprintid, "author");
 					$xmlDocumentType .= BatchImport::createMODSName($editorArrayExtra, $eprintid, "editor");
 					$xmlDocumentType .= BatchImport::createMODSSubject($record['subjects'], $document_type, $eprintid);
@@ -938,7 +938,7 @@ class ePrints
 						</mods:mods>								  
                         </foxml:xmlContent>
                         </foxml:datastreamVersion>
-                        </foxml:datastream>'; 															
+                        </foxml:datastream>';
 				}
 
 
@@ -953,7 +953,7 @@ class ePrints
 				$xsd_details = Doc_Type_XSD::getDetails($xsd_id);
 				$xsd_element_prefix = $xsd_details['xsd_element_prefix'];
 				$xsd_top_element_name = $xsd_details['xsd_top_element_name'];
-					
+
 
 				$oai_dc_url = EPRINTS_OAI.$eprintid; // This gets the EPRINTS OAI DC feed for the Eprints DC record. This is neccessary because the Eprints export_xml does not give the URL for the attached PDFs etc
 				$oai_dc_xml = Misc::processURL($oai_dc_url);
@@ -1015,7 +1015,7 @@ class ePrints
                     <foxml:property NAME="info:fedora/fedora-system:def/model#state" VALUE="Active"/>
                     <foxml:property NAME="info:fedora/fedora-system:def/model#label" VALUE="Batch Import ePrint Record '.$eprintid.'"/>
                     </foxml:objectProperties>';
-					
+
 				$xmlObj .= '
                     <foxml:datastream ID="DC" VERSIONABLE="true" CONTROL_GROUP="X" STATE="A">
                     <foxml:datastreamVersion MIMETYPE="text/xml" ID="DC1.0" LABEL="Dublin Core Record">
@@ -1026,14 +1026,14 @@ class ePrints
 				if (is_array(@$authorArray[$eprintid])) {
 					foreach ($authorArray[$eprintid] as $author) {
 						$xmlObj .= '<dc:creator>'.htmlspecialchars($author).'</dc:creator>
-                            ';					    
+                            ';
 					}
 				}
 				if (is_array(@$record['subjects'])) {
 					foreach (@$record['subjects'] as $subject) {
 						$xmlObj .= '
                             <dc:subject>'.htmlspecialchars($subject['subjects']).'</dc:subject>
-                            ';	    
+                            ';
 					}
 				}
 
@@ -1053,8 +1053,8 @@ class ePrints
                     </foxml:datastream>
                     <foxml:datastream ID="RELS-EXT" VERSIONABLE="true" CONTROL_GROUP="X" STATE="A">
                     <foxml:datastreamVersion MIMETYPE="text/xml" ID="RELS-EXT.0" LABEL="Relationships to other objects">
-                    <foxml:xmlContent>';		
-					
+                    <foxml:xmlContent>';
+
 				$relsext[$pid]['eprint_id'] = $eprintid;
 				$relsext[$pid]['succeeds'] = ePrints::getSucceeds($eprintid, $table);
 				$relsext[$pid]['xml'] = '<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
@@ -1090,7 +1090,7 @@ class ePrints
 				} else {
 					$xmlObj .= "<depositor/>";
 				}
-					
+
 				/*                if (is_array(@$keywordArray[$eprintid])) {
 				 foreach ($keywordArray[$eprintid] as $keyword) {
 				 $xmlObj .= '
@@ -1146,7 +1146,7 @@ class ePrints
                                 'Alternative Location', "A", "text/xml", "R", $versionable);
 					$link_number+=1;
 				}
-					
+
 
 				foreach($oai_ds as $ds) {
 
@@ -1161,11 +1161,11 @@ class ePrints
 					} else {
 						file_put_contents(APP_TEMP_DIR.$short_ds, Misc::getFileURL($ds));
 					}
-						
+
 					$mimetype = Misc::mime_content_type(APP_TEMP_DIR.$short_ds);
 
 					Fedora_API::getUploadLocationByLocalRef($pid, $short_ds, $short_ds, $short_ds, $mimetype, "M", null, $versionable);
-						
+
 					//                  $presmd_check = Workflow::checkForPresMD($ds);  // try APP_TEMP_DIR.$short_ds
 					$presmd_check = Workflow::checkForPresMD(APP_TEMP_DIR.$short_ds);  // try APP_TEMP_DIR.$short_ds
 					if ($presmd_check != false) {
@@ -1189,7 +1189,7 @@ class ePrints
 							Error_Handler::logError("Batch Import Delete Error: $deleteCommand: ".implode(",", $return_array).", return status = $return_status \n", __FILE__,__LINE__);
 						}
 					}
-						
+
 
 					/*                    if (is_numeric(strpos($ds, "/"))) {
 					 $ds = substr($ds, strrpos($ds, "/")+1); // take out any nasty slashes from the ds name itself
@@ -1226,7 +1226,9 @@ class ePrints
 
 				$array_ptr = array();
 				$xsdmf_array = array();
-				Record::setIndexMatchingFields($pid);
+				if (APP_FEDORA_BYPASS != 'ON') {
+					Record::setIndexMatchingFields($pid);
+				}
 
 				$eprint_record_counter++;
 				if ($batch_import_object->bgp) {
@@ -1253,9 +1255,11 @@ class ePrints
 				$succeedsPID = ePrints::getPIDfromePrintID($eprintid);
 				$newXML = $re['xml'] . '<rel:isDerivationOf rdf:resource="info:fedora/'.$succeedsPID.'"/>
 			  			 	  </rdf:description>
-                              </rdf:RDF>';						  
+                              </rdf:RDF>';
 				Fedora_API::callModifyDatastreamByValue($pid, "RELS-EXT", "A", "", $newXML, "text/xml", "inherit");
-				Record::setIndexMatchingFields($pid);
+				if (APP_FEDORA_BYPASS != 'ON') {
+					Record::setIndexMatchingFields($pid);
+				}
 			}
 		}
 		$batch_import_object->bgp->setStatus("Imported $eprint_record_counter Records");

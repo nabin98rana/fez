@@ -790,7 +790,9 @@ class Reindex
           }
 
           Record::propagateExistingPremisDatastreamToFez($pid);
-          Record::setIndexMatchingFields($pid);
+          if (APP_FEDORA_BYPASS != 'ON') {
+            Record::setIndexMatchingFields($pid);
+          }
         }
       } else {
         $this->bgp->setStatus("Skipping object because already has ExifTool data and exif ignore flag is true:  '" . $pid . "'");

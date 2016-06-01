@@ -228,7 +228,7 @@ class RecordObject extends RecordGeneral
       }
       $xsd_display_fields[0]['depositor'] = array('xsdmf_id' => $xsdmf_id[0], 'xsdmf_value' => $depositor);
 
-      $updatedDate = Date_API::getFedoraFormattedDateUTC();
+      $updatedDate = Date_API::getCurrentDateGMT();
 
       if (empty($this->pid)) {
         $createdDate = $updatedDate;
@@ -297,7 +297,7 @@ class RecordObject extends RecordGeneral
             $fileInfo = new SplFileInfo($resourceDataLocation);
 
             $new_dsID = Foxml::makeNCName($fileInfo->getFilename());
-            
+
             if (defined('AWS_S3_ENABLED') && AWS_S3_ENABLED == 'true') {
               Fedora_API::getUploadLocationByLocalRef($this->pid, $new_dsID, $resourceDataLocation, $new_dsID, $mimeDataType,"M",null,true);
             } else {

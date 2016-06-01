@@ -431,7 +431,7 @@ class RecordGeneral
         $details = Record::getDetailsLite($this->pid);
         // $searchKeyData[0] for 1-to-1 search keys
         $searchKeyData[0]['status'] = array('xsdmf_id' => $details[0]['rek_status_xsdmf_id'], 'xsdmf_value' => $sta_id);
-        $searchKeyData[0]['updated_date'] = array('xsdmf_id' => $details[0]['rek_updated_date_xsdmf_id'], 'xsdmf_value' => Date_API::getFedoraFormattedDateUTC());
+        $searchKeyData[0]['updated_date'] = array('xsdmf_id' => $details[0]['rek_updated_date_xsdmf_id'], 'xsdmf_value' => Date_API::getCurrentDateGMT());
 
         // Update the search keys for this PID with new value
         Record::updateSearchKeys($this->pid, $searchKeyData);
@@ -1719,7 +1719,9 @@ class RecordGeneral
       );
       $historyDetail = "Abstract was stripped from ESTI imported record";
       History::addHistory($this->pid, null, "", "", true, $historyDetail);
-      Record::setIndexMatchingFields($this->pid);
+      if (APP_FEDORA_BYPASS != 'ON') {
+        Record::setIndexMatchingFields($this->pid);
+      }
       return true;
     }
     return false;
@@ -1810,7 +1812,9 @@ class RecordGeneral
       Fedora_API::callModifyDatastreamByValue(
           $this->pid, "FezMD", "A", "Fez Admin Metadata", $newXML, "text/xml", "inherit"
       );
-      Record::setIndexMatchingFields($this->pid);
+      if (APP_FEDORA_BYPASS != 'ON') {
+        Record::setIndexMatchingFields($this->pid);
+      }
     }
   }
 
@@ -1858,7 +1862,9 @@ class RecordGeneral
         Fedora_API::callModifyDatastreamByValue(
             $this->pid, $dsID, "A", "setValue", $doc->saveXML(), "text/xml", "inherit"
         );
-        Record::setIndexMatchingFields($this->pid);
+        if (APP_FEDORA_BYPASS != 'ON') {
+          Record::setIndexMatchingFields($this->pid);
+        }
         return true;
       }
     } else {
