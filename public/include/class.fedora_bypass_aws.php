@@ -212,7 +212,7 @@ class Fedora_API implements FedoraApiInterface {
 
 		$aws = AWS::get();
 		$dataPath = Fedora_API::getDataPath($pid);
-		if ($aws->postFile($dataPath, $dsLocation)) {
+		if ($aws->postFile($dataPath, array($dsLocation))) {
 			$success = 1;
 		}
 

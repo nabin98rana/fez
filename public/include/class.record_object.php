@@ -294,16 +294,12 @@ class RecordObject extends RecordGeneral
             $filesDataSize = $filesData[$filesDataKeys[0]][$i];
             $mimeDataType = $mimeData[$mimeDataKeys[0]][$i];
 
+            $fileInfo = new SplFileInfo($resourceDataLocation);
 
-//            $new_dsID = Foxml::makeNCName();
-
-            // the flash file uploader was added after all this code was done, so we need to link in with that array, wherever is is in post
-            //.. erm no it seems fine now with newrelic.png
-
+            $new_dsID = Foxml::makeNCName($fileInfo->getFilename());
+            
             if (defined('AWS_S3_ENABLED') && AWS_S3_ENABLED == 'true') {
-              Fedora_API::getUploadLocationByLocalRef($this->pid, $new_dsID, array($resourceDataLocation), $new_dsID, $mimeDataType,"M",null,true);
-
-
+              Fedora_API::getUploadLocationByLocalRef($this->pid, $new_dsID, $resourceDataLocation, $new_dsID, $mimeDataType,"M",null,true);
             } else {
               $meta = array('mimetype' => $mimeDataType,
                   'controlgroup' => 'M',
