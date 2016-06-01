@@ -1243,7 +1243,7 @@ public static function multi_implode($glue, $pieces)
    * @param   bool  $recursive Recursively find files if true, otherwise only files immediately under the specified directory. Default is false.
    * @return  array The list of files
    */
-  function getFileList($directory, $fullPath = false, $recursive = false) {
+  public static function getFileList($directory, $fullPath = false, $recursive = false) {
     $files = array();
     if (substr($directory, -1) !== '/') {
       $directory .= '/';
@@ -4281,7 +4281,7 @@ public static function multi_implode($glue, $pieces)
 
   }
 
-  function endsWith($haystack, $needle)
+  public static function endsWith($haystack, $needle)
   {
     if (strrpos($haystack, $needle) == (strlen($haystack) - strlen($needle)) ) {
       return true;
