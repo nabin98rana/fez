@@ -1,6 +1,7 @@
 <?php
 
 include_once(dirname(dirname(__FILE__)).DIRECTORY_SEPARATOR."config.inc.php");
+require_once(__DIR__ . '/class.batchimport.php');
 require_once(__DIR__ . '/class.record.php');
 
 /**
@@ -81,7 +82,7 @@ class San_image_import
     $importData = array();
     foreach ($metadata_files as $file) {
       $temp_store = tempnam(APP_TEMP_DIR, "batchImportCsv").".csv";
-      $this->getFileContent($file, $temp_store);
+      BatchImport::getFileContent($file, $temp_store);
       $parsedData = $this->_parseBatchImportMetadataFile($temp_store);
       if ($parsedData === false) {
         $error = 'San image batch import  - failed to parse metadata file "' . $file . '"';
