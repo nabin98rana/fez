@@ -297,7 +297,7 @@ class BatchImport
     $ncName = Foxml::makeNCName($dsIDName);
 
     $temp_store = APP_TEMP_DIR . $ncName;
-    $this->getFileContent($full_name, $temp_store);
+    self::getFileContent($full_name, $temp_store);
 
     $mimetype = Misc::mime_content_type($temp_store);
     if ($mimetype == 'text/xml') {
@@ -397,7 +397,7 @@ class BatchImport
         $short_name = basename($file);
 
         if (Misc::endsWith(strtolower($file), '.csv')) {
-          $xmlObj = $this->getFileContent($file);
+          $xmlObj = self::getFileContent($file);
           if (is_numeric(strpos($xmlObj, "foxml:digitalObject"))) {
             $this->handleFOXMLImport($xmlObj);
             Record::setIndexMatchingFields($pid);
@@ -754,7 +754,7 @@ class BatchImport
    * @param string $saveAs
    * @return string
    */
-  private function getFileContent($file, $saveAs = '')
+  public static function getFileContent($file, $saveAs = '')
   {
     if (defined('AWS_ENABLED') && AWS_ENABLED == 'true') {
       $aws = AWS::get();
