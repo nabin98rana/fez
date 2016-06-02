@@ -132,7 +132,7 @@ class San_image_import
     $tempDir = APP_TEMP_DIR . '/';
     $importFromDir = dirname($file);
     BatchImport::getFileContent($file, $tempDir . basename($file));
-    $file = dirname($tempDir . basename($file));
+    $file = $tempDir . basename($file);
 
     if (! is_file($file)) {
       $this->_log->err('San image batch import - the metadata file was unable to be imported.');
