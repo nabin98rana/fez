@@ -81,7 +81,7 @@ class San_image_import
     // Loop through each metadata file and parse the data to import. Bail if there is a parse error.
     $importData = array();
     foreach ($metadata_files as $file) {
-      $temp_store = tempnam(APP_TEMP_DIR, "batchImportCsv").".csv";
+      $temp_store = APP_TEMP_DIR . '/' . $file;
       BatchImport::getFileContent($file, $temp_store);
       $parsedData = $this->_parseBatchImportMetadataFile($temp_store);
       if ($parsedData === false) {
