@@ -12,6 +12,7 @@ class San_image_import
 {
   private $_importBgp;
   private $_log;
+  private $_filesCleanup;
 
   public function __construct() {
 
@@ -32,6 +33,7 @@ class San_image_import
   public function batchImport(&$bgp, $files, $xdis_id, $collection_pid, $dsarray)
   {
     $this->_log = FezLog::get();
+    $this->_filesCleanup = [];
     // Expect to be run in the context of a background process.
     if (! $bgp || ! $bgp instanceof BackgroundProcess) {
       $this->_log->err('San image batch import - not running within a background process.');
@@ -81,9 +83,7 @@ class San_image_import
     // Loop through each metadata file and parse the data to import. Bail if there is a parse error.
     $importData = array();
     foreach ($metadata_files as $file) {
-      $temp_store = APP_TEMP_DIR . '/' . basename($file);
-      BatchImport::getFileContent($file, $temp_store);
-      $parsedData = $this->_parseBatchImportMetadataFile($temp_store);
+      $parsedData = $this->_parseBatchImportMetadataFile($file);
       if ($parsedData === false) {
         $error = 'San image batch import  - failed to parse metadata file "' . $file . '"';
         $this->_importBgp->setStatus($error);
@@ -96,9 +96,6 @@ class San_image_import
         return false;
       }
       $importData[] = $parsedData;
-      if (is_file($temp_store)) {
-        unlink($temp_store);
-      }
     }
 
     // Loop through parsed data and import.
@@ -110,6 +107,13 @@ class San_image_import
         $this->_importBgp->setStatus('Created record: ' . $pid);
       }
       $count++;
+    }
+
+    // Cleanup
+    foreach ($this->_filesCleanup as $file) {
+      if (is_file($file)) {
+        unlink($file);
+      }
     }
 
     return true;
@@ -124,6 +128,10 @@ class San_image_import
   private function _parseBatchImportMetadataFile($file)
   {
     $importData = array();
+
+    $temp_dir = APP_TEMP_DIR . '/';
+    BatchImport::getFileContent($file, $temp_dir . basename($file));
+
     if (! is_file($file)) {
       return false;
     }
@@ -168,18 +176,18 @@ class San_image_import
             $k = $headings[$i];
             $values[$k] = trim($data[$i]);
           }
-          $values['ImportDirectory'] = dirname($file);
-          if (!is_file($values['ImportDirectory'] . $values['Filename 1'])) {
-            $this->_log->err('San image batch import - the jpg file ' . $values['Filename 1'] . ' was not found.');
-            return false;
-          }
-          if (!is_file($values['ImportDirectory'] . $values['Filename 2'])) {
-            $this->_log->err('San image batch import - the tif file ' . $values['Filename 2'] . '  was not found.');
-            return false;
-          }
-          if (!empty($values['Filename 3']) && !is_file($values['ImportDirectory'] . $values['Filename 3'])) {
-            $this->_log->err('San image batch import - the 2nd tif file ' . $values['Filename 3'] . '  was not found.');
-            return false;
+          $values['ImportDirectory'] = $temp_dir;
+          $importFromDir = dirname($file);
+
+          for ($i = 1; $i <= 3; $i++) {
+            if (!empty($values['Filename ' . $i])) {
+              BatchImport::getFileContent($importFromDir . $values['Filename ' . $i], $temp_dir . $values['Filename ' . $i]);
+              if (!is_file($values['ImportDirectory'] . $values['Filename ' . $i])) {
+                $this->_log->err('San image batch import - the tif file ' . $values['Filename ' . $i] . '  was not found.');
+                return false;
+              }
+              $this->_filesCleanup[] = $values['ImportDirectory'] . $values['Filename ' . $i];
+            }
           }
 
           $importData[] = $values;
