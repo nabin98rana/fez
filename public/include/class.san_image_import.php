@@ -383,24 +383,27 @@ class San_image_import
     $pid = $record->fedoraInsertUpdate(array(), array(), $params);
 
     BatchImport::handleStandardFileImport(
-        $pid,
-        $recData['ImportDirectory'] . $recData['Filename 1'],
-        $recData['Filename 1'],
-        $xdis_id
+      $pid,
+      $recData['ImportDirectory'] . $recData['Filename 1'],
+      $recData['Filename 1'],
+      $xdis_id,
+      true
     );
     BatchImport::handleStandardFileImport(
-        $pid,
-        $recData['ImportDirectory'] . $recData['Filename 2'],
-        $recData['Filename 2'],
-        $xdis_id
+      $pid,
+      $recData['ImportDirectory'] . $recData['Filename 2'],
+      $recData['Filename 2'],
+      $xdis_id,
+      true
     );
 
     if (!empty($recData['Filename 3'])) {
       BatchImport::handleStandardFileImport(
-          $pid,
-          $recData['ImportDirectory'] . $recData['Filename 3'],
-          $recData['Filename 3'],
-          $xdis_id
+        $pid,
+        $recData['ImportDirectory'] . $recData['Filename 3'],
+        $recData['Filename 3'],
+        $xdis_id,
+        true
       );
     }
 
