@@ -288,17 +288,22 @@ class BatchImport
    * @param   string $full_name The full directory path inclusive filename
    * @param   string $short_name The basic filename without the directory path
    * @param   string $xdis_id The XSD Display ID the object will have.
+   * @param   bool   $is_temp_file
    * @return  void
    */
-  function handleStandardFileImport($pid, $full_name, $short_name, $xdis_id)
+  function handleStandardFileImport($pid, $full_name, $short_name, $xdis_id, $is_temp_file = false)
   {
     $dsIDName = $short_name;
     $return_array = array();
     $ncName = Foxml::makeNCName($dsIDName);
 
-    $temp_store = APP_TEMP_DIR . $ncName;
-    self::getFileContent($full_name, $temp_store);
-
+    if ($is_temp_file) {
+      $temp_store = $full_name;
+    }
+    else {
+      $temp_store = APP_TEMP_DIR . $ncName;
+      self::getFileContent($full_name, $temp_store);
+    }
     $mimetype = Misc::mime_content_type($temp_store);
     if ($mimetype == 'text/xml') {
       $controlgroup = 'X';
@@ -322,7 +327,7 @@ class BatchImport
     Record::generatePresmd($pid, $ncName);
     // Now check for post upload workflow events like thumbnail resizing of images and add them as datastreams if required
     Workflow::processIngestTrigger($pid, $ncName, $mimetype);
-    if (is_file($temp_store)) {
+    if (is_file($temp_store) && !$is_temp_file) {
       unlink($temp_store);
     }
     Record::setIndexMatchingFields($pid);
