@@ -168,7 +168,7 @@ class San_image_import
             $k = $headings[$i];
             $values[$k] = trim($data[$i]);
           }
-          $values['ImportDirectory'] = dirname($file) . '/';
+          $values['ImportDirectory'] = dirname($file);
           if (!is_file($values['ImportDirectory'] . $values['Filename 1'])) {
             $this->_log->err('San image batch import - the jpg file ' . $values['Filename 1'] . ' was not found.');
             return false;
