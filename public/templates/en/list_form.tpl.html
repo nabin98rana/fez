@@ -10,51 +10,51 @@
 	{/if}
 	{literal}
 	var star_toggle = 'off';
-	
+
 	function addStar(pid)
 	{
 		var image = document.getElementById('star_' + pid);
 		image.src = rel_url + 'images/star_16_active.png';
 		var star_result = star_proxy.star(pid);
-		
+
 		star_result.addCallback( function(msg) {
 			if (msg == 'true') {
 				image.src = rel_url + 'images/star_16.png';
 			}
 		});
-		
+
 		return;
 	}
-	
+
 	function removeStar(pid)
 	{
 		var image = document.getElementById('star_' + pid);
 		image.src = rel_url + 'images/star_16_active.png';
 		var star_result = star_proxy.unstar(pid);
-		
+
 		star_result.addCallback( function(msg) {
 			if (msg == 'true') {
 				image.src = rel_url + 'images/star_16_grey.png';
 			}
 		});
-		
+
 		return;
 	}
-	
+
 	function starToggle(pid)
 	{
 		var image = document.getElementById('star_' + pid);
-		
+
 		/* Determine whether to add or remove the star, based on it current value */
 		if (image.src.indexOf("star_16_grey") != -1 || image.src.indexOf("star_16_active") != -1) {
 			addStar(pid);
 		} else {
 			removeStar(pid);
 		}
-		
+
 		return;
 	}
-	
+
 	function toggleStarAll(f, field_name)
 	{
 		var pids = [];
@@ -91,14 +91,14 @@
 			}
 			});
 		}
-		
+
 		/* Adjust toggle */
 	    if (star_toggle == 'off') {
 	        star_toggle = 'on';
 	    } else {
 	        star_toggle = 'off';
 	    }
-	    
+
 	    return;
 	}
 
@@ -185,7 +185,7 @@
     	});
     {/literal} {/if}
 	-->
-	</script> 
+	</script>
 
 
 
@@ -230,7 +230,7 @@
 		</select>
 		<input type="button" value="Create" onclick="javascript:createRecord(this.form, this.form.xdis_id_top)" class="button" />
 		{/if}
-	{elseif ($list_type == 'collection_records_list' && ($isAdministrator || $isCreator)) && $browse_type == ""}			
+	{elseif ($list_type == 'collection_records_list' && ($isAdministrator || $isCreator)) && $browse_type == ""}
 		{if $childXDisplayOptions != 0}
 		<img src="{$rel_url}images/folder_new.gif" alt="" />
 		<input type="hidden" name="collection_pid" value="{$collection_pid}" />
@@ -245,8 +245,8 @@
 
 {include file="list_browse_type.tpl.html"}
 
-{if ($browse_heading == "") ||  ($browse_type != "" && ($author != "" || $author_id != "" || $author_refine != "")) || ($browse_type != "" & $depositor != "") || ($browse_type != "" && $year != "") || ($browse_type != "" && $parent_id != "" && $max_subject_breadcrumb != 0)} 
-        
+{if ($browse_heading == "") ||  ($browse_type != "" && ($author != "" || $author_id != "" || $author_refine != "")) || ($browse_type != "" & $depositor != "") || ($browse_type != "" && $year != "") || ($browse_type != "" && $parent_id != "" && $max_subject_breadcrumb != 0)}
+
 	{if $spell_suggest != ""}
 	<table width="100%" cellpadding="10" cellspacing="0" class="listrecord">
 	  	<tr>
@@ -259,7 +259,7 @@
     <div class="facetheader">
     <h2>Refine</h2>
     </div>
-    
+
     <ul>
     {foreach from=$facets key=sek_id item=items}
 	{if $items.sek_alt_title == ""}
@@ -321,13 +321,13 @@
             </td>
             <td align="center">
             {if $list_info.total_rows > 0 && ($list_type !== 'collection_list' && $list_type !== 'community_list')}
-            	<img src="{$rel_url}images/scopus_logo_small.gif" title="Scopus Citation Count" alt="Scopus Citation Count" />            
+            	<img src="{$rel_url}images/scopus_logo_small.gif" title="Scopus Citation Count" alt="Scopus Citation Count" />
             {/if}
             </td>
 			{if $isUser && ($useGoogleCitationCounts == 'ON')}
             <td align="center">
             {if $list_info.total_rows > 0 && ($list_type !== 'collection_list' && $list_type !== 'community_list')}
-            	<img src="{$rel_url}images/favicon_googlescholar.png" title="Google Scholar Citation Count" alt="Google Scholar Citation Count" />            
+            	<img src="{$rel_url}images/favicon_googlescholar.png" title="Google Scholar Citation Count" alt="Google Scholar Citation Count" />
             {/if}
             </td>
 			{/if}
@@ -345,7 +345,7 @@
 	   		{if $list[i].rek_object_type == 1}
                 {assign var="href_view" value="community/"|cat:$list[i].rek_pid}
                 {assign var="icon" value=$rel_url|cat:"images/community.jpg"}
-                {if ($list[i].isEditor==1 || $isAdministrator)} 
+                {if ($list[i].isEditor==1 || $isAdministrator)}
                         {assign var="showEdit" value=true}
                 {else}
                         {assign var="showEdit" value=false}
@@ -353,7 +353,7 @@
            {elseif $list[i].rek_object_type == 2}
                 {assign var="href_view" value="collection/"|cat:$list[i].rek_pid}
                 {assign var="icon" value=$rel_url|cat:"images/collection.jpg"}
-                {if $isUser && ($list[i].isEditor==1 || $isAdministrator)}  
+                {if $isUser && ($list[i].isEditor==1 || $isAdministrator)}
                         {assign var="showEdit" value=true}
                 {else}
                         {assign var="showEdit" value=false}
@@ -364,15 +364,19 @@
                 {else}
                   {assign var="href_view" value=""}
                 {/if}
-                
+
 				{if $list[i].thumbnail.0 != "" && $list[i].isViewer==1}
-	                {assign var="icon" value=$eserv_url|cat:$list[i].rek_pid|cat:"/"|cat:$list[i].thumbnail.0}
+						{if $list[i].thumbnail_cloudfront.0 != ""}
+							{assign var="icon" value=$list[i].thumbnail_cloudfront.0}
+						{else}
+							{assign var="icon" value=$eserv_url|cat:$list[i].rek_pid|cat:"/"|cat:$list[i].thumbnail.0}
+						{/if}
 	        		{assign var="icon_height" value=$list[i].thumbnail_height.0}
 	        		{assign var="icon_width" value=$list[i].thumbnail_width.0}
 				{else}
 	                {assign var="icon" value=""}
 				{/if}
-				
+
                 {if $isUser}
                     {assign var="showEdit" value=true}
                 {else}
@@ -386,8 +390,8 @@
 					<img id="star_{$list[i].rek_pid}" src="{$rel_url}images/star_16{if !$list[i].starred}_grey{/if}.png" alt="Star/unstar this record" title="Star/unstar this record" onclick="javascript:starToggle('{$list[i].rek_pid}');" />
 				</td>
 			{/if}
-		  
-		  {if ($isAdministrator)}  		  
+
+		  {if ($isAdministrator)}
               <td style="border-top: 1px dashed #be87e9; width: 10px; vertical-align: middle;">
 	              <input type="checkbox" name="pids[]" value="{$list[i].rek_pid}" />
               </td>
@@ -397,7 +401,7 @@
                 {if $href_view}<a href='{$rel_url}{$href_view}' >{/if}<img {if ($icon_width != "" && $icon_height != "")}width="{$icon_width}" height="{$icon_height}"{/if} style="vertical-align: top; align: right; padding-top: 5px; padding-bottom: 5px;" src="{$icon}" alt="" />{if $href_view}</a>{/if}
 		  </td>
 		  {/if}
-				  
+
 		  <td align="left"{if $icon}{else} colspan="2"{/if} valign="middle" style="border-top:1px dashed #be87e9; width: 100%;">
             {if $isAdministrator || $isUPO}
 			{if $list[i].rek_display_type_lookup == "Book" || $list[i].rek_display_type_lookup == "Book Chapter" || $list[i].rek_display_type_lookup == "Journal Article" || $list[i].rek_display_type_lookup == "Conference Paper"}
@@ -432,7 +436,7 @@
               {/if}
               <br /><br /><div class='snip' style="max-width:{$snip_width}px">...{$snips[$pid] nofilter}...</div>
             {/if}
-		  </td>		
+		  </td>
 
 			{if ($list[i].isEditor==1 || $isAdministrator) && $list_type != 'collection_records_list'}
 			  <td align="left" style="border-top:1px dashed #be87e9; vertical-align: middle; white-space: nowrap;">
@@ -451,7 +455,7 @@
 	            {else}
 			      {assign var="wf_icon" value=$list[i].wft_icon[w]}
 			    {/if}
-                            
+
 			    {if $list[i].wft_type_id[w] == 6}
                   {assign var='wf_url' value=$rel_url|cat:'workflow/export.php'}
                 {else}
@@ -464,11 +468,11 @@
                 <a href="{$rel_url}workflow/list_workflows2.php?pid={$list[i].rek_pid}&amp;href={$smarty.server.REQUEST_URI|escape:url nofilter}"><img src="{$rel_url}images/options_16.png" alt="More options" title="More options" width="16" height="16" /></a>
 			</td>
            {/if}
-           
+
 			{if $smarty.get.cat =='Search' || $smarty.get.cat == 'all_fields' || $smarty.get.cat == 'quick_filter'}
 			<td align="center" valign="middle" width="" style="border-top:1px dashed #be87e9; width: 10px; white-space: nowrap;">&nbsp;{if $list[i].Relevance}{$list[i].Relevance|@number_format:2}{/if}</td>
 			{/if}
-			
+
 			{if $list[i].rek_object_type == 3}
 			<td align="center" valign="middle" style="border-top:1px dashed #be87e9; width: 10px; white-space: nowrap;">{if $list[i].rek_views}{$list[i].rek_views}{else}&nbsp;{/if}</td>
 			<td align="center" valign="middle" style="border-top:1px dashed #be87e9; width: 10px; white-space: nowrap;">{if $list[i].rek_file_downloads}<a class="author_link" title="View detailed statistics for this object" href="{$rel_url}stat_details.php?action=show_detail&amp;pid={$list[i].rek_pid}">{$list[i].rek_file_downloads}</a>{else}&nbsp;{/if}</td>
@@ -501,7 +505,7 @@
                {$list[i].rek_gs_citation_count}
             {else}
             	&nbsp;
-            {/if}			
+            {/if}
 		  </td>
 		  {/if}
 
@@ -517,9 +521,9 @@
 
 
 	       </tr>
-	       
+
         {/if}
-	   
+
        {sectionelse}
 		<tr>
 		  <td>
@@ -527,7 +531,7 @@
           </td>
         </tr>
        {/section}
-       
+
    </table>
 </div>
 {/if}

@@ -334,7 +334,7 @@ class RecordObject extends RecordGeneral
       Record::updateSearchKeys($this->pid, $xsd_display_fields, true, $now); //into the shadow tables
 
       // now process the ingest triggers now that file_attachment_name etc has been saved into the search keys
-      if (count($tmpFilesArray)) {
+      if (count($tmpFilesArray) > 0) {
         for ($i = 0; $i < $numFiles; $i++) {
           Workflow::processIngestTrigger($this->pid, $fileNames[$i], $mimeDataType);
           $tmpFile = APP_TEMP_DIR . $fileNames[$i];
