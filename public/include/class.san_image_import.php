@@ -130,7 +130,7 @@ class San_image_import
     $importData = array();
 
     $tempDir = APP_TEMP_DIR . '/';
-    $importFromDir = dirname($file);
+    $importFromDir = dirname($file) . '/';
     BatchImport::getFileContent($file, $tempDir . basename($file));
     $file = $tempDir . basename($file);
 
