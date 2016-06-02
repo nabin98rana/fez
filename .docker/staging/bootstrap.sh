@@ -17,6 +17,7 @@ if [ "${APP_ENVIRONMENT}" == "staging" ]; then
   aws s3 cp s3://uql-fez-staging/GeoLiteCity.dat.gz /usr/share/GeoIP/GeoLiteCity.dat.gz && /bin/gunzip -f /usr/share/GeoIP/GeoLiteCity.dat.gz
   cp ${BASE_DIR}/.docker/staging/fez-staging-allow.conf /etc/nginx/rules/fez-staging-allow.conf
   sed -i "s/server {/server {\n  include rules\/fez-staging-allow.conf;\n  deny all;\n/" /etc/nginx/conf.d/fez.conf
+  chmod -R 777 ${BASE_DIR}/public/include/htmlpurifier/library/HTMLPurifier
 else
   cp ${BASE_DIR}/.docker/testing/config.inc.php /var/app/current/public/config.inc.php
 fi
