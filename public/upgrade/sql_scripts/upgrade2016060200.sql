@@ -15,7 +15,7 @@ INSERT IGNORE INTO %TABLE_PREFIX%search_key(sek_id,sek_namespace,sek_incr_id,sek
 INSERT IGNORE INTO %TABLE_PREFIX%search_key(sek_id,sek_namespace,sek_incr_id,sek_title,sek_alt_title,sek_desc,sek_adv_visible,sek_simple_used,sek_myfez_visible,sek_order,sek_html_input,sek_fez_variable,sek_smarty_variable,sek_cvo_id,sek_lookup_function,sek_data_type,sek_relationship,sek_meta_header,sek_cardinality,sek_suggest_function,sek_comment_function,sek_faceting,sek_derived_function,sek_lookup_id_function,sek_bulkchange) values ('UQ_57','UQ',57,'Alternate Genre','','',0,0,0,0,'allcontvocab','none','',453235,'Controlled_Vocab::getTitle','int',1,'',1,'',NULL,0,'','Controlled_Vocab::getID',0);
 INSERT IGNORE INTO %TABLE_PREFIX%search_key(sek_id,sek_namespace,sek_incr_id,sek_title,sek_alt_title,sek_desc,sek_adv_visible,sek_simple_used,sek_myfez_visible,sek_order,sek_html_input,sek_fez_variable,sek_smarty_variable,sek_cvo_id,sek_lookup_function,sek_data_type,sek_relationship,sek_meta_header,sek_cardinality,sek_suggest_function,sek_comment_function,sek_faceting,sek_derived_function,sek_lookup_id_function,sek_bulkchange) values ('UQ_58','UQ',58,'Length','','',0,0,0,0,'text','none','',453235,'','varchar',1,'',0,'',NULL,0,'','',0);
 
-CREATE TABLE IF NOT EXISTS `fez_record_search_key_acknowledgements` (
+CREATE TABLE IF NOT EXISTS `%TABLE_PREFIX%record_search_key_acknowledgements` (
      `rek_acknowledgements_id` int(11) NOT NULL auto_increment,
      `rek_acknowledgements_pid` varchar(64) default NULL,
      `rek_acknowledgements_xsdmf_id` int(11) default NULL,
@@ -24,7 +24,7 @@ CREATE TABLE IF NOT EXISTS `fez_record_search_key_acknowledgements` (
      FULLTEXT `rek_acknowledgements` (`rek_acknowledgements`),
      KEY `rek_acknowledgements_pid` (`rek_acknowledgements_pid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-CREATE TABLE IF NOT EXISTS `fez_record_search_key_acknowledgements__shadow` (
+CREATE TABLE IF NOT EXISTS `%TABLE_PREFIX%record_search_key_acknowledgements__shadow` (
      `rek_acknowledgements_id` int(11) NOT NULL auto_increment,
      `rek_acknowledgements_stamp` datetime,
       `rek_acknowledgements_pid` varchar(64) default NULL,
@@ -34,7 +34,7 @@ CREATE TABLE IF NOT EXISTS `fez_record_search_key_acknowledgements__shadow` (
      FULLTEXT `rek_acknowledgements` (`rek_acknowledgements`),
      KEY `rek_acknowledgements_pid` (`rek_acknowledgements_pid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-CREATE TABLE IF NOT EXISTS `fez_record_search_key_advisory_statement` (
+CREATE TABLE IF NOT EXISTS `%TABLE_PREFIX%record_search_key_advisory_statement` (
      `rek_advisory_statement_id` int(11) NOT NULL auto_increment,
      `rek_advisory_statement_pid` varchar(64) default NULL,
      `rek_advisory_statement_xsdmf_id` int(11) default NULL,
@@ -43,7 +43,7 @@ CREATE TABLE IF NOT EXISTS `fez_record_search_key_advisory_statement` (
      FULLTEXT `rek_advisory_statement` (`rek_advisory_statement`),
      KEY `rek_advisory_statement_pid` (`rek_advisory_statement_pid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-CREATE TABLE IF NOT EXISTS `fez_record_search_key_advisory_statement__shadow` (
+CREATE TABLE IF NOT EXISTS `%TABLE_PREFIX%record_search_key_advisory_statement__shadow` (
      `rek_advisory_statement_id` int(11) NOT NULL auto_increment,
      `rek_advisory_statement_stamp` datetime,
       `rek_advisory_statement_pid` varchar(64) default NULL,
@@ -53,7 +53,7 @@ CREATE TABLE IF NOT EXISTS `fez_record_search_key_advisory_statement__shadow` (
      FULLTEXT `rek_advisory_statement` (`rek_advisory_statement`),
      KEY `rek_advisory_statement_pid` (`rek_advisory_statement_pid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-CREATE TABLE IF NOT EXISTS `fez_record_search_key_alternate_genre` (
+CREATE TABLE IF NOT EXISTS `%TABLE_PREFIX%record_search_key_alternate_genre` (
      `rek_alternate_genre_id` int(11) NOT NULL auto_increment,
      `rek_alternate_genre_pid` varchar(64) default NULL,
      `rek_alternate_genre_xsdmf_id` int(11) default NULL,
@@ -64,7 +64,7 @@ CREATE TABLE IF NOT EXISTS `fez_record_search_key_alternate_genre` (
      KEY `rek_alternate_genre_pid` (`rek_alternate_genre_pid`),
      UNIQUE KEY `unique_constraint_pid_order` (`rek_alternate_genre_pid`, `rek_alternate_genre_order`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-CREATE TABLE IF NOT EXISTS `fez_record_search_key_alternate_genre__shadow` (
+CREATE TABLE IF NOT EXISTS `%TABLE_PREFIX%record_search_key_alternate_genre__shadow` (
      `rek_alternate_genre_id` int(11) NOT NULL auto_increment,
      `rek_alternate_genre_stamp` datetime,
       `rek_alternate_genre_pid` varchar(64) default NULL,
@@ -75,7 +75,7 @@ CREATE TABLE IF NOT EXISTS `fez_record_search_key_alternate_genre__shadow` (
      KEY `rek_alternate_genre` (`rek_alternate_genre`),
      KEY `rek_alternate_genre_pid` (`rek_alternate_genre_pid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-CREATE TABLE IF NOT EXISTS `fez_record_search_key_data_volume` (
+CREATE TABLE IF NOT EXISTS `%TABLE_PREFIX%record_search_key_data_volume` (
      `rek_data_volume_id` int(11) NOT NULL auto_increment,
      `rek_data_volume_pid` varchar(64) default NULL,
      `rek_data_volume_xsdmf_id` int(11) default NULL,
@@ -84,7 +84,7 @@ CREATE TABLE IF NOT EXISTS `fez_record_search_key_data_volume` (
      KEY `rek_data_volume` (`rek_data_volume`),
      KEY `rek_data_volume_pid` (`rek_data_volume_pid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-CREATE TABLE IF NOT EXISTS `fez_record_search_key_data_volume__shadow` (
+CREATE TABLE IF NOT EXISTS `%TABLE_PREFIX%record_search_key_data_volume__shadow` (
      `rek_data_volume_id` int(11) NOT NULL auto_increment,
      `rek_data_volume_stamp` datetime,
       `rek_data_volume_pid` varchar(64) default NULL,
@@ -94,7 +94,7 @@ CREATE TABLE IF NOT EXISTS `fez_record_search_key_data_volume__shadow` (
      KEY `rek_data_volume` (`rek_data_volume`),
      KEY `rek_data_volume_pid` (`rek_data_volume_pid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-CREATE TABLE IF NOT EXISTS `fez_record_search_key_date_recorded` (
+CREATE TABLE IF NOT EXISTS `%TABLE_PREFIX%record_search_key_date_recorded` (
      `rek_date_recorded_id` int(11) NOT NULL auto_increment,
      `rek_date_recorded_pid` varchar(64) default NULL,
      `rek_date_recorded_xsdmf_id` int(11) default NULL,
@@ -103,7 +103,7 @@ CREATE TABLE IF NOT EXISTS `fez_record_search_key_date_recorded` (
      KEY `rek_date_recorded` (`rek_date_recorded`),
      KEY `rek_date_recorded_pid` (`rek_date_recorded_pid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-CREATE TABLE IF NOT EXISTS `fez_record_search_key_date_recorded__shadow` (
+CREATE TABLE IF NOT EXISTS `%TABLE_PREFIX%record_search_key_date_recorded__shadow` (
      `rek_date_recorded_id` int(11) NOT NULL auto_increment,
      `rek_date_recorded_stamp` datetime,
       `rek_date_recorded_pid` varchar(64) default NULL,
@@ -113,7 +113,7 @@ CREATE TABLE IF NOT EXISTS `fez_record_search_key_date_recorded__shadow` (
      KEY `rek_date_recorded` (`rek_date_recorded`),
      KEY `rek_date_recorded_pid` (`rek_date_recorded_pid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-CREATE TABLE IF NOT EXISTS `fez_record_search_key_length` (
+CREATE TABLE IF NOT EXISTS `%TABLE_PREFIX%record_search_key_length` (
      `rek_length_id` int(11) NOT NULL auto_increment,
      `rek_length_pid` varchar(64) default NULL,
      `rek_length_xsdmf_id` int(11) default NULL,
@@ -122,7 +122,7 @@ CREATE TABLE IF NOT EXISTS `fez_record_search_key_length` (
      KEY `rek_length` (`rek_length`),
      KEY `rek_length_pid` (`rek_length_pid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-CREATE TABLE IF NOT EXISTS `fez_record_search_key_length__shadow` (
+CREATE TABLE IF NOT EXISTS `%TABLE_PREFIX%record_search_key_length__shadow` (
      `rek_length_id` int(11) NOT NULL auto_increment,
      `rek_length_stamp` datetime,
       `rek_length_pid` varchar(64) default NULL,
@@ -132,7 +132,7 @@ CREATE TABLE IF NOT EXISTS `fez_record_search_key_length__shadow` (
      KEY `rek_length` (`rek_length`),
      KEY `rek_length_pid` (`rek_length_pid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-CREATE TABLE IF NOT EXISTS `fez_record_search_key_oa_embargo_days` (
+CREATE TABLE IF NOT EXISTS `%TABLE_PREFIX%record_search_key_oa_embargo_days` (
      `rek_oa_embargo_days_id` int(11) NOT NULL auto_increment,
      `rek_oa_embargo_days_pid` varchar(64) default NULL,
      `rek_oa_embargo_days_xsdmf_id` int(11) default NULL,
@@ -141,7 +141,7 @@ CREATE TABLE IF NOT EXISTS `fez_record_search_key_oa_embargo_days` (
      KEY `rek_oa_embargo_days` (`rek_oa_embargo_days`),
      KEY `rek_oa_embargo_days_pid` (`rek_oa_embargo_days_pid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-CREATE TABLE IF NOT EXISTS `fez_record_search_key_oa_embargo_days__shadow` (
+CREATE TABLE IF NOT EXISTS `%TABLE_PREFIX%record_search_key_oa_embargo_days__shadow` (
      `rek_oa_embargo_days_id` int(11) NOT NULL auto_increment,
      `rek_oa_embargo_days_stamp` datetime,
       `rek_oa_embargo_days_pid` varchar(64) default NULL,
@@ -151,7 +151,7 @@ CREATE TABLE IF NOT EXISTS `fez_record_search_key_oa_embargo_days__shadow` (
      KEY `rek_oa_embargo_days` (`rek_oa_embargo_days`),
      KEY `rek_oa_embargo_days_pid` (`rek_oa_embargo_days_pid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-CREATE TABLE IF NOT EXISTS `fez_record_search_key_oa_status` (
+CREATE TABLE IF NOT EXISTS `%TABLE_PREFIX%record_search_key_oa_status` (
      `rek_oa_status_id` int(11) NOT NULL auto_increment,
      `rek_oa_status_pid` varchar(64) default NULL,
      `rek_oa_status_xsdmf_id` int(11) default NULL,
@@ -160,7 +160,7 @@ CREATE TABLE IF NOT EXISTS `fez_record_search_key_oa_status` (
      KEY `rek_oa_status` (`rek_oa_status`),
      KEY `rek_oa_status_pid` (`rek_oa_status_pid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-CREATE TABLE IF NOT EXISTS `fez_record_search_key_oa_status__shadow` (
+CREATE TABLE IF NOT EXISTS `%TABLE_PREFIX%record_search_key_oa_status__shadow` (
      `rek_oa_status_id` int(11) NOT NULL auto_increment,
      `rek_oa_status_stamp` datetime,
       `rek_oa_status_pid` varchar(64) default NULL,
@@ -170,7 +170,7 @@ CREATE TABLE IF NOT EXISTS `fez_record_search_key_oa_status__shadow` (
      KEY `rek_oa_status` (`rek_oa_status`),
      KEY `rek_oa_status_pid` (`rek_oa_status_pid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-CREATE TABLE IF NOT EXISTS `fez_record_search_key_pubmed_id` (
+CREATE TABLE IF NOT EXISTS `%TABLE_PREFIX%record_search_key_pubmed_id` (
      `rek_pubmed_id_id` int(11) NOT NULL auto_increment,
      `rek_pubmed_id_pid` varchar(64) default NULL,
      `rek_pubmed_id_xsdmf_id` int(11) default NULL,
@@ -179,7 +179,7 @@ CREATE TABLE IF NOT EXISTS `fez_record_search_key_pubmed_id` (
      KEY `rek_pubmed_id` (`rek_pubmed_id`),
      KEY `rek_pubmed_id_pid` (`rek_pubmed_id_pid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-CREATE TABLE IF NOT EXISTS `fez_record_search_key_pubmed_id__shadow` (
+CREATE TABLE IF NOT EXISTS `%TABLE_PREFIX%record_search_key_pubmed_id__shadow` (
      `rek_pubmed_id_id` int(11) NOT NULL auto_increment,
      `rek_pubmed_id_stamp` datetime,
       `rek_pubmed_id_pid` varchar(64) default NULL,
@@ -189,7 +189,7 @@ CREATE TABLE IF NOT EXISTS `fez_record_search_key_pubmed_id__shadow` (
      KEY `rek_pubmed_id` (`rek_pubmed_id`),
      KEY `rek_pubmed_id_pid` (`rek_pubmed_id_pid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-CREATE TABLE IF NOT EXISTS `fez_record_search_key_refereed_source` (
+CREATE TABLE IF NOT EXISTS `%TABLE_PREFIX%record_search_key_refereed_source` (
      `rek_refereed_source_id` int(11) NOT NULL auto_increment,
      `rek_refereed_source_pid` varchar(64) default NULL,
      `rek_refereed_source_xsdmf_id` int(11) default NULL,
@@ -198,7 +198,7 @@ CREATE TABLE IF NOT EXISTS `fez_record_search_key_refereed_source` (
      KEY `rek_refereed_source` (`rek_refereed_source`),
      KEY `rek_refereed_source_pid` (`rek_refereed_source_pid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-CREATE TABLE IF NOT EXISTS `fez_record_search_key_refereed_source__shadow` (
+CREATE TABLE IF NOT EXISTS `%TABLE_PREFIX%record_search_key_refereed_source__shadow` (
      `rek_refereed_source_id` int(11) NOT NULL auto_increment,
      `rek_refereed_source_stamp` datetime,
       `rek_refereed_source_pid` varchar(64) default NULL,
@@ -208,7 +208,7 @@ CREATE TABLE IF NOT EXISTS `fez_record_search_key_refereed_source__shadow` (
      KEY `rek_refereed_source` (`rek_refereed_source`),
      KEY `rek_refereed_source_pid` (`rek_refereed_source_pid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-CREATE TABLE IF NOT EXISTS `fez_record_search_key_related_datasets` (
+CREATE TABLE IF NOT EXISTS `%TABLE_PREFIX%record_search_key_related_datasets` (
      `rek_related_datasets_id` int(11) NOT NULL auto_increment,
      `rek_related_datasets_pid` varchar(64) default NULL,
      `rek_related_datasets_xsdmf_id` int(11) default NULL,
@@ -217,7 +217,7 @@ CREATE TABLE IF NOT EXISTS `fez_record_search_key_related_datasets` (
      KEY `rek_related_datasets` (`rek_related_datasets`),
      KEY `rek_related_datasets_pid` (`rek_related_datasets_pid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-CREATE TABLE IF NOT EXISTS `fez_record_search_key_related_datasets__shadow` (
+CREATE TABLE IF NOT EXISTS `%TABLE_PREFIX%record_search_key_related_datasets__shadow` (
      `rek_related_datasets_id` int(11) NOT NULL auto_increment,
      `rek_related_datasets_stamp` datetime,
       `rek_related_datasets_pid` varchar(64) default NULL,
@@ -227,7 +227,7 @@ CREATE TABLE IF NOT EXISTS `fez_record_search_key_related_datasets__shadow` (
      KEY `rek_related_datasets` (`rek_related_datasets`),
      KEY `rek_related_datasets_pid` (`rek_related_datasets_pid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-CREATE TABLE IF NOT EXISTS `fez_record_search_key_related_publications` (
+CREATE TABLE IF NOT EXISTS `%TABLE_PREFIX%record_search_key_related_publications` (
      `rek_related_publications_id` int(11) NOT NULL auto_increment,
      `rek_related_publications_pid` varchar(64) default NULL,
      `rek_related_publications_xsdmf_id` int(11) default NULL,
@@ -236,7 +236,7 @@ CREATE TABLE IF NOT EXISTS `fez_record_search_key_related_publications` (
      KEY `rek_related_publications` (`rek_related_publications`),
      KEY `rek_related_publications_pid` (`rek_related_publications_pid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-CREATE TABLE IF NOT EXISTS `fez_record_search_key_related_publications__shadow` (
+CREATE TABLE IF NOT EXISTS `%TABLE_PREFIX%record_search_key_related_publications__shadow` (
      `rek_related_publications_id` int(11) NOT NULL auto_increment,
      `rek_related_publications_stamp` datetime,
       `rek_related_publications_pid` varchar(64) default NULL,
@@ -246,7 +246,7 @@ CREATE TABLE IF NOT EXISTS `fez_record_search_key_related_publications__shadow` 
      KEY `rek_related_publications` (`rek_related_publications`),
      KEY `rek_related_publications_pid` (`rek_related_publications_pid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-CREATE TABLE IF NOT EXISTS `fez_record_search_key_source` (
+CREATE TABLE IF NOT EXISTS `%TABLE_PREFIX%record_search_key_source` (
      `rek_source_id` int(11) NOT NULL auto_increment,
      `rek_source_pid` varchar(64) default NULL,
      `rek_source_xsdmf_id` int(11) default NULL,
@@ -255,7 +255,7 @@ CREATE TABLE IF NOT EXISTS `fez_record_search_key_source` (
      KEY `rek_source` (`rek_source`),
      KEY `rek_source_pid` (`rek_source_pid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-CREATE TABLE IF NOT EXISTS `fez_record_search_key_source__shadow` (
+CREATE TABLE IF NOT EXISTS `%TABLE_PREFIX%record_search_key_source__shadow` (
      `rek_source_id` int(11) NOT NULL auto_increment,
      `rek_source_stamp` datetime,
       `rek_source_pid` varchar(64) default NULL,
@@ -265,7 +265,7 @@ CREATE TABLE IF NOT EXISTS `fez_record_search_key_source__shadow` (
      KEY `rek_source` (`rek_source`),
      KEY `rek_source_pid` (`rek_source_pid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-CREATE TABLE IF NOT EXISTS `fez_record_search_key_time_period_end_date` (
+CREATE TABLE IF NOT EXISTS `%TABLE_PREFIX%record_search_key_time_period_end_date` (
      `rek_time_period_end_date_id` int(11) NOT NULL auto_increment,
      `rek_time_period_end_date_pid` varchar(64) default NULL,
      `rek_time_period_end_date_xsdmf_id` int(11) default NULL,
@@ -274,7 +274,7 @@ CREATE TABLE IF NOT EXISTS `fez_record_search_key_time_period_end_date` (
      KEY `rek_time_period_end_date` (`rek_time_period_end_date`),
      KEY `rek_time_period_end_date_pid` (`rek_time_period_end_date_pid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-CREATE TABLE IF NOT EXISTS `fez_record_search_key_time_period_end_date__shadow` (
+CREATE TABLE IF NOT EXISTS `%TABLE_PREFIX%record_search_key_time_period_end_date__shadow` (
      `rek_time_period_end_date_id` int(11) NOT NULL auto_increment,
      `rek_time_period_end_date_stamp` datetime,
       `rek_time_period_end_date_pid` varchar(64) default NULL,
@@ -284,7 +284,7 @@ CREATE TABLE IF NOT EXISTS `fez_record_search_key_time_period_end_date__shadow` 
      KEY `rek_time_period_end_date` (`rek_time_period_end_date`),
      KEY `rek_time_period_end_date_pid` (`rek_time_period_end_date_pid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-CREATE TABLE IF NOT EXISTS `fez_record_search_key_time_period_start_date` (
+CREATE TABLE IF NOT EXISTS `%TABLE_PREFIX%record_search_key_time_period_start_date` (
      `rek_time_period_start_date_id` int(11) NOT NULL auto_increment,
      `rek_time_period_start_date_pid` varchar(64) default NULL,
      `rek_time_period_start_date_xsdmf_id` int(11) default NULL,
@@ -293,7 +293,7 @@ CREATE TABLE IF NOT EXISTS `fez_record_search_key_time_period_start_date` (
      KEY `rek_time_period_start_date` (`rek_time_period_start_date`),
      KEY `rek_time_period_start_date_pid` (`rek_time_period_start_date_pid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-CREATE TABLE IF NOT EXISTS `fez_record_search_key_time_period_start_date__shadow` (
+CREATE TABLE IF NOT EXISTS `%TABLE_PREFIX%record_search_key_time_period_start_date__shadow` (
      `rek_time_period_start_date_id` int(11) NOT NULL auto_increment,
      `rek_time_period_start_date_stamp` datetime,
       `rek_time_period_start_date_pid` varchar(64) default NULL,
@@ -303,7 +303,7 @@ CREATE TABLE IF NOT EXISTS `fez_record_search_key_time_period_start_date__shadow
      KEY `rek_time_period_start_date` (`rek_time_period_start_date`),
      KEY `rek_time_period_start_date_pid` (`rek_time_period_start_date_pid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-CREATE TABLE IF NOT EXISTS `fez_record_search_key_transcript` (
+CREATE TABLE IF NOT EXISTS `%TABLE_PREFIX%record_search_key_transcript` (
      `rek_transcript_id` int(11) NOT NULL auto_increment,
      `rek_transcript_pid` varchar(64) default NULL,
      `rek_transcript_xsdmf_id` int(11) default NULL,
@@ -312,7 +312,7 @@ CREATE TABLE IF NOT EXISTS `fez_record_search_key_transcript` (
      FULLTEXT `rek_transcript` (`rek_transcript`),
      KEY `rek_transcript_pid` (`rek_transcript_pid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-CREATE TABLE IF NOT EXISTS `fez_record_search_key_transcript__shadow` (
+CREATE TABLE IF NOT EXISTS `%TABLE_PREFIX%record_search_key_transcript__shadow` (
      `rek_transcript_id` int(11) NOT NULL auto_increment,
      `rek_transcript_stamp` datetime,
       `rek_transcript_pid` varchar(64) default NULL,
