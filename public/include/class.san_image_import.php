@@ -1,6 +1,7 @@
 <?php
 
 include_once(dirname(dirname(__FILE__)).DIRECTORY_SEPARATOR."config.inc.php");
+require_once(__DIR__ . '/class.batchimport.php');
 require_once(__DIR__ . '/class.record.php');
 
 /**
@@ -11,6 +12,7 @@ class San_image_import
 {
   private $_importBgp;
   private $_log;
+  private $_filesCleanup;
 
   public function __construct() {
 
@@ -22,15 +24,16 @@ class San_image_import
    * collection was selected in a batch import workflow
    *
    * @param BackgroundProcess $bgp The background process which triggered this import
-   * @param string $directory The SAN directory of files to import
+   * @param array $files
    * @param int $xdis_id The type of document
    * @param string $collection_pid The collection being imported into
    * @param array $dsarray An array of template fields
    * @return bool True if the import succeeded, otherwise false
    */
-  public function batchImport(&$bgp, $directory, $xdis_id, $collection_pid, $dsarray)
+  public function batchImport(&$bgp, $files, $xdis_id, $collection_pid, $dsarray)
   {
     $this->_log = FezLog::get();
+    $this->_filesCleanup = [];
     // Expect to be run in the context of a background process.
     if (! $bgp || ! $bgp instanceof BackgroundProcess) {
       $this->_log->err('San image batch import - not running within a background process.');
@@ -38,9 +41,9 @@ class San_image_import
     }
     $this->_importBgp = $bgp;
 
-    // Expect a valid import directory.
-    if (! is_dir($directory)) {
-      $error = 'San image batch import - the batch import directory "' . $directory . '" does not exist.';
+    // Expect a list of files to import.
+    if (count($files) === 0) {
+      $error = 'San image batch import - no file to import.';
       $this->_importBgp->setStatus($error);
       $this->_log->err($error);
       return false;
@@ -56,7 +59,6 @@ class San_image_import
     }
 
     // Get a list of file names ending in *_ingest.csv.
-    $files = Misc::getFileList($directory, true, true);
     $metadata_files = array();
     foreach ($files as $file) {
       if (Misc::endsWith(strtolower($file), '_ingest.csv')) {
@@ -72,7 +74,7 @@ class San_image_import
     }
 
     if (count($metadata_files) === 0) {
-      $error = 'San image batch import - no metadata files found in directory "' . $directory . '".';
+      $error = 'San image batch import - no metadata files found".';
       $this->_importBgp->setStatus($error);
       $this->_log->err($error);
       return false;
@@ -107,6 +109,13 @@ class San_image_import
       $count++;
     }
 
+    // Cleanup
+    foreach ($this->_filesCleanup as $file) {
+      if (is_file($file)) {
+        unlink($file);
+      }
+    }
+
     return true;
   }
 
@@ -119,11 +128,19 @@ class San_image_import
   private function _parseBatchImportMetadataFile($file)
   {
     $importData = array();
+
+    $tempDir = APP_TEMP_DIR . '/';
+    $importFromDir = dirname($file) . '/';
+    BatchImport::getFileContent($file, $tempDir . basename($file));
+    $file = $tempDir . basename($file);
+
     if (! is_file($file)) {
+      $this->_log->err('San image batch import - the metadata file was unable to be imported.');
       return false;
     }
     $handle = fopen($file, 'r');
     if (! $handle) {
+      $this->_log->err('San image batch import - the metadata file was unable to be opened.');
       return false;
     }
 
@@ -163,18 +180,21 @@ class San_image_import
             $k = $headings[$i];
             $values[$k] = trim($data[$i]);
           }
-          $values['ImportDirectory'] = dirname($file) . '/';
-          if (!is_file($values['ImportDirectory'] . $values['Filename 1'])) {
-            $this->_log->err('San image batch import - the jpg file ' . $values['Filename 1'] . ' was not found.');
-            return false;
-          }
-          if (!is_file($values['ImportDirectory'] . $values['Filename 2'])) {
-            $this->_log->err('San image batch import - the tif file ' . $values['Filename 2'] . '  was not found.');
-            return false;
-          }
-          if (!empty($values['Filename 3']) && !is_file($values['ImportDirectory'] . $values['Filename 3'])) {
-            $this->_log->err('San image batch import - the 2nd tif file ' . $values['Filename 3'] . '  was not found.');
-            return false;
+          $values['ImportDirectory'] = $tempDir;
+
+          for ($i = 1; $i <= 3; $i++) {
+            if (!empty($values['Filename ' . $i])) {
+              // Attempt to get the file if it doesn't exist
+              if (!is_file($values['ImportDirectory'] . $values['Filename ' . $i])) {
+                BatchImport::getFileContent($importFromDir . $values['Filename ' . $i], $tempDir . $values['Filename ' . $i]);
+              }
+              // Check the file was imported
+              if (!is_file($values['ImportDirectory'] . $values['Filename ' . $i])) {
+                $this->_log->err('San image batch import - the file ' . $values['Filename ' . $i] . '  was not found.');
+                return false;
+              }
+              $this->_filesCleanup[] = $values['ImportDirectory'] . $values['Filename ' . $i];
+            }
           }
 
           $importData[] = $values;
@@ -363,24 +383,27 @@ class San_image_import
     $pid = $record->fedoraInsertUpdate(array(), array(), $params);
 
     BatchImport::handleStandardFileImport(
-        $pid,
-        $recData['ImportDirectory'] . $recData['Filename 1'],
-        $recData['Filename 1'],
-        $xdis_id
+      $pid,
+      $recData['ImportDirectory'] . $recData['Filename 1'],
+      $recData['Filename 1'],
+      $xdis_id,
+      true
     );
     BatchImport::handleStandardFileImport(
-        $pid,
-        $recData['ImportDirectory'] . $recData['Filename 2'],
-        $recData['Filename 2'],
-        $xdis_id
+      $pid,
+      $recData['ImportDirectory'] . $recData['Filename 2'],
+      $recData['Filename 2'],
+      $xdis_id,
+      true
     );
 
     if (!empty($recData['Filename 3'])) {
       BatchImport::handleStandardFileImport(
-          $pid,
-          $recData['ImportDirectory'] . $recData['Filename 3'],
-          $recData['Filename 3'],
-          $xdis_id
+        $pid,
+        $recData['ImportDirectory'] . $recData['Filename 3'],
+        $recData['Filename 3'],
+        $xdis_id,
+        true
       );
     }
 

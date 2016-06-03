@@ -76,7 +76,7 @@ if(is_numeric($record->depositor)) {
 
 	$mail = new Mail_API;
 	$mail->setTextBody(stripslashes($email_txt));
-	$subject = '['.APP_NAME.'] - Your submission has been completed';
+	$subject = '['.APP_NAME.'] - Your upload has been completed';
 	$from = APP_EMAIL_SYSTEM_FROM_ADDRESS;
 	$to = $usrDetails['usr_email'];
 	$mail->send($from, $to, $subject, false);

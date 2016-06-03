@@ -51,6 +51,7 @@ class BackgroundProcess_Match_Uq_Tiered_Journals extends BackgroundProcess
     $m = new UQTJL();
     // Cron job is currently configured to run matching with the defaults.
     // $m->runType = $runType;
+    $m->setBGP($this);
     $m->matchAll();
 
     $this->setState(BGP_FINISHED);

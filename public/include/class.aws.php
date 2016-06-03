@@ -502,19 +502,21 @@ class AWS
   /**
    * @param string $src
    * @param string $id
+   * @param array $params
    * @return Json Response
    */
-  public function getFileContent($src, $id, $versionId = NULL)
+  public function getFileContent($src, $id, $params = [])
   {
     try {
       $client = $this->sdk->createS3();
+      $key = empty($src) ? $id :  $src . '/' . $id;
 
       $args = array(
           'Bucket' => $this->s3Bucket,
-          'Key' => $src . '/'. $id,
+          'Key' => $key
       );
-      if (!is_null($versionId)) {
-        $args['VersionId'] = $versionId;
+      if (count($params) > 0) {
+        $args = array_merge($args, $params);
       }
       $result = $client->getObject($args);
     } catch (\Aws\S3\Exception\S3Exception $e) {
@@ -522,6 +524,29 @@ class AWS
       return "";
     }
     return (string) $result['Body'];
+  }
+
+  /**
+   * @param string $prefix
+   * @return array
+   */
+  public function listObjectsInBucket($prefix)
+  {
+    $objects = [];
+    try {
+      $client = $this->sdk->createS3();
+
+      $result = $client->listObjects([
+        'Bucket' => AWS_S3_BUCKET,
+        'Prefix' => $prefix,
+      ]);
+
+      return $result['Contents'];
+
+    } catch (\Aws\S3\Exception\S3Exception $e) {
+      $this->log->err($e->getMessage());
+    }
+    return $objects;
   }
 
   /**

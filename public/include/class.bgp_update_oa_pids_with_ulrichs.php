@@ -39,7 +39,7 @@ class BackgroundProcess_Update_Oa_Pids_With_Ulrichs extends BackgroundProcess
   {
     parent::__construct();
     $this->include = 'class.bgp_update_oa_pids_with_ulrichs.php';
-    $this->name = 'Check links';
+    $this->name = 'Update OA PIDs with Ulrichs';
   }
 
   function run() {

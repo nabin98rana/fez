@@ -82,12 +82,7 @@ if ($access_ok) {
     $tpl->assign("pid", $pid);
 
     //open the current directory
-    $directory = opendir(APP_SAN_IMPORT_DIR);
-    while (false !== ($file = readdir($directory))) {
-        if (!is_numeric(strpos($file, "."))) {
-            $filenames[$file] = $file;
-        }
-    }
+    $filenames = BatchImport::getImportDirs();
 
     uasort($filenames, 'strnatcasecmp');
     $tpl->assign("filenames", $filenames);
