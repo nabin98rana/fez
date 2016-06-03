@@ -1,14 +1,14 @@
 <?php
 
 /**
- * This script is intended to be run once, when the site owner is ready to switch off Fedora 
- * for good. A series of schema changes will be triggered, and Fedora-bypass functionality 
+ * This script is intended to be run once, when the site owner is ready to switch off Fedora
+ * for good. A series of schema changes will be triggered, and Fedora-bypass functionality
  * will be activated.
- * 
+ *
  * Developers working on the Fedora phase-out should add any necessary functions to this file.
  * In staging, you may find it useful to comment out anything you've already run, while testing
  * new upgrade code in this script.
- * 
+ *
  * I've like to thank my parents.
  **/
 
@@ -156,14 +156,16 @@ foreach ($searchKeys as $sk) {
 		} catch (Exception $ex) {
 			echo " - ERROR - Could not truncate " . $sk['sek_title_db']. "\n";
 		}
-		echo "* Adding joint primary key to fez_record_search_key_" . $sk['sek_title_db'] . "__shadow";
-		$stmt = "ALTER TABLE fez_record_search_key_" . $sk['sek_title_db'] . "__shadow ADD UNIQUE KEY (rek_" . $sk['sek_title_db'] . "_pid, rek_" . $sk['sek_title_db'] . "_stamp);";
-		try {
-			$db->exec($stmt);
-		} catch (Exception $ex) {
-			echo " - FAILED\n";
+		if ($sk['sek_cardinality'] == '0') {
+			echo "* Adding joint primary key to fez_record_search_key_" . $sk['sek_title_db'] . "__shadow";
+			$stmt = "ALTER TABLE fez_record_search_key_" . $sk['sek_title_db'] . "__shadow ADD UNIQUE KEY (rek_" . $sk['sek_title_db'] . "_pid, rek_" . $sk['sek_title_db'] . "_stamp);";
+			try {
+				$db->exec($stmt);
+			} catch (Exception $ex) {
+				echo " - FAILED\n";
+			}
+			echo "\n";
 		}
-		echo "\n";
 	}
 }
 
