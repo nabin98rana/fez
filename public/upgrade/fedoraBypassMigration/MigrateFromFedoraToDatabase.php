@@ -770,7 +770,7 @@ class MigrateFromFedoraToDatabase
 
         $tableName = APP_TABLE_PREFIX . "record_search_key" . $this->_shadowTableSuffix;
 
-        $stmt = "SHOW INDEX FROM ". $tableName ." WHERE Non_unique = 0";
+        $stmt = "SHOW INDEX FROM ". $tableName ." WHERE Non_unique = 0 AND Key_name != 'PRIMARY'";
         $uniqueIndex = $this->_db->fetchRow($stmt);
 
         if (is_array($uniqueIndex) && sizeof($uniqueIndex)>0){
@@ -778,11 +778,10 @@ class MigrateFromFedoraToDatabase
             try {
                 $this->_db->exec($stmt);
             } catch (Exception $ex) {
-                echo chr(10) . " <br /> No constraint to remove. " . $stmt ;
+                echo chr(10) . " <br /> No unique constraint to remove. " . $stmt ;
             }
             echo "ok!\n";
         }
-
 
         // We are removing primary key on shadow because PID is serving as primary key on the core search key table.
         echo "* Removing primary key constraint from fez_record_search_key__shadow ... ";
@@ -807,8 +806,17 @@ class MigrateFromFedoraToDatabase
         try {
             $this->_db->exec($stmt);
         } catch (Exception $ex) {
-            echo "<br />No constraint to remove ";
+            echo "<br />No unique constraint to remove ";
             return false;
+        }
+        echo "ok!\n";
+
+
+        $stmt = "DROP INDEX unique_constraint_pid_order ON ". $tableName .";";
+        try {
+            $this->_db->exec($stmt);
+        } catch (Exception $ex) {
+            echo chr(10) . " <br /> No unique pid order constraint to remove. " . $stmt ;
         }
         echo "ok!\n";
 
