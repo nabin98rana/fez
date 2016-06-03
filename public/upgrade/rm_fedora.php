@@ -18,6 +18,9 @@ include_once(APP_INC_PATH . "class.search_key.php");
 
 echo "WELCOME TO THE WORLD OF TOMORROW!\n\n";
 
+echo "... well this was rewritten to something else so this will exit now";
+exit;
+
 $log = FezLog::get();
 $db = DB_API::get();
 
