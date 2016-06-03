@@ -129,14 +129,18 @@ class San_image_import
   {
     $importData = array();
 
-    $temp_dir = APP_TEMP_DIR . '/';
-    BatchImport::getFileContent($file, $temp_dir . basename($file));
+    $tempDir = APP_TEMP_DIR . '/';
+    $importFromDir = dirname($file) . '/';
+    BatchImport::getFileContent($file, $tempDir . basename($file));
+    $file = $tempDir . basename($file);
 
     if (! is_file($file)) {
+      $this->_log->err('San image batch import - the metadata file was unable to be imported.');
       return false;
     }
     $handle = fopen($file, 'r');
     if (! $handle) {
+      $this->_log->err('San image batch import - the metadata file was unable to be opened.');
       return false;
     }
 
@@ -176,14 +180,17 @@ class San_image_import
             $k = $headings[$i];
             $values[$k] = trim($data[$i]);
           }
-          $values['ImportDirectory'] = $temp_dir;
-          $importFromDir = dirname($file);
+          $values['ImportDirectory'] = $tempDir;
 
           for ($i = 1; $i <= 3; $i++) {
             if (!empty($values['Filename ' . $i])) {
-              BatchImport::getFileContent($importFromDir . $values['Filename ' . $i], $temp_dir . $values['Filename ' . $i]);
+              // Attempt to get the file if it doesn't exist
               if (!is_file($values['ImportDirectory'] . $values['Filename ' . $i])) {
-                $this->_log->err('San image batch import - the tif file ' . $values['Filename ' . $i] . '  was not found.');
+                BatchImport::getFileContent($importFromDir . $values['Filename ' . $i], $tempDir . $values['Filename ' . $i]);
+              }
+              // Check the file was imported
+              if (!is_file($values['ImportDirectory'] . $values['Filename ' . $i])) {
+                $this->_log->err('San image batch import - the file ' . $values['Filename ' . $i] . '  was not found.');
                 return false;
               }
               $this->_filesCleanup[] = $values['ImportDirectory'] . $values['Filename ' . $i];
@@ -376,24 +383,27 @@ class San_image_import
     $pid = $record->fedoraInsertUpdate(array(), array(), $params);
 
     BatchImport::handleStandardFileImport(
-        $pid,
-        $recData['ImportDirectory'] . $recData['Filename 1'],
-        $recData['Filename 1'],
-        $xdis_id
+      $pid,
+      $recData['ImportDirectory'] . $recData['Filename 1'],
+      $recData['Filename 1'],
+      $xdis_id,
+      true
     );
     BatchImport::handleStandardFileImport(
-        $pid,
-        $recData['ImportDirectory'] . $recData['Filename 2'],
-        $recData['Filename 2'],
-        $xdis_id
+      $pid,
+      $recData['ImportDirectory'] . $recData['Filename 2'],
+      $recData['Filename 2'],
+      $xdis_id,
+      true
     );
 
     if (!empty($recData['Filename 3'])) {
       BatchImport::handleStandardFileImport(
-          $pid,
-          $recData['ImportDirectory'] . $recData['Filename 3'],
-          $recData['Filename 3'],
-          $xdis_id
+        $pid,
+        $recData['ImportDirectory'] . $recData['Filename 3'],
+        $recData['Filename 3'],
+        $xdis_id,
+        true
       );
     }
 
