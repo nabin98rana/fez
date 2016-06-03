@@ -38,6 +38,14 @@
           "value": "<COMMIT_HASH>"
         },
         {
+          "name": "JAVA_HOME",
+          "value": "/usr/lib/jvm/jre"
+        },
+        {
+          "name": "JHOVE_HOME",
+          "value": "/usr/local/jhove"
+        },
+        {
           "name": "NEWRELIC_LICENSE",
           "value": "<NEWRELIC_LICENSE>"
         },
