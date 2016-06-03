@@ -503,7 +503,7 @@ class Fedora_API implements FedoraApiInterface {
 
 		$aws = AWS::get();
 		$dataPath = Fedora_API::getDataPath($pid);
-		$return['stream'] = $aws->getFileContent($dataPath, $dsID, $asofDateTime);
+		$return['stream'] = $aws->getFileContent($dataPath, $dsID, array("VersionId" => $asofDateTime));
 
 		return $return;
 	}

@@ -1183,6 +1183,19 @@ class XSD_DisplayObject
 				foreach ($xsdmf_array as $xsdmf_id) {
 					$return_pid[$xsdmf_id] = $value;
 				}
+				//Add a lookup for all the files in S3/bypass dir
+				// need the full get datastreams to get the Managed Content 'M' - binary datastream from S3/ds resource
+				$datastreams = Fedora_API::callGetDatastreams($pid);
+				foreach ($datastreams as $ds_value) {
+					// get the matchfields for the FezACML of the datastream if any exists
+					if (isset($ds_value['controlGroup']) && $ds_value['controlGroup'] == 'M') {
+						$xsdmf_id = XSD_HTML_Match::getXSDMF_IDByElementSEL_Title("!datastream!ID", "File_Attachment", $this->xdis_id);
+						if (!is_array(@$return_pid[$xsdmf_id])) {
+							$return_pid[$xsdmf_id] = array();
+						}
+						array_push($return_pid[$xsdmf_id], $ds_value['ID']);
+					}
+				}
 			}
 			$this->xsdmf_array[$pid] = $return_pid;
 			return ($return_pid);
