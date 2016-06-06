@@ -50,11 +50,11 @@ class InternalNotes
 	/**
 	 * Read and return the note for the requested PID.
 	 */
-	function readNote($pid)
+	public static function readNote($pid)
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		$stmt = "SELECT
 					ain_detail
 				 FROM
@@ -62,16 +62,16 @@ class InternalNotes
 				 WHERE
 						ain_pid = " . $db->quote($pid) . ";";
 		try {
-			$res = $db->fetchOne($stmt);			
+			$res = $db->fetchOne($stmt);
 		} catch(Exception $ex) {
 			$log->err($ex);
 			return;
 		}
-		
+
 		return $res;
 	}
 
-  function readNotes(&$result)
+  public static function readNotes(&$result)
   {
     $log = FezLog::get();
     $db = DB_API::get();
@@ -96,7 +96,7 @@ class InternalNotes
       $log->err($ex);
       return false;
     }
-    
+
     $t = array();
     for ($i = 0; $i < count($res); $i++) {
       $t[$res[$i]["ain_pid"]] =  $res[$i]["ain_detail"];
@@ -108,18 +108,18 @@ class InternalNotes
     }
   }
 
-	
+
 	/**
-	 * Clear the note entirely (sufficient to handle empty/deleted note), and possibly write 
+	 * Clear the note entirely (sufficient to handle empty/deleted note), and possibly write
 	 * in the new note, if one has been supplied.
 	 */
-	function recordNote($pid, $note)
+	public static function recordNote($pid, $note)
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		InternalNotes::clearNote($pid); // Murder, Death, Kill.
-		
+
 		if ($note !== '') {
 
 			$stmt = "INSERT INTO
@@ -138,7 +138,7 @@ class InternalNotes
 				return false;
 			}
 		}
-		
+
 		return;
 	}
 
@@ -149,19 +149,19 @@ class InternalNotes
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		$stmt = "DELETE FROM
 					" . APP_TABLE_PREFIX . "internal_notes
 				 WHERE
 					ain_pid = " . $db->quote($pid) . ";";
-		
+
 		try {
 			$db->query($stmt);
 		} catch(Exception $ex) {
 			$log->err($ex);
 			return false;
 		}
-		
+
 		return;
 	}
 
@@ -171,11 +171,11 @@ class InternalNotes
 	function moveNote($oldPID, $newPID)
 	{
 		// TODO: This function has not yet been implemented.
-		/* Description of functionality required: 
+		/* Description of functionality required:
 			1a. Append the existing note attached to oldPID to the note of newPID, OR
 			1b. Write oldPID's note to newPID's note if no newPID yet. THEN
 			1. Delete $oldPID's note.
 		*/
 	}
-	
+
 }

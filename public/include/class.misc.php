@@ -1522,7 +1522,7 @@ public static function multi_implode($glue, $pieces)
    * @param   array $array
    * @return  string $return_str
    */
-  function sql_array_to_string($array)
+  public static function sql_array_to_string($array)
   {
     $return_str = "";
     $existing_array = array();
@@ -1587,7 +1587,7 @@ public static function multi_implode($glue, $pieces)
    * @param   array $existingDatastreams Optional Used to check for any "Link" hyperlink datastreams
    * @return  array $return
    */
-  function getDatastreamXMLHeaders($datastreamTitles, $xmlString, $existingDatastreams = array())
+  public static function getDatastreamXMLHeaders($datastreamTitles, $xmlString, $existingDatastreams = array())
   {
     $log = FezLog::get();
 
@@ -1957,7 +1957,7 @@ public static function multi_implode($glue, $pieces)
    * @param   array $existingDatastreams
    * @return  integer 1 on success, 0 on failure
    */
-  function purgeExistingLinks($pid, $existingDatastreams)
+  public static function purgeExistingLinks($pid, $existingDatastreams)
   {
     $max_link = 0;
     $new_max_link = 0;
@@ -2007,7 +2007,7 @@ public static function multi_implode($glue, $pieces)
    * @param   string $xmlString The FOXML object xml string
    * @return  array $return
    */
-  function getDatastreamXMLContent($datastreamTitles, $xmlString)
+  public static function getDatastreamXMLContent($datastreamTitles, $xmlString)
   {
     $log = FezLog::get();
 
@@ -2107,7 +2107,7 @@ public static function multi_implode($glue, $pieces)
    *                            traversals so the correct XSDMF_ID is found
    * @return  void (Uses $array and $xsdmf_array passed as reference recursively)
    */
-  function dom_xml_to_simple_array(
+  public static function dom_xml_to_simple_array(
       $domnode, &$array, $top_element_name, $element_prefix, &$xsdmf_array, $xdis_id, $parentContent="", $parent_key=""
   )
   {
@@ -3261,7 +3261,7 @@ public static function multi_implode($glue, $pieces)
    * @param   string $pid The persistent identifier
    * @return  array $res
    */
-  function getSchemaSubAttributes($a, $top_element_name, $xdis_id, $pid)
+  public static function getSchemaSubAttributes($a, $top_element_name, $xdis_id, $pid)
   {
     $res = "";
     foreach ($a[$top_element_name] as $i => $j) {
@@ -4114,7 +4114,7 @@ public static function multi_implode($glue, $pieces)
     return $new_filename;
   }
 
-  function hasPrefix($string, $pre)
+  public static function hasPrefix($string, $pre)
   {
     return strpos($string, $pre) === 0;
   }

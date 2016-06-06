@@ -918,7 +918,6 @@ class Record
    */
   function update($pid, $exclude_list=array(), $specify_list=array())
   {
-    $log = FezLog::get();
 
     $record = new RecordObject($pid);
     $ret = $record->fedoraInsertUpdate($exclude_list, $specify_list);
@@ -1095,7 +1094,7 @@ class Record
    * @param   bool $remove_solr should this record be also removed from solr (defaults to true)
    * @return  void
    */
-  function removeIndexRecord($pid, $remove_solr=true, $shadow = false, $date='')
+  public static function removeIndexRecord($pid, $remove_solr=true, $shadow = false, $date='')
   {
     $log = FezLog::get();
     $db = DB_API::get();
@@ -1242,7 +1241,7 @@ class Record
    * Updates a PID's search keys values.
    * When specified, update the search key shadow table.
    *
-   * @param string $pid Targetted PID
+   * @param string $pid Targeted PID
    * @param array $sekData Array of search key names & values pair.
    * The format value for $sekData = array(
    *                                       [0] => Array of 1-to-1 search keys
@@ -1252,7 +1251,7 @@ class Record
    * @param boolean $updateTS Record update timestamp
    * @return boolean The result of the update. True if successful, false otherwise.
    */
-  function updateSearchKeys($pid, $sekData, $shadow = false, $updateTS = false)
+  public static function updateSearchKeys($pid, $sekData, $shadow = false, $updateTS = false)
   {
     $log = FezLog::get();
     $db = DB_API::get();
@@ -1724,7 +1723,7 @@ class Record
    * @param   string $pid The persistent identifier of the object
    * @return  void
    */
-  function setIndexMatchingFields($pid)
+  public static function setIndexMatchingFields($pid)
   {
     $log = FezLog::get();
     $record = new RecordObject($pid);
@@ -1897,7 +1896,7 @@ class Record
    * @return array  the pid and their details ie. title, description etc
    * @access public
    */
-  function getDetailsLite($pid)
+  public static function getDetailsLite($pid)
   {
     $log = FezLog::get();
     $db = DB_API::get();
@@ -2038,7 +2037,7 @@ class Record
    * @param string $options The search parameters
    * @return array $res2 The index details of records associated with the search params
    */
-  function getListing(
+  public static function getListing(
       $options, $approved_roles=array(9,10), $current_page=0,$page_rows="ALL", $sort_by="Title",
       $getSimple=false, $citationCache=false, $filter=array(), $operator='AND', $use_faceting = false,
       $use_highlighting = false, $doExactMatch = false, $facet_limit = APP_SOLR_FACET_LIMIT,
@@ -4250,7 +4249,6 @@ function getSearchKeyIndexValueShadow($pid, $searchKeyTitle, $getLookup=true, $s
 
   function buildSearchKeyJoins($options, $sort_by, $operator, $filter)
   {
-    $log = FezLog::get();
     $db = DB_API::get();
 
     $searchKey_join = array();
@@ -4276,9 +4274,8 @@ function getSearchKeyIndexValueShadow($pid, $searchKeyTitle, $getLookup=true, $s
         $searchKey_join[SK_WHERE] .= " ".$value." AND ";
       }
     }
-
-    $joinType = "";
-    $x = 0;
+    $where_stmt = "";
+    $kw_where_stmt = "";
     $sortRestriction = "";
     $dbtp =  APP_TABLE_PREFIX; // Database and table prefix
                                // only mysql supports db prefixing, so will remove it - no reason not to
@@ -4377,8 +4374,6 @@ function getSearchKeyIndexValueShadow($pid, $searchKeyTitle, $getLookup=true, $s
 
         $options["sql"] = array();
         $temp_value = "";
-        $joinID = '';
-        $sqlColumnName = '';
         $operatorToUse = trim($operator);
 
         /*
@@ -5304,7 +5299,7 @@ function getSearchKeyIndexValueShadow($pid, $searchKeyTitle, $getLookup=true, $s
    * @return  void
    * @uses Record::insertFromTemplate()
    */
-  function insertXML($pid, $dsarray, $ingestObject)
+  public static function insertXML($pid, $dsarray, $ingestObject)
   {
     $log = FezLog::get();
     $db = DB_API::get();
@@ -5686,7 +5681,7 @@ function getSearchKeyIndexValueShadow($pid, $searchKeyTitle, $getLookup=true, $s
    * @param string $pid
    * @param string $dsIDName
    */
-  function generatePresmd($pid, $dsIDName)
+  public static function generatePresmd($pid, $dsIDName)
   {
     //Jhove
     $ncName = Foxml::makeNCName($dsIDName);
@@ -6081,7 +6076,7 @@ function getSearchKeyIndexValueShadow($pid, $searchKeyTitle, $getLookup=true, $s
    * @param string $newLabel
    * @return void
    **/
-  public function updateDatastreamLabel($pid, $dsID, $newLabel)
+  public static function updateDatastreamLabel($pid, $dsID, $newLabel)
   {
     $currentDetails = Fedora_API::callGetDatastream($pid, $dsID);
     Fedora_API::callModifyDatastreamByReference(

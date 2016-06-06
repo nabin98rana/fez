@@ -267,7 +267,7 @@ class Workflow
 	 * @param string filename - the name of the file being ingested as a datastream
 	 * @return name of preservation metadata temporary file (it is not automatically ingested as a datastream).
 	 */
-	function checkForPresMD($filename)
+	public static function checkForPresMD($filename)
 	{
 		$getString = APP_BASE_URL."webservices/wfb.presmd.php?file=".urlencode($filename);
 		$val = Misc::ProcessURL($getString);
@@ -465,7 +465,7 @@ class Workflow
 	 * @param string dsID - the datastream id (usually a filename)
 	 * @param string mimetype - the mimetype of the datastream
 	 */
-	function processIngestTrigger($pid, $dsID, $mimetype)
+	public static function processIngestTrigger($pid, $dsID, $mimetype)
 	{
 		// find first matching trigger
 

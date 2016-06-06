@@ -700,7 +700,7 @@ class WorkflowStatusStatic
    *                         to a previous workflow step)
    * @return object WorkflowStatus object.
    */
-  function getSession($id = null, $usr_id = null, $wfs_id = null)
+  public static function getSession($id = null, $usr_id = null, $wfs_id = null)
   {
     $log = FezLog::get();
     $db = DB_API::get();
@@ -753,7 +753,7 @@ class WorkflowStatusStatic
     return $obj;
   }
 
-  function getList($usr_id = null)
+  public static function getList($usr_id = null)
   {
     $log = FezLog::get();
     $db = DB_API::get();
@@ -790,7 +790,7 @@ class WorkflowStatusStatic
    * @param string $pid
    * @return integer
    **/
-  public function getCountForPid($pid)
+  public static function getCountForPid($pid)
   {
     $log = FezLog::get();
     $db = DB_API::get();
@@ -805,7 +805,7 @@ class WorkflowStatusStatic
    *
    * @return void
    **/
-  public function getWorkflowDetailsForPid($pid)
+  public static function getWorkflowDetailsForPid($pid)
   {
     $log = FezLog::get();
     $db = DB_API::get();
@@ -849,7 +849,7 @@ class WorkflowStatusStatic
    * @param integer $usr_id - database id of user
    * @return integer 1 for success, -1 for failure.
    */
-  function remove($id = null, $usr_id = null)
+  public static function remove($id = null, $usr_id = null)
   {
     $log = FezLog::get();
     $db = DB_API::get();
@@ -874,7 +874,7 @@ class WorkflowStatusStatic
     return 1;
   }
 
-  function cleanOld()
+  public static function cleanOld()
   {
     $log = FezLog::get();
     $db = DB_API::get();

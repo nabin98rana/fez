@@ -45,7 +45,7 @@ class Fedora_API implements FedoraApiInterface {
 	 *
 	 * @return string $pid The next available PID in from the PID handler
 	 */
-	public function getNextPID()
+	public static function getNextPID()
 	{
 		$digObj = new DigitalObject();
 		$pid = $digObj->save(array());
@@ -58,7 +58,7 @@ class Fedora_API implements FedoraApiInterface {
 	 * @param string $pid The persistent identifier
 	 * @return string $result The XML of the object
 	 */
-	public function getObjectXML($pid)
+	public static function getObjectXML($pid)
 	{
 
 	}
@@ -69,7 +69,7 @@ class Fedora_API implements FedoraApiInterface {
 	 * @param string $pid The persistent identifier
 	 * @return array of audit trail
 	 */
-	public function getAuditTrail($pid)
+	public static function getAuditTrail($pid)
 	{
 
 	}
@@ -82,7 +82,7 @@ class Fedora_API implements FedoraApiInterface {
 	 * @param string $pid The persistent identifier
 	 * @return bool
 	 */
-	public function callIngestObject($foxml, $pid = "")
+	public static function callIngestObject($foxml, $pid = "")
 	{
 
 	}
@@ -95,7 +95,7 @@ class Fedora_API implements FedoraApiInterface {
 	 * @param string $context
 	 * @return array
 	 */
-	public function export($pid, $format = "info:fedora/fedora-system:FOXML-1.0", $context = "migrate")
+	public static function export($pid, $format = "info:fedora/fedora-system:FOXML-1.0", $context = "migrate")
 	{
 
 	}
@@ -108,7 +108,7 @@ class Fedora_API implements FedoraApiInterface {
 	 * @param string $query_terms
 	 * @return array
 	 */
-	public function callFindObjects($resultFields = array(
+	public static function callFindObjects($resultFields = array(
 		'pid',
 		'title',
 		'identifier',
@@ -125,7 +125,7 @@ class Fedora_API implements FedoraApiInterface {
 	 * @param string $token
 	 * @return array
 	 */
-	public function callResumeFindObjects($token)
+	public static function callResumeFindObjects($token)
 	{
 
 	}
@@ -147,7 +147,7 @@ class Fedora_API implements FedoraApiInterface {
 	 * @param string $pid The persistent identifier of the object to be purged
 	 * @return bool
 	 */
-	public function callPurgeObject($pid)
+	public static function callPurgeObject($pid)
 	{
 
 	}
@@ -166,7 +166,7 @@ class Fedora_API implements FedoraApiInterface {
 	 * @param bool|string $versionable Whether to version control this datastream or not
 	 * @return string
 	 */
-	public function getUploadLocation($pid, $dsIDName, $file, $dsLabel, $mimetype = 'text/xml', $controlGroup = 'M', $dsID = NULL, $versionable = FALSE)
+	public static function getUploadLocation($pid, $dsIDName, $file, $dsLabel, $mimetype = 'text/xml', $controlGroup = 'M', $dsID = NULL, $versionable = FALSE)
 	{
 		$file_full = $file;
 
@@ -198,7 +198,7 @@ class Fedora_API implements FedoraApiInterface {
 	 * @param bool|string $versionable Whether to version control this datastream or not
 	 * @return integer
 	 */
-	public function getUploadLocationByLocalRef($pid, $dsIDName, $dsLocation, $dsLabel, $mimetype, $controlGroup = 'M', $dsID = NULL, $versionable = FALSE)
+	public static function getUploadLocationByLocalRef($pid, $dsIDName, $dsLocation, $dsLabel, $mimetype, $controlGroup = 'M', $dsID = NULL, $versionable = FALSE)
 	{
 		$success = 0;
 		if (! Zend_Registry::isRegistered('version')) {
@@ -251,7 +251,7 @@ class Fedora_API implements FedoraApiInterface {
 	 * @param int $current_tries A counter of how many times this function has retried the addition of a datastream
 	 * @return void
 	 */
-	public function callAddDatastream($pid, $dsID, $dsLocation, $dsLabel, $dsState, $mimetype, $controlGroup = 'M', $versionable = FALSE, $xmlContent = "", $current_tries = 0)
+	public static function callAddDatastream($pid, $dsID, $dsLocation, $dsLabel, $dsState, $mimetype, $controlGroup = 'M', $versionable = FALSE, $xmlContent = "", $current_tries = 0)
 	{
 		if ($mimetype == "") {
 			$mimetype = "text/xml";
@@ -303,7 +303,7 @@ class Fedora_API implements FedoraApiInterface {
 	 * @param string $dsState The datastream state
 	 * @return array $dsIDListArray The list of datastreams in an array.
 	 */
-	public function callGetDatastreams($pid, $createdDT = NULL, $dsState = 'A')
+	public static function callGetDatastreams($pid, $createdDT = NULL, $dsState = 'A')
 	{
 
 		$aws = AWS::get();
@@ -345,7 +345,7 @@ class Fedora_API implements FedoraApiInterface {
 	 * @param int $current_tries A counter of how many times this function has retried the addition of a datastream
 	 * @return array $dsIDListArray The list of datastreams in an array.
 	 */
-	public function callListDatastreamsLite($pid, $refresh = FALSE, $current_tries = 0)
+	public static function callListDatastreamsLite($pid, $refresh = FALSE, $current_tries = 0)
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
@@ -385,7 +385,7 @@ class Fedora_API implements FedoraApiInterface {
 	 * @param bool $refresh
 	 * @return bool
 	 */
-	public function objectExists($pid, $refresh = FALSE)
+	public static function objectExists($pid, $refresh = FALSE)
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
@@ -424,7 +424,7 @@ class Fedora_API implements FedoraApiInterface {
 	 * @param string $createdDT Date time stamp as a string
 	 * @return array The requested of datastream in an array.
 	 */
-	public function callGetDatastream($pid, $dsID, $createdDT = NULL)
+	public static function callGetDatastream($pid, $dsID, $createdDT = NULL)
 	{
 		$aws = AWS::get();
 		$dataPath = Fedora_API::getDataPath($pid);
@@ -457,7 +457,7 @@ class Fedora_API implements FedoraApiInterface {
 	 * @param bool $pattern a regex pattern to search against if given instead of ==/equivalence
 	 * @return boolean
 	 */
-	public function datastreamExists($pid, $dsID, $refresh = FALSE, $pattern = FALSE)
+	public static function datastreamExists($pid, $dsID, $refresh = FALSE, $pattern = FALSE)
 	{
 		if (Misc::isPid($pid) != true) {
 			return false;
@@ -477,7 +477,7 @@ class Fedora_API implements FedoraApiInterface {
 	 * @param string $dsID The ID of the datastream to be checked
 	 * @return boolean
 	 */
-	public function datastreamExistsInArray($existing_list, $dsID)
+	public static function datastreamExistsInArray($existing_list, $dsID)
 	{
 		$dsExists = false;
 		$rs = $existing_list;
@@ -497,7 +497,7 @@ class Fedora_API implements FedoraApiInterface {
 	 * @param string $asofDateTime Gets a specified version at a datetime stamp
 	 * @return array The datastream returned in an array
 	 */
-	public function callGetDatastreamDissemination($pid, $dsID, $asofDateTime = "")
+	public static function callGetDatastreamDissemination($pid, $dsID, $asofDateTime = "")
 	{
 		$return = array();
 
@@ -518,7 +518,7 @@ class Fedora_API implements FedoraApiInterface {
 	 * @param int $current_tries A counter of how many times this function has retried
 	 * @return array $resultlist The requested of datastream in an array.
 	 */
-	public function callGetDatastreamContents($pid, $dsID, $getraw = FALSE, $filehandle = NULL, $current_tries = 0)
+	public static function callGetDatastreamContents($pid, $dsID, $getraw = FALSE, $filehandle = NULL, $current_tries = 0)
 	{
 		// $filehandle is a legacy arg left here to keep the API intact.
 
@@ -548,7 +548,7 @@ class Fedora_API implements FedoraApiInterface {
 	 * @param string $asOfDateTime Gets a specified version at a datetime stamp
 	 * @return array The requested of datastream in an array.
 	 */
-	public function callGetDatastreamContentsField($pid, $dsID, $returnfields, $asOfDateTime = "")
+	public static function callGetDatastreamContentsField($pid, $dsID, $returnfields, $asOfDateTime = "")
 	{
 		static $counter;
 		if (!isset($counter)) {
@@ -587,13 +587,14 @@ class Fedora_API implements FedoraApiInterface {
 	 * @param bool|string $versionable Whether to version control this datastream or not
 	 * @return void
 	 */
-	public function callModifyDatastreamByValue($pid, $dsID, $state, $label, $dsContent, $mimetype = 'text/xml', $versionable = 'inherit')
+	public static function callModifyDatastreamByValue($pid, $dsID, $state, $label, $dsContent, $mimetype = 'text/xml', $versionable = 'inherit')
 	{
+		$log = FezLog::get();
 		$tempFile = APP_TEMP_DIR . str_replace(":", "_", $pid) . "_" . $dsID . ".xml";
 		$fp = fopen($tempFile, "w");
 		if (fwrite($fp, $dsContent) === FALSE) {
 			$err = "Cannot write to file ($tempFile)";
-			$this->log->err(array($err, __FILE__, __LINE__));
+			$log->err(array($err, __FILE__, __LINE__));
 			exit;
 		}
 		fclose($fp);
@@ -612,7 +613,7 @@ class Fedora_API implements FedoraApiInterface {
 	 * @param bool|string $versionable Whether to version control this datastream or not
 	 * @return void
 	 */
-	public function callModifyDatastreamByReference($pid, $dsID, $dsLabel, $dsLocation = NULL, $mimetype, $versionable = 'inherit')
+	public static function callModifyDatastreamByReference($pid, $dsID, $dsLabel, $dsLocation = NULL, $mimetype, $versionable = 'inherit')
 	{
 			$aws = AWS::get();
 			$dataPath = Fedora_API::getDataPath($pid);
@@ -627,7 +628,7 @@ class Fedora_API implements FedoraApiInterface {
 	 * @param string $label The new label. Null means leave unchanged
 	 * @param string $logMessage A log message
 	 */
-	public function callModifyObject($pid, $state, $label, $logMessage = 'Deleted by Fez')
+	public static function callModifyObject($pid, $state, $label, $logMessage = 'Deleted by Fez')
 	{
 		// This does not need to be implemented because we don't store object state in s3, just datastreams
 	}
@@ -639,7 +640,7 @@ class Fedora_API implements FedoraApiInterface {
 	 * @param string $dsID The ID of the datastream
 	 * @return bool
 	 */
-	public function deleteDatastream($pid, $dsID)
+	public static function deleteDatastream($pid, $dsID)
 	{
 		$aws = AWS::get();
 		$dataPath = Fedora_API::getDataPath($pid);
@@ -657,7 +658,7 @@ class Fedora_API implements FedoraApiInterface {
 	 * @param bool $force
 	 * @return bool
 	 */
-	public function callPurgeDatastream($pid, $dsID, $startDT = NULL, $endDT = NULL, $logMessage = "Purged Datastream from Fez", $force = FALSE)
+	public static function callPurgeDatastream($pid, $dsID, $startDT = NULL, $endDT = NULL, $logMessage = "Purged Datastream from Fez", $force = FALSE)
 	{
 		$aws = AWS::get();
 		$dataPath = Fedora_API::getDataPath($pid);

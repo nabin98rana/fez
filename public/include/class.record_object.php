@@ -151,11 +151,10 @@ class RecordObject extends RecordGeneral
    * Process a submitted record insert or update form
    *
    * @access  public
-   * @return  void
+   * @return  string - pid
    */
   function fedoraInsertUpdate($exclude_list = array(), $specify_list = array(), $params = array())
   {
-    $log = FezLog::get();
 
     if (!empty($params)) {
       // dirty double hack as this function and all the ones it calls assumes this is
@@ -322,12 +321,29 @@ class RecordObject extends RecordGeneral
 
             Record::generatePresmd($this->pid, $new_dsID);
           }
-          if (count($fileNames) > 0) {
-            $xsdmf_id = XSD_HTML_Match::getXSDMF_IDBySekIDXDIS_ID(Search_Key::getID('File Attachment Name'), $xdis_str);
-            $xsd_display_fields[1]['file_attachment_name'] = array('xsdmf_id' => $xsdmf_id[0], 'xsdmf_value' => $fileNames);
-          }
+          // replace this with a get datastreams loop, file_attachment_name regen
+//          if (count($fileNames) > 0) {
+//            $xsdmf_id = XSD_HTML_Match::getXSDMF_IDBySekIDXDIS_ID(Search_Key::getID('File Attachment Name'), $xdis_str);
+//            $xsd_display_fields[1]['file_attachment_name'] = array('xsdmf_id' => $xsdmf_id[0], 'xsdmf_value' => $fileNames);
+//          }
         }
       }
+      // Check for all the existing files in case there are thumbs/presmds etc not indexed
+      $datastreams = Fedora_API::callGetDatastreams($this->pid);
+      foreach ($datastreams as $ds_value) {
+        // get the matchfields for the FezACML of the datastream if any exists
+        if (isset($ds_value['controlGroup']) && $ds_value['controlGroup'] == 'M') {
+          if (!is_array($xsd_display_fields[1]['file_attachment_name'])) {
+            $xsd_display_fields[1]['file_attachment_name'] = array();
+            if (!is_array($xsd_display_fields[1]['file_attachment_name']['xsdmf_value'])) {
+              $xsd_display_fields[1]['file_attachment_name']['xsdmf_value'] = array();
+            }
+            $xsd_display_fields[1]['file_attachment_name']['xsdmf_id'] = XSD_HTML_Match::getXSDMF_IDBySekIDXDIS_ID(Search_Key::getID('File Attachment Name'), $xdis_str);
+          }
+          array_push($xsd_display_fields[1]['file_attachment_name']['xsdmf_value'], $ds_value['ID']);
+        }
+      }
+
 
 //            Record::removeIndexRecord($this->pid, false);
       Record::updateSearchKeys($this->pid, $xsd_display_fields, false, $now); //into the non-shadow tables
@@ -349,14 +365,21 @@ class RecordObject extends RecordGeneral
         }
       }
 
-
       //Mark any files required for deletion.
-      if (isset($_POST['removeFiles'])) {
-        $dresource = new DSResource();
+      if (defined('AWS_S3_ENABLED') && AWS_S3_ENABLED == 'true') {
+        if (isset($_POST['removeFiles'])) {
+          foreach ($_POST['removeFiles'] as $removeFile) {
+            Fedora_API::deleteDatastream($this->pid, $removeFile);
+          }
+        }
+      } else {
+        if (isset($_POST['removeFiles'])) {
+          $dresource = new DSResource();
 
-        foreach ($_POST['removeFiles'] as $removeFile) {
-          $dresource->load($removeFile, $this->pid);
-          $dresource->dereference();
+          foreach ($_POST['removeFiles'] as $removeFile) {
+            $dresource->load($removeFile, $this->pid);
+            $dresource->dereference();
+          }
         }
       }
 
@@ -472,6 +495,10 @@ class RecordObject extends RecordGeneral
     InternalNotes::recordNote($this->pid, $fauxPost['internal_notes']);
   }
 
+  /**
+   * @param $mimetype
+   * @return array List
+   */
   function getIngestTrigger($mimetype)
   {
     $this->getXmlDisplayId();

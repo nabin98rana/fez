@@ -295,7 +295,7 @@ class FezACML
 		return $res;
 	}
 
-	function getFezACMLDSName($dsID)
+	public static function getFezACMLDSName($dsID)
 	{
 		$FezACML_dsID = "FezACML_".str_replace(" ", "_", $dsID).".xml";
 		return $FezACML_dsID;

@@ -95,7 +95,7 @@ class RecordGeneral
    * Retrieve the display id for this record
    *
    * @access  public
-   * @return  void
+   * @return  integer
    */
   function getXmlDisplayId($getFromXML = false)
   {
@@ -227,7 +227,7 @@ class RecordGeneral
    * @param  array $roles The allowed roles to access the object
    * @param  $redirect
    * @access  public
-   * @return  void
+   * @return  boolean
    */
   function checkAuth($roles, $redirect=true)
   {
@@ -246,7 +246,7 @@ class RecordGeneral
    *
    * @access  public
    * @param  $redirect
-   * @return  void
+   * @return  boolean
    */
   function canView($redirect=true)
   {
@@ -288,7 +288,7 @@ class RecordGeneral
    *
    * @access  public
    * @param  $redirect
-   * @return  void
+   * @return  boolean
    */
   function canEdit($redirect=false)
   {
@@ -337,7 +337,7 @@ class RecordGeneral
    *
    * @access  public
    * @param  $redirect
-   * @return  void
+   * @return  boolean
    */
   function canCreate($redirect=false)
   {
@@ -350,7 +350,7 @@ class RecordGeneral
    *
    * @access  public
    * @param  $redirect
-   * @return  void
+   * @return  boolean
    */
   function canViewVersions($redirect=false)
   {
@@ -364,7 +364,7 @@ class RecordGeneral
    *
    * @access  public
    * @param  $redirect
-   * @return  void
+   * @return  integer
    */
   //    function canRevertVersions($redirect=false) {
   //		  if(APP_VERSION_UPLOADS_AND_LINKS != "ON") return false;

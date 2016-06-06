@@ -54,7 +54,7 @@ class AuthIndex
 	var $pid_count = 0;
 	var $cviews = array();
 
-	function setIndexAuth($pid, $recurse=false)
+	public static function setIndexAuth($pid, $recurse=false)
 	{
 		$log = FezLog::get();
 

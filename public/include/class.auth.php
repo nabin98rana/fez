@@ -102,7 +102,7 @@ class Auth
 	 * @param   boolean $is_popup Flag to tell the function if the current page is a popup window or not
 	 * @return  void
 	 */
-	function checkAuthentication($session_name, $failed_url = NULL, $is_popup = false)
+	public static function checkAuthentication($session_name, $failed_url = NULL, $is_popup = false)
 	{
       global $auth_api_session;
       if (APP_API) {
@@ -462,7 +462,7 @@ class Auth
 	 * Checks if the current user is the administrator.
 	 * @returns boolean true if access is ok.
 	 */
-	function isAdministrator()
+	public static function isAdministrator()
 	{
 		$log = FezLog::get();
 
@@ -499,7 +499,7 @@ class Auth
 	 * @param   boolean $userPIDAuthGroups OPTIONAL (default is true) whether to redirect to the login page or not.
 	 * @returns boolean true if access is ok.
 	 */
-	function checkAuthorisation($pid, $dsID, $acceptable_roles, $failed_url, $userPIDAuthGroups=null, $redirect=true)
+	public static function checkAuthorisation($pid, $dsID, $acceptable_roles, $failed_url, $userPIDAuthGroups=null, $redirect=true)
 	{
 		$log = FezLog::get();
 
@@ -623,9 +623,8 @@ class Auth
 		return $indexArray;
 	}
 
-	function getIndexAuthCascade($indexArray)
+	public static function getIndexAuthCascade($indexArray)
 	{
-		$log = FezLog::get();
 
 		$isAdministrator = Auth::isAdministrator();
 		foreach ($indexArray as $indexKey => $indexRecord) {
@@ -1624,7 +1623,7 @@ class Auth
 	 * @access  public
 	 * @return  integer The ID of the user
 	 */
-	function getUsername()
+	public static function getUsername()
 	{
 		global $auth_bgp_session, $auth_isBGP;
 		if (APP_API) {
@@ -1689,7 +1688,7 @@ class Auth
 	 * @access  public
 	 * @return  integer The ID of the user
 	 */
-	function getUserFullName()
+	public static function getUserFullName()
 	{
 		global $auth_bgp_session, $auth_isBGP;
 		if ($auth_isBGP) {
@@ -2843,7 +2842,7 @@ class AuthNoFedora {
     }
 
         //set inherit permissions
-    public function setInherited($pid, $inherited=1)
+    public static function setInherited($pid, $inherited=1)
     {
         $log = FezLog::get();
       	$db = DB_API::get();

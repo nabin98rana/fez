@@ -438,7 +438,7 @@ class Search_Key
      * @param   integer $sek_title The search key title
      * @return  string The ID of the search key
      */
-    function getID($sek_title)
+    public static function getID($sek_title)
     {
         $log = FezLog::get();
         $db = DB_API::get();
@@ -683,7 +683,7 @@ class Search_Key
      * @access  public
      * @return  array The search keys max sek id
      */
-    function getMaxID()
+    public static function getMaxID()
     {
         $log = FezLog::get();
         $db = DB_API::get();
@@ -862,7 +862,7 @@ class Search_Key
      * @access  public
      * @return  array The list of search keys
      */
-    function getList($checkTableExists = true)
+    public static function getList($checkTableExists = true)
     {
         $log = FezLog::get();
         $db = DB_API::get();
@@ -1117,7 +1117,7 @@ class Search_Key
      * @param   integer $sek_id The search key ID
      * @return  array The search key details
      */
-    function getDetails($sek_id)
+    public static function getDetails($sek_id)
     {
         $log = FezLog::get();
         $db = DB_API::get();
@@ -1476,7 +1476,7 @@ class Search_Key
         return $res;
     }
 
-    function makeSQLTableName($sek_title)
+    public static function makeSQLTableName($sek_title)
     {
         $retString = str_replace(" ", "_", trim(strtolower($sek_title)));
         return $retString;

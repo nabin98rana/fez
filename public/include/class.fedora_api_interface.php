@@ -12,7 +12,7 @@ interface FedoraApiInterface
      *
      * @return string $pid The next available PID in from the PID handler
      */
-    public function getNextPID();
+    public static function getNextPID();
 
     /**
      * Gets the XML of a given object by PID.
@@ -20,7 +20,7 @@ interface FedoraApiInterface
      * @param string $pid The persistent identifier
      * @return string $result The XML of the object
      */
-    public function getObjectXML($pid);
+    public static function getObjectXML($pid);
 
     /**
      * Gets the audit trail for an object.
@@ -28,7 +28,7 @@ interface FedoraApiInterface
      * @param string $pid The persistent identifier
      * @return array of audit trail
      */
-    public function getAuditTrail($pid);
+    public static function getAuditTrail($pid);
 
     /**
      * This function ingests a FOXML object and base64 encodes it
@@ -37,7 +37,7 @@ interface FedoraApiInterface
      * @param string $pid The persistent identifier
      * @return bool
      */
-    public function callIngestObject($foxml, $pid = "");
+    public static function callIngestObject($foxml, $pid = "");
 
     /**
      * Exports an associative array
@@ -47,7 +47,7 @@ interface FedoraApiInterface
      * @param string $context
      * @return array
      */
-    public function export($pid, $format = "info:fedora/fedora-system:FOXML-1.0", $context = "migrate");
+    public static function export($pid, $format = "info:fedora/fedora-system:FOXML-1.0", $context = "migrate");
 
     /**
      * Returns an associative array
@@ -57,7 +57,7 @@ interface FedoraApiInterface
      * @param string $query_terms
      * @return array
      */
-    public function callFindObjects($resultFields = array(
+    public static function callFindObjects($resultFields = array(
       'pid',
       'title',
       'identifier',
@@ -71,7 +71,7 @@ interface FedoraApiInterface
      * @param string $token
      * @return array
      */
-    public function callResumeFindObjects($token);
+    public static function callResumeFindObjects($token);
 
     /**
      * This function uses Fedora's simple search service which only really works against Dublin Core records.
@@ -90,7 +90,7 @@ interface FedoraApiInterface
      * @param string $pid The persistent identifier of the object to be purged
      * @return bool
      */
-    public function callPurgeObject($pid);
+    public static function callPurgeObject($pid);
 
     /**
      * This function uses curl to upload a file into the fedora upload manager and calls the addDatastream or modifyDatastream as needed.
@@ -105,7 +105,7 @@ interface FedoraApiInterface
      * @param bool|string $versionable Whether to version control this datastream or not
      * @return integer
      */
-    public function getUploadLocation($pid, $dsIDName, $file, $dsLabel, $mimetype = 'text/xml', $controlGroup = 'M', $dsID = NULL, $versionable = FALSE);
+    public static function getUploadLocation($pid, $dsIDName, $file, $dsLabel, $mimetype = 'text/xml', $controlGroup = 'M', $dsID = NULL, $versionable = FALSE);
 
     /**
      * This function uses curl to get a file from a local file location and upload it into the fedora upload manager and calls the addDatastream or modifyDatastream as needed.
@@ -122,7 +122,7 @@ interface FedoraApiInterface
      * @param bool|string $versionable Whether to version control this datastream or not
      * @return integer
      */
-    public function getUploadLocationByLocalRef($pid, $dsIDName, $local_file_location, $dsLabel, $mimetype, $controlGroup = 'M', $dsID = NULL, $versionable = FALSE);
+    public static function getUploadLocationByLocalRef($pid, $dsIDName, $local_file_location, $dsLabel, $mimetype, $controlGroup = 'M', $dsID = NULL, $versionable = FALSE);
 
     /**
      * This function adds datastreams to object $pid.
@@ -139,7 +139,7 @@ interface FedoraApiInterface
      * @param int $current_tries A counter of how many times this function has retried the addition of a datastream
      * @return void
      */
-    public function callAddDatastream($pid, $dsID, $dsLocation, $dsLabel, $dsState, $mimetype, $controlGroup = 'M', $versionable = FALSE, $xmlContent = "", $current_tries = 0);
+    public static function callAddDatastream($pid, $dsID, $dsLocation, $dsLabel, $dsState, $mimetype, $controlGroup = 'M', $versionable = FALSE, $xmlContent = "", $current_tries = 0);
 
     /**
      *This function creates an array of all the datastreams for a specific object.
@@ -149,7 +149,7 @@ interface FedoraApiInterface
      * @param string $dsState The datastream state
      * @return array $dsIDListArray The list of datastreams in an array.
      */
-    public function callGetDatastreams($pid, $createdDT = NULL, $dsState = 'A');
+    public static function callGetDatastreams($pid, $createdDT = NULL, $dsState = 'A');
 
     /**
      *This function creates an array of all the datastreams for a specific object using the API-A-LITE rather than soap
@@ -159,14 +159,14 @@ interface FedoraApiInterface
      * @param int $current_tries A counter of how many times this function has retried the addition of a datastream
      * @return array $dsIDListArray The list of datastreams in an array.
      */
-    public function callListDatastreamsLite($pid, $refresh = FALSE, $current_tries = 0);
+    public static function callListDatastreamsLite($pid, $refresh = FALSE, $current_tries = 0);
 
     /**
      * @param string $pid The persistent identifier of the object
      * @param bool $refresh
      * @return bool
      */
-    public function objectExists($pid, $refresh = FALSE);
+    public static function objectExists($pid, $refresh = FALSE);
 
     /**
      * This function creates an array of a specific datastream of a specific object
@@ -176,7 +176,7 @@ interface FedoraApiInterface
      * @param string $createdDT Date time stamp as a string
      * @return array The requested of datastream in an array.
      */
-    public function callGetDatastream($pid, $dsID, $createdDT = NULL);
+    public static function callGetDatastream($pid, $dsID, $createdDT = NULL);
 
     /**
      * Does a datastream with a given ID already exist in an object
@@ -187,7 +187,7 @@ interface FedoraApiInterface
      * @param bool $pattern a regex pattern to search against if given instead of ==/equivalence
      * @return boolean
      */
-    public function datastreamExists($pid, $dsID, $refresh = FALSE, $pattern = FALSE);
+    public static function datastreamExists($pid, $dsID, $refresh = FALSE, $pattern = FALSE);
 
     /**
      * Does a datastream with a given ID already exist in existing list array of datastreams
@@ -196,7 +196,7 @@ interface FedoraApiInterface
      * @param string $dsID The ID of the datastream to be checked
      * @return boolean
      */
-    public function datastreamExistsInArray($existing_list, $dsID);
+    public static function datastreamExistsInArray($existing_list, $dsID);
 
     /**
      * This function creates an array of a specific datastream of a specific object
@@ -206,7 +206,7 @@ interface FedoraApiInterface
      * @param string $asofDateTime Gets a specified version at a datetime stamp
      * @return array The datastream returned in an array
      */
-    public function callGetDatastreamDissemination($pid, $dsID, $asofDateTime = "");
+    public static function callGetDatastreamDissemination($pid, $dsID, $asofDateTime = "");
 
     /**
      * This function creates an array of a specific datastream of a specific object
@@ -218,7 +218,7 @@ interface FedoraApiInterface
      * @param int $current_tries A counter of how many times this function has retried
      * @return array $resultlist The requested of datastream in an array.
      */
-    public function callGetDatastreamContents($pid, $dsID, $getraw = FALSE, $filehandle = NULL, $current_tries = 0);
+    public static function callGetDatastreamContents($pid, $dsID, $getraw = FALSE, $filehandle = NULL, $current_tries = 0);
 
     /**
      * This function creates an array of specific fields from a specific datastream of a specific object
@@ -229,7 +229,7 @@ interface FedoraApiInterface
      * @param string $asOfDateTime Gets a specified version at a datetime stamp
      * @return array The requested of datastream in an array.
      */
-    public function callGetDatastreamContentsField($pid, $dsID, $returnfields, $asOfDateTime = "");
+    public static function callGetDatastreamContentsField($pid, $dsID, $returnfields, $asOfDateTime = "");
 
     /**
      * This function modifies inline xml datastreams (ByValue)
@@ -243,7 +243,7 @@ interface FedoraApiInterface
      * @param bool|string $versionable Whether to version control this datastream or not
      * @return void
      */
-    public function callModifyDatastreamByValue($pid, $dsID, $state, $label, $dsContent, $mimetype = 'text/xml', $versionable = 'inherit');
+    public static function callModifyDatastreamByValue($pid, $dsID, $state, $label, $dsContent, $mimetype = 'text/xml', $versionable = 'inherit');
 
     /**
      * This function modifies non-in-line datastreams, either a chunk o'text, a url, or a file.
@@ -256,7 +256,7 @@ interface FedoraApiInterface
      * @param bool|string $versionable Whether to version control this datastream or not
      * @return void
      */
-    public function callModifyDatastreamByReference($pid, $dsID, $dsLabel, $dsLocation = NULL, $mimetype, $versionable = 'inherit');
+    public static function callModifyDatastreamByReference($pid, $dsID, $dsLabel, $dsLocation = NULL, $mimetype, $versionable = 'inherit');
 
     /**
      * Changes the state and/or label of the object.
@@ -266,7 +266,7 @@ interface FedoraApiInterface
      * @param string $label The new label. Null means leave unchanged
      * @param string $logMessage A log message
      */
-    public function callModifyObject($pid, $state, $label, $logMessage = 'Deleted by Fez');
+    public static function callModifyObject($pid, $state, $label, $logMessage = 'Deleted by Fez');
 
     /**
      * This function marks a datastream as deleted by setting the state.
@@ -275,7 +275,7 @@ interface FedoraApiInterface
      * @param string $dsID The ID of the datastream
      * @return bool
      */
-    public function deleteDatastream($pid, $dsID);
+    public static function deleteDatastream($pid, $dsID);
 
     /**
      * This function deletes a datastream
@@ -288,5 +288,5 @@ interface FedoraApiInterface
      * @param bool $force
      * @return bool
      */
-    public function callPurgeDatastream($pid, $dsID, $startDT = NULL, $endDT = NULL, $logMessage = "Purged Datastream from Fez", $force = FALSE);
+    public static function callPurgeDatastream($pid, $dsID, $startDT = NULL, $endDT = NULL, $logMessage = "Purged Datastream from Fez", $force = FALSE);
 }

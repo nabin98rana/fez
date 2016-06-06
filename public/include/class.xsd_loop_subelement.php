@@ -66,15 +66,15 @@ class XSD_Loop_Subelement
 
 		$stmt = "SELECT
 					s1.*, m1.*, d1.*, ";
-					
-    if (is_numeric(strpos(APP_SQL_DBTYPE, "pgsql"))) { 
+
+    if (is_numeric(strpos(APP_SQL_DBTYPE, "pgsql"))) {
  			$stmt .= "
 					IFNULL(('(' || s1.xsdsel_attribute_loop_xsdmf_id || ') (' || s2.xsdsel_title || ') ' || m2.xsdmf_element), ('(' || m2.xsdmf_id || ') ' || m2.xsdmf_element)) as xsdmf_attribute_loop_presentation,
 					IFNULL(('(' || s1.xsdsel_indicator_xsdmf_id || ') (' || s3.xsdsel_title || ') ' || m3.xsdmf_element), ('(' || m3.xsdmf_id || ') ' || m3.xsdmf_element)) as xsdmf_indicator_presentation ";
 		} else {
 			$stmt .= "
 					IFNULL(CONCAT('(', s1.xsdsel_attribute_loop_xsdmf_id, ') (', s2.xsdsel_title, ') ', m2.xsdmf_element), CONCAT('(', m2.xsdmf_id, ') ', m2.xsdmf_element)) as xsdmf_attribute_loop_presentation,
-					IFNULL(CONCAT('(', s1.xsdsel_indicator_xsdmf_id, ') (', s3.xsdsel_title, ') ', m3.xsdmf_element), CONCAT('(', m3.xsdmf_id, ') ', m3.xsdmf_element)) as xsdmf_indicator_presentation ";			
+					IFNULL(CONCAT('(', s1.xsdsel_indicator_xsdmf_id, ') (', s3.xsdsel_title, ') ', m3.xsdmf_element), CONCAT('(', m3.xsdmf_id, ') ', m3.xsdmf_element)) as xsdmf_indicator_presentation ";
 		}
 		$stmt .= "
                  FROM

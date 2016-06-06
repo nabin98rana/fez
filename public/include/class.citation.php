@@ -240,7 +240,7 @@ class Citation
 	}
 
 
-	function renderIndexCitations($list, $type='APA', $cache = true, $knownFull = false)
+	public static function renderIndexCitations($list, $type='APA', $cache = true, $knownFull = false)
 	{
 
 		$log = FezLog::get();
