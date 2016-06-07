@@ -900,7 +900,7 @@ class Record
             AND rek_ismemberof IN (" . APP_WOS_COLLECTIONS . ");";
 
    try {
-      $res = $db->fetchRow($stmt, $pids, Zend_Db::FETCH_ASSOC);
+      $res = $db->fetchRow($stmt, array(), Zend_Db::FETCH_ASSOC);
     } catch(Exception $ex) {
       $log->err($ex);
       return 0;

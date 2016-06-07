@@ -309,10 +309,6 @@ class RecordObject extends RecordGeneral
 
               $dsr = new DSResource(APP_DSTREE_PATH, $resourceDataLocation, $meta);
               $dsr->save();
-              $hash = $dsr->getHash();
-              $path = $dsr->returnPath();
-              $filename = $dsr->returnFilename();
-
             }
             array_push($fileNames, $new_dsID);
             $tmpFile = APP_TEMP_DIR . $new_dsID;
