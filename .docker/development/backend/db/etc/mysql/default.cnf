@@ -10,3 +10,6 @@ innodb = FORCE
 
 # InnoDB
 group_concat_max_len = 16384 #this is required to be this high because of CSV generation for Solr
+
+# MySQL 5.7.5 added ONLY_FULL_GROUP_BY by default which would require a fair amount of SQL refactoring in Fez, so set back to standard, at least for now
+sql_mode=STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION

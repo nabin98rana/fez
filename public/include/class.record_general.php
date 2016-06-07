@@ -375,7 +375,7 @@ class RecordGeneral
   {
     if(APP_FEDORA_BYPASS == 'ON') {
         $do = new DigitalObject;
-        return $do->isPublished($this->pid);
+        return $do->getStatus($this->pid);
 
     } else {
         $this->getDisplay();

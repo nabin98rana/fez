@@ -96,12 +96,17 @@ if ($isAdministrator || $isUPO) {
         }
     }
 
-  if (APP_FEDORA_SETUP == 'sslall' || APP_FEDORA_SETUP == 'sslapim') {
-    $get_url = APP_FEDORA_APIM_PROTOCOL_TYPE . APP_FEDORA_SSL_LOCATION . "/get" . "/" . $pid;
+  // TODO(bypass): deprecate or find some other way?
+  if (APP_FEDORA_BYPASS != 'ON') {
+    if (APP_FEDORA_SETUP == 'sslall' || APP_FEDORA_SETUP == 'sslapim') {
+      $get_url = APP_FEDORA_APIM_PROTOCOL_TYPE . APP_FEDORA_SSL_LOCATION . "/get" . "/" . $pid;
+    } else {
+      $get_url = APP_FEDORA_APIM_PROTOCOL_TYPE . APP_FEDORA_LOCATION . "/get" . "/" . $pid;
+    }
+    $tpl->assign("fedora_get_view", 1);
   } else {
-    $get_url = APP_FEDORA_APIM_PROTOCOL_TYPE . APP_FEDORA_LOCATION . "/get" . "/" . $pid;
+    $tpl->assign("fedora_get_view", 0);
   }
-  $tpl->assign("fedora_get_view", 1);
 
   $affilliations = AuthorAffiliations::getListAll($pid);
   $tpl->assign('affilliations', $affilliations);
@@ -182,13 +187,7 @@ if (!empty($pid) && $record->checkExists()) {
     }
   }
 
-  if (APP_FEDORA_BYPASS == 'ON') {
-    $xdis_id = ($deleted) ? Record::getSearchKeyIndexValueShadow($pid, 'Display Type') : Record::getSearchKeyIndexValue($pid, 'Display Type');
-    $xdis_key = array_keys($xdis_id);
-    $xdis_id = $xdis_key[0];
-  } else {
-    $xdis_id = $record->getXmlDisplayId($useVersions);
-  }
+  $xdis_id = $record->getXmlDisplayId($useVersions);
   $tpl->assign("xdis_id", $xdis_id);
   $xdis_title = XSD_Display::getTitle($xdis_id);
   $tpl->assign("xdis_title", $xdis_title);
@@ -516,7 +515,7 @@ if (!empty($pid) && $record->checkExists()) {
     generateTimestamps($pid, $datastreams, $requestedVersionDate, $tpl);
 
     //Make this method call pull from the db.
-    if ($requestedVersionDate != null && APP_FEDORA_BYPASS != 'ON') {
+    if ($requestedVersionDate != null) {
       $datastreams = Misc::addDeletedDatastreams($datastreams, $pid, $requestedVersionDate);
     }
 
@@ -525,47 +524,6 @@ if (!empty($pid) && $record->checkExists()) {
 
     $doi = Record::getSearchKeyIndexValue($pid, 'DOI');
     $tpl->assign(altmetricDOI, $doi);
-    //if fedora bypass is on need to get from mysql else it datastreams as down below
-    if (APP_FEDORA_BYPASS == 'ON') {
-      $links = Links::getLinks($pid);
-      foreach ($links as &$link) {
-        $linkCount++;
-        $link['rek_link'] = trim($link['rek_link']);
-        if (APP_LINK_PREFIX != "") {
-          if (!is_numeric(strpos($link['rek_link'], APP_LINK_PREFIX))) {
-            $link['prefix_location'] = APP_LINK_PREFIX . $link['rek_link'];
-            $link['rek_link'] = str_replace(APP_LINK_PREFIX, "", $link['rek_link']);
-          } else {
-            $link['prefix_location'] = "";
-          }
-        } else {
-          $link['prefix_location'] = "";
-        }
-        if (strtoupper('http://dx.doi.org/' . $doi) == strtoupper($link['rek_link'])) {
-          $doiInLinks = true;
-        }
-      }
-
-      if (!$doiInLinks && !empty($doi)) {
-          $linkCount++;
-          $newLink['rek_link'] = 'http://dx.doi.org/' . $doi;
-          $newLink['rek_link_description'] = 'Full text from publisher';
-        if (APP_LINK_PREFIX != "") {
-            $newLink['prefix_location'] = APP_LINK_PREFIX . $newLink['rek_link'];
-        }
-            array_unshift($links, $newLink);
-      }
-
-
-      $streams = $datastreams;
-      foreach ($streams as &$stream) {
-        $stream['downloads'] = Statistics::getStatsByDatastream($pid, $stream['filename']);
-        $stream['base64ID'] = base64_encode($stream['filename']);
-        $fileCount++;
-      }
-
-
-    }
 
     if ($datastreams) {
 
@@ -577,7 +535,7 @@ if (!empty($pid) && $record->checkExists()) {
           $linkCount++;
         }
 
-        if (($datastreams[$ds_key]['controlGroup'] == 'R') && ($datastreams[$ds_key]['ID'] != 'DOI') && (APP_FEDORA_BYPASS != 'ON')) {
+        if (($datastreams[$ds_key]['controlGroup'] == 'R') && ($datastreams[$ds_key]['ID'] != 'DOI')) {
           $links[$linkCount - 1]['rek_link'] = trim($datastreams[$ds_key]['location']);
           $links[$linkCount - 1]['rek_link_description'] = $datastreams[$ds_key]['label'];
           $links[$linkCount - 1]['rek_link_description'] = $datastreams[$ds_key]['label'];
@@ -598,7 +556,7 @@ if (!empty($pid) && $record->checkExists()) {
             $links[$linkCount - 1]['prefix_location'] = "";
           }
 
-        } elseif ($datastreams[$ds_key]['controlGroup'] == 'M') {
+        } else if ($datastreams[$ds_key]['controlGroup'] == 'M') {
 
           $fileCount++;
           $datastreams[$ds_key]['exif'] = Exiftool::getDetails($pid, $datastreams[$ds_key]['ID']);
@@ -810,7 +768,6 @@ if (!empty($pid) && $record->checkExists()) {
     $tpl->assign("details", $details);
     $tpl->assign("APP_SHORT_ORG_NAME", APP_SHORT_ORG_NAME);
     $tpl->assign('title', $record->getTitle());
-    $tpl->assign('fedora_bypass', APP_FEDORA_BYPASS == 'ON');
     $tpl->assign("streams", $streams);
     $tpl->assign("statsAbstract", Statistics::getStatsByAbstractView($pid));
     $tpl->assign("statsFiles", Statistics::getStatsByAllFileDownloads($pid));
@@ -937,9 +894,9 @@ if (!empty($pid) && $record->checkExists()) {
  */
 function generateTimestamps($pid, $datastreams, $requestedVersionDate, $tpl)
 {
-
   $createdDates = array();
 
+  // TODO(bypass): Refactor to use the Fedora API interface so we don't need to check whether we're using the bypass
   if (APP_FEDORA_BYPASS == 'ON') {
     $rec = new Fez_Record_SearchkeyShadow($pid);
     $createdDates = $rec->returnVersionDates();
@@ -956,7 +913,7 @@ function generateTimestamps($pid, $datastreams, $requestedVersionDate, $tpl)
 		if ($datastream['ID'] == 'FezMD' || $datastream['ID'] == 'MODS') {
         $parms = array('pid' => $pid, 'dsID' => $datastream['ID']);
 
-        $datastreamVersions = Fedora_API::openSoapCall('getDatastreamHistory', $parms);
+        $datastreamVersions = Fedora_API::openSoapCall('getDatastreamHistory', $parms); // TODO(bypass): refactor me
 
         // Extract created dates from datastream versions
         foreach ($datastreamVersions as $key => $var) {

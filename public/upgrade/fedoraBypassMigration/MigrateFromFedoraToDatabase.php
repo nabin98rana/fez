@@ -830,7 +830,14 @@ class MigrateFromFedoraToDatabase
         $tableName = APP_TABLE_PREFIX . "record_search_key" . $this->_shadowTableSuffix;
 
         echo " Adding joint primary key to fez_record_search_key__shadow";
-        $stmt = "ALTER TABLE ". $tableName ." DROP PRIMARY KEY, ADD PRIMARY KEY (rek_pid, rek_stamp);";
+        $stmt = "ALTER TABLE ". $tableName ." DROP PRIMARY KEY;";
+        try {
+            $this->_db->exec($stmt);
+        } catch (Exception $ex) {
+            // May fail if PRIMARY key does not exist (MySQL version > 5.1)
+            echo "<br />NOTICE: No primary key to drop on ". $tableName;
+        }
+        $stmt = "ALTER TABLE ". $tableName ." ADD PRIMARY KEY (rek_pid, rek_stamp);";
         try {
             $this->_db->exec($stmt);
         } catch (Exception $ex) {

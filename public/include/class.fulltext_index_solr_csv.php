@@ -358,7 +358,7 @@ class FulltextIndex_Solr_CSV extends FulltextIndex
                 $csv[$tmpPid] .= '"';
               }
             } else {
-              $csv[$tmpPid] .= ',"",""';
+              $csv[$rek_pid] .= ',"",""';
             }
           }
         }

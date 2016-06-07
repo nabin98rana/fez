@@ -4,13 +4,8 @@ DOCKERHOST=$(/sbin/ip route|awk '/default/ { print $3 }')
 
 echo "${DOCKERHOST}	dev-fez.library.uq.edu.au" >> /etc/hosts
 
-BASE_DIR=/var/app/current
-
-cd ${BASE_DIR}/.docker/development
-
-# its remote connect back that needs to be 0, and host setup right, remote enable needs to be 1
-#sed -i "s|xdebug.remote_enable=1|xdebug.remote_enable=1\nxdebug.remote_host=<your_ip_here>"
-
+# enabled the line below, and put your IP in, if you want to debug command line scripts or background processes
+#sed -i "s|xdebug.remote_connect_back=1|xdebug.remote_connect_back=1\nxdebug.remote_host<YOUR IP HERE\nxdebug.idekey=\"fez\"|" /etc/php.d/15-xdebug.ini
 
 if [ "${APP_ENVIRONMENT}" == "testing" ]; then
   rm -f /etc/php.d/15-xdebug.ini

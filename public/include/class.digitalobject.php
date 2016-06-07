@@ -6,31 +6,31 @@ class DigitalObject
 {
     /**
      * The object's DB connection.
-     * @var <Zend_Db>
+     * @var Zend_Db
      */
     private $_db;
 
     /**
      * Metadata for a digital object.
-     * @var <array>
+     * @var array
      */
     private $_pidData;
 
     /**
      * Logging object.
-     * @var <FezLog>
+     * @var FezLog
      */
     private $_log;
 
     /**
-     * The currentn PID
-     * @var <string>
+     * The current PID
+     * @var string
      */
     private $_pid;
 
     /**
      * A DSResource to handle datastreams.
-     * @var <DSResource>
+     * @var DSResource
      */
     private $_dsResource;
 
@@ -51,10 +51,11 @@ class DigitalObject
     }
 
     /**
-     * Insert or update a digital object
-     * and generate a PID if required.
+     * Insert or update a digital object and generate a PID if required.
      * Updates if PID provided otherwise inserts.
-     * @param <array> $objdata
+     *
+     * @param array $objdata
+     * @return string The pid
      */
     public function save($objdata)
     {
@@ -80,6 +81,7 @@ class DigitalObject
             }
         } else {
             //If no namespace, use the one in the config.
+            $pidint = array();
             $pidns = ($objdata['pdg_namespace']) ? $objdata['pdg_namespace'] : APP_PID_NAMESPACE;
             $this->_db->beginTransaction();
             try {
@@ -120,7 +122,8 @@ class DigitalObject
     /**
      * Set up database fields for update.
      * Handles varying numbers of fields.
-     * @param <array> $fields
+     * @param array $fields
+     * @return array
      */
     protected function setUpdateFields($fields)
     {
@@ -137,7 +140,8 @@ class DigitalObject
     /**
      * Set up database fields for insert.
      * Handles varying numbers of fields.
-     * @param <array> $data
+     * @param array $data
+     * @return array
      */
     protected function setInsertFields($data)
     {
@@ -160,18 +164,21 @@ class DigitalObject
 
     /**
      * Return all data for a PID
-     * @param <string> $pid
+     * @param string $pid
+     * @return array
      */
     public function get($pid)
     {
+        $piddata = array();
         try {
             $sql = "SELECT * FROM " . APP_TABLE_PREFIX . "record_search_key WHERE"
                 . " rek_pid = :pid";
             $stmt = $this->_db->query($sql, array(':pid' => $pid));
-            return $stmt->fetch();
+            $piddata = $stmt->fetch();
         } catch(Exception $e) {
             $this->_log->err($e->getMessage());
         }
+        return $piddata;
     }
 
     /**
@@ -182,13 +189,14 @@ class DigitalObject
     {
         $pidData = $this->get($pid);
         $pidData['pid'] = $pid;
-        $this->_pidData = $_pidData;
+        $this->_pidData = $pidData;
     }
 
 
     /**
      * Get all the datastreams for a PID
-     * @param <array> $params
+     * @param array $params
+     * @return array
      */
     public function getDatastreams($params)
     {
@@ -219,8 +227,14 @@ class DigitalObject
         return $datastreams;
     }
 
-    //A record can be published but deleted. Which means the tombstone is viewable by the public.
-    public function isPublished($pid)
+    /**
+     * Returns the objects status.
+     * NB: A record can be published but deleted, which means the tombstone is viewable by the public.
+     *
+     * @param string $pid
+     * @return bool|string
+     */
+    public function getStatus($pid)
     {
         $stmt = "SELECT rek_status FROM " . APP_TABLE_PREFIX . "record_search_key WHERE"
             . " rek_pid = ".$this->_db->quote($pid);
@@ -244,5 +258,4 @@ class DigitalObject
         return $result;
 
     }
-
 }
