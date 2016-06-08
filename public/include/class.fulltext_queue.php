@@ -532,9 +532,6 @@ class FulltextQueue
         }
       }
 
-      $open_access = Datastream::getOpenAccess($row['rek_pid']);
-      $res[$rkey]['row'] .= ',"' .$open_access .'"';
-
       //Also add sherpa romeo colour
       $sherpa_details = SherpaRomeo::getJournalColourFromPid($row['rek_pid']);
       $res[$rkey]['row'] .= ',"' .$sherpa_details['colour'] .'"';
