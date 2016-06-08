@@ -72,7 +72,7 @@ $xdis_id = $wfstatus->getXDIS_ID();
 $xdis_id_name = XSD_Display::getTitle($xdis_id);
 
 if ($xdis_id_name != 'Thesis' && $xdis_id_name != 'Data Collection' && $xdis_id_name != 'Working Paper'&& $xdis_id_name != 'Conference Paper') {
-    echo "This records is the wrong type (".$xdis_id_name.") Thesis or Data Collection needed";
+    echo "This record is the wrong type (".$xdis_id_name.") Thesis, Data Collection, Working Paper or Conference Paper needed";
     FezLog::get()->close();
     exit;
 }
