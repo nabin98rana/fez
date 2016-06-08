@@ -100,37 +100,35 @@ class RecordGeneral
   function getXmlDisplayId($getFromXML = false)
   {
     if (!$this->no_xdis_id) {
-      if (empty($this->xdis_id) || ($getFromXML === true)) {
+      if (empty($this->xdis_id) ) {
         if (!$this->checkExists()) {
           Error_Handler::logError("Record ".$this->pid." doesn't exist", __FILE__, __LINE__);
           return null;
         }
-        if ($getFromXML === true) {
-          $xdis_array = Fedora_API::callGetDatastreamContentsField(
-              $this->pid, 'FezMD', array('xdis_id'), $this->createdDT
-          );
-          if (isset($xdis_array['xdis_id'][0])) {
-            $xdis_id = $xdis_array['xdis_id'][0];
-          } else {
-            $this->no_xdis_id = true;
-            return null;
-          }
-        } else {
-          if(APP_FEDORA_BYPASS == 'ON')
-          {
-              $xdis_id = Record::getSearchKeyIndexValue($this->pid,'Display Type');
+        if(APP_FEDORA_BYPASS == 'ON')
+        {
+          $xdis_id = Record::getSearchKeyIndexValue($this->pid,'Display Type');
 
-              //if none then it must be deleted so get shadow version
-              $value = implode('', $xdis_id);
-              if (empty($value)) {
-                  $xdis_id = Record::getSearchKeyIndexValueShadow($this->pid,'Display Type');
-              }
-              $xdis_key = array_keys($xdis_id);
-              $xdis_id = $xdis_key[0];
+          //if none then it must be deleted so get shadow version
+          $value = implode('', $xdis_id);
+          if (empty($value)) {
+            $xdis_id = Record::getSearchKeyIndexValueShadow($this->pid,'Display Type');
           }
-          else
-          {
-              $xdis_id = XSD_HTML_Match::getDisplayType($this->pid);
+          $xdis_key = array_keys($xdis_id);
+          $xdis_id = $xdis_key[0];
+        } elseif ($getFromXML === true) {
+          if ($getFromXML === true) {
+            $xdis_array = Fedora_API::callGetDatastreamContentsField(
+                $this->pid, 'FezMD', array('xdis_id'), $this->createdDT
+            );
+            if (isset($xdis_array['xdis_id'][0])) {
+              $xdis_id = $xdis_array['xdis_id'][0];
+            } else {
+              $this->no_xdis_id = true;
+              return null;
+            }
+          } else {
+            $xdis_id = XSD_HTML_Match::getDisplayType($this->pid);
           }
         }
         if (isset($xdis_id)) {
@@ -139,8 +137,6 @@ class RecordGeneral
           $this->no_xdis_id = true;
           return null;
         }
-
-
       }
       return $this->xdis_id;
     }
