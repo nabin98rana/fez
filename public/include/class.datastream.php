@@ -263,24 +263,4 @@ class Datastream
         }
         return $res;
     }
-
-    static function getOpenAccess($pid)
-    {
-        $log = FezLog::get();
-        $db = DB_API::get();
-
-        $stmt = "
-			SELECT SUM(dsi_open_access) FROM " . APP_TABLE_PREFIX . "datastream_info
-            WHERE dsi_pid = ".$db->quote($pid);
-
-        try {
-            $res = $db->fetchOne($stmt);
-        }
-        catch(Exception $ex) {
-            $log->err($ex);
-            return false;
-        }
-        return !empty($res);
-    }
-
 }
