@@ -77,7 +77,9 @@ class IntegrityCheck
 
     // run checks
     if ($runType == 'check' || $runType == 'both') {
-      $this->doFedoraFezIntegrityChecks();
+      if (APP_FEDORA_BYPASS != "ON") {
+        $this->doFedoraFezIntegrityChecks();
+      }
       if (APP_SOLR_INDEXER == "ON") {
         $this->doFezSolrIntegrityChecks();
         $this->doSolrCitationChecks();

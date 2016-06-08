@@ -1369,7 +1369,7 @@ class Auth
 	 * @param   array $session The unserialized contents of the session
 	 * @return  boolean
 	 */
-	function isValidSession(&$session)
+	public static function isValidSession(&$session)
 	{
 
 		if ((empty($session["username"])) || (empty($session["hash"]))

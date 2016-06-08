@@ -279,7 +279,7 @@ class Citation
 		return $list;
 	}
 
-	function updateCitationCache($pid, $citation="", $shadow = false)
+	public static function updateCitationCache($pid, $citation="", $shadow = false)
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();

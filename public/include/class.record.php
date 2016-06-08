@@ -168,7 +168,7 @@ class Record
     return $res;
   }
 
-  function getTitleFromIndex($pid)
+  public static function getTitleFromIndex($pid)
   {
     $title = Record::getSearchKeyIndexValue($pid, "title", false);
     return $title;
@@ -2235,7 +2235,7 @@ class Record
   }
 
 
-  function getListingForCitation($options, $approved_roles, $sort_by="Title", $filter=array(), $operator='AND')
+  public static function getListingForCitation($options, $approved_roles, $sort_by="Title", $filter=array(), $operator='AND')
   {
     $log = FezLog::get();
     $db = DB_API::get();

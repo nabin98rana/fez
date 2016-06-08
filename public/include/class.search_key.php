@@ -1090,7 +1090,7 @@ class Search_Key
      *
      * @return array the search key details
      **/
-    public function getDerivedList()
+    public static function getDerivedList()
     {
         $log = FezLog::get();
         $db = DB_API::get();

@@ -1119,7 +1119,7 @@ public static function multi_implode($glue, $pieces)
    * @param   array $var
    * @return  array $var
    */
-  function dispelMagicQuotes(&$var)
+  public static function dispelMagicQuotes(&$var)
   {
     static $magic_quotes;
     if (!isset($magic_quotes)) {
@@ -1143,7 +1143,7 @@ public static function multi_implode($glue, $pieces)
    * @param   string $str The original string
    * @return  string The escaped (or not) string
    */
-  function escapeString($str)
+  public static function escapeString($str)
   {
     return $str;
   }
@@ -1156,7 +1156,7 @@ public static function multi_implode($glue, $pieces)
    * @param null|string $callback
    * @return string
    */
-  function jsonResponse($data, $callback = null)
+  public static function jsonResponse($data, $callback = null)
   {
     $log = FezLog::get();
 
@@ -4538,7 +4538,7 @@ public static function multi_implode($glue, $pieces)
    *
    * @access public
    */
-  function sanity_check($variable, $type)
+  public static function sanity_check($variable, $type)
   {
     if (!isset($variable)) {
       return false;
