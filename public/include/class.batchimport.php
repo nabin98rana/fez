@@ -706,8 +706,8 @@ class BatchImport
     $dirs = $aws->listObjectsInBucket($prefix);
 
     foreach ($dirs as $dir) {
-      // Skip the files
-      if ($dir['Size'] === 0) {
+      // Don't skip the files, check all the things
+      if ($dir['Size'] !== 0) {
         $pattern = empty($subdir) ? self::AWS_SAN_IMPORT_PREFIX : self::AWS_SAN_IMPORT_PREFIX . '\/' . $subdir;
         preg_match('/^' . $pattern . '\/([^\/]+)\//', $dir['Key'], $matches);
         if (count($matches) === 2) {
