@@ -218,7 +218,9 @@ switch ($cat) {
         if (Fedora_API::datastreamExists($pid, $PresMD_DS)) {
           Fedora_API::deleteDatastream($pid, $PresMD_DS);
         }
-        Record::setIndexMatchingFields($pid);
+        if (APP_FEDORA_BYPASS != 'ON') {
+          Record::setIndexMatchingFields($pid);
+        }
         // Remove details from the exif table
         Exiftool::remove($pid, $dsID);
         if (count($res) == 1) {

@@ -273,7 +273,9 @@ class BatchImport
       $mimetype = Misc::get_content_type($ds);
       Workflow::processIngestTrigger($pid, $ds, $mimetype);
     }
-    Record::setIndexMatchingFields($pid);
+    if (APP_FEDORA_BYPASS != 'ON') {
+      Record::setIndexMatchingFields($pid);
+    }
 
     return $xmlBegin;
   }
@@ -330,7 +332,9 @@ class BatchImport
     if (is_file($temp_store) && !$is_temp_file) {
       unlink($temp_store);
     }
-    Record::setIndexMatchingFields($pid);
+    if (APP_FEDORA_BYPASS != 'ON') {
+      Record::setIndexMatchingFields($pid);
+    }
   }
 
   function saveEprintPID($eprint_id, $pid)
@@ -405,7 +409,9 @@ class BatchImport
           $xmlObj = self::getFileContent($file);
           if (is_numeric(strpos($xmlObj, "foxml:digitalObject"))) {
             $this->handleFOXMLImport($xmlObj);
-            Record::setIndexMatchingFields($pid);
+            if (APP_FEDORA_BYPASS != 'ON') {
+              Record::setIndexMatchingFields($pid);
+            }
             $handled_as_xml = TRUE;
           } else if (is_numeric(strpos($xmlObj, "METS:mets"))) {
             $xmlBegin = $this->ConvertMETSToFOXML($pid, $xmlObj, $collection_pid, $short_name, $xdis_id, $ret_id, $sta_id);
