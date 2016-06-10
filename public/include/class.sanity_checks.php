@@ -35,6 +35,7 @@
 include_once(APP_INC_PATH . 'class.bgp_test.php');
 include_once(APP_INC_PATH . 'class.search_key.php');
 include_once(APP_INC_PATH . 'class.graphviz.php');
+include_once(APP_INC_PATH . 'class.image_resample.php');
 include_once(APP_INC_PATH . 'class.fedora_direct_access.php');
 include_once(APP_INC_PATH . 'class.handle_requestor.php');
 
@@ -341,9 +342,8 @@ class SanityChecks
         }
         if (SanityChecks::resultsClean($results)) {
             copy(APP_PATH . "images/1leftarrow.png", APP_TEMP_DIR . "test.gif");
-            $getString = APP_BASE_URL . "webservices/wfb.image_resize.php?image="
-                         . urlencode("test.gif") . "&height=20&width=20&ext=jpg&outfile=" . "thumbnail_test.jpg";
-            Misc::ProcessURL($getString);
+            Image_Resample::imageResize(urlencode("test.gif"), null, 20, 20, null, null, 'jpg', "thumbnail_test.jpg");
+
             $results = array_merge($results, SanityChecks::checkFile('Check Image Convert Result', APP_TEMP_DIR . "thumbnail_test.jpg"));
             @unlink(APP_TEMP_DIR . "thumbnail_test.jpg");
         }
@@ -356,9 +356,7 @@ class SanityChecks
         // check copyright
         if (SanityChecks::resultsClean($results)) {
             copy(APP_PATH . "images/1leftarrow.png", APP_TEMP_DIR . "test.gif");
-            $getString = APP_BASE_URL . "webservices/wfb.image_resize.php?image="
-                         . urlencode("test.gif") . "&height=20&width=20&ext=jpg&outfile=" . "thumbnail_test.jpg&copyright=hello";
-            Misc::ProcessURL($getString);
+            Image_Resample::imageResize(urlencode("test.gif"), null, 20, 20, "hello", null, 'jpg', "thumbnail_test.jpg");
             $results = array_merge($results, SanityChecks::checkFile('Run Image Convert with copyright', APP_TEMP_DIR . "thumbnail_test.jpg"));
             @unlink(APP_TEMP_DIR . "thumbnail_test.jpg");
         }

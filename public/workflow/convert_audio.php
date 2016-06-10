@@ -33,82 +33,83 @@
 //
 //
 
+include_once(APP_INC_PATH . "class.video_resample.php");
+
 $pid = $this->pid;
 $xdis_id = $this->xdis_id;
 $dsInfo = $this->dsInfo;
 $dsIDName = $dsInfo['ID'];
-$filename=$dsIDName;
+$filename = $dsIDName;
 
-if (APP_FEDORA_BYPASS == 'ON'){
-    $dsr = new DSResource();
-    $dsr->load($filename, $pid);
-    $hash = $dsr->getHash();
-    $filename = $dsr->getResourcePath($hash['rawHash']);
+$log = FezLog::get();
+
+if (APP_FEDORA_BYPASS == 'ON') {
+  $dsr = new DSResource();
+  $dsr->load($filename, $pid);
+  $hash = $dsr->getHash();
+  $filename = $dsr->getResourcePath($hash['rawHash']);
 }
 
 // Added a check to see if the file is coming from a batch import location, therefore don't try to check if it is in the temp directory - which is only really for form uploads
 if ((is_numeric(strpos($filename, "/"))) || (is_numeric(strpos($filename, "\\")))) {
-	$filepath = $filename;
+  $filepath = $filename;
 } else {
-	$filepath = APP_TEMP_DIR.$filename;
+  $filepath = APP_TEMP_DIR . $filename;
 }
 
 if (!file_exists($filepath)) {
-    Error_Handler::logError("No base file ".$filepath."<br/>\n",__FILE__,__LINE__);
+  $log->err("No base file " . $filepath . "<br/>\n");
 } else {
 
-    if (empty($file_name_prefix)) {
-        $file_name_prefix = "stream_";
-    }
-    if (empty($height)) {
-        $height = 50;
-    }
-    if (empty($width)) {
-        $width = 50;
-    }
+  if (empty($file_name_prefix)) {
+    $file_name_prefix = "stream_";
+  }
+  if (empty($height)) {
+    $height = 50;
+  }
+  if (empty($width)) {
+    $width = 50;
+  }
 
 
-    if (is_numeric(strpos($filename, "/"))) {
-        $new_file = $file_name_prefix.Foxml::makeNCName(substr($filename,strrpos($filename,"/")+1));
-    } else {
-        $new_file = $file_name_prefix.Foxml::makeNCName($filename);
+  if (is_numeric(strpos($filename, "/"))) {
+    $new_file = $file_name_prefix . Foxml::makeNCName(substr($filename, strrpos($filename, "/") + 1));
+  } else {
+    $new_file = $file_name_prefix . Foxml::makeNCName($filename);
+  }
+  if (is_numeric(strpos($new_file, "."))) {
+    $new_file = substr($new_file, 0, strrpos($new_file, ".")) . ".flv";
+  } else {
+    $new_file .= ".flv";
+  }
+  Video_Resample::convertToFlashVideo($filename);
+  
+  if (!empty($new_file)) {
+    if (Fedora_API::datastreamExists($pid, $new_file)) {
+      Fedora_API::callPurgeDatastream($pid, $new_file);
     }
-    if (is_numeric(strpos($new_file, "."))) {
-        $new_file = substr($new_file, 0, strrpos($new_file, ".")).".flv";
-    } else {
-        $new_file .= ".flv";
-    }
-    $getString = APP_BASE_URL."webservices/wfb.ffmpeg_audio.php?file="
-        .urlencode($filename);
-//	echo $getString;
-	Misc::ProcessURL($getString, false, null, null, null, 600);
-	
-    if (!empty($new_file)) {
-        if (Fedora_API::datastreamExists($pid, $new_file)) {
-            Fedora_API::callPurgeDatastream($pid, $new_file);
-        }
-        $newFileName = $new_file;
-        $delete_file = APP_TEMP_DIR.$new_file;
-        $new_file = APP_TEMP_DIR.$new_file;
-        if (file_exists($new_file)) {
-            if (APP_FEDORA_BYPASS != 'ON'){
-                Fedora_API::getUploadLocationByLocalRef($pid, $new_file, $new_file, $new_file, 'video/x-flv', 'M');
-            } else {
-                $temp = $dsr->returnPath().$newFileName;
-                if (!copy($delete_file, $dsr->returnPath().$newFileName)) {
-                    Error_Handler::logError("FLV not copied $dsr->returnPath().$newFileName<br/>\n", __FILE__,__LINE__);
-                } else {
-                    $dsr->addStream($newFileName);
-                }
-            }
-            if (is_file($new_file)) {
-                $deleteCommand = APP_DELETE_CMD." ".$delete_file;
-                exec($deleteCommand);
-            }
+    $newFileName = $new_file;
+    $delete_file = APP_TEMP_DIR . $new_file;
+    $new_file = APP_TEMP_DIR . $new_file;
+    if (file_exists($new_file)) {
+      if (APP_FEDORA_BYPASS != 'ON') {
+        Fedora_API::getUploadLocationByLocalRef($pid, $new_file, $new_file, $new_file, 'video/x-flv', 'M');
+      } else {
+        $temp = $dsr->returnPath() . $newFileName;
+        if (!copy($delete_file, $dsr->returnPath() . $newFileName)) {
+          $log->err("FLV not copied $dsr->returnPath().$newFileName<br/>\n");
         } else {
-            Error_Handler::logError("File not created $new_file<br/>\n", __FILE__,__LINE__);
+          $dsr->addStream($newFileName);
         }
+      }
+      if (is_file($new_file)) {
+        $deleteCommand = APP_DELETE_CMD . " " . $delete_file;
+        exec($deleteCommand);
+      }
+    } else {
+      $log->err("File not created $new_file<br/>\n");
     }
+  }
 }
 
 

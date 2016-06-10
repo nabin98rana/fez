@@ -40,6 +40,7 @@ include_once(APP_INC_PATH . "class.workflow_status.php");
 include_once(APP_INC_PATH . "class.record.php");
 include_once(APP_INC_PATH . "class.user.php");
 include_once(APP_INC_PATH . "class.auth.php");
+include_once(APP_INC_PATH . "class.jhove.php");
 include_once(APP_INC_PATH . "class.foxml.php");
 
 
@@ -269,8 +270,7 @@ class Workflow
 	 */
 	public static function checkForPresMD($filename)
 	{
-		$getString = APP_BASE_URL."webservices/wfb.presmd.php?file=".urlencode($filename);
-		$val = Misc::ProcessURL($getString);
+		Jhove_Helper::processFile($filename);
 		//			print_r($val);
 		//            Error_Handler::logError($getString);
 		if (is_numeric(strpos($filename, "/"))) {
