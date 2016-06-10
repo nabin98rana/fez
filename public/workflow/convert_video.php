@@ -33,65 +33,65 @@
 //
 //
 
+include_once(APP_INC_PATH . "class.video_resample.php");
+
+$log = FezLog::get();
 $pid = $this->pid;
 $xdis_id = $this->xdis_id;
 $dsInfo = $this->dsInfo;
 $dsIDName = $dsInfo['ID'];
-$filename=$dsIDName;
+$filename = $dsIDName;
 
 // Added a check to see if the file is coming from a batch import location, therefore don't try to check if it is in the temp directory - which is only really for form uploads
 if ((is_numeric(strpos($filename, "/"))) || (is_numeric(strpos($filename, "\\")))) {
-	$filepath = $filename;
+  $filepath = $filename;
 } else {
-	$filepath = APP_TEMP_DIR.$filename;
+  $filepath = APP_TEMP_DIR . $filename;
 }
 
 if (!file_exists($filepath)) {
-    Error_Handler::logError("No base file ".$filepath."<br/>\n",__FILE__,__LINE__);
+  $log->err("No base file " . $filepath . "<br/>\n");
 } else {
 
-    if (empty($file_name_prefix)) {
-        $file_name_prefix = "stream_";
-    }
-    if (empty($height)) {
-        $height = 50;
-    }
-    if (empty($width)) {
-        $width = 50;
-    }
+  if (empty($file_name_prefix)) {
+    $file_name_prefix = "stream_";
+  }
+  if (empty($height)) {
+    $height = 50;
+  }
+  if (empty($width)) {
+    $width = 50;
+  }
 
 
-    if (is_numeric(strpos($filename, "/"))) {
-        $new_file = $file_name_prefix.Foxml::makeNCName(substr($filename,strrpos($filename,"/")+1));
+  if (is_numeric(strpos($filename, "/"))) {
+    $new_file = $file_name_prefix . Foxml::makeNCName(substr($filename, strrpos($filename, "/") + 1));
+  } else {
+    $new_file = $file_name_prefix . Foxml::makeNCName($filename);
+  }
+  if (is_numeric(strpos($new_file, "."))) {
+    $new_file = substr($new_file, 0, strrpos($new_file, ".")) . ".flv";
+  } else {
+    $new_file .= ".flv";
+  }
+  Video_Resample::convertToFlashVideo($filename);
+
+  if (!empty($new_file)) {
+    if (Fedora_API::datastreamExists($pid, $new_file)) {
+      Fedora_API::callPurgeDatastream($pid, $new_file);
+    }
+    $delete_file = APP_TEMP_DIR . $new_file;
+    $new_file = APP_TEMP_DIR . $new_file;
+    if (file_exists($new_file)) {
+      Fedora_API::getUploadLocationByLocalRef($pid, $new_file, $new_file, $new_file, 'video/x-flv', 'M');
+      if (is_file($new_file)) {
+        $deleteCommand = APP_DELETE_CMD . " " . $delete_file;
+        exec($deleteCommand);
+      }
     } else {
-        $new_file = $file_name_prefix.Foxml::makeNCName($filename);
+      $log->err("File not created $new_file using url $getString <br/>\n");
     }
-    if (is_numeric(strpos($new_file, "."))) {
-        $new_file = substr($new_file, 0, strrpos($new_file, ".")).".flv";
-    } else {
-        $new_file .= ".flv";
-    }
-    $getString = APP_BASE_URL."webservices/wfb.ffmpeg.php?file="
-        .urlencode($filename);
-//	echo $getString;
-	Misc::ProcessURL($getString, false, null, null, null, 600);
-	
-    if (!empty($new_file)) {
-        if (Fedora_API::datastreamExists($pid, $new_file)) {
-            Fedora_API::callPurgeDatastream($pid, $new_file);
-        }
-        $delete_file = APP_TEMP_DIR.$new_file;
-        $new_file = APP_TEMP_DIR.$new_file;
-        if (file_exists($new_file)) {
-            Fedora_API::getUploadLocationByLocalRef($pid, $new_file, $new_file, $new_file, 'video/x-flv', 'M');
-            if (is_file($new_file)) {
-                $deleteCommand = APP_DELETE_CMD." ".$delete_file;
-                exec($deleteCommand);
-            }
-        } else {
-            Error_Handler::logError("File not created $new_file using url $getString <br/>\n", __FILE__,__LINE__);
-        }
-    }
+  }
 }
 
 ?>

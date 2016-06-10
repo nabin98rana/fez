@@ -187,7 +187,7 @@ class Exiftool
 
 
 
-	function saveExif($pid, $dsID) 
+	function saveExif($pid, $dsID)
 	{
 		if (APP_EXIFTOOL_SWITCH == "ON") {
 			$exif_array = Exiftool::extractMetadata(APP_TEMP_DIR.$dsID);

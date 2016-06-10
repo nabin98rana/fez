@@ -32,58 +32,119 @@
 // +----------------------------------------------------------------------+
 //
 //
+
+include_once(APP_INC_PATH . "class.foxml.php");
+
 class Jhove_Helper
 {
-	var $xmlDoc;
-	var $xpath;
+  var $xmlDoc;
+  var $xpath;
 
-	function __construct($xmlObj) 
-	{
-		$this->xmlDoc = new DomDocument();
-		$this->xmlDoc->preserveWhiteSpace = false;
-		$this->xmlDoc->loadXML($xmlObj);
+  function __construct($xmlObj)
+  {
+    $this->xmlDoc = new DomDocument();
+    $this->xmlDoc->preserveWhiteSpace = false;
+    $this->xmlDoc->loadXML($xmlObj);
 
-		$this->xpath = new DOMXPath($this->xmlDoc);
-	}
+    $this->xpath = new DOMXPath($this->xmlDoc);
+  }
 
 
-	function extractFileSize() 
-	{ 
-		$this->xpath->registerNamespace('a', 'http://hul.harvard.edu/ois/xml/ns/jhove');
-		$recordNodes = $this->xpath->query('//a:jhove/a:repInfo/a:size');
-		foreach ($recordNodes as $file_field) {
-			if (!isset($fileSize)) {
-				$fileSize = $file_field->nodeValue;
-			}
-		}
-	  
-		return $fileSize;
-	}
-	 
-	 
-	function extractSpatialMetrics() 
-	{
-		$width = 0;
-		$height = 0;
+  function extractFileSize()
+  {
+    $this->xpath->registerNamespace('a', 'http://hul.harvard.edu/ois/xml/ns/jhove');
+    $recordNodes = $this->xpath->query('//a:jhove/a:repInfo/a:size');
+    foreach ($recordNodes as $file_field) {
+      if (!isset($fileSize)) {
+        $fileSize = $file_field->nodeValue;
+      }
+    }
 
-		$this->xpath->registerNamespace('mix', 'http://www.loc.gov/mix/');
-		$recordNodes = $this->xpath->query('//mix:ImageWidth');
-		foreach ($recordNodes as $file_field) {
-			if ($width == "") {
-				$width = $file_field->nodeValue;
-				break;
-			}
-		}
-	  
-		$recordNodes = $this->xpath->query('//mix:ImageLength');
-		foreach ($recordNodes as $file_field) {
-			if ($height == "") {
-				$height = $file_field->nodeValue;
-				break;
-			}
-		}
+    return $fileSize;
+  }
 
-		return array($width, $height);
-	}
+
+  function extractSpatialMetrics()
+  {
+    $width = 0;
+    $height = 0;
+
+    $this->xpath->registerNamespace('mix', 'http://www.loc.gov/mix/');
+    $recordNodes = $this->xpath->query('//mix:ImageWidth');
+    foreach ($recordNodes as $file_field) {
+      if ($width == "") {
+        $width = $file_field->nodeValue;
+        break;
+      }
+    }
+
+    $recordNodes = $this->xpath->query('//mix:ImageLength');
+    foreach ($recordNodes as $file_field) {
+      if ($height == "") {
+        $height = $file_field->nodeValue;
+        break;
+      }
+    }
+
+    return array($width, $height);
+  }
+
+
+  public static function processFile($file)
+  {
+    $file = escapeshellcmd($file);
+    $file_dir = "";
+    $error = "";
+    $log = FezLog::get();
+
+    if (is_numeric(strpos($file, "/"))) {
+      $file_dir = substr($file, 0, strrpos($file, "/"));
+      $file = substr($file, strrpos($file, "/") + 1);
+
+    }
+    if (trim($file_dir) == "") {
+      $file_dir = APP_JHOVE_TEMP_DIR;
+    }
+    if ((!(is_numeric(strpos($file, "&")))) && (!(is_numeric(strpos($file, "|"))))) { // check for command hax
+      if (is_numeric(strrpos($file, '.'))) {
+        $presmd_file = APP_JHOVE_TEMP_DIR . 'presmd_' . Foxml::makeNCName(substr($file, 0, strrpos($file, '.'))) . '.xml';
+      } else {
+        $presmd_file = APP_JHOVE_TEMP_DIR . 'presmd_' . Foxml::makeNCName($file) . '.xml';
+      }
+      if (is_file($presmd_file)) { // if already exists, delete it
+        unlink($presmd_file);
+      }
+      $full_file = $file_dir . '/' . $file;
+      if (is_numeric(strpos($full_file, " "))) {
+        $newfile = Foxml::makeNCName($file);
+
+        copy($full_file, APP_TEMP_DIR . $newfile);
+        $full_file = APP_TEMP_DIR . $newfile;
+      }
+      if (!stristr(PHP_OS, 'win') || stristr(PHP_OS, 'darwin')) { // Not Windows Server
+        $unix_extra = " 2>&1";
+      } else {
+        $unix_extra = '';
+        $full_file = str_replace('/', '\\', $full_file);
+      }
+      $command = APP_JHOVE_DIR . 'jhove -h xml -o ' . "$presmd_file $full_file";
+      if (!$file) $error .= "<b>ERROR:</b> no file specified<br>";
+      if (!is_file($full_file)) {
+        $error .= "<b>ERROR:</b>$command :given file filename not found or bad filename given<br>";
+      }
+      if (!empty($error)) {
+        $log->err($error);
+      }
+      $return_status = 0;
+      $return_array = array();
+      exec($command . $unix_extra, $return_array, $return_status);
+      if ($return_status <> 0) {
+        $log->err("JHOVE Error: " . implode(",", $return_array) . ", return status = $return_status, for command $command \n");
+      }
+      if (!empty($newfile)) {
+        unlink($full_file);
+      }
+    }
+  }
 
 }
