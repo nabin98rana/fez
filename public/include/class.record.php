@@ -2518,7 +2518,7 @@ class Record
               }
               array_push($result[$i]['thumbnail'], $result[$i]['rek_file_attachment_name'][$x]);
               $thumbnailCF = "";
-              if (defined('AWS_S3_ENABLED') && AWS_S3_ENABLED == 'true') {
+              if (defined('AWS_S3_ENABLED') && AWS_S3_ENABLED == 'true' && APP_FEDORA_BYPASS == 'ON') {
                 $thumbnailCF = Fedora_API::getCloudFrontUrl($result[$i]['rek_pid'], $result[$i]['rek_file_attachment_name'][$x]);
               }
               if (!is_array(@$result[$i]['thumbnail_cloudfront'])) {

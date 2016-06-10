@@ -802,7 +802,7 @@ public static function multi_implode($glue, $pieces)
       foreach ($original_dsList as $o_key => $o_ds) {
         if ($thumbnail == $o_ds['ID']) {  // found the thumbnail datastream so save it against the record
           $thumbnailCF = "";
-          if (defined('AWS_S3_ENABLED') && AWS_S3_ENABLED == 'true') {
+          if (defined('AWS_S3_ENABLED') && AWS_S3_ENABLED == 'true' && APP_FEDORA_BYPASS == 'ON') {
             $thumbnailCF = Fedora_API::getCloudFrontUrl($pid, $thumbnail);
           }
           $ds['thumbnail'] = $thumbnail;
@@ -958,7 +958,7 @@ public static function multi_implode($glue, $pieces)
           foreach ($original_dsList as $o_key => $o_ds) {
             if ($thumbnail == $o_ds['ID']) {  // found the thumbnail datastream so save it against the record
               $thumbnailCF = "";
-              if (defined('AWS_S3_ENABLED') && AWS_S3_ENABLED == 'true') {
+              if (defined('AWS_S3_ENABLED') && AWS_S3_ENABLED == 'true' && APP_FEDORA_BYPASS == 'ON') {
                 $thumbnailCF = Fedora_API::getCloudFrontUrl($pid, $thumbnail);
               }
               $ds['thumbnail'] = $thumbnail;
