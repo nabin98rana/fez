@@ -116,7 +116,7 @@ class RecordGeneral
           }
           $xdis_key = array_keys($xdis_id);
           $xdis_id = $xdis_key[0];
-        } elseif ($getFromXML === true) {
+        } else {
           if ($getFromXML === true) {
             $xdis_array = Fedora_API::callGetDatastreamContentsField(
                 $this->pid, 'FezMD', array('xdis_id'), $this->createdDT
