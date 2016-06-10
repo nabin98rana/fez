@@ -5351,9 +5351,6 @@ function getSearchKeyIndexValueShadow($pid, $searchKeyTitle, $getLookup=true, $s
       } else {
         $result = Fedora_API::callIngestObject($xmlObj);
       }
-      // Record the result of the ingest.
-      // TODO: should be returned and handled by the caller.
-      $this->ingested = $result;
 
       if (is_array($result)) {
         $log->err(array($xmlObj, __FILE__,__LINE__));
