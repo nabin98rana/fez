@@ -40,7 +40,7 @@ class Links
    /**
  	 * Get the complete list of links.
  	 */
- 	function getLinks($pid)
+ 	public static function getLinks($pid)
  	{
          if (empty($pid)) {
              return false;
