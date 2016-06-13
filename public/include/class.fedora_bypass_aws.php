@@ -36,6 +36,7 @@ include_once(APP_INC_PATH . "class.misc.php");
 require_once(APP_INC_PATH . "nusoap.php");
 include_once(APP_PEAR_PATH . "/HTTP/Request.php");
 include_once(APP_INC_PATH . "class.aws.php");
+include_once(APP_INC_PATH . "class.links.php");
 include_once(APP_INC_PATH . "class.fedora_api_interface.php");
 
 class Fedora_API implements FedoraApiInterface {
@@ -205,11 +206,6 @@ class Fedora_API implements FedoraApiInterface {
 			Zend_Registry::set('version', Date_API::getCurrentDateGMT());
 		}
 
-		$now = Zend_Registry::get('version');
-
-		$resourceDataLocation = $dsLocation;
-		$filesDataSize = filesize($dsLocation);
-
 		$aws = AWS::get();
 		$dataPath = Fedora_API::getDataPath($pid);
 		if ($aws->postFile($dataPath, array($dsLocation))) {
@@ -333,6 +329,19 @@ class Fedora_API implements FedoraApiInterface {
 				$datastreams[] = $ds;
 			}
 		}
+
+		//Add on the links 'R' based datastreams
+		$links = Links::getLinks($pid);
+
+		foreach ($links as &$link) {
+			$linkDS = array();
+			$linkDS['ID'] = trim($link['rek_link']);
+			$linkDS['location'] = $linkDS['ID'];
+			$linkDS['label'] = trim($link['rek_link_description']);
+			$linkDS['controlGroup'] = 'R';
+			$datastreams[] = $linkDS;
+		}
+
 
 		return $datastreams;
 	}
