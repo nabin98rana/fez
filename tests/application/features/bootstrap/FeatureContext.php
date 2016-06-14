@@ -442,6 +442,32 @@ class FeatureContext extends MinkContext
     }
 
     /**
+     * @AfterStep
+     *
+     * Save a screenshot when failing
+     * This uses Xvfb
+     *
+     * @param \Behat\Behat\Hook\Scope\AfterStepScope $event
+     */
+    public function failScreenshots(Behat\Behat\Hook\Scope\AfterStepScope $scope)
+    {
+        if (!($this->getSession()->getDriver() instanceof Behat\Mink\Driver\GoutteDriver) &&
+            !($this->getSession()->getDriver() instanceof Behat\Mink\Driver\ZombieDriver)) {
+            if(!$scope->getTestResult()->isPassed())
+            {
+                $sn = current($scope->getFeature()->getScenarios());
+                $sn = Foxml::makeNCName($sn->getTitle());
+                $scenarioName = str_replace(" ", "_", $sn);
+                $imageName = sprintf("fail_%s_%s.png", time(), $scenarioName);
+                $this->saveScreenshot($imageName);
+                if ($this->screencast) {
+                    $this->screencast->addPosterImage($imageName);
+                }
+            }
+        }
+    }
+
+    /**
      * Saving the screenshot
      *
      * @param string $filename
