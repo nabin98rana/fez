@@ -66,7 +66,7 @@ Feature: Check that all pages still give correct output
     Given I am on "/favourites"
     Then I should see "Login to"
 
-  @jet
+  @jet @basicadmintest
   Scenario: Testing Administrator view
     And I login as administrator
     And I am on "/manage"
