@@ -1396,7 +1396,7 @@ class Author
       }
     }
     catch(Exception $ex) {
-      $log->err($ex);
+      $log->err($ex." - ".$stmt);
       return '';
     }
 
