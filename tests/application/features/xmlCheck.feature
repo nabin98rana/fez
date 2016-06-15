@@ -12,14 +12,14 @@ Feature: Test that xml is well formed
   #And I follow "oai_dc" # disable because firefox doesnt want to render xsl anymore
   #And I check the current page is valid XML
   And I am on "/oai.php?verb=ListRecords&metadataPrefix=oai_dc"
-  And I follow "formats"
-  And I check the current page is valid XML
-  And I am on "/oai.php?verb=ListRecords&metadataPrefix=oai_dc"
-  And I follow "Identifiers"
-  And I check the current page is valid XML
-  And I am on "/oai.php?verb=ListRecords&metadataPrefix=oai_dc"
-  And I follow "Records"
-  And I check the current page is valid XML
+  #And I follow "formats"
+  #And I check the current page is valid XML
+  #And I am on "/oai.php?verb=ListRecords&metadataPrefix=oai_dc"
+  #And I follow "Identifiers"
+  #And I check the current page is valid XML
+  #And I am on "/oai.php?verb=ListRecords&metadataPrefix=oai_dc"
+  #And I follow "Records"
+  #And I check the current page is valid XML
   And I am on "/oai.php?verb=Identify"
   And I check the current page is valid XML
   And I am on "/oai.php?verb=ListSets"
