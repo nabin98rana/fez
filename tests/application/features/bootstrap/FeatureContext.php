@@ -50,12 +50,17 @@ define("TEST_LINKS_AMR_UT", "000177619700002");
 /**
  * @var string An example Journal Article publication pid in the system you can perform non-destructive tests on
  */
-define("TEST_JOURNAL_ARTICLE_PID", "UQ:5");
+define("TEST_JOURNAL_ARTICLE_PID", "UQ:3");
+
+/**
+ * @var string An example community pid in the system you can perform non-destructive tests on
+ */
+define("TEST_COMMUNITY_PID", "UQ:1");
 
 /**
  * @var string An example collection pid in the system you can perform non-destructive tests on
  */
-define("TEST_COLLECTION_PID", "UQ:4");
+define("TEST_COLLECTION_PID", "UQ:2");
 
 /**
  * @var string An example org unit name so you can test on it
@@ -171,9 +176,9 @@ class FeatureContext extends MinkContext
         $this->zoetropeEnabled = (isset($parameters["debug"]['zoetrope']) && $parameters["debug"]['zoetrope'] == 1) ? true : false;
         // Debug is by default enabled unless explicitly disabled in the config
         $this->debugDisabled = (isset($parameters["debug"]['disabled']) && $parameters["debug"]['disabled'] == 1) ? true : false;
-        $this->testCommunityPid = 'UQ:1';
-        $this->testCollectionPid = 'UQ:2';
-        $this->testRecordPid = 'UQ:3';
+        $this->testCommunityPid = TEST_COMMUNITY_PID;
+        $this->testCollectionPid = TEST_COLLECTION_PID;
+        $this->testRecordPid = TEST_JOURNAL_ARTICLE_PID;
     }
 
     /**
