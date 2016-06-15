@@ -51,6 +51,8 @@ Scenario: Delete WOS imports
     And I am on "/"
     And I turn on waiting checks
     And I wait for "10" seconds
+    And I wait for bgps
+    And I wait for solr
     And I fill in "Search Entry" with "title:(\"Influence of malt roasting on the oxidative stability of sweet wort\")"
     And I press "search_entry_submit"
     And I follow "Influence of malt roasting on the oxidative stability of sweet wort"
