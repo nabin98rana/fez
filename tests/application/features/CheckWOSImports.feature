@@ -18,6 +18,8 @@ Feature: WOS imports. Check imports from wos work correctly
     And I follow "Add record"
     And I see "pub_link" id or wait for "300" seconds
     Then I press "Abandon Workflow"
+    And I wait for bgps
+    And I wait for solr
     And I fill in "Search Entry" with "title:(\"Influence of malt roasting on the oxidative stability of sweet wort\")"
     And I press "search_entry_submit"
     And I follow "Influence of malt roasting on the oxidative stability of sweet wort"

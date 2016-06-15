@@ -11,6 +11,8 @@ Feature: Changing Collection Security
     And I fill in "Keyword 1" with "automated testing"
     And I select "Fedora Collection Display Version Dublin Core 1.0" from "XSD Display Document Types"
     And I press "Publish"
+    And I wait for bgps
+    And I wait for solr
     And I temporarily store the record pid
     And I press "Create"
     And I wait for "2" seconds
@@ -19,6 +21,8 @@ Feature: Changing Collection Security
     And I select "Journal Article Version MODS 1.0" from "XSD Display Document Types"
     And I select "Test Community Security to be changed after pid created" from "Member of Communities"
     And I press "Publish"
+    And I wait for bgps
+    And I wait for solr
     And I press "Create"
     And I wait for "2" seconds
     And I fill in "Title" with "Test Pid Security to be changed after pid created"
