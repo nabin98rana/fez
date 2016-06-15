@@ -135,17 +135,17 @@ Feature: Check that valid json is being returned
 
   @cloned
   Scenario: Check JSON is valid
-    Given I am on "/api/publon_reviews.php?author_username=uqpburn2"
+    Given I am on "/api/publons_reviews.php?author_username=uqpburn2"
     Then should see valid JSON
 
   @cloned
   Scenario: Check JSON is valid
-    Given I am on "/api/publon_reviews.php?author_username=a:4$%@})']\%22({["
+    Given I am on "/api/publons_reviews.php?author_username=a:4$%@})']\%22({["
     Then should see valid JSON
 
   @cloned
   Scenario: Check authentication is checked
-    Given I am on "/api/publon_reviews.php?author_username=uqpburn2"
+    Given I am on "/api/publons_reviews.php?author_username=uqpburn2"
     Then the response status code should be 401
 
   @jet
