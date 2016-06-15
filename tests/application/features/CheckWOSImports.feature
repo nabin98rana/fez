@@ -1,5 +1,5 @@
 # features/CheckWOSImports.feature
-@javascript @broken
+@javascript
 Feature: WOS imports. Check imports from wos work correctly
 
   @destructive @now1 @insulated
