@@ -438,7 +438,7 @@ class Search_Key
      * @param   integer $sek_title The search key title
      * @return  string The ID of the search key
      */
-    function getID($sek_title)
+    public static function getID($sek_title)
     {
         $log = FezLog::get();
         $db = DB_API::get();
@@ -683,7 +683,7 @@ class Search_Key
      * @access  public
      * @return  array The search keys max sek id
      */
-    function getMaxID()
+    public static function getMaxID()
     {
         $log = FezLog::get();
         $db = DB_API::get();
@@ -862,7 +862,7 @@ class Search_Key
      * @access  public
      * @return  array The list of search keys
      */
-    function getList($checkTableExists = true)
+    public static function getList($checkTableExists = true)
     {
         $log = FezLog::get();
         $db = DB_API::get();
@@ -1090,7 +1090,7 @@ class Search_Key
      *
      * @return array the search key details
      **/
-    public function getDerivedList()
+    public static function getDerivedList()
     {
         $log = FezLog::get();
         $db = DB_API::get();
@@ -1117,7 +1117,7 @@ class Search_Key
      * @param   integer $sek_id The search key ID
      * @return  array The search key details
      */
-    function getDetails($sek_id)
+    public static function getDetails($sek_id)
     {
         $log = FezLog::get();
         $db = DB_API::get();
@@ -1313,7 +1313,7 @@ class Search_Key
         }
         $sek_title = Search_Key::makeSQLTableName($sek_details['sek_title']);
         if ($sek_details['sek_relationship'] == 1) { //1-M
-            if (APP_MYSQL_INNODB_FLAG == "ON" || (!is_numeric(strpos(APP_SQL_DBTYPE, "mysql")))) {
+            if (!is_numeric(strpos(APP_SQL_DBTYPE, "mysql"))) {
                 $stmt = " SELECT rek_" . $sek_title . "_id as id, rek_" . $sek_title . " as name FROM (";
                 $stmt .= "
 					  SELECT rek_" . $sek_title . "_id, rek_" . $sek_title . "
@@ -1329,7 +1329,7 @@ class Search_Key
                 $stmt .= " GROUP BY rek_" . $sek_title . "_id, rek_" . $sek_title . " ORDER BY Relevance DESC, rek_" . $sek_title . " LIMIT 10 OFFSET 0) as tempsuggest ";
             }
         } else { //1-1 index table
-            if (APP_MYSQL_INNODB_FLAG == "ON" || (!is_numeric(strpos(APP_SQL_DBTYPE, "mysql")))) {
+            if (!is_numeric(strpos(APP_SQL_DBTYPE, "mysql"))) {
                 $stmt = " SELECT 1 as id, rek_" . $sek_title . " as name FROM (";
                 $stmt .= "
 					  SELECT 1, rek_" . $sek_title . "
@@ -1476,7 +1476,7 @@ class Search_Key
         return $res;
     }
 
-    function makeSQLTableName($sek_title)
+    public static function makeSQLTableName($sek_title)
     {
         $retString = str_replace(" ", "_", trim(strtolower($sek_title)));
         return $retString;

@@ -61,7 +61,7 @@ class Doc_Type_XSD
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		if (empty($params)) {
 			$params = $_POST;
 		}
@@ -100,7 +100,7 @@ class Doc_Type_XSD
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		if (empty($params)) {
 			$filename = @$_FILES["xsd_file"]["tmp_name"];
 			if (empty($filename)) {
@@ -138,7 +138,7 @@ class Doc_Type_XSD
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		$stmt = "INSERT INTO
                     " . APP_TABLE_PREFIX . "xsd
                  (
@@ -171,7 +171,7 @@ class Doc_Type_XSD
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		if (empty($params)) {
 			$files = array();
 			for ($i = 0; $i < count($_FILES["xsd_file"]); $i++) {
@@ -213,7 +213,7 @@ class Doc_Type_XSD
 			$log->err($ex);
 			return -1;
 		}
-		return 1;		
+		return 1;
 	}
 
 
@@ -229,7 +229,7 @@ class Doc_Type_XSD
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		$stmt = "SELECT
                     ".$select."
                  FROM
@@ -256,7 +256,7 @@ class Doc_Type_XSD
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		$stmt = "SELECT
                     xsd_id
                  FROM
@@ -284,7 +284,7 @@ class Doc_Type_XSD
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		$stmt = "SELECT
                     *
                  FROM
@@ -308,11 +308,11 @@ class Doc_Type_XSD
 	 * @param   integer $fld_id The custom field ID
 	 * @return  array The Document Type XSD details
 	 */
-	function getDetails($xsd_id)
+	public static function getDetails($xsd_id)
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		$stmt = "SELECT
                     *
                  FROM
@@ -340,7 +340,7 @@ class Doc_Type_XSD
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		$stmt = "SELECT
                    xsd_title
                  FROM
@@ -383,8 +383,8 @@ class Doc_Type_XSD
 		}
 		return $doc->saveXML();
 	}
-	 
-	 
+
+
 	/**
 	 * This lists all the XSDs and accompanying displays in the XML file given.
 	 * The items where the xdis_id and the xdis_title match will be flagged as overwrites.
@@ -394,7 +394,7 @@ class Doc_Type_XSD
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		$doc = DOMDocument::load($filename);
 		$xpath = new DOMXPath($doc);
 		$xdocs = $xpath->query('/fez_xsds/fez_xsd');
@@ -425,7 +425,7 @@ class Doc_Type_XSD
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		$doc = DOMDocument::load($filename);
 		$xpath = new DOMXPath($doc);
 		$xdocs = $xpath->query('/fez_xsds/fez_xsd');

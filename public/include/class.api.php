@@ -320,7 +320,7 @@ class API
             // This will generate a format used to update internal author ids.
             //
             // Uses attached xsdmf id.
-            // 
+            //
             // We will need to generate the following format:
             //   _POST['xsd_display_fields_xsdmfid_0'] => N
             //   _POST['xsd_display_fields_xsdmfid_1'] => M
@@ -354,11 +354,11 @@ class API
                 $elementStr = trim((string)$element);
 
                 // Extract date as array("Day" => 01, "Month" => 03, "Year" => 2007).
-                // 
+                //
                 // xsdmf_date_type:
                 // 1 => YYYY
                 // 0 => YYYY-MM-DD
-                // 
+                //
                 // <xsdmf_value>
                 //     <year>2014</year>
                 //     [<month>10</month>]
@@ -694,7 +694,7 @@ class API
      * @param $populate_record_context In some cases we may just be populating a form that is using xsd display fields but is not a record (ex. edit security metadata fields)
      * @return void
      **/
-    public function populateThePOST($xsd_df = null, $details = null, $populate_record_context = true)
+    public static function populateThePOST($xsd_df = null, $details = null, $populate_record_context = true)
     {
         $sxml = API::POSTcheckAPI();
         // Check we have appropriate ids...

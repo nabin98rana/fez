@@ -40,6 +40,7 @@ include_once(APP_INC_PATH . "class.workflow_status.php");
 include_once(APP_INC_PATH . "class.record.php");
 include_once(APP_INC_PATH . "class.user.php");
 include_once(APP_INC_PATH . "class.auth.php");
+include_once(APP_INC_PATH . "class.jhove.php");
 include_once(APP_INC_PATH . "class.foxml.php");
 
 
@@ -267,10 +268,9 @@ class Workflow
 	 * @param string filename - the name of the file being ingested as a datastream
 	 * @return name of preservation metadata temporary file (it is not automatically ingested as a datastream).
 	 */
-	function checkForPresMD($filename)
+	public static function checkForPresMD($filename)
 	{
-		$getString = APP_BASE_URL."webservices/wfb.presmd.php?file=".urlencode($filename);
-		$val = Misc::ProcessURL($getString);
+		Jhove_Helper::processFile($filename);
 		//			print_r($val);
 		//            Error_Handler::logError($getString);
 		if (is_numeric(strpos($filename, "/"))) {
@@ -465,7 +465,7 @@ class Workflow
 	 * @param string dsID - the datastream id (usually a filename)
 	 * @param string mimetype - the mimetype of the datastream
 	 */
-	function processIngestTrigger($pid, $dsID, $mimetype)
+	public static function processIngestTrigger($pid, $dsID, $mimetype)
 	{
 		// find first matching trigger
 

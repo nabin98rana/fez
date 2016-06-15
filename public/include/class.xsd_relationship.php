@@ -57,13 +57,13 @@ class XSD_Relationship
      *
      * @access  public
      * @param   integer $xsdmf_id
-     * @return  array The list 
+     * @return  array The list
      */
     function getListByXSDMF($xsdmf_id)
     {
     	$log = FezLog::get();
 		$db = DB_API::get();
-		
+
         $stmt = "SELECT
 					*
                  FROM
@@ -88,13 +88,13 @@ class XSD_Relationship
      *
      * @access  public
      * @param   integer $xsdmf_id
-     * @return  array The list 
+     * @return  array The list
      */
     function getSimpleListByXSDMF($xsdmf_id)
     {
     	$log = FezLog::get();
 		$db = DB_API::get();
-		
+
         $stmt = "SELECT
 					*
                  FROM
@@ -120,11 +120,11 @@ class XSD_Relationship
      * @param   integer $xdis_id The XSD Display ID
      * @return  array The list of matching fields fields
      */
-    function getListByXDIS($xdis_id)
+    public static function getListByXDIS($xdis_id)
     {
     	$log = FezLog::get();
 		$db = DB_API::get();
-		
+
         $stmt = "SELECT
 					xsdrel_xdis_id
                  FROM
@@ -136,7 +136,7 @@ class XSD_Relationship
 		$stmt .= " ORDER BY xsdrel_order ASC";
         try {
 			$res = $db->fetchAll($stmt);
-		}	
+		}
 		catch(Exception $ex) {
 			$log->err($ex);
 			return '';
@@ -156,7 +156,7 @@ class XSD_Relationship
     {
     	$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		if (!is_numeric($xdis_id)) {
 			return array();
 		}
@@ -178,17 +178,17 @@ class XSD_Relationship
 		}
 		return $res;
     }
-    
-    
+
+
     function getColListByXDISMinimal($xdis_id, $exclude_xdis_str = '', $specify_xdis_str = '')
     {
     	$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		if (!is_numeric($xdis_id)) {
 			return array();
-		}		
-		
+		}
+
         $stmt = "SELECT
 					xsdrel_xdis_id
                  FROM
@@ -198,16 +198,16 @@ class XSD_Relationship
                     " . APP_TABLE_PREFIX . "xsd
                  WHERE
                    xsd_id = xdis_xsd_id AND xsdmf_xdis_id = ".$db->quote($xdis_id, 'INTEGER')." and xsdrel_xsdmf_id = xsdmf_id and xsdrel_xdis_id = xdis_id and xsdmf_html_input != 'xsdmf_id_ref'";
-        
+
         if ($exclude_xdis_str != '') {
-        	$stmt .= " AND xsd_title not in (".$db->quote($exclude_xdis_str).")";        	
+        	$stmt .= " AND xsd_title not in (".$db->quote($exclude_xdis_str).")";
         }
         if ($specify_xdis_str != '') {
-        	$stmt .= " AND xsd_title in (".$db->quote($specify_xdis_str).")";        	
+        	$stmt .= " AND xsd_title in (".$db->quote($specify_xdis_str).")";
         }
-                
+
 		$stmt .= " ORDER BY xsdrel_order ASC";
-		
+
 		try {
 			$res = $db->fetchCol($stmt);
 		}
@@ -217,9 +217,9 @@ class XSD_Relationship
 		}
 		return $res;
     }
-    
-    
-    
+
+
+
     /**
      * Method used to remove a given list of XSD relationships.
      *
@@ -230,7 +230,7 @@ class XSD_Relationship
     {
     	$log = FezLog::get();
 		$db = DB_API::get();
-		
+
         $items = @implode(", ", $_POST["items"]);
 
         $stmt = "DELETE FROM
@@ -258,7 +258,7 @@ class XSD_Relationship
     {
     	$log = FezLog::get();
 		$db = DB_API::get();
-		
+
         $stmt = "INSERT INTO
                     " . APP_TABLE_PREFIX . "xsd_relationship
                  (
@@ -283,7 +283,7 @@ class XSD_Relationship
      * Method used to add a new XSD relationship to the system from a given array.
      *
      * @access  public
-	 * @param   integer $xsdmf_id 
+	 * @param   integer $xsdmf_id
 	 * @param   array   $insertArray The array containing the values to be inserted into the XSD relationship
      * @return  integer 1 if the insert worked, -1 otherwise
      */
@@ -291,7 +291,7 @@ class XSD_Relationship
     {
     	$log = FezLog::get();
 		$db = DB_API::get();
-		
+
         $stmt = "INSERT INTO
                     " . APP_TABLE_PREFIX . "xsd_relationship
                  (
@@ -347,7 +347,7 @@ class XSD_Relationship
 		}
 		return 1;
     }
-    
+
     function importRels($xmatch, $xsdmf_id, &$maps)
     {
         $xpath = new DOMXPath($xmatch->ownerDocument);
@@ -362,30 +362,30 @@ class XSD_Relationship
             $maps['xsdrel_map'][$xrel->getAttribute('xsdrel_id')] = $xsdrel_id;
         }
     }
-    
+
     function remapImport(&$maps)
     {
     	$log = FezLog::get();
 		$db = DB_API::get();
-		
+
         if (empty($maps['xsdrel_map'])) {
             return;
-        }    
+        }
         foreach ($maps['xsdrel_map'] as $xsdrel_id) {
             $stmt = "SELECT * FROM ". APP_SQL_DBNAME . "." . APP_TABLE_PREFIX ."xsd_relationship " .
                     "WHERE xsdrel_id=".$db->quote($xsdrel_id, 'INTEGER');
-            
+
 			try {
 				$res = $db->fetchRow($stmt, array(), Zend_Db::FETCH_ASSOC);
 			}
 			catch(Exception $ex) {
 				$log->err($ex);
 				return false;
-			}			
-            Misc::arraySearchReplace($res, 
+			}
+            Misc::arraySearchReplace($res,
                     array('xsdrel_xdis_id'),
                     $maps['xdis_map']);
             		XSD_Relationship::update($xsdrel_id, $res);
-        }    
+        }
     }
 }

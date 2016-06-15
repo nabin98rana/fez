@@ -72,7 +72,9 @@ class Datastream
                 }
                 Workflow::processIngestTrigger($pid, $newFileName, $mimetype);
                 Record::generatePresmd($pid, $newFileName);
-                Record::setIndexMatchingFields($pid);
+                if (APP_FEDORA_BYPASS != 'ON') {
+                    Record::setIndexMatchingFields($pid);
+                }
                 if (is_file($newFile)) {
                     $deleteCommand = APP_DELETE_CMD." ".$deleteFile;
                     exec($deleteCommand);
@@ -125,7 +127,7 @@ class Datastream
     }
 
     //Saves $permissions and $embargo date. Does nothing and returns with true if both are unchanged
-    function saveDatastreamSelectedPermissions($pid, $dsId, $permissions, $embargoDate)
+    public static function saveDatastreamSelectedPermissions($pid, $dsId, $permissions, $embargoDate)
     {
         $log = FezLog::get();
         $db = DB_API::get();

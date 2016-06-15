@@ -297,7 +297,7 @@ class Collection
 
   //Returns sql string to use to restrict content by Auth
   //Possibly does not work as as expected, use with caution
-  function getAuthIndexStmt($roles = array(), $joinPrefix="r2.rek_pid", $adminCheck = true)
+  public static function getAuthIndexStmt($roles = array(), $joinPrefix="r2.rek_pid", $adminCheck = true)
   {
     $db = DB_API::get();
     $log = FezLog::get();

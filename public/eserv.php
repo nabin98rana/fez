@@ -37,6 +37,7 @@ include_once(APP_INC_PATH . "class.auth.php");
 include_once(APP_INC_PATH . "class.misc.php");
 include_once(APP_INC_PATH . "class.exiftool.php");
 include_once(APP_INC_PATH . "class.log.php");
+include_once(APP_INC_PATH . "class.fedora_api.php");
 include_once(APP_INC_PATH . "class.fedora_direct_access.php");
 
 // Commented out basic auth request as Nginx web app server doesnt pass basic auth request username/password
@@ -84,30 +85,20 @@ $acceptable_roles = array("Viewer", "Community_Admin", "Editor", "Creator", "Ann
 
 if (!empty($pid) && !empty($dsID)) {
 
-    if(APP_FEDORA_BYPASS == 'ON')
-    {
-        if(!$bookpage)//Test for existence of bookpage further down.
-        {
-            $dsr = new DSResource();
-    		$dsr->load($dsID, $pid);
-    		$hash = $dsr->getHash();
-    		$dsMeta = $dsr->getMeta();
-    		$isDeleted = ($dsr->resourceExists()) ? false : true;
-        }
-    } else {
-        //Need to check if the datastream is deleted
-        //if a book page the folder name it's in is the datastream name plus a .pdf
-        $dsIDTemp = !$bookpage ? $dsID : current(explode("/", $dsID)).'.pdf';
-        $isDeleted = TRUE ;
-        $dsCheck = Fedora_API::callGetDatastreams($pid);
-        foreach ($dsCheck as $pidDatastream)
-        {
-            if ($pidDatastream[ID] == $dsIDTemp) {
-                $isDeleted = FALSE;
-            }
-        }
-        $isDeleted = Record::isDeleted($pid) || $isDeleted;
-    }
+
+	//Need to check if the datastream is deleted
+	//if a book page the folder name it's in is the datastream name plus a .pdf
+	$dsIDTemp = !$bookpage ? $dsID : current(explode("/", $dsID)).'.pdf';
+	$isDeleted = TRUE ;
+	$dsCheck = Fedora_API::callGetDatastreams($pid);
+	foreach ($dsCheck as $pidDatastream)
+	{
+			if ($pidDatastream[ID] == $dsIDTemp) {
+					$isDeleted = FALSE;
+			}
+	}
+	$isDeleted = Record::isDeleted($pid) || $isDeleted;
+
 
 	if($isDeleted) {
 		header("HTTP/1.0 404 Not Found");
@@ -246,7 +237,10 @@ if (!empty($pid) && !empty($dsID)) {
 				$seekat = -1;
 			}
 
-	        $size = (APP_FEDORA_BYPASS == 'ON') ? $dsMeta['size'] : Misc::remote_filesize($urldata);
+//			$size = (APP_FEDORA_BYPASS == 'ON') ? $dsMeta['size'] : Misc::remote_filesize($urldata);
+			$dsDetails = Fedora_API::getDatastream($pid, $dsID, $dsVersionID);
+
+			$size = $dsDetails['size'];
 
 			# content headers
 			header("Content-Type: video/x-flv");
@@ -397,23 +391,33 @@ if (!empty($pid) && !empty($dsID)) {
 		/*
 		 * Send file to user
 		 */
-		if(APP_FEDORA_BYPASS == 'ON')
+		if (APP_FEDORA_BYPASS == 'ON')
 		{
-		    $header = (isset($dsMeta['mimetype'])) ? $dsMeta['mimetype'] : 'text/html';
 
-		    header("Content-Type: $header");
+			if (defined('AWS_S3_ENABLED') && AWS_S3_ENABLED == 'true') {
+				// If we are using S3 and Cloudfront, just redirect the user to a time signed CF url and exit
 
-		    if(($dsMeta['mimetype'] == 'application/pdf' && $dsMeta['size'] > 7000000 && Misc::is_firefox())
-				|| (is_numeric(strpos($ctype, "htm"))))
-		    {
-		        header("Content-Type: application/force-download");
-		    }
+				$cfURL = Fedora_API::getCloudFrontURL($pid, $dsID);
+				Auth::redirect($cfURL);
 
-            header('Content-Disposition: filename="' . $hash['hashFile'] . '"');
-		    header('Pragma: private');
-    		header('Cache-control: private, max-age=600');
+			} else {
+				$header = (isset($dsMeta['mimetype'])) ? $dsMeta['mimetype'] : 'text/html';
 
-		    echo $dsr->getDSData($hash['rawHash']);
+				header("Content-Type: $header");
+
+				if(($dsMeta['mimetype'] == 'application/pdf' && $dsMeta['size'] > 7000000 && Misc::is_firefox())
+						|| (is_numeric(strpos($ctype, "htm"))))
+				{
+					header("Content-Type: application/force-download");
+				}
+
+				header('Content-Disposition: filename="' . $hash['hashFile'] . '"');
+				header('Pragma: private');
+				header('Cache-control: private, max-age=600');
+
+				echo $dsr->getDSData($hash['rawHash']);
+
+			}
 		}
 		else
 		{

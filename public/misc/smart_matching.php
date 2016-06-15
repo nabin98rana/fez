@@ -141,8 +141,9 @@ GROUP BY rek_pid
 
 			Fedora_API::callModifyDatastreamByValue($pid, "MODS", "A", "Metadata Object Description Schema", $doc, "text/xml", "inherit");
 			History::addHistory($pid, null, "", "", true, $history);
-
-			Record::setIndexMatchingFields($pid);
+			if (APP_FEDORA_BYPASS != 'ON') {
+				Record::setIndexMatchingFields($pid);
+			}
 
 //exit;
 

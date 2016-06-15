@@ -240,7 +240,7 @@ class Citation
 	}
 
 
-	function renderIndexCitations($list, $type='APA', $cache = true, $knownFull = false)
+	public static function renderIndexCitations($list, $type='APA', $cache = true, $knownFull = false)
 	{
 
 		$log = FezLog::get();
@@ -279,7 +279,7 @@ class Citation
 		return $list;
 	}
 
-	function updateCitationCache($pid, $citation="", $shadow = false)
+	public static function updateCitationCache($pid, $citation="", $shadow = false)
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();

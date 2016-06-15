@@ -56,7 +56,7 @@ class Language
 	 * @access  public
 	 * @return  void
 	 */
-	function setPreference()
+	public static function setPreference()
 	{
 		global $avail_langs;
 
@@ -74,8 +74,8 @@ class Language
 		}
 		@define("APP_CURRENT_LANG", $app_lang);
 	}
-	
-	
+
+
 	/**
      * Method used to get an associative array of the 3 char lang code (eg eng) and
      * full details of a language code.
@@ -94,7 +94,7 @@ class Language
 						if (!is_numeric(strpos(APP_SQL_DBTYPE, "mysql"))) {
 							$stmt .= " lng_alpha3_bibliographic || ' (' || lng_english_name || ')' as name ";
 						} else {
-							$stmt .= " CONCAT(lng_alpha3_bibliographic, ' (', lng_english_name, ')') as name ";							
+							$stmt .= " CONCAT(lng_alpha3_bibliographic, ' (', lng_english_name, ')') as name ";
 						}
 			$stmt .= "
              FROM
@@ -112,7 +112,7 @@ class Language
                     return '';
             }
             return $res;
-    }	
+    }
 
     function suggest($term, $assoc = true)
     {
@@ -120,13 +120,13 @@ class Language
             $db = DB_API::get();
 
             if (empty($term)) { return array(); }
- 
+
             $stmt = "SELECT
 	                lng_alpha3_bibliographic as id,";
 							if (!is_numeric(strpos(APP_SQL_DBTYPE, "mysql"))) {
 								$stmt .= " lng_alpha3_bibliographic || ' (' || lng_english_name || ')' as name ";
 							} else {
-								$stmt .= " CONCAT(lng_alpha3_bibliographic, ' (', lng_english_name, ')') as name ";							
+								$stmt .= " CONCAT(lng_alpha3_bibliographic, ' (', lng_english_name, ')') as name ";
 							}
 							$stmt .= "
 	             FROM
@@ -146,7 +146,7 @@ class Language
                     return '';
             }
             return $res;
-    }	
+    }
 
 	/**
 	 * Method used to get the full title for a given language code.
@@ -169,14 +169,14 @@ class Language
 					if (!is_numeric(strpos(APP_SQL_DBTYPE, "mysql"))) {
 						$stmt .= " lng_alpha3_bibliographic || ' (' || lng_english_name || ')' as name ";
 					} else {
-						$stmt .= " CONCAT(lng_alpha3_bibliographic, ' (', lng_english_name, ')') as name ";							
+						$stmt .= " CONCAT(lng_alpha3_bibliographic, ' (', lng_english_name, ')') as name ";
 					}
 					$stmt .= "
            FROM
             " . APP_TABLE_PREFIX . "language
          WHERE
                     lng_alpha3_bibliographic = " . $db->quote($lng_code, 'STRING');
-        
+
 		try {
 			$res = $db->fetchOne($stmt);
 		}
@@ -212,7 +212,7 @@ class Language
 					ORDER BY
 						lng_english_name ASC
 		";
-		
+
 		try {
 			$res = $db->fetchAll($stmt);
 		}
@@ -220,12 +220,12 @@ class Language
 			$log->err($ex);
 			return '';
 		}
-		
+
 		return $res;
-	}	
-	
-	
-	
+	}
+
+
+
 	/**
 	 * Method used to get the details for a given language code.
 	 *
@@ -259,7 +259,7 @@ class Language
 
 		return $res;
 	}
-	
+
 
 	/**
 	 * Method used to update the details of the language.
@@ -281,7 +281,7 @@ class Language
 		} elseif ($_POST["ascl"] != '' && strlen($_POST["ascl"]) != 4) {
 			return -5;
 		}
-		
+
 		$stmt = "UPDATE
                     " . APP_TABLE_PREFIX . "language
                  SET
@@ -292,7 +292,7 @@ class Language
                     lng_ascl_code=" . $db->quote($_POST["ascl"]) . " ";
 		$stmt .= "WHERE
                     lng_alpha3_bibliographic=" . $db->quote($_POST["id"], 'STRING');
-                    
+
 		try {
 			$db->exec($stmt);
 		}
@@ -302,9 +302,9 @@ class Language
 		}
 		return 1;
 	}
-	
-	
-	
+
+
+
 	/**
 	 * Method used to remove a given set of languages from the system.
 	 *
@@ -329,9 +329,9 @@ class Language
 		}
 		return true;
 	}
-	
-	
-	
+
+
+
 	/**
 	 * Method used to add a new language to the system.
 	 *
@@ -352,7 +352,7 @@ class Language
 		} elseif ($_POST["ascl"] != '' && strlen($_POST["ascl"]) != 4) {
 			return -5;
 		}
-		
+
 		$stmt = "INSERT INTO
                     " . APP_TABLE_PREFIX . "language
                  (
@@ -371,7 +371,7 @@ class Language
 					" . $db->quote($_POST["ascl"]) . "
 				 )
                   ";
-		
+
 		try {
 			$db->exec($stmt);
 		}
@@ -381,9 +381,9 @@ class Language
 		}
 		return 1;
 	}
-	
-	
-	
+
+
+
 	/**
 	 * Method used to resolve an ETSI language to an internal ISO 639 language code.
 	 *

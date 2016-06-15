@@ -273,7 +273,9 @@ class BatchImport
       $mimetype = Misc::get_content_type($ds);
       Workflow::processIngestTrigger($pid, $ds, $mimetype);
     }
-    Record::setIndexMatchingFields($pid);
+    if (APP_FEDORA_BYPASS != 'ON') {
+      Record::setIndexMatchingFields($pid);
+    }
 
     return $xmlBegin;
   }
@@ -330,7 +332,9 @@ class BatchImport
     if (is_file($temp_store) && !$is_temp_file) {
       unlink($temp_store);
     }
-    Record::setIndexMatchingFields($pid);
+    if (APP_FEDORA_BYPASS != 'ON') {
+      Record::setIndexMatchingFields($pid);
+    }
   }
 
   function saveEprintPID($eprint_id, $pid)
@@ -405,7 +409,9 @@ class BatchImport
           $xmlObj = self::getFileContent($file);
           if (is_numeric(strpos($xmlObj, "foxml:digitalObject"))) {
             $this->handleFOXMLImport($xmlObj);
-            Record::setIndexMatchingFields($pid);
+            if (APP_FEDORA_BYPASS != 'ON') {
+              Record::setIndexMatchingFields($pid);
+            }
             $handled_as_xml = TRUE;
           } else if (is_numeric(strpos($xmlObj, "METS:mets"))) {
             $xmlBegin = $this->ConvertMETSToFOXML($pid, $xmlObj, $collection_pid, $short_name, $xdis_id, $ret_id, $sta_id);
@@ -699,15 +705,15 @@ class BatchImport
    */
   private static function getImportDirsFromS3($subdir = '')
   {
-    $aws = AWS::get();
+    $aws = new AWS(AWS_S3_SAN_IMPORT_BUCKET);
 
     $return = [];
     $prefix = empty($subdir) ? self::AWS_SAN_IMPORT_PREFIX : self::AWS_SAN_IMPORT_PREFIX . '/' . $subdir;
     $dirs = $aws->listObjectsInBucket($prefix);
 
     foreach ($dirs as $dir) {
-      // Skip the files
-      if ($dir['Size'] === 0) {
+      // Don't skip the files, check all the things
+      if ($dir['Size'] !== 0) {
         $pattern = empty($subdir) ? self::AWS_SAN_IMPORT_PREFIX : self::AWS_SAN_IMPORT_PREFIX . '\/' . $subdir;
         preg_match('/^' . $pattern . '\/([^\/]+)\//', $dir['Key'], $matches);
         if (count($matches) === 2) {
@@ -740,7 +746,7 @@ class BatchImport
    */
   private function getFileListFromS3($directory)
   {
-    $aws = AWS::get();
+    $aws = new AWS(AWS_S3_SAN_IMPORT_BUCKET);
 
     $return = [];
     $files = $aws->listObjectsInBucket(self::AWS_SAN_IMPORT_PREFIX . '/' . $directory);
@@ -762,7 +768,7 @@ class BatchImport
   public static function getFileContent($file, $saveAs = '')
   {
     if (defined('AWS_ENABLED') && AWS_ENABLED == 'true') {
-      $aws = AWS::get();
+      $aws = new AWS(AWS_S3_SAN_IMPORT_BUCKET);
 
       $params = [];
       if (! empty($saveAs)) {

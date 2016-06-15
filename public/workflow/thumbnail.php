@@ -33,89 +33,92 @@
 //
 //
 
+include_once(APP_INC_PATH . "class.image_resample.php");
+include_once(APP_INC_PATH . "class.log.php");
+
 $pid = $this->pid;
 $xdis_id = $this->xdis_id;
 $dsInfo = $this->dsInfo;
 $dsIDName = $dsInfo['ID'];
-$filename=$dsIDName;
-
+$filename = $dsIDName;
+$log = FezLog::get();
 // Added a check to see if the file is coming from a batch import location, therefore don't try to check if it is in the temp directory - which is only really for form uploads
 if ((is_numeric(strpos($filename, "/"))) || (is_numeric(strpos($filename, "\\")))) {
-	$filepath = $filename;
+  $filepath = $filename;
 } else {
-	$filepath = APP_TEMP_DIR.$filename;
+  $filepath = APP_TEMP_DIR . $filename;
 }
 
 if (!file_exists($filepath)) {
-    Error_Handler::logError("No base file $filepath<br/>\n",__FILE__,__LINE__);
+  $log->err("No base file $filepath<br/>\n");
 } else {
 
-    if (empty($file_name_prefix)) {
-        $file_name_prefix = "thumbnail_";
-    }
-    if (empty($quality)) {
-        $quality = APP_THUMBNAIL_QUALITY;
-    }
-    if (empty($height) || $height == '') {
-        $height = APP_THUMBNAIL_HEIGHT;
-    }
-    if (empty($width) || $width == '') {
-        $width = APP_THUMBNAIL_WIDTH;
-    }
+  if (empty($file_name_prefix)) {
+    $file_name_prefix = "thumbnail_";
+  }
+  if (empty($quality)) {
+    $quality = APP_THUMBNAIL_QUALITY;
+  }
+  if (empty($height) || $height == '') {
+    $height = APP_THUMBNAIL_HEIGHT;
+  }
+  if (empty($width) || $width == '') {
+    $width = APP_THUMBNAIL_WIDTH;
+  }
 
 
-    if (is_numeric(strpos($filename, "/"))) {
-        $new_file = $file_name_prefix.Foxml::makeNCName(substr($filename,strrpos($filename,"/")+1));
-    } else {
-        $new_file = $file_name_prefix.Foxml::makeNCName($filename);
-    }
-    if (is_numeric(strpos($new_file, "."))) {
-        $new_file = substr($new_file, 0, strrpos($new_file, ".")).".jpg";
-    } else {
-	
-        $new_file .= ".jpg";
-    }
+  if (is_numeric(strpos($filename, "/"))) {
+    $new_file = $file_name_prefix . Foxml::makeNCName(substr($filename, strrpos($filename, "/") + 1));
+  } else {
+    $new_file = $file_name_prefix . Foxml::makeNCName($filename);
+  }
+  if (is_numeric(strpos($new_file, "."))) {
+    $new_file = substr($new_file, 0, strrpos($new_file, ".")) . ".jpg";
+  } else {
 
-	$imageDetails = Exiftool::getDetails($pid, $dsIDName);
-	$maxWidth = $imageDetails['exif_image_width'];
-	$maxHeight = $imageDetails['exif_image_height'];
-	if ($width > $maxWidth) { $width = $maxWidth; }
-	if ($height > $maxHeight) { $height = $maxHeight; }
+    $new_file .= ".jpg";
+  }
+
+  $imageDetails = Exiftool::getDetails($pid, $dsIDName);
+  $maxWidth = $imageDetails['exif_image_width'];
+  $maxHeight = $imageDetails['exif_image_height'];
+  if ($width > $maxWidth) {
+    $width = $maxWidth;
+  }
+  if ($height > $maxHeight) {
+    $height = $maxHeight;
+  }
 //	list($width,$height) = Misc::scaleImage($width, $height, $maxWidth, $maxHeight);
 
-	// if using php pecl image magick it uses zeros 0s as its constraint flag.. annoyingly
-	if (extension_loaded('imagick')) {
-		$fitbyWidth = (($width/$maxWidth)<($height/$maxHeight)) ?true:false;
-		if($fitbyWidth){
-		    $height = 0;
-		}else{
-		    $width = 0;
-		}
-	}
-
-    $getString = APP_BASE_URL."webservices/wfb.image_resize.php?image="
-        .urlencode($filename)."&height=$height&width=$width&quality=$quality&ext=jpg&outfile=".$new_file;
-	Misc::ProcessURL($getString);
-
-    if (!empty($new_file)) {
-        if (Fedora_API::datastreamExists($pid, $new_file) && APP_VERSION_UPLOADS_AND_LINKS!="ON") {
-            Fedora_API::callPurgeDatastream($pid, $new_file);
-        }
-		$new_file_name = $new_file;
-        $delete_file = APP_TEMP_DIR.$new_file;
-        $new_file = APP_TEMP_DIR.$new_file;
-        if (file_exists($new_file)) {
-   	        $versionable = APP_VERSION_UPLOADS_AND_LINKS == "ON" ? 'true' : 'false';
-            Fedora_API::getUploadLocationByLocalRef($pid, $new_file_name, $new_file, $new_file_name, 'image/jpeg', 'M', null, $versionable);
-			Exiftool::saveExif($pid, $new_file_name);
-            if (is_file($new_file)) {
-                $deleteCommand = APP_DELETE_CMD." ".$delete_file;
-                exec($deleteCommand);
-            }
-        } else {
-            Error_Handler::logError("File not created $new_file<br/>\n", __FILE__,__LINE__);
-        }
+  // if using php pecl image magick it uses zeros 0s as its constraint flag.. annoyingly
+  if (extension_loaded('imagick')) {
+    $fitbyWidth = (($width / $maxWidth) < ($height / $maxHeight)) ? true : false;
+    if ($fitbyWidth) {
+      $height = 0;
+    } else {
+      $width = 0;
     }
-}
+  }
 
-?>
+  Image_Resample::imageResize(urlencode($filename), $quality, $width, $height, null, null, 'jpg', $new_file);
+
+  if (!empty($new_file)) {
+    if (Fedora_API::datastreamExists($pid, $new_file) && APP_VERSION_UPLOADS_AND_LINKS != "ON") {
+      Fedora_API::callPurgeDatastream($pid, $new_file);
+    }
+    $new_file_name = $new_file;
+    $delete_file = APP_TEMP_DIR . $new_file;
+    $new_file = APP_TEMP_DIR . $new_file;
+    if (file_exists($new_file)) {
+      $versionable = APP_VERSION_UPLOADS_AND_LINKS == "ON" ? 'true' : 'false';
+      Fedora_API::getUploadLocationByLocalRef($pid, $new_file_name, $new_file, $new_file_name, 'image/jpeg', 'M', null, $versionable);
+      Exiftool::saveExif($pid, $new_file_name);
+      if (is_file($new_file)) {
+        $deleteCommand = APP_DELETE_CMD . " " . $delete_file;
+        exec($deleteCommand);
+      }
+    } else {
+      $log->err("File not created $new_file<br/>\n");
+    }
+  }
+}

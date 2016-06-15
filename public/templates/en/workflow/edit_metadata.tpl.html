@@ -62,19 +62,27 @@
         {assign var="filecounter" value=0}
         {section name="d" loop=$datastreams}
             {if $datastreams[d].controlGroup == "M" && ($datastreams[d].isLister == 1 || $isAdministrator)}
-              <tr class="default"> 
+              <tr class="default">
                 <td style="background: {$cell_color};padding:10px;">Name</td>
                 <td style="background: {$cell_color};padding:10px;">Description (click to edit)</td>
                 <td style="background: {$cell_color};padding:10px;">MIMEType</td>
             </tr>
               <tr class="default">
                 {assign var="image_file_name" value=$datastreams[d].MIMEType|replace:"/":"_"|cat:".png"}
-                {assign var="image_name" value=$fez_root_dir|cat:"images/"|cat:$image_file_name}            
+                {assign var="image_name" value=$fez_root_dir|cat:"images/"|cat:$image_file_name}
                 {assign var="image_file_string" value=""}
                 {assign var="filecounter" value=$filecounter+1}
                 {fetch file=$image_name assign="image_file_string"}
                 <td bgcolor="{$value_color}">
-                {if $datastreams[d].thumbnail != "0"}<img align="absmiddle" src="{$eserv_url}{$datastreams[d].thumbnail}">{/if}
+                {if $datastreams[d].thumbnail != "0"}
+											<img align="absmiddle"
+                  {if $datastreams[d].thumbnail_cloudfront != ""}
+                    src="{$datastreams[d].thumbnail_cloudfront}{if $viewingPreviousVersion}?version_date={$versionDate}{/if}"
+                  {else}
+                    src="{$eserv_url}{$datastreams[d].thumbnail}{if $viewingPreviousVersion}?version_date={$versionDate}{/if}"
+                  {/if}
+                  />
+                {/if}
                 {if $image_file_string != ""}<img align="absmiddle" src="{$rel_url}images/{$image_file_name}">{else}<img align="absmiddle" src="{$rel_url}images/default.png">{/if}
                 {if $datastreams[d].isViewer == 1 || $isAdministrator}<a target="_blank" href="{$rel_url}view/{$pid}/{$datastreams[d].ID}">{/if}
                 <span id="{$pid}_{$filecounter}_filename">{$datastreams[d].ID}</span>{if $datastreams[d].isViewer == 1 || $isAdministrator}</a>&nbsp;{/if}
@@ -100,10 +108,10 @@
                     {if $datastreams[d].isEditor == 1 || $isAdministrator}&nbsp;<a href='{$rel_url}workflow/update.php?pid={$pid}&dsID={$datastreams[d].ID}&cat=select_workflow&wft_id={$datastreams[d].workflows[w].wft_id}&href={$smarty.server.REQUEST_URI}'><img alt="{$datastreams[d].workflows[w].wfl_title}" title="{$datastreams[d].workflows[w].wfl_title}" align="absmiddle" src="{$rel_url}{$wf_icon}" border="0"></a>{/if}
                 {/section}
                 [ <a href="javascript:editFilename('{$pid}', '{$datastreams[d].ID}', '{$filecounter}')">Rename</a> ]
-                
+
                     {* Hidden input to help validating the required file-upload fields. *}
                     <input type="hidden" name="uploader_files_uploaded" value="{$datastreams[d].ID}" id="hidden_{$datastreams[d].ID}" />
-                
+
                 </td>
 
                 <td bgcolor="{$value_color}"><div id="{$pid}_{$filecounter}_div"><span id="{$pid}_{$filecounter}_span" onclick="editFileLabel('{$pid}', '{$datastreams[d].ID}', {$filecounter});">{if $datastreams[d].label == ""}(empty){else}{$datastreams[d].label}{/if}</span></div></td>
@@ -140,7 +148,7 @@
         </tr>
     </table>
 {/if}
-    
+
 {* Reason for Edit *}
 <table cellpadding="2" cellspacing="0" style="background: white; width: 100%">
     <tr>
@@ -153,7 +161,7 @@
     </tr>
 </table>
 
-{/if}                 
+{/if}
 </div>
 </td></tr>
 

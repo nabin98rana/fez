@@ -436,7 +436,7 @@ class Foxml
 	 * @param   string $updated_date
 	 * @return  string $xmlObj The xml object, plus the indexArray is passed back by reference
 	 */
-	function array_to_xml_instance($a, &$xmlObj="", $element_prefix, $sought_node_type="", $tagIndent="", $parent_sel_id="", $xdis_id, $pid, $top_xdis_id, $attrib_loop_index="", &$indexArray=array(), $file_downloads=0, $created_date, $updated_date, $depositor, $assign_usr_id=null, $assign_grp_id=null)
+	public static function array_to_xml_instance($a, &$xmlObj="", $element_prefix, $sought_node_type="", $tagIndent="", $parent_sel_id="", $xdis_id, $pid, $top_xdis_id, $attrib_loop_index="", &$indexArray=array(), $file_downloads=0, $created_date, $updated_date, $depositor, $assign_usr_id=null, $assign_grp_id=null)
 	{
 		$tagIndent = "";
 		// *** LOOP THROUGH THE XSD ARRAY
@@ -937,7 +937,7 @@ class Foxml
 
 	// NCName ::= (Letter | '_') (NCNameChar)
 	// NCNameChar ::= Letter | Digit | '.' | '-' | '_' | CombiningChar | Extender
-	function makeNCName($str) {
+	public static function makeNCName($str) {
 		$str = preg_replace('/[^\w\n\-\.]/', "_", $str);
 		if (!preg_match('/^[a-zA-Z_]/', $str)) {
 			// add an n to the front to make it a valid NCName

@@ -63,25 +63,137 @@ include_once(APP_INC_PATH . "class.doc_type_xsd.php");
  */
 class Image_Resample
 {
-	function resample($pid, $dsID, $width, $height, $regen, $copyright_message="", $watermark=false)
-	{
-		$real_dsID = $dsID;
-		$urldata = APP_FEDORA_GET_URL."/".$pid."/".$real_dsID;
-		$tempDumpFileName = APP_TEMP_DIR.$real_dsID;
-		$sourceOAI = fopen($urldata, "r");
-		$sourceOAIRead = '';
-		while ($tmp = fread($sourceOAI, 4096)) {
-			$sourceOAIRead .= $tmp;
-		}
-		$tempDump = fopen($tempDumpFileName, 'w');
-		fwrite($tempDump, $sourceOAIRead);
-		fclose($tempDump);
-		$mimetype = Misc::mime_content_type($tempDumpFileName);
-		Workflow::processIngestTrigger($pid, $real_dsID, $mimetype);
-		if (is_file($tempDumpFileName)) { // now remove the file from temp
-			$deleteCommand = APP_DELETE_CMD." ".$tempDumpFileName;
-			exec($deleteCommand);
-		}
-	}
+  public static function resample($pid, $dsID, $width, $height, $regen, $copyright_message = "", $watermark = false)
+  {
+    $real_dsID = $dsID;
+    $urldata = APP_FEDORA_GET_URL . "/" . $pid . "/" . $real_dsID;
+    $tempDumpFileName = APP_TEMP_DIR . $real_dsID;
+    $sourceOAI = fopen($urldata, "r");
+    $sourceOAIRead = '';
+    while ($tmp = fread($sourceOAI, 4096)) {
+      $sourceOAIRead .= $tmp;
+    }
+    $tempDump = fopen($tempDumpFileName, 'w');
+    fwrite($tempDump, $sourceOAIRead);
+    fclose($tempDump);
+    $mimetype = Misc::mime_content_type($tempDumpFileName);
+    Workflow::processIngestTrigger($pid, $real_dsID, $mimetype);
+    if (is_file($tempDumpFileName)) { // now remove the file from temp
+      $deleteCommand = APP_DELETE_CMD . " " . $tempDumpFileName;
+      exec($deleteCommand);
+    }
+  }
+
+  /**
+   * @param $image
+   * @param $quality
+   * @param $width
+   * @param $height
+   * @param $copyright
+   * @param $watermark
+   * @param $ext
+   * @param $outfile
+   */
+  public static function imageResize($image, $quality, $width, $height, $copyright, $watermark, $ext, $outfile)
+  {
+
+    $log = FezLog::get();
+
+    $image_dir = "";
+    if (is_numeric(strpos($image, "/"))) {
+      $image_dir = substr($image, 0, strrpos($image, "/") + 1);
+      $image = substr($image, strrpos($image, "/") + 1);
+    }
+
+    if (trim($image_dir) == "") {
+      $image_dir = APP_TEMP_DIR;
+    }
+
+// Strip existing extension, store in $temp_file.
+    $ext_loc = strrpos($outfile, ".");
+    if (is_numeric($ext_loc)) {
+      $temp_file = substr($outfile, 0, $ext_loc);
+    } else {
+      $temp_file = $outfile;
+    }
+// Add desired extension.
+    $temp_file .= ".$ext";
+    $temp_file = str_replace(" ", "_", $temp_file);
+    $temp_file = trim($temp_file);
+    $error = '';
+    if (!$image) $error .= "<b>ERROR:</b> no image specified<br>";
+    if (empty($temp_file)) {
+      $error .= "<b>ERROR:</b> outfile: '" . htmlspecialchars($outfile) . "' not a valid name<br>";
+    }
+
+// get image from an URL
+    if (preg_match('/^https?:\/\//', $image_dir . $image)) {
+      if (!is_file(APP_TEMP_DIR . $image)) {
+        file_put_contents(APP_TEMP_DIR . $image, file_get_contents($image_dir . $image));
+      }
+      $image_dir = APP_TEMP_DIR;
+    }
+
+
+    if (!is_file($image_dir . $image)) {
+      $error .= "<b>ERROR:</b> given image filename not found or bad filename given<br>";
+    }
+    if (!is_numeric($width) && !is_numeric($height)) $error .= "<b>ERROR:</b> no numeric sizes specified<br>";
+    if (!is_numeric($quality)) $quality = 100;
+    if ($error) {
+      $log->err($error);
+      die;
+    }
+
+    $return_array = array();
+    $return_status = 0;
+
+    if (!stristr(PHP_OS, 'win') || stristr(PHP_OS, 'darwin')) { // Not Windows Server
+      $unix_extra = " 2>&1";
+    } else {
+      $unix_extra = '';
+    }
+// Create the output file if it does not exist
+    if ($watermark == "" && $copyright == "") {
+      if (!is_file(APP_TEMP_DIR . $temp_file)) {
+        if (extension_loaded('imagick')) {
+          $im = new Imagick($image_dir . escapeshellcmd($image));
+          $im->setImageColorspace(1); // 1 = rgb
+          $existingQuality = $im->getCompressionQuality();
+          if ($quality < $existingQuality) {
+            $im->setCompressionQuality($quality);
+          }
+          $im->thumbnailImage($width, $height);
+          $im->stripImage();
+          $im->writeImage(APP_TEMP_DIR . escapeshellcmd($temp_file));
+        } else {
+          $command = APP_CONVERT_CMD . " -strip -quality " . escapeshellcmd($quality) . " -resize \"" . escapeshellcmd($width) . "x" . escapeshellcmd($height) . ">\" -colorspace rgb \"" . $image_dir . escapeshellcmd($image) . "\"[0] " . APP_TEMP_DIR . escapeshellcmd($temp_file);
+          exec($command . $unix_extra, $return_array, $return_status);
+        }
+      }
+    } elseif ($watermark == "" && $copyright != "") {
+      $command = APP_CONVERT_CMD . " -strip -quality " . escapeshellcmd($quality) . " -resize \"" . escapeshellcmd($width) . "x" . escapeshellcmd($height) . ">\" -colorspace rgb \"" . $image_dir . escapeshellcmd($image) . "\"[0] " . APP_TEMP_DIR . escapeshellcmd($temp_file);
+      exec($command . $unix_extra, $return_array, $return_status);
+      $command = APP_CONVERT_CMD . ' ' . APP_TEMP_DIR . escapeshellcmd($temp_file) . ' -font Arial -pointsize 20 -draw "gravity center fill black text 0,12 \'Copyright' . $copyright . '\' fill white  text 1,11 \'Copyright' . $copyright . '\'" ' . APP_TEMP_DIR . escapeshellcmd($temp_file) . '';
+      exec($command . $unix_extra, $return_array, $return_status);
+    } elseif ($watermark != "" && $copyright == "") {
+      $command = APP_CONVERT_CMD . " -strip -quality " . escapeshellcmd($quality) . " -resize \"" . escapeshellcmd($width) . "x" . escapeshellcmd($height) . ">\" -colorspace rgb \"" . $image_dir . escapeshellcmd($image) . "\"[0] " . APP_TEMP_DIR . escapeshellcmd($temp_file);
+      exec($command . $unix_extra, $return_array, $return_status);
+      $command = APP_COMPOSITE_CMD . " -dissolve 15 -tile " . escapeshellcmd(APP_PATH) . "/images/" . APP_WATERMARK . " " . APP_TEMP_DIR . escapeshellcmd($temp_file) . " " . APP_TEMP_DIR . escapeshellcmd($temp_file) . "";
+      exec($command . $unix_extra, $return_array, $return_status);
+    } elseif ($watermark != "" && $copyright != "") {
+      $command = APP_CONVERT_CMD . " -strip -quality " . escapeshellcmd($quality) . " -resize \"" . escapeshellcmd($width) . "x" . escapeshellcmd($height) . ">\" -colorspace rgb \"" . $image_dir . escapeshellcmd($image) . "\"[0] " . APP_TEMP_DIR . escapeshellcmd($temp_file);
+      exec($command . $unix_extra, $return_array, $return_status);
+      $command = APP_CONVERT_CMD . ' ' . APP_TEMP_DIR . escapeshellcmd($temp_file) . ' -font Arial -pointsize 20 -draw "gravity center fill black text 0,12 \'Copyright' . $copyright . '\' fill white  text 1,11 \'Copyright' . $copyright . '\'" ' . APP_TEMP_DIR . escapeshellcmd($temp_file) . '';
+      exec($command . $unix_extra, $return_array, $return_status);
+      $command = APP_COMPOSITE_CMD . " -dissolve 15 -tile " . escapeshellcmd(APP_PATH) . "/images/" . APP_WATERMARK . " " . APP_TEMP_DIR . escapeshellcmd($temp_file) . " " . APP_TEMP_DIR . escapeshellcmd($temp_file) . "";
+      exec($command . $unix_extra, $return_array, $return_status);
+    }
+
+//$log->err($command);
+    if ($return_status <> 0) {
+      $log->err(array('Message' => "Image Magick Error: " . implode(",", $return_array) . ", return status = $return_status, for command $command$unix_extra \n", 'File' => __FILE__, 'Line' => __LINE__));
+    }
+  }
 
 }

@@ -140,7 +140,9 @@ class BackgroundProcess_Bulk_Assign_Authorid extends BackgroundProcess
                         History::addHistory($pid, null, date('Y-m-d H:i:s'), "", true, $historyDetail, "");
 
                         // Set Index
-                        Record::setIndexMatchingFields($pid);
+                        if (APP_FEDORA_BYPASS != 'ON') {
+                          Record::setIndexMatchingFields($pid);
+                        }
                     } else if ($nodeList->length == 0 ) {
                         $this->setStatus("Did NOT update " . $pid . " didn't have any authors with '" . $author_name . "'");
                     } else {

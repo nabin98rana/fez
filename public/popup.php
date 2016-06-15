@@ -121,11 +121,13 @@ else {
 }
 
 if (APP_FEDORA_BYPASS == 'ON') {
-  $now = Date_API::getCurrentDateGMT();
-  $dsr = new DSResource();
-  $dsr->load($dsID, $pid);
-  $do = new DigitalObject();
-  $dbgRec = new RecordObject($_GET['pid']);
+  if (defined('AWS_S3_ENABLED') && AWS_S3_ENABLED != 'true') {
+    $now = Date_API::getCurrentDateGMT();
+    $dsr = new DSResource();
+    $dsr->load($dsID, $pid);
+    $do = new DigitalObject();
+    $dbgRec = new RecordObject($_GET['pid']);
+  }
 }
 
 switch ($cat) {
@@ -166,7 +168,9 @@ switch ($cat) {
       if (Fedora_API::datastreamExists($pid, $PresMD_DS)) {
         Fedora_API::callPurgeDatastream($pid, $PresMD_DS);
       }
-      Record::setIndexMatchingFields($pid);
+      if (APP_FEDORA_BYPASS != 'ON') {
+        Record::setIndexMatchingFields($pid);
+      }
       // Remove details from the exif table
       Exiftool::remove($pid, $dsID);
       if (count($res) == 1) {
@@ -183,7 +187,7 @@ switch ($cat) {
     break;
   }
   case 'delete_datastream': {
-    if (APP_FEDORA_BYPASS == 'ON') {
+    if (defined('AWS_S3_ENABLED') && AWS_S3_ENABLED != 'true' && (APP_FEDORA_BYPASS == 'ON')) {
       $dbgRec->forceInsertUpdate(array('removeFiles' => array($dsID)));
     }
     else {
@@ -214,7 +218,9 @@ switch ($cat) {
         if (Fedora_API::datastreamExists($pid, $PresMD_DS)) {
           Fedora_API::deleteDatastream($pid, $PresMD_DS);
         }
-        Record::setIndexMatchingFields($pid);
+        if (APP_FEDORA_BYPASS != 'ON') {
+          Record::setIndexMatchingFields($pid);
+        }
         // Remove details from the exif table
         Exiftool::remove($pid, $dsID);
         if (count($res) == 1) {

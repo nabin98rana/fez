@@ -509,7 +509,7 @@ class Controlled_Vocab
 	 * @return  string The ID of the controlled vocabulary
      * @param $parent restricts to children of the given parent text
 	 */
-	function getID($cvo_title, $parent = '')
+	public static function getID($cvo_title, $parent = '')
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();

@@ -37,29 +37,29 @@
  **/
 class Uploader
 {
-	
+
 	/**
 	 * Generates the file path given a $wflId
 	 *
 	 * @return string
 	 **/
-	public function getUploadedFilePath($wflId)
+	public static function getUploadedFilePath($wflId)
 	{
 		return APP_TEMP_DIR."uploader/{$wflId}";
 	}
-	
+
 	/**
 	 * Generates the files array based on the files in the uploader directory for this workflow
 	 *
 	 * @param string $wflId Workflow id to base files on
 	 * @return array
-	 * 
+	 *
 	 **/
-	public function generateFilesArray($wflId, $xsdmfId)
+	public static function generateFilesArray($wflId, $xsdmfId)
 	{
 	    $uploadDir = self::getUploadedFilePath($wflId);
 		$returnArray = array();
-		
+
 		// if the directory doesn't exist, return an empty array
 		if (!file_exists($uploadDir)) {
 			return $returnArray;
@@ -68,19 +68,19 @@ class Uploader
 		// for every file in the directory
 		$scandirList = scandir($uploadDir);
 		$counter = 0;
-		
+
 		foreach ($scandirList as $file) {
 			if (is_file("{$uploadDir}/{$file}")) {
-	
+
 				// strip characters up to first period (this is the number prepended to the filename so that we get the files in order)
 				$start = strpos($file, '.');
 				$newFilename = substr($file, $start+1, strlen($file));
 				rename("{$uploadDir}/{$file}", "{$uploadDir}/{$newFilename}"); // move into new filename (so we don't get confused later)
-				
+
 				// determine the file size and mime type
 				$fileSize = sprintf("%u", filesize("{$uploadDir}/{$newFilename}"));
 				$mimeType = Misc::mime_content_type("{$uploadDir}/{$newFilename}");
-				
+
 				// now set up the return array (to look like the $_FILES array)
 				$returnArray['xsd_display_fields']['name'][$xsdmfId][$counter] = $newFilename;
 				$returnArray['xsd_display_fields']['type'][$xsdmfId][$counter] = $mimeType;

@@ -95,42 +95,40 @@ class RecordGeneral
    * Retrieve the display id for this record
    *
    * @access  public
-   * @return  void
+   * @return  integer
    */
   function getXmlDisplayId($getFromXML = false)
   {
     if (!$this->no_xdis_id) {
-      if (empty($this->xdis_id) || ($getFromXML === true)) {
+      if (empty($this->xdis_id) ) {
         if (!$this->checkExists()) {
           Error_Handler::logError("Record ".$this->pid." doesn't exist", __FILE__, __LINE__);
           return null;
         }
-        if ($getFromXML === true) {
-          $xdis_array = Fedora_API::callGetDatastreamContentsField(
-              $this->pid, 'FezMD', array('xdis_id'), $this->createdDT
-          );
-          if (isset($xdis_array['xdis_id'][0])) {
-            $xdis_id = $xdis_array['xdis_id'][0];
-          } else {
-            $this->no_xdis_id = true;
-            return null;
-          }
-        } else {
-          if(APP_FEDORA_BYPASS == 'ON')
-          {
-              $xdis_id = Record::getSearchKeyIndexValue($this->pid,'Display Type');
+        if(APP_FEDORA_BYPASS == 'ON')
+        {
+          $xdis_id = Record::getSearchKeyIndexValue($this->pid,'Display Type');
 
-              //if none then it must be deleted so get shadow version
-              $value = implode('', $xdis_id);
-              if (empty($value)) {
-                  $xdis_id = Record::getSearchKeyIndexValueShadow($this->pid,'Display Type');
-              }
-              $xdis_key = array_keys($xdis_id);
-              $xdis_id = $xdis_key[0];
+          //if none then it must be deleted so get shadow version
+          $value = implode('', $xdis_id);
+          if (empty($value)) {
+            $xdis_id = Record::getSearchKeyIndexValueShadow($this->pid,'Display Type');
           }
-          else
-          {
-              $xdis_id = XSD_HTML_Match::getDisplayType($this->pid);
+          $xdis_key = array_keys($xdis_id);
+          $xdis_id = $xdis_key[0];
+        } else {
+          if ($getFromXML === true) {
+            $xdis_array = Fedora_API::callGetDatastreamContentsField(
+                $this->pid, 'FezMD', array('xdis_id'), $this->createdDT
+            );
+            if (isset($xdis_array['xdis_id'][0])) {
+              $xdis_id = $xdis_array['xdis_id'][0];
+            } else {
+              $this->no_xdis_id = true;
+              return null;
+            }
+          } else {
+            $xdis_id = XSD_HTML_Match::getDisplayType($this->pid);
           }
         }
         if (isset($xdis_id)) {
@@ -139,8 +137,6 @@ class RecordGeneral
           $this->no_xdis_id = true;
           return null;
         }
-
-
       }
       return $this->xdis_id;
     }
@@ -227,7 +223,7 @@ class RecordGeneral
    * @param  array $roles The allowed roles to access the object
    * @param  $redirect
    * @access  public
-   * @return  void
+   * @return  boolean
    */
   function checkAuth($roles, $redirect=true)
   {
@@ -246,7 +242,7 @@ class RecordGeneral
    *
    * @access  public
    * @param  $redirect
-   * @return  void
+   * @return  boolean
    */
   function canView($redirect=true)
   {
@@ -288,7 +284,7 @@ class RecordGeneral
    *
    * @access  public
    * @param  $redirect
-   * @return  void
+   * @return  boolean
    */
   function canEdit($redirect=false)
   {
@@ -337,7 +333,7 @@ class RecordGeneral
    *
    * @access  public
    * @param  $redirect
-   * @return  void
+   * @return  boolean
    */
   function canCreate($redirect=false)
   {
@@ -350,7 +346,7 @@ class RecordGeneral
    *
    * @access  public
    * @param  $redirect
-   * @return  void
+   * @return  boolean
    */
   function canViewVersions($redirect=false)
   {
@@ -364,7 +360,7 @@ class RecordGeneral
    *
    * @access  public
    * @param  $redirect
-   * @return  void
+   * @return  integer
    */
   //    function canRevertVersions($redirect=false) {
   //		  if(APP_VERSION_UPLOADS_AND_LINKS != "ON") return false;
@@ -375,7 +371,7 @@ class RecordGeneral
   {
     if(APP_FEDORA_BYPASS == 'ON') {
         $do = new DigitalObject;
-        return $do->isPublished($this->pid);
+        return $do->getStatus($this->pid);
 
     } else {
         $this->getDisplay();
@@ -431,7 +427,7 @@ class RecordGeneral
         $details = Record::getDetailsLite($this->pid);
         // $searchKeyData[0] for 1-to-1 search keys
         $searchKeyData[0]['status'] = array('xsdmf_id' => $details[0]['rek_status_xsdmf_id'], 'xsdmf_value' => $sta_id);
-        $searchKeyData[0]['updated_date'] = array('xsdmf_id' => $details[0]['rek_updated_date_xsdmf_id'], 'xsdmf_value' => Date_API::getFedoraFormattedDateUTC());
+        $searchKeyData[0]['updated_date'] = array('xsdmf_id' => $details[0]['rek_updated_date_xsdmf_id'], 'xsdmf_value' => Date_API::getCurrentDateGMT());
 
         // Update the search keys for this PID with new value
         Record::updateSearchKeys($this->pid, $searchKeyData);
@@ -1719,7 +1715,9 @@ class RecordGeneral
       );
       $historyDetail = "Abstract was stripped from ESTI imported record";
       History::addHistory($this->pid, null, "", "", true, $historyDetail);
-      Record::setIndexMatchingFields($this->pid);
+      if (APP_FEDORA_BYPASS != 'ON') {
+        Record::setIndexMatchingFields($this->pid);
+      }
       return true;
     }
     return false;
@@ -1810,7 +1808,9 @@ class RecordGeneral
       Fedora_API::callModifyDatastreamByValue(
           $this->pid, "FezMD", "A", "Fez Admin Metadata", $newXML, "text/xml", "inherit"
       );
-      Record::setIndexMatchingFields($this->pid);
+      if (APP_FEDORA_BYPASS != 'ON') {
+        Record::setIndexMatchingFields($this->pid);
+      }
     }
   }
 
@@ -1858,7 +1858,9 @@ class RecordGeneral
         Fedora_API::callModifyDatastreamByValue(
             $this->pid, $dsID, "A", "setValue", $doc->saveXML(), "text/xml", "inherit"
         );
-        Record::setIndexMatchingFields($this->pid);
+        if (APP_FEDORA_BYPASS != 'ON') {
+          Record::setIndexMatchingFields($this->pid);
+        }
         return true;
       }
     } else {

@@ -50,24 +50,24 @@ class Configuration
    *
    * Returns an associative array of all core configuration names/values in the config table.
    */
-  function getConfAll() 
+  function getConfAll()
   {
     $db = DB_API::get();
-          
+
     $stmt = "SELECT
                 config_name, config_value
              FROM
                 " . APP_TABLE_PREFIX . "config 
              WHERE
                 config_module = 'core'";
-              
+
     try {
       $res = $db->fetchAssoc($stmt);
     }
-    catch(Exception $ex) {   
+    catch(Exception $ex) {
       return false;
     }
-              
+
     if (empty($res)) {
       return array();
     } else {
@@ -84,11 +84,11 @@ class Configuration
   /**
    * registerConf
    *
-   * Registers global variables / definitions that Fez requires to operate happily. Once we have 
+   * Registers global variables / definitions that Fez requires to operate happily. Once we have
    * set-up all values located in the config table, we manually assemble a number of compound
    * variables. This function is roughly analogous to #including the old config.inc.php.
    */
-  function registerConf() 
+  public static function registerConf()
   {
     $settings = Configuration::getConfAll();
 
@@ -98,14 +98,14 @@ class Configuration
 
     $custom_view_pid = (isset($_GET['custom_view_pid'])) ? $_GET['custom_view_pid'] : null;
     if (!empty($custom_view_pid)) {
-      $customView = Custom_View::getCommCview($custom_view_pid);			
+      $customView = Custom_View::getCommCview($custom_view_pid);
       if (! $customView) {
         $error_type = 'Unable to get custom view from DB';
         include_once(APP_PATH . "offline.php");
         exit;
       }
     }
-    else 
+    else
     {
         $customView = null;
     }
@@ -159,21 +159,21 @@ class Configuration
 
     // This list of roles control which roles can assume the roles of others, e.g. the
     // Community_Admin role can do all the roles an Editor can do.
-    define('APP_VIEWER_ROLES', "Viewer,Community_Administrator,Editor,Creator,Annotator,Approver"); 
+    define('APP_VIEWER_ROLES', "Viewer,Community_Administrator,Editor,Creator,Annotator,Approver");
     define('APP_EDITOR_ROLES', "Community_Administrator,Editor,Approver");
     define('APP_CREATOR_ROLES', "Creator,Community_Administrator,Editor,Approver");
     define('APP_APPROVER_ROLES', "Community_Administrator,Approver");
     define('APP_DELETER_ROLES', "Community_Administrator");
-    define('APP_LISTER_ROLES', "Lister,Viewer,Community_Administrator,Editor,Creator,Annotator,Approver"); 
+    define('APP_LISTER_ROLES', "Lister,Viewer,Community_Administrator,Editor,Creator,Annotator,Approver");
     define('APP_VIEW_VERSIONS_ROLES', "");  // if none, available to Admins only
     // define('APP_REVERT_VERSIONS_ROLES', "");  // not implemented yet
 
-    define('APP_VIEWER_ROLE_IDS', "10,6,8,7,1,2"); 
+    define('APP_VIEWER_ROLE_IDS', "10,6,8,7,1,2");
     define('APP_EDITOR_ROLE_IDS', "6,8,2");
     define('APP_CREATOR_ROLE_IDS', "7,6,8,2");
     define('APP_APPROVER_ROLE_IDS', "6,2");
     define('APP_DELETER_ROLE_IDS', "6");
-    define('APP_LISTER_ROLE_IDS', "9,10,6,8,7,1,2"); 
+    define('APP_LISTER_ROLE_IDS', "9,10,6,8,7,1,2");
     define('APP_VIEW_VERSIONS_ROLE_IDS', "");  // if none, available to Admins only
     // define('APP_REVERT_VERSIONS_ROLE_IDS', "");  // not implemented yet
 
@@ -250,12 +250,12 @@ class Configuration
   /**
    * checkConf
    *
-   * This is where we satisfy ourselves that sensible / compliant values have been set for 
+   * This is where we satisfy ourselves that sensible / compliant values have been set for
    * as many of the config variables we care to check. It would be ideal to bind the sanity
-   * checks into this function at some point, but that will need to be a project for further 
+   * checks into this function at some point, but that will need to be a project for further
    * down the line.
    */
-  function checkConf() 
+  function checkConf()
   {
       return;
   }
@@ -263,16 +263,16 @@ class Configuration
   /**
    * saveConf
    *
-   * This method examines all core configuration values that the system already knows about, and 
+   * This method examines all core configuration values that the system already knows about, and
    * updates them all in turn with the POST data from the configuration page.
-   * 
+   *
    * Returns NULL if success
    * Returns array of error tokens if problem.
    */
-  function saveConf() 
+  function saveConf()
   {
     $db = DB_API::get();
-  
+
     $originalSettings = Configuration::getConfAll();
     $problemUpdates = array();
 
@@ -285,9 +285,9 @@ class Configuration
             $db->exec($stmt);
         }
       }
-      catch(Exception $ex) {				
+      catch(Exception $ex) {
         array_push($problemUpdates, $key);
-      }            
+      }
     }
     return $problemUpdates;
   }

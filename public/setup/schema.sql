@@ -1905,8 +1905,6 @@ CREATE TABLE `fez_record_search_key_alternative_title__shadow` (
   `rek_alternative_title_order` int(11) DEFAULT '1',
   `rek_alternative_title_stamp` datetime DEFAULT NULL,
   PRIMARY KEY (`rek_alternative_title_id`),
-  UNIQUE KEY `unique_constraint_pid_order` (`rek_alternative_title_pid`,`rek_alternative_title_order`),
-  UNIQUE KEY `rek_alternative_title_pid_2` (`rek_alternative_title_pid`,`rek_alternative_title_stamp`),
   KEY `rek_alternative_title` (`rek_alternative_title`),
   KEY `rek_alternative_title_pid` (`rek_alternative_title_pid`),
   KEY `rek_alternative_title_order` (`rek_alternative_title_order`)
@@ -1987,8 +1985,6 @@ CREATE TABLE `fez_record_search_key_architectural_features__shadow` (
   `rek_architectural_features` varchar(255) DEFAULT NULL,
   `rek_architectural_features_stamp` datetime DEFAULT NULL,
   PRIMARY KEY (`rek_architectural_features_id`),
-  UNIQUE KEY `unique_constraint_pid_order` (`rek_architectural_features_pid`,`rek_architectural_features_order`),
-  UNIQUE KEY `rek_architectural_features_pid_2` (`rek_architectural_features_pid`,`rek_architectural_features_stamp`),
   KEY `rek_architectural_features_pid` (`rek_architectural_features_pid`),
   FULLTEXT KEY `fulltext` (`rek_architectural_features`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
@@ -2031,8 +2027,6 @@ CREATE TABLE `fez_record_search_key_assigned_group_id__shadow` (
   `rek_assigned_group_id_order` int(11) DEFAULT '1',
   `rek_assigned_group_id_stamp` datetime DEFAULT NULL,
   PRIMARY KEY (`rek_assigned_group_id_id`),
-  UNIQUE KEY `unique_constraint_pid_order` (`rek_assigned_group_id_pid`,`rek_assigned_group_id_order`),
-  UNIQUE KEY `rek_assigned_group_id_pid_2` (`rek_assigned_group_id_pid`,`rek_assigned_group_id_stamp`),
   KEY `rek_assigned_group_id_pid` (`rek_assigned_group_id_pid`),
   KEY `rek_assigned_group_id` (`rek_assigned_group_id`),
   KEY `rek_assigned_group_id_order` (`rek_assigned_group_id_order`)
@@ -2076,8 +2070,6 @@ CREATE TABLE `fez_record_search_key_assigned_user_id__shadow` (
   `rek_assigned_user_id_order` int(11) DEFAULT '1',
   `rek_assigned_user_id_stamp` datetime DEFAULT NULL,
   PRIMARY KEY (`rek_assigned_user_id_id`),
-  UNIQUE KEY `unique_constraint_pid_order` (`rek_assigned_user_id_pid`,`rek_assigned_user_id_order`),
-  UNIQUE KEY `rek_assigned_user_id_pid_2` (`rek_assigned_user_id_pid`,`rek_assigned_user_id_stamp`),
   KEY `rek_assigned_user_id_pid` (`rek_assigned_user_id_pid`),
   KEY `rek_assigned_user_id` (`rek_assigned_user_id`),
   KEY `rek_assigned_user_id_order` (`rek_assigned_user_id_order`)
@@ -2121,8 +2113,6 @@ CREATE TABLE `fez_record_search_key_author__shadow` (
   `rek_author_order` int(11) DEFAULT '1',
   `rek_author_stamp` datetime DEFAULT NULL,
   PRIMARY KEY (`rek_author_id`),
-  UNIQUE KEY `unique_constraint_pid_order` (`rek_author_pid`,`rek_author_order`),
-  UNIQUE KEY `rek_author_pid_2` (`rek_author_pid`,`rek_author_stamp`),
   KEY `rek_author_pid` (`rek_author_pid`),
   KEY `rek_author` (`rek_author`),
   KEY `rek_author_order` (`rek_author_order`)
@@ -2285,8 +2275,7 @@ CREATE TABLE `fez_record_search_key_author_role__shadow` (
   `rek_author_role_order` int(11) DEFAULT '1',
   `rek_author_role` varchar(255) DEFAULT NULL,
   `rek_author_role_stamp` datetime DEFAULT NULL,
-  PRIMARY KEY (`rek_author_role_id`),
-  UNIQUE KEY `rek_author_role_pid` (`rek_author_role_pid`,`rek_author_role_stamp`)
+  PRIMARY KEY (`rek_author_role_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -2362,8 +2351,6 @@ CREATE TABLE `fez_record_search_key_building_materials__shadow` (
   `rek_building_materials` varchar(255) DEFAULT NULL,
   `rek_building_materials_stamp` datetime DEFAULT NULL,
   PRIMARY KEY (`rek_building_materials_id`),
-  UNIQUE KEY `unique_constraint_pid_order` (`rek_building_materials_pid`,`rek_building_materials_order`),
-  UNIQUE KEY `rek_building_materials_pid_2` (`rek_building_materials_pid`,`rek_building_materials_stamp`),
   KEY `rek_building_materials_pid` (`rek_building_materials_pid`),
   FULLTEXT KEY `fulltext` (`rek_building_materials`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
@@ -2527,9 +2514,6 @@ CREATE TABLE `fez_record_search_key_category__shadow` (
   `rek_category` text,
   `rek_category_stamp` datetime DEFAULT NULL,
   PRIMARY KEY (`rek_category_id`),
-  UNIQUE KEY `unique_constraints` (`rek_category_pid`,`rek_category_order`),
-  UNIQUE KEY `unique_constraint_pid_order` (`rek_category_pid`,`rek_category_order`),
-  UNIQUE KEY `rek_category_pid_2` (`rek_category_pid`,`rek_category_stamp`),
   KEY `rek_category_pid` (`rek_category_pid`),
   FULLTEXT KEY `rek_category` (`rek_category`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
@@ -7442,8 +7426,6 @@ CREATE TABLE `fez_record_search_key_xsd_display_option__shadow` (
   `rek_xsd_display_option_order` int(11) DEFAULT '1',
   `rek_xsd_display_option_stamp` datetime DEFAULT NULL,
   PRIMARY KEY (`rek_xsd_display_option_id`),
-  UNIQUE KEY `unique_constraint_pid_order` (`rek_xsd_display_option_pid`,`rek_xsd_display_option_order`),
-  UNIQUE KEY `rek_xsd_display_option_pid_2` (`rek_xsd_display_option_pid`,`rek_xsd_display_option_stamp`),
   KEY `rek_xsd_display_option_pid` (`rek_xsd_display_option_pid`),
   KEY `rek_xsd_display_option` (`rek_xsd_display_option`),
   KEY `rek_xsd_display_option_order` (`rek_xsd_display_option_order`)

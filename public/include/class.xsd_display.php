@@ -607,7 +607,7 @@ class XSD_Display
 	 * @param   integer $xdis_id The XSD Display ID
 	 * @return  array The custom field details
 	 */
-	function getParentXSDID($xdis_id)
+	public static function getParentXSDID($xdis_id)
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
@@ -635,7 +635,7 @@ class XSD_Display
 	 * @param   string $xdis_title The XSD title to search by.
 	 * @return  integer $res the xdis_id
 	 */
-	function getID($xdis_title)
+	public static function getID($xdis_title)
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
@@ -734,7 +734,7 @@ class XSD_Display
 	 * @param   integer $xdis_id The XSD ID to search by.
 	 * @return  array $res The title
 	 */
-	function getTitle($xdis_id=null)
+	public static function getTitle($xdis_id=null)
 	{
 	    $log = FezLog::get();
 		$db = DB_API::get();
@@ -849,7 +849,7 @@ class XSD_Display
 	 * @param   integer $xdis_id The XSD Display ID
 	 * @return  array The details of the XSD Display
 	 */
-	function getDetails($xdis_id)
+	public static function getDetails($xdis_id)
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
@@ -1184,6 +1184,19 @@ class XSD_DisplayObject
 					$return_pid[$xsdmf_id] = $value;
 				}
 			}
+			//Add a lookup for all the files in S3/bypass dir
+			// need the full get datastreams to get the Managed Content 'M' - binary datastream from S3/ds resource
+			$datastreams = Fedora_API::callGetDatastreams($pid);
+			foreach ($datastreams as $ds_value) {
+				// get the matchfields for the FezACML of the datastream if any exists
+				if (isset($ds_value['controlGroup']) && $ds_value['controlGroup'] == 'M') {
+					$xsdmf_id = XSD_HTML_Match::getXSDMF_IDByElementSEL_Title("!datastream!ID", "File_Attachment", $this->xdis_id);
+					if (!is_array(@$return_pid[$xsdmf_id])) {
+						$return_pid[$xsdmf_id] = array();
+					}
+					array_push($return_pid[$xsdmf_id], $ds_value['ID']);
+				}
+			}
 			$this->xsdmf_array[$pid] = $return_pid;
 			return ($return_pid);
 		} else {
@@ -1359,16 +1372,9 @@ class XSD_DisplayObject
 		// Find datastreams that may be used by this display
 		$datastreamTitles = $this->getDatastreamTitles();
 
-	    if(APP_FEDORA_BYPASS == 'ON')
-		{
-    		$dob = new DigitalObject();
-    		$datastreams = $dob->getDatastreams(array('pid' => $pid));
-		}
-		else
-		{
-    		// need the full get datastreams to get the controlGroup etc
-    		$datastreams = Fedora_API::callGetDatastreams($pid);
-		}
+
+ 		// need the full get datastreams to get the controlGroup etc
+ 		$datastreams = Fedora_API::callGetDatastreams($pid);
 
 		if (empty($datastreams)) {
 			$log->err(array("The PID ".$pid." doesn't appear to be in the fedora repository - perhaps it was not ingested correctly.  " .

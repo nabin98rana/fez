@@ -70,7 +70,7 @@ class WorkflowTrigger
 
 	/**
 	 * Maps a trigger id to trigger name
-	 * @param integer trigger id
+	 * @param integer - trigger id
 	 * @return string trigger name
 	 */
 	function getTriggerName($trigger)
@@ -104,6 +104,8 @@ class WorkflowTrigger
 
 	/**
 	 * Inserts a trigger from the POST variables
+	 * @param array $params
+	 * @return int
 	 */
 	function insert($params = array())
 	{
@@ -112,6 +114,8 @@ class WorkflowTrigger
 
 	/**
 	 * Removes a trigger from the POST variables
+	 * @param array $params
+	 * @return void
 	 */
 	function remove($params = array())
 	{
@@ -129,7 +133,6 @@ class WorkflowTrigger
 		}
 		catch(Exception $ex) {
 			$log->err($ex);
-			return -1;
 		}
 	}
 
@@ -306,7 +309,6 @@ class WorkflowTrigger
 	 */
 	function getListByTrigger($pid, $trigger)
 	{
-		$log = FezLog::get();
 		$db = DB_API::get();
 
 		if (!Misc::isInt($trigger)) {
@@ -323,7 +325,6 @@ class WorkflowTrigger
 	 */
 	function getAssocListByTrigger($pid, $trigger)
 	{
-		$log = FezLog::get();
 		$db = DB_API::get();
 
 		if (!Misc::isInt($trigger)) {
@@ -346,7 +347,6 @@ class WorkflowTrigger
 	 */
 	function getListByTriggerAndXDIS_ID($pid, $trigger, $xdis_id, $strict=false)
 	{
-		$log = FezLog::get();
 		$db = DB_API::get();
 
 		if (!Misc::isInt($trigger)) {
@@ -372,7 +372,6 @@ class WorkflowTrigger
 	 */
 	function getListByTriggerAndRET_ID($pid, $trigger, $ret_id, $strict=false)
 	{
-		$log = FezLog::get();
 		$db = DB_API::get();
 
 		if (!Misc::isInt($trigger)) {
@@ -425,7 +424,6 @@ class WorkflowTrigger
 	 */
 	function getFilteredList($pid, $options)
 	{
-		$log = FezLog::get();
 		$db = DB_API::get();
 
 		// these values may be overwritten by extract
@@ -465,7 +463,7 @@ class WorkflowTrigger
 	 * This means that triggers where xdis_id = -1 (for Any) won't be allowed in the results.
 	 * @return List of triggers
 	 */
-	function getIngestTrigger($pid, $xdis_id, $mimetype, $strict_xdis_id=false)
+	public static function getIngestTrigger($pid, $xdis_id, $mimetype, $strict_xdis_id=false)
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();

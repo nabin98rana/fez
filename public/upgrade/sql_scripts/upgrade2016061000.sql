@@ -1,0 +1,1 @@
+insert IGNORE into %TABLE_PREFIX%config (config_name, config_module, config_value) values('aws_s3_san_import_bucket','core','');

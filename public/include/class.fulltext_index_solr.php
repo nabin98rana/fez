@@ -135,7 +135,7 @@ class FulltextIndex_Solr extends FulltextIndex
           } else {
             $isMulti = false;
           }
-          $wf = $this->getFieldName($value['wf'], self::FIELD_TYPE_TEXT, $isMulti);
+          $wf = FulltextIndex_Solr::getFieldName($value['wf'], self::FIELD_TYPE_TEXT, $isMulti);
           $query .= $wf . ":(";
         } else {
           $query .= '(';
