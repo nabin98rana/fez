@@ -58,7 +58,7 @@ class History
 	 * @access  public
 	 * @return  void
 	 */
-	function generateHistoryAction($event_id, $event_type, $event_date, $event_usr_id, $event_usr_fullname, $event_detail, $event_pid, $event_outcome, $event_outcome_detail, $event_dsID="") 
+	public static function generateHistoryAction($event_id, $event_type, $event_date, $event_usr_id, $event_usr_fullname, $event_detail, $event_pid, $event_outcome, $event_outcome_detail, $event_dsID="")
 	{
 		$eventXML = "<premis:event>
 						<premis:eventIdentifier>".htmlentities($event_id)."</premis:eventIdentifier>
@@ -99,7 +99,7 @@ class History
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		$stmt = "SELECT
                     *
                  FROM
@@ -118,9 +118,9 @@ class History
 			$log->err($ex);
 			return '';
 		}
-		
+
 		$timezone = Date_API::getPreferredTimezone();
-		
+
 		for ($i = 0; $i < count($res); $i++) {
 			$res[$i]["pre_date"] = Date_API::getFormattedDate($res[$i]["pre_date"], $timezone);
 		}
@@ -138,7 +138,7 @@ class History
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		$stmt = "SELECT
                     *
                  FROM
@@ -160,9 +160,9 @@ class History
 		for ($i = 0; $i < count($res); $i++) {
 			$res[$i]["pre_date"] = Date_API::getFedoraFormattedDate($res[$i]["pre_date"]);
 		}
-		return $res;		
+		return $res;
 	}
-	
+
 	/**
 	 * Method used to get a list of recent changes made against a specific user
 	 *
@@ -174,7 +174,7 @@ class History
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		$stmt = "SELECT
                     *
                  FROM
@@ -195,15 +195,15 @@ class History
 			$log->err($ex);
 			return '';
 		}
-		
+
 		$timezone = Date_API::getPreferredTimezone();
-		
+
 		for ($i = 0; $i < count($res); $i++) {
 			$res[$i]["pre_date"] = Date_API::getFormattedDate($res[$i]["pre_date"], $timezone);
 		}
 		return $res;
 	}
-	
+
 	/**
 	 * @param array $term_array - key pairs where the key is the column and the value is the search term
 	 * 								in the column.
@@ -212,7 +212,7 @@ class History
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		$search_clause = '';
 		foreach ($term_array as $column => $terms) {
 			$search_clause .= ' AND ' . $column . ' LIKE ' . $db->quote($terms) . ' ';
@@ -235,7 +235,7 @@ class History
 		for ($i = 0; $i < count($res); $i++) {
 			$res[$i]["pre_date"] = Date_API::getFedoraFormattedDate($res[$i]["pre_date"]);
 		}
-		return $res;	
+		return $res;
 	}
 
 
@@ -257,7 +257,7 @@ class History
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		$session = &$_SESSION;
 		$masquerader = Masquerade::getMasquerader($session);
 		$masquerader = User::getDetails($masquerader);
@@ -266,10 +266,10 @@ class History
             $masqueraderID = $masquerader['usr_id'];
         }
 
-		
+
 		$l_wfl_id = (is_null($wfl_id)) ? 'NULL' : $wfl_id;
 		$hide = ($hide == true) ? "true" : "false";
-		 
+
 		$stmt = "INSERT INTO
                     " . APP_TABLE_PREFIX . "premis_event
                  (
@@ -297,7 +297,7 @@ class History
                     } else {
                     	$stmt .= "NULL)";
                     }
-                    
+
 		try {
 			$db->exec($stmt);
 		}
@@ -316,7 +316,7 @@ class History
 	 * @access  public
 	 * @return  void
 	 */
-	function addHistory($pid, $wfl_id=null, $outcome="", $outcomeDetail="", $refreshDatastream=false, $historyDetail="", $historyDetailExtra=null, $event_date = false)
+	public static function addHistory($pid, $wfl_id=null, $outcome="", $outcomeDetail="", $refreshDatastream=false, $historyDetail="", $historyDetailExtra=null, $event_date = false)
 	{
 		$session = &$_SESSION;
 		$masquerader = Masquerade::getMasquerader($session);
@@ -325,7 +325,7 @@ class History
         if (array_key_exists('usr_full_name', $masquerader)) {
             $masqueraderName = $masquerader['usr_full_name'];
         }
-		
+
 		$dsIDName = "PremisEvent";
 		$event_usr_id = Auth::getUserID();
 		if (!is_numeric($event_usr_id)) {

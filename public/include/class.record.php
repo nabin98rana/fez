@@ -5153,7 +5153,7 @@ function getSearchKeyIndexValueShadow($pid, $searchKeyTitle, $getLookup=true, $s
    * @param 	string $times_cited (OPTIONAL) The times cited
    * @param	array $links (OPTIONAL) The links datastream array
    * @param	array $premis (OPTIONAL) The premis datastream array
-   * @return  void
+   * @return  string $pid
    * @see foxml.tpl.html
    * @uses
    *   - WosRecItem->save(). On the Fedora version of save function

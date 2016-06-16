@@ -47,7 +47,7 @@ class Masquerade
 	function canUserMasquerade($username)
 	{
 		$canMasquerade = false;
-		
+
 		$masqueradeGroupID = Group::getID(APP_WHEEL_GROUP);
 		$userGroups = Group::getGroupColList(User::getUserIDByUsername($username));
 		if (count($userGroups) > 0) {
@@ -57,12 +57,12 @@ class Masquerade
 				}
 			}
 		}
-		
+
 		return $canMasquerade;
 	}
-	
-	
-	
+
+
+
 	/**
 	* Method used to update the session with information about the user who
 	* enacted a masquerade.
@@ -73,19 +73,19 @@ class Masquerade
 	function setMasquerader(&$session, $username)
 	{
 		$session['masquerader'] = $username;
-		
+
 		return;
 	}
-	
-	
-	
+
+
+
 	/**
 	* Method used to find out who the masquerading user is, if there is one.
 	*
 	* @access  public
 	* @return  string Username of masquerading user
 	*/
-	function getMasquerader($session)
+	public static function getMasquerader($session)
 	{
         $return = null;
         if (array_key_exists('masquerader', $session)) {

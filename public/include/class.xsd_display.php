@@ -796,7 +796,7 @@ class XSD_Display
 	 * @param   integer $xdis_version The XSD version to search by.	 *
 	 * @return  array $res The xdis_id
 	 */
-	function getXDIS_IDByTitleVersion($xdis_title, $xdis_version = 'MODS 1.0')
+	public static function getXDIS_IDByTitleVersion($xdis_title, $xdis_version = 'MODS 1.0')
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();

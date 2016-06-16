@@ -322,7 +322,7 @@ class Author
    * @param   integer $aut_id The author ID
    * @return  array The author details
    */
-  function getDetails($aut_id)
+  public static function getDetails($aut_id)
   {
     $log = FezLog::get();
     $db = DB_API::get();
