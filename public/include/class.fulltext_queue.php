@@ -139,10 +139,10 @@ class FulltextQueue
 			$family = 'fez' . $launchTask;
 			$countTasks = $aws->countTasksRunningOrPendingInFamily($family);
 			if (is_numeric($countTasks) && $countTasks > 1) {
-				$log->debug("Found AWS Tasks running: ".$countTasks);
+				$log->warn("Found AWS Tasks running: ".$countTasks);
 				return "Found more than 1 AWS task running, so a bgp is still going";
 			} else {
-				$log->debug("None for ".$family."! Found AWS Tasks running: ".$countTasks);
+				$log->warn("None for ".$family."! Found AWS Tasks running: ".$countTasks);
 			}
 		} else {
 			if (empty($pid)) {
