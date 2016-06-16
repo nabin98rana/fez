@@ -131,14 +131,18 @@ class FulltextQueue
 		// If we are using AWS, check if any tasks are still running
 		if (defined('AWS_ENABLED') && AWS_ENABLED == 'true') {
 			$aws = AWS::get();
-			$launchTask = $_SERVER['APPLICATION_ENV'];
+			if (!isset($_SERVER['APPLICATION_ENV']) || $_SERVER['APPLICATION_ENV'] === '') {
+				$launchTask = 'staging';
+			} else {
+				$launchTask = $_SERVER['APPLICATION_ENV'];
+			}
 			$family = 'fez' . $launchTask;
 			$countTasks = $aws->countTasksRunningOrPendingInFamily($family);
 			if (is_numeric($countTasks) && $countTasks > 1) {
 				$log->debug("Found AWS Tasks running: ".$countTasks);
 				return "Found more than 1 AWS task running, so a bgp is still going";
 			} else {
-				$log->debug("None for ".$launchTask."! Found AWS Tasks running: ".$countTasks);
+				$log->debug("None for ".$family."! Found AWS Tasks running: ".$countTasks);
 			}
 		} else {
 			if (empty($pid)) {
