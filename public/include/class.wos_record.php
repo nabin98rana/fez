@@ -732,11 +732,16 @@ class WosRecItem extends RecordImport
 
         // First we see, is this in Scopus? If so, it's our base. We'll add it in, then update the record with any missing wok info like isi_loc
         if ($this->articleNos[0]) {
-            $scopusService = new ScopusService(APP_SCOPUS_API_KEY);
-            $xml = $scopusService->getRecordsBySearchQuery('DOI('.$this->articleNos[0].')');
-            $pregMatches = array();
-            preg_match('/<dc:identifier>SCOPUS_ID\:(\d+)<\/dc:identifier>/', $xml, $pregMatches);
-            $scopusId = (array_key_exists(1, $pregMatches)) ? $pregMatches[1] : null;
+            // only check scopus if we have a working key
+            if (defined("APP_SCOPUS_API_KEY") && APP_SCOPUS_API_KEY != "") {
+              $scopusService = new ScopusService(APP_SCOPUS_API_KEY);
+              $xml = $scopusService->getRecordsBySearchQuery('DOI(' . $this->articleNos[0] . ')');
+              $pregMatches = array();
+              preg_match('/<dc:identifier>SCOPUS_ID\:(\d+)<\/dc:identifier>/', $xml, $pregMatches);
+              $scopusId = (array_key_exists(1, $pregMatches)) ? $pregMatches[1] : null;
+            } else {
+              $scopusId = false;
+            }
         }
         if ($scopusId) {
             $record = $scopusService->getRecordByScopusId($scopusId);
@@ -864,7 +869,7 @@ class WosRecItem extends RecordImport
 
     //temp check that logs data
     $this->checkIfAuthorsMissingRid($pid);
-      
+
     // List of doc types we support saving
     $dTMap = Thomson_Doctype_Mappings::getList('ESTI');
     foreach ($dTMap as $map) {
