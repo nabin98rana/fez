@@ -737,7 +737,7 @@ class BatchImport
     if (defined('AWS_S3_ENABLED') && AWS_S3_ENABLED == 'true') {
       return $this->getFileListFromS3($directory);
     }
-    return Misc::getFileList($directory, true, true);
+    return Misc::getFileList(APP_SAN_IMPORT_DIR. '/'. $directory, true, true);
   }
 
   /**
