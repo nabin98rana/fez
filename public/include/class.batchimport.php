@@ -685,7 +685,7 @@ class BatchImport
     $parent = empty($subdir) ? APP_SAN_IMPORT_DIR : APP_SAN_IMPORT_DIR . '/' . $subdir;
     if ($handle = opendir($parent)) {
       while (FALSE !== ($dir = readdir($handle))) {
-        if (!(is_dir($parent . $dir) || $dir == '.' || $dir == '..')) {
+        if (!(!is_dir($parent . $dir) || $dir == '.' || $dir == '..')) {
           $dirs[$dir] = $dir;
         }
       }
