@@ -32,7 +32,6 @@ class Refereed
     //This function will set the Refereed Source to the value given, if it is a more important indicator than the one
     //currently set. It will also set refereed to true if not already unless $setRefereed = false
     function saveIfHigher($pid, $refereedSource, $history = '', $setRefereed = true) {
-        $db = DB_API::get();
         $log = FezLog::get();
         $controlVocabId = Controlled_Vocab::getID($refereedSource, 'Refereed Source');
         if (!empty($controlVocabId)) {
@@ -50,7 +49,6 @@ class Refereed
     }
 
     function save($pid, $refereedSource, $history = '', $setRefereed = false) {
-        $db = DB_API::get();
         $log = FezLog::get();
         $controlVocabId = Controlled_Vocab::getID($refereedSource, 'Refereed Source');
         if (!empty($controlVocabId)) {

@@ -1389,7 +1389,7 @@ public static function multi_implode($glue, $pieces)
    * @param   string $f The file name and path
    * @return  string The formatted time
    */
-  function mime_content_type($f)
+  public static function mime_content_type($f)
   {
     $ret = '';
     if (stristr(PHP_OS, 'win') && (!stristr(PHP_OS, 'darwin'))) {
@@ -1493,7 +1493,7 @@ public static function multi_implode($glue, $pieces)
    * @param   integer $timeout The http session timeout
    * @return  string The formatted time
    */
-  function get_content_type($url,$follow_location = TRUE,$timeout = 5)
+  public static function get_content_type($url,$follow_location = TRUE,$timeout = 5)
   {
     $ch = curl_init($url);
     curl_setopt($ch, CURLOPT_FOLLOWLOCATION, $follow_location);
