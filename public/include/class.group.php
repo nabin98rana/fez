@@ -64,14 +64,14 @@ class Group
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		$stmt = "SELECT
                     COUNT(*) AS total
                  FROM
                     " . APP_TABLE_PREFIX . "group
                  WHERE
                     grp_id=".$db->quote($grp_id, 'INTEGER');
-		
+
 		try {
 			$res = $db->fetchOne($stmt);
 		}
@@ -79,12 +79,12 @@ class Group
 			$log->err($ex);
 			return false;
 		}
-		
+
 		if ($res > 0) {
 			return true;
 		} else {
 			return false;
-		}		
+		}
 	}
 
 
@@ -95,11 +95,11 @@ class Group
 	 * @param   string $grp_title The group title
 	 * @return  integer The group ID
 	 */
-	function getID($grp_title)
+	public static function getID($grp_title)
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		$stmt = "SELECT
                     grp_id
                  FROM
@@ -113,7 +113,7 @@ class Group
 			$log->err($ex);
 			return '';
 		}
-		return $res;		
+		return $res;
 	}
 
 
@@ -124,11 +124,11 @@ class Group
 	 * @param   integer $grp_id The group ID
 	 * @return  string The group title
 	 */
-	function getName($grp_id)
+	public static function getName($grp_id)
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		static $returns;
 
 		if (!empty($returns[$grp_id])) {
@@ -141,7 +141,7 @@ class Group
                     " . APP_TABLE_PREFIX . "group
                  WHERE
                     grp_id=".$db->quote($grp_id, 'INTEGER');
-		
+
 		try {
 			$res = $db->fetchOne($stmt);
 		}
@@ -149,7 +149,7 @@ class Group
 			$log->err($ex);
 			return '';
 		}
-	
+
 		if ($GLOBALS['app_cache']) {
 			if (!is_array($returns) || count($returns) > 10) { //make sure the static memory var doesnt grow too large and cause a fatal out of memory error
 				$returns = array();
@@ -171,14 +171,14 @@ class Group
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		$stmt = "SELECT
                     *
                  FROM
                     " . APP_TABLE_PREFIX . "group
                  WHERE
                     grp_id=".$db->quote($grp_id, 'INTEGER');
-		
+
 		try {
 			$res = $db->fetchRow($stmt, array(), Zend_Db::FETCH_ASSOC);
 		}
@@ -202,7 +202,7 @@ class Group
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		$stmt = "DELETE FROM
                     " . APP_TABLE_PREFIX . "group
                  WHERE
@@ -213,7 +213,7 @@ class Group
 		catch(Exception $ex) {
 			$log->err($ex);
 			return false;
-		}		
+		}
 		Group::removeUserByGroups($_POST["items"]);
 		return true;
 	}
@@ -231,7 +231,7 @@ class Group
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		$stmt = "DELETE FROM
                     " . APP_TABLE_PREFIX . "group_user
                  WHERE
@@ -257,7 +257,7 @@ class Group
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		if (Validation::isWhitespace($_POST["title"])) {
 			return -2;
 		}
@@ -295,7 +295,7 @@ class Group
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		$stmt = "INSERT INTO
                     " . APP_TABLE_PREFIX . "group_user
                  (
@@ -326,7 +326,7 @@ class Group
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		if (Validation::isWhitespace($_POST["title"])) {
 			return -2;
 		}
@@ -349,7 +349,7 @@ class Group
 			$log->err($ex);
 			return -1;
 		}
-	
+
 		$new_grp_id = $db->lastInsertId(APP_TABLE_PREFIX . "group", "grp_id");
 		for ($i = 0; $i < count($_POST["users"]); $i++) {
 			Group::associateUser($new_grp_id, $_POST["users"][$i]);
@@ -369,7 +369,7 @@ class Group
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		$stmt = "SELECT
 					*
                  FROM
@@ -399,7 +399,7 @@ class Group
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		static $returns;
 
 		if (!empty($returns[$usr_id])) {
@@ -445,7 +445,7 @@ class Group
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		$stmt = "SELECT
                     grp_id,
                     grp_title
@@ -476,7 +476,7 @@ class Group
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		$stmt = "SELECT
                     usr_id,
                     usr_full_name
@@ -508,11 +508,11 @@ class Group
 	 * @param   integer $grp_id The group ID
 	 * @return  array The list of user IDs
 	 */
-	function getUserColList($grp_id)
+	public static function getUserColList($grp_id)
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		$stmt = "SELECT
                     usr_id
                  FROM
@@ -542,18 +542,18 @@ class Group
 	 * @param   integer $user_id The user ID
 	 * @return  array The list of group IDs
 	 */
-	function getGroupColList($usr_id)
+	public static function getGroupColList($usr_id)
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		$stmt = "SELECT
                     gpu_grp_id
                  FROM
                     " . APP_TABLE_PREFIX . "group_user
                  WHERE
                     gpu_usr_id=".$db->quote($usr_id, 'INTEGER');
-		
+
 		try {
 			$res = $db->fetchCol($stmt);
 		}
@@ -577,7 +577,7 @@ class Group
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		$stmt = "SELECT
                     grp_id,
                     grp_title
@@ -608,7 +608,7 @@ class Group
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		$stmt = "SELECT
                     grp_id,
                     grp_title
@@ -640,7 +640,7 @@ class Group
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		$stmt = "SELECT
                     grp_id,
                     grp_title
@@ -673,7 +673,7 @@ class Group
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		$stmt = "SELECT
                     usr_full_name,
                     usr_email
@@ -711,7 +711,7 @@ class Group
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		$stmt = "SELECT
                     usr_full_name,
                     usr_email

@@ -2036,7 +2036,7 @@ class Statistics
 		return $latestLog;
 	}
 
-	function cleanupFalseHitsBatch($limit, $offset, $min_date = false, $pid = false) 
+	function cleanupFalseHitsBatch($limit, $offset, $min_date = false, $pid = false)
 	{
 		$log = FezLog::get();
     if (defined("APP_SQL_SLAVE_DBHOST")) {
@@ -2073,7 +2073,7 @@ class Statistics
 		return $res;
 	}
 
-	function cleanupFalseHitsCount($min_date = false, $pid = false) 
+	function cleanupFalseHitsCount($min_date = false, $pid = false)
 	{
 		$log = FezLog::get();
     if (defined("APP_SQL_SLAVE_DBHOST")) {
@@ -2262,7 +2262,7 @@ class Statistics
 		return $date;
 	}
 
-	function getStatsByDatastream($pid, $dsid)
+	public static function getStatsByDatastream($pid, $dsid)
 	{
 		$log = FezLog::get();
     if (defined("APP_SQL_SLAVE_DBHOST")) {
@@ -2303,7 +2303,7 @@ class Statistics
 	}
 
 
-	function getStatsByAbstractView($pid, $year='all', $month='all', $range='all')
+	public static function getStatsByAbstractView($pid, $year='all', $month='all', $range='all')
 	{
 		$log = FezLog::get();
     if (defined("APP_SQL_SLAVE_DBHOST")) {
@@ -2348,7 +2348,7 @@ class Statistics
 	}
 
 
-	function getStatsByAllFileDownloads($pid, $year='all', $month='all', $range='all')
+	public static function getStatsByAllFileDownloads($pid, $year='all', $month='all', $range='all')
 	{
 		$log = FezLog::get();
     if (defined("APP_SQL_SLAVE_DBHOST")) {

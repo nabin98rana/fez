@@ -35,6 +35,7 @@
 
 include_once("config.inc.php");
 include_once(APP_INC_PATH . "class.lister.php");
+include_once(APP_INC_PATH . "class.auth.php");
 
 $res = Lister::getList($_GET, true);
 $pids = array();
@@ -46,12 +47,15 @@ if (is_array($res['list'])) {
 	}
 }
 /*
- * We want to save this data for view pages, so when can create
+ * If this is a logged in user we want to save this data for view pages, so when can create
  * 'prev' and 'next' links
  */
-$_SESSION['list'] = $pids;
-$_SESSION['list_params'] = $_GET;
-$_SESSION['script_name'] = $_SERVER['SCRIPT_NAME'];
-$_SESSION['last_page'] = $res['list_info']['last_page'];
-$_SESSION['view_page'] = $res['list_info']['current_page'];
+$username = Auth::getUsername();
+if (!empty($username)) {
+	$_SESSION['list'] = $pids;
+	$_SESSION['list_params'] = $_GET;
+	$_SESSION['script_name'] = $_SERVER['SCRIPT_NAME'];
+	$_SESSION['last_page'] = $res['list_info']['last_page'];
+	$_SESSION['view_page'] = $res['list_info']['current_page'];
+}
 

@@ -188,7 +188,7 @@ class Record
    * @param   string $pid The persistant identifier
    * @return  array The list
    */
-  function getParentsDetails($pid, $clearcache=false, $searchKey='isMemberOf')
+  public static function getParentsDetails($pid, $clearcache=false, $searchKey='isMemberOf')
   {
     $log = FezLog::get();
     $db = DB_API::get();
@@ -268,7 +268,7 @@ class Record
   }
 
 
-  function generateDerivationTree($pid, $derivations, &$dTree, &$shownPids=array(), $hideSelf = false)
+  public static function generateDerivationTree($pid, $derivations, &$dTree, &$shownPids=array(), $hideSelf = false)
   {
     if (!array($derivations)) {
       return;
@@ -294,7 +294,7 @@ class Record
   }
 
 
-  function wrapDerivationTree(&$dTree)
+  public static function wrapDerivationTree(&$dTree)
   {
     $dTree = "<ul>" . $dTree . "</ul>";
   }
@@ -310,7 +310,7 @@ class Record
    *                            or any other similar setup RELS-EXT element
    * @return  array The list
    */
-  function getParentsAll($pid, $searchKey="isMemberOf", $flatTree=true)
+  public static function getParentsAll($pid, $searchKey="isMemberOf", $flatTree=true)
   {
     static $returns;
 
@@ -358,7 +358,7 @@ class Record
    *                            or any other similar setup RELS-EXT element
    * @return  array The list
    */
-  function getChildrenAll($pid, $searchKey="isMemberOf", $flatTree=true)
+  public static function getChildrenAll($pid, $searchKey="isMemberOf", $flatTree=true)
   {
 
     static $returns;
@@ -1991,7 +1991,7 @@ class Record
   }
 
 
-  function getRecentRecords()
+  public static function getRecentRecords()
   {
     $log = FezLog::get();
     $db = DB_API::get();

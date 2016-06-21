@@ -349,7 +349,7 @@ class Author
     return $res;
   }
 
-  function getDetailsByUsername($aut_org_username)
+  public static function getDetailsByUsername($aut_org_username)
   {
     $log = FezLog::get();
     $db = DB_API::get();
@@ -419,13 +419,13 @@ class Author
     }
 
     if (trim($_POST["org_staff_id"] !== "")) {
-      if (author::getIDByOrgStaffID(trim($_POST["org_staff_id"]), $_POST["id"])) {
+      if (Author::getIDByOrgStaffID(trim($_POST["org_staff_id"]), $_POST["id"])) {
         return -3;
       }
     }
 
     if (trim($_POST["org_username"] !== "")) {
-      if (author::getIDByUsername(trim($_POST["org_username"]), $_POST["id"])) {
+      if (Author::getIDByUsername(trim($_POST["org_username"]), $_POST["id"])) {
         return -4;
       }
     }
@@ -587,13 +587,13 @@ class Author
       return -2;
     }
     if (trim($_POST["org_staff_id"] !== "")) {
-      if (author::getIDByOrgStaffID(trim($_POST["org_staff_id"]))) {
+      if (Author::getIDByOrgStaffID(trim($_POST["org_staff_id"]))) {
         return -3;
       }
     }
 
     if (trim($_POST["org_username"] !== "")) {
-      if (author::getIDByUsername(trim($_POST["org_username"]))) {
+      if (Author::getIDByUsername(trim($_POST["org_username"]))) {
         return -4;
       }
     }
@@ -1433,7 +1433,7 @@ class Author
     return $res;
   }
 
-  function getFullname($aut_id)
+  public static function getFullname($aut_id)
   {
     $log = FezLog::get();
     $db = DB_API::get();
@@ -1744,7 +1744,7 @@ class Author
    * @param integer $authorId
    * @return array if results found, or an empty string if no results found
    */
-  function getAlternativeNamesList($authorId)
+  public static function getAlternativeNamesList($authorId)
   {
     $log = FezLog::get();
     $db = DB_API::get();

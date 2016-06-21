@@ -72,11 +72,11 @@ class Pager
 	 * @param   string $name The name of the parameter
 	 * @return  mixed The value of the specified parameter
 	 */
-	function getParam($name, $params=array())
+	public static function getParam($name, $params=array())
 	{
 		$cookie = Pager::getCookieParams();
 		$cookie_key = $_SERVER['SCRIPT_NAME'];
-		
+
 		$result = '';
 		if (isset($params[$name])) {
 			$result =  $params[$name];
@@ -185,7 +185,7 @@ class Pager
 		else {
 			$existing_cookie    = $cookieToSave[$cookie_key];
 		}
-		
+
 		$sek_count = Search_Key::getMaxID();
 
 		/*
@@ -203,7 +203,7 @@ class Pager
 			$searchKeyArray = array();
 			$from_cookie = false;
 			$searchKeyArray = Pager::getParam('search_keys',$params);
-			
+
 
 			/*
 			 * If no search keys were submitted
@@ -220,12 +220,12 @@ class Pager
 							$existing = array(
 	                            'searchKey'.$sek_id => ''
 							);
-							
+
 						} else {
 							$existing = array(
 	                            'searchKey'.$sek_id => $existing_cookie['searchKey'.$sek_id]
 							);
-							
+
 						}
 						$searchKeyArray = array_merge($searchKeyArray, $existing);
 					}
@@ -263,7 +263,7 @@ class Pager
 						}
 					}
 				}
-				 
+
 				foreach ($searchKeyArray as $sek_id => $value) {
 					if (is_array($value)) {
 						if (isset($value['filter_enabled']) && $value['filter_enabled'] == 0)
@@ -271,7 +271,7 @@ class Pager
 						if (isset($value['multiple_type']) && $value['multiple_type'] == 'any' && count($value) == 1)
 							continue;
 					}
-						
+
 					if ($from_cookie == true) {
 						$tempArray = array($sek_id => $value);
 					} else {
@@ -282,7 +282,7 @@ class Pager
 
 			}
 		}
-		 
+
 		if (!empty($cookie["searchKey0"]) && empty($sort_by)) {
 			$cookie['sort_by'] = "searchKey0";
 		}
@@ -329,7 +329,7 @@ class Pager
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		$stmt = str_replace("\n", "", $stmt);
 		$stmt = str_replace("\r", "", $stmt);
 		$stmt = preg_replace("/SELECT (.*?) FROM /sei", "'SELECT COUNT(*) AS total_rows FROM '", $stmt);
@@ -363,7 +363,7 @@ class Pager
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		$stmt = str_replace("\n", "", $stmt);
 		$stmt = str_replace("\r", "", $stmt);
 		$stmt = preg_replace("/SELECT (.*?) FROM /sei", "'SELECT COUNT(DISTINCT ".$distinct_field.") AS total_rows FROM '", $stmt);

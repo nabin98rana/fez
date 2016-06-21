@@ -75,7 +75,7 @@ class User
 	 * @param   string $email The email address associated with the user account
 	 * @return  integer The user ID
 	 */
-	function getUserIDByUsername($username)
+	public static function getUserIDByUsername($username)
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
@@ -177,7 +177,7 @@ class User
 	 * @param   string $username The username of the user
 	 * @return  boolean
 	 */
-	function isUserAdministrator($username)
+	public static function isUserAdministrator($username)
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
@@ -209,7 +209,7 @@ class User
 	 * @param   string $username The username of the user
 	 * @return  boolean
 	 */
-	function isUserSuperAdministrator($username)
+	public static function isUserSuperAdministrator($username)
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
@@ -241,7 +241,7 @@ class User
 	 * @param   string $username The username of the user
 	 * @return  boolean
 	 */
-	function isUserUPO($username)
+	public static function isUserUPO($username)
 	{
 		$isUPO = false;
 
@@ -350,7 +350,7 @@ class User
 	 * @param   integer $uid The user ID number
 	 * @return  array The account details
 	 */
-	function getDetailsByID($id)
+	public static function getDetailsByID($id)
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
@@ -1560,7 +1560,7 @@ class User
 	 * @param   integer $usr_id The user ID
 	 * @return  array The email and full name
 	 */
-	function getNameEmail($usr_id)
+	public static function getNameEmail($usr_id)
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();

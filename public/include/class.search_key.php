@@ -54,7 +54,7 @@ class Search_Key
 {
 
 
-    function stripSearchKeys($options = array())
+    public static function stripSearchKeys($options = array())
     {
         $new_options = array();
         foreach ($options as $key => $value) {

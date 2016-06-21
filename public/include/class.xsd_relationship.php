@@ -152,7 +152,7 @@ class XSD_Relationship
      * @param   integer $xdis_id The XSD Display ID
      * @return  array The list of matching fields fields
      */
-    function getColListByXDIS($xdis_id)
+    public static function getColListByXDIS($xdis_id)
     {
     	$log = FezLog::get();
 		$db = DB_API::get();

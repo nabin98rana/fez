@@ -67,7 +67,7 @@ include_once(APP_INC_PATH . "class.publons.php");
 
 class Lister
 {
-  function getList($params, $display = true)
+  public static function getList($params, $display = true)
   {
     $log = FezLog::get();
 
@@ -1219,7 +1219,7 @@ class Lister
   }
 
 
-  function checkAliasController()
+  public static function checkAliasController()
   {
 
     $uri = strtolower($_SERVER['REQUEST_URI']);

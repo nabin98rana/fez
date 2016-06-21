@@ -44,7 +44,7 @@ class Masquerade
 	* @param   string $username The user's username
 	* @return  boolean TRUE if can masquerade, otherwise FALSE
 	*/
-	function canUserMasquerade($username)
+	public static function canUserMasquerade($username)
 	{
 		$canMasquerade = false;
 

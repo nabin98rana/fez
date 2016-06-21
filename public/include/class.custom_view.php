@@ -47,10 +47,10 @@ class Custom_View
   {
     $log = FezLog::get();
     $db = DB_API::get();
-    
+
     $stmt = "SELECT *
                  FROM " . APP_TABLE_PREFIX . "custom_views";
-        
+
     try {
       $res = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
     }
@@ -58,19 +58,19 @@ class Custom_View
       $log->err($ex);
       return '';
     }
-    
+
     if (empty($res)) {
         return array();
     }
-    
+
     return $res;
   }
-    
+
   function getCviewList()
   {
     $log = FezLog::get();
     $db = DB_API::get();
-    
+
     $stmt = "SELECT *
                  FROM " . APP_TABLE_PREFIX . "custom_views_community
                  LEFT JOIN " . APP_TABLE_PREFIX . "custom_views as sk ON cview_id = cvcom_cview_id
@@ -82,16 +82,16 @@ class Custom_View
       $log->err($ex);
       return '';
     }
-        
+
     if (empty($res)) {
         return array();
     }
-    
+
     return $res;
   }
-    
+
   function getCviewListUniqueHosts()
-  {   
+  {
     $customViews = Custom_View::getCviewList();
     $hosts = array();
     foreach ($customViews as $view) {
@@ -99,10 +99,10 @@ class Custom_View
         $hosts[] = $view['cvcom_hostname'];
       }
     }
-      
+
     return $hosts;
   }
-  
+
   function getDetails($cview_id)
   {
     $log = FezLog::get();
@@ -120,12 +120,12 @@ class Custom_View
     }
     return $res;
   }
-  
+
   function getCviewSekDetails($cvsk_id)
   {
     $log = FezLog::get();
     $db = DB_API::get();
-  
+
     $stmt = "SELECT *
                  FROM " . APP_TABLE_PREFIX . "custom_views_search_keys
                  WHERE cvsk_id = ?";
@@ -136,15 +136,15 @@ class Custom_View
       $log->err($ex);
       return '';
     }
-  
+
     return $res;
   }
-    
+
   function getCommCviewDetails($cvcom_id)
   {
     $log = FezLog::get();
     $db = DB_API::get();
-  
+
     $stmt = "SELECT *
              FROM " . APP_TABLE_PREFIX . "custom_views_community
              WHERE cvcom_id = ?";
@@ -157,12 +157,12 @@ class Custom_View
     }
     return $res;
   }
-  
-  function getSekList($cvsk_cview_id)
+
+  public static function getSekList($cvsk_cview_id)
   {
     $log = FezLog::get();
     $db = DB_API::get();
-  
+
     $stmt = "SELECT cvsk.*, sk.*
              FROM " . APP_TABLE_PREFIX . "custom_views_search_keys as cvsk
              LEFT JOIN " . APP_TABLE_PREFIX . "search_key as sk ON cvsk.cvsk_sek_id = sk.sek_id
@@ -187,22 +187,22 @@ class Custom_View
           $res[$i]["sek_desc"] = $res[$i]["cvsk_sek_desc"];
         }
         $res[$i]["field_options"] = Search_Key::getOptions($res[$i]["sek_smarty_variable"]);
-      }	
-      return $res;            	
+      }
+      return $res;
     }
   }
-  
-  
+
+
   function getCommCview($community_pid)
   {
     //$log = FezLog::get();
     $db = DB_API::get();
-  
+
     $stmt = "SELECT *
              FROM " . APP_TABLE_PREFIX . "custom_views
              LEFT JOIN " . APP_TABLE_PREFIX . "custom_views_community ON cvcom_cview_id = cview_id
              WHERE cvcom_com_pid = ?";
-    
+
     try {
       $res = $db->fetchRow($stmt, array($community_pid), Zend_Db::FETCH_ASSOC);
     }
@@ -212,12 +212,12 @@ class Custom_View
     }
     return $res;
   }
-  
+
   function insert()
   {
     $log = FezLog::get();
     $db = DB_API::get();
-  
+
     $stmt = "INSERT INTO
                 " . APP_TABLE_PREFIX . "custom_views
              (
@@ -229,10 +229,10 @@ class Custom_View
     catch(Exception $ex) {
       $log->err($ex);
       return -1;
-    }		
+    }
     return 1;
   }
-  
+
   function insertCviewSek()
   {
     $log = FezLog::get();
@@ -257,12 +257,12 @@ class Custom_View
     }
     return 1;
   }
-  
-  function insertCview() 
+
+  function insertCview()
   {
     $log = FezLog::get();
     $db = DB_API::get();
-  
+
     $stmt = "INSERT INTO
                 " . APP_TABLE_PREFIX . "custom_views_community
              (
@@ -280,12 +280,12 @@ class Custom_View
     }
     return 1;
   }
-  
+
   function update($cview_id)
   {
     $log = FezLog::get();
     $db = DB_API::get();
-    
+
     $stmt = "UPDATE " . APP_TABLE_PREFIX . "custom_views
                  SET 
                     cview_name = ? WHERE cview_id = ?";
@@ -298,8 +298,8 @@ class Custom_View
     }
     return 1;
   }
-  
-  
+
+
   function updateCviewSekDetails($cvsk_id)
   {
     $log = FezLog::get();
@@ -326,10 +326,10 @@ class Custom_View
   {
     $log = FezLog::get();
     $db = DB_API::get();
-  
+
     $stmt = "SELECT cvsk_sek_id FROM " . APP_TABLE_PREFIX . "custom_views_search_keys
      WHERE cvsk_sek_id = ?";
-    
+
     try {
       $res = $db->fetchCol($stmt, array($sek_id));
     }
@@ -337,15 +337,15 @@ class Custom_View
       $log->err($ex);
       return -1;
     }
-  
+
     if (count($res) != 0) {
       return 1;
     } else {
       return 0;
     }
   }
-  
-  
+
+
   function updateCommCview($cvcom_id)
   {
     $log = FezLog::get();
@@ -372,12 +372,12 @@ class Custom_View
     }
     return 1;
   }
-  
+
   function remove()
   {
     $log = FezLog::get();
     $db = DB_API::get();
-    
+
     $stmt = "DELETE FROM
                     " . APP_TABLE_PREFIX . "custom_views
                  WHERE
@@ -388,15 +388,15 @@ class Custom_View
     catch(Exception $ex) {
       $log->err($ex);
       return false;
-    }        
+    }
     return true;
   }
-  
+
   function removeCview()
   {
     $log = FezLog::get();
     $db = DB_API::get();
-  
+
     $stmt = "DELETE FROM
                 " . APP_TABLE_PREFIX . "custom_views_community
              WHERE
@@ -407,15 +407,15 @@ class Custom_View
     catch(Exception $ex) {
       $log->err($ex);
       return false;
-    }        
+    }
     return true;
   }
-  
+
   function removeCviewSekKey()
   {
     $log = FezLog::get();
     $db = DB_API::get();
-  
+
     $stmt = "DELETE FROM
                 " . APP_TABLE_PREFIX . "custom_views_search_keys
              WHERE
@@ -426,7 +426,7 @@ class Custom_View
     catch(Exception $ex) {
       $log->err($ex);
       return false;
-    }        
+    }
     return true;
   }
 }

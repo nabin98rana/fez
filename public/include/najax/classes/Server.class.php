@@ -670,7 +670,7 @@ class NAJAX_Server extends NAJAX_Observable
 	 * @static
 	 *
 	 */
-	function allowClasses($classes)
+	public static function allowClasses($classes)
 	{
 		$classesType = NAJAX_Utilities::getType($classes);
 

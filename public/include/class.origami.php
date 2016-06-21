@@ -35,7 +35,7 @@
 
 class Origami {
 
-	function getTitleLocation($pid, $dsID)
+	public static function getTitleLocation($pid, $dsID)
 	{
 
 		$pidData    = explode(':', $pid);
@@ -118,7 +118,7 @@ class Origami {
 		return APP_PY_EXEC . " ". APP_ORIGAMI_PATH . "/tile_image.py";
 	}
 
-	function getTitleHome() {
+	public static function getTitleHome() {
 		return  APP_PATH . "flviewer/";
 	}
 

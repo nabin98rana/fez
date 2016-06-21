@@ -996,7 +996,7 @@ class XSD_Display
 	}
 
     //Get all the valid xsd displays for a pid (Collection or community)
-    function getValidXSDDisplay($pid) {
+    public static function getValidXSDDisplay($pid) {
         $log = FezLog::get();
         $db = DB_API::get();
 

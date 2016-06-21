@@ -83,11 +83,11 @@ class Prefs
 	 * @param   integer $usr_id The user ID
 	 * @return  array The preferences
 	 */
-	function get($usr_id)
+	public static function get($usr_id)
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		static $returns;
 
 		if (!empty($returns[$usr_id])) {
@@ -148,7 +148,7 @@ class Prefs
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		// if the user is trying to upload a new signature, override any changes to the textarea
 		if (!empty($_FILES["file_signature"]["name"])) {
 			$_POST['signature'] = Misc::getFileContents($_FILES["file_signature"]["tmp_name"]);

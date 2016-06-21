@@ -79,13 +79,13 @@ class Auth
 	 * @access  public
 	 * @return  array The Record listing information
 	 */
-	function getHomeIDPCookie()
+	public static function getHomeIDPCookie()
 	{
 		return @unserialize(base64_decode($_COOKIE[APP_SHIB_HOME_IDP_COOKIE]));
 	}
 
 
-	function setHomeIDPCookie($home_idp)
+	public static function setHomeIDPCookie($home_idp)
 	{
 		$encoded = base64_encode(serialize($home_idp));
 		@setcookie(APP_SHIB_HOME_IDP_COOKIE, $encoded, APP_SHIB_HOME_IDP_COOKIE_EXPIRE);
@@ -603,7 +603,7 @@ class Auth
 		}
 	}
 
-	function getAuthorisation(&$indexArray)
+	public static function getAuthorisation(&$indexArray)
 	{
 		$log = FezLog::get();
 
@@ -662,7 +662,7 @@ class Auth
 	 * @param   string $dsID (optional) The datastream ID
 	 * @returns array $userPIDAuthGroups The authorisation groups (roles) the user belongs to against this object.
 	 */
-	function getAuthorisationGroups($pid, $dsID="")
+	public static function getAuthorisationGroups($pid, $dsID="")
 	{
 
         if(APP_FEDORA_BYPASS == 'ON') {
@@ -1214,7 +1214,7 @@ class Auth
 	}
 
     //Return var $publicPerms['lister'] and $publicPerms['viewer'] = true if publicly list/viewable
-    function getAuthPublic($pid, $dsID="") {
+	public static function getAuthPublic($pid, $dsID="") {
         $results = Auth::getAuth($pid, $dsID);
         $has_list_rules = false;
         $has_view_rules = false;
@@ -1449,7 +1449,7 @@ class Auth
 	 * @param   boolean $is_popup Whether the current window is a popup or not
 	 * @return  void
 	 */
-	function redirect($new_url, $is_popup = false)
+	public static function redirect($new_url, $is_popup = false)
 	{
 		if ($is_popup) {
 			$html = '<script type="text/javascript">
@@ -1497,7 +1497,7 @@ class Auth
 	 * @param   string $email The email address to check for
 	 * @return  boolean
 	 */
-	function userExists($username)
+	public static function userExists($username)
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
@@ -1532,7 +1532,7 @@ class Auth
 	 * @param   string $password The password of the user to check for
 	 * @return  boolean
 	 */
-	function isCorrectPassword($username, $password)
+	public static function isCorrectPassword($username, $password)
 	{
 		$log = FezLog::get();
 
@@ -1588,7 +1588,7 @@ class Auth
 	 * @access  public
 	 * @return  integer The ID of the user
 	 */
-	static function getUserID()
+	public static function getUserID()
 	{
 		global $auth_bgp_session, $auth_isBGP;
 		static $usr_id;
@@ -1710,7 +1710,7 @@ class Auth
 	 * @access  public
 	 * @return  integer The ID of the user
 	 */
-	function getUserEmail()
+	public static function getUserEmail()
 	{
 		global $auth_bgp_session, $auth_isBGP;
 		if ($auth_isBGP) {
@@ -1898,7 +1898,7 @@ class Auth
 	 * @param   string $password The password of the user (in ldap)
 	 * @return  boolean true if the user successfully binds to the LDAP server
 	 */
-	function LoginAuthenticatedUser($username, $password, $shib_login = false, $masquerade = false)
+	public static function LoginAuthenticatedUser($username, $password, $shib_login = false, $masquerade = false)
     {
         $log = FezLog::get();
 
@@ -3155,7 +3155,7 @@ class AuthNoFedora {
 //        AuthNoFedora::recalculatePermissions($pid);
     }
 
-    public function getAuthorisationGroups($pid, $dsID = '')
+    public static function getAuthorisationGroups($pid, $dsID = '')
     {
         $log = FezLog::get();
 
