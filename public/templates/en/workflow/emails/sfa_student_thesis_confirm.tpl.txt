@@ -2,9 +2,9 @@ Dear {$name},
 
 This is an automated message from the {$application_name} service.
 
-Thank you for submitting your thesis to {$application_name}.
+Thank you for uploading your thesis to {$application_name}.
 
-Your item will be referred to a {$application_name} editor for approval. 
+Your upload will be referred to the Graduate School for consideration.
 
 Regards,
 
