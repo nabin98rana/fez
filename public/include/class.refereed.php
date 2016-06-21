@@ -31,7 +31,7 @@ class Refereed
 {
     //This function will set the Refereed Source to the value given, if it is a more important indicator than the one
     //currently set. It will also set refereed to true if not already unless $setRefereed = false
-    function saveIfHigher($pid, $refereedSource, $history = '', $setRefereed = true) {
+    public static function saveIfHigher($pid, $refereedSource, $history = '', $setRefereed = true) {
         $log = FezLog::get();
         $controlVocabId = Controlled_Vocab::getID($refereedSource, 'Refereed Source');
         if (!empty($controlVocabId)) {
@@ -48,7 +48,7 @@ class Refereed
         }
     }
 
-    function save($pid, $refereedSource, $history = '', $setRefereed = false) {
+    public static function save($pid, $refereedSource, $history = '', $setRefereed = false) {
         $log = FezLog::get();
         $controlVocabId = Controlled_Vocab::getID($refereedSource, 'Refereed Source');
         if (!empty($controlVocabId)) {
@@ -62,7 +62,7 @@ class Refereed
         }
     }
 
-    function isRefereed($pid) {
+    public static function isRefereed($pid) {
         $db = DB_API::get();
         $log = FezLog::get();
         $stmt = "SELECT rek_refereed FROM " . APP_TABLE_PREFIX . "record_search_key_refereed WHERE rek_refereed_pid = " . $db->quote($pid);

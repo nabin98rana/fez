@@ -780,7 +780,9 @@ class BatchImport
 
     if (! empty($saveAs)) {
       copy($file, $saveAs);
+      return "";
+    } else {
+      return file_get_contents($file);
     }
-    return file_get_contents($file);
   }
 }
