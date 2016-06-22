@@ -211,9 +211,9 @@
                     </relatedInfo>
                 {/section}
             {/if}
-            {if $list[i].rek_related_publications}
+            {if $list[i].rek_citation_stripped}
                   <relatedInfo type="publication">
-                      <notes>{$list[i].rek_related_publications}</notes>
+                      <notes>{$list[i].rek_citation_stripped}</notes>
                   </relatedInfo>
             {/if}
 			{if $list[i].rek_author}
