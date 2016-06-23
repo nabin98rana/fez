@@ -17,6 +17,9 @@
     <label class="invisible"
            for="xsd_display_fields_helper_{$xsd_display_fields[i].xsdmf_id}_0">{$xsdmf.xsdmf_title}
       helper</label>
+                {if $xsdmf.xsdmf_description != ""}
+      <br /><i>{$xsdmf.xsdmf_description nofilter}</i>
+    {/if}
   </th>
   <td>
     <table>
