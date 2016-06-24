@@ -238,7 +238,7 @@ if (!empty($pid) && !empty($dsID)) {
 			}
 
 //			$size = (APP_FEDORA_BYPASS == 'ON') ? $dsMeta['size'] : Misc::remote_filesize($urldata);
-			$dsDetails = Fedora_API::getDatastream($pid, $dsID, $dsVersionID);
+			$dsDetails = Fedora_API::callGetDatastream($pid, $dsID, $dsVersionID);
 
 			$size = $dsDetails['size'];
 
