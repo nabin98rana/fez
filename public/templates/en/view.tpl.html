@@ -8,6 +8,14 @@
     <br /><br />
     <a href="javascript:history.go(-1);">Go Back</a>
   </div>
+{elseif $show_license_accept_msg}
+  <div style="text-align: center">
+    <h1>By accessing this Dataset you agree to the terms and conditions below.</h1>
+    <b>{$license_requirements}</b>
+    <br /><br />
+    <a href="{$smarty.server.REQUEST_URI}&accept_license=1">I Agree</a>
+    <a href="javascript:history.go(-1);">Cancel</a>
+  </div>
 {elseif $pid == "" || $not_exists}
   <div style="text-align: center">
     <h1>Not Found</h1>
