@@ -144,13 +144,9 @@ class NAJAX_Server extends NAJAX_Observable
 
 		if (isset($_GET['najaxCall'])) {
 			if (strcasecmp($_GET['najaxCall'], 'true') == 0) {
+				$phpInput = file_get_contents("php://input");
 
-				if ( ! isset($GLOBALS['HTTP_RAW_POST_DATA'])) {
-
-					return false;
-				}
-
-				$requestBody = @unserialize($GLOBALS['HTTP_RAW_POST_DATA']);
+				$requestBody = @unserialize($phpInput);
 
 				if ($requestBody == null) {
 
