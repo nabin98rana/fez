@@ -19,6 +19,8 @@ Feature: Check datastream policy works correctly
     And I select "Test Community Datastream policy" from "Member of Communities"
     And I fill in "Keyword 1" with "automated testing"
     And I press "Publish"
+    And I wait for bgps
+    And I wait for solr
     Then I am on "/"
 
 
@@ -36,6 +38,8 @@ Feature: Check datastream policy works correctly
     And I fill in "Title" with "Test Title Datastream policy 1"
     And I select "Article" from "Sub-type"
     And I press "Publish"
+    And I wait for bgps
+    And I wait for solr
   #Set datastream policy permissions on collection
     And I fill in "Search Entry" with "title:(\"Test Collection Datastream policy\")"
     And I press "search_entry_submit"
@@ -90,6 +94,8 @@ Feature: Check datastream policy works correctly
     And I turn off waiting checks
     And I press "Save Changes"
     And I turn on waiting checks
+    And I wait for bgps
+    And I wait for solr
     When I am on "/"
     And I wait for "2" seconds
     And I fill in "Search Entry" with "title:(\"Test Title Datastream policy 1\")"
@@ -122,6 +128,8 @@ Feature: Check datastream policy works correctly
     And I turn off waiting checks
     And I press "Save Changes"
     And I turn on waiting checks
+    And I wait for bgps
+    And I wait for solr
     When I am on "/"
     And I wait for "2" seconds
   #clone record 3 to the collection
@@ -135,6 +143,8 @@ Feature: Check datastream policy works correctly
     And I fill in "Title" with "Test Title Datastream policy 3"
     And I select "Article" from "Sub-type"
     And I press "Publish"
+    And I wait for bgps
+    And I wait for solr
   #Set datastream policy permissions
     And I fill in "Search Entry" with "title:(\"Test Title Datastream policy 3\")"
     And I press "search_entry_submit"
@@ -144,6 +154,8 @@ Feature: Check datastream policy works correctly
     And I turn off waiting checks
     And I press "Save Changes"
     And I turn on waiting checks
+    And I wait for bgps
+    And I wait for solr
     When I am on "/"
     And I wait for "2" seconds
     And I follow "Logout"
@@ -172,6 +184,8 @@ Feature: Check datastream policy works correctly
     And I fill in "Title" with "Test Title Datastream policy 4"
     And I select "Article" from "Sub-type"
     And I press "Publish"
+    And I wait for bgps
+    And I wait for solr
   #set a datastream policy
     And I fill in "Search Entry" with "title:(\"Test Title Datastream policy 4\")"
     And I press "search_entry_submit"
@@ -182,6 +196,8 @@ Feature: Check datastream policy works correctly
     Given I choose the "Unit Publication Officers" group for the "Lister" role
     And I turn off waiting checks
     And I press "Save Changes"
+    And I wait for bgps
+    And I wait for solr
     And I turn on waiting checks
     When I am on "/"
     And I wait for "2" seconds
@@ -193,6 +209,8 @@ Feature: Check datastream policy works correctly
     And I select "Only Thesis Office Approve, View, List. Printery View." from "Datastream FezACML Policy for datastreams"
     And I turn off waiting checks
     And I press "Save Changes"
+    And I wait for bgps
+    And I wait for solr
     And I turn on waiting checks
     And I follow "Logout"
     Given I login as UPO

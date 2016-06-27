@@ -75,11 +75,11 @@ class User
 	 * @param   string $email The email address associated with the user account
 	 * @return  integer The user ID
 	 */
-	function getUserIDByUsername($username)
+	public static function getUserIDByUsername($username)
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		static $returns;
 
 		if (!empty($returns[$username])) {
@@ -93,13 +93,13 @@ class User
                  WHERE
                     usr_username=" . $db->quote($username);
 		try {
-			$res = $db->fetchOne($stmt);			
+			$res = $db->fetchOne($stmt);
 		}
 		catch(Exception $ex) {
 			$log->err($ex);
 			return '';
 		}
-	
+
 		if ($GLOBALS['app_cache']) {
 			if (!is_array($returns) || count($returns) > 10) { //make sure the static memory var doesnt grow too large and cause a fatal out of memory error
 				$returns = array();
@@ -145,7 +145,7 @@ class User
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		$stmt = "SELECT
                     usr_id,
                     usr_full_name
@@ -177,11 +177,11 @@ class User
 	 * @param   string $username The username of the user
 	 * @return  boolean
 	 */
-	function isUserAdministrator($username)
+	public static function isUserAdministrator($username)
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		$stmt = "SELECT
                     usr_administrator
                  FROM
@@ -209,11 +209,11 @@ class User
 	 * @param   string $username The username of the user
 	 * @return  boolean
 	 */
-	function isUserSuperAdministrator($username)
+	public static function isUserSuperAdministrator($username)
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		$stmt = "SELECT
                     usr_super_administrator
                  FROM
@@ -233,7 +233,7 @@ class User
 			return false;
 		}
 	}
-	
+
 	/**
 	 * Method used to check whether an user is a UPO or not.
 	 *
@@ -241,13 +241,13 @@ class User
 	 * @param   string $username The username of the user
 	 * @return  boolean
 	 */
-	function isUserUPO($username)
+	public static function isUserUPO($username)
 	{
 		$isUPO = false;
-		
+
 		$upoGroupID = Group::getID(APP_MY_RESEARCH_UPO_GROUP);
 		$userGroups = Group::getGroupColList(User::getUserIDByUsername($username));
-		
+
 		if (count($userGroups) > 0) {
 			foreach ($userGroups as $ug) {
 				if ($ug == $upoGroupID) {
@@ -255,10 +255,10 @@ class User
 				}
 			}
 		}
-		
+
 		return $isUPO;
 	}
-	
+
 	/**
      * Method used to check whether an user is in a Archive Viewer Group or not.
      *
@@ -295,7 +295,7 @@ class User
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		$stmt = "SELECT
                     usr_shib_login_count
                  FROM
@@ -319,11 +319,11 @@ class User
 	 * @param   string $username The username
 	 * @return  array The account details
 	 */
-	function getDetails($username)
+	public static function getDetails($username)
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		$stmt = "SELECT
                     *
                  FROM
@@ -337,7 +337,7 @@ class User
 			$log->err($ex);
 			return '';
 		}
-	
+
 		$usr_id = User::getUserIDByUsername($username);
 		$res["usr_groups"] = Group::getGroupColList($usr_id);
 		return $res;
@@ -350,25 +350,25 @@ class User
 	 * @param   integer $uid The user ID number
 	 * @return  array The account details
 	 */
-	function getDetailsByID($id)
+	public static function getDetailsByID($id)
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		$stmt = "SELECT
                     *
                  FROM
                     " . APP_TABLE_PREFIX . "user
                  WHERE
                     usr_id=".$db->quote($id, 'INTEGER');
-		
+
 		try {
 			$res = $db->fetchRow($stmt);
 		}
 		catch(Exception $ex) {
 			$log->err($ex);
 			return '';
-		}		
+		}
 
 		$res["usr_groups"] = Group::getGroupColList($id);
 		return $res;
@@ -386,7 +386,7 @@ class User
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		$stmt = "SELECT
                     usr_full_name
                  FROM
@@ -411,11 +411,11 @@ class User
 	 * @param   integer $usr_id The user ID
 	 * @return  string The user' full name
 	 */
-	function getFullName($usr_id)
+	public static function getFullName($usr_id)
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		static $returns;
 
 		if (!is_numeric($usr_id)) {
@@ -439,10 +439,10 @@ class User
                     " . APP_TABLE_PREFIX . "user
                  WHERE
                     usr_id IN (" . Misc::arrayToSQLBindStr($items) . ")";
-		
+
 		try {
 			if (!is_array($usr_id)) {
-				$res = $db->fetchOne($stmt, $items);			
+				$res = $db->fetchOne($stmt, $items);
 			} else {
 				$res = $db->fetchCol($stmt, $items);
 			}
@@ -451,7 +451,7 @@ class User
 			$log->err($ex);
 			return '';
 		}
-		
+
 		if ($GLOBALS['app_cache']) {
 			if (!is_array($returns) || count($returns) > 10) { //make sure the static memory var doesnt grow too large and cause a fatal out of memory error
 				$returns = array();
@@ -474,7 +474,7 @@ class User
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		static $returns;
 
 		if (isset($returns[$username])) {
@@ -514,7 +514,7 @@ class User
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		// check if the user being inactivated is the last one
 		$stmt = "SELECT
                     COUNT(*)
@@ -529,11 +529,11 @@ class User
 			$log->err($ex);
 			return false;
 		}
-		
+
 		if (($total_active < 2) && ($_POST["status"] == "inactive")) {
 			return false;
 		}
-		
+
 		$stmt = "UPDATE
                     " . APP_TABLE_PREFIX . "user
                  SET
@@ -547,7 +547,7 @@ class User
 			$log->err($ex);
 			return false;
 		}
-		
+
 		return true;
 	}
 
@@ -555,12 +555,12 @@ class User
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		$stmt = "DELETE FROM
                     " . APP_TABLE_PREFIX . "user
                  WHERE
                     usr_id IN (".Misc::arrayToSQLBindStr($_POST["items"]).")";
-		
+
 		try {
 			$db->query($stmt, $_POST["items"]);
 		}
@@ -568,7 +568,7 @@ class User
 			$log->err($ex);
 			return false;
 		}
-		
+
 		return true;
 	}
 
@@ -584,7 +584,7 @@ class User
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		if ($_POST['new_password'] != $_POST['confirm_password']) {
 			return -2;
 		}
@@ -623,7 +623,7 @@ class User
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		$stmt = "UPDATE
                     " . APP_TABLE_PREFIX . "user
                  SET
@@ -652,7 +652,7 @@ class User
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		$stmt = "UPDATE
                     " . APP_TABLE_PREFIX . "user
                  SET
@@ -710,7 +710,7 @@ class User
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		$stmt = "UPDATE
                     " . APP_TABLE_PREFIX . "user
                  SET
@@ -725,7 +725,7 @@ class User
 			return -1;
 		}
 		$_SESSION['email'] = $_POST["email"];
-		
+
 		return 1;
 	}
 
@@ -740,7 +740,7 @@ class User
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		$stmt = "UPDATE
                     " . APP_TABLE_PREFIX . "user
                  SET
@@ -754,7 +754,7 @@ class User
 		catch(Exception $ex) {
 			$log->err($ex);
 			return -1;
-		}		
+		}
 		return 1;
 	}
 
@@ -769,7 +769,7 @@ class User
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		$stmt = "UPDATE
                     " . APP_TABLE_PREFIX . "user
                  SET
@@ -783,7 +783,7 @@ class User
 		catch(Exception $ex) {
 			$log->err($ex);
 			return -1;
-		}		
+		}
 		return 1;
 	}
 
@@ -792,20 +792,20 @@ class User
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		$dbRes = 1;
 		$db->beginTransaction();
 		$stmt = "DELETE FROM
                     " . APP_TABLE_PREFIX . "user_shibboleth_attribs
                  WHERE
                     usa_usr_id = ".$db->quote($usr_id, 'INTEGER');
-		
+
 		$db->exec($stmt);
-		
+
 		foreach ($_SESSION[APP_SHIB_ATTRIBUTES_SESSION] as $shib_name => $shib_value)
 		{
 			if ( (is_numeric(strpos($shib_name, "Shib-EP")) || is_numeric(strpos($shib_name, "Shib-Person"))) && $shib_value != '' ) {
-				
+
 				$stmt = "INSERT INTO
                             " . APP_TABLE_PREFIX . "user_shibboleth_attribs
                             (
@@ -839,11 +839,11 @@ class User
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		$stmt = "SELECT *
                  FROM " . APP_TABLE_PREFIX . "user_shibboleth_attribs
                  WHERE usa_usr_id = " . $db->quote($usr_id, 'INTEGER');
-		
+
 		try {
 			$res = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
 		}
@@ -940,7 +940,7 @@ class User
 			$log->err($ex);
 			return -1;
 		}
-		
+
 		// update the collection associations now
 		$stmt = "DELETE FROM
                         " . APP_TABLE_PREFIX . "group_user
@@ -953,7 +953,7 @@ class User
 			$log->err($ex);
 			return -1;
 		}
-		
+
 		for ($i = 0; $i < count($_POST["groups"]); $i++) {
 			$stmt = "INSERT INTO
                                 " . APP_TABLE_PREFIX . "group_user
@@ -1042,7 +1042,7 @@ class User
 			$log->err($ex);
 			return -1;
 		}
-		
+
 		$new_usr_id = $db->lastInsertId(APP_TABLE_PREFIX . "user", "usr_id");
 		// add the group associations!
 		for ($i = 0; $i < count($_POST["groups"]); $i++) {
@@ -1061,7 +1061,7 @@ class User
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		$usr_administrator = 'FALSE';
 
 		$ldap_authentication = 'FALSE';
@@ -1115,7 +1115,7 @@ class User
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		$usr_administrator = 'FALSE';
 		$ldap_authentication = 'TRUE';
 
@@ -1172,7 +1172,7 @@ class User
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		$usr_administrator = 'FALSE';
 
 		$ldap_authentication = 'TRUE';
@@ -1228,7 +1228,7 @@ class User
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		$usr_administrator = 'FALSE';
 		$ldap_authentication = 'TRUE';
 		$userDetails = User::GetUserLDAPDetails($_POST["username"], $_POST["passwd"]);
@@ -1331,22 +1331,22 @@ class User
                 }
             }
             $_SESSION[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-OrgDN'] = LDAP_ORGANISATION;
-            
+
         // LDAP is not binding. Get out of here, soon.
         } else {
-            // Gracefully handle LDAP binding error, close ldap connection and returns false 
+            // Gracefully handle LDAP binding error, close ldap connection and returns false
             ldap_close($ldap_conn);
             return false;
         }
 
         ldap_close($ldap_conn);
-        
-        // Check the size of $userDetails, do not return empty $userDetails, 
+
+        // Check the size of $userDetails, do not return empty $userDetails,
         // as it is resulting in login status with empty user.
         if (sizeof($userdetails) == 0){
             return false;
         }
-        
+
         return $userdetails;
     }
 
@@ -1361,25 +1361,25 @@ class User
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		$order_by = "usr_id DESC";
 		$where_stmt = "";
 		$extra_stmt = "";
 		$extra_order_stmt = "";
 		if (!empty($filter)) {
-	    if (is_numeric(strpos(APP_SQL_DBTYPE, "mysql"))) { 
+	    if (is_numeric(strpos(APP_SQL_DBTYPE, "mysql"))) {
 				$where_stmt .= " WHERE match(usr_full_name, usr_given_names, usr_family_name, usr_username, usr_shib_username) AGAINST (".$db->quote(''.$filter.'*')." IN BOOLEAN MODE) ";
 				$extra_stmt = " , match(usr_full_name, usr_given_names, usr_family_name, usr_username, usr_shib_username) AGAINST (".$db->quote($filter).") as Relevance ";
 				$extra_order_stmt = " Relevance DESC, ";
 			} else {
-			    if (is_numeric(strpos(APP_SQL_DBTYPE, "pgsql"))) { 
+			    if (is_numeric(strpos(APP_SQL_DBTYPE, "pgsql"))) {
 						$where_stmt .= " WHERE (usr_full_name ILIKE ".$db->quote('%'.$filter.'%')." OR usr_username ILIKE ".$db->quote($filter.'%').") ";
 					} else {
-						$where_stmt .= " WHERE (usr_full_name LIKE ".$db->quote('%'.$filter.'%')." OR usr_username LIKE ".$db->quote($filter.'%').") ";						
+						$where_stmt .= " WHERE (usr_full_name LIKE ".$db->quote('%'.$filter.'%')." OR usr_username LIKE ".$db->quote($filter.'%').") ";
 					}
 			}
 		}
-		 
+
 		if(!$isSuperAdmin){
 			if($where_stmt) {
 				$where_stmt .= " AND usr_super_administrator = FALSE";
@@ -1387,9 +1387,9 @@ class User
 				$where_stmt = " WHERE usr_super_administrator = FALSE";
 			}
 		}
-		 
+
 		$start = $current_row * $max;
-    if (is_numeric(strpos(APP_SQL_DBTYPE, "mysql"))) { 
+    if (is_numeric(strpos(APP_SQL_DBTYPE, "mysql"))) {
 			$stmt = "SELECT SQL_CALC_FOUND_ROWS
 						* ".$extra_stmt."
 	                 FROM
@@ -1466,7 +1466,7 @@ class User
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		$stmt = "SELECT
                     usr_id,
                     usr_full_name
@@ -1497,7 +1497,7 @@ class User
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		$stmt = "SELECT
                     usr_id,
                     usr_full_name
@@ -1530,7 +1530,7 @@ class User
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		$stmt = "SELECT
                     usr_id,
                     usr_full_name
@@ -1560,11 +1560,11 @@ class User
 	 * @param   integer $usr_id The user ID
 	 * @return  array The email and full name
 	 */
-	function getNameEmail($usr_id)
+	public static function getNameEmail($usr_id)
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		static $returns;
 
 		if (!empty($returns[$usr_id])) {
@@ -1585,7 +1585,7 @@ class User
 			$log->err($ex);
 			return '';
 		}
-		
+
 		if ($GLOBALS['app_cache']) {
 			if (!is_array($returns) || count($returns) > 10) { //make sure the static memory var doesnt grow too large and cause a fatal out of memory error
 				$returns = array();
@@ -1607,7 +1607,7 @@ class User
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		static $returns;
 
 		if (!empty($returns[$ext_id])) {
@@ -1627,7 +1627,7 @@ class User
 			$log->err($ex);
 			return '';
 		}
-		
+
 		if ($GLOBALS['app_cache']) {
 			if (!is_array($returns) || count($returns) > 10) { //make sure the static memory var doesnt grow too large and cause a fatal out of memory error
 				$returns = array();
@@ -1651,7 +1651,7 @@ class User
 		$info = User::getNameEmail($usr_id);
 		return $info["usr_full_name"] . " <" . $info["usr_email"] . ">";
 	}
-	
+
 	/**
 	 * Method used to search and suggest all the users names for a given string.
 	 *

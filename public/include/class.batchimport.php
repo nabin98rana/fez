@@ -685,7 +685,7 @@ class BatchImport
     $parent = empty($subdir) ? APP_SAN_IMPORT_DIR : APP_SAN_IMPORT_DIR . '/' . $subdir;
     if ($handle = opendir($parent)) {
       while (FALSE !== ($dir = readdir($handle))) {
-        if (!(is_dir($parent . $dir) || $dir == '.' || $dir == '..')) {
+        if (!(!is_dir($parent . $dir) || $dir == '.' || $dir == '..')) {
           $dirs[$dir] = $dir;
         }
       }
@@ -705,7 +705,7 @@ class BatchImport
    */
   private static function getImportDirsFromS3($subdir = '')
   {
-    $aws = new AWS(APP_S3_SAN_IMPORT_BUCKET);
+    $aws = new AWS(AWS_S3_SAN_IMPORT_BUCKET);
 
     $return = [];
     $prefix = empty($subdir) ? self::AWS_SAN_IMPORT_PREFIX : self::AWS_SAN_IMPORT_PREFIX . '/' . $subdir;
@@ -737,7 +737,7 @@ class BatchImport
     if (defined('AWS_S3_ENABLED') && AWS_S3_ENABLED == 'true') {
       return $this->getFileListFromS3($directory);
     }
-    return Misc::getFileList($directory, true, true);
+    return Misc::getFileList(APP_SAN_IMPORT_DIR. '/'. $directory, true, true);
   }
 
   /**
@@ -746,7 +746,7 @@ class BatchImport
    */
   private function getFileListFromS3($directory)
   {
-    $aws = new AWS(APP_S3_SAN_IMPORT_BUCKET);
+    $aws = new AWS(AWS_S3_SAN_IMPORT_BUCKET);
 
     $return = [];
     $files = $aws->listObjectsInBucket(self::AWS_SAN_IMPORT_PREFIX . '/' . $directory);
@@ -768,7 +768,7 @@ class BatchImport
   public static function getFileContent($file, $saveAs = '')
   {
     if (defined('AWS_ENABLED') && AWS_ENABLED == 'true') {
-      $aws = new AWS(APP_S3_SAN_IMPORT_BUCKET);
+      $aws = new AWS(AWS_S3_SAN_IMPORT_BUCKET);
 
       $params = [];
       if (! empty($saveAs)) {
@@ -780,7 +780,9 @@ class BatchImport
 
     if (! empty($saveAs)) {
       copy($file, $saveAs);
+      return "";
+    } else {
+      return file_get_contents($file);
     }
-    return file_get_contents($file);
   }
 }

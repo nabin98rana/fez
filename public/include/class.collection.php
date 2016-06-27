@@ -531,7 +531,7 @@ class Collection
    * @param   string $searchKey The search key the records are being browsed by  Date (Year) or Author
    * @return  array The list of records
    */
-  function listByAttribute($current_row = 0, $max = 25, $searchKey = "Date", $sort_by = "Title", $letter = "")
+  public static function listByAttribute($current_row = 0, $max = 25, $searchKey = "Date", $sort_by = "Title", $letter = "")
   {
     $log = FezLog::get();
     $db = DB_API::get();
@@ -540,7 +540,6 @@ class Collection
       $max = 9999999;
     }
     $start = $current_row * $max;
-    $sekdet = Search_Key::getDetailsByTitle($searchKey);
     $sekdet = Search_Key::getBasicDetailsByTitle($searchKey);
     $middleStmt = "";
     $order_field = "";
@@ -745,7 +744,6 @@ class Collection
     if ($max == "ALL") {
       $max = 9999999;
     }
-    $sekdet = Search_Key::getBasicDetailsByTitle($searchKey);
 
     if ($max == "ALL") {
       $max = 9999999;

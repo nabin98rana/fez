@@ -109,13 +109,6 @@ class San_image_import
       $count++;
     }
 
-    // Cleanup
-    foreach ($this->_filesCleanup as $file) {
-      if (is_file($file)) {
-        unlink($file);
-      }
-    }
-
     return true;
   }
 
@@ -181,21 +174,7 @@ class San_image_import
             $values[$k] = trim($data[$i]);
           }
           $values['ImportDirectory'] = $tempDir;
-
-          for ($i = 1; $i <= 3; $i++) {
-            if (!empty($values['Filename ' . $i])) {
-              // Attempt to get the file if it doesn't exist
-              if (!is_file($values['ImportDirectory'] . $values['Filename ' . $i])) {
-                BatchImport::getFileContent($importFromDir . $values['Filename ' . $i], $tempDir . $values['Filename ' . $i]);
-              }
-              // Check the file was imported
-              if (!is_file($values['ImportDirectory'] . $values['Filename ' . $i])) {
-                $this->_log->err('San image batch import - the file ' . $values['Filename ' . $i] . '  was not found.');
-                return false;
-              }
-              $this->_filesCleanup[] = $values['ImportDirectory'] . $values['Filename ' . $i];
-            }
-          }
+          $values['ImportFromDirectory'] = $importFromDir;
 
           $importData[] = $values;
         }
@@ -221,6 +200,8 @@ class San_image_import
     $params['xdis_id'] = $xdis_id;
     $params['sta_id'] = 2;
     $params['collection_pid'] = $collection_pid;
+
+    $tempDir = APP_TEMP_DIR . '/';
 
     $xdis_list = XSD_Relationship::getListByXDIS($xdis_id);
     array_push($xdis_list, array("0" => $xdis_id));
@@ -381,6 +362,22 @@ class San_image_import
 
     $record = new RecordObject();
     $pid = $record->fedoraInsertUpdate(array(), array(), $params);
+    $this->_filesCleanup = array();
+    for ($i = 1; $i <= 3; $i++) {
+      if (!empty($recData['Filename ' . $i])) {
+        // Attempt to get the file if it doesn't exist
+        if (!is_file($recData['ImportDirectory'] . $recData['Filename ' . $i])) {
+          BatchImport::getFileContent($recData['ImportFromDirectory'] . $recData['Filename ' . $i], $tempDir . $recData['Filename ' . $i]);
+        }
+        // Check the file was imported
+        if (!is_file($recData['ImportDirectory'] . $recData['Filename ' . $i])) {
+          $this->_log->err('San image batch import - the file ' . $recData['Filename ' . $i] . '  was not found.');
+          return false;
+        }
+        $this->_filesCleanup[] = $recData['ImportDirectory'] . $recData['Filename ' . $i];
+      }
+    }
+
 
     BatchImport::handleStandardFileImport(
       $pid,
@@ -405,6 +402,12 @@ class San_image_import
         $xdis_id,
         true
       );
+    }
+    // Cleanup
+    foreach ($this->_filesCleanup as $file) {
+      if (is_file($file)) {
+        unlink($file);
+      }
     }
 
     return $pid;

@@ -1175,7 +1175,7 @@ class MyResearch
     /**
      * Gets the org unit description for a given username.
      */
-    function getHRorgUnit($username)
+    public static function getHRorgUnit($username)
     {
         $log = FezLog::get();
         $db = DB_API::get();
@@ -1217,7 +1217,7 @@ class MyResearch
      * Checks if the user is in one of the my research groups that should go to the classic my uq espace instead when this module is on.
      * RETURNS 0/1 as true/false
      */
-    function isClassicUser($username)
+    public static function isClassicUser($username)
     {
         $log = FezLog::get();
         $db = DB_API::get();

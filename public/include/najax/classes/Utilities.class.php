@@ -101,7 +101,7 @@ class NAJAX_Utilities extends NAJAX_Observable
 	 * @static
 	 *
 	 */
-	function getType($var)
+	public static function getType($var)
 	{
 		if (is_bool($var)) {
 

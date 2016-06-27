@@ -234,7 +234,7 @@ class Org_Structure
 	 * @param   integer $org_id The organisational structure ID
 	 * @return  string The title of the organisational structure
 	 */
-	function getTitle($org_id)
+	public static function getTitle($org_id)
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();

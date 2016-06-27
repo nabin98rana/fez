@@ -167,22 +167,22 @@ class Image_Resample
           $im->stripImage();
           $im->writeImage(APP_TEMP_DIR . escapeshellcmd($temp_file));
         } else {
-          $command = APP_CONVERT_CMD . " -strip -quality " . escapeshellcmd($quality) . " -resize \"" . escapeshellcmd($width) . "x" . escapeshellcmd($height) . ">\" -colorspace rgb \"" . $image_dir . escapeshellcmd($image) . "\" " . APP_TEMP_DIR . escapeshellcmd($temp_file);
+          $command = APP_CONVERT_CMD . " -strip -quality " . escapeshellcmd($quality) . " -resize \"" . escapeshellcmd($width) . "x" . escapeshellcmd($height) . ">\" -colorspace rgb \"" . $image_dir . escapeshellcmd($image) . "\"[0] " . APP_TEMP_DIR . escapeshellcmd($temp_file);
           exec($command . $unix_extra, $return_array, $return_status);
         }
       }
     } elseif ($watermark == "" && $copyright != "") {
-      $command = APP_CONVERT_CMD . " -strip -quality " . escapeshellcmd($quality) . " -resize \"" . escapeshellcmd($width) . "x" . escapeshellcmd($height) . ">\" -colorspace rgb \"" . $image_dir . escapeshellcmd($image) . "\" " . APP_TEMP_DIR . escapeshellcmd($temp_file);
+      $command = APP_CONVERT_CMD . " -strip -quality " . escapeshellcmd($quality) . " -resize \"" . escapeshellcmd($width) . "x" . escapeshellcmd($height) . ">\" -colorspace rgb \"" . $image_dir . escapeshellcmd($image) . "\"[0] " . APP_TEMP_DIR . escapeshellcmd($temp_file);
       exec($command . $unix_extra, $return_array, $return_status);
       $command = APP_CONVERT_CMD . ' ' . APP_TEMP_DIR . escapeshellcmd($temp_file) . ' -font Arial -pointsize 20 -draw "gravity center fill black text 0,12 \'Copyright' . $copyright . '\' fill white  text 1,11 \'Copyright' . $copyright . '\'" ' . APP_TEMP_DIR . escapeshellcmd($temp_file) . '';
       exec($command . $unix_extra, $return_array, $return_status);
     } elseif ($watermark != "" && $copyright == "") {
-      $command = APP_CONVERT_CMD . " -strip -quality " . escapeshellcmd($quality) . " -resize \"" . escapeshellcmd($width) . "x" . escapeshellcmd($height) . ">\" -colorspace rgb \"" . $image_dir . escapeshellcmd($image) . "\" " . APP_TEMP_DIR . escapeshellcmd($temp_file);
+      $command = APP_CONVERT_CMD . " -strip -quality " . escapeshellcmd($quality) . " -resize \"" . escapeshellcmd($width) . "x" . escapeshellcmd($height) . ">\" -colorspace rgb \"" . $image_dir . escapeshellcmd($image) . "\"[0] " . APP_TEMP_DIR . escapeshellcmd($temp_file);
       exec($command . $unix_extra, $return_array, $return_status);
       $command = APP_COMPOSITE_CMD . " -dissolve 15 -tile " . escapeshellcmd(APP_PATH) . "/images/" . APP_WATERMARK . " " . APP_TEMP_DIR . escapeshellcmd($temp_file) . " " . APP_TEMP_DIR . escapeshellcmd($temp_file) . "";
       exec($command . $unix_extra, $return_array, $return_status);
     } elseif ($watermark != "" && $copyright != "") {
-      $command = APP_CONVERT_CMD . " -strip -quality " . escapeshellcmd($quality) . " -resize \"" . escapeshellcmd($width) . "x" . escapeshellcmd($height) . ">\" -colorspace rgb \"" . $image_dir . escapeshellcmd($image) . "\" " . APP_TEMP_DIR . escapeshellcmd($temp_file);
+      $command = APP_CONVERT_CMD . " -strip -quality " . escapeshellcmd($quality) . " -resize \"" . escapeshellcmd($width) . "x" . escapeshellcmd($height) . ">\" -colorspace rgb \"" . $image_dir . escapeshellcmd($image) . "\"[0] " . APP_TEMP_DIR . escapeshellcmd($temp_file);
       exec($command . $unix_extra, $return_array, $return_status);
       $command = APP_CONVERT_CMD . ' ' . APP_TEMP_DIR . escapeshellcmd($temp_file) . ' -font Arial -pointsize 20 -draw "gravity center fill black text 0,12 \'Copyright' . $copyright . '\' fill white  text 1,11 \'Copyright' . $copyright . '\'" ' . APP_TEMP_DIR . escapeshellcmd($temp_file) . '';
       exec($command . $unix_extra, $return_array, $return_status);

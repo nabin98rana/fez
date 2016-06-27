@@ -1,5 +1,7 @@
 # Fez
 
+[ ![Codeship Status for uqlibrary/fez](https://codeship.com/projects/bb6396a0-7a03-0133-4c66-02b7238bd170/status?branch=master)](https://codeship.com/projects/118889)
+
 <sub><sup>Developed with</sup></sub><br/>
 [![alt text][2]][1]
 

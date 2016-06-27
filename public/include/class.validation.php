@@ -53,7 +53,7 @@ class Validation
      * @param   string $str The string to check against
      * @return  boolean
      */
-    function isWhitespace($str)
+  public static function isWhitespace($str)
     {
         $str = trim($str);
         if (strlen($str) == 0) {
@@ -64,12 +64,12 @@ class Validation
     }
 
 
-	function isUserFileName($str) {
+  public static function isUserFileName($str) {
 
 		$fileCount=0;
-		$filePath=APP_PATH; # Specify the path you want to look in. 
+		$filePath=APP_PATH; # Specify the path you want to look in.
 		$dir = opendir($filePath); # Open the path
-		while ($file = readdir($dir)) { 
+		while ($file = readdir($dir)) {
 			$filePrefix = substr($file, 0, strrpos($file, "."));
 			if ($str == strtolower($filePrefix)) {
 				return true;
@@ -91,9 +91,9 @@ class Validation
      * @param   string $str The email address to check against
      * @return  boolean
      */
-    function isEmail($str)
+  public static function isEmail($str)
     {
-        $valid_chars = array('a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 
+        $valid_chars = array('a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i',
                                 'j', 'l', 'k', 'm', 'n', 'o', 'p', 'q', 'r',
                                 's', 't', 'u', 'w', 'v', 'x', 'y', 'z');
         $extended_chars = array('.', '_', '-', '@');
@@ -109,7 +109,7 @@ class Validation
         }
         // check for invalid characters in the email address
         for ($i = 0; $i < strlen($str); $i++) {
-            if ((!in_array(substr($str, $i, 1), $valid_chars)) && 
+            if ((!in_array(substr($str, $i, 1), $valid_chars)) &&
                     (!in_array(substr($str, $i, 1), $extended_chars))) {
                 return false;
             }
@@ -131,7 +131,7 @@ class Validation
 
 
     /**
-     * Method used to check whether a string has only valid (ASCII) 
+     * Method used to check whether a string has only valid (ASCII)
      * characters.
      *
      * @access  public
@@ -140,7 +140,7 @@ class Validation
      */
     function hasValidChars($str)
     {
-        $valid_chars = array('a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 
+        $valid_chars = array('a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i',
                                 'j', 'l', 'k', 'm', 'n', 'o', 'p', 'q', 'r',
                                 's', 't', 'u', 'w', 'v', 'x', 'y', 'z');
 
@@ -158,7 +158,7 @@ class Validation
      * @param string $str The string to check
      * @return bool True if valid else false
      */
-    function isORCID($str)
+  public static function isORCID($str)
     {
         return preg_match('/^\d{4}\-\d{4}\-\d{4}\-\d{3}(\d|x|X)$/', $str);
     }
@@ -169,7 +169,7 @@ class Validation
      * @param string $str The string to check
      * @return bool True if valid else false
      */
-    function isPeopleAustraliaID($str)
+  public static function isPeopleAustraliaID($str)
     {
         return preg_match('/^(http:\/\/nla\.gov\.au\/)?nla\.party\-\d+$/', $str);
     }
@@ -180,7 +180,7 @@ class Validation
      * @param string $str The string to check
      * @return bool True if valid else false
      */
-    function isScopusID($str)
+  public static function isScopusID($str)
     {
         return preg_match('/^\d+$/', $str);
     }
@@ -191,7 +191,7 @@ class Validation
      * @param string $str The string to check
      * @return bool True if valid else false
      */
-    static function isGoogleScholarID($str)
+    public static function isGoogleScholarID($str)
     {
         return preg_match('/^[A-Za-z0-9_-]+$/', $str);
     }

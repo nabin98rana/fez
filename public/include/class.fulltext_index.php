@@ -150,9 +150,9 @@ abstract class FulltextIndex {
 
 				// check if process is still running or if this is an invalid lock
 				$psinfo = FulltextQueue::getProcessInfo($process_id);
-				$log->debug("checking for lock on  lock ".$process_id);
+				$log->warn("checking for lock on  lock ".$process_id);
 				// TODO: unix, windows, ...
-				$log->debug(array("psinfo",$psinfo));
+				$log->warn(array("psinfo",$psinfo));
 
 				if (!empty($psinfo)) {
 					// override existing lock

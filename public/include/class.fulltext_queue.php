@@ -32,6 +32,7 @@
 include_once(dirname(dirname(__FILE__)).DIRECTORY_SEPARATOR."config.inc.php");
 include_once(APP_INC_PATH . "class.bgp_fulltext_index.php");
 include_once(APP_INC_PATH . "class.sherpa_romeo.php");
+include_once(APP_INC_PATH . "class.aws.php");
 include_once(APP_INC_PATH . "class.datastream.php");
 
 class FulltextQueue
@@ -126,25 +127,44 @@ class FulltextQueue
 
 	public static function getProcessInfo($pid='')
 	{
-		if (empty($pid)) {
-			return array(
-			     'pid'   =>  getmypid(),
-			);
-		} else {
-			// Windows
-			if ((stristr(PHP_OS, 'win')) && (!stristr(PHP_OS, 'darwin'))) {
-				//exec("tasklist /FI \"PID eq " . $pid . "\"", $output); // This will work in W7 is psinfo not installed
-				exec("pslist.exe /accepteula " . $pid, $output);
-				if (count($output) < 4) {
-					return false;
-				}
-				return $output;
+		$log = FezLog::get();
+		// If we are using AWS, check if any tasks are still running
+		if (defined('AWS_ENABLED') && AWS_ENABLED == 'true') {
+			$aws = AWS::get();
+			if (!isset($_SERVER['APPLICATION_ENV']) || $_SERVER['APPLICATION_ENV'] === '') {
+				$launchTask = 'staging';
 			} else {
-				exec("ps " . $pid, $output);
-				if (count($output) < 2) {
-					return false;
+				$launchTask = $_SERVER['APPLICATION_ENV'];
+			}
+			$family = 'fez' . $launchTask;
+			$countTasks = $aws->countTasksRunningOrPendingInFamily($family);
+			if (is_numeric($countTasks) && $countTasks > 1) {
+				$log->warn("Found AWS Tasks running: ".$countTasks);
+				return "Found more than 1 AWS task running, so a bgp is still going";
+			} else {
+				$log->warn("None for ".$family."! Found AWS Tasks running: ".$countTasks);
+			}
+		} else {
+			if (empty($pid)) {
+				return array(
+						'pid'   =>  getmypid(),
+				);
+			} else {
+				// Windows
+				if ((stristr(PHP_OS, 'win')) && (!stristr(PHP_OS, 'darwin'))) {
+					//exec("tasklist /FI \"PID eq " . $pid . "\"", $output); // This will work in W7 is psinfo not installed
+					exec("pslist.exe /accepteula " . $pid, $output);
+					if (count($output) < 4) {
+						return false;
+					}
+					return $output;
+				} else {
+					exec("ps " . $pid, $output);
+					if (count($output) < 2) {
+						return false;
+					}
+					return $output;
 				}
-				return $output;
 			}
 		}
 	}

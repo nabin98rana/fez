@@ -137,7 +137,7 @@ class Exiftool
 		return true;
 	}
 
-	function getDetails($pid, $dsID)
+	public static function getDetails($pid, $dsID)
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();

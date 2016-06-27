@@ -184,16 +184,6 @@ if ($access_ok) {
         $wfstatus->setCreatedPid($rec->pid);
         $wfstatus->pid = $rec->pid;
 
-        // Did we really ingest?
-        if (!$rec->ingested) {
-            $wfstatus->vars['outcome']= 'notCreated';
-            $wfstatus->vars['outcome_details']= 'Ingest into fedora (record creation) failed';
-            if (APP_API) {
-                $wfstatus->theend();
-                exit;
-            }
-        }
-
         if (!empty($_POST['filePermissionsNew'])) {
             $count = 0;
             foreach($_POST['filePermissionsNew'] as $i => $value) {

@@ -391,7 +391,7 @@ class Language
 	 * @param   string $lang The WoS language
 	 * @return  string The corresponding ISO 639 language code
 	 */
-	function resolveWoSLanguage($lang)
+	public static function resolveWoSLanguage($lang)
 	{
 		$lookup = array(
 				"Afrikaans" => "afr",

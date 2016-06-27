@@ -537,7 +537,7 @@ class AWS
       $client = $this->sdk->createS3();
 
       $result = $client->listObjects([
-        'Bucket' => AWS_S3_BUCKET,
+        'Bucket' => $this->s3Bucket,
         'Prefix' => $prefix,
       ]);
 

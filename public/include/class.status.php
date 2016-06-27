@@ -57,7 +57,7 @@ class Status
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		$stmt = "DELETE FROM
                     " . APP_TABLE_PREFIX . "status
                  WHERE
@@ -83,7 +83,7 @@ class Status
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		if (empty($params)) {
 			$params = $_POST;
 		}
@@ -98,7 +98,7 @@ class Status
                     " . $db->quote($params["sta_title"]) . ",
 					" . $db->quote($params["sta_order"], 'INTEGER') . ",
 					" . $db->quote($params["sta_color"]) . "					
-                 )"; 
+                 )";
 		try {
 			$db->exec($stmt);
 		}
@@ -120,7 +120,7 @@ class Status
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		$stmt = "UPDATE
                     " . APP_TABLE_PREFIX . "status
                  SET 
@@ -128,7 +128,7 @@ class Status
 					sta_order = " . $db->quote($_POST["sta_order"]) . ",
 					sta_color = " . $db->quote($_POST["sta_color"]) . "
                  WHERE sta_id = " . $db->quote($sta_id, 'INTEGER');
-		
+
 		try {
 			$db->exec($stmt);
 		}
@@ -152,7 +152,7 @@ class Status
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		$stmt = "SELECT
                     sta_title
                  FROM
@@ -165,7 +165,7 @@ class Status
 		catch(Exception $ex) {
 			$log->err($ex);
 			return '';
-		}		
+		}
 		return $res;
 	}
 
@@ -176,11 +176,11 @@ class Status
 	 * @param   integer $sta_title The status title
 	 * @return  string The ID of the status
 	 */
-	function getID($sta_title)
+	public static function getID($sta_title)
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		$stmt = "SELECT
                     sta_id
                  FROM
@@ -208,7 +208,7 @@ class Status
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		$stmt = "SELECT
                     sta_id,
 					sta_title
@@ -237,7 +237,7 @@ class Status
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		$stmt = "SELECT
                     sta_id,
 					sta_title
@@ -247,7 +247,7 @@ class Status
                  ORDER BY
                     sta_title ASC";
 		try {
-			$res = $db->fetchPairs($stmt);			
+			$res = $db->fetchPairs($stmt);
 		}
 		catch(Exception $ex) {
 			$log->err($ex);
@@ -267,7 +267,7 @@ class Status
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		$stmt = "SELECT
                     *
                  FROM
@@ -299,7 +299,7 @@ class Status
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		$stmt = "SELECT
                     *
                  FROM
@@ -313,7 +313,7 @@ class Status
 			$log->err($ex);
 			return '';
 		}
-		return $res;		
+		return $res;
 	}
 
 }

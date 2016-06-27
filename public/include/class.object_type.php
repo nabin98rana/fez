@@ -61,7 +61,7 @@ class Object_Type
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		$items = @implode(", ", $_POST["items"]);
 		$stmt = "DELETE FROM
                     " . APP_TABLE_PREFIX . "object_type
@@ -88,7 +88,7 @@ class Object_Type
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		$stmt = "INSERT INTO
                     " . APP_TABLE_PREFIX . "object_type
                  (
@@ -121,7 +121,7 @@ class Object_Type
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		$stmt = "UPDATE
                     " . APP_TABLE_PREFIX . "object_type
                  SET 
@@ -151,7 +151,7 @@ class Object_Type
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		$stmt = "SELECT
                     ret_title
                  FROM
@@ -175,11 +175,11 @@ class Object_Type
 	 * @param   integer $ret_id The status ID
 	 * @return  string The title of the status
 	 */
-	function getID($ret_title)
+	public static function getID($ret_title)
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		$stmt = "SELECT
                     ret_id
                  FROM
@@ -208,11 +208,11 @@ class Object_Type
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		$stmt = "SELECT
                     ret_id,";
     if (!is_numeric(strpos(APP_SQL_DBTYPE, "mysql"))) {
-			$stmt .= " '(' || ret_id || ') ' || ret_title as ret_title ";	
+			$stmt .= " '(' || ret_id || ') ' || ret_title as ret_title ";
 		} else {
 			$stmt .= " CONCAT('(',ret_id,') ',ret_title) as ret_title ";
 		}
@@ -223,7 +223,7 @@ class Object_Type
                  ORDER BY				 
                     ret_id ASC";
 		try {
-			$res = $db->fetchPairs($stmt);			
+			$res = $db->fetchPairs($stmt);
 		}
 		catch(Exception $ex) {
 			$log->err($ex);
@@ -243,11 +243,11 @@ class Object_Type
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		$stmt = "SELECT
 	                    ret_id,";
 	    if (!is_numeric(strpos(APP_SQL_DBTYPE, "mysql"))) {
-				$stmt .= " '(' || ret_id || ') ' || ret_title as ret_title ";	
+				$stmt .= " '(' || ret_id || ') ' || ret_title as ret_title ";
 			} else {
 				$stmt .= " CONCAT('(',ret_id,') ',ret_title) as ret_title ";
 			}
@@ -276,7 +276,7 @@ class Object_Type
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		$stmt = "SELECT
                     *
                  FROM
@@ -309,7 +309,7 @@ class Object_Type
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		$stmt = "SELECT
                     *
                  FROM

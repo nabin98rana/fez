@@ -481,7 +481,7 @@ public static function multi_implode($glue, $pieces)
    */
 
 
-  function size_hum_read($size)
+  public static function size_hum_read($size)
   {
     /**
      * Returns a human readable size
@@ -594,7 +594,7 @@ public static function multi_implode($glue, $pieces)
    * @param   string $full_path The full path to the file
    * @return  string The full contents of the file
    */
-  function getFileContents($full_path)
+  public static function getFileContents($full_path)
   {
     if (!@file_exists($full_path)) {
       return '';
@@ -933,7 +933,7 @@ public static function multi_implode($glue, $pieces)
    * @param   array $dsList
    * @return  array $return
    */
-  function cleanDatastreamListLite($dsList, $pid)
+  public static function cleanDatastreamListLite($dsList, $pid)
   {
         $original_dsList = $dsList;
         $return = array();
@@ -1028,7 +1028,7 @@ public static function multi_implode($glue, $pieces)
         return $return;
   }
 
-  function addDeletedDatastreams( $datastreams,$pid,$requestedVersionDate )
+  public static function addDeletedDatastreams( $datastreams,$pid,$requestedVersionDate )
   {
     $log = FezLog::get();
 
@@ -1389,7 +1389,7 @@ public static function multi_implode($glue, $pieces)
    * @param   string $f The file name and path
    * @return  string The formatted time
    */
-  function mime_content_type($f)
+  public static function mime_content_type($f)
   {
     $ret = '';
     if (stristr(PHP_OS, 'win') && (!stristr(PHP_OS, 'darwin'))) {
@@ -1493,7 +1493,7 @@ public static function multi_implode($glue, $pieces)
    * @param   integer $timeout The http session timeout
    * @return  string The formatted time
    */
-  function get_content_type($url,$follow_location = TRUE,$timeout = 5)
+  public static function get_content_type($url,$follow_location = TRUE,$timeout = 5)
   {
     $ch = curl_init($url);
     curl_setopt($ch, CURLOPT_FOLLOWLOCATION, $follow_location);
@@ -4305,7 +4305,7 @@ public static function multi_implode($glue, $pieces)
    * Builds an array containing capital letters A-Z. This method is for printing a list of letters to allow
    * filtration of results by first letter. We may one day want to augment this to include special characters.
    */
-  function generateAlphabetArray()
+  public static function generateAlphabetArray()
   {
     $alphabetArray = array();
     for ($i = 65; $i <= 90; $i++) {

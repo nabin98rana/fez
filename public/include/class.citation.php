@@ -229,7 +229,7 @@ class Citation
 	 *                                    the record fields should be formatted.
 	 * @param string $type - Optional citation type (default is 'APA').
 	 */
-	function renderCitation($xdis_id, $details, $xsd_display_fields, $type='APA')
+	public static function renderCitation($xdis_id, $details, $xsd_display_fields, $type='APA')
 	{
 		$det = Citation::getDetails($xdis_id, $type);
 		$result = $det['cit_template'];
