@@ -117,9 +117,14 @@ class Crossref {
     $tmpfname = tempnam(APP_TEMP_DIR, "crossref");
     file_put_contents($tmpfname, $xml);
     // call your cURL post, using $tmpfname as your source file
-    $post = array(
-      "fname" => '@' . $tmpfname,
-    );
+    $post = array();
+    if ((version_compare(PHP_VERSION, '5.5') >= 0)) {
+      $post['fname'] = new CURLFile($tmpfname);
+      curl_setopt($ch, CURLOPT_SAFE_UPLOAD, true);
+    } else {
+      $post['fname'] = "@".$tmpfname;
+    }
+
     curl_setopt($ch, CURLOPT_POSTFIELDS, $post);
 
     curl_setopt($ch, CURLOPT_HEADER, 1);
