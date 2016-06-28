@@ -419,18 +419,27 @@ class AWS
       // get all versions of the key
       $versions = $client->listObjectVersions(array(
           'Bucket' => $this->s3Bucket,
-          'Key'       =>  $src . '/' . $id,
+          'Prefix'       =>  $src . '/' . $id,
       ))->getPath('Versions');
+
+      // clean out anything we got back that isn't this ID
+      $cleanVersions = array();
+      foreach ($versions as $dv) {
+        if ($dv['Key'] == $src . '/' . $id) {
+          $cleanVersions[] = $dv;
+        }
+      }
       // delete all the versions
       $result = $client->deleteObjects(array(
           'Bucket'  => $this->s3Bucket,
-          'Objects' => array_map(function ($version) {
-            return array(
-                'Key'       => $version['Key'],
-                'VersionId' => $version['VersionId']
-            );
-          }, $versions),
-      ));
+          'Delete' => [
+            'Objects' => array_map(function ($version) {
+              return array(
+                  'Key'       => $version['Key'],
+                  'VersionId' => $version['VersionId']
+              );
+            }, $cleanVersions),
+      ]));
     } catch (\Aws\S3\Exception\S3Exception $e) {
       $this->log->err($e->getMessage());
       return false;

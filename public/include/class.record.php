@@ -1454,7 +1454,7 @@ class Record
                 $db->exec($stmt);
               }
               catch(Exception $ex) {
-                $log->err($ex);
+                $log->err($ex." stmt: ".$stmt);
                 $ret = false;
               }
             }
