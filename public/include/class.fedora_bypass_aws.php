@@ -169,7 +169,18 @@ class Fedora_API implements FedoraApiInterface {
 	 */
 	public static function getUploadLocation($pid, $dsIDName, $file, $dsLabel, $mimetype = 'text/xml', $controlGroup = 'M', $dsID = NULL, $versionable = FALSE)
 	{
-		$file_full = $file;
+
+		if (!is_numeric(strpos($dsIDName, "/"))) {
+			$loc_dir = APP_TEMP_DIR;
+		}
+
+		if (!empty($file) && (trim($file) != "")) {
+//			$file_full = $loc_dir . str_replace(":", "_", $pid) . "_" . $dsIDName . ".xml";
+			$file_full = $loc_dir . $dsIDName;
+			$fp = fopen($file_full, "w"); //@@@ CK - 28/7/2005 - Trying to make the file name in /tmp the uploaded file name
+			fwrite($fp, $file);
+			fclose($fp);
+		}
 
 		$versionable = $versionable === true ? 'true' : $versionable === false ? 'false' : $versionable;
 		$dsExists = Fedora_API::datastreamExists($pid, $dsIDName, true);
@@ -285,7 +296,7 @@ class Fedora_API implements FedoraApiInterface {
 
 		$aws = AWS::get();
 		$dataPath = Fedora_API::getDataPath($pid);
-		if ($aws->postFile($dataPath, $dsLocation)) {
+		if ($aws->postFile($dataPath, array($dsLocation))) {
 			$success = 1;
 		}
 		unlink($dsLocation);
@@ -441,6 +452,7 @@ class Fedora_API implements FedoraApiInterface {
 		$dsArray = $aws->getObject($dataPath."/".$dsID, $createdDT);
 		$dsData = array();
 
+		$dsData['ID'] = $dsID;
 		$dsData['versionID'] = $dsArray['VersionId'];
 		$dsData['label'] = ''; //TODO: convert to use PUT'd metadata for label
 		$dsData['controlGroup'] = "M";
@@ -509,10 +521,15 @@ class Fedora_API implements FedoraApiInterface {
 	public static function callGetDatastreamDissemination($pid, $dsID, $asofDateTime = "")
 	{
 		$return = array();
+		$args = array();
 
 		$aws = AWS::get();
 		$dataPath = Fedora_API::getDataPath($pid);
-		$return['stream'] = $aws->getFileContent($dataPath, $dsID, array("VersionId" => $asofDateTime));
+
+		if ($asofDateTime != "") {
+			$args = array("VersionId" => $asofDateTime);
+		}
+		$return['stream'] = $aws->getFileContent($dataPath, $dsID, $args);
 
 		return $return;
 	}
@@ -535,7 +552,7 @@ class Fedora_API implements FedoraApiInterface {
 		if($dsExists)
 		{
 			$dsMeta = Fedora_API::callGetDatastream($pid, $dsID);
-			if($dsMeta['mimetype'] != 'text/xml' || $getraw)
+			if($dsMeta['MIMEType'] != 'text/xml' || $getraw)
 			{
 				$return =  Fedora_API::callGetDatastreamDissemination($pid, $dsID);
 				$return = $return['stream'];
