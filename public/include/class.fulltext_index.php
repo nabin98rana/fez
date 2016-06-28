@@ -179,7 +179,7 @@ abstract class FulltextIndex {
 		catch(Exception $ex) {
 			$db->rollBack();
 
-			$log->err($ex);
+			$log->err($ex." stmt: ".$stmt);
 			return false;
 		}
 		return true;

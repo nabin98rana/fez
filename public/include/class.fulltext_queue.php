@@ -129,7 +129,7 @@ class FulltextQueue
 	{
 		$log = FezLog::get();
 		// If we are using AWS, check if any tasks are still running
-		if (defined('AWS_ENABLED') && AWS_ENABLED == 'true') {
+		if (defined('AWS_ENABLED') && AWS_ENABLED == 'true' && (!isset($_SERVER['APPLICATION_ENV']) || $_SERVER['APPLICATION_ENV'] != 'development')) {
 			$aws = AWS::get();
 			if (!isset($_SERVER['APPLICATION_ENV']) || $_SERVER['APPLICATION_ENV'] === '') {
 				$launchTask = 'staging';
