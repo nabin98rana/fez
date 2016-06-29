@@ -278,9 +278,9 @@ class FulltextQueue
 					$sql .= self::LOCK_NAME_FULLTEXT_INDEX."'";
 					$db->query($sql);
 
-				$invalidProcessId = -2;
+				$invalidProcessId = "-1";
 				$stmt  = "INSERT INTO ".APP_TABLE_PREFIX."fulltext_locks (ftl_name,ftl_value,ftl_pid) ";
-				$stmt .= " VALUES ('".self::LOCK_NAME_FULLTEXT_INDEX."', 1, $invalidProcessId) ";
+				$stmt .= " VALUES ('".self::LOCK_NAME_FULLTEXT_INDEX."', 1, '".$invalidProcessId."') ";
 
 				$ok = true;
 				$db->query($stmt);

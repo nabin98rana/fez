@@ -142,7 +142,7 @@ abstract class FulltextIndex {
 			$acquireLock = true;
 			$log->debug("FulltextIndex REALLY::triggerUpdate got lockValue=".$lockValue.", pid=".$process_id." with ".$stmt." and ".print_r($res, true));
 
-			if ($lockValue != -1 && !empty($process_id)) {
+			if ($lockValue != "-1" && !empty($process_id)) {
 				//If we are in AWS land, get the task / process id from the bgp
 				if ($process_id == 'load_new_task') {
 					if( $this->bgp ) {
