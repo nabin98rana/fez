@@ -121,8 +121,7 @@ class AWS
     // TODO(am): Use a config var instead of hard coding the number..
     if ($this->countTasksRunningOrPendingInFamily($family) === 1) {
       $this->launchedTasks++;
-      $this->runTask($family, $overrides, 1);
-      return true;
+      return $this->runTask($family, $overrides, 1);
     }
     return false;
   }
@@ -180,6 +179,55 @@ class AWS
       return false;
     }
   }
+
+  /**
+   * @param string $taskARN
+   * @param \Aws\Result $result
+   * @return \Aws\Result|bool
+   */
+  private function isTaskInTaskResult($taskARN, $result) {
+    if ($result->hasKey('taskArns')) {
+      foreach ($result->get('taskArns') as $task) {
+        if ($task == $taskARN) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
+
+  /**
+   * @param string $taskDefinition
+   * @param string $task
+   * @param int $count
+   * @return \Aws\Result|bool
+   */
+  public function isTaskRunning($taskARN, $family) {
+    $ecs = $this->sdk->createEcs();
+
+    try {
+      $result = $ecs->listTasks([
+          'cluster' => AWS_ECS_CLUSTER,
+          'family' => $family,
+          'desiredStatus' => 'RUNNING',
+      ]);
+      if ($this->isTaskInTaskResult($taskARN, $result) == true) {
+        return true;
+      }
+      // Also check if it's pending
+      $result = $ecs->listTasks([
+          'cluster' => AWS_ECS_CLUSTER,
+          'family' => $family,
+          'desiredStatus' => 'PENDING'
+      ]);
+      return $this->isTaskInTaskResult($taskARN, $result);
+    } catch (Exception $ex) {
+      $this->log->err($ex->getMessage());
+      return false;
+    }
+  }
+
 
   /**
    * @param string $src

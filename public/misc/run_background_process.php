@@ -58,7 +58,7 @@ if (!is_numeric($bgp_id)) {
 if ($useAws && ($launchTask == 'staging' || $launchTask == 'production')) {
   $aws = AWS::get();
   $family = 'fez' . $launchTask;
-  $aws->runBackgroundTask($family, [
+  $result = $aws->runBackgroundTask($family, [
     'containerOverrides' => [
       [
         'environment' => [
@@ -71,6 +71,14 @@ if ($useAws && ($launchTask == 'staging' || $launchTask == 'production')) {
       ],
     ],
   ]);
+  // if this is a fulltext lock background process then set the lock value to the task ARN
+  $bgp = new BackgroundProcess($bgp_id);
+  $bgp_details = $bgp->getDetails();
+  if ($bgp_details['bgp_include'] == 'class.bgp_fulltext_index.php') {
+    //set bgp_task to $result->ARN so we can check it later
+    $bgp->setTask($result->get('taskArn'));
+  }
+
 
 } else {
   $bgp = new BackgroundProcess($bgp_id);
