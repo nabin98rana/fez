@@ -190,11 +190,11 @@ class FulltextQueue
     $log->debug("FulltextIndex::triggerUpdate got lockValue=".$lockValue.", pid=".$process_id." with ".$stmt." and ".print_r($res, true));
 
     //If the background process hasn't kicked off yet report back as false because we can't ps check for it yet
-    if ($process_id == -2) {
+    if ($process_id == "-1") {
       return false;
     }
 
-    if ($lockValue > 0 && !empty($process_id) && is_numeric($process_id)) {
+    if ($lockValue > 0 && !empty($process_id)) {
 
       // check if process is still running or if this is an invalid lock
       $psinfo = self::getProcessInfo($process_id);
