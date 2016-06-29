@@ -77,8 +77,10 @@ if ($useAws && ($launchTask == 'staging' || $launchTask == 'production')) {
   $bgp_details = $bgp->getDetails();
   if ($bgp_details['bgp_include'] == 'class.bgp_fulltext_index.php') {
     //set bgp_task to $result->ARN so we can check it later
+    $log = FezLog::get();
     $log->warn("ECS task dump = ".print_r($result, true)." for bgp ".$bgp_id);
-    $bgp->setTask($result->get('taskArn'));
+    $tasks = $result->get('tasks');
+    $bgp->setTask($tasks[0]['taskArn']);
   }
 
 
