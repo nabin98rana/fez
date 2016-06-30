@@ -329,10 +329,12 @@ class San_image_import
     // License
     $xsdmf = XSD_HTML_Match::getDetailsBySekIDXDIS_ID(Search_Key::getID('License'), $xdis_str);
     if ($xsdmf) {
-      $refDetails =  XSD_HTML_Match::getDetailsByXSDMF_ID($xsdmf['xsdmf_id']);
-      $cvo_id = Controlled_Vocab::getIDByTitleAndParentID($recData['License'], $refDetails['xsdmf_cvo_id']);
-      if ($cvo_id) {
-        $params['xsd_display_fields'][$refDetails['xsdmf_id']][] = $cvo_id;
+      if (!empty(trim($recData['License']))) {
+        $refDetails =  XSD_HTML_Match::getDetailsByXSDMF_ID($xsdmf['xsdmf_id']);
+        $cvo_id = Controlled_Vocab::getIDByTitleAndParentID($recData['License'], $refDetails['xsdmf_cvo_id']);
+        if ($cvo_id) {
+          $params['xsd_display_fields'][$refDetails['xsdmf_id']][] = $cvo_id;
+        }
       }
     }
 
