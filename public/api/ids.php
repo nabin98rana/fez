@@ -61,7 +61,7 @@ if ($securityToken != APP_API_IDS_TOKEN) {
     echo json_encode("Not authorized. Missing token");
     echo $callback ? ');' : '';
     exit();
-} else if (!ctype_alnum($author_username) || substr(strtolower($author_username), 0, 1) === "s" || empty($author_username)) {   //is alphanumeric and not a student, has permissions and required data
+} else if (!ctype_alnum($author_username) || empty($author_username)) {   //is alphanumeric and has permissions and required data
     http_response_code(404);
     echo json_encode(array(), JSON_FORCE_OBJECT);
     echo $callback ? ');' : '';
