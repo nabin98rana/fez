@@ -1336,7 +1336,7 @@ class Record
         }
         catch(Exception $ex) {
                 $db->rollBack();
-          $log->err($ex);
+          $log->err($ex." stmt: ".$stmt);
           $ret = false;
         }
     }
