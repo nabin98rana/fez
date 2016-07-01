@@ -19,6 +19,8 @@ if [ "${APP_ENVIRONMENT}" == "staging" ]; then
   cp ${BASE_DIR}/.docker/staging/fez-staging-allow.conf /etc/nginx/rules/fez-staging-allow.conf
   cp ${BASE_DIR}/.docker/staging/robots.txt ${BASE_DIR}/public/
   sed -i "s/server {/server {\n  include rules\/fez-staging-allow.conf;\n  deny all;\n/" /etc/nginx/conf.d/fez.conf
+  # Add fastcgi params buffer changes for staging so firebug php profiler can be enabled
+  cp ${BASE_DIR}/.docker/staging/fastcgi.conf /etc/nginx/fastcgi.conf
   chmod -R 777 ${BASE_DIR}/public/include/htmlpurifier/library/HTMLPurifier
 else
   cp ${BASE_DIR}/.docker/testing/config.inc.php /var/app/current/public/config.inc.php
