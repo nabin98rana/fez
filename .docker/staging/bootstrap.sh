@@ -19,7 +19,6 @@ if [ "${APP_ENVIRONMENT}" == "staging" ]; then
   cp ${BASE_DIR}/.docker/staging/fez-staging-allow.conf /etc/nginx/rules/fez-staging-allow.conf
   cp ${BASE_DIR}/.docker/staging/robots.txt ${BASE_DIR}/public/
   sed -i "s/server {/server {\n  include rules\/fez-staging-allow.conf;\n  deny all;\n/" /etc/nginx/conf.d/fez.conf
-  sed -i "s/fastcgi_param  REDIRECT_STATUS    200;/fastcgi_param  REDIRECT_STATUS    200;\nfastcgi_buffer_size 5M;\nfastcgi_buffers 256 512k;\n/" /etc/nginx/fastcgi.conf
   chmod -R 777 ${BASE_DIR}/public/include/htmlpurifier/library/HTMLPurifier
 else
   cp ${BASE_DIR}/.docker/testing/config.inc.php /var/app/current/public/config.inc.php
