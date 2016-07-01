@@ -2155,8 +2155,6 @@ class Record
           $log->err($ex);
         }
       }
-      $getSimple = false;
-      $citationCache = false;
       if (count($res) > 0) {
         if ($getSimple == false || empty($getSimple)) {
           if ($citationCache == false) {
