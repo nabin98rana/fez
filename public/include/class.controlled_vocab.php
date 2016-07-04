@@ -137,6 +137,7 @@ class Controlled_Vocab
                  (
                     cvo_title,
                     cvo_policy,
+                    cvo_image_filename,
                     cvo_desc";
 		if (is_numeric($_POST["cvo_external_id"]) or !empty($_POST["cvo_external_id"])) {
 			$stmt .= ", cvo_external_id";
@@ -152,6 +153,7 @@ class Controlled_Vocab
                  ) VALUES (
                     " . $db->quote($_POST["cvo_title"]) . ",
                     " . $db->quote($_POST["cvo_policy"]) . ",
+                    " . $db->quote($_POST["cvo_image_filename"]) . ",
                     " . $db->quote($_POST["cvo_desc"]);
 		if (is_numeric($_POST["cvo_external_id"]) or !empty($_POST["cvo_external_id"])) {
 			$stmt .= "," . $db->quote(trim($_POST["cvo_external_id"]));
@@ -365,6 +367,7 @@ class Controlled_Vocab
                     cvo_external_id = " . $db->quote(trim($_POST["cvo_external_id"])). ",
                     cvo_desc = " . $db->quote($_POST["cvo_desc"]) . ",
                     cvo_policy = " . $db->quote($_POST["cvo_policy"]) . ",
+                    cvo_image_filename = " . $db->quote($_POST["cvo_image_filename"]) . ",
                     cvo_hide = " . $db->quote($_POST["cvo_hide"]) . ",
                     cvo_order = " . (is_numeric($_POST["cvo_order"]) ? $_POST["cvo_order"] : "NULL") . "
                  WHERE cvo_id = ".$db->quote($cvo_id, 'INTEGER');
