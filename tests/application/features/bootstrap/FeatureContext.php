@@ -990,7 +990,7 @@ class FeatureContext extends MinkContext
             throw new Exception("Error with database ".$stmt);
         }
         foreach ($res as $pid) {
-            Record::markAsDeleted($pid);
+            Record::markAsDeleted($pid, true);
         }
         return;
     }
