@@ -51,10 +51,10 @@
 						  {assign var="counter" value=b}
 		                  {if $subject_breadcrumb[b].cvo_image_filename != ""}
 						    <img align="absmiddle" src="{$rel_url}images/{$subject_breadcrumb[b].cvo_image_filename}" alt="" />
-						  {/if}						  
+						  {/if}
                           {if $max_subject_breadcrumb != $smarty.section.b.index}<a href='controlled_vocab.php?parent_id={$subject_breadcrumb[b].cvo_id}'>{else}<b>{/if}{$subject_breadcrumb[b].cvo_title}{if $max_subject_breadcrumb != $smarty.section.b.index}</a>{else}</b>{/if}
  						  {assign var="cvo_id" value=$subject_breadcrumb[b].cvo_id}
-						  {if $subject_count[$cvo_id]}({$subject_count[$cvo_id]}){else}{/if}{if $max_subject_breadcrumb != $smarty.section.b.index}&raquo;{else}:{/if}					
+						  {if $subject_count[$cvo_id]}({$subject_count[$cvo_id]}){else}{/if}{if $max_subject_breadcrumb != $smarty.section.b.index}&raquo;{else}:{/if}
 					  {/section}
 				   {else}All Subject Classifications:{/if}
 
@@ -108,6 +108,15 @@
               </tr>
               <tr>
                 <td style="width: 120px;" class="default cell-colour">
+                  <b>Policy:</b>
+                </td>
+                <td style="background: {$light_color}">
+                  <textarea name="cvo_policy" cols="50" rows="8" class="default">{$info.cvo_policy}</textarea>
+                  {include file="error_icon.tpl.html" field="cvo_policy"}
+                </td>
+              </tr>
+              <tr>
+                <td style="width: 120px;" class="default cell-colour">
                   <b>Image Filename:</b>
                 </td>
                 <td style="background: {$light_color}">
@@ -134,10 +143,10 @@
                 		<option value="1" {if $info.cvo_hide == 1}selected="selected"{/if}>Yes</option>
                 	</select>{$info.cvo_parent_id}
                   	{include file="error_icon.tpl.html" field="cvo_hide"}
-                  	<br />Hides the top level controlled vocabulary in the CV picker when editing a record. Hiding the parent CV hides all its children.  
+                  	<br />Hides the top level controlled vocabulary in the CV picker when editing a record. Hiding the parent CV hides all its children.
                 </td>
-              </tr>	
-              
+              </tr>
+
               <tr>
                 <td colspan="2" class="cell-colour" style="text-align: center;">
                   {if $smarty.get.cat == 'edit'}
@@ -150,12 +159,12 @@
               </tr>
             </table>
           </form>
-          
+
           <form onsubmit="javascript:return checkDelete(this);" method="post" action="{$smarty.server.PHP_SELF}">
             <div>
               <input type="hidden" name="cat" value="delete" />
             </div>
-              
+
             <table style="width: 100%" cellspacing="1" cellpadding="2">
               <tr>
                 <td colspan="2" class="default">
@@ -170,10 +179,10 @@
                       <td class="default cell-colour">&nbsp;<b>Title</b>&nbsp;</td>
                       <td class="default cell-colour">&nbsp;<b>Desc</b>&nbsp;</td>
                       <td class="default cell-colour">&nbsp;<b>Order</b>&nbsp;&nbsp;&nbsp;</td>
-                      <td class="default cell-colour">&nbsp;<b>Image Filename</b>&nbsp;</td>					  
-                      <td class="default cell-colour">&nbsp;<b>External ID</b>&nbsp;</td>					  
-                      <td class="default cell-colour">&nbsp;<b>Edit Children</b>&nbsp;</td>  
-                      <td class="default cell-colour">&nbsp;<b>Import Children</b>&nbsp;</td>  
+                      <td class="default cell-colour">&nbsp;<b>Image Filename</b>&nbsp;</td>
+                      <td class="default cell-colour">&nbsp;<b>External ID</b>&nbsp;</td>
+                      <td class="default cell-colour">&nbsp;<b>Edit Children</b>&nbsp;</td>
+                      <td class="default cell-colour">&nbsp;<b>Import Children</b>&nbsp;</td>
                     </tr>
                     {section name="i" loop=$list}
                     {cycle values=$cycle assign="row_color"}
