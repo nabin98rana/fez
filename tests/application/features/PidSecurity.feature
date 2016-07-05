@@ -52,9 +52,9 @@ Feature: Pid security
     Given I choose the "Masqueraders" group for the "Editor" role
     And I press "Save"
     And I switch to window ""
+    And I follow "Logout"
     And I wait for solr
     And I wait for bgps
-    And I follow "Logout"
     Given I login as administrator
     And I am on the homepage
     And I see "search_entry" id or wait for "2" seconds
@@ -77,9 +77,9 @@ Feature: Pid security
     Given I choose the "Masqueraders" group for the "Lister" role
     And I press "Save"
     And I switch to window ""
+    And I follow "Logout"
     And I wait for solr
     And I wait for bgps
-    And I follow "Logout"
     #test non logged in cannot see it
     And I am on the homepage
     And I see "search_entry" id or wait for "2" seconds
@@ -95,7 +95,7 @@ Feature: Pid security
     When I follow "Click to view Journal Article"
     Then I should see "Security Test Journal Title2012"
     #Then I should see "Workflows"
-    
+
   @broken
   Scenario: I login as admin and remove all permissions and check non login users and UPO can view but not touch
     Given I login as administrator
@@ -116,9 +116,9 @@ Feature: Pid security
     And I follow "Edit Security for Select Record"
     And I check "items[]"
     And I press "Save"
+    And I follow "Logout"
     And I wait for solr
     And I wait for bgps
-    And I follow "Logout"
     And I am on the homepage
     And I see "search_entry" id or wait for "2" seconds
     And I fill in "Search Entry" with "title:(\"Security Test Journal Title2012\")"
