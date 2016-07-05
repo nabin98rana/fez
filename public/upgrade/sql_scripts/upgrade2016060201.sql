@@ -1,4 +1,4 @@
-CREATE IF NOT EXISTS TABLE `%TABLE_PREFIX%record_search_key_retracted__shadow` (
+CREATE TABLE IF NOT EXISTS `%TABLE_PREFIX%record_search_key_retracted__shadow` (
      `rek_retracted_id` int(11) NOT NULL auto_increment,
      `rek_retracted_stamp` datetime,
       `rek_retracted_pid` varchar(64) default NULL,
