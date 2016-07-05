@@ -359,7 +359,7 @@
                                 <b><label for="xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_{$loop_num}">{$xsd_display_fields[i].xsdmf_title}</label> {math equation="x + 1" x=$loop_num}</b>
                                         {if $loop_num == 0}{if $xsd_display_fields[i].xsdmf_required == 1} * {/if}
                                             <br />
-                                            <i>Additional boxes will appear for more {$xsd_display_fields[i].xsdmf_title|lower}s.</i>
+                                            <i>Additional boxes will appear for more {$xsd_display_fields[i].xsdmf_title|lower} fields</i>
                                         {/if}
                             </th>
                             <td>
@@ -388,7 +388,7 @@
 					{assign var="loop_num" value=$smarty.section.z.index}
                     <tr id="tr_xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_{$loop_num}" {if $loop_num != 0 || ($isApprover != 1 && $xsd_display_fields[i].xsdmf_show_simple_create == 0 && $xsd_display_fields[i].xsdmf_required != 1) || $xsd_display_fields[i].xsdmf_invisible == 1}style="display:none"{/if} valign="top">
 					  <th>
-                        <b><label for="xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_{$loop_num}">{$xsd_display_fields[i].xsdmf_title}</label> {math equation="x + 1" x=$loop_num}</b>{if $xsd_display_fields[i].xsdmf_required == 1} * {/if}<br />{if $loop_num == 0}<i>Additional boxes will appear for more {$xsd_display_fields[i].xsdmf_title|lower}s.</i>{/if}
+                        <b><label for="xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_{$loop_num}">{$xsd_display_fields[i].xsdmf_title}</label> {math equation="x + 1" x=$loop_num}</b>{if $xsd_display_fields[i].xsdmf_required == 1} * {/if}<br />{if $loop_num == 0}<i>Additional boxes will appear for more {$xsd_display_fields[i].xsdmf_title|lower} fields</i>{/if}
 					  </th>
 					  <td>
 					<input class="default" type="checkbox" id="xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_{$loop_num}" name="xsd_display_fields[{$xsd_display_fields[i].xsdmf_id}][]" onkeyup="javascript:unhideRow('xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}', 'choicexsd_display_fields_{$xsd_display_fields[i].xsdmf_id}');" onchange="javascript:unhideRow('xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}', 'choicexsd_display_fields_{$xsd_display_fields[i].xsdmf_id}');" {if $xsd_display_fields[i].xsdmf_cso_value == 'checked'}checked="checked"{/if} />
@@ -429,7 +429,7 @@
 	                          <br /><i>{$xsd_display_fields[i].xsdmf_description nofilter}</i>
 	                        {/if}
 							<br />
-                            <i>Additional boxes will appear for more {$xsd_display_fields[i].xsdmf_title|lower}s.</i>
+                            <i>Additional boxes will appear for more {$xsd_display_fields[i].xsdmf_title|lower} fields</i>
 							{/if}
 						  </th>
 						  <td>
@@ -602,13 +602,13 @@
 					{/if}
                     <tr  valign="top" {if $loop_num != 0 || ($isApprover != 1 && $xsd_display_fields[i].xsdmf_show_simple_create == 0 && ($xsd_display_fields[i].xsdmf_required != 1 || $xsd_display_fields[i].selected_option != '')) || $xsd_display_fields[i].xsdmf_invisible == 1 || $xsd_display_fields[i].xsdmf_multiple_limit == 1 || !$xsd_display_fields[i].xsdmf_multiple} style="display:none"{/if}>
 					  <th>
-						<b>{$xsd_display_fields[i].xsdmf_title}(s) {if $xsd_display_fields[i].xsdmf_required == 1 && $loop_num == 0} * {/if}</b>
+						<b>{$xsd_display_fields[i].xsdmf_title} {if $xsd_display_fields[i].xsdmf_required == 1 && $loop_num == 0} * {/if}</b>
 						{if $loop_num == 0}
                                                     {if $xsd_display_fields[i].xsdmf_description != ""}
                                                         <br/><i>{$xsd_display_fields[i].xsdmf_description nofilter}</i>
                                                     {/if}
                                                     <br />
-                                                    <i>Additional boxes will appear for more {$xsd_display_fields[i].xsdmf_title|lower}s.</i>
+                                                    <i>Additional boxes will appear for more {$xsd_display_fields[i].xsdmf_title|lower} fields</i>
 						{/if}
 					  </th>
                                         </tr>
