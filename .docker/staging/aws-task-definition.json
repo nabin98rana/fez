@@ -3,7 +3,7 @@
   "containerDefinitions": [
     {
       "name": "nginx",
-      "image": "uqlibrary/docker-nginx:6",
+      "image": "uqlibrary/docker-nginx-fez:3",
       "cpu": 128,
       "memory": 256,
       "portMappings": [
@@ -26,8 +26,8 @@
     {
       "name": "fpm",
       "image": "uql-registry.library.uq.edu.au/staging/fez:<COMMIT_HASH>",
-      "cpu": 256,
-      "memory": 1024,
+      "cpu": 128,
+      "memory": 2048,
       "environment": [
         {
           "name": "APP_ENVIRONMENT",

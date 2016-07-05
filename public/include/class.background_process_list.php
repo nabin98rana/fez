@@ -106,7 +106,6 @@ class BackgroundProcessList
             ORDER BY bgp_started";
     try {
       $res = $db->fetchOne($stmt);
-			$log->warn("bgp check is using ".$stmt." with result :".$res);
     }
     catch(Exception $ex) {
       $log->err($ex);

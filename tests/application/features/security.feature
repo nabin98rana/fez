@@ -57,9 +57,9 @@ Feature: Security
     And I choose the "Masqueraders" group for the "Lister" role
     And I choose the "Masqueraders" group for the "Viewer" role
     And I press "Save Changes"
+    And I follow "Logout"
     And I wait for solr
     And I wait for bgps
-    And I follow "Logout"
     And I am on the homepage
     And I see "search_entry" id or wait for "2" seconds
     And I fill in "Search Entry" with "title:(\"Security Test Collection Masqueraders\")"
@@ -101,9 +101,9 @@ Feature: Security
     And I select "Security Test Community Masqueraders" from "Member of Communities"
     And I additionally select "Security Test Community Open" from "Member of Communities"
     And I press "Publish"
+    And I follow "Logout"
     And I wait for solr
     And I wait for bgps
-    And I follow "Logout"
     And I am on the homepage
     And I see "search_entry" id or wait for "2" seconds
     And I fill in "Search Entry" with "title:(\"Security Test Collection Multiple Inheritance Open\")"

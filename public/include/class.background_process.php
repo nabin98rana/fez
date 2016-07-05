@@ -278,7 +278,7 @@ class BackgroundProcess {
 		$bgpPids->insertPids($this->bgp_id, $inputs);
 
 		$this->serialize();
-		
+
 		$command = APP_PHP_EXEC . " \"" . APP_PATH . "misc/run_background_process.php\" \"" . $this->bgp_id . "\" \""
 			. APP_PATH . "\" \"" . strtolower($_SERVER['APPLICATION_ENV']) . "\"> "
 			. APP_TEMP_DIR . "fezbgp/fezbgp_" . $this->bgp_id . ".log";
@@ -288,7 +288,7 @@ class BackgroundProcess {
 		else {
 			exec($command . " 2>&1 &");
 		}
-		
+
 		return $this->bgp_id;
 	}
 
@@ -313,7 +313,7 @@ class BackgroundProcess {
 		$bgp->setAuth();
 		$bgp->setState(BGP_RUNNING);
 		$bgp->run();
-		
+
 		if (!empty($bgp->wfses_id)) {
 			$wfstatus = WorkflowStatusStatic::getSession($bgp->wfses_id);
 			$wfstatus->auto_next();
@@ -349,6 +349,28 @@ class BackgroundProcess {
 			$log->err($ex);
 		}
 	}
+
+	/**
+	 * Stores the name of the AWS ECS Task ARN running the current background process
+	 * @param $taskARN
+	 */
+	public function setTask($taskARN)
+	{
+		$log = FezLog::get();
+		$db = DB_API::get();
+
+		$dbtp =  APP_TABLE_PREFIX;
+		$stmt = "UPDATE ".$dbtp."background_process SET
+            bgp_task_arn=".$db->quote($taskARN)." 
+            WHERE bgp_id=".$db->quote($this->bgp_id, 'INTEGER');
+		try {
+			$db->exec($stmt);
+		}
+		catch(Exception $ex) {
+			$log->err($ex);
+		}
+	}
+
 
 	/**
 	 * Authenticate the background process
