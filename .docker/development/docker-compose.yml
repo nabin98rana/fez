@@ -1,3 +1,22 @@
+fezdevelopmentrunner:
+  build: ./../development/backend/fpm/
+  environment:
+    - APP_ENVIRONMENT=development
+    - JAVA_HOME=/usr/lib/jvm/jre
+    - JHOVE_HOME=/usr/local/jhove
+  links:
+    - cache
+    - fez
+    - fedora
+    - fezdb
+    - fedoradb
+  volumes:
+    - ../../:/var/app/current
+  volumes_from:
+    - cache
+    - fedoradata
+    - logs
+
 cache:
   build: ./cache/
 
