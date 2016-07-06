@@ -118,6 +118,8 @@ fezdb:
     - MYSQL_DATABASE=fez
   ports:
     - "3306:3306"
+  volumes:
+    - ../../:/var/app/current
   volumes_from:
     - fezdbdata
     - logs

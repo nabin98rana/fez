@@ -46,12 +46,12 @@ if [ "${UPGRADE_RES}" == "" ]; then
   exit 1
 fi
 
-cd ${BASE_DIR}/.docker/development/backend/db/seed
-mysql -uroot -pdevelopment -h ${VIRTUAL_HOST} mysql < installdb.sql
-mysql -uroot -pdevelopment -h ${VIRTUAL_HOST} fez < citation.sql
-mysql -uroot -pdevelopment -h ${VIRTUAL_HOST} fez < cvs.sql
-mysql -uroot -pdevelopment -h ${VIRTUAL_HOST} fez < development.sql
-mysql -uroot -pdevelopment -h ${VIRTUAL_HOST} fez < workflows.sql
-mysql -uroot -pdevelopment -h ${VIRTUAL_HOST} fez < xsd.sql
+CONTAINER_DB_SEED_DIR=${CONTAINER_BASE_DIR}/.docker/development/backend/db/seed
+docker exec development_fezdb_1 sh -c 'mysql -uroot -pdevelopment -hlocalhost mysql < '"'${CONTAINER_DB_SEED_DIR}/installdb.sql'"''
+docker exec development_fezdb_1 sh -c 'mysql -uroot -pdevelopment -hlocalhost fez < '"'${CONTAINER_DB_SEED_DIR}/citation.sql'"''
+docker exec development_fezdb_1 sh -c 'mysql -uroot -pdevelopment -hlocalhost fez < '"'${CONTAINER_DB_SEED_DIR}/cvs.sql'"''
+docker exec development_fezdb_1 sh -c 'mysql -uroot -pdevelopment -hlocalhost fez < '"'${CONTAINER_DB_SEED_DIR}/development.sql'"''
+docker exec development_fezdb_1 sh -c 'mysql -uroot -pdevelopment -hlocalhost fez < '"'${CONTAINER_DB_SEED_DIR}/workflows.sql'"''
+docker exec development_fezdb_1 sh -c 'mysql -uroot -pdevelopment -hlocalhost fez < '"'${CONTAINER_DB_SEED_DIR}/xsd.sql'"''
 
 echo Done!
