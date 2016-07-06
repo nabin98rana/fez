@@ -56,9 +56,9 @@ class BackgroundProcess_Import_New_Rhd_Students extends BackgroundProcess
     {
         $this->setState(BGP_RUNNING);
         extract(unserialize($this->inputs));
-
+        
         // allow this to be turned off in interface
-        if (SINET_LOAD_ENABLED) {
+        if (defined('SINET_LOAD_ENABLED') && (SINET_LOAD_ENABLED === 'true')) {
             $sinetDb = $this->getSinetDbConnection();
 
             // get the fez friendly candidates from sinet
