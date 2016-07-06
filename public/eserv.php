@@ -240,7 +240,7 @@ if (!empty($pid) && !empty($dsID)) {
           $tpl = new Template_API();
           $tpl->setTemplate("view.tpl.html");
           $licenseDetails = Controlled_Vocab::getDetails($license);
-          $tpl->assign("license_requirements", $licenseDetails['cvo_desc']);
+          $tpl->assign("license_requirements", $licenseDetails['cvo_policy']);
           $tpl->assign("show_license_accept_msg", true);
           $tpl->displayTemplate();
           exit;

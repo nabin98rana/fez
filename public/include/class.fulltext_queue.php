@@ -129,7 +129,7 @@ class FulltextQueue
 	{
 		$log = FezLog::get();
 		// If we are using AWS, check if any tasks are still running
-		if (defined('AWS_ENABLED') && AWS_ENABLED == 'true') {
+		if (defined('AWS_ENABLED') && AWS_ENABLED == 'true' && (!isset($_SERVER['APPLICATION_ENV']) || $_SERVER['APPLICATION_ENV'] != 'development')) {
 			$aws = AWS::get();
 			if (!isset($_SERVER['APPLICATION_ENV']) || $_SERVER['APPLICATION_ENV'] === '') {
 				$launchTask = 'staging';
@@ -137,18 +137,19 @@ class FulltextQueue
 				$launchTask = $_SERVER['APPLICATION_ENV'];
 			}
 			$family = 'fez' . $launchTask;
-			$countTasks = $aws->countTasksRunningOrPendingInFamily($family);
-			if (is_numeric($countTasks) && $countTasks > 1) {
-				$log->warn("Found AWS Tasks running: ".$countTasks);
-				return "Found more than 1 AWS task running, so a bgp is still going";
+
+			if (empty($pid)) {
+				return 'load_new_task';
 			} else {
-				$log->warn("None for ".$family."! Found AWS Tasks running: ".$countTasks);
+				if ($aws->isTaskRunning($pid, $family) == true) {
+					return $pid;
+				} else {
+					return false;
+				}
 			}
 		} else {
 			if (empty($pid)) {
-				return array(
-						'pid'   =>  getmypid(),
-				);
+				return getmypid();
 			} else {
 				// Windows
 				if ((stristr(PHP_OS, 'win')) && (!stristr(PHP_OS, 'darwin'))) {
@@ -189,11 +190,11 @@ class FulltextQueue
     $log->debug("FulltextIndex::triggerUpdate got lockValue=".$lockValue.", pid=".$process_id." with ".$stmt." and ".print_r($res, true));
 
     //If the background process hasn't kicked off yet report back as false because we can't ps check for it yet
-    if ($process_id == -2) {
+    if ($process_id == "-1") {
       return false;
     }
 
-    if ($lockValue > 0 && !empty($process_id) && is_numeric($process_id)) {
+    if ($lockValue > 0 && !empty($process_id)) {
 
       // check if process is still running or if this is an invalid lock
       $psinfo = self::getProcessInfo($process_id);
@@ -277,9 +278,9 @@ class FulltextQueue
 					$sql .= self::LOCK_NAME_FULLTEXT_INDEX."'";
 					$db->query($sql);
 
-				$invalidProcessId = -2;
+				$invalidProcessId = "-1";
 				$stmt  = "INSERT INTO ".APP_TABLE_PREFIX."fulltext_locks (ftl_name,ftl_value,ftl_pid) ";
-				$stmt .= " VALUES ('".self::LOCK_NAME_FULLTEXT_INDEX."', 1, $invalidProcessId) ";
+				$stmt .= " VALUES ('".self::LOCK_NAME_FULLTEXT_INDEX."', 1, '".$invalidProcessId."') ";
 
 				$ok = true;
 				$db->query($stmt);

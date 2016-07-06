@@ -12,7 +12,7 @@
 
 <tr id="tr_xsd_display_fields_{$xsdmf.xsdmf_id}_0" {if $xsdmf.xsdmf_invisible == 1}style="display:none;"{/if}>
     <td width="200" bgcolor="{$cell_color}" class="default" valign="top">
-        <b>{$xsdmf.xsdmf_title}(s) {if $xsdmf.xsdmf_required == 1} * {/if}</b>
+        <b>{$xsdmf.xsdmf_title} {if $xsdmf.xsdmf_required == 1} * {/if}</b>
         {if $xsdmf.xsdmf_description != "" && $loop_num == 0}
             <br /><i>{$xsdmf.xsdmf_description nofilter}</i>
         {/if}
@@ -46,14 +46,14 @@
             </tr>
             <tr>
                 <td>
-                    <input type="button" name="remove_left" class="button" 
-                           value="Remove selected from left" 
+                    <input type="button" name="remove_left" class="button"
+                           value="Remove selected from left"
                            id="remove_left_{$xsdmf.xsdmf_id}"
                            onclick="javascript:deleteSelectedItemsFromList(this.form.{$field_id});" />
                 </td>
                 <td>
-                    <input type="button" name="copy_left" class="button" 
-                           value="Copy selected to left" 
+                    <input type="button" name="copy_left" class="button"
+                           value="Copy selected to left"
                            id="copy_left_{$xsdmf.xsdmf_id}"
                            onclick="javascript:addToParentList(this.form.{$field_id_helper}, this.form.{$field_id});" />
                     <span id="translated_hint">&nbsp;</span>

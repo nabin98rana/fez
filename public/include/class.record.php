@@ -1336,7 +1336,7 @@ class Record
         }
         catch(Exception $ex) {
                 $db->rollBack();
-          $log->err($ex);
+          $log->err($ex." stmt: ".$stmt);
           $ret = false;
         }
     }
@@ -1454,7 +1454,7 @@ class Record
                 $db->exec($stmt);
               }
               catch(Exception $ex) {
-                $log->err($ex);
+                $log->err($ex." stmt: ".$stmt);
                 $ret = false;
               }
             }
@@ -2155,8 +2155,6 @@ class Record
           $log->err($ex);
         }
       }
-      $getSimple = false;
-      $citationCache = false;
       if (count($res) > 0) {
         if ($getSimple == false || empty($getSimple)) {
           if ($citationCache == false) {
@@ -5905,7 +5903,7 @@ function getSearchKeyIndexValueShadow($pid, $searchKeyTitle, $getLookup=true, $s
   {
     $log = FezLog::get();
 
-    if(APP_FEDORA_BYPASS == 'ON')
+    if(APP_FEDORA_BYPASS == 'ON' && (defined('AWS_S3_ENABLED') && AWS_S3_ENABLED != 'true'))
     {
         $dsr = new DSResource(APP_DSTREE_PATH);
         $res = $dsr->rename($oldName, $newName, $pid);

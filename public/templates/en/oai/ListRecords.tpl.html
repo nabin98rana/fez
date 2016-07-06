@@ -207,14 +207,10 @@
                     <relatedInfo type="{if $list[i].rek_isdatasetof_publication[s]}publication{else}collection{/if}">
                       <identifier type="uri">http://{$app_hostname}/view/{$list[i].rek_isdatasetof[s]}</identifier>
                       {if $list[i].rek_isdatasetof_doi[s]}<identifier type="doi">{$list[i].rek_isdatasetof_doi[s]}</identifier>{/if}
-                       <title>{$list[i].rek_isdatasetoftitle[s]}</title>
+                      <title>{$list[i].rek_isdatasetoftitle[s]}</title>
+											<notes>{$list[i].rek_isdatasetof_citation[s]}</notes>
                     </relatedInfo>
                 {/section}
-            {/if}
-            {if $list[i].rek_related_publications}
-                  <relatedInfo type="publication">
-                      <notes>{$list[i].rek_related_publications}</notes>
-                  </relatedInfo>
             {/if}
 			{if $list[i].rek_author}
 				{assign var="loop_authors" value=$list[i].rek_author}

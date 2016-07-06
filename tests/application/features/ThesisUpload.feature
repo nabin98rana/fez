@@ -12,6 +12,7 @@ Feature: Test that Thesis upload correctly. @bug it can't check the swf uploader
     And I press "Add New"
     And I turn off waiting checks
     And I switch to window "Add_from_Src_to_Dest"
+    And I wait for "3" seconds
     And I follow "Fields of Research"
     And I follow "01 Mathematical Sciences"
     And I switch to window ""

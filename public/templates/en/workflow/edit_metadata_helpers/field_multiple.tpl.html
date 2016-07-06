@@ -6,7 +6,7 @@
 					{/if}
 				  </td>
 				  <td bgcolor="{$value_color}">
- 					    {assign var="field_name" value="xsd_display_fields["|cat:$xsdmf.xsdmf_id|cat:"]"}							
+ 					    {assign var="field_name" value="xsd_display_fields["|cat:$xsdmf.xsdmf_id|cat:"]"}
 					{if $xsdmf.xsdmf_html_input == 'multiple'}
 						{assign var="field_name" value=$field_name|cat:"[]"}
 					{/if}

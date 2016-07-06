@@ -89,7 +89,7 @@ abstract class FulltextIndex {
 	 *
 	 * @param BackgroundProcess_Fulltext_Index $bgp
 	 */
-	public function setBGP(&$bgp)
+	public function setBGP(BackgroundProcess_Fulltext_Index &$bgp)
 	{
 		$this->bgp = &$bgp;
 	}
@@ -126,12 +126,8 @@ abstract class FulltextIndex {
 		$log = FezLog::get();
 		$db = DB_API::get();
 
-		$my_process = FulltextQueue::getProcessInfo();
-		$my_pid = $my_process['pid'];
+		$my_pid = FulltextQueue::getProcessInfo();
 
-		if (!is_numeric($my_pid)) {
-			$my_pid = 'null';
-		}
 
 		$db->beginTransaction();
 
@@ -146,9 +142,16 @@ abstract class FulltextIndex {
 			$acquireLock = true;
 			$log->debug("FulltextIndex REALLY::triggerUpdate got lockValue=".$lockValue.", pid=".$process_id." with ".$stmt." and ".print_r($res, true));
 
-			if ($lockValue != -1 && !empty($process_id) && is_numeric($process_id)) {
+			if ($process_id != "-1" && !empty($process_id)) {
+				//If we are in AWS land, get the task / process id from the bgp
+				if ($process_id == 'load_new_task') {
+					if( $this->bgp ) {
+						$this->bgpDetails = $this->bgp->getDetails();
+					}
+					$my_pid = $this->bgpDetails['bgp_task_arn'];
+				}
 
-				// check if process is still running or if this is an invalid lock
+				// check if current locks process id is still running or if this is an invalid lock
 				$psinfo = FulltextQueue::getProcessInfo($process_id);
 				$log->warn("checking for lock on  lock ".$process_id);
 				// TODO: unix, windows, ...
@@ -164,7 +167,7 @@ abstract class FulltextIndex {
 			// worst case: a background process is started, but the queue already
 			// empty at this point (very fast indexer)
 			if ($acquireLock) {
-
+				// if we're using AWS then the task id is already set to the
 
 				$stmt =  "UPDATE ".APP_TABLE_PREFIX."fulltext_locks SET ftl_pid=".$db->quote($my_pid);
 				$stmt .= " WHERE ftl_name='".FulltextQueue::LOCK_NAME_FULLTEXT_INDEX."'";
@@ -179,7 +182,7 @@ abstract class FulltextIndex {
 		catch(Exception $ex) {
 			$db->rollBack();
 
-			$log->err($ex);
+			$log->err($ex." stmt: ".$stmt);
 			return false;
 		}
 		return true;

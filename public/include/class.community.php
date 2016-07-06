@@ -84,7 +84,8 @@ class Community
 		$options = array();
 		$options["searchKey".Search_Key::getID("Status")] = 2; // enforce published records only
 		$options["searchKey".Search_Key::getID("Object Type")] = 1; // communities only
-		$list = Record::getListing($options, array("Lister"), 0, 1000, "Title");
+		$list = Record::getListing($options, array("Lister"), 0, 1000, "Title", true, true, array(), 'AND', false,
+      false, false, APP_SOLR_FACET_LIMIT, APP_SOLR_FACET_MINCOUNT, false, null, true);
 
 		return $list;
 
@@ -105,7 +106,8 @@ class Community
 		$options = array();
 		$options["searchKey".Search_Key::getID("Status")] = 2; // enforce published records only
 		$options["searchKey".Search_Key::getID("Object Type")] = 1; // communities only
-		$list = Record::getListing($options, $roles, $current_row, $max, "Title", true);
+		$list = Record::getListing($options, $roles, $current_row, $max, "Title", true, true, array(), 'AND', false,
+				false, false, APP_SOLR_FACET_LIMIT, APP_SOLR_FACET_MINCOUNT, false, null, true);
 		return $list;
 	}
 
@@ -115,7 +117,8 @@ class Community
 		$options = array();
 		$options["searchKey".Search_Key::getID("Status")] = 2; // enforce published records only
 		$options["searchKey".Search_Key::getID("Object Type")] = 1; // communities only
-		$list = Record::getListing($options, $roles, 0, 1000, "Title", true);
+		$list = Record::getListing($options, $roles, 0, 1000, "Title", true, true, array(), 'AND', false,
+      false, false, APP_SOLR_FACET_LIMIT, APP_SOLR_FACET_MINCOUNT, false, null, true);
 		$list = $list['list'];
 		$returnList = array();
 		foreach ($list as $element) {
@@ -136,7 +139,8 @@ class Community
 		$options = array();
 		$options["searchKey".Search_Key::getID("Status")] = 2; // enforce published records only
 		$options["searchKey".Search_Key::getID("Object Type")] = 1; // communities only
-		$list = Record::getListing($options, array("Lister"), 0, 1000, "Title", true);
+		$list = Record::getListing($options, array("Lister"), 0, 1000, "Title", true, true, array(), 'AND', false,
+				false, false, APP_SOLR_FACET_LIMIT, APP_SOLR_FACET_MINCOUNT, false, null, true);
 		$list = $list['list'];
 		$returnList = array();
 		foreach ($list as $element) {

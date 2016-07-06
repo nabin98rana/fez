@@ -121,8 +121,7 @@ class AWS
     // TODO(am): Use a config var instead of hard coding the number..
     if ($this->countTasksRunningOrPendingInFamily($family) === 1) {
       $this->launchedTasks++;
-      $this->runTask($family, $overrides, 1);
-      return true;
+      return $this->runTask($family, $overrides, 1);
     }
     return false;
   }
@@ -180,6 +179,55 @@ class AWS
       return false;
     }
   }
+
+  /**
+   * @param string $taskARN
+   * @param \Aws\Result $result
+   * @return \Aws\Result|bool
+   */
+  private function isTaskInTaskResult($taskARN, $result) {
+    if ($result->hasKey('taskArns')) {
+      foreach ($result->get('taskArns') as $task) {
+        if ($task == $taskARN) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
+
+  /**
+   * @param string $taskDefinition
+   * @param string $task
+   * @param int $count
+   * @return \Aws\Result|bool
+   */
+  public function isTaskRunning($taskARN, $family) {
+    $ecs = $this->sdk->createEcs();
+
+    try {
+      $result = $ecs->listTasks([
+          'cluster' => AWS_ECS_CLUSTER,
+          'family' => $family,
+          'desiredStatus' => 'RUNNING',
+      ]);
+      if ($this->isTaskInTaskResult($taskARN, $result) == true) {
+        return true;
+      }
+      // Also check if it's pending
+      $result = $ecs->listTasks([
+          'cluster' => AWS_ECS_CLUSTER,
+          'family' => $family,
+          'desiredStatus' => 'PENDING'
+      ]);
+      return $this->isTaskInTaskResult($taskARN, $result);
+    } catch (Exception $ex) {
+      $this->log->err($ex->getMessage());
+      return false;
+    }
+  }
+
 
   /**
    * @param string $src
@@ -419,18 +467,27 @@ class AWS
       // get all versions of the key
       $versions = $client->listObjectVersions(array(
           'Bucket' => $this->s3Bucket,
-          'Key'       =>  $src . '/' . $id,
+          'Prefix'       =>  $src . '/' . $id,
       ))->getPath('Versions');
+
+      // clean out anything we got back that isn't this ID
+      $cleanVersions = array();
+      foreach ($versions as $dv) {
+        if ($dv['Key'] == $src . '/' . $id) {
+          $cleanVersions[] = $dv;
+        }
+      }
       // delete all the versions
       $result = $client->deleteObjects(array(
           'Bucket'  => $this->s3Bucket,
-          'Objects' => array_map(function ($version) {
-            return array(
-                'Key'       => $version['Key'],
-                'VersionId' => $version['VersionId']
-            );
-          }, $versions),
-      ));
+          'Delete' => [
+            'Objects' => array_map(function ($version) {
+              return array(
+                  'Key'       => $version['Key'],
+                  'VersionId' => $version['VersionId']
+              );
+            }, $cleanVersions),
+      ]));
     } catch (\Aws\S3\Exception\S3Exception $e) {
       $this->log->err($e->getMessage());
       return false;
