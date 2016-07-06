@@ -33,65 +33,71 @@
 include_once(APP_INC_PATH . 'class.rhd_student_retrieval.php');
 include_once(APP_INC_PATH . 'class.background_process.php');
 
-class BackgroundProcess_Import_New_Rhd_Students extends BackgroundProcess {
+class BackgroundProcess_Import_New_Rhd_Students extends BackgroundProcess
+{
 
-  /**
-   * @var FezLog
-   */
-  private $log;
-  
-  
-  function __construct() {
-    parent::__construct();
-    $this->include = 'class.bgp_import_new_rhd_students.php';
-    $this->name = 'Import new RHD students';
-    $this->log = FezLog::get();
-  }
+    /**
+     * @var FezLog
+     */
+    private $log;
 
-  function run() {
-    $this->setState(BGP_RUNNING);
-    extract(unserialize($this->inputs));
-    
-    $sinetDb = $this->getSinetDbConnection();
-    
-    $rhdr = new RhdStudentRetrieval($sinetDb);
-    $students = $rhdr->retrieveStudentsForFez();
-    
-    $this->log->info('New RHD students count: ' . count($students));
-    
-    if (count($students) > 0) {
-      $db = FezDb::get();
-      
-      $rhdi = new FezAuthorInsertion($db);
-      $inserted = $rhdi->insert($students);
-      
-      $this->log->info('RHD students inserted: ' . $inserted);
+
+    function __construct()
+    {
+        parent::__construct();
+        $this->include = 'class.bgp_import_new_rhd_students.php';
+        $this->name = 'Import new RHD students';
+        $this->log = FezLog::get();
     }
-    
-    $this->setState(BGP_FINISHED);
-  }
 
-  /**
-   * Get a connection to the sinet load db
-   * 
-   * @return \Zend_Db_Adapter_Abstract
-   */
-  private function getSinetDbConnection() {
-    // todo: move vars into config
-    $params = array(
-      'host' => 'dbm1.library.uq.edu.au',
-      'username' => 'sinet',
-      'password' => 'SeyenetRawks69',
-      'dbname' => 'sinet_load',
-      'charset' => 'utf8'
-    );
+    function run()
+    {
+        $this->setState(BGP_RUNNING);
+        extract(unserialize($this->inputs));
 
-    try {
-      $db = Zend_Db::factory('Pdo_Mysql', $params);
-      $db->getConnection();
-      return $db;
-    } catch (Exception $ex) {
-      $this->log->err($ex);
+        if (SINET_LOAD_ENABLED) {
+            $sinetDb = $this->getSinetDbConnection();
+
+            $rhdr = new RhdStudentRetrieval($sinetDb);
+            $students = $rhdr->retrieveStudentsForFez();
+
+            $this->log->info('New RHD students count: ' . count($students));
+
+            if (count($students) > 0) {
+                $db = FezDb::get();
+
+                $rhdi = new FezAuthorInsertion($db);
+                $inserted = $rhdi->insert($students);
+
+                $this->log->info('RHD students inserted: ' . $inserted);
+            }
+        }
+
+        $this->setState(BGP_FINISHED);
     }
-  }
+
+    /**
+     * Get a connection to the sinet load db
+     *
+     * @return \Zend_Db_Adapter_Abstract
+     */
+    private function getSinetDbConnection()
+    {
+        // todo: move vars into config
+        $params = array(
+            'host'     => SINET_LOAD_DB_HOST,
+            'username' => SINET_LOAD_DB_USER,
+            'password' => SINET_LOAD_DB_PASSWD,
+            'dbname'   => SINET_LOAD_DB_NAME,
+            'charset'  => 'utf8'
+        );
+
+        try {
+            $db = Zend_Db::factory(APP_SQL_DBTYPE, $params);
+            $db->getConnection();
+            return $db;
+        } catch (Exception $ex) {
+            $this->log->err($ex);
+        }
+    }
 }
