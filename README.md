@@ -31,28 +31,14 @@ Once the containers are running proceed with the setup steps below.
 
 ## Setup
 
-Install fez using the onscreen setup the credentials at
-[http://dev-fez.library.uq.edu.au:8080/setup/](http://dev-fez.library.uq.edu.au:8080/setup/)
+Install fez:
 
-This will create a config.inc.php for you and setup some basic configs. Next run the "Upgrade" once the setup completes.
-NB: When the upgrade finishes skip running the sanity check until the fez database has been seeded.
+    $ cd /path/to/repo
+    $ ./scripts/dev.sh
 
-Next seed the fez database:
+This will create a config.inc.php for you and setup some basic configs.
 
-    $ cd /path/to/repo/.docker/development/backend/db/seed
-    $ mysql -uroot -pdevelopment -h fezdb mysql < installdb.sql && \
-    mysql -uroot -pdevelopment -h fezdb fez < citation.sql && \
-    mysql -uroot -pdevelopment -h fezdb fez < cvs.sql && \
-    mysql -uroot -pdevelopment -h fezdb fez < development.sql && \
-    mysql -uroot -pdevelopment -h fezdb fez < workflows.sql && \
-    mysql -uroot -pdevelopment -h fezdb fez < xsd.sql
-
-
-Restart all the services:
-
-$ docker-compose restart
-
-Once all services have restarted login:
+Once the script has completed you can now login:
 
 [http://dev-fez.library.uq.edu.au:8080/login.php](http://dev-fez.library.uq.edu.au:8080/login.php)
 
@@ -65,6 +51,16 @@ Run the sanity checks:
 
 Celebrate your new Fez dev site!
 
+## Testing
+
+To run the tests:
+
+    $ cd /path/to/repo
+    $ ./scripts/run-tests.sh
+    
+To visually see the functional tests running in a browser, VNC into dev-fez.library.uq.edu.au:5900 with
+the password `secret`.
+    
 ## Useful Links
 
 ### Fedora Tomcat Admin
