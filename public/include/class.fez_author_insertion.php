@@ -70,24 +70,18 @@ class FezAuthorInsertion
         // but lets just set one and paginate the query so we don't break stuff
         $inLimit = 200;
 
-        // isolate the usernames of the users
-        $userNames = [];
+        // isolate the usernames of the users, using fancy PHP 5.5 function
+        $userNames = array_column($users, 'aut_org_username');
         
-        foreach ($users as $user) {
-            // comparison case insensitive, but just for good measure
-            // use exact format of fez author
-            $userNames[] = $user['aut_org_username'];
-        }
-        
-        // well push the ones which exist onto here
+        // we'll push the ones which exist onto here
         $existingUserNames = [];
 
+        // pull a page of userNames and grab existing ones,
+        // adding them to the existingUsernames pile
         while (count($userNames) > 0) {
             $splice = array_splice($userNames, 0, $inLimit, []);
 
-            $results = $this->listExistingAuthors($splice);
-
-            if ($results) {
+            if ($results = $this->listExistingAuthors($splice)) {
                 // use the three dots of sorcery
                 array_push($existingUserNames, ...$results);
             }
@@ -129,19 +123,21 @@ class FezAuthorInsertion
     }
 
     /**
-     * Insert rhd students
+     * Insert users
+     * 
+     * Add users, ignoring any in the second argument
      *
      * @param array $users
-     * @param array $existingUsernames
+     * @param array $existingUsernames  optional
      *
      * @return int  - number inserted
      */
-    public function insert($users, $existingUsernames)
+    public function insert($users, $existingUsernames=null)
     {
         $successful = 0;
 
         foreach ($users as $user) {
-            if (!in_array($user['aut_org_username'], $existingUsernames)) {
+            if (is_null($existingUsernames) || !in_array($user['aut_org_username'], $existingUsernames)) {
                 if ($this->db->insert('fez_author', $user)) {
                     ++$successful;
                 }
