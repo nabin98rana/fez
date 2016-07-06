@@ -30,8 +30,10 @@
 // | Authors: |
 // +----------------------------------------------------------------------+
 
-include_once(APP_INC_PATH . 'class.rhd_student_retrieval.php');
+include_once(APP_INC_PATH . 'class.db_api.php');
 include_once(APP_INC_PATH . 'class.background_process.php');
+include_once(APP_INC_PATH . 'class.rhd_student_retrieval.php');
+include_once(APP_INC_PATH . 'class.fez_author_insertion.php');
 
 class BackgroundProcess_Import_New_Rhd_Students extends BackgroundProcess
 {
@@ -64,10 +66,10 @@ class BackgroundProcess_Import_New_Rhd_Students extends BackgroundProcess
             $this->log->info('New RHD students count: ' . count($students));
 
             if (count($students) > 0) {
-                $db = FezDb::get();
+                $db = DB_API::get();
 
                 $rhdi = new FezAuthorInsertion($db);
-                $inserted = $rhdi->insert($students);
+                $inserted = $rhdi->insertNew($students);
 
                 $this->log->info('RHD students inserted: ' . $inserted);
             }

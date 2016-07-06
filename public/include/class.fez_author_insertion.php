@@ -38,7 +38,7 @@
  *
  * Adds RHD students to fez
  */
-class RhdStudentInsertion
+class FezAuthorInsertion
 {
 
     /**
@@ -57,19 +57,94 @@ class RhdStudentInsertion
     }
 
     /**
-     * Insert rhd students
+     * Checks if the passed in user's usernames already exist in
+     * fez, returns a list of usernames for those already existing
      *
-     * @param Array $students
+     * @param array $users
+     *
+     * @return array
+     */
+    public function getExistingUsers($users)
+    {
+        // OK so there is no IN limit, it's up to max allowed packet size
+        // but lets just set one and paginate the query so we don't break stuff
+        $inLimit = 200;
+
+        // isolate the usernames of the users
+        $userNames = [];
+        
+        foreach ($users as $user) {
+            // comparison case insensitive, but just for good measure
+            // use exact format of fez author
+            $userNames[] = $user['aut_org_username'];
+        }
+        
+        // well push the ones which exist onto here
+        $existingUserNames = [];
+
+        while (count($userNames) > 0) {
+            $splice = array_splice($userNames, 0, $inLimit, []);
+
+            $results = $this->listExistingAuthors($splice);
+
+            if ($results) {
+                // use the three dots of sorcery
+                array_push($existingUserNames, ...$results);
+            }
+        }
+
+        return $existingUserNames;
+    }
+
+    /**
+     * Pulls out a complete list of RHD students, with the option
+     * to paginate
+     *
+     * @param array $users
+     *
+     * @return mixed
+     */
+    private function listExistingAuthors($users)
+    {
+        $select = $this->db->select();
+
+        $select->from('fez_author', ['aut_org_username'])
+            ->where('aut_org_username IN (?)', $users);
+
+        return $this->db->fetchCol($select);
+    }
+
+
+    /**
+     * Insert non existing users
+     *
+     * @param array $users
      *
      * @return int  - number inserted
      */
-    public function insertStudents($students)
+    public function insertNew($users)
+    {
+        $existingUsers = $this->getExistingUsers($users);
+        return $this->insert($users, $existingUsers);
+    }
+
+    /**
+     * Insert rhd students
+     *
+     * @param array $users
+     * @param array $existingUsernames
+     *
+     * @return int  - number inserted
+     */
+    public function insert($users, $existingUsernames)
     {
         $successful = 0;
-        
-        foreach ($students as $user) {
-            if ($this->db->insert('fez_author', $user)) {
-                ++$successful;
+
+        foreach ($users as $user) {
+            if (!in_array($user['aut_org_username'], $existingUsernames)) {
+                if ($this->db->insert('fez_author', $user)) {
+                    ++$successful;
+                }
             }
         }
 

@@ -54,6 +54,7 @@ class RhdStudentRetrieval
     function __construct(Zend_Db_Adapter_Abstract $sinetDb)
     {
         $this->sinetDb = $sinetDb;
+        $this->sinetDb->setFetchMode(Zend_Db::FETCH_OBJ);
     }
 
     /**
@@ -69,21 +70,21 @@ class RhdStudentRetrieval
     {
         // get a list of students
         $students = $this->rhdRetrieveStudents($limit, $offset);
-
+        
         $userInsert = [];
 
         foreach ($students as $user) {
             $userInsert[] = [
-                'aut_org_username'   => lcfirst($user->USERNAME),
+                'aut_org_username'   => lcfirst($user->OPRID),
                 'aut_org_student_id' => $user->EMPLID,
-                'aut_display_name'   => $user->LNAME . ', ' . $user->FNAME, // meh...
-                'aut_fname'          => $user->FNAME,
-                'aut_lname'          => $user->LNAME,
+                'aut_display_name'   => $user->LAST_NAME . ', ' . $user->FIRST_NAME, // meh...
+                'aut_fname'          => $user->FIRST_NAME,
+                'aut_lname'          => $user->LAST_NAME,
                 'aut_title'          => $user->TITLE,
-                'aut_created_date'   => $this->client->raw('NOW()')
+                'aut_created_date'   => new Zend_Db_Expr('NOW()')
             ];
         }
-
+        
         return $userInsert;
     }
 
@@ -106,9 +107,9 @@ class RhdStudentRetrieval
                 ['pulp' => 'PS_UQ_LIB_PERS'], 'pulc.EMPLID = pulp.EMPLID',
                 [
                     'pulp.EMPLID',
-                    'pulp.FIRST_NAME' => 'FNAME',
-                    'pulp.LAST_NAME'  => 'LNAME',
-                    'pulp.OPRID'      => 'USERNAME',
+                    'pulp.FIRST_NAME',
+                    'pulp.LAST_NAME',
+                    'pulp.OPRID',
                     'pulp.TITLE'
                 ]
             )
@@ -123,7 +124,9 @@ class RhdStudentRetrieval
                 $select->limit($limit, 0);
             }
         }
+        
+        $stmt = $this->sinetDb->query($select);
 
-        return $select->fetchAll();
+        return $stmt->fetchAll();
     }
 }
