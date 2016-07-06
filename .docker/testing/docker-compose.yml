@@ -41,7 +41,7 @@ fez:
   environment:
     - VIRTUAL_HOST=dev-fez.library.uq.edu.au
   ports:
-    - "8080:80"
+    - "9080:80"
   volumes_from:
     - fpm
     - cache
@@ -77,8 +77,8 @@ fezdb:
     - MYSQL_USER=fez
     - MYSQL_PASSWORD=fez
     - MYSQL_DATABASE=fez
-  ports:
-    - "3306:3306"
+  volumes:
+    - ../../:/var/app/current
   volumes_from:
     - fezdbdata
     - logs
@@ -111,8 +111,6 @@ fedoradb:
     - MYSQL_USER=fedoraAdmin
     - MYSQL_PASSWORD=fedoraAdmin
     - MYSQL_DATABASE=fedora3
-  ports:
-    - "3307:3306"
   privileged: true
   volumes_from:
     - fedoradbdata

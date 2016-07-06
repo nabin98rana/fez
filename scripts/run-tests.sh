@@ -52,23 +52,21 @@ fi
 
 echo Running tests..
 docker exec testing_feztestrunner_1 sh -c 'cd '"'${CONTAINER_BASE_DIR}/tests/application'"' && php init.php'
-UPGRADE_RES=$(curl -s http://${VIRTUAL_HOST}:8080/upgrade/index.php?upgradeOnly=1 | grep succeeded)
+UPGRADE_RES=$(curl -s http://${VIRTUAL_HOST}:9080/upgrade/index.php?upgradeOnly=1 | grep succeeded)
 if [ "${UPGRADE_RES}" == "" ]; then
   exit 1
 fi
 
-cd ${BASE_DIR}/.docker/development/backend/db/seed
-mysql -uroot -pdevelopment -h ${VIRTUAL_HOST} mysql < installdb.sql
-mysql -uroot -pdevelopment -h ${VIRTUAL_HOST} fez < citation.sql
-mysql -uroot -pdevelopment -h ${VIRTUAL_HOST} fez < cvs.sql
-mysql -uroot -pdevelopment -h ${VIRTUAL_HOST} fez < development.sql
-mysql -uroot -pdevelopment -h ${VIRTUAL_HOST} fez < workflows.sql
-mysql -uroot -pdevelopment -h ${VIRTUAL_HOST} fez < xsd.sql
-mysql -uroot -pdevelopment -h ${VIRTUAL_HOST} fez < jetsetup.sql
+CONTAINER_DB_SEED_DIR=${CONTAINER_BASE_DIR}/.docker/development/backend/db/seed
+docker exec testing_fezdb_1 sh -c 'mysql -uroot -pdevelopment -hlocalhost mysql < '"'${CONTAINER_DB_SEED_DIR}/installdb.sql'"''
+docker exec testing_fezdb_1 sh -c 'mysql -uroot -pdevelopment -hlocalhost fez < '"'${CONTAINER_DB_SEED_DIR}/citation.sql'"''
+docker exec testing_fezdb_1 sh -c 'mysql -uroot -pdevelopment -hlocalhost fez < '"'${CONTAINER_DB_SEED_DIR}/cvs.sql'"''
+docker exec testing_fezdb_1 sh -c 'mysql -uroot -pdevelopment -hlocalhost fez < '"'${CONTAINER_DB_SEED_DIR}/development.sql'"''
+docker exec testing_fezdb_1 sh -c 'mysql -uroot -pdevelopment -hlocalhost fez < '"'${CONTAINER_DB_SEED_DIR}/workflows.sql'"''
+docker exec testing_fezdb_1 sh -c 'mysql -uroot -pdevelopment -hlocalhost fez < '"'${CONTAINER_DB_SEED_DIR}/xsd.sql'"''
+docker exec testing_fezdb_1 sh -c 'mysql -uroot -pdevelopment -hlocalhost fez < '"'${CONTAINER_DB_SEED_DIR}/jetsetup.sql'"''
 
-cd ${BASE_DIR}/.docker/testing
 docker exec testing_feztestrunner_1 sh -c '"'${CONTAINER_BASE_DIR}/tests/application/run-tests.sh'"'
 
-cd ${BASE_DIR}/.docker/testing
 docker-compose stop
 docker-compose rm -f -v
