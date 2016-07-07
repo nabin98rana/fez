@@ -19,6 +19,7 @@ Feature: Create test data feature
     And I fill in "Title" with "Test Data Collection"
     And I fill in "Keyword 1" with "automated testing"
     And I select "Journal Article Version MODS 1.0" from "XSD Display Document Types"
+    And I additionally select "Thesis Version MODS 1.0" from "XSD Display Document Types"
     And I select "Test Data Community" from "Member of Communities"
     And I press "Publish"
     And I store the test collection pid for future use

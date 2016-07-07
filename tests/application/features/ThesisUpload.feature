@@ -1,14 +1,14 @@
 # features/ThesisUpload.feature
-@javascript
+@javascript @jet
 Feature: Test that Thesis upload correctly. @bug it can't check the swf uploader
 
   Scenario: I login as admin, create a pid, then delete it and check it is not longer accessiable
     Given I login as user no groups
-    And I am on "/rhdsubmission"
+    And I am on "/workflow/new.php?xdis_id=187&pid=UQ:2&wft_id=292&cat=select_workflow"
     And I should see "Error: No workflows defined for Create."
     And I follow "Logout"
     Given I login as administrator
-    And I am on "/rhdsubmission"
+    And I am on "/workflow/new.php?xdis_id=187&pid=UQ:2&wft_id=292&cat=select_workflow"
     And I press "Add New"
     And I turn off waiting checks
     And I switch to window "Add_from_Src_to_Dest"

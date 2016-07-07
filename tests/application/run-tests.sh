@@ -17,5 +17,6 @@ export BEHAT_PARAMS='{"extensions" : {"Behat\\MinkExtension" : {"selenium2" : { 
 
 #Use the below example of how to run tests in the development environment - eg create test data
 #../behat/vendor/behat/behat/bin/behat -c behat-development.yml --tags '@jet&&~@cloned' --format pretty --colors features/02-CreateTestData.feature
+#../behat/vendor/behat/behat/bin/behat -c behat-development.yml --tags '@jet&&~@cloned' --format pretty --colors features/ThesisUpload.feature
 
 #../behat/vendor/behat/behat/bin/behat --retry-scenario 3 --ansi --tags '@jet' --format=pretty,html,junit --out=,../../build/tests/formattedresults.html,../../build/tests/
