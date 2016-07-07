@@ -279,4 +279,23 @@ class BackgroundProcessList
 		@unlink(APP_TEMP_DIR."fezbgp/fezbgp_".$bgp_id.".log");
 	}
 
+	function clearAll()
+	{
+		$log = FezLog::get();
+		$db = DB_API::get();
+
+		$dbtp =  APP_TABLE_PREFIX;
+		$stmt = "DELETE FROM ".$dbtp."background_process";
+
+		try {
+			$db->query($stmt);
+			BackgroundProcessPids::cleanDisconnectedPids();
+			WorkflowStatusStatic::cleanOld();
+		}
+		catch(Exception $ex) {
+			$log->err($ex);
+			return -1;
+		}
+	}
+
 }

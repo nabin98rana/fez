@@ -179,6 +179,7 @@ class FeatureContext extends MinkContext
         $this->testCommunityPid = TEST_COMMUNITY_PID;
         $this->testCollectionPid = TEST_COLLECTION_PID;
         $this->testRecordPid = TEST_JOURNAL_ARTICLE_PID;
+        BackgroundProcessList::clearAll();
     }
 
     /**
