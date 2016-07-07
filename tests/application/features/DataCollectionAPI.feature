@@ -2,7 +2,6 @@
 @javascript
 Feature: Lets check ANDS API is up
 
-  @jet
   Scenario: Go there and see
     Given I turn off waiting checks
     And I am on "http://researchdata.ands.org.au/apps/assets/location_capture_widget/js/location_capture_widget.js"

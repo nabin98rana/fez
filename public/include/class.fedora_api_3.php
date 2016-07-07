@@ -545,6 +545,7 @@ class Fedora_API {
    * @access  public
    * @param string $pid The persistant identifier of the object to be purged
    * @param string $dsIDName The datastream name
+   * @param string $xmlContent The datastream XML content
    * @param string $dsLabel The datastream label
    * @param string $mimetype The mimetype of the datastream
    * @param string $controlGroup The control group of the datastream
@@ -552,97 +553,19 @@ class Fedora_API {
    * @param boolean $versionable Whether to version control this datastream or not
    * @return  integer
    */
-  public static function getUploadLocation($pid, $dsIDName, $file, $dsLabel, $mimetype = 'text/xml', $controlGroup = 'M', $dsID = NULL, $versionable = 'false') {
+  public static function getUploadLocation($pid, $dsIDName, $xmlContent, $dsLabel, $mimetype = 'text/xml', $controlGroup = 'M', $dsID = NULL, $versionable = 'false') {
     $log = FezLog::get();
-    if (!is_numeric(strpos($dsIDName, "/"))) {
-      $loc_dir = APP_TEMP_DIR;
-    }
 
-    if (!empty($file) && (trim($file) != "")) {
-      $file_full = $loc_dir . str_replace(":", "_", $pid) . "_" . $dsIDName . ".xml";
-      $fp = fopen($file_full, "w"); //@@@ CK - 28/7/2005 - Trying to make the file name in /tmp the uploaded file name
-      fwrite($fp, $file);
-      fclose($fp);
-//			echo "-".$loc_dir.str_replace(":", "_", $pid)."_"$dsIDName."-".$file; exit;
-//			echo $file; exit;
-    }
-
-    /*
-            if (empty($dsIDName)) {
-                $log->err(array("Blank dsIDName",__FILE__,__LINE__));
-                return false;
-            }
-            $loc_dir = "";
-            if (!is_numeric(strpos($dsIDName, "/"))) {
-                $loc_dir = APP_TEMP_DIR;
-            }
-            if ($mimetype == 'text/xml') {
-                $config = array(
-                    'indent'        => true,
-                    'input-xml'     => true,
-                    'output-xml'    => true,
-                    'wrap'          => 0
-                );
-
-                if (!defined('APP_NO_TIDY') || !APP_NO_TIDY) {
-                    $tidy = new tidy;
-                    $tidy->parseString($file, $config, 'utf8');
-                    $tidy->cleanRepair();
-                    $file = $tidy;
-                }
-            }
-            if (!empty($file) && (trim($file) != "")) {
-                $fp = fopen($loc_dir.$dsIDName, "w"); //@@@ CK - 28/7/2005 - Trying to make the file name in /tmp the uploaded file name
-                fwrite($fp, $file);
-                fclose($fp);
-                $ch = curl_init(APP_FEDORA_UPLOAD_URL);
-                curl_setopt($ch, CURLOPT_VERBOSE, 0);
-                curl_setopt($ch, CURLOPT_HEADER, 0);
-                  curl_setopt($ch, CURLOPT_POST, 1);
-                curl_setopt($ch, CURLOPT_POSTFIELDS, array('file' => "@".$loc_dir.$dsIDName)); //@@@ CK - 28/7/2005 - Trying to make the file name in /tmp the uploaded file name
-                curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
-                curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-                if (APP_HTTPS_CURL_CHECK_CERT == "OFF" && APP_FEDORA_APIA_PROTOCOL_TYPE == 'https://')  {
-                    curl_setopt ($ch, CURLOPT_SSL_VERIFYPEER, 0);
-                    curl_setopt ($ch, CURLOPT_SSL_VERIFYHOST, 0);
-                }
-                $uploadLocation = curl_exec($ch);
-
-                if ($uploadLocation) {
-                    $uploadLocation = trim(str_replace("\n", "", $uploadLocation));
-                    $dsIDNameOld = $dsIDName;
-                    if (is_numeric(strpos($dsIDName, chr(92)))) {
-                        $dsIDName = substr($dsIDName, strrpos($dsIDName, chr(92))+1);
-                        if ($dsLabel == $dsIDNameOld) {
-                            $dsLabel = $dsIDName;
-                        }
-                    }*/
     $versionable = $versionable === TRUE ? 'true' : $versionable === FALSE ? 'false' : $versionable;
     $dsExists = Fedora_API::datastreamExists($pid, $dsIDName, TRUE);
     if ($dsExists !== TRUE) {
-      //Call callAddDatastream
-      $dsID = Fedora_API::callAddDatastream($pid, $dsIDName, $file_full, $dsLabel, "A", $mimetype, $controlGroup, $versionable, '');
-      if (is_file($file_full)) {
-        unlink($file_full);
-      }
+      $dsID = Fedora_API::callAddDatastream($pid, $dsIDName, '', $dsLabel, "A", $mimetype, $controlGroup, $versionable, $xmlContent);
       return $dsID;
     }
     elseif (!empty($dsIDName)) {
-      // Let fedora handle versioning
-      //Fedora_API::callModifyDatastreamByReference ($pid, $dsIDName, $dsLabel, $uploadLocation, $mimetype, $versionable);
-      Fedora_API::callModifyDatastream($pid, $dsIDName, $file_full, $dsLabel, "A", $mimetype, $versionable, '');
-      if (is_file($file_full)) {
-        unlink($file_full);
-      }
+      Fedora_API::callModifyDatastream($pid, $dsIDName, '', $dsLabel, "A", $mimetype, $versionable, $xmlContent);
       return $dsIDName;
     }
-
-    /*				curl_close ($ch);
-                } else {
-                    $log->err(array(curl_error($ch),__FILE__,__LINE__));
-                    curl_close ($ch);
-                }
-            } */
   }
 
   /**
@@ -663,65 +586,6 @@ class Fedora_API {
    */
   public static function getUploadLocationByLocalRef($pid, $dsIDName, $local_file_location, $dsLabel, $mimetype, $controlGroup = 'M', $dsID = NULL, $versionable = 'false') {
     $log = FezLog::get();
-    /*
-    // take out any nasty slashes from the ds name itself
-    $dsIDNameOld = $dsIDName;
-    if (is_numeric(strpos($dsIDName, "/"))) {
-        $dsIDName = substr($dsIDName, strrpos($dsIDName, "/")+1);
-    }
-    if (is_numeric(strpos($dsIDName, chr(92)))) {
-        $dsIDName = substr($dsIDName, strrpos($dsIDName, chr(92))+1);
-        if ($dsLabel == $dsIDNameOld) {
-            $dsLabel = $dsIDName;
-        }
-    }
-    // fix path if local filename has no path already
-    //        if (!is_numeric(strpos($local_file_location,'/'))) {
-    if (!is_numeric(strpos($local_file_location,"/"))) {
-        $local_file_location = APP_TEMP_DIR.$local_file_location;
-    }
-    // get mimetype
-    if ($mimetype == "") {
-        $mimetype = Misc::mime_content_type($local_file_location);
-    }
-    // convert extension to lowercase on dsIDName
-    $dsIDName = str_replace(" ", "_", $dsIDName);
-    if (is_numeric(strpos($dsIDName, "."))) {
-        $filename_ext = strtolower(substr($dsIDName, (strrpos($dsIDName, ".") + 1)));
-        $dsIDName = substr($dsIDName, 0, strrpos($dsIDName, ".") + 1).$filename_ext;
-    }
-    if ($controlGroup == 'X') { //If the file is xml, Tidy it up. You can't trust your xml creation tools sometimes, although now JHOVE is M content instead of X so no need to worry about jhove
-        $xml = file_get_contents($local_file_location);
-        $config = array(
-            'indent'        => true,
-            'input-xml'     => true,
-            'output-xml'    => true,
-            'wrap'          => 0
-        );
-        if (!defined('APP_NO_TIDY') || !APP_NO_TIDY) {
-            $tidy = new tidy;
-            $tidy->parseString($xml, $config, 'utf8');
-            $tidy->cleanRepair();
-            $xml = "$tidy";
-            file_put_contents($local_file_location, $xml);
-        }
-    }
-    if (!empty($local_file_location) && (trim($local_file_location) != "")) {
-        //Send multipart/form-data via curl
-        $ch = curl_init(APP_FEDORA_UPLOAD_URL);
-        curl_setopt($ch, CURLOPT_VERBOSE, 0);
-        curl_setopt($ch, CURLOPT_HEADER, 0);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, array('file' => "@".$local_file_location));
-        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-        if (APP_HTTPS_CURL_CHECK_CERT == "OFF" && APP_FEDORA_APIA_PROTOCOL_TYPE == 'https://')  {
-            curl_setopt ($ch, CURLOPT_SSL_VERIFYPEER, 0);
-            curl_setopt ($ch, CURLOPT_SSL_VERIFYHOST, 0);
-        }
-        $uploadLocation = curl_exec($ch);
-        if ($uploadLocation) { */
-//				curl_close ($ch);
-
 
     if (!is_numeric(strpos($local_file_location, "/"))) {
       $local_file_location = APP_TEMP_DIR . $local_file_location;
@@ -735,22 +599,13 @@ class Fedora_API {
     $versionable = $versionable === TRUE ? 'true' : $versionable === FALSE ? 'false' : $versionable;
     $dsExists = Fedora_API::datastreamExists($pid, $dsIDName);
     if ($dsExists !== TRUE) {
-      //Call callAddDatastream
-//					$dsID = Fedora_API::callCreateDatastream ($pid, $dsIDName, $uploadLocation, $dsLabel, $mimetype, $controlGroup, $versionable);
       $dsID = Fedora_API::callAddDatastream($pid, $dsIDName, $local_file_location, $dsLabel, "A", $mimetype, $controlGroup, $versionable);
       return $dsID;
     }
     elseif (!empty($dsIDName)) {
-      // Let fedora handle versioning
-      //Fedora_API::callModifyDatastreamByReference ($pid, $dsIDName, $dsLabel, $uploadLocation, $mimetype, $versionable);
       Fedora_API::callModifyDatastream($pid, $dsIDName, $local_file_location, $dsLabel, "A", $mimetype, $versionable);
       return $dsIDName;
     }
-    /*			} else {
-                    $log->err(array(curl_error($ch),__FILE__,__LINE__));
-                    curl_close ($ch);
-                }
-            } */
   }
 
   public static function tidyXML($xml) {

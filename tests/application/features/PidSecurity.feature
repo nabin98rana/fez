@@ -52,9 +52,9 @@ Feature: Pid security
     Given I choose the "Masqueraders" group for the "Editor" role
     And I press "Save"
     And I switch to window ""
-    And I follow "Logout"
     And I wait for solr
     And I wait for bgps
+    And I follow "Logout"
     Given I login as administrator
     And I am on the homepage
     And I see "search_entry" id or wait for "2" seconds

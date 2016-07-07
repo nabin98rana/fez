@@ -2574,7 +2574,6 @@ class RecordGeneral
           Fedora_API::callIngestObject($new_xml);
         }
 
-
         $datastreams = Fedora_API::callGetDatastreams($pid); // need the full get datastreams to get the controlGroup etc
         if (empty($datastreams)) {
           $log->err(
@@ -2681,18 +2680,19 @@ class RecordGeneral
               if (isset($ds_value['controlGroup']) && $ds_value['controlGroup'] == 'X') {
                 $value = Fedora_API::callGetDatastreamContents($pid, $ds_value['ID'], true);
                 $value = str_replace($pid, $new_pid, $value);
-                if ($ds_value['ID'] == 'MODS')
-                $value = self::clearMODSIdentifiers($value);
+                if ($ds_value['ID'] == 'MODS') {
+                  $value = self::clearMODSIdentifiers($value);
+                }
                 Fedora_API::getUploadLocation(
-                    $new_pid, $ds_value['ID'], $value, $ds_value['label'],
-                    $ds_value['MIMEType'], $ds_value['controlGroup'], null, $ds_value['versionable']
+                  $new_pid, $ds_value['ID'], $value, $ds_value['label'],
+                  $ds_value['MIMEType'], $ds_value['controlGroup'], null, $ds_value['versionable']
                 );
               } else if (isset($ds_value['controlGroup']) && $ds_value['controlGroup'] == 'M'
               && $clone_attached_datastreams) {
                 $value = Fedora_API::callGetDatastreamContents($pid, $ds_value['ID'], true);
                 Fedora_API::getUploadLocation(
-                    $new_pid, $ds_value['ID'], $value, $ds_value['label'],
-                    $ds_value['MIMEType'], $ds_value['controlGroup'], null, $ds_value['versionable']
+                  $new_pid, $ds_value['ID'], $value, $ds_value['label'],
+                  $ds_value['MIMEType'], $ds_value['controlGroup'], null, $ds_value['versionable']
                 );
               } else if (isset($ds_value['controlGroup']) && $ds_value['controlGroup'] == 'R'
               && $clone_attached_datastreams) {
