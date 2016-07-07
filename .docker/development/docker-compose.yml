@@ -10,12 +10,21 @@ fezdevelopmentrunner:
     - fedora
     - fezdb
     - fedoradb
+    - selenium
   volumes:
     - ../../:/var/app/current
   volumes_from:
     - cache
     - fedoradata
     - logs
+
+selenium:
+  image: selenium/standalone-chrome-debug:2.53.0
+  links:
+    - fez:dev-fez.library.uq.edu.au
+  ports:
+    - "4445:4444"
+    - "5901:5900"
 
 cache:
   build: ./cache/
@@ -30,7 +39,7 @@ fez:
   links:
     - fpm
   ports:
-    - 8080:80
+    - 8080:8080
   volumes_from:
     - fpm
     - cache
@@ -55,7 +64,7 @@ fpm:
     - solr
   volumes:
     - ../../:/var/app/current
-    - ../etc/nginx/conf.d:/etc/nginx/conf.d
+    - ./backend/nginx/etc/nginx/conf.d:/etc/nginx/conf.d
     - ../etc/nginx/rules:/etc/nginx/rules
   volumes_from:
     - cache
