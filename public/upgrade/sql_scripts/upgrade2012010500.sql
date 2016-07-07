@@ -8,4 +8,4 @@ CREATE TABLE %TABLE_PREFIX%favourites_search (
   fvs_description varchar(2048) DEFAULT NULL,
   fvs_unsubscribe_hash varchar(40) DEFAULT NULL,
   PRIMARY KEY (fvs_id)
-)
+);
