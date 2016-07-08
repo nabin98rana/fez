@@ -19,6 +19,7 @@ Feature: Check Clone Records works correctly
     Then I should see "Clone Test Title 1"
     And I should see "Article"
     And I should see "Test Data Collection"
+   And I should see "test.pdf"
 
   @purge
   Scenario: Delete old Pid

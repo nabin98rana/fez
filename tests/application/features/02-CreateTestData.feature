@@ -33,7 +33,7 @@ Feature: Create test data feature
     And I select "2015" from "Publication date"
     And I check "Copyright Agreement"
     And I press "Publish"
+    And I attach a file to the current record
     And I store the test record pid for future use
     And I wait for solr
-    And I wait for bgps
     Then I follow "Logout"
