@@ -34,8 +34,7 @@ require_once(APP_INC_PATH . 'class.auth.php');
 require_once(APP_INC_PATH . 'class.fulltext_queue.php');
 require_once(APP_INC_PATH . 'class.background_process_list.php');
 require_once(APP_INC_PATH . 'class.wok_queue.php');
-
-
+require_once(APP_INC_PATH . 'class.batchimport.php');
 require_once(APP_INC_PATH . 'class.links_amr_queue.php');
 require_once(APP_INC_PATH . 'class.eventum.php');
 require_once(APP_INC_PATH . 'class.record.php');
@@ -179,6 +178,7 @@ class FeatureContext extends MinkContext
         $this->testCommunityPid = TEST_COMMUNITY_PID;
         $this->testCollectionPid = TEST_COLLECTION_PID;
         $this->testRecordPid = TEST_JOURNAL_ARTICLE_PID;
+        Auth::createLoginSession('superadmin_test', 'Test Super Admin', 'c.kortekaas@library.uq.edu.au', '');
         BackgroundProcessList::clearAll();
     }
 
@@ -942,6 +942,18 @@ class FeatureContext extends MinkContext
         $this->_tempRecordStore = $data->getSekData();
         return;
     }
+
+    /**
+     * @Given /^I attach a file to the current record$/
+     */
+    public function iAttachAFileToTheCurrentRecord()
+    {
+        $pid = $this->getPidFromUrl();
+        if ($pid) {
+            BatchImport::handleStandardFileImport($pid, '/var/app/current/tests/application/data/test.pdf', 'test.pdf');
+        }
+    }
+
 
     /**
      * This assumes iSaveRecordDetails has saved the records previous state and now we check it's unchanged
