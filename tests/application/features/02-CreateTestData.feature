@@ -1,7 +1,7 @@
 @javascript
 Feature: Create test data feature
 
-  @jet @only
+  @jet @only @seed
   Scenario: I login as admin and create a test community/collection/record
     Given I login as administrator
     And I follow "Browse"

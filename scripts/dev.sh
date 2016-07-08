@@ -55,4 +55,7 @@ docker exec development_fezdb_1 sh -c 'mysql -uroot -pdevelopment -hlocalhost fe
 docker exec development_fezdb_1 sh -c 'mysql -uroot -pdevelopment -hlocalhost fez < '"'${CONTAINER_DB_SEED_DIR}/workflows.sql'"''
 docker exec development_fezdb_1 sh -c 'mysql -uroot -pdevelopment -hlocalhost fez < '"'${CONTAINER_DB_SEED_DIR}/xsd.sql'"''
 
+# Optionally seed dev by running tests tagged with @seed
+# docker exec development_fezdevelopmentrunner_1 sh -c 'cd '"'${CONTAINER_BASE_DIR}/tests/application'"' && ./seed-development.sh'
+
 echo Done!
