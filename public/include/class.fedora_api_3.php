@@ -550,7 +550,7 @@ class Fedora_API {
    * @param string $mimetype The mimetype of the datastream
    * @param string $controlGroup The control group of the datastream
    * @param string $dsID The ID of the datastream
-   * @param boolean $versionable Whether to version control this datastream or not
+   * @param string $versionable Whether to version control this datastream or not
    * @return  integer
    */
   public static function getUploadLocation($pid, $dsIDName, $xmlContent, $dsLabel, $mimetype = 'text/xml', $controlGroup = 'M', $dsID = NULL, $versionable = 'false') {
@@ -563,6 +563,7 @@ class Fedora_API {
       return $dsID;
     }
     elseif (!empty($dsIDName)) {
+      $log->err('Modifying: ' . $dsIDName);
       Fedora_API::callModifyDatastream($pid, $dsIDName, '', $dsLabel, "A", $mimetype, $versionable, $xmlContent);
       return $dsIDName;
     }
@@ -630,14 +631,14 @@ class Fedora_API {
    * @access  public
    * @param string $pid The persistant identifier of the object to be purged
    * @param string $dsID The ID of the datastream
-   * @param string $uploadLocation The location of the file to add
+   * @param string $dsLocation The location of the file to add
    * @param string $dsLabel The datastream label
    * @param string $dsState The datastream state
    * @param string $mimetype The mimetype of the datastream
    * @param string $controlGroup The control group of the datastream
-   * @param boolean $versionable Whether to version control this datastream or not
-   * @param boolean $xmlContent If it an X based xml content file then it uses a var rather than a file location
-   * @return void
+   * @param string $versionable Whether to version control this datastream or not
+   * @param string $xmlContent If it an X based xml content file then it uses a var rather than a file location
+   * @return boolean True if adding the datastream was successful, otherwise false
    */
   public static function callAddDatastream($pid, $dsID, $dsLocation, $dsLabel, $dsState, $mimetype, $controlGroup = 'M', $versionable = 'false', $xmlContent = "", $current_tries = 0) {
     if ($mimetype == "") {
@@ -658,7 +659,6 @@ class Fedora_API {
       $dsIDName = substr($dsIDName, strrpos($dsIDName, "/") + 1);
     }
     $dsLocation = trim($dsLocation);
-//		$versionable = $versionable === true ? 'true' : $versionable === false ? 'false' : $versionable;
     if ($versionable != 'true' && $versionable != 'false') {
       $versionable = 'false';
     }
@@ -667,28 +667,41 @@ class Fedora_API {
     $getString = APP_SIMPLE_FEDORA_APIM_DOMAIN . "/objects/" . $pid . "/datastreams/" . $dsIDName . "?dsLabel=" . urlencode($dsLabel) . "&versionable=" . $versionable . "&mimeType=" . $mimetype .
       "&controlGroup=" . $controlGroup . "&dsState=A&logMessage=Added%20Datastream";
 
-
-    if ($dsLocation != "" && $controlGroup == "X") {
-      $xmlContent = file_get_contents($dsLocation);
+    if ($dsLocation != '') {
+      if ($controlGroup == "X") {
+        $xmlContent = file_get_contents($dsLocation);
+      }
+      else if ($controlGroup == "R") {
+        $getString .= "&dsLocation=" . urlencode($dsLocation);
+        $ch = curl_init($getString);
+        curl_setopt($ch, CURLOPT_POST, 1);
+        @curl_setopt($ch, CURLOPT_SAFE_UPLOAD, FALSE);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, array(
+          "dsLocation" => $dsLocation,
+          "dsLabel" => urlencode($dsLabel),
+          "versionable" => $versionable,
+          "mimeType" => $mimetype,
+          "controlGroup" => $controlGroup,
+          "dsState" => "A",
+          "logMessage" => "Added Link"
+        ));
+      } else if ($controlGroup == "M") {
+        $ch = curl_init($getString);
+        @curl_setopt($ch, CURLOPT_SAFE_UPLOAD, FALSE);
+        curl_setopt($ch, CURLOPT_POST, 1);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, array(
+          "file_name" => "@" . $dsLocation . ";type=" . $mimetype,
+          "dsLabel" => urlencode($dsLabel),
+          "versionable" => $versionable,
+          "mimeType" => $mimetype,
+          "controlGroup" => $controlGroup,
+          "dsState" => "A",
+          "logMessage" => "Added Datastream",
+          "submit" => "UPLOAD"
+        ));
+      }
     }
-    if ($dsLocation != "" && $controlGroup == "R") {
-      $getString .= "&dsLocation=" . urlencode($dsLocation);
-      $ch = curl_init($getString);
-      curl_setopt($ch, CURLOPT_POST, 1);
-      @curl_setopt($ch, CURLOPT_SAFE_UPLOAD, FALSE);
-      curl_setopt($ch, CURLOPT_POSTFIELDS, array(
-        "dsLocation" => $dsLocation,
-        "dsLabel" => urlencode($dsLabel),
-        "versionable" => $versionable,
-        "mimeType" => $mimetype,
-        "controlGroup" => $controlGroup,
-        "dsState" => "A",
-        "logMessage" => "Added Link"
-      ));
-
-
-    }
-    elseif ($xmlContent != "") {
+    if ($xmlContent != '') {
       $ch = curl_init($getString);
       @curl_setopt($ch, CURLOPT_SAFE_UPLOAD, FALSE);
       curl_setopt($ch, CURLOPT_POST, 1);
@@ -705,7 +718,6 @@ class Fedora_API {
         exit;
       }
       fclose($fp);
-//			curl_setopt($ch, CURLOPT_POSTFIELDS, array("file[]" => "@".$tempFile.";type=".$mimetype));
       curl_setopt($ch, CURLOPT_POSTFIELDS, array(
         "file[]" => "@" . $tempFile . ";type=" . $mimetype,
         "dsLabel" => urlencode($dsLabel),
@@ -715,39 +727,16 @@ class Fedora_API {
         "dsState" => "A",
         "logMessage" => "Added Datastream"
       ));
-
-    }
-    elseif ($dsLocation != "" && $controlGroup == "M") {
-      $ch = curl_init($getString);
-      @curl_setopt($ch, CURLOPT_SAFE_UPLOAD, FALSE);
-      curl_setopt($ch, CURLOPT_POST, 1);
-//			curl_setopt($ch, CURLOPT_POSTFIELDS, array("file[]" => "@".$dsLocation.";type=".$mimetype));
-//$log->err("OMG: $dsLocation");
-//			curl_setopt($ch, CURLOPT_POSTFIELDS, array("file[]" => "@".$dsLocation.";type=".$mimetype,
-      curl_setopt($ch, CURLOPT_POSTFIELDS, array(
-        "file_name" => "@" . $dsLocation . ";type=" . $mimetype,
-//			curl_setopt($ch, CURLOPT_POSTFIELDS, array("file_name" => "@".$dsLocation,
-        "dsLabel" => urlencode($dsLabel),
-        "versionable" => $versionable,
-        "mimeType" => $mimetype,
-        "controlGroup" => $controlGroup,
-        "dsState" => "A",
-        "logMessage" => "Added Datastream",
-        "submit" => "UPLOAD"
-      ));
     }
     curl_setopt($ch, CURLOPT_USERPWD, APP_FEDORA_USERNAME . ":" . APP_FEDORA_PWD);
-
     curl_setopt($ch, CURLOPT_VERBOSE, 1);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
     if (APP_HTTPS_CURL_CHECK_CERT == "OFF" && APP_FEDORA_APIA_PROTOCOL_TYPE == 'https://') {
       curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
       curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
     }
-
     $results = curl_exec($ch);
     if ($results) {
-      //$info = curl_getinfo($ch);
       curl_close($ch);
       if (is_file($tempFile)) {
         unlink($tempFile);
@@ -755,8 +744,6 @@ class Fedora_API {
       return TRUE;
     }
     else {
-
-//		         $log->err(array(print_r($results, true).print_r(curl_error($ch), true).print_r(curl_getinfo($ch), true),__FILE__,__LINE__).$getString.print_r(debug_backtrace(),true));
       if ($current_tries > 1) { //only bother logging error if greater than 1st try
         $log->err(print_r(array(
             print_r($results, TRUE) . print_r(curl_error($ch), TRUE) . print_r(curl_getinfo($ch), TRUE),
@@ -767,25 +754,17 @@ class Fedora_API {
         curl_close($ch);
         $log->err(array($fedoraError, __FILE__, __LINE__));
       }
-//				exit;
-
-
       $current_tries++;
 
       if ($current_tries < 5) {
         sleep(5); // sleep for a bit so the object can get unlocked before trying again
-//         return Fedora_API::callListDatastreamsLite($pid, $refresh, $current_tries);
         return Fedora_API::callAddDatastream($pid, $dsID, $dsLocation, $dsLabel, $dsState, $mimetype, $controlGroup, $versionable, $xmlContent, $current_tries);
       }
       else {
         return FALSE;
       }
-
-
     }
-
   }
-
 
   public static function callModifyDatastream($pid, $dsID, $dsLocation, $dsLabel, $dsState, $mimetype, $versionable = 'false', $xmlContent = "") {
     $tempFile = "";
@@ -803,8 +782,6 @@ class Fedora_API {
         $dsLabel = $dsID;
       }
     }
-//echo "OMG WHAT THE? ".$dsLocation; print_r(debug_backtrace()); exit;
-//			$versionable = $versionable === true ? 'true' : $versionable === false ? 'false' : 'false';
     if ($versionable != 'true' && $versionable != 'false') {
       $versionable = ($versionable == 'inherit') ? 'true' : 'false';
     }
@@ -812,17 +789,10 @@ class Fedora_API {
     $getString = APP_SIMPLE_FEDORA_APIM_DOMAIN . "/objects/" . $pid . "/datastreams/" . $dsID . "?dsLabel=" . urlencode($dsLabel) . "&mimeType=" . $mimetype .
       "&dsState=A&logMessage=" . urlencode("Modified Datastream");
 
-//			$getString = APP_SIMPLE_FEDORA_APIM_DOMAIN."/objects/".$pid."/datastreams/".$dsID."?versionable=".$versionable;
-
     $ch = curl_init($getString);
     @curl_setopt($ch, CURLOPT_SAFE_UPLOAD, FALSE);
-//			curl_setopt($ch, CURLOPT_PUT, true);
-//			curl_setopt($ch, CURLOPT_HEADER, 1);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
     curl_setopt($ch, CURLOPT_POST, 1);
-//			curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "PUT");
-
-
     curl_setopt($ch, CURLOPT_USERPWD, APP_FEDORA_USERNAME . ":" . APP_FEDORA_PWD);
 
     $isLink = FALSE;
@@ -1403,6 +1373,9 @@ class Fedora_API {
       else {
         list($blob, $info) = Misc::processURL($filename);
 
+        if ($info['http_code'] != 200) {
+          return FALSE;
+        }
         if ($blob == '' || $blob == FALSE) {
           $current_tries++;
           $fedoraError = "Error when calling " . __FUNCTION__ . " :" . print_r($info, TRUE) . "\n\n \n\n FOR THE $current_tries time REQUEST: $pid $dsID " . "\n\n RESPONSE: \n\n " . $blob;
