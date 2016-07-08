@@ -11,6 +11,7 @@ fezdevelopmentrunner:
     - fezdb
     - fedoradb
     - selenium
+    - solr
   volumes:
     - ../../:/var/app/current
   volumes_from:

@@ -13,6 +13,7 @@ feztestrunner:
     - selenium
     - fezdb
     - fedoradb
+    - solr
   volumes:
     - ../../:/var/app/current
   volumes_from:
