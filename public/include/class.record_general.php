@@ -2598,6 +2598,9 @@ class RecordGeneral
           switch ($ds_value['ID']) {
             case 'DC':
               $value = Fedora_API::callGetDatastreamContents($pid, $ds_value['ID'], true);
+              if ($value === FALSE) {
+                break;
+              }
               Fedora_API::callModifyDatastreamByValue(
                   $new_pid, $ds_value['ID'], $ds_value['state'],
                   $ds_value['label'], $value, $ds_value['MIMEType'], $ds_value['versionable']
@@ -2625,6 +2628,10 @@ class RecordGeneral
             case 'FezMD':
               // let's fix up a few things in FezMD
               $value = Fedora_API::callGetDatastreamContents($pid, $ds_value['ID'], true);
+              if ($value === FALSE) {
+                break;
+              }
+
               $doc = DOMDocument::loadXML($value);
               XML_Helper::setElementNodeValue(
                   $doc, '/FezMD', 'created_date',
@@ -2637,14 +2644,17 @@ class RecordGeneral
               XML_Helper::setElementNodeValue($doc, '/FezMD', 'depositor', Auth::getUserID());
               XML_Helper::setElementNodeValue($doc, '/FezMD', 'xdis_id', $new_xdis_id);
               $value = $doc->saveXML();
-              Fedora_API::getUploadLocation(
-                  $new_pid, $ds_value['ID'], $value, $ds_value['label'],
-                  $ds_value['MIMEType'], $ds_value['controlGroup'], null, $ds_value['versionable']
+              Fedora_API::callModifyDatastreamByValue(
+                $new_pid, $ds_value['ID'], $ds_value['state'],
+                $ds_value['label'], $value, $ds_value['MIMEType'], $ds_value['versionable']
               );
                 break;
             case 'RELS-EXT':
               // set the successor thing in RELS-EXT
               $value = Fedora_API::callGetDatastreamContents($pid, $ds_value['ID'], true);
+              if ($value === FALSE) {
+                break;
+              }
               $value = str_replace($pid, $new_pid, $value);
               if ($is_succession || !empty($collection_pid)) {
                 $doc = DOMDocument::loadXML($value);
@@ -2679,6 +2689,9 @@ class RecordGeneral
             default:
               if (isset($ds_value['controlGroup']) && $ds_value['controlGroup'] == 'X') {
                 $value = Fedora_API::callGetDatastreamContents($pid, $ds_value['ID'], true);
+                if ($value === FALSE) {
+                  break;
+                }
                 $value = str_replace($pid, $new_pid, $value);
                 if ($ds_value['ID'] == 'MODS') {
                   $value = self::clearMODSIdentifiers($value);
@@ -2690,6 +2703,9 @@ class RecordGeneral
               } else if (isset($ds_value['controlGroup']) && $ds_value['controlGroup'] == 'M'
               && $clone_attached_datastreams) {
                 $value = Fedora_API::callGetDatastreamContents($pid, $ds_value['ID'], true);
+                if ($value === FALSE) {
+                  break;
+                }
                 Fedora_API::getUploadLocation(
                   $new_pid, $ds_value['ID'], $value, $ds_value['label'],
                   $ds_value['MIMEType'], $ds_value['controlGroup'], null, $ds_value['versionable']
