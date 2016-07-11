@@ -1,4 +1,4 @@
-# behat.yml
+# behat-development.yml
 default:
   calls:
     error_reporting: 7 # value of E_ERROR | E_WARNING | E_PARSE

@@ -54,6 +54,7 @@ echo Running tests..
 docker exec testing_feztestrunner_1 sh -c 'cd '"'${CONTAINER_BASE_DIR}/tests/application'"' && php init.php'
 UPGRADE_RES=$(curl -s http://${VIRTUAL_HOST}:9080/upgrade/index.php?upgradeOnly=1 | grep succeeded)
 if [ "${UPGRADE_RES}" == "" ]; then
+  echo "failed to run upgrade scripts! :("
   exit 1
 fi
 
