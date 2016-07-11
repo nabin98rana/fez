@@ -1,7 +1,135 @@
+fpmtestrunner:
+  build:
+    dockerfile_path: "Dockerfile.runner"
+  #encrypted_env_file: ./.codeship/dockerenv.encrypted
+  environment:
+    APP_ENVIRONMENT: "testing"
+    XDEBUG_CONFIG: "idekey=fez"
+    PHP_IDE_CONFIG: "serverName=dev-fez.library.uq.edu.au"
+    JAVA_HOME: "/usr/lib/jvm/jre"
+    JHOVE_HOME: "/usr/local/jhove"
+  links:
+    - fez
+    - fezdb
+    - fedora
+    - fedoradb
+    - selenium
+    - solr
+  cached: true
+  volumes_from:
+    - fedoradata
+    - cache
+
+selenium:
+  image: selenium/standalone-chrome-debug:2.53.0
+  ports:
+    - "5902:5900"
+  links:
+    - fez
+    - fedora
+
 fez:
   build:
     image: codeship_fez
     dockerfile_path: Dockerfile
+    path: ./.docker/development/backend/nginx/
+  links:
+    - fpm
+  volumes_from:
+    - fezcode
+    - fedoradata
+
+fezcode:
+  build:
+    dockerfile_path: "Dockerfile.staging"
+
+fpm:
+  build:
+    dockerfile_path: "Dockerfile"
+  #encrypted_env_file: ./.codeship/dockerenv.encrypted
+  environment:
+    APP_ENVIRONMENT: "testing"
+    XDEBUG_CONFIG: "idekey=fez"
+    PHP_IDE_CONFIG: "serverName=dev-fez.library.uq.edu.au"
+    JAVA_HOME: "/usr/lib/jvm/jre"
+    JHOVE_HOME: "/usr/local/jhove"
+  links:
+    - fezdb
+    - fedora
+    - fedoradb
+    - solr
+  volumes_from:
+    - fedoradata
+    - cache
+
+
+fezdb:
+  build:
+    image: codeship_fezdb
+    dockerfile_path: Dockerfile
+    path: ./.docker/development/backend/db/
+  cap_add:
+    - SYS_ADMIN
+  environment:
+    - MYSQL_ROOT_PASSWORD=development
+    - MYSQL_USER=fez
+    - MYSQL_PASSWORD=fez
+    - MYSQL_DATABASE=fez
+  privileged: true
+  volumes_from:
+    - fezcode
+
+
+fedora:
+  build:
+    image: codeship_fedora
+    dockerfile_path: Dockerfile
+    path: ./.docker/development/fedora/
+  environment:
+    FEDORA_HOME: "/opt/fedora"
+    FEDORA_WEBAPP_HOME: "/opt/fedora/tomcat/webapps/fedora"
+  links:
+    - fedoradb
+  ports:
+    - "10083:10081"
+  volumes_from:
+    - fedoradata
+    - cache
+
+fedoradata:
+  build: ./.docker/development/fedora/data/
+  volumes:
+    - /data
+
+
+fedoradb:
+  build:
+    image: codeship_fedoradb
+    dockerfile_path: Dockerfile
+    path: ./.docker/development/backend/db/
+  cap_add:
+    - SYS_ADMIN
+  environment:
+    - MYSQL_ROOT_PASSWORD=development
+    - MYSQL_USER=fedoraAdmin
+    - MYSQL_PASSWORD=fedoraAdmin
+    - MYSQL_DATABASE=fedora3
+  privileged: true
+
+cache:
+  build:
+    image: codeship_cache
+    path: ./.docker/development/cache/
+    dockerfile_path: Dockerfile
+
+solr:
+  build:
+    image: codeship_solr
+    dockerfile_path: Dockerfile
+    path: ./.docker/development/solr/
+  volumes_from:
+    - cache
+
 
 fezstaging:
   build:
