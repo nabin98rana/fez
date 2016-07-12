@@ -4557,9 +4557,6 @@ function getSearchKeyIndexValueShadow($pid, $searchKeyTitle, $getLookup=true, $s
     if (!empty($sort_by)) {
       //  && $tableJoinID != 1
       $sek_id = str_replace("searchKey", "", $sort_by);
-      if (!is_numeric($sek_id)) {  // in case the text version of the search key was passed in get the ID
-          $sek_id = Search_Key::getID($sek_id);
-      }
       if ($sek_id != '') {
         if ($sek_id == '0' && (trim($searchKeys[0]) != "")) {
           if ($options["sort_order"] == 0) {

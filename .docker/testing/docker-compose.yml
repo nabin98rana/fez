@@ -13,6 +13,7 @@ feztestrunner:
     - selenium
     - fezdb
     - fedoradb
+    - solr
   volumes:
     - ../../:/var/app/current
   volumes_from:
@@ -21,7 +22,7 @@ feztestrunner:
     - logs
 
 selenium:
-  image: selenium/standalone-chrome-debug:2.48.2
+  image: selenium/standalone-chrome-debug:2.53.0
   links:
     - fez
   ports:

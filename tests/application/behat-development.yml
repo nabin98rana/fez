@@ -1,0 +1,10 @@
+# behat-development.yml
+default:
+  calls:
+    error_reporting: 7 # value of E_ERROR | E_WARNING | E_PARSE
+  extensions:
+    Behat\MinkExtension:
+      base_url:  'http://dev-fez.library.uq.edu.au:8080'
+      goutte: ~
+      selenium2:
+        browser: chrome

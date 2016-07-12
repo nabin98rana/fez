@@ -139,7 +139,7 @@ class Collection
     if (!empty($community_pid)) {
       $options["searchKey".Search_Key::getID("isMemberOf")] = $community_pid; //
     }
-    $list = Record::getListing($options, $roles, 0, 10000, true, true, array(), 'AND', false,
+    $list = Record::getListing($options, $roles, 0, 10000, "Title", true, true, array(), 'AND', false,
       false, false, APP_SOLR_FACET_LIMIT, APP_SOLR_FACET_MINCOUNT, false, null, false);
     return $list;
 

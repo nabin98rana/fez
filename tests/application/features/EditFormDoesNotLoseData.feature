@@ -1,5 +1,5 @@
 #features/EditFormDoesNotLoseData.feature
-@javascript @smoke @broken
+@javascript @smoke @jet
 Feature: Check on a simple edit then immediate save, all data stays the same in correct format and nothing is lost or incorrectly changed.
 
   @destructive @now1

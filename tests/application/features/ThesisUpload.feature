@@ -1,14 +1,14 @@
 # features/ThesisUpload.feature
-@javascript
+@javascript @jet
 Feature: Test that Thesis upload correctly. @bug it can't check the swf uploader
 
   Scenario: I login as admin, create a pid, then delete it and check it is not longer accessiable
     Given I login as user no groups
-    And I am on "/rhdsubmission"
+    And I am on "/workflow/new.php?xdis_id=187&pid=UQ:2&wft_id=292&cat=select_workflow"
     And I should see "Error: No workflows defined for Create."
     And I follow "Logout"
     Given I login as administrator
-    And I am on "/rhdsubmission"
+    And I am on "/workflow/new.php?xdis_id=187&pid=UQ:2&wft_id=292&cat=select_workflow"
     And I press "Add New"
     And I turn off waiting checks
     And I switch to window "Add_from_Src_to_Dest"
@@ -28,7 +28,7 @@ Feature: Test that Thesis upload correctly. @bug it can't check the swf uploader
     And I should see "01 Mathematical Sciences"
     And I should see "Thesis Test Writer Name"
     And I should see "Thesis Test Name 2012"
-    And I should see "UQ Theses Submission and Review"
+    And I should see "Test Data Collection"
     And I fill in "Search Entry" with "title:(\"Thesis Test Name 2012\")"
     And I press "search_entry_submit"
     And I should see "No records could be found."

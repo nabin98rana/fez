@@ -4,7 +4,7 @@ Feature: Test Language of Title fields https://www.pivotaltracker.com/story/show
   Language of title fields should not have default value.
 
 
-  @destructive @wip
+  @jet @destructive @wip
   Scenario: Enter a record and see if Language of Title fields is as expected
     Given I login as administrator
     And I go to the test collection list page

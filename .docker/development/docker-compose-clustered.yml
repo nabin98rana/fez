@@ -1,0 +1,179 @@
+fezdevelopmentrunner:
+  build: ./../development/backend/fpm/
+  environment:
+    - APP_ENVIRONMENT=development
+    - JAVA_HOME=/usr/lib/jvm/jre
+    - JHOVE_HOME=/usr/local/jhove
+  links:
+    - cache
+    - fez
+    - fedora
+    - fezdb
+    - fedoradb
+  volumes:
+    - ../../:/var/app/current
+  volumes_from:
+    - cache
+    - fedoradata
+    - logs
+
+cache:
+  build: ./cache/
+
+logs:
+  build: ./logs/
+
+fez:
+  build: ./backend/haproxy/
+  ports:
+    - 8080:80
+  links:
+    - feznginxa
+    - feznginxb
+
+feznginxa:
+  build: ./backend/nginx/
+  environment:
+    - VIRTUAL_HOST=dev-fez.library.uq.edu.au
+  links:
+    - fpma:fpm
+  ports:
+    - 8081:80
+  volumes_from:
+    - fpma
+    - cache
+    - fedoradata
+    - logs
+
+feznginxb:
+  build: ./backend/nginx/
+  environment:
+    - VIRTUAL_HOST=dev-fez.library.uq.edu.au
+  links:
+    - fpmb:fpm
+  ports:
+    - 8082:80
+  volumes_from:
+    - fpmb
+    - cache
+    - fedoradata
+    - logs
+
+fpma:
+  build: ./backend/fpm/
+  environment:
+    - APP_ENVIRONMENT=development
+    - XDEBUG_CONFIG=idekey=fez
+    - PHP_IDE_CONFIG=serverName=dev-fez.library.uq.edu.au
+    - JAVA_HOME=/usr/lib/jvm/jre
+    - JHOVE_HOME=/usr/local/jhove
+    - COMMIT_HASH
+    - AWS_ACCESS_KEY_ID
+    - AWS_SECRET_ACCESS_KEY
+  links:
+    - fezdb
+    - fedora
+    - fedoradb
+    - solr
+  volumes:
+    - ../../:/var/app/current
+    - ../etc/nginx/conf.d:/etc/nginx/conf.d
+    - ../etc/nginx/rules:/etc/nginx/rules
+  volumes_from:
+    - cache
+    - fedoradata
+    - logs
+
+fpmb:
+  build: ./backend/fpm/
+  environment:
+    - APP_ENVIRONMENT=development
+    - XDEBUG_CONFIG=idekey=fez
+    - PHP_IDE_CONFIG=serverName=dev-fez.library.uq.edu.au
+    - JAVA_HOME=/usr/lib/jvm/jre
+    - JHOVE_HOME=/usr/local/jhove
+    - COMMIT_HASH
+    - AWS_ACCESS_KEY_ID
+    - AWS_SECRET_ACCESS_KEY
+  links:
+    - fezdb
+    - fedora
+    - fedoradb
+    - solr
+  volumes:
+    - ../../:/var/app/current
+    - ../etc/nginx/conf.d:/etc/nginx/conf.d
+    - ../etc/nginx/rules:/etc/nginx/rules
+  volumes_from:
+    - cache
+    - fedoradata
+    - logs
+
+fezdb:
+  build: ./backend/db/
+  environment:
+    - MYSQL_ROOT_PASSWORD=development
+    - MYSQL_USER=fez
+    - MYSQL_PASSWORD=fez
+    - MYSQL_DATABASE=fez
+  ports:
+    - "3306:3306"
+  volumes:
+    - ../../:/var/app/current
+  volumes_from:
+    - fezdbdata
+    - logs
+
+fezdbdata:
+  build: ./backend/db/data/
+
+
+fedora:
+  build: ./fedora/
+  environment:
+    - FEDORA_HOME=/opt/fedora
+    - FEDORA_WEBAPP_HOME=/opt/fedora/tomcat/webapps/fedora
+  links:
+    - fedoradb
+  ports:
+    - "10081:10081"
+    - "10082:10082"
+  privileged: true
+  volumes_from:
+    - cache
+    - fedoradata
+    - logs
+
+fedoradata:
+  build: ./fedora/data/
+  volumes:
+    - ./data/fedora:/data
+
+fedoradb:
+  build: ./fedora/db/
+  environment:
+    - MYSQL_ROOT_PASSWORD=development
+    - MYSQL_USER=fedoraAdmin
+    - MYSQL_PASSWORD=fedoraAdmin
+    - MYSQL_DATABASE=fedora3
+  ports:
+    - "3307:3306"
+  privileged: true
+  volumes_from:
+    - fedoradbdata
+    - logs
+
+fedoradbdata:
+  build: ./backend/db/data/
+
+solr:
+  build: ./solr/
+  ports:
+    - "8983:8983"
+  volumes_from:
+    - cache
+    - solrdata
+    - logs
+
+solrdata:
+  build: ./solr/data/

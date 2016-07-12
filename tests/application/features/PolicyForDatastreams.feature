@@ -3,35 +3,14 @@
 @javascript @smoke
 Feature: Check datastream policy works correctly
 
-  @destructive @now4 @insulated
-  Scenario: Setup Test Collection & Community
-    Given I login as administrator
-  #Create test communities and collections
-    And I follow "Browse"
-    And I follow "Create New Community"
-    And I fill in "Name" with "Test Community Datastream policy"
-    And I select "Fedora Collection Display Version Dublin Core 1.0" from "XSD Display Document Types"
-    And I fill in "Keyword 1" with "automated testing"
-    And I press "Publish"
-    And I press "Create"
-    And I fill in "Title" with "Test Collection Datastream policy"
-    And I select "Journal Article Version MODS 1.0" from "XSD Display Document Types"
-    And I select "Test Community Datastream policy" from "Member of Communities"
-    And I fill in "Keyword 1" with "automated testing"
-    And I press "Publish"
-    And I wait for bgps
-    And I wait for solr
-    Then I am on "/"
-
-
-  @destructive @now @insulated
+  @destructive @now @insulated @policy
   Scenario: Copy a known record with attachment without permissions other than inherit to a community. Turn on a data stream policy on the community. Add another Pid. Then check both pids have the new policy.
     Given I login as administrator
   #clone record 1 to the collection
     And I go to the test journal article view page
     And I follow "More options"
     And I follow "Clone Selected Record"
-    And I select "Test Collection Datastream policy" from "collection_pid"
+    And I select "Test Data Collection" from "collection_pid"
     And I check "clone_attached_datastreams"
     And I select "Journal Article Version MODS 1.0" from "new_xdis_id"
     And I press "Clone Record"
@@ -41,7 +20,7 @@ Feature: Check datastream policy works correctly
     And I wait for bgps
     And I wait for solr
   #Set datastream policy permissions on collection
-    And I fill in "Search Entry" with "title:(\"Test Collection Datastream policy\")"
+    And I fill in "Search Entry" with "title:(\"Test Data Collection\")"
     And I press "search_entry_submit"
     And I follow "Edit Security for Selected Collection"
     And I select "Only Thesis Office Approve, View, List. Printery View." from "Datastream FezACML Policy for datastreams"
@@ -54,7 +33,7 @@ Feature: Check datastream policy works correctly
     And I go to the test journal article view page
     And I follow "More options"
     And I follow "Clone Selected Record"
-    And I select "Test Collection Datastream policy" from "collection_pid"
+    And I select "Test Data Collection" from "collection_pid"
     And I check "clone_attached_datastreams"
     And I select "Journal Article Version MODS 1.0" from "new_xdis_id"
     And I press "Clone Record"
@@ -230,7 +209,6 @@ Feature: Check datastream policy works correctly
   @destructive @purge @insulated
 Scenario: Delete old Communities, Collections and Pids
     Given I am on "/"
-    Then I clean up title "Test Community Datastream policy"
     Then I clean up title "Test Collection Datastream policy"
     Then I clean up title "Test Title Datastream policy 1"
     Then I clean up title "Test Title Datastream policy 2"

@@ -233,7 +233,7 @@ if (!empty($pid) && !empty($dsID)) {
       // If the license requires user confirmation, check first
       $licenceTitle = Controlled_Vocab::getTitle($license);
       // Check its not a creative commons licence
-      if (strpos($licenceTitle, "Creative") === false) {
+      if (strpos($licenceTitle, "Creative") === false && !empty($licenceTitle)) {
         // check we havent already validated that session
         if (!array_key_exists('accept_license', $_GET) || $_GET['accept_license'] != '1') {
           include_once(APP_INC_PATH . "class.template.php");
