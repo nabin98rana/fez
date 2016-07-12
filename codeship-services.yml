@@ -15,7 +15,6 @@ fpmtestrunner:
     - fedoradb
     - selenium
     - solr
-  cached: true
   volumes_from:
     - fedoradata
     - cache
