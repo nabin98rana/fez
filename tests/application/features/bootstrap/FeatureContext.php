@@ -437,7 +437,7 @@ class FeatureContext extends MinkContext
             !($this->getSession()->getDriver() instanceof Behat\Mink\Driver\ZombieDriver)) {
 
             if (!$this->isModal) {
-                $this->getSession()->wait(1000, "dojo.byId('powered-by')");
+                $this->getSession()->wait(5000, "dojo.byId('powered-by')");
                 $this->getSession()->wait(5000, 'typeof window.jQuery == "function"');
                 $javascriptError = ($this->getSession()->evaluateScript("return window.jsErrors"));
                 if (!empty($javascriptError)) {
