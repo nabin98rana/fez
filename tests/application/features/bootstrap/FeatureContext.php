@@ -754,6 +754,22 @@ class FeatureContext extends MinkContext
     }
 
     /**
+     * @Then /^I should see a datastream link for "([^"]*)"$/
+     */
+    public function iShouldSeeADatastreamLinkFor($value)
+    {
+        $this->assertSession()->elementTextContains('css', '.ds-link', $this->fixStepArgument($value));
+    }
+
+    /**
+     * @Then /^I should not see any datastream view links$/
+     */
+    public function iShouldNotSeeADatastreamLink()
+    {
+        $this->assertSession()->elementNotExists('css', '.ds-link');
+    }
+
+    /**
      * @Given /^I go to the test community page$/
      */
     public function iGoToTheTestCommunityListPage()
