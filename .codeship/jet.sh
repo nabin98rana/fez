@@ -1,17 +1,6 @@
 #!/bin/bash
 
-
-
 echo Starting test run..
-
-# TODO: replace with MySQL check - yum install mysql is slow enough it seems
-#sleep 30
-
-
-
-
-
-yum -y install mysql
 
 i=0
 MYSQL_HEALTH_CMD="mysqladmin ping -hfezdb -ufez -pfez"
