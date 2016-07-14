@@ -6,6 +6,7 @@ class loginHelper {
    */
   static function iLoginAsAdministrator($page) {
     $page->visit("/login.php");
+    $page->getSession()->wait(5000, "dojo.byId('powered-by')");
     $page->fillField("username", "admin_test");
     $page->fillField("passwd", "Ilovedonkey5");
     $page->pressButton("Login");
@@ -18,6 +19,7 @@ class loginHelper {
    */
   static function iLoginAsUPO($page) {
     $page->visit("/login.php");
+    $page->getSession()->wait(5000, "dojo.byId('powered-by')");
     $page->fillField("username", "upo_test");
     $page->fillField("passwd", "Ilovedonkey5");
     $page->pressButton("Login");
@@ -30,6 +32,7 @@ class loginHelper {
    */
   static function iLoginAsSuperAdministrator($page) {
     $page->visit("/login.php");
+    $page->getSession()->wait(5000, "dojo.byId('powered-by')");
     $page->fillField("username", "superadmin_test");
     $page->fillField("passwd", "Ilovedonkey5");
     $page->pressButton("Login");
@@ -41,6 +44,7 @@ class loginHelper {
    */
   static function iLoginAsUserNoGroups($page) {
     $page->visit("/login.php");
+    $page->getSession()->wait(5000, "dojo.byId('powered-by')");
     $page->fillField("username", "user_test");
     $page->fillField("passwd", "Ilovedonkey5");
     $page->pressButton("Login");
@@ -52,6 +56,7 @@ class loginHelper {
    */
   static function iLoginAsThesisOfficer($page) {
     $page->visit("/login.php");
+    $page->getSession()->wait(5000, "dojo.byId('powered-by')");
     $page->fillField("username", "thesisofficer_test");
     $page->fillField("passwd", "Ilovedonkey5");
     $page->pressButton("Login");
