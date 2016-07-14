@@ -1,12 +1,9 @@
-
 #features/PolicyForDatastreams.feature
-@javascript @smoke
+@javascript @destructive
 Feature: Check datastream policy works correctly
 
-  @destructive @now @insulated @policy
   Scenario: Copy a known record with attachment without permissions other than inherit to a community. Turn on a data stream policy on the community. Add another Pid. Then check both pids have the new policy.
     Given I login as administrator
-  #clone record 1 to the collection
     And I go to the test journal article view page
     And I follow "More options"
     And I follow "Clone Selected Record"
@@ -19,7 +16,6 @@ Feature: Check datastream policy works correctly
     And I press "Publish"
     And I wait for bgps
     And I wait for solr
-  #Set datastream policy permissions on collection
     And I fill in "Search Entry" with "title:(\"Test Data Collection\")"
     And I press "search_entry_submit"
     And I follow "Edit Security for Selected Collection"
@@ -29,7 +25,6 @@ Feature: Check datastream policy works correctly
     And I turn on waiting checks
     When I am on "/"
     And I wait for "2" seconds
-  #clone record 2 to the collection
     And I go to the test journal article view page
     And I follow "More options"
     And I follow "Clone Selected Record"
@@ -40,30 +35,29 @@ Feature: Check datastream policy works correctly
     And I fill in "Title" with "Test Title Datastream policy 2"
     And I select "Article" from "Sub-type"
     And I press "Publish"
-    And I should see "thornhill_gillie.pdf"
+    And I should see "test.pdf"
     And I follow "Logout"
     Given I login as thesis officer
     And I fill in "Search Entry" with "title:(\"Test Title Datastream policy 1\")"
     And I press "search_entry_submit"
     And I follow "Test Title Datastream policy 1"
-    And I should see "thornhill_gillie.pdf"
+    And I should see "test.pdf"
     And I fill in "Search Entry" with "title:(\"Test Title Datastream policy 2\")"
     And I press "search_entry_submit"
     And I follow "Test Title Datastream policy 2"
-    And I should see "thornhill_gillie.pdf"
+    And I should see "test.pdf"
     And I follow "Logout"
     Given I login as user no groups
     And I fill in "Search Entry" with "title:(\"Test Title Datastream policy 1\")"
     And I press "search_entry_submit"
     And I follow "Test Title Datastream policy 1"
-    And I should not see "thornhill_gillie.pdf"
+    And I should not see "test.pdf"
     And I fill in "Search Entry" with "title:(\"Test Title Datastream policy 2\")"
     And I press "search_entry_submit"
     And I wait for "10" seconds
     And I follow "Test Title Datastream policy 2"
-    And I should not see "thornhill_gillie.pdf"
+    And I should not see "test.pdf"
 
-  @destructive @now2 @insulated
   Scenario: I change the policy for datastreams in the Collection. This won't change above datastreams since they have recieved policies to not inherit.
     Given I login as administrator
     And I fill in "Search Entry" with "title:(\"Test Collection Datastream policy\")"
@@ -97,7 +91,6 @@ Feature: Check datastream policy works correctly
     And I should see "thornhill_gillie.pdf"
     And I follow "Logout"
 
-  @destructive @now3 @insulated
   Scenario: I change the policy for datastreams in the Collection back to nothing. Then add a pid and change it's datastream policy. Then check Datastream follows the pid policy
     Given I login as administrator
     And I fill in "Search Entry" with "title:(\"Test Collection Datastream policy\")"
@@ -111,7 +104,6 @@ Feature: Check datastream policy works correctly
     And I wait for solr
     When I am on "/"
     And I wait for "2" seconds
-  #clone record 3 to the collection
     And I go to the test journal article view page
     And I follow "More options"
     And I follow "Clone Selected Record"
@@ -124,7 +116,6 @@ Feature: Check datastream policy works correctly
     And I press "Publish"
     And I wait for bgps
     And I wait for solr
-  #Set datastream policy permissions
     And I fill in "Search Entry" with "title:(\"Test Title Datastream policy 3\")"
     And I press "search_entry_submit"
     And I follow "Test Title Datastream policy 3"
@@ -149,10 +140,8 @@ Feature: Check datastream policy works correctly
     And I follow "Test Title Datastream policy 3"
     And I should not see "thornhill_gillie.pdf"
 
-  @destructive @now4 @insulated
   Scenario: The policy for datastreams in the Collection is nothing. Then add a pid. Then change datastream security(Keep inheritance) Then change Pid datastream policy. It should blow away any permissions
     Given I login as administrator
-  #clone record 4 to the collection
     And I go to the test journal article view page
     And I follow "More options"
     And I follow "Clone Selected Record"
@@ -165,7 +154,6 @@ Feature: Check datastream policy works correctly
     And I press "Publish"
     And I wait for bgps
     And I wait for solr
-  #set a datastream policy
     And I fill in "Search Entry" with "title:(\"Test Title Datastream policy 4\")"
     And I press "search_entry_submit"
     And I follow "Test Title Datastream policy 4"
@@ -180,7 +168,6 @@ Feature: Check datastream policy works correctly
     And I turn on waiting checks
     When I am on "/"
     And I wait for "2" seconds
-  #Set datastream policy permissions
     And I fill in "Search Entry" with "title:(\"Test Title Datastream policy 4\")"
     And I press "search_entry_submit"
     And I follow "Test Title Datastream policy 4"
@@ -206,8 +193,8 @@ Feature: Check datastream policy works correctly
     And I should see "thornhill_gillie.pdf"
     And I should see text "/thornhill_gillie.pdf" in code
 
-  @destructive @purge @insulated
-Scenario: Delete old Communities, Collections and Pids
+  @purge
+  Scenario: Delete old Communities, Collections and Pids
     Given I am on "/"
     Then I clean up title "Test Collection Datastream policy"
     Then I clean up title "Test Title Datastream policy 1"
