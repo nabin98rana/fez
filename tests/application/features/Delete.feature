@@ -16,6 +16,8 @@ Feature: Test that deleting communities/collections/records works correctly
     And I check "Copyright Agreement"
     And I select "2010" from "Publication date"
     And I press "Publish"
+    And I wait for bgps
+    And I wait for solr
     And I follow "More options"
     And I follow "Delete Selected Record"
     And I fill in "History Detail" with "Testing record deletion"

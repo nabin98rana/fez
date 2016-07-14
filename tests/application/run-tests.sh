@@ -13,7 +13,7 @@ export BEHAT_PARAMS='{"extensions" : {"Behat\\MinkExtension" : {"selenium2" : { 
 
 #../behat/vendor/behat/behat/bin/behat --tags '@jet&&~@cloned' --ansi --format=pretty,html,junit --out=,logs/formattedresults.html,logs/
 
-../behat/vendor/behat/behat/bin/behat --tags '@jet&&~@cloned' --format pretty --colors
+../behat/vendor/behat/behat/bin/behat --tags '@jet&&~@cloned' --format pretty --colors --stop-on-failure
 
 #Use the below example of how to run tests in the development environment - eg create test data
 #../behat/vendor/behat/behat/bin/behat --tags '@jet&&~@cloned' --format pretty --colors features/02-CreateTestData.feature
