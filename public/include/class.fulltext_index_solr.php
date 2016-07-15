@@ -124,6 +124,7 @@ class FulltextIndex_Solr extends FulltextIndex
   protected function prepareQuery($params, $options, $rulegroups, $approved_roles, $sort_by, $start, $page_rows)
   {
     $query = '';
+    $filterQuery = '';
     $i = 0;
     if ($params['words']) {
       foreach ($params['words'] as $key => $value) {
@@ -160,7 +161,11 @@ class FulltextIndex_Solr extends FulltextIndex
     }
 
     $queryString = $query;
-    $filterQuery = "(_authlister_t:(" . $rulegroups . ")) AND (status_i:2)";
+    $filterQuery = "(status_i:2)";
+    if (!empty($rulegroups)) {
+      $filterQuery .= " AND (_authlister_t:(" . $rulegroups . "))";
+    }
+
 
     return array(
       'query' => $queryString,
@@ -288,7 +293,9 @@ class FulltextIndex_Solr extends FulltextIndex
           }
         }
       } else {
-        $filterQueryParts[] = "(_authlister_t:(" . $rulegroups . "))";
+        if (!empty($rulegroups)) {
+          $filterQueryParts[] = "(_authlister_t:(" . $rulegroups . "))";
+        }
       }
       if (is_array($filterQueryParts)) {
         $filterQuery = implode(" OR ", $filterQueryParts);

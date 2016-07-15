@@ -26,7 +26,7 @@ Feature: Create test data feature
     And I store the test collection pid for future use
     And I wait for solr
     And I wait for bgps
-    And I select "Journal" from "xdis_id_top"
+    And I select "Journal Article" from "xdis_id_top"
     And I press "Create"
     And I wait for "2" seconds
     And I fill in "Title" with "Test Data Record"
