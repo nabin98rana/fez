@@ -1,5 +1,5 @@
 #features/PolicyForDatastreams.feature
-@javascript @destructive @jet
+@javascript @destructive @jetx
 Feature: Check datastream policy works correctly
 
   Scenario: Copy a known record with attachment without permissions other than inherit to a community. Turn on a data stream policy on the community. Add another Pid. Then check both pids have the new policy.
