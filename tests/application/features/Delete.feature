@@ -1,8 +1,7 @@
 # features/Delete.feature
-@javascript @insulated
+@javascript @destructive @jet
 Feature: Test that deleting communities/collections/records works correctly
 
-  @jet
   Scenario: Delete record
     Given I login as administrator
     And I go to the test collection list page
@@ -48,7 +47,6 @@ Feature: Test that deleting communities/collections/records works correctly
     And I press "search_entry_submit"
     Then I should see "(0 results found)"
 
-  @jet
   Scenario: Delete Collection
     Given I login as administrator
     And I go to the test community page
@@ -77,7 +75,6 @@ Feature: Test that deleting communities/collections/records works correctly
     And I press "search_entry_submit"
     Then I should see "(0 results found)"
 
-  @jet
   Scenario: Delete Community
     Given I login as administrator
     And I follow "Browse"

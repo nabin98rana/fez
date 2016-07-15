@@ -1,7 +1,6 @@
-@javascript
+@javascript @destructive @jet
 Feature: Changing Collection Security
 
-  @jet
   Scenario: I login as admin and set a Collection security to allow inheriting pids to view, then turn it off and check pids can no longer be viewed
     Given I login as administrator
     And I follow "Browse"
@@ -76,7 +75,7 @@ Feature: Changing Collection Security
     And I press "search_entry_submit"
     Then I should see "No records could be found"
 
-  @destructive @purge @jet
+  @purge
   Scenario: Delete old Communities, collections and pids
     Given I am on "/"
     Then I clean up title "Test Community Security to be changed after pid created"

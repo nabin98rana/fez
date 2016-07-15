@@ -1,8 +1,7 @@
 # features/CheckHistory.feature
-@javascript @insulated
+@javascript @destructive @jet
 Feature: Test that the history for pids is working
 
-  @jet
   Scenario: I login as admin, make a change and see it is in the history
     Given I login as administrator
     And I go to the test collection list page
@@ -43,7 +42,7 @@ Feature: Test that the history for pids is working
     And I wait for bgps
     And I go to the test collection list page
 
-  @destructive @purge @jet
+  @purge
   Scenario: Delete old pids
     Given I am on "/"
     Then I clean up title "Test History Journal Title"
