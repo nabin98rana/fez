@@ -1,6 +1,5 @@
 fedoradata:
   build: ./.docker/development/fedora/data/
-  cached: true
 
 fpmtestrunner:
   build:
@@ -22,7 +21,6 @@ fpmtestrunner:
   volumes_from:
     - fedoradata
     - cache
-  cached: true
 
 selenium:
   image: selenium/standalone-chrome-debug:2.53.0
@@ -33,7 +31,6 @@ selenium:
   links:
     - fez
     - fedora
-  cached: true
 
 fez:
   build:
@@ -45,12 +42,10 @@ fez:
   volumes_from:
     - fezcode
     - fedoradata
-  cached: true
 
 fezcode:
   build:
     dockerfile_path: "Dockerfile.staging"
-  cached: true
 
 fpm:
   build:
@@ -70,7 +65,6 @@ fpm:
   volumes_from:
     - fedoradata
     - cache
-  cached: true
 
 fezdb:
   build:
@@ -87,8 +81,6 @@ fezdb:
   privileged: true
   volumes_from:
     - fezcode
-  cached: true
-
 
 fedora:
   build:
@@ -105,9 +97,6 @@ fedora:
   volumes_from:
     - fedoradata
     - cache
-  cached: true
-
-
 
 fedoradb:
   build:
@@ -122,14 +111,12 @@ fedoradb:
     - MYSQL_PASSWORD=fedoraAdmin
     - MYSQL_DATABASE=fedora3
   privileged: true
-  cached: true
 
 cache:
   build:
     image: codeship_cache
     path: ./.docker/development/cache/
     dockerfile_path: Dockerfile
-  cached: true
 
 solr:
   build:
@@ -138,17 +125,13 @@ solr:
     path: ./.docker/development/solr/
   volumes_from:
     - cache
-  cached: true
-
 
 fezstaging:
   build:
     image: codeship_fezstaging
     dockerfile_path: Dockerfile.staging
-  cached: true
 
 awsdeployment:
   build:
     dockerfile_path: "Dockerfile.deploy"
   encrypted_env_file: "deployment.env.encrypted"
-  cached: true
