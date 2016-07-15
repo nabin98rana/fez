@@ -1,8 +1,7 @@
 # features/ListView.feature
-@javascript
+@javascript @destructive @jet
 Feature: Check list view displays the correct information entered into a pid, collection or community
 
-  @now @jet
   Scenario: I login as admin and create communities, collections and pids and see all the information displays in lists correctly
     Given I login as administrator
     And I follow "Browse"
@@ -56,7 +55,7 @@ Feature: Check list view displays the correct information entered into a pid, co
     Then I should see "123-987"
     Then I should see "(2010)"
 
-  @destructive @purge @insulated @jet
+  @purge
   Scenario: Delete old Communities, collections and pids
     Given I am on "/"
     Then I clean up title "Test Community for list view"

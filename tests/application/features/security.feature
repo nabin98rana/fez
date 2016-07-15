@@ -1,17 +1,15 @@
 # features/security.feature
-@javascript @smoke
+@javascript @destructive @jet
 Feature: Security
   In order to secure a pid
   As a website user
   I need to be able login as an administrator and go to a web page and edit security and set security so only admins can see it
   And login as as a non-administrator and not be able to access the pid view page
 
-  @jet
   Scenario: Logging in as Administrator
     Given I login as administrator
     Then I should see "You are logged in as Test Admin"
 
-  @destructive @core @jet
   Scenario: Create a Community as an administrator and see it as a non-logged in user
     Given I login as administrator
     And I follow "Browse"
@@ -30,7 +28,6 @@ Feature: Security
     And I press "search_entry_submit"
     Then I should see "(1 results found)"
 
-  @destructive @jet
   Scenario: Create a community, collection, set the collection to viewable by admins only
     Given I login as administrator
     And I follow "Browse"
@@ -66,7 +63,6 @@ Feature: Security
     And I press "search_entry_submit"
     Then I should see "(0 results found)"
 
-  @destructive @core @jet
   Scenario: Create a new secure lister community,
   create a collection belonging the secure community and the open community and the
   collection should still be searchable / listable to a non-logged in user due to multiple
@@ -110,7 +106,6 @@ Feature: Security
     And I press "search_entry_submit"
     Then I should see "(1 results found)"
 
-  @destructive @core @jet
   Scenario: When an administrator deletes the open unsecured community then
   the child collection will start being inaccessible to logged in users as it is now
   only in the secure community
@@ -142,7 +137,7 @@ Feature: Security
     And I press "search_entry_submit"
     Then I should see "(0 results found)"
 
-  @destructive @purge @jet
+  @purge
   Scenario: Delete old Communities, collections and pids
     Given I am on "/"
     Then I clean up title "Security Test Community"

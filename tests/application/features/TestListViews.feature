@@ -1,5 +1,5 @@
 # features/TestListView.feature
-@javascript @jet
+@javascript @smoke @jet
 Feature: Test the different views work when in list view
 
   Scenario: I login as admin see that all the views in list work

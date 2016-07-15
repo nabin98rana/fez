@@ -1,8 +1,7 @@
 # features/xmlCheck.feature
-@javascript
+@javascript @smoke @jet
 Feature: Test that xml is well formed
 
-  @jet
   Scenario: I go to XML pages and check the XML is mostly well formed
   Given I turn off waiting checks
   And I am on "/oai.php?verb=ListRecords&metadataPrefix=rif"
