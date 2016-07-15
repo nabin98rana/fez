@@ -35,6 +35,7 @@ Feature: Changing Collection Security
     And I follow "Logout"
     And I wait for solr
     And I wait for bgps
+    And I am on the homepage
     And I fill in "Search Entry" with "title:(\"Test Community Security to be changed after pid created\")"
     And I press "search_entry_submit"
     Then I should not see "No records could be found"
