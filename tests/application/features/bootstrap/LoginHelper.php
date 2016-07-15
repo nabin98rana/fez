@@ -7,7 +7,6 @@ class loginHelper {
    *
    */
   private function waitForLogoutLogin($page) {
-    $page->getSession()->wait(5000, "dojo.byId('powered-by')");
     $page->visit("/login.php");
     $page->getSession()->wait(10000, "dojo.byId('powered-by')");
   }
