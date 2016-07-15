@@ -353,13 +353,13 @@ function loadPreview(pid,datastreamID, alt, origami)
                                     {if $datastreams[d].isViewer == 1 || $isAdministrator}
                                         <a target="_blank" href="{$rel_url}view/{$pid}/{$ds_show}?bookreader=true">
                                             <img style="float:left;clear:none;" src="/images/icons/bookreader.png" alt="Read with bookreader" /></a>
-                                            <a href="{$rel_url}view/{$pid}/{$ds_show}" ><span style="display:block; margin-top: 7px;">&nbsp;{$datastreams[d].ID}</span></a>
+                                            <a class="ds-link" href="{$rel_url}view/{$pid}/{$ds_show}" ><span style="display:block; margin-top: 7px;">&nbsp;{$datastreams[d].ID}</span></a>
                                     {else}
                                         {$datastreams[d].ID}
                                  {/if}
                                 {else}
                                     {if $datastreams[d].isViewer == 1 || $isAdministrator}
-                                            <a onclick="javascript:window.open('{$rel_url}view/{$pid}/{$ds_show}{if $viewingPreviousVersion}?version_date={$versionDate}{/if}'); return false;" href="{$rel_url}view/{$pid}/{$ds_show}{if $viewingPreviousVersion}?version_date={$versionDate}{/if}">
+                                            <a class="ds-link" onclick="javascript:window.open('{$rel_url}view/{$pid}/{$ds_show}{if $viewingPreviousVersion}?version_date={$versionDate}{/if}'); return false;" href="{$rel_url}view/{$pid}/{$ds_show}{if $viewingPreviousVersion}?version_date={$versionDate}{/if}">
                                     {/if}
 
                                     {$datastreams[d].ID}
