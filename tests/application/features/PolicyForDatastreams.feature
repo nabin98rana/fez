@@ -113,7 +113,7 @@ Feature: Check datastream policy works correctly
     And I should not see any datastream view links
     And I follow "Logout"
 
-  @policy
+  @jet @policy
   Scenario: I change the policy for datastreams in the Collection back to nothing. Then add a pid and change it's datastream policy. Then check Datastream follows the pid policy
     Given I login as administrator
     And I fill in "Search Entry" with "title:(\"Test Datastream Policy Collection\")"
@@ -156,12 +156,13 @@ Feature: Check datastream policy works correctly
     And I fill in "Search Entry" with "title:(\"Test Title Datastream policy 3\")"
     And I press "search_entry_submit"
     And I follow "Test Title Datastream policy 3"
-    And I should see a datastream link for "test.pdf"
+    And I should see "test.pdf"
+    And I should not see any datastream view links
     And I follow "Logout"
     And I fill in "Search Entry" with "title:(\"Test Title Datastream policy 3\")"
     And I press "search_entry_submit"
     And I follow "Test Title Datastream policy 3"
-    And I should not see "test.pdf"
+    And I should see "test.pdf"
     And I should not see any datastream view links
 
   Scenario: The policy for datastreams in the Collection is nothing. Then add a pid. Then change datastream security(Keep inheritance) Then change Pid datastream policy. It should blow away any permissions
