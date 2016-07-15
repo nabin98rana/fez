@@ -24,6 +24,7 @@ Feature: Check datastream policy works correctly
     And I wait for bgps
     And I go to the test journal article view page
     And I follow "More options"
+    And I wait for "2" seconds
     And I follow "Clone Selected Record"
     And I select "Test Datastream Policy Collection" from "collection_pid"
     And I check "clone_attached_datastreams"
