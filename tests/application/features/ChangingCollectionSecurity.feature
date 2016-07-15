@@ -35,6 +35,7 @@ Feature: Changing Collection Security
     And I follow "Logout"
     And I wait for solr
     And I wait for bgps
+    And I am on the homepage
     And I fill in "Search Entry" with "title:(\"Test Community Security to be changed after pid created\")"
     And I press "search_entry_submit"
     Then I should not see "No records could be found"
@@ -49,13 +50,10 @@ Feature: Changing Collection Security
     When I follow "Edit Security for Select Record"
     Given I choose the "Masqueraders" group for the "Lister" role
     Given I choose the "Masqueraders" group for the "Viewer" role
-    And I turn off waiting checks
     And I press "Save"
-    And I switch to window ""
-    And I turn on waiting checks
     And I wait for solr
     And I wait for bgps
-    And I see "search_entry" id or wait for "2" seconds
+    And I wait for "10" seconds
     And I fill in "Search Entry" with "title:(\"Test Pid Security to be changed after pid created\")"
     And I press "search_entry_submit"
     Then I should not see "No records could be found"

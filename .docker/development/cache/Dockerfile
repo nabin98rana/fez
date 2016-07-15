@@ -6,7 +6,8 @@ RUN cd /var/cache/ && \
   mkdir templates_c && \
   mkdir xdebug && \
   mkdir tmp && \
-  mkdir dstree
+  mkdir dstree && \
+  chmod -R 777 /var/cache
 
 VOLUME /var/cache
 

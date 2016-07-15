@@ -23,6 +23,8 @@ feztestrunner:
 
 selenium:
   image: selenium/standalone-chrome-debug:2.53.0
+  environment:
+    - JAVA_OPTS=-Dselenium.LOGGER.level=WARNING
   links:
     - fez
   ports:
