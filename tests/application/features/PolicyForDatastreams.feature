@@ -56,6 +56,9 @@ Feature: Check datastream policy works correctly
     And I press "Publish"
     And I follow "Logout"
     Given I login as thesis officer
+    And I wait for "2" seconds
+    And I wait for bgps
+    And I wait for solr
     And I fill in "Search Entry" with "title:(\"Test Title Datastream policy 1\")"
     And I press "search_entry_submit"
     And I follow "Test Title Datastream policy 1"
