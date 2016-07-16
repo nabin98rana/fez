@@ -1,4 +1,4 @@
-@javascript
+@javascript @smoke
 Feature: Create test data feature
 
   @jet @only @seed

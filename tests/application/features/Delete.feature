@@ -57,6 +57,7 @@ Feature: Test that deleting communities/collections/records works correctly
     And I select "Journal Article Version MODS 1.0" from "XSD Display Document Types"
     And I select "Test Data Community" from "Member of Communities"
     And I press "Publish"
+    And I wait for "2" seconds
     And I wait for solr
     And I wait for bgps
     And I fill in "Search Entry" with "title:(\"Delete Test Collection\")"
@@ -84,6 +85,7 @@ Feature: Test that deleting communities/collections/records works correctly
     And I fill in "Name" with "Delete Test Community"
     And I select "Fedora Collection Display Version Dublin Core 1.0" from "XSD Display Document Types"
     And I press "Publish"
+    And I wait for "2" seconds
     And I wait for solr
     And I wait for bgps
     And I fill in "Search Entry" with "title:(\"Delete Test Community\")"
