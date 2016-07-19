@@ -35,6 +35,7 @@ mysql -uroot -pdevelopment -hfezdb fez < ${CONTAINER_DB_SEED_DIR}/development.sq
 mysql -uroot -pdevelopment -hfezdb fez < ${CONTAINER_DB_SEED_DIR}/workflows.sql
 mysql -uroot -pdevelopment -hfezdb fez < ${CONTAINER_DB_SEED_DIR}/xsd.sql
 mysql -uroot -pdevelopment -hfezdb fez < ${CONTAINER_DB_SEED_DIR}/jetsetup.sql
+mysql -uroot -pdevelopment -hfezdb fez < ${CONTAINER_DB_SEED_DIR}/disablesolr.sql
 
 echo Running tests..
 

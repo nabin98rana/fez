@@ -42,7 +42,7 @@ Feature: Check that all pages still give correct output
   Scenario: A user wants to do an advanced search
     Given I am on "/adv_search.php"
     And I should see "Advanced Search"
-    And I should see "All Fields"
+#    And I should see "All Fields"
     And I should see "Title"
 
   @jet

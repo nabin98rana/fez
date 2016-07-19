@@ -2055,6 +2055,12 @@ class Record
       );
     } else {
       $options = array_merge($options, $filter);
+      // if solr title search synatax used, try to imitate it, mainly for tests
+      if (is_numeric(strpos($options['searchKey0'], "title:("))) {
+        $options['searchKeycore_2'] = str_replace('title:("', '', $options['searchKey0']);
+        $options['searchKeycore_2'] = str_replace('")', '', $options['searchKeycore_2']);
+        $options['searchKey0'] = '';
+      }
     }
 
     if ($page_rows == "ALL") {

@@ -11,13 +11,13 @@ fpmtestrunner:
     PHP_IDE_CONFIG: "serverName=dev-fez.library.uq.edu.au"
     JAVA_HOME: "/usr/lib/jvm/jre"
     JHOVE_HOME: "/usr/local/jhove"
+    JET_RUN: "true"
   links:
     - fez
     - fezdb
     - fedora
     - fedoradb
     - selenium
-    - solr
   volumes_from:
     - fedoradata
     - cache
@@ -61,7 +61,6 @@ fpm:
     - fezdb
     - fedora
     - fedoradb
-    - solr
   volumes_from:
     - fedoradata
     - cache
@@ -117,14 +116,6 @@ cache:
     image: codeship_cache
     path: ./.docker/development/cache/
     dockerfile_path: Dockerfile
-
-solr:
-  build:
-    image: codeship_solr
-    dockerfile_path: Dockerfile
-    path: ./.docker/development/solr/
-  volumes_from:
-    - cache
 
 fezstaging:
   build:
