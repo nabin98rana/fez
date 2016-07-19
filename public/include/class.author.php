@@ -762,6 +762,7 @@ class Author
       }
     } else if (!empty($staff_id)) {
       $where_stmt .= " WHERE aut_org_staff_id = ".$db->quote($staff_id);
+      $where_stmt .= " OR aut_org_student_id = ".$db->quote($staff_id);
     }
 
     $start = $current_row * $max;
