@@ -38,7 +38,7 @@
  *
  * @version 1.0
  * @author Andrew Martlew <a.martlew@library.uq.edu.au>
- * 
+ *
  */
 
 include_once(APP_INC_PATH . "class.error_handler.php");
@@ -50,7 +50,7 @@ class Scopus
 {
 	function __construct()
 	{
-				
+
 	}
 
 
@@ -88,7 +88,7 @@ AND (sco_start_page = uq_start_page OR sco_end_page = uq_end_page)
 AND rek_scopus_id IS NULL
 GROUP BY rek_pid
 		".$limit;
-		
+
 		try {
 			$res = $db->fetchAll($stmt);
 		}
@@ -96,11 +96,11 @@ GROUP BY rek_pid
 			$log->err($ex);
 			return '';
 		}
-		
-		return $res;
-	}	
 
-  
+		return $res;
+	}
+
+
      /**
     * Retrieve cited by count information for a list of articles
     *
@@ -121,11 +121,11 @@ GROUP BY rek_pid
     public static function getCitedByCount($input_keys)
       {
 
-        // Developer info:  
-        //http://dev.elsevier.com/index.html 
+        // Developer info:
+        //http://dev.elsevier.com/index.html
         //http://dev.elsevier.com/tecdoc_cited_by_in_scopus.html  *Note: Scopus ID example is not quite right...
         //http://api.elsevier.com/documentation/SCOPUSSearchAPI.wadl
-            
+
         // Test input
         /*
         $input_keys = array('UQ:30031' => array('eid' => '2-s2.0-77749318564'),
@@ -155,14 +155,14 @@ GROUP BY rek_pid
           'X-ELS-APIKey: ' . APP_SCOPUS_API_KEY,
           'Accept: application/xml'
           ));
-          
-        // Set up API URL  
-        $url = 'http://api.elsevier.com/content/search/index:SCOPUS?query=';
-            
+
+        // Set up API URL
+        $url = 'https://api.elsevier.com/content/search/index:SCOPUS?query=';
+
         //  Loop through the input keys (includes PIDs and Scopus IDs) to set up the default result array
         foreach($input_keys as $pid => $v) {
           foreach($v as $type => $_v) {
-           
+
             // Build return array
             $scopus_info = array();
             $scopus_info[$type] = $_v;
@@ -173,7 +173,7 @@ GROUP BY rek_pid
             // Set default citation count to 0
             $scopus_info['citedByCount'] = 0;
             $result[$pid] = $scopus_info;
-            
+
             // Add this Scopus ID or DOI to the query string
             if ($type == 'doi') {
                 $url = $url . "doi(" . $_v . ")+OR+";
@@ -181,7 +181,7 @@ GROUP BY rek_pid
               $url = $url . "eid(" . $_v . ")+OR+";
             }
           }
-          
+
         }
         // Remove last +OR+ and add field info, start and count info, etc to URL
         $url = substr($url, 0, strlen($url)-4) . '&field=citedby-count,doi&suppressNavLinks&start=0&count=' . sizeof($input_keys);
@@ -234,13 +234,13 @@ GROUP BY rek_pid
         }
         return $result;
 
-    }	
-    
+    }
+
 	/**
 	 * Retrieve cited by count information for a list of articles
 	 *
 	 * @param array $input_keys
-	 * @return SimpleXMLElement The object containing records found in Scopus matching the input key(s) specified 
+	 * @return SimpleXMLElement The object containing records found in Scopus matching the input key(s) specified
 	 */
 
     /**
