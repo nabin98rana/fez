@@ -151,10 +151,15 @@ GROUP BY rek_pid
         // Set up Get request
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);  // Return as string
-        curl_setopt($ch, CURLOPT_HTTPHEADER, array(
-          'X-ELS-APIKey: ' . APP_SCOPUS_API_KEY,
-          'Accept: application/xml'
-          ));
+
+        $header = array(
+            'X-ELS-APIKey: ' . APP_SCOPUS_API_KEY,
+            'Accept: text/xml, application/xml'
+        );
+        if (defined("APP_SCOPUS_INSTTOKEN")) {
+          array_push($header, 'X-ELS-Insttoken: '.APP_SCOPUS_INSTTOKEN);
+        }
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $header);
 
         // Set up API URL
         $url = 'https://api.elsevier.com/content/search/index:SCOPUS?query=';
