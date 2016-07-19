@@ -50,6 +50,8 @@ class ScopusService
 
     protected $_apiKey;
 
+    protected $_insttoken;
+
     protected $_db;
 
     protected $_recSetStart = 0;
@@ -356,10 +358,14 @@ class ScopusService
         $curlHandle = curl_init(SCOPUS_WS_BASE_URL . $uri);
         curl_setopt($curlHandle, CURLOPT_SSL_VERIFYPEER, FALSE);
         curl_setopt($curlHandle, CURLOPT_SSL_VERIFYHOST, FALSE);
-        curl_setopt($curlHandle, CURLOPT_HTTPHEADER, array(
+        $header = array(
             'X-ELS-APIKey: ' . $this->_apiKey,
             'Accept: text/xml, application/atom+xml'
-        ));
+        );
+        if (defined("APP_SCOPUS_INSTTOKEN")) {
+          array_push($header, 'X-ELS-Insttoken: '.APP_SCOPUS_INSTTOKEN);
+        }
+        curl_setopt($curlHandle, CURLOPT_HTTPHEADER, $header);
         curl_setopt($curlHandle, CURLOPT_RETURNTRANSFER, true);
         $curlResponse = curl_exec($curlHandle);
 
