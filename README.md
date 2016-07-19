@@ -42,8 +42,8 @@ Once the script has completed you can now login:
 
 [http://dev-fez.library.uq.edu.au:8080/login.php](http://dev-fez.library.uq.edu.au:8080/login.php)
 
-u: superadmin_test
-p: Ilovedonkey5
+    u: superadmin_test
+    p: Ilovedonkey5
 
 Run the sanity checks:
 
