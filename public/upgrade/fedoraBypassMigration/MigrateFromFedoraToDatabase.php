@@ -436,6 +436,7 @@ class MigrateFromFedoraToDatabase
 
         $limit = 1;  // how many pids per process
         $loop  = 2;  // how many times we want to loop
+        $start = 0;
         for($i = 0; $start < $totalPids && $i < $loop; $i++){
             if ($i == 0){
                 $start = $i;
@@ -557,7 +558,7 @@ class MigrateFromFedoraToDatabase
             $this->_upgradeHelper->parse_mysql_dump($file);
             echo chr(10) . "<br />Successfully created permissions table";
         } catch(Exception $e) {
-            echo "\n<br> Failed updating datastream tables. file = ". $file . " Ex: " . $ex;
+            echo "\n<br> Failed updating datastream tables. file = ". $file . " Ex: " . $e;
             return false;
         }
         return true;
@@ -577,7 +578,7 @@ class MigrateFromFedoraToDatabase
             $this->_upgradeHelper->parse_mysql_dump($file);
             echo chr(10) . "\n<br />Successfully created Digital Object table";
         } catch(Exception $e) {
-            echo "\n<br> Failed creating Digital Object tables. file = ". $file . " Ex: " . $ex;
+            echo "\n<br> Failed creating Digital Object tables. file = ". $file . " Ex: " . $e->getMessage();
             return false;
         }
 
@@ -589,7 +590,7 @@ class MigrateFromFedoraToDatabase
             $this->_upgradeHelper->parse_mysql_dump($file);
             echo chr(10) . "\n<br />Successfully created File attachment  table";
         } catch(Exception $e) {
-            echo "\n<br> Failed creating File attachment tables. file = ". $file . " Ex: " . $ex;
+            echo "\n<br> Failed creating File attachment tables. file = ". $file . " Ex: " . $e->getMessage();
             return false;
         }
 
@@ -601,7 +602,7 @@ class MigrateFromFedoraToDatabase
             $this->_upgradeHelper->parse_mysql_dump($file);
             echo chr(10) . "<br />Successfully updating rek_inherited_security";
         } catch(Exception $e) {
-            echo "\n<br> Failed updating rek_inherited_security. file = ". $file . " Ex: " . $ex;
+            echo "\n<br> Failed updating rek_inherited_security. file = ". $file . " Ex: " . $e->getMessage();
             return false;
         }
 
@@ -612,7 +613,7 @@ class MigrateFromFedoraToDatabase
             $this->_upgradeHelper->parse_mysql_dump($file);
             echo chr(10) . "\n<br />Successfully added auth quick rules table";
         } catch(Exception $e) {
-            echo "\n<br /> Failed updating auth quick rules tables. file = ". $file . " Ex: " . $ex;
+            echo "\n<br /> Failed updating auth quick rules tables. file = ". $file . " Ex: " . $e->getMessage();
             return false;
         }
         ob_flush();
