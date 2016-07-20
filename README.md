@@ -60,6 +60,11 @@ To run the tests:
     
 To visually see the functional tests running in a browser, VNC into dev-fez.library.uq.edu.au:5900 with
 the password `secret`.
+
+You can also run the tests using Codeship Jet:
+
+    $ cd /path/to/repo
+    $ jet steps
     
 ## Useful Links
 
