@@ -34,14 +34,19 @@
 //
 //
 
+array_shift($argv);
+$ARGS = $argv;
+$tasks = (@$ARGS[0]) ? @$ARGS[0] : 'schema';
+
 chdir(dirname(__FILE__));
-runDatabaseTasks();
+runDatabaseTasks($tasks);
 
 /**
  * This method creates the database (if necessary), and sets up all tables & start-up data.
- *
+ * @param String $tasks
+ * @return String
  */
-function runDatabaseTasks() {
+function runDatabaseTasks($tasks) {
 
   $host       = 'fezdb';
   $database   = 'fez';
@@ -66,23 +71,42 @@ function runDatabaseTasks() {
       }
     }
   }
-  parseMySQLdump($conn, "./../../public/setup/schema.sql");
-  parseMySQLdump($conn, "./../../public/setup/data.sql");
+
+  switch ($tasks) {
+    case 'schema':
+      $path = './../../public/setup/';
+      parseMySQLdump($conn, $path . "schema.sql");
+      parseMySQLdump($conn, $path . "data.sql");
+      break;
+    case 'seed':
+      runSeed($conn);
+      break;
+    default:
+      break;
+  }
+
+  return "Run complete";
 }
 
 /**
  * This method grabs an SQL dump file and runs whatever it finds inside. Thrills for the whole family!
- *
+ * @param PDO $conn
+ * @param String $url
+ * @param Bool $ignoreerrors
+ * @return String
  */
 function parseMySQLdump($conn, $url, $ignoreerrors = false) {
   $file_content = file($url);
   $query = "";
   foreach($file_content as $ln => $sql_line) {
     $sql_line = str_replace('%TABLE_PREFIX%', 'fez_', $sql_line);
+    $sql_line = str_replace('%AWS_ACCESS_KEY_ID%', @$_SERVER['AWS_ACCESS_KEY_ID'], $sql_line);
+    $sql_line = str_replace('%AWS_SECRET_ACCESS_KEY%', @$_SERVER['AWS_SECRET_ACCESS_KEY'], $sql_line);
+
     $tsl = trim($sql_line);
     if (($sql_line != "") && (substr($tsl, 0, 2) != "--") && (substr($tsl, 0, 1) != "#")) {
       $query .= $sql_line;
-      if(preg_match("/;\s*$/", $sql_line)) {
+      if(preg_match("/;\\s*$/", $sql_line)) {
         $result = $conn->query($query);
         if (!$result && !$ignoreerrors) {
           return $conn->errorInfo();
@@ -95,3 +119,17 @@ function parseMySQLdump($conn, $url, $ignoreerrors = false) {
   return "";
 }
 
+/**
+ * @param PDO $conn
+ */
+function runSeed($conn) {
+  $path = './../../.docker/development/backend/db/seed/';
+  parseMySQLdump($conn, $path . "installdb.sql");
+  parseMySQLdump($conn, $path . "citation.sql");
+  parseMySQLdump($conn, $path . "cvs.sql");
+  parseMySQLdump($conn, $path . "development.sql");
+  parseMySQLdump($conn, $path . "workflows.sql");
+  parseMySQLdump($conn, $path . "xsd.sql");
+  //parseMySQLdump($conn, $path . "aws.sql");
+  // TODO(am): Purge existing S3 folders/files and recreate structure
+}
