@@ -11,10 +11,16 @@ class bookReaderPDFConverter
     private $sourceFileStat = array();
     private $log;
     private $queue = array();
+    var $useS3;
 
     public function __construct()
     {
         $this->log = FezLog::get();
+        if (defined('AWS_S3_ENABLED') && AWS_S3_ENABLED == 'true') {
+          $this->useS3 = true;
+        } else {
+          $this->useS3 = false;
+        }
     }
 
     /**
