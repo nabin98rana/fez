@@ -47,7 +47,7 @@ if [ "${UPGRADE_RES}" == "" ]; then
   exit 1
 fi
 
-docker exec development_fezdevelopmentrunner_1 sh -c 'export AWS_ACCESS_KEY_ID='"'${AWS_ACCESS_KEY_ID}'"' && export AWS_SECRET_ACCESS_KEY='"'${AWS_SECRET_ACCESS_KEY}'"' && cd '"'${CONTAINER_BASE_DIR}/tests/application'"' && php init.php seed'
+docker exec development_fezdevelopmentrunner_1 sh -c 'export AWS_ACCESS_KEY_ID='"'${AWS_ACCESS_KEY_ID}'"' && export AWS_SECRET_ACCESS_KEY='"'${AWS_SECRET_ACCESS_KEY}'"' && export FEZ_S3_BUCKET='"'${FEZ_S3_BUCKET}'"' && export FEZ_S3_SRC_PREFIX='"'${FEZ_S3_SRC_PREFIX}'"' && cd '"'${CONTAINER_BASE_DIR}/tests/application'"' && php init.php seed'
 
 # Optionally seed dev by running tests tagged with @seed
 # docker exec development_fezdevelopmentrunner_1 sh -c 'cd '"'${CONTAINER_BASE_DIR}/tests/application'"' && ./seed-development.sh'
