@@ -1,0 +1,9 @@
+UPDATE fez_config SET config_value = 'true' WHERE config_name = 'aws_enabled';
+UPDATE fez_config SET config_value = 'true' WHERE config_name = 'aws_s3_enabled';
+UPDATE fez_config SET config_value = '%AWS_ACCESS_KEY_ID%' WHERE config_name = 'aws_key';
+UPDATE fez_config SET config_value = '%AWS_SECRET_ACCESS_KEY%' WHERE config_name = 'aws_secret';
+UPDATE fez_config SET config_value = 'uql-fez-dev' WHERE config_name = 'aws_s3_bucket';
+UPDATE fez_config SET config_value = '' WHERE config_name = 'aws_s3_san_import_bucket';
+UPDATE fez_config SET config_value = '' WHERE config_name = 'aws_file_serve_url';
+UPDATE fez_config SET config_value = '' WHERE config_name = 'aws_cf_private_key_file';
+UPDATE fez_config SET config_value = '' WHERE config_name = 'aws_cf_key_pair_id';

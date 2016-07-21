@@ -40,20 +40,14 @@ if [ ! -f "../../public/config.inc.php" ]; then
 fi
 
 echo Creating dev environment..
-docker exec development_fezdevelopmentrunner_1 sh -c 'cd '"'${CONTAINER_BASE_DIR}/tests/application'"' && php init.php'
+docker exec development_fezdevelopmentrunner_1 sh -c 'cd '"'${CONTAINER_BASE_DIR}/tests/application'"' && php init.php schema'
 UPGRADE_RES=$(curl -s http://${VIRTUAL_HOST}:8080/upgrade/index.php?upgradeOnly=1 | grep succeeded)
 if [ "${UPGRADE_RES}" == "" ]; then
   echo "failed to run upgrade scripts! :("
   exit 1
 fi
 
-CONTAINER_DB_SEED_DIR=${CONTAINER_BASE_DIR}/.docker/development/backend/db/seed
-docker exec development_fezdb_1 sh -c 'mysql -uroot -pdevelopment -hlocalhost mysql < '"'${CONTAINER_DB_SEED_DIR}/installdb.sql'"''
-docker exec development_fezdb_1 sh -c 'mysql -uroot -pdevelopment -hlocalhost fez < '"'${CONTAINER_DB_SEED_DIR}/citation.sql'"''
-docker exec development_fezdb_1 sh -c 'mysql -uroot -pdevelopment -hlocalhost fez < '"'${CONTAINER_DB_SEED_DIR}/cvs.sql'"''
-docker exec development_fezdb_1 sh -c 'mysql -uroot -pdevelopment -hlocalhost fez < '"'${CONTAINER_DB_SEED_DIR}/development.sql'"''
-docker exec development_fezdb_1 sh -c 'mysql -uroot -pdevelopment -hlocalhost fez < '"'${CONTAINER_DB_SEED_DIR}/workflows.sql'"''
-docker exec development_fezdb_1 sh -c 'mysql -uroot -pdevelopment -hlocalhost fez < '"'${CONTAINER_DB_SEED_DIR}/xsd.sql'"''
+docker exec development_fezdevelopmentrunner_1 sh -c 'export AWS_ACCESS_KEY_ID='"'${AWS_ACCESS_KEY_ID}'"' && export AWS_SECRET_ACCESS_KEY='"'${AWS_SECRET_ACCESS_KEY}'"' && cd '"'${CONTAINER_BASE_DIR}/tests/application'"' && php init.php seed'
 
 # Optionally seed dev by running tests tagged with @seed
 # docker exec development_fezdevelopmentrunner_1 sh -c 'cd '"'${CONTAINER_BASE_DIR}/tests/application'"' && ./seed-development.sh'
