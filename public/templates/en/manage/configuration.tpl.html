@@ -2557,6 +2557,14 @@ function restoreDefaultColours(el)
 						</td>
 					</tr>
 					<tr>
+						<th>S3 Src Prefix</th>
+						<td>
+							<input type="text" name="aws_s3_src_prefix" value="{$config_settings.aws_s3_src_prefix}" size="100" />
+							<br />Optional prefix for all S3 src paths.
+							{include file="error_icon.tpl.html" field="aws_s3_src_prefix"}
+						</td>
+					</tr>
+					<tr>
 						<th>SAN Import S3 Bucket</th>
 						<td>
 							<input type="text" name="aws_s3_san_import_bucket" value="{$config_settings.aws_s3_san_import_bucket}" size="100" />

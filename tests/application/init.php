@@ -92,23 +92,25 @@ function runDatabaseTasks($tasks) {
  * This method grabs an SQL dump file and runs whatever it finds inside. Thrills for the whole family!
  * @param PDO $conn
  * @param String $url
- * @param Bool $ignoreerrors
+ * @param Bool $ignoreErrors
  * @return String
  */
-function parseMySQLdump($conn, $url, $ignoreerrors = false) {
+function parseMySQLdump($conn, $url, $ignoreErrors = false) {
   $file_content = file($url);
   $query = "";
   foreach($file_content as $ln => $sql_line) {
     $sql_line = str_replace('%TABLE_PREFIX%', 'fez_', $sql_line);
     $sql_line = str_replace('%AWS_ACCESS_KEY_ID%', @$_SERVER['AWS_ACCESS_KEY_ID'], $sql_line);
     $sql_line = str_replace('%AWS_SECRET_ACCESS_KEY%', @$_SERVER['AWS_SECRET_ACCESS_KEY'], $sql_line);
+    $sql_line = str_replace('%FEZ_S3_BUCKET%', @$_SERVER['FEZ_S3_BUCKET'], $sql_line);
+    $sql_line = str_replace('%FEZ_S3_SRC_PREFIX%', @$_SERVER['FEZ_S3_SRC_PREFIX'], $sql_line);
 
     $tsl = trim($sql_line);
     if (($sql_line != "") && (substr($tsl, 0, 2) != "--") && (substr($tsl, 0, 1) != "#")) {
       $query .= $sql_line;
       if(preg_match("/;\\s*$/", $sql_line)) {
         $result = $conn->query($query);
-        if (!$result && !$ignoreerrors) {
+        if (!$result && !$ignoreErrors) {
           return $conn->errorInfo();
         }
         $query = "";
@@ -130,6 +132,55 @@ function runSeed($conn) {
   parseMySQLdump($conn, $path . "development.sql");
   parseMySQLdump($conn, $path . "workflows.sql");
   parseMySQLdump($conn, $path . "xsd.sql");
-  //parseMySQLdump($conn, $path . "aws.sql");
-  // TODO(am): Purge existing S3 folders/files and recreate structure
+
+  // Finished unless AWS environment is configured
+  if (
+    !(
+      array_key_exists('AWS_ACCESS_KEY_ID', $_SERVER) &&
+      array_key_exists('AWS_SECRET_ACCESS_KEY', $_SERVER) &&
+      array_key_exists('FEZ_S3_BUCKET', $_SERVER) &&
+      array_key_exists('FEZ_S3_SRC_PREFIX', $_SERVER) &&
+      (
+        strpos($_SERVER['FEZ_S3_BUCKET'], 'uql-fez-dev') === 0 ||
+        strpos($_SERVER['FEZ_S3_BUCKET'], 'uql-fez-testing') === 0
+      )
+    )
+  ) {
+    return;
+  }
+
+  // Dev bucket requires a prefix as it's shared amongst multiple developers
+  if (
+    $_SERVER['FEZ_S3_BUCKET'] === 'uql-fez-dev' &&
+    empty($_SERVER['FEZ_S3_SRC_PREFIX'])
+  ) {
+    return;
+  }
+
+  parseMySQLdump($conn, $path . "aws.sql");
+  include_once './../../public/config.inc.php';
+  $aws = AWS::get();
+  $prefixes = ['cache', 'data', 'mail', 'san_import', 'sitemap', 'solr_upload'];
+  foreach ($prefixes as $p) {
+    $aws->deleteMatchingObjects($p);
+    $aws->putObject($p . '/');
+  }
+
+  include_once(APP_INC_PATH . "/../upgrade/fedoraBypassMigration/MigrateFromFedoraToDatabase.php");
+  $migrate = new MigrateFromFedoraToDatabase();
+
+  $db = DB_API::get();
+  try {
+    $db->exec("UPDATE " . APP_TABLE_PREFIX . "config " .
+      " SET config_value = 'ON' " .
+      " WHERE config_name='app_fedora_bypass'");
+    $db->exec("UPDATE " . APP_TABLE_PREFIX . "config " .
+      " SET config_value = 'UQ' " .
+      " WHERE config_name='app_pid_namespace'");
+    $db->exec("UPDATE " . APP_TABLE_PREFIX . "config " .
+      " SET config_value = 'ON' " .
+      " WHERE config_name='app_xsdmf_index_switch'");
+  } catch (Exception $ex) {
+    return;
+  }
 }

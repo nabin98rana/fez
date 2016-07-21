@@ -23,9 +23,14 @@ class AWS
 
 
   /**
-   * @var s3Bucket
+   * @var String
    */
   private $s3Bucket;
+
+  /**
+   * @var String
+   */
+  private $s3SrcPrefix;
 
   /**
    * @var int
@@ -35,7 +40,7 @@ class AWS
   /**
    * AWS constructor.
    */
-  public function __construct($s3Bucket = AWS_S3_BUCKET) {
+  public function __construct($s3Bucket = AWS_S3_BUCKET, $s3SrcPrefix = AWS_S3_SRC_PREFIX) {
     $this->log = FezLog::get();
     $this->sdk = new Aws\Sdk([
       'region'  => AWS_REGION,
@@ -43,6 +48,7 @@ class AWS
     ]);
     $this->launchedTasks = 0;
     $this->s3Bucket = $s3Bucket;
+    $this->s3SrcPrefix = $s3SrcPrefix;
     putenv("AWS_ACCESS_KEY_ID=" . AWS_KEY);
     putenv("AWS_SECRET_ACCESS_KEY=" . AWS_SECRET);
   }
@@ -198,9 +204,8 @@ class AWS
 
 
   /**
-   * @param string $taskDefinition
-   * @param string $task
-   * @param int $count
+   * @param string $taskARN
+   * @param string $family
    * @return \Aws\Result|bool
    */
   public function isTaskRunning($taskARN, $family) {
@@ -231,7 +236,7 @@ class AWS
 
   /**
    * @param string $src
-   * @param array of full file path strings $files
+   * @param array $files array of full file path strings $files
    * @return boolean
    */
   public function postFile($src, $files)
@@ -256,7 +261,7 @@ class AWS
       }
       $baseFile = basename($file);
       $mimeType = Misc::mime_content_type($file);
-
+      $key = $this->createPath($src, $baseFile);
       $meta = [
           'key'  => $baseFile,
           'type' => $mimeType,
@@ -266,7 +271,7 @@ class AWS
       try {
         $client->putObject([
             'Bucket' => $this->s3Bucket,
-            'Key' => $src . '/' . $baseFile,
+            'Key' => $key,
             'SourceFile' => $file,
             'ContentType' => $mimeType,
             'ServerSideEncryption' => 'AES256',
@@ -285,7 +290,8 @@ class AWS
   /**
    * @param string $src
    * @param string $content
-   * @param string $filename
+   * @param string $fileName
+   * @param string $mimeType
    * @return boolean
    */
   public function postContent($src, $content, $fileName, $mimeType)
@@ -317,9 +323,10 @@ class AWS
     ];
 
     try {
+      $key = $this->createPath($src, $fileName);
       $client->putObject([
           'Bucket' => $this->s3Bucket,
-          'Key' => $src . '/' . $fileName,
+          'Key' => $key,
           'Body' => $content,
           'ContentType' => $mimeType,
           'ServerSideEncryption' => 'AES256',
@@ -342,7 +349,10 @@ class AWS
   public function getById($src, $id)
   {
     $id = basename($id);
-    $resource = AWS_FILE_SERVE_URL . '/' . $src . '/' . $id;
+    $src = empty($this->s3SrcPrefix) ? $src : $this->s3SrcPrefix . '/' . $src;
+    $src = rtrim($src, '/');
+    $path = $this->createPath($src, $id);
+    $resource = AWS_FILE_SERVE_URL . '/' . $path;
 
     // expiration date must be in Unix time format and Coordinated Universal Time (UTC)
     date_default_timezone_set('UTC');
@@ -363,6 +373,7 @@ class AWS
   public function deleteMatchingObjects($match) {
     if (strlen($match) > 1) {
       try {
+        $match = $this->createPath('', $match);
         $client = $this->sdk->createS3();
         $client->deleteMatchingObjects($this->s3Bucket, $match);
       } catch (\Aws\S3\Exception\S3Exception $e) {
@@ -376,13 +387,14 @@ class AWS
   }
 
   /**
-   * @param string $src - the path inside the bucket
+   * @param string $path - the path inside the bucket
    * @return array  - iterator
    */
   public function listObjects($path) {
     $iterator = array();
     try {
       $client = $this->sdk->createS3();
+      $path = $this->createPath($path, '');
       $iterator = $client->getIterator('ListObjects', array(
           'Bucket' => $this->s3Bucket,
           "Prefix" => $path . '/'
@@ -401,6 +413,7 @@ class AWS
   public function getObject($key, $versionId = NULL) {
     try {
       $client = $this->sdk->createS3();
+      $key = $this->createPath($key, '');
       $args = array(
           'Bucket' => $this->s3Bucket,
           'Key' => $key,
@@ -417,6 +430,28 @@ class AWS
   }
 
   /**
+   * @param string $prefix
+   * @return boolean
+   */
+  public function putObject($prefix)
+  {
+    // Create an Amazon S3 client using the shared configuration data.
+    $client = $this->sdk->createS3();
+     $key = $this->createPath('', $prefix);
+    try {
+      $client->putObject([
+        'Bucket' => $this->s3Bucket,
+        'Key' => $key,
+      ]);
+    } catch (\Aws\S3\Exception\S3Exception $e) {
+      $this->log->err($e->getMessage());
+      return false;
+    }
+
+    return true;
+  }
+
+  /**
    * @param string $src
    * @param string $id
    * @return boolean
@@ -425,7 +460,8 @@ class AWS
     $id = basename($id);
     try {
       $client = $this->sdk->createS3();
-      $found = $client->doesObjectExist($this->s3Bucket, $src . '/' . $id);
+      $path = $this->createPath($src, $id);
+      $found = $client->doesObjectExist($this->s3Bucket, $path);
     } catch (\Aws\S3\Exception\S3Exception $e) {
       $this->log->err($e->getMessage());
       return false;
@@ -442,10 +478,11 @@ class AWS
     $id = basename($id);
     try {
       $client = $this->sdk->createS3();
+      $key = $this->createPath($src, $id);
       $client->deleteObject(
         array(
             'Bucket' => $this->s3Bucket,
-            'Key'    => $src . '/' . $id
+            'Key'    => $key
         ));
     } catch (\Aws\S3\Exception\S3Exception $e) {
       $this->log->err($e->getMessage());
@@ -463,31 +500,33 @@ class AWS
     $id = basename($id);
     try {
       $client = $this->sdk->createS3();
-
+      $prefix = $this->createPath($src, $id);
       // get all versions of the key
       $versions = $client->listObjectVersions(array(
           'Bucket' => $this->s3Bucket,
-          'Prefix'       =>  $src . '/' . $id,
+          'Prefix' =>  $prefix,
       ))->getPath('Versions');
 
       // clean out anything we got back that isn't this ID
       $cleanVersions = array();
       foreach ($versions as $dv) {
-        if ($dv['Key'] == $src . '/' . $id) {
+        if ($dv['Key'] == $prefix) {
           $cleanVersions[] = $dv;
         }
       }
       // delete all the versions
-      $result = $client->deleteObjects(array(
-          'Bucket'  => $this->s3Bucket,
+      if (count($cleanVersions) > 0) {
+        $result = $client->deleteObjects(array(
+          'Bucket' => $this->s3Bucket,
           'Delete' => [
             'Objects' => array_map(function ($version) {
               return array(
-                  'Key'       => $version['Key'],
-                  'VersionId' => $version['VersionId']
+                'Key' => $version['Key'],
+                'VersionId' => $version['VersionId']
               );
             }, $cleanVersions),
-      ]));
+          ]));
+      }
     } catch (\Aws\S3\Exception\S3Exception $e) {
       $this->log->err($e->getMessage());
       return false;
@@ -495,37 +534,36 @@ class AWS
     return true;
   }
 
-
-
-
   /**
    * @param string $src
    * @param string $id
    * @param string $newSrc
-   * @param string @newId
-   * @param string @newLabel
+   * @param string $newId
+   * @param string $newLabel
    * @return boolean
    */
   public function rename($src, $id, $newSrc, $newId, $newLabel) {
     $id = basename($id);
     try {
       $client = $this->sdk->createS3();
+      $key = $this->createPath($src, $id);
+      $newKey = $this->createPath($newSrc, $newId);
       //TODO: may need to add 'label' metadata as new param inputs
       $client->copyObject(
           array(
               'Bucket' => $this->s3Bucket,
-              'Key'    => $src . '/' . $id
+              'Key'    => $key
           ),
           array(
               'Bucket' => $this->s3Bucket,
-              'Key'    => $newSrc . '/' . $newId
+              'Key'    => $newKey
           )
       );
 
       $client->deleteObject(
           array(
               'Bucket' => $this->s3Bucket,
-              'Key'    => $src . '/' . $id
+              'Key'    => $key
           ));
     } catch (\Aws\S3\Exception\S3Exception $e) {
       $this->log->err($e->getMessage());
@@ -538,16 +576,16 @@ class AWS
   /**
    * @param string $src
    * @param string $id
-   * @return Json Response
+   * @return String Response
    */
   public function getMetadata($src, $id)
   {
     try {
       $client = $this->sdk->createS3();
-
+      $key = $this->createPath($src, $id);
       $result = $client->getObject(array(
           'Bucket' => $this->s3Bucket,
-          'Key' => $src . '/'. $id
+          'Key' => $key
       ));
     } catch (\Aws\S3\Exception\S3Exception $e) {
       $this->log->err($e->getMessage());
@@ -560,14 +598,13 @@ class AWS
    * @param string $src
    * @param string $id
    * @param array $params
-   * @return Json Response
+   * @return String Response
    */
   public function getFileContent($src, $id, $params = [])
   {
     try {
       $client = $this->sdk->createS3();
-      $key = empty($src) ? $id :  $src . '/' . $id;
-
+      $key = $this->createPath($src, $id);
       $args = array(
           'Bucket' => $this->s3Bucket,
           'Key' => $key
@@ -592,7 +629,7 @@ class AWS
     $objects = [];
     try {
       $client = $this->sdk->createS3();
-
+      $prefix = $this->createPath($prefix, '');
       $result = $client->listObjects([
         'Bucket' => $this->s3Bucket,
         'Prefix' => $prefix,
@@ -679,6 +716,17 @@ class AWS
     );
   }
 
-
+  /**
+   * @param string $src
+   * @param string $id
+   * @return string
+   */
+  private function createPath($src, $id)
+  {
+    $src = empty($this->s3SrcPrefix) ? $src : $this->s3SrcPrefix . '/' . $src;
+    $src = rtrim($src, '/');
+    $path = empty($id) ? $src : $src . '/' . $id;
+    return $path;
+  }
 
 }
