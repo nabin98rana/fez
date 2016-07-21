@@ -6,6 +6,8 @@ fezdevelopmentrunner:
     - JHOVE_HOME=/usr/local/jhove
     - AWS_ACCESS_KEY_ID
     - AWS_SECRET_ACCESS_KEY
+    - FEZ_S3_BUCKET
+    - FEZ_S3_SRC_PREFIX
   links:
     - cache
     - fez
@@ -62,6 +64,8 @@ fpm:
     - COMMIT_HASH
     - AWS_ACCESS_KEY_ID
     - AWS_SECRET_ACCESS_KEY
+    - FEZ_S3_BUCKET
+    - FEZ_S3_SRC_PREFIX
     - WEBCRON_TOKEN=southpark
   links:
     - fezdb
