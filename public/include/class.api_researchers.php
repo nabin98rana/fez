@@ -40,6 +40,7 @@
  */
 
 include_once(APP_INC_PATH . "class.crossref.php");
+include_once(APP_INC_PATH . "class.author.php");
 
 class ApiResearchers
 {
@@ -276,6 +277,12 @@ aut_people_australia_id, aut_description, aut_orcid_id, aut_google_scholar_id, a
             return false;
         }
 
+        //first check author ID exists so it doesnt try to update where author ID is '' (slow/buggy)
+        $authorId = Author::getIDByUsername($authorUsername);
+        if (!is_numeric($authorId)) {
+          return false;
+        }
+
         $stmt = "UPDATE  " . APP_TABLE_PREFIX . "author
             SET " . $column . " = " . $db->quote($id) . "
             WHERE aut_org_username = " . $db->quote($authorUsername);
@@ -295,6 +302,10 @@ aut_people_australia_id, aut_description, aut_orcid_id, aut_google_scholar_id, a
     }
 
     public static function onOrcidChange($authorId, $newOrcid) {
+
+        if (!is_numeric($authorId)) {
+          return false;
+        }
         if(empty($newOrcid)) {
             ApiResearchers::deleteGrants($authorId);
         }
