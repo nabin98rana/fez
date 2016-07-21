@@ -7,6 +7,7 @@ include_once(APP_INC_PATH . "class.dsresource.php");
 class bookReaderPDFConverter
 {
     private $bookreaderDataPath;
+    private $s3bookreaderDataPath;
     private $sourceFilePath;
     private $sourceFileStat = array();
     private $log;
@@ -56,7 +57,14 @@ class bookReaderPDFConverter
         {
             $this->sourceInfo();
         }
-        $this->bookreaderDataPath = APP_PATH . BR_IMG_DIR . $pid . '/' . $this->sourceFileStat['filename'];
+
+        //If this is to store in s3, save to a temp folder mirroring the non-s3 path
+        if ($this->useS3) {
+          $this->bookreaderDataPath = APP_TMP_DIR . $pid . '/' . $this->sourceFileStat['filename'];
+          $this->s3bookreaderDataPath = BR_IMG_DIR . $pid . '/' . $this->sourceFileStat['filename'];
+        } else {
+          $this->bookreaderDataPath = APP_PATH . BR_IMG_DIR . $pid . '/' . $this->sourceFileStat['filename'];
+        }
     }
 
     /**
@@ -80,7 +88,7 @@ class bookReaderPDFConverter
     {
         $q = array();
 
-        if(APP_FEDORA_BYPASS == 'ON')
+        if(APP_FEDORA_BYPASS == 'ON' && !$this->useS3)
         {
             $dsr = new DSResource();
             $datastreams = $dsr->listStreams($pid);
@@ -122,16 +130,23 @@ class bookReaderPDFConverter
      */
     public function resourceGenerated($resourcePath)
     {
-        if(is_dir($resourcePath))
-        {
-            $pageCount = count(array_filter(scandir($resourcePath),
-                          array($this, 'ct')));
-        }
-        else
-        {
-            $pageCount = 0;
-        }
 
+        if ($this->useS3) {
+          $aws = AWS::get();
+          $objects = $aws->listObjects($resourcePath);
+          $pageCount = count($objects);
+
+        } else {
+          if(is_dir($resourcePath))
+          {
+            $pageCount = count(array_filter(scandir($resourcePath),
+                array($this, 'ct')));
+          }
+          else
+          {
+            $pageCount = 0;
+          }
+        }
         return ($pageCount > 0) ? true : false;
     }
 
@@ -256,45 +271,29 @@ class bookReaderPDFConverter
     }
 
     /**
-     * Perform a conversion of the PDF to png format. One image per page.
-     * @return void
-     *
-     */
-    protected function pdfToPng()
-    {
-        $this->makePath();
-        if(is_writable($this->bookreaderDataPath))
-        {
-            $cmd = GHOSTSCRIPT_PTH . ' -q -dBATCH -dNOPAUSE -sDEVICE=png16m -r150 -sOutputFile=' .
-                   $this->bookreaderDataPath . '/' . $this->sourceFileStat['filename'] . '-%04d.png ' .
-                   realpath($this->sourceFilePath);
-            shell_exec(escapeshellcmd($cmd));
-        }
-        else
-        {
-            $this->log->err('Unable to write page images to directory:' . __FILE__ . ':' . __LINE__);
-        }
-    }
-
-    /**
      * Perform a conversion of the PDF to jpg format. One image per page.
      * @return void
      *
      */
     protected function pdfToJpg()
     {
-        $this->makePath();
-        if(is_writable($this->bookreaderDataPath))
-        {
-            $cmd = GHOSTSCRIPT_PTH . ' -q -dBATCH -dNOPAUSE -dJPEGQ=80 -sDEVICE=jpeg -r150 -sOutputFile=' .
-                   $this->bookreaderDataPath . '/' . $this->sourceFileStat['filename'] . '-%04d.jpg ' .
-                   realpath($this->sourceFilePath);
 
-            shell_exec(escapeshellcmd($cmd));
-        }
-        else
-        {
-            $this->log->err('Unable to write page images to directory:' . __FILE__ . ':' . __LINE__);
-        }
+      $this->makePath();
+      if ($this->useS3 == true || is_writable($this->bookreaderDataPath)) {
+        $cmd = GHOSTSCRIPT_PTH . ' -q -dBATCH -dNOPAUSE -dJPEGQ=80 -sDEVICE=jpeg -r150 -sOutputFile=' .
+            $this->bookreaderDataPath . '/' . $this->sourceFileStat['filename'] . '-%04d.jpg ' .
+            realpath($this->sourceFilePath);
+
+        shell_exec(escapeshellcmd($cmd));
+      } else {
+        $this->log->err('Unable to write page images to directory:' . __FILE__ . ':' . __LINE__);
+      }
+      // if using s3, it will have put the page images into a temp dir, now they need uploading
+      if ($this->useS3) {
+        $aws = AWS::get();
+        //upload the files (and tell postFile to delete them after each upload is a success)
+        $files = Misc::getFileList($this->bookreaderDataPath, true, false);
+        $aws->postFile($this->bookreaderDataPath, $files, true);
+      }
     }
 }
