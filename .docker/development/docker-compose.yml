@@ -58,6 +58,8 @@ fpm:
   environment:
     - APP_ENVIRONMENT=development
     - XDEBUG_CONFIG=idekey=fez
+    #XDEBUG_REMOTE_HOST gets set in dev.sh to your ip
+    - XDEBUG_REMOTE_HOST
     - PHP_IDE_CONFIG=serverName=dev-fez.library.uq.edu.au
     - JAVA_HOME=/usr/lib/jvm/jre
     - JHOVE_HOME=/usr/local/jhove
