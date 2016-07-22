@@ -1,6 +1,6 @@
 CREATE TABLE IF NOT EXISTS %TABLE_PREFIX%auth_quick_rules (
   qac_id int(11) unsigned NOT NULL DEFAULT '0',
-  qac_role int(11) DEFAULT NULL,
+  qac_aro_role int(11) DEFAULT NULL,
   qac_arg_id int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
