@@ -13,6 +13,8 @@ Feature: Test that the history for pids is working
     And I select "Article" from "Sub-type"
     And I check "Copyright Agreement"
     And I select "2010" from "Publication date"
+    And I select "10" from "Publication date month"
+    And I select "20" from "Publication date day"
     And I press "Submit for Approval"
     And I follow "/view/"
     And I follow "Detailed History"
