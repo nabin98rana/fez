@@ -20,6 +20,7 @@ fpmtestrunner:
     - fedoradb
     - selenium
   volumes_from:
+    - fezcode
     - fedoradata
     - cache
   cached: true
@@ -55,6 +56,7 @@ fezcode:
 fpm:
   build:
     dockerfile_path: "Dockerfile"
+    path: ./.docker/development/backend/fpm/
   #encrypted_env_file: ./.codeship/dockerenv.encrypted
   environment:
     APP_ENVIRONMENT: "testing"
@@ -68,6 +70,7 @@ fpm:
     - fedoradb
   volumes_from:
     - fedoradata
+    - fezcode
     - cache
   cached: true
 
