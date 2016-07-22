@@ -407,7 +407,7 @@ class AuthNoFedoraDatastreams {
         $log = FezLog::get();
         $db = DB_API::get();
 
-        $stmt = "SELECT qac_aro_role, argr_ar_id FROM ". APP_TABLE_PREFIX . "auth_quick_rules_pid
+        $stmt = "SELECT qac_aro_id, argr_ar_id FROM ". APP_TABLE_PREFIX . "auth_quick_rules_pid
             INNER JOIN ". APP_TABLE_PREFIX . "auth_quick_rules ON qrp_qac_id = qac_id
             LEFT JOIN ". APP_TABLE_PREFIX . "auth_rule_group_rules
             ON argr_arg_id = qac_arg_id
@@ -515,7 +515,7 @@ class AuthNoFedoraDatastreams {
             AuthNoFedoraDatastreams::deletePermissions($did, '1');
             AuthNoFedoraDatastreams::deletePermissions($did, '0');
             foreach($datastreamPolicyPermissions as $permissions) {
-                AuthNoFedoraDatastreams::addSecurityPermissions($did, $permissions['qac_aro_role'], $permissions['argr_ar_id'], false);
+                AuthNoFedoraDatastreams::addSecurityPermissions($did, $permissions['qac_aro_id'], $permissions['argr_ar_id'], false);
             }
 
         }
