@@ -1299,8 +1299,8 @@
             <tr id="tr_xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_0" {if ($isApprover != 1 && $xsd_display_fields[i].xsdmf_show_simple_create == 0 && $xsd_display_fields[i].xsdmf_required != 1) || $xsd_display_fields[i].xsdmf_invisible == 1}style="display:none"{/if}>
 				<th>
 					<b><label for="xsd_display_fields[{$xsd_display_fields[i].xsdmf_id}][Year]">{$xsd_display_fields[i].xsdmf_title}</label> {if $xsd_display_fields[i].xsdmf_required == 1} * {/if}</b>
-					<label for="xsd_display_fields[{$xsd_display_fields[i].xsdmf_id}][Month]" style="display:none">Publication month</label>
-					<label for="xsd_display_fields[{$xsd_display_fields[i].xsdmf_id}][Day]" style="display:none">Publication day</label>
+					<label for="xsd_display_fields[{$xsd_display_fields[i].xsdmf_id}][Month]" style="display:none">{$xsd_display_fields[i].xsdmf_title} month</label>
+					<label for="xsd_display_fields[{$xsd_display_fields[i].xsdmf_id}][Day]" style="display:none">{$xsd_display_fields[i].xsdmf_title} day</label>
 					<br />
 					<i>{$xsd_display_fields[i].xsdmf_description nofilter}</i>
 				</th>
