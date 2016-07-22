@@ -133,6 +133,10 @@ function runSeed($conn) {
   parseMySQLdump($conn, $path . "workflows.sql");
   parseMySQLdump($conn, $path . "xsd.sql");
 
+  if ($_SERVER['APP_ENVIRONMENT'] === 'testing') {
+    parseMySQLdump($conn, $path . "jetsetup.sql");
+  }
+
   // Finished unless AWS environment is configured
   if (
     !(

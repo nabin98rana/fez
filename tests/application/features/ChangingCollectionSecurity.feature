@@ -26,6 +26,8 @@ Feature: Changing Collection Security
     And I wait for "2" seconds
     And I fill in "Title" with "Test Pid Security to be changed after pid created"
     And I select "2010" from "Publication date"
+    And I select "10" from "Publication date month"
+    And I select "20" from "Publication date day"
     And I fill in "Journal name" with "Security Test Journal name"
     And I fill in "Author 1" with "Security Test Author name"
     And I select "Article" from "Sub-type"

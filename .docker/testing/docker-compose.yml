@@ -6,6 +6,10 @@ feztestrunner:
     - PHP_IDE_CONFIG=serverName=dev-fez.library.uq.edu.au
     - JAVA_HOME=/usr/lib/jvm/jre
     - JHOVE_HOME=/usr/local/jhove
+    - AWS_ACCESS_KEY_ID
+    - AWS_SECRET_ACCESS_KEY
+    - FEZ_S3_BUCKET
+    - FEZ_S3_SRC_PREFIX
   links:
     - cache
     - fez
@@ -59,6 +63,10 @@ fpm:
     - PHP_IDE_CONFIG=serverName=dev-fez.library.uq.edu.au
     - JAVA_HOME=/usr/lib/jvm/jre
     - JHOVE_HOME=/usr/local/jhove
+    - AWS_ACCESS_KEY_ID
+    - AWS_SECRET_ACCESS_KEY
+    - FEZ_S3_BUCKET
+    - FEZ_S3_SRC_PREFIX
   links:
     - fezdb
     - fedora
