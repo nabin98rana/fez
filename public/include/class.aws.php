@@ -353,8 +353,6 @@ class AWS
   public function getById($src, $id)
   {
     $id = basename($id);
-    $src = empty($this->s3SrcPrefix) ? $src : $this->s3SrcPrefix . '/' . $src;
-    $src = rtrim($src, '/');
     $path = $this->createPath($src, $id);
     $resource = AWS_FILE_SERVE_URL . '/' . $path;
 
@@ -727,7 +725,9 @@ class AWS
    */
   private function createPath($src, $id)
   {
-    $src = empty($this->s3SrcPrefix) ? $src : $this->s3SrcPrefix . '/' . $src;
+    if (!empty($this->s3SrcPrefix) && strpos($src, $this->s3SrcPrefix) !== 0) {
+      $src = $this->s3SrcPrefix . '/' . $src;
+    }
     $src = rtrim($src, '/');
     $path = empty($id) ? $src : $src . '/' . $id;
     return $path;

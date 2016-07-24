@@ -191,6 +191,8 @@ function runSeed($conn) {
       " SET config_value = '' " .
       " WHERE config_name='app_fedora_pwd'");
 
+    parseMySQLdump($conn, $path . "nofedora.sql");
+
   } catch (Exception $ex) {
     return;
   }
