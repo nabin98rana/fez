@@ -349,8 +349,6 @@ class AWS
   public function getById($src, $id)
   {
     $id = basename($id);
-    $src = empty($this->s3SrcPrefix) ? $src : $this->s3SrcPrefix . '/' . $src;
-    $src = rtrim($src, '/');
     $path = $this->createPath($src, $id);
     $resource = AWS_FILE_SERVE_URL . '/' . $path;
 
