@@ -40,13 +40,20 @@ class bookReaderPDFConverter
         }
 
         //Is the source file on the filesystem or do we need to download it?
-        if(strstr($sourceFile, 'http://') || strstr($sourceFile, 'https://'))
-        {
-            $this->sourceFilePath = $this->getURLSource($sourceFile);
-        }
-        else
-        {
+        if (strstr($sourceFile, 'http://') || strstr($sourceFile, 'https://')) {
+              $this->sourceFilePath = $this->getURLSource($sourceFile);
+
+        } else {
+          if ($this->useS3) {
+            $tmpPth = APP_TEMP_DIR . $sourceFile;
+            $fhfs = fopen($tmpPth, 'ab');
+            $fileContent = Fedora_API::callGetDatastreamDissemination($pid, $sourceFile);
+            fwrite($fhfs, $fileContent['stream']);
+            fclose($fhfs);
+            $this->sourceFilePath = $tmpPth;
+          } else {
             $this->sourceFilePath = $sourceFile;
+          }
         }
 
         if($altFilename)
@@ -60,8 +67,8 @@ class bookReaderPDFConverter
 
         //If this is to store in s3, save to a temp folder mirroring the non-s3 path
         if ($this->useS3) {
-          $this->bookreaderDataPath = APP_TMP_DIR . $pid . '/' . $this->sourceFileStat['filename'];
-          $this->s3bookreaderDataPath = BR_IMG_DIR . $pid . '/' . $this->sourceFileStat['filename'];
+          $this->bookreaderDataPath = APP_TEMP_DIR . $pid . '/' . $this->sourceFileStat['filename'];
+          $this->s3bookreaderDataPath = AWS_S3_SRC_PREFIX.'/'.str_replace('../', '', BR_IMG_DIR) . $pid . '/' . $this->sourceFileStat['filename'];
         } else {
           $this->bookreaderDataPath = APP_PATH . BR_IMG_DIR . $pid . '/' . $this->sourceFileStat['filename'];
         }
@@ -109,12 +116,16 @@ class bookReaderPDFConverter
         {
             $datastreams = Fedora_API::callGetDatastreams($pid);
             $srcURL = APP_FEDORA_GET_URL."/".$pid . '/';
-
             foreach($datastreams as $ds)
             {
                 if($ds['MIMEType'] == 'application/pdf' || $ds['MIMEType'] == 'application/pdf;')
                 {
-                    $q[] = array($pid, $srcURL .$ds['ID'], $convMeth);
+                  if ($this->useS3) {
+                    $fullURL = $ds['ID'];
+                  } else {
+                    $fullURL = $srcURL .$ds['ID'];
+                  }
+                  $q[] = array($pid, $fullURL, $convMeth);
                 }
             }
         }
@@ -134,8 +145,10 @@ class bookReaderPDFConverter
         if ($this->useS3) {
           $aws = AWS::get();
           $objects = $aws->listObjects($resourcePath);
-          $pageCount = count($objects);
-
+          $pageCount = 0;
+          foreach ($objects as $object) {
+            $pageCount++;
+          }
         } else {
           if(is_dir($resourcePath))
           {
@@ -223,9 +236,15 @@ class bookReaderPDFConverter
     {
         if(method_exists($this, $conversionType))
         {
+            if ($this->useS3) {
+              $checkPath = $this->s3bookreaderDataPath;
+            } else {
+              $checkPath = $this->bookreaderDataPath;
+            }
+
             //Generate the resource images if they're not already there or if we are forcing it to do so.
             $resourceGenerated = ($forceRegenerate) ? false :
-                    $this->resourceGenerated($this->bookreaderDataPath);
+                    $this->resourceGenerated($checkPath);
             if(!$resourceGenerated)
             {
                 $this->$conversionType();
@@ -293,7 +312,7 @@ class bookReaderPDFConverter
         $aws = AWS::get();
         //upload the files (and tell postFile to delete them after each upload is a success)
         $files = Misc::getFileList($this->bookreaderDataPath, true, false);
-        $aws->postFile($this->bookreaderDataPath, $files, true);
+        $aws->postFile($this->s3bookreaderDataPath, $files, true);
       }
     }
 }
