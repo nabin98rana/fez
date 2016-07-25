@@ -862,17 +862,13 @@ class FeatureContext extends MinkContext
         $this->assertPageContainsText("Currently acting as: ".TEST_ORG_UNIT_NAME_USERNAME);
     }
 
-
     /**
      * @Given /^I choose the "([^"]*)" group for the "([^"]*)" role$/
      */
     public function iChooseTheGroupForTheRole($group, $role)
     {
-
         if (APP_FEDORA_BYPASS == 'ON') {
-            //    And I select "10" from "role"
-            $roleId = Auth::getRoleIDByTitle($role);
-            $this->selectOption('role', $roleId);
+            $this->selectOption('role', $role);
             $this->selectOption('groups_type', 'Fez_Group');
             $this->selectOption('internal_group_list', $group);
             $this->pressButton('Add');
@@ -880,7 +876,6 @@ class FeatureContext extends MinkContext
             $this->selectOption($role.' Fez Group helper', $group);
             $this->pressButton($role.' Fez Group copy left');
         }
-
     }
 
     /**
@@ -892,8 +887,6 @@ class FeatureContext extends MinkContext
         $wOKQueue->add($item);
         $wOKQueue->commit();
     }
-
-
 
     /**
      * @Given /^I send a empty pid to Links AMR that will get back an existing ISI Loc pid$/
