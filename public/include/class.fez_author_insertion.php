@@ -102,7 +102,7 @@ class FezAuthorInsertion
     {
         $select = $this->db->select();
 
-        $select->from('fez_author', ['aut_org_username'])
+        $select->from('fez_author', ['LOWER(aut_org_username)'])
             ->where('aut_org_username IN (?)', $users);
 
         return $this->db->fetchCol($select);
@@ -137,7 +137,7 @@ class FezAuthorInsertion
         $successful = 0;
 
         foreach ($users as $user) {
-            if (is_null($existingUsernames) || !in_array($user['aut_org_username'], $existingUsernames)) {
+            if (is_null($existingUsernames) || !in_array(strtolower($user['aut_org_username']), $existingUsernames)) {
                 if ($this->db->insert('fez_author', $user)) {
                     ++$successful;
                 }
