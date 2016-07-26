@@ -82,9 +82,9 @@ class Exiftool
                     " . $db->quote($exif_array["exif_all"]) . "
                  ";
 
-		if (is_integer($exif_array["page_count"])) {
+		if (is_numeric(trim($exif_array["page_count"]))) {
 			$insert .= ",exif_page_count";
-			$values .= "," . $db->quote($exif_array["page_count"], 'INTEGER');
+			$values .= "," . $db->quote(trim($exif_array["page_count"]), 'INTEGER');
 		}
 
 		$insert .= ",exif_create_date";
