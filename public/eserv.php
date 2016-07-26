@@ -300,13 +300,14 @@ if (!empty($pid) && !empty($dsID)) {
       include_once(APP_INC_PATH . "class.template.php");
       require_once(APP_INC_PATH . "class.bookreaderimplementation.php");
       require_once(APP_INC_PATH . "bookreader/BookReaderIA/inc/BookReader.inc");
-
+      $original_pid = $pid;
       //Replace the colon in the pid.
       if (strstr($pid, ':')) {
         $pid = str_replace(':', '_', $pid);
       }
 
       //Resource name works whether or not the .pdf file extension is added.
+      $original_dsID = $dsID;
       $dsID = explode('.pdf', $dsID);
       $dsID = $dsID[0];
 
@@ -332,7 +333,7 @@ if (!empty($pid) && !empty($dsID)) {
 
       $tpl->assign('pid', $pid);
       $tpl->assign('resource', $dsID);
-      $tpl->assign('pageCount', $bri->countPages($pid, $dsID));
+      $tpl->assign('pageCount', $bri->countPages($original_pid, $original_dsID));
       $tpl->assign('host', $host);
       $tpl->assign('ui', $bookreaderui);
       $tpl->assign('urlPath', $urlPath);
@@ -367,7 +368,7 @@ if (!empty($pid) && !empty($dsID)) {
       if (defined('AWS_S3_ENABLED') && AWS_S3_ENABLED == 'true') {
         $bri = new bookReaderImplementation($resource);
         $cfURL = $bri->getCloudFrontURL($pid, $resource, $image);
-        Auth::redirect($cfURL);
+        Misc::processURL($cfURL, true);
       } else {
         $imageFile = BR_IMG_DIR . $pid . '/' . $resource . '/' . $image;
         if (is_file($imageFile)) {
