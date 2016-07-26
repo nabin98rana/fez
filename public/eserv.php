@@ -40,6 +40,7 @@ include_once(APP_INC_PATH . "class.exiftool.php");
 include_once(APP_INC_PATH . "class.log.php");
 include_once(APP_INC_PATH . "class.fedora_api.php");
 include_once(APP_INC_PATH . "class.fedora_direct_access.php");
+include_once(APP_INC_PATH . "class.bookreaderimplementation.php");
 
 // Commented out basic auth request as Nginx web app server doesnt pass basic auth request username/password
 // to fastcgi, so having to send SEER ARC webapp directly to basicview.php and basiceserv.php for basic auth to work
@@ -309,10 +310,18 @@ if (!empty($pid) && !empty($dsID)) {
       $dsID = explode('.pdf', $dsID);
       $dsID = $dsID[0];
 
-      $resourcePath = BR_IMG_DIR . $pid . '/' . $dsID;
-      $protocol = ($_SERVER['HTTPS']) ? 'https://' : 'http://';
-      $host = $protocol . $_SERVER['HTTP_HOST'];
-      $urlPath = str_replace($_SERVER['DOCUMENT_ROOT'], '', BR_IMG_DIR);
+
+//      if (defined('AWS_S3_ENABLED') && AWS_S3_ENABLED == 'true') {
+//        $resourcePath = BR_IMG_DIR . $pid . '/' . $dsID;
+//
+//        $host = AWS_FILE_SERVE_URL;
+//        $urlPath = AWS_S3_SRC_PREFIX.'/'.str_replace('../', '', BR_IMG_DIR);
+//      } else {
+        $resourcePath = BR_IMG_DIR . $pid . '/' . $dsID;
+        $protocol = ($_SERVER['HTTPS']) ? 'https://' : 'http://';
+        $host = $protocol . $_SERVER['HTTP_HOST'];
+        $urlPath = str_replace($_SERVER['DOCUMENT_ROOT'], '', BR_IMG_DIR);
+//      }
 
       $agent = BookReader::browserFromUserAgent($_SERVER['HTTP_USER_AGENT']);
 
@@ -323,7 +332,7 @@ if (!empty($pid) && !empty($dsID)) {
 
       $tpl->assign('pid', $pid);
       $tpl->assign('resource', $dsID);
-      $tpl->assign('pageCount', $bri->countPages());
+      $tpl->assign('pageCount', $bri->countPages($pid, $dsID));
       $tpl->assign('host', $host);
       $tpl->assign('ui', $bookreaderui);
       $tpl->assign('urlPath', $urlPath);
@@ -354,15 +363,19 @@ if (!empty($pid) && !empty($dsID)) {
         $pid = str_replace(':', '_', $pid);
       }
 
-      $imageFile = BR_IMG_DIR . $pid . '/' . $resource . '/' . $image;
-
-      if (is_file($imageFile)) {
-        header('Content-Type: image/jpeg');
-        echo file_get_contents($imageFile);
+      // if its served via cloudfront just direct to that
+      if (defined('AWS_S3_ENABLED') && AWS_S3_ENABLED == 'true') {
+        $bri = new bookReaderImplementation($resource);
+        $cfURL = $bri->getCloudFrontURL($pid, $resource, $image);
+        Auth::redirect($cfURL);
+      } else {
+        $imageFile = BR_IMG_DIR . $pid . '/' . $resource . '/' . $image;
+        if (is_file($imageFile)) {
+          header('Content-Type: image/jpeg');
+          echo file_get_contents($imageFile);
+        }
       }
-
       exit;
-
     } elseif ($origami == true) {
 
       include_once(APP_INC_PATH . "class.template.php");

@@ -20,6 +20,13 @@ class bookReaderImplementation
         }
     }
 
+    public function getCloudfrontURL($pid, $resource, $file) {
+      $aws = AWS::get();
+      $path = AWS_S3_SRC_PREFIX.'/'.str_replace('../', '', BR_IMG_DIR) . $pid . '/' .$resource .'/' ;
+      $cfURL = $aws->getById($path, $file);
+      return $cfURL;
+    }
+
     /**
      * Return the number of pages in this resource minus '.' and '..'.
      * @return int
