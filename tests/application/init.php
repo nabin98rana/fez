@@ -104,6 +104,9 @@ function parseMySQLdump($conn, $url, $ignoreErrors = false) {
     $sql_line = str_replace('%AWS_SECRET_ACCESS_KEY%', @$_SERVER['AWS_SECRET_ACCESS_KEY'], $sql_line);
     $sql_line = str_replace('%FEZ_S3_BUCKET%', @$_SERVER['FEZ_S3_BUCKET'], $sql_line);
     $sql_line = str_replace('%FEZ_S3_SRC_PREFIX%', @$_SERVER['FEZ_S3_SRC_PREFIX'], $sql_line);
+    $sql_line = str_replace('%AWS_CLOUDFRONT_KEY_PAIR_ID%', @$_SERVER['AWS_CLOUDFRONT_KEY_PAIR_ID'], $sql_line);
+    $sql_line = str_replace('%AWS_CLOUDFRONT_PRIVATE_KEY_FILE%', @$_SERVER['AWS_CLOUDFRONT_PRIVATE_KEY_FILE'], $sql_line);
+    $sql_line = str_replace('%AWS_CLOUDFRONT_FILE_SERVE_URL%', @$_SERVER['AWS_CLOUDFRONT_FILE_SERVE_URL'], $sql_line);
 
     $tsl = trim($sql_line);
     if (($sql_line != "") && (substr($tsl, 0, 2) != "--") && (substr($tsl, 0, 1) != "#")) {
