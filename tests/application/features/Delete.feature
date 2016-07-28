@@ -1,5 +1,5 @@
 # features/Delete.feature
-@javascript @destructive @jet @nodata
+@javascript @destructive @jet @datadependant
 Feature: Test that deleting communities/collections/records works correctly
 
   Scenario: Delete record
