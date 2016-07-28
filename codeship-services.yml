@@ -50,6 +50,7 @@ fezcode:
 fpm:
   build:
     dockerfile_path: "Dockerfile"
+    path: ./.docker/development/backend/fpm/
   #encrypted_env_file: ./.codeship/dockerenv.encrypted
   environment:
     APP_ENVIRONMENT: "testing"
@@ -62,6 +63,7 @@ fpm:
     - fedora
   volumes_from:
     - fedoradata
+    - fezcode
     - cache
 
 fezdb:
