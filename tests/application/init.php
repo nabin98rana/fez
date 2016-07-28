@@ -138,6 +138,7 @@ function runSeed($conn) {
 
   if ($_SERVER['APP_ENVIRONMENT'] === 'testing') {
     parseMySQLdump($conn, $path . "jetsetup.sql");
+    parseMySQLdump($conn, $path . "disablesolr.sql");
   }
 
   // Finished unless AWS environment is configured

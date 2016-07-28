@@ -16,7 +16,6 @@ fpmtestrunner:
     - fez
     - fezdb
     - fedora
-    - fedoradb
     - selenium
   volumes_from:
     - fezcode
@@ -62,7 +61,6 @@ fpm:
   links:
     - fezdb
     - fedora
-    - fedoradb
   volumes_from:
     - fedoradata
     - fezcode
@@ -93,26 +91,12 @@ fedora:
     FEDORA_HOME: "/opt/fedora"
     FEDORA_WEBAPP_HOME: "/opt/fedora/tomcat/webapps/fedora"
   links:
-    - fedoradb
+    - fezdb
   ports:
     - "10083:10081"
   volumes_from:
     - fedoradata
     - cache
-
-fedoradb:
-  build:
-    image: codeship_fedoradb
-    dockerfile_path: Dockerfile
-    path: ./.docker/development/backend/db/
-  cap_add:
-    - SYS_ADMIN
-  environment:
-    - MYSQL_ROOT_PASSWORD=development
-    - MYSQL_USER=fedoraAdmin
-    - MYSQL_PASSWORD=fedoraAdmin
-    - MYSQL_DATABASE=fedora3
-  privileged: true
 
 cache:
   build:
