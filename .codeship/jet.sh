@@ -16,7 +16,7 @@ while ! [[ -n "${HEALTH_MSG}" && ${HEALTH_MSG} != *"failed"* && ${HEALTH_MSG} !=
   HEALTH_MSG=$(${MYSQL_HEALTH_CMD} 2>&1)
 done
 
-cd /var/app/current/tests/application && php init.php
+cd /var/app/current/tests/application && php init.php schema
 
 echo Starting upgrading..
 UPGRADE_RES=$(curl -s http://fez/upgrade/index.php?upgradeOnly=1 | grep succeeded)
