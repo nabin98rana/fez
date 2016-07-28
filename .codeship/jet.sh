@@ -17,8 +17,14 @@ while ! [[ -n "${HEALTH_MSG}" && ${HEALTH_MSG} != *"failed"* && ${HEALTH_MSG} !=
   HEALTH_MSG=$(${MYSQL_HEALTH_CMD} 2>&1)
 done
 
-echo Creating schema..
+cd ${CONTAINER_BASE_DIR}/.docker/testing
+if [[ ! -f "../../public/config.inc.php" ]]; then
+    cp config.inc.php ../../public/
+fi
+
 cd ${CONTAINER_BASE_DIR}/tests/application
+
+echo Creating schema..
 php init.php schema
 
 echo Starting upgrading..
@@ -32,6 +38,4 @@ echo Seeding SQL data..
 php init.php seed
 
 echo Running tests..
-
-cd ${CONTAINER_BASE_DIR}
-./tests/application/run-tests.sh
+./run-tests.sh
