@@ -38,5 +38,5 @@ fi
 echo Seeding SQL data..
 php init.php seed
 
-echo Running tests..
-./run-tests.sh
+echo Running tests.. $1
+./run-tests.sh $1

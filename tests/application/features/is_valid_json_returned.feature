@@ -1,5 +1,6 @@
 # features/is_valid_json_returned.feature
 # Needs to be run using goutte
+@nodata
 Feature: Check that valid json is being returned
 
   @jet

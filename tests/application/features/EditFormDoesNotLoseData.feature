@@ -1,5 +1,5 @@
 #features/EditFormDoesNotLoseData.feature
-@javascript @destructive @jet
+@javascript @destructive @jet @datadependant
 Feature: Check on a simple edit then immediate save, all data stays the same in correct format and nothing is lost or incorrectly changed.
 
   Scenario: Edit then save, check nothing changed that should not.

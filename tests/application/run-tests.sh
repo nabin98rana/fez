@@ -15,9 +15,11 @@ export BEHAT_PARAMS='{"extensions" : {"Behat\\MinkExtension" : {"selenium2" : { 
 
 # Run full tests on master or feature branches, but only smoke on staging/production
 if [ "${CI_BRANCH}" = "staging" ] || [ "${CI_BRANCH}" = "production" ]; then
-  ../behat/vendor/behat/behat/bin/behat --tags '@smoke&&@jet&&~@cloned' --format pretty --colors --stop-on-failure
+  ../behat/vendor/behat/behat/bin/behat --tags "@smoke&&@jet&&~@cloned&&${1}" --format pretty --colors --stop-on-failure
+#  ../behat/vendor/behat/behat/bin/behat --tags "@smoke&&@jet&&~@cloned" --format pretty --colors --stop-on-failure
 else
-  ../behat/vendor/behat/behat/bin/behat --tags '@jet&&~@cloned' --format pretty --colors --stop-on-failure
+  ../behat/vendor/behat/behat/bin/behat --tags "@jet&&~@cloned&&${1}" --format pretty --colors --stop-on-failure
+#  ../behat/vendor/behat/behat/bin/behat --tags "@jet&&~@cloned" --format pretty --colors --stop-on-failure
 fi
 
 #Use the below example of how to run tests in the development environment - eg create test data

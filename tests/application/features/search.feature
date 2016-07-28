@@ -1,5 +1,5 @@
 # features/search.feature
-@javascript @smoke @jet
+@javascript @smoke @jet @datadependant
 Feature: Search
   In order to see a word definition
   As a website user
