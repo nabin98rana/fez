@@ -1,6 +1,6 @@
-FROM uqlibrary/docker-base:5
+FROM busybox:1.25.0
 
-RUN cd /var/cache/ && \
+RUN mkdir -p /var/cache && cd /var/cache/ && \
   mkdir file && \
   mkdir solr_upload && \
   mkdir templates_c && \
