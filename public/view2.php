@@ -815,7 +815,7 @@ if (!empty($pid) && $record->checkExists()) {
           $pidFs = str_replace(':', '_', $pid);
           $resourcePath = BR_IMG_DIR . $pidFs . '/' . $resource[0];
           $bri = new bookReaderImplementation($resourcePath);
-          $pageCounts[$resource[0] . '.pdf'] = $bri->countPages(); //Page count check for the template
+          $pageCounts[$resource[0] . '.pdf'] = $bri->countPages($pid, $ds['ID']); //Page count check for the template
         }
       }
     }
