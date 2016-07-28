@@ -10,7 +10,7 @@ CONTAINER_BASE_DIR=/var/app/current
 VIRTUAL_HOST=dev-fez.library.uq.edu.au
 
 function waitForServices() {
-    MAX_LOOPS="20"
+    MAX_LOOPS=20
     i=0
     while true; do
       i=`expr ${i} + 1`

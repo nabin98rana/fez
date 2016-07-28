@@ -4,6 +4,7 @@ echo Starting test run..
 CONTAINER_BASE_DIR=/var/app/current
 
 i=0
+MAX_LOOPS=20
 MYSQL_HEALTH_CMD="mysqladmin ping -hfezdb -ufez -pfez"
 HEALTH_MSG=$(${MYSQL_HEALTH_CMD} 2>&1)
 while ! [[ -n "${HEALTH_MSG}" && ${HEALTH_MSG} != *"failed"* && ${HEALTH_MSG} != *"denied"* ]]; do
