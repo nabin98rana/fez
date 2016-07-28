@@ -16,7 +16,6 @@ feztestrunner:
     - fedora
     - selenium
     - fezdb
-    - fedoradb
     - solr
   volumes:
     - ../../:/var/app/current
@@ -70,7 +69,6 @@ fpm:
   links:
     - fezdb
     - fedora
-    - fedoradb
     - solr
   volumes:
     - ../../:/var/app/current
@@ -103,7 +101,7 @@ fedora:
     - FEDORA_HOME=/opt/fedora
     - FEDORA_WEBAPP_HOME=/opt/fedora/tomcat/webapps/fedora
   links:
-    - fedoradb
+    - fezdb
   privileged: true
   volumes_from:
     - cache
@@ -114,21 +112,6 @@ fedoradata:
   build: ./../development/fedora/data/
   volumes:
     - ./data/fedora:/data
-
-fedoradb:
-  build: ./../development/fedora/db/
-  environment:
-    - MYSQL_ROOT_PASSWORD=development
-    - MYSQL_USER=fedoraAdmin
-    - MYSQL_PASSWORD=fedoraAdmin
-    - MYSQL_DATABASE=fedora3
-  privileged: true
-  volumes_from:
-    - fedoradbdata
-    - logs
-
-fedoradbdata:
-  build: ./../development/backend/db/data/
 
 solr:
   build: ./../development/solr/
