@@ -399,15 +399,6 @@ LOCK TABLES `fez_file_attachments` WRITE;
 UNLOCK TABLES;
 
 --
--- Dumping data for table `fez_file_attachments_shadow`
---
-
-LOCK TABLES `fez_file_attachments_shadow` WRITE;
-/*!40000 ALTER TABLE `fez_file_attachments_shadow` DISABLE KEYS */;
-/*!40000 ALTER TABLE `fez_file_attachments_shadow` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
 -- Dumping data for table `fez_fulltext_cache`
 --
 
