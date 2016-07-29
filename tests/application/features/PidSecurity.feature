@@ -1,4 +1,4 @@
-@javascript @destructive @jet
+@javascript @destructive @jet @datadependant
 Feature: Pid security
 
   Scenario: I login as admin and set a pids security to only view for a certain group then all users as list it and only that group can view it
@@ -13,6 +13,8 @@ Feature: Pid security
     And I select "Article" from "Sub-type"
     And I check "Copyright Agreement"
     And I select "2010" from "Publication date"
+    And I select "10" from "Publication date month"
+    And I select "20" from "Publication date day"
     And I press "Publish"
     And I wait for solr
     And I wait for bgps

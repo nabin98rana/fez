@@ -1387,7 +1387,7 @@ public static function multi_implode($glue, $pieces)
    *
    * @access  public
    * @param   string $f The file name and path
-   * @return  string The formatted time
+   * @return  string The mimetype
    */
   public static function mime_content_type($f)
   {
@@ -1410,7 +1410,7 @@ public static function multi_implode($glue, $pieces)
       $ret = mime_content_type($f);
     } else {
       $f = escapeshellarg($f);
-      $ret = trim(`file -bi $f`);
+      $ret = trim(`file -b --mime-type $f`);
     }
     if ($ret == "application/octet-stream") {
       $filename_ext = str_replace("'", "", strtolower(substr($f, (strrpos($f, ".") + 1))));

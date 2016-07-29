@@ -1,5 +1,5 @@
 # features/TestListView.feature
-@javascript @smoke @jet
+@javascript @smoke @jet @datadependant
 Feature: Test the different views work when in list view
 
   Scenario: I login as admin see that all the views in list work

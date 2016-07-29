@@ -1,5 +1,5 @@
 # features/ListView.feature
-@javascript @destructive @jet
+@javascript @destructive @jet @nodata
 Feature: Check list view displays the correct information entered into a pid, collection or community
 
   Scenario: I login as admin and create communities, collections and pids and see all the information displays in lists correctly
@@ -33,6 +33,8 @@ Feature: Check list view displays the correct information entered into a pid, co
     And I select "Article" from "Sub-type"
     And I check "Copyright Agreement"
     And I select "2010" from "Publication date"
+    And I select "10" from "Publication date month"
+    And I select "20" from "Publication date day"
     And I press "Publish"
     And I wait for solr
     And I wait for bgps

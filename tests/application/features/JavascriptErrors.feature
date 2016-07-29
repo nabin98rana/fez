@@ -1,4 +1,4 @@
-@javascript @smoke @jet
+@javascript @smoke @jet @datadependant
 Feature: Test pages for javascript errors
 # We have added Javascript tests to all pages tested so for now we just have to visit pages that do not have tests on them already
 

@@ -1,5 +1,5 @@
 # features/security.feature
-@javascript @destructive @jet
+@javascript @destructive @jet @nodata
 Feature: Security
   In order to secure a pid
   As a website user

@@ -1,5 +1,5 @@
 # features/CloneRecord.feature
-@javascript @destructive @jet
+@javascript @destructive @jet @datadependant
 Feature: Check Clone Records works correctly
 
   Scenario: Go to a known record and see if it clones correctly with everything selected on the clone screen

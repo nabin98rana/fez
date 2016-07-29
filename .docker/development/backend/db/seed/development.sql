@@ -15,19 +15,19 @@ SET config_value = 'OFF'
 WHERE config_name = 'app_piwik_switch';
 
 UPDATE fez_config
-SET config_value = 'fedoradb'
+SET config_value = 'fezdb'
 WHERE config_name = 'fedora_db_host';
 
 UPDATE fez_config
-SET config_value = 'fedora3'
+SET config_value = 'fez'
 WHERE config_name = 'fedora_db_database_name';
 
 UPDATE fez_config
-SET config_value = 'fedoraAdmin'
+SET config_value = 'fez'
 WHERE config_name = 'fedora_db_username';
 
 UPDATE fez_config
-SET config_value = 'fedoraAdmin'
+SET config_value = 'fez'
 WHERE config_name = 'fedora_db_passwd';
 
 UPDATE fez_config
@@ -160,7 +160,7 @@ DELETE FROM fez_fulltext_locks;
 INSERT INTO fez_fulltext_queue (ftq_pid, ftq_op)
 SELECT rek_pid, 'I'
 FROM fez_record_search_key WHERE rek_updated_date
-BETWEEN DATE_SUB(NOW(), INTERVAL 2 DAY) AND NOW(); 
+BETWEEN DATE_SUB(NOW(), INTERVAL 2 DAY) AND NOW();
 
 insert ignore into fez_config (config_name, config_module, config_value) values ('tag_upload_files','core','ON');
 

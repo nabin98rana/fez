@@ -1,4 +1,4 @@
-CREATE TABLE IF NOT EXISTS %TABLE_PREFIX%_reports (
+CREATE TABLE IF NOT EXISTS %TABLE_PREFIX%reports (
   sel_id int(11) NOT NULL AUTO_INCREMENT,
   sel_title varchar(128) DEFAULT NULL,
   sel_query text,

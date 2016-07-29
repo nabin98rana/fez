@@ -1,5 +1,5 @@
 # features/xmlCheck.feature
-@javascript @smoke @jet
+@javascript @smoke @jet @datadependant
 Feature: Test that xml is well formed
 
   Scenario: I go to XML pages and check the XML is mostly well formed

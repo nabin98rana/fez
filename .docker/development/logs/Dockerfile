@@ -1,4 +1,4 @@
-FROM uqlibrary/docker-base:5
+FROM busybox:1.25.0
 
 RUN mkdir /var/log/fez && cd /var/log/fez/ && \
   mkdir -p backend/app && \
