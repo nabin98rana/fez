@@ -26,8 +26,8 @@ selenium:
   image: selenium/standalone-chrome-debug:2.53.0
   environment:
     - JAVA_OPTS=-Dselenium.LOGGER.level=WARNING
-  ports:
-    - "5902:5900"
+#  ports:
+#    - "5902:5900"
   links:
     - fez
     - fedora
@@ -45,7 +45,7 @@ fez:
 
 fezcode:
   build:
-    dockerfile_path: "Dockerfile.staging"
+    dockerfile_path: "Dockerfile.codeonly"
 
 fpm:
   build:
@@ -92,8 +92,8 @@ fedora:
     FEDORA_WEBAPP_HOME: "/opt/fedora/tomcat/webapps/fedora"
   links:
     - fezdb
-  ports:
-    - "10083:10081"
+#  ports:
+#    - "10083:10081"
   volumes_from:
     - fedoradata
     - cache

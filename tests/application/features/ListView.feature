@@ -1,5 +1,5 @@
 # features/ListView.feature
-@javascript @destructive @jet
+@javascript @destructive @jet @nodata
 Feature: Check list view displays the correct information entered into a pid, collection or community
 
   Scenario: I login as admin and create communities, collections and pids and see all the information displays in lists correctly

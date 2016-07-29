@@ -1,4 +1,4 @@
-@javascript @destructive @jet
+@javascript @destructive @jet @nodata
 Feature: Check news displays correctly and Admin news displays only to the correct group
 
   Scenario: I login as admin and create a news story and check I can see it but non admin users can't

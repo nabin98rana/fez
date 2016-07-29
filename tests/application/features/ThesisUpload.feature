@@ -1,5 +1,5 @@
 # features/ThesisUpload.feature
-@javascript @destructive @jet
+@javascript @destructive @jet @datadependant
 Feature: Test that Thesis upload correctly. @bug it can't check the swf uploader
 
   Scenario: I login as admin, create a pid, then delete it and check it is not longer accessiable
