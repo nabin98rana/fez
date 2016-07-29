@@ -767,7 +767,7 @@ class MigrateFromFedoraToDatabase
             try {
                 $this->_db->exec($stmt);
             } catch (Exception $ex) {
-                echo chr(10) . " <br /> No unique constraint to remove. " . $stmt ;
+                // echo chr(10) . " <br /> No unique constraint to remove. " . $stmt ;
             }
             // echo "ok!\n";
         }
@@ -778,7 +778,7 @@ class MigrateFromFedoraToDatabase
         try {
             $this->_db->exec($stmt);
         } catch (Exception $ex) {
-            echo "<br />No constraint to remove " .$stmt . " - Exception=" . $ex;
+            // echo "<br />No constraint to remove " .$stmt . " - Exception=" . $ex;
             return false;
         }
         // echo "ok!\n\n";
@@ -795,7 +795,7 @@ class MigrateFromFedoraToDatabase
         try {
             $this->_db->exec($stmt);
         } catch (Exception $ex) {
-            echo "<br />No unique constraint to remove ";
+            // echo "<br />No unique constraint to remove ";
             return false;
         }
         // echo "ok!\n";
@@ -805,7 +805,7 @@ class MigrateFromFedoraToDatabase
         try {
             $this->_db->exec($stmt);
         } catch (Exception $ex) {
-            echo chr(10) . " <br /> No unique pid order constraint to remove. " . $stmt ;
+            // echo chr(10) . " <br /> No unique pid order constraint to remove. " . $stmt ;
         }
         // echo "ok!\n";
 
