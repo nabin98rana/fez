@@ -45,7 +45,7 @@ fez:
 
 fezcode:
   build:
-    dockerfile_path: "Dockerfile.staging"
+    dockerfile_path: "Dockerfile.codeonly"
 
 fpm:
   build:
