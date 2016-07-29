@@ -1,4 +1,4 @@
-@javascript @destructive @jet @nofedora
+@javascript @destructive @nofedora
 Feature: Changing Collection Security
 
   Scenario: I login as admin and set a Collection security to allow inheriting pids to view, then turn it off and check pids can no longer be viewed
