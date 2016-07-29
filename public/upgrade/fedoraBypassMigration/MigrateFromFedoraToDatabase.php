@@ -124,7 +124,7 @@ class MigrateFromFedoraToDatabase
      */
     public function preMigration()
     {
-        echo chr(10) . "\n<br /> Before running this migration script,
+        /* echo chr(10) . "\n<br /> Before running this migration script,
             please make sure you have gone through the following checklist.
             There is no way to revert the system once this script executed,
             so make sure you have backup system to rollback to in the case of migration failure.
@@ -136,7 +136,7 @@ class MigrateFromFedoraToDatabase
                      Refer to mapXSDFieldToSearchKey method for sample query </li>
                 <li> ... </li>
             </ul>
-         ";
+         ";*/
 
         // Executes mapXSDFields methods, when specified.
         // This is considering that the sk on mapping methods match your system.
@@ -308,7 +308,7 @@ class MigrateFromFedoraToDatabase
 
             try {
                 $this->_db->exec($stmt);
-                echo chr(10) . "\n<br /> Successfully mapped subject " . print_r($unmappedFields, 1);
+                // echo chr(10) . "\n<br /> Successfully mapped subject " . print_r($unmappedFields, 1);
             } catch (Exception $ex) {
                 echo "\n<br />Failed to map XSD field. Here is why: ". $stmt . " <br />" . $ex .".\n";
                 return false;
@@ -358,7 +358,7 @@ class MigrateFromFedoraToDatabase
             $this->_db->exec($stmtAddRecordSearchKeyColumn);
             $this->_db->commit();
 
-            echo "<br /> Search key 'copyright' added to search_key table & the main record_search_key table.";
+            // echo "<br /> Search key 'copyright' added to search_key table & the main record_search_key table.";
             return true;
         }
         catch (Exception $ex) {
@@ -410,8 +410,8 @@ class MigrateFromFedoraToDatabase
      */
     public function migrateManagedContent()
     {
-        echo chr(10) . "\n<br /> Start migrating Fedora ManagedContent to Fez CAS system....";
-        echo chr(10) . "\n<br /> This may take a while depending on the size of datastreams";
+        // echo chr(10) . "\n<br /> Start migrating Fedora ManagedContent to Fez CAS system....";
+        // echo chr(10) . "\n<br /> This may take a while depending on the size of datastreams";
         ob_flush();
         include ("./migrate_fedora_managedcontent_to_fezCAS.php");
     }
@@ -445,7 +445,7 @@ class MigrateFromFedoraToDatabase
             $start += $limit;
         }
 
-        echo chr(10) . "\n<br /> Ok, we have done the reindex for ". ($loop * $limit) . "PIDs";
+        // echo chr(10) . "\n<br /> Ok, we have done the reindex for ". ($loop * $limit) . "PIDs";
         ob_flush();
         return true;
     }
@@ -484,8 +484,8 @@ class MigrateFromFedoraToDatabase
         if ( sizeof($pids) > 0 ){
             //Workflow::start($wft_id, $pid, $xdis_id, $href, $dsID, $pids);
 
-            echo chr(10) . "\n<br /> BGP of Reindexing the PIDS has been triggered.
-                 See the progress at http://" . APP_HOSTNAME . "/my_processes.php";
+            // echo chr(10) . "\n<br /> BGP of Reindexing the PIDS has been triggered.
+            //     See the progress at http://" . APP_HOSTNAME . "/my_processes.php";
         }
         ob_flush();
         return true;
@@ -518,7 +518,7 @@ class MigrateFromFedoraToDatabase
         $tableName = APP_TABLE_PREFIX . "pid_index";
         if (!$this->_isTableExists($tableName)){
 
-            echo "Creating pid_index table ... ";
+            // echo "Creating pid_index table ... ";
 
             $stmt = "CREATE TABLE ". $tableName ."
                        (pid_number int(10) unsigned NOT NULL,
@@ -527,23 +527,23 @@ class MigrateFromFedoraToDatabase
             try {
                 $this->_db->exec($stmt);
             } catch (Exception $ex) {
-                echo "\n<br />Table ". $tableName ." creation failed. Here is why: ". $stmt . " <br />" . $ex .".\n";
+                // echo "\n<br />Table ". $tableName ." creation failed. Here is why: ". $stmt . " <br />" . $ex .".\n";
                 return false;
             }
         }
 
         // truncating table
-        echo "truncating to pid_index table ... ";
+        // echo "truncating to pid_index table ... ";
         $stmt = "TRUNCATE ". $tableName ." ";
         $this->_db->exec($stmt);
-        echo "ok!\n";
+        // echo "ok!\n";
 
 
       // Insert the maximum PID
-        echo "Fetching next PID from Fedora, and writing to pid_index table ... ";
+        // echo "Fetching next PID from Fedora, and writing to pid_index table ... ";
         $stmt = "INSERT INTO ". $tableName ." (pid_number) VALUES ('" . $nextPIDNumber . "');";
         $this->_db->exec($stmt);
-        echo "ok!\n";
+        // echo "ok!\n";
         ob_flush();
     }
 
@@ -556,7 +556,7 @@ class MigrateFromFedoraToDatabase
         $file = APP_PATH . "/upgrade/sql_scripts/upgrade2012021700.sql";
         try{
             $this->_upgradeHelper->parse_mysql_dump($file);
-            echo chr(10) . "<br />Successfully created permissions table";
+            // echo chr(10) . "<br />Successfully created permissions table";
         } catch(Exception $e) {
             echo "\n<br> Failed updating datastream tables. file = ". $file . " Ex: " . $e;
             return false;
@@ -576,7 +576,7 @@ class MigrateFromFedoraToDatabase
         $file = APP_PATH . "/upgrade/sql_scripts/upgrade2012031200.sql";
         try{
             $this->_upgradeHelper->parse_mysql_dump($file);
-            echo chr(10) . "\n<br />Successfully created Digital Object table";
+            // echo chr(10) . "\n<br />Successfully created Digital Object table";
         } catch(Exception $e) {
             echo "\n<br> Failed creating Digital Object tables. file = ". $file . " Ex: " . $e->getMessage();
             return false;
@@ -588,21 +588,9 @@ class MigrateFromFedoraToDatabase
         $file = APP_PATH . "/upgrade/sql_scripts/upgrade2012022100.sql";
         try{
             $this->_upgradeHelper->parse_mysql_dump($file);
-            echo chr(10) . "\n<br />Successfully created File attachment  table";
+            // echo chr(10) . "\n<br />Successfully created File attachment  table";
         } catch(Exception $e) {
             echo "\n<br> Failed creating File attachment tables. file = ". $file . " Ex: " . $e->getMessage();
-            return false;
-        }
-
-
-        // Run this script: upgrade2012022101.sql
-        // Alter file_attachments table, add a file to indicate whether security is inherited column for the datastreams.
-        $file = APP_PATH . "/upgrade/sql_scripts/upgrade2012022101.sql";
-        try{
-            $this->_upgradeHelper->parse_mysql_dump($file);
-            echo chr(10) . "<br />Successfully updating rek_inherited_security";
-        } catch(Exception $e) {
-            echo "\n<br> Failed updating rek_inherited_security. file = ". $file . " Ex: " . $e->getMessage();
             return false;
         }
 
@@ -611,7 +599,7 @@ class MigrateFromFedoraToDatabase
         $file = APP_PATH . "/upgrade/sql_scripts/upgrade2012081000.sql";
         try{
             $this->_upgradeHelper->parse_mysql_dump($file);
-            echo chr(10) . "\n<br />Successfully added auth quick rules table";
+            // echo chr(10) . "\n<br />Successfully added auth quick rules table";
         } catch(Exception $e) {
             echo "\n<br /> Failed updating auth quick rules tables. file = ". $file . " Ex: " . $e->getMessage();
             return false;
@@ -631,7 +619,7 @@ class MigrateFromFedoraToDatabase
     public function createSearchKeyShadowTables()
     {
         // 1.1 Create core search key shadow table
-        echo "\n<br />1.1 Creating core search key shadow table ... ";
+        // echo "\n<br />1.1 Creating core search key shadow table ... ";
 
         $originalTable = APP_TABLE_PREFIX . "record_search_key";
 
@@ -646,12 +634,12 @@ class MigrateFromFedoraToDatabase
         // Add a joint primary key
         $this->_addJointPrimaryKeyCore();
 
-        echo "<br /> End of 1.1. Now we have shadow for core search key shadow table ".$originalTable;
+        // echo "<br /> End of 1.1. Now we have shadow for core search key shadow table ".$originalTable;
 
 
 
         // 1.2 Create non-core search key shadow tables
-        echo "<br />1.2 Creating non-core search key shadow tables ... \n";
+        // echo "<br />1.2 Creating non-core search key shadow tables ... \n";
         ob_flush();
         $searchKeys = Search_Key::getList();
         foreach ($searchKeys as $sk) {
@@ -661,7 +649,7 @@ class MigrateFromFedoraToDatabase
                 continue;
             }
 
-            echo "\n<br /> Shadowing " . $sk['sek_title_db'] . " table ... ";
+            // echo "\n<br /> Shadowing " . $sk['sek_title_db'] . " table ... ";
             ob_flush();
             $originalTable = APP_TABLE_PREFIX . "record_search_key_" . $sk['sek_title_db'];
             $shadowTable = APP_TABLE_PREFIX . "record_search_key_" . $sk['sek_title_db'] . $this->_shadowTableSuffix;
@@ -681,10 +669,10 @@ class MigrateFromFedoraToDatabase
               $this->_addJointPrimaryKeyNonCore($shadowTable, $sk['sek_title_db']);
             }
 
-            echo "\n<br /> End of Shadowing " . $sk['sek_title_db'] . " table.. with a SuCCeSS!";
+            // echo "\n<br /> End of Shadowing " . $sk['sek_title_db'] . " table.. with a SuCCeSS!";
         }
 
-        echo "\n<br /> End of 1.2. Now we have shadow tables for non-core search keys.";
+        // echo "\n<br /> End of 1.2. Now we have shadow tables for non-core search keys.";
         ob_flush();
     }
 
@@ -718,7 +706,7 @@ class MigrateFromFedoraToDatabase
               return false;
             }
 
-            echo "<br />Table ". $shadowTable ." has been Dropped.\n";
+            // echo "<br />Table ". $shadowTable ." has been Dropped.\n";
           }
 
           $stmt = "CREATE TABLE ". $shadowTable ." LIKE ". $originalTable;
@@ -730,11 +718,11 @@ class MigrateFromFedoraToDatabase
               return false;
           }
 
-          echo "<br />Table ". $shadowTable ." has been created.\n";
+          // echo "<br />Table ". $shadowTable ." has been created.\n";
 
 
           // Add stamp column to new shadow table
-          echo "<br />Adding stamp column to the new shadow table ... ";
+          // echo "<br />Adding stamp column to the new shadow table ... ";
 
           $tableDescribe = $this->_db->describeTable($shadowTable);
           $columnName = "rek_" . (!empty($sekTitleDb) ? $sekTitleDb . "_" : "" ) . "stamp";
@@ -750,14 +738,14 @@ class MigrateFromFedoraToDatabase
                   return false;
               }
 
-              echo "<br />Table ". $shadowTable ." has been altered.\n";
+              // echo "<br />Table ". $shadowTable ." has been altered.\n";
 
           } else {
-              echo "<br />We have the stamp! Move on...";
+              // echo "<br />We have the stamp! Move on...";
           }
 
 //        }else {
-//            echo "<br />Table ". $shadowTable ." already exists somewhere in the universe, let's move on...\n";
+//            // echo "<br />Table ". $shadowTable ." already exists somewhere in the universe, let's move on...\n";
 //        }
         ob_flush();
         return true;
@@ -767,7 +755,7 @@ class MigrateFromFedoraToDatabase
     protected function _removeUniqueConstraintsCore()
     {
         // Core search key shadow table
-        echo chr(10) . "<br />" . "Removing unique constraint from fez_record_search_key__shadow ... ";
+        // echo chr(10) . "<br />" . "Removing unique constraint from fez_record_search_key__shadow ... ";
 
         $tableName = APP_TABLE_PREFIX . "record_search_key" . $this->_shadowTableSuffix;
 
@@ -781,11 +769,11 @@ class MigrateFromFedoraToDatabase
             } catch (Exception $ex) {
                 echo chr(10) . " <br /> No unique constraint to remove. " . $stmt ;
             }
-            echo "ok!\n";
+            // echo "ok!\n";
         }
 
         // We are removing primary key on shadow because PID is serving as primary key on the core search key table.
-        echo "* Removing primary key constraint from fez_record_search_key__shadow ... ";
+        // echo "* Removing primary key constraint from fez_record_search_key__shadow ... ";
         $stmt = "ALTER TABLE ". $tableName ." DROP PRIMARY KEY;";
         try {
             $this->_db->exec($stmt);
@@ -793,14 +781,14 @@ class MigrateFromFedoraToDatabase
             echo "<br />No constraint to remove " .$stmt . " - Exception=" . $ex;
             return false;
         }
-        echo "ok!\n\n";
+        // echo "ok!\n\n";
     }
 
 
     // 1.6 Remove unique constraints from non-core shadow tables
     protected function _removeUniqueConstraintsNonCore($tableName)
     {
-        echo "* Removing unique constraints from ". $tableName;
+        // echo "* Removing unique constraints from ". $tableName;
 
         $stmt = "DROP INDEX unique_constraint ON ". $tableName .";";
 
@@ -810,7 +798,7 @@ class MigrateFromFedoraToDatabase
             echo "<br />No unique constraint to remove ";
             return false;
         }
-        echo "ok!\n";
+        // echo "ok!\n";
 
 
         $stmt = "DROP INDEX unique_constraint_pid_order ON ". $tableName .";";
@@ -819,7 +807,7 @@ class MigrateFromFedoraToDatabase
         } catch (Exception $ex) {
             echo chr(10) . " <br /> No unique pid order constraint to remove. " . $stmt ;
         }
-        echo "ok!\n";
+        // echo "ok!\n";
 
         return true;
     }
@@ -830,13 +818,13 @@ class MigrateFromFedoraToDatabase
     {
         $tableName = APP_TABLE_PREFIX . "record_search_key" . $this->_shadowTableSuffix;
 
-        echo " Adding joint primary key to fez_record_search_key__shadow";
+        // echo " Adding joint primary key to fez_record_search_key__shadow";
         $stmt = "ALTER TABLE ". $tableName ." DROP PRIMARY KEY;";
         try {
             $this->_db->exec($stmt);
         } catch (Exception $ex) {
             // May fail if PRIMARY key does not exist (MySQL version > 5.1)
-            echo "<br />NOTICE: No primary key to drop on ". $tableName;
+            // echo "<br />NOTICE: No primary key to drop on ". $tableName;
         }
         $stmt = "ALTER TABLE ". $tableName ." ADD PRIMARY KEY (rek_pid, rek_stamp);";
         try {
@@ -845,7 +833,7 @@ class MigrateFromFedoraToDatabase
             echo "<br />Could not add joint primary key to ". $tableName . " because: " . $ex;
             return false;
         }
-        echo "\n";
+        // echo "\n";
     }
 
 
@@ -853,7 +841,7 @@ class MigrateFromFedoraToDatabase
     protected function _addJointPrimaryKeyNonCore($tableName, $sekTitleDB)
     {
 
-        echo " Adding joint primary key to ". $tableName;
+        // echo " Adding joint primary key to ". $tableName;
         $stmt = "ALTER TABLE ". $tableName ."
                  ADD UNIQUE KEY unique_constraint (rek_" . $sekTitleDB . "_pid, rek_" . $sekTitleDB . "_stamp);";
         try {
@@ -862,14 +850,14 @@ class MigrateFromFedoraToDatabase
             echo "<br />Could not add joint primary key to ". $tableName . " because: " . $ex;
             return false;
         }
-        echo "\n";
+        // echo "\n";
     }
 
 
     protected function _addJointPrimaryKeyMultipleNonCore($tableName, $sekTitleDB)
     {
 
-      echo " Adding joint primary key to ". $tableName;
+      // echo " Adding joint primary key to ". $tableName;
       $stmt = "ALTER TABLE ". $tableName ."
                    ADD UNIQUE KEY unique_constraint (rek_" . $sekTitleDB . "_pid, rek_" . $sekTitleDB . "_order, rek_" . $sekTitleDB . "_stamp);";
       try {
@@ -878,7 +866,7 @@ class MigrateFromFedoraToDatabase
         echo "<br />Could not add joint primary key to ". $tableName . " because: " . $ex;
         return false;
       }
-      echo "\n";
+      // echo "\n";
     }
 
     /**

@@ -43,15 +43,6 @@ LOCK TABLES `fez_auth_datastream_index2_not_inherited` WRITE;
 UNLOCK TABLES;
 
 --
--- Dumping data for table `fez_auth_datastream_index2_not_inherited__shadow`
---
-
-LOCK TABLES `fez_auth_datastream_index2_not_inherited__shadow` WRITE;
-/*!40000 ALTER TABLE `fez_auth_datastream_index2_not_inherited__shadow` DISABLE KEYS */;
-/*!40000 ALTER TABLE `fez_auth_datastream_index2_not_inherited__shadow` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
 -- Dumping data for table `fez_auth_index2`
 --
 
@@ -76,15 +67,6 @@ UNLOCK TABLES;
 LOCK TABLES `fez_auth_index2_not_inherited` WRITE;
 /*!40000 ALTER TABLE `fez_auth_index2_not_inherited` DISABLE KEYS */;
 /*!40000 ALTER TABLE `fez_auth_index2_not_inherited` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Dumping data for table `fez_auth_index2_not_inherited__shadow`
---
-
-LOCK TABLES `fez_auth_index2_not_inherited__shadow` WRITE;
-/*!40000 ALTER TABLE `fez_auth_index2_not_inherited__shadow` DISABLE KEYS */;
-/*!40000 ALTER TABLE `fez_auth_index2_not_inherited__shadow` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -854,14 +836,7 @@ LOCK TABLES `fez_record_search_key` WRITE;
 /*!40000 ALTER TABLE `fez_record_search_key` ENABLE KEYS */;
 UNLOCK TABLES;
 
---
--- Dumping data for table `fez_record_search_key__shadow`
---
 
-LOCK TABLES `fez_record_search_key__shadow` WRITE;
-/*!40000 ALTER TABLE `fez_record_search_key__shadow` DISABLE KEYS */;
-/*!40000 ALTER TABLE `fez_record_search_key__shadow` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Dumping data for table `fez_record_search_key_access_conditions`
@@ -872,14 +847,7 @@ LOCK TABLES `fez_record_search_key_access_conditions` WRITE;
 /*!40000 ALTER TABLE `fez_record_search_key_access_conditions` ENABLE KEYS */;
 UNLOCK TABLES;
 
---
--- Dumping data for table `fez_record_search_key_access_conditions__shadow`
---
 
-LOCK TABLES `fez_record_search_key_access_conditions__shadow` WRITE;
-/*!40000 ALTER TABLE `fez_record_search_key_access_conditions__shadow` DISABLE KEYS */;
-/*!40000 ALTER TABLE `fez_record_search_key_access_conditions__shadow` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Dumping data for table `fez_record_search_key_adt_id`
@@ -890,14 +858,7 @@ LOCK TABLES `fez_record_search_key_adt_id` WRITE;
 /*!40000 ALTER TABLE `fez_record_search_key_adt_id` ENABLE KEYS */;
 UNLOCK TABLES;
 
---
--- Dumping data for table `fez_record_search_key_adt_id__shadow`
---
 
-LOCK TABLES `fez_record_search_key_adt_id__shadow` WRITE;
-/*!40000 ALTER TABLE `fez_record_search_key_adt_id__shadow` DISABLE KEYS */;
-/*!40000 ALTER TABLE `fez_record_search_key_adt_id__shadow` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Dumping data for table `fez_record_search_key_alternative_title`
@@ -908,14 +869,7 @@ LOCK TABLES `fez_record_search_key_alternative_title` WRITE;
 /*!40000 ALTER TABLE `fez_record_search_key_alternative_title` ENABLE KEYS */;
 UNLOCK TABLES;
 
---
--- Dumping data for table `fez_record_search_key_alternative_title__shadow`
---
 
-LOCK TABLES `fez_record_search_key_alternative_title__shadow` WRITE;
-/*!40000 ALTER TABLE `fez_record_search_key_alternative_title__shadow` DISABLE KEYS */;
-/*!40000 ALTER TABLE `fez_record_search_key_alternative_title__shadow` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Dumping data for table `fez_record_search_key_ands_collection_type`
@@ -926,14 +880,7 @@ LOCK TABLES `fez_record_search_key_ands_collection_type` WRITE;
 /*!40000 ALTER TABLE `fez_record_search_key_ands_collection_type` ENABLE KEYS */;
 UNLOCK TABLES;
 
---
--- Dumping data for table `fez_record_search_key_ands_collection_type__shadow`
---
 
-LOCK TABLES `fez_record_search_key_ands_collection_type__shadow` WRITE;
-/*!40000 ALTER TABLE `fez_record_search_key_ands_collection_type__shadow` DISABLE KEYS */;
-/*!40000 ALTER TABLE `fez_record_search_key_ands_collection_type__shadow` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Dumping data for table `fez_record_search_key_architectural_features`
@@ -944,14 +891,7 @@ LOCK TABLES `fez_record_search_key_architectural_features` WRITE;
 /*!40000 ALTER TABLE `fez_record_search_key_architectural_features` ENABLE KEYS */;
 UNLOCK TABLES;
 
---
--- Dumping data for table `fez_record_search_key_architectural_features__shadow`
---
 
-LOCK TABLES `fez_record_search_key_architectural_features__shadow` WRITE;
-/*!40000 ALTER TABLE `fez_record_search_key_architectural_features__shadow` DISABLE KEYS */;
-/*!40000 ALTER TABLE `fez_record_search_key_architectural_features__shadow` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Dumping data for table `fez_record_search_key_assigned_group_id`
@@ -962,14 +902,7 @@ LOCK TABLES `fez_record_search_key_assigned_group_id` WRITE;
 /*!40000 ALTER TABLE `fez_record_search_key_assigned_group_id` ENABLE KEYS */;
 UNLOCK TABLES;
 
---
--- Dumping data for table `fez_record_search_key_assigned_group_id__shadow`
---
 
-LOCK TABLES `fez_record_search_key_assigned_group_id__shadow` WRITE;
-/*!40000 ALTER TABLE `fez_record_search_key_assigned_group_id__shadow` DISABLE KEYS */;
-/*!40000 ALTER TABLE `fez_record_search_key_assigned_group_id__shadow` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Dumping data for table `fez_record_search_key_assigned_user_id`
@@ -980,14 +913,7 @@ LOCK TABLES `fez_record_search_key_assigned_user_id` WRITE;
 /*!40000 ALTER TABLE `fez_record_search_key_assigned_user_id` ENABLE KEYS */;
 UNLOCK TABLES;
 
---
--- Dumping data for table `fez_record_search_key_assigned_user_id__shadow`
---
 
-LOCK TABLES `fez_record_search_key_assigned_user_id__shadow` WRITE;
-/*!40000 ALTER TABLE `fez_record_search_key_assigned_user_id__shadow` DISABLE KEYS */;
-/*!40000 ALTER TABLE `fez_record_search_key_assigned_user_id__shadow` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Dumping data for table `fez_record_search_key_author`
@@ -998,14 +924,7 @@ LOCK TABLES `fez_record_search_key_author` WRITE;
 /*!40000 ALTER TABLE `fez_record_search_key_author` ENABLE KEYS */;
 UNLOCK TABLES;
 
---
--- Dumping data for table `fez_record_search_key_author__shadow`
---
 
-LOCK TABLES `fez_record_search_key_author__shadow` WRITE;
-/*!40000 ALTER TABLE `fez_record_search_key_author__shadow` DISABLE KEYS */;
-/*!40000 ALTER TABLE `fez_record_search_key_author__shadow` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Dumping data for table `fez_record_search_key_author_case_sensitive`
@@ -1025,14 +944,7 @@ LOCK TABLES `fez_record_search_key_author_count` WRITE;
 /*!40000 ALTER TABLE `fez_record_search_key_author_count` ENABLE KEYS */;
 UNLOCK TABLES;
 
---
--- Dumping data for table `fez_record_search_key_author_count__shadow`
---
 
-LOCK TABLES `fez_record_search_key_author_count__shadow` WRITE;
-/*!40000 ALTER TABLE `fez_record_search_key_author_count__shadow` DISABLE KEYS */;
-/*!40000 ALTER TABLE `fez_record_search_key_author_count__shadow` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Dumping data for table `fez_record_search_key_author_id`
@@ -1043,14 +955,7 @@ LOCK TABLES `fez_record_search_key_author_id` WRITE;
 /*!40000 ALTER TABLE `fez_record_search_key_author_id` ENABLE KEYS */;
 UNLOCK TABLES;
 
---
--- Dumping data for table `fez_record_search_key_author_id__shadow`
---
 
-LOCK TABLES `fez_record_search_key_author_id__shadow` WRITE;
-/*!40000 ALTER TABLE `fez_record_search_key_author_id__shadow` DISABLE KEYS */;
-/*!40000 ALTER TABLE `fez_record_search_key_author_id__shadow` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Dumping data for table `fez_record_search_key_author_role`
@@ -1061,14 +966,7 @@ LOCK TABLES `fez_record_search_key_author_role` WRITE;
 /*!40000 ALTER TABLE `fez_record_search_key_author_role` ENABLE KEYS */;
 UNLOCK TABLES;
 
---
--- Dumping data for table `fez_record_search_key_author_role__shadow`
---
 
-LOCK TABLES `fez_record_search_key_author_role__shadow` WRITE;
-/*!40000 ALTER TABLE `fez_record_search_key_author_role__shadow` DISABLE KEYS */;
-/*!40000 ALTER TABLE `fez_record_search_key_author_role__shadow` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Dumping data for table `fez_record_search_key_book_title`
@@ -1079,14 +977,7 @@ LOCK TABLES `fez_record_search_key_book_title` WRITE;
 /*!40000 ALTER TABLE `fez_record_search_key_book_title` ENABLE KEYS */;
 UNLOCK TABLES;
 
---
--- Dumping data for table `fez_record_search_key_book_title__shadow`
---
 
-LOCK TABLES `fez_record_search_key_book_title__shadow` WRITE;
-/*!40000 ALTER TABLE `fez_record_search_key_book_title__shadow` DISABLE KEYS */;
-/*!40000 ALTER TABLE `fez_record_search_key_book_title__shadow` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Dumping data for table `fez_record_search_key_building_materials`
@@ -1097,14 +988,7 @@ LOCK TABLES `fez_record_search_key_building_materials` WRITE;
 /*!40000 ALTER TABLE `fez_record_search_key_building_materials` ENABLE KEYS */;
 UNLOCK TABLES;
 
---
--- Dumping data for table `fez_record_search_key_building_materials__shadow`
---
 
-LOCK TABLES `fez_record_search_key_building_materials__shadow` WRITE;
-/*!40000 ALTER TABLE `fez_record_search_key_building_materials__shadow` DISABLE KEYS */;
-/*!40000 ALTER TABLE `fez_record_search_key_building_materials__shadow` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Dumping data for table `fez_record_search_key_case_sensitive`
@@ -1133,14 +1017,7 @@ LOCK TABLES `fez_record_search_key_category` WRITE;
 /*!40000 ALTER TABLE `fez_record_search_key_category` ENABLE KEYS */;
 UNLOCK TABLES;
 
---
--- Dumping data for table `fez_record_search_key_category__shadow`
---
 
-LOCK TABLES `fez_record_search_key_category__shadow` WRITE;
-/*!40000 ALTER TABLE `fez_record_search_key_category__shadow` DISABLE KEYS */;
-/*!40000 ALTER TABLE `fez_record_search_key_category__shadow` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Dumping data for table `fez_record_search_key_chapter_number`
@@ -1151,14 +1028,7 @@ LOCK TABLES `fez_record_search_key_chapter_number` WRITE;
 /*!40000 ALTER TABLE `fez_record_search_key_chapter_number` ENABLE KEYS */;
 UNLOCK TABLES;
 
---
--- Dumping data for table `fez_record_search_key_chapter_number__shadow`
---
 
-LOCK TABLES `fez_record_search_key_chapter_number__shadow` WRITE;
-/*!40000 ALTER TABLE `fez_record_search_key_chapter_number__shadow` DISABLE KEYS */;
-/*!40000 ALTER TABLE `fez_record_search_key_chapter_number__shadow` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Dumping data for table `fez_record_search_key_collection_year`
@@ -1169,14 +1039,7 @@ LOCK TABLES `fez_record_search_key_collection_year` WRITE;
 /*!40000 ALTER TABLE `fez_record_search_key_collection_year` ENABLE KEYS */;
 UNLOCK TABLES;
 
---
--- Dumping data for table `fez_record_search_key_collection_year__shadow`
---
 
-LOCK TABLES `fez_record_search_key_collection_year__shadow` WRITE;
-/*!40000 ALTER TABLE `fez_record_search_key_collection_year__shadow` DISABLE KEYS */;
-/*!40000 ALTER TABLE `fez_record_search_key_collection_year__shadow` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Dumping data for table `fez_record_search_key_condition`
@@ -1187,14 +1050,7 @@ LOCK TABLES `fez_record_search_key_condition` WRITE;
 /*!40000 ALTER TABLE `fez_record_search_key_condition` ENABLE KEYS */;
 UNLOCK TABLES;
 
---
--- Dumping data for table `fez_record_search_key_condition__shadow`
---
 
-LOCK TABLES `fez_record_search_key_condition__shadow` WRITE;
-/*!40000 ALTER TABLE `fez_record_search_key_condition__shadow` DISABLE KEYS */;
-/*!40000 ALTER TABLE `fez_record_search_key_condition__shadow` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Dumping data for table `fez_record_search_key_conference_dates`
@@ -1205,14 +1061,7 @@ LOCK TABLES `fez_record_search_key_conference_dates` WRITE;
 /*!40000 ALTER TABLE `fez_record_search_key_conference_dates` ENABLE KEYS */;
 UNLOCK TABLES;
 
---
--- Dumping data for table `fez_record_search_key_conference_dates__shadow`
---
 
-LOCK TABLES `fez_record_search_key_conference_dates__shadow` WRITE;
-/*!40000 ALTER TABLE `fez_record_search_key_conference_dates__shadow` DISABLE KEYS */;
-/*!40000 ALTER TABLE `fez_record_search_key_conference_dates__shadow` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Dumping data for table `fez_record_search_key_conference_id`
@@ -1223,14 +1072,7 @@ LOCK TABLES `fez_record_search_key_conference_id` WRITE;
 /*!40000 ALTER TABLE `fez_record_search_key_conference_id` ENABLE KEYS */;
 UNLOCK TABLES;
 
---
--- Dumping data for table `fez_record_search_key_conference_id__shadow`
---
 
-LOCK TABLES `fez_record_search_key_conference_id__shadow` WRITE;
-/*!40000 ALTER TABLE `fez_record_search_key_conference_id__shadow` DISABLE KEYS */;
-/*!40000 ALTER TABLE `fez_record_search_key_conference_id__shadow` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Dumping data for table `fez_record_search_key_conference_location`
@@ -1241,14 +1083,7 @@ LOCK TABLES `fez_record_search_key_conference_location` WRITE;
 /*!40000 ALTER TABLE `fez_record_search_key_conference_location` ENABLE KEYS */;
 UNLOCK TABLES;
 
---
--- Dumping data for table `fez_record_search_key_conference_location__shadow`
---
 
-LOCK TABLES `fez_record_search_key_conference_location__shadow` WRITE;
-/*!40000 ALTER TABLE `fez_record_search_key_conference_location__shadow` DISABLE KEYS */;
-/*!40000 ALTER TABLE `fez_record_search_key_conference_location__shadow` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Dumping data for table `fez_record_search_key_conference_name`
@@ -1259,14 +1094,7 @@ LOCK TABLES `fez_record_search_key_conference_name` WRITE;
 /*!40000 ALTER TABLE `fez_record_search_key_conference_name` ENABLE KEYS */;
 UNLOCK TABLES;
 
---
--- Dumping data for table `fez_record_search_key_conference_name__shadow`
---
 
-LOCK TABLES `fez_record_search_key_conference_name__shadow` WRITE;
-/*!40000 ALTER TABLE `fez_record_search_key_conference_name__shadow` DISABLE KEYS */;
-/*!40000 ALTER TABLE `fez_record_search_key_conference_name__shadow` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Dumping data for table `fez_record_search_key_contact_details_email`
@@ -1277,14 +1105,7 @@ LOCK TABLES `fez_record_search_key_contact_details_email` WRITE;
 /*!40000 ALTER TABLE `fez_record_search_key_contact_details_email` ENABLE KEYS */;
 UNLOCK TABLES;
 
---
--- Dumping data for table `fez_record_search_key_contact_details_email__shadow`
---
 
-LOCK TABLES `fez_record_search_key_contact_details_email__shadow` WRITE;
-/*!40000 ALTER TABLE `fez_record_search_key_contact_details_email__shadow` DISABLE KEYS */;
-/*!40000 ALTER TABLE `fez_record_search_key_contact_details_email__shadow` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Dumping data for table `fez_record_search_key_contact_details_physical`
@@ -1295,14 +1116,7 @@ LOCK TABLES `fez_record_search_key_contact_details_physical` WRITE;
 /*!40000 ALTER TABLE `fez_record_search_key_contact_details_physical` ENABLE KEYS */;
 UNLOCK TABLES;
 
---
--- Dumping data for table `fez_record_search_key_contact_details_physical__shadow`
---
 
-LOCK TABLES `fez_record_search_key_contact_details_physical__shadow` WRITE;
-/*!40000 ALTER TABLE `fez_record_search_key_contact_details_physical__shadow` DISABLE KEYS */;
-/*!40000 ALTER TABLE `fez_record_search_key_contact_details_physical__shadow` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Dumping data for table `fez_record_search_key_contributor`
@@ -1313,14 +1127,7 @@ LOCK TABLES `fez_record_search_key_contributor` WRITE;
 /*!40000 ALTER TABLE `fez_record_search_key_contributor` ENABLE KEYS */;
 UNLOCK TABLES;
 
---
--- Dumping data for table `fez_record_search_key_contributor__shadow`
---
 
-LOCK TABLES `fez_record_search_key_contributor__shadow` WRITE;
-/*!40000 ALTER TABLE `fez_record_search_key_contributor__shadow` DISABLE KEYS */;
-/*!40000 ALTER TABLE `fez_record_search_key_contributor__shadow` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Dumping data for table `fez_record_search_key_contributor_id`
@@ -1331,14 +1138,7 @@ LOCK TABLES `fez_record_search_key_contributor_id` WRITE;
 /*!40000 ALTER TABLE `fez_record_search_key_contributor_id` ENABLE KEYS */;
 UNLOCK TABLES;
 
---
--- Dumping data for table `fez_record_search_key_contributor_id__shadow`
---
 
-LOCK TABLES `fez_record_search_key_contributor_id__shadow` WRITE;
-/*!40000 ALTER TABLE `fez_record_search_key_contributor_id__shadow` DISABLE KEYS */;
-/*!40000 ALTER TABLE `fez_record_search_key_contributor_id__shadow` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Dumping data for table `fez_record_search_key_contributor_role`
@@ -1349,14 +1149,7 @@ LOCK TABLES `fez_record_search_key_contributor_role` WRITE;
 /*!40000 ALTER TABLE `fez_record_search_key_contributor_role` ENABLE KEYS */;
 UNLOCK TABLES;
 
---
--- Dumping data for table `fez_record_search_key_contributor_role__shadow`
---
 
-LOCK TABLES `fez_record_search_key_contributor_role__shadow` WRITE;
-/*!40000 ALTER TABLE `fez_record_search_key_contributor_role__shadow` DISABLE KEYS */;
-/*!40000 ALTER TABLE `fez_record_search_key_contributor_role__shadow` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Dumping data for table `fez_record_search_key_convener`
@@ -1367,14 +1160,7 @@ LOCK TABLES `fez_record_search_key_convener` WRITE;
 /*!40000 ALTER TABLE `fez_record_search_key_convener` ENABLE KEYS */;
 UNLOCK TABLES;
 
---
--- Dumping data for table `fez_record_search_key_convener__shadow`
---
 
-LOCK TABLES `fez_record_search_key_convener__shadow` WRITE;
-/*!40000 ALTER TABLE `fez_record_search_key_convener__shadow` DISABLE KEYS */;
-/*!40000 ALTER TABLE `fez_record_search_key_convener__shadow` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Dumping data for table `fez_record_search_key_country_of_issue`
@@ -1385,14 +1171,7 @@ LOCK TABLES `fez_record_search_key_country_of_issue` WRITE;
 /*!40000 ALTER TABLE `fez_record_search_key_country_of_issue` ENABLE KEYS */;
 UNLOCK TABLES;
 
---
--- Dumping data for table `fez_record_search_key_country_of_issue__shadow`
---
 
-LOCK TABLES `fez_record_search_key_country_of_issue__shadow` WRITE;
-/*!40000 ALTER TABLE `fez_record_search_key_country_of_issue__shadow` DISABLE KEYS */;
-/*!40000 ALTER TABLE `fez_record_search_key_country_of_issue__shadow` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Dumping data for table `fez_record_search_key_coverage_period`
@@ -1403,14 +1182,7 @@ LOCK TABLES `fez_record_search_key_coverage_period` WRITE;
 /*!40000 ALTER TABLE `fez_record_search_key_coverage_period` ENABLE KEYS */;
 UNLOCK TABLES;
 
---
--- Dumping data for table `fez_record_search_key_coverage_period__shadow`
---
 
-LOCK TABLES `fez_record_search_key_coverage_period__shadow` WRITE;
-/*!40000 ALTER TABLE `fez_record_search_key_coverage_period__shadow` DISABLE KEYS */;
-/*!40000 ALTER TABLE `fez_record_search_key_coverage_period__shadow` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Dumping data for table `fez_record_search_key_date_available`
@@ -1421,14 +1193,7 @@ LOCK TABLES `fez_record_search_key_date_available` WRITE;
 /*!40000 ALTER TABLE `fez_record_search_key_date_available` ENABLE KEYS */;
 UNLOCK TABLES;
 
---
--- Dumping data for table `fez_record_search_key_date_available__shadow`
---
 
-LOCK TABLES `fez_record_search_key_date_available__shadow` WRITE;
-/*!40000 ALTER TABLE `fez_record_search_key_date_available__shadow` DISABLE KEYS */;
-/*!40000 ALTER TABLE `fez_record_search_key_date_available__shadow` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Dumping data for table `fez_record_search_key_doi`
@@ -1439,14 +1204,7 @@ LOCK TABLES `fez_record_search_key_doi` WRITE;
 /*!40000 ALTER TABLE `fez_record_search_key_doi` ENABLE KEYS */;
 UNLOCK TABLES;
 
---
--- Dumping data for table `fez_record_search_key_doi__shadow`
---
 
-LOCK TABLES `fez_record_search_key_doi__shadow` WRITE;
-/*!40000 ALTER TABLE `fez_record_search_key_doi__shadow` DISABLE KEYS */;
-/*!40000 ALTER TABLE `fez_record_search_key_doi__shadow` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Dumping data for table `fez_record_search_key_edition`
@@ -1457,14 +1215,7 @@ LOCK TABLES `fez_record_search_key_edition` WRITE;
 /*!40000 ALTER TABLE `fez_record_search_key_edition` ENABLE KEYS */;
 UNLOCK TABLES;
 
---
--- Dumping data for table `fez_record_search_key_edition__shadow`
---
 
-LOCK TABLES `fez_record_search_key_edition__shadow` WRITE;
-/*!40000 ALTER TABLE `fez_record_search_key_edition__shadow` DISABLE KEYS */;
-/*!40000 ALTER TABLE `fez_record_search_key_edition__shadow` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Dumping data for table `fez_record_search_key_end_date`
@@ -1475,14 +1226,7 @@ LOCK TABLES `fez_record_search_key_end_date` WRITE;
 /*!40000 ALTER TABLE `fez_record_search_key_end_date` ENABLE KEYS */;
 UNLOCK TABLES;
 
---
--- Dumping data for table `fez_record_search_key_end_date__shadow`
---
 
-LOCK TABLES `fez_record_search_key_end_date__shadow` WRITE;
-/*!40000 ALTER TABLE `fez_record_search_key_end_date__shadow` DISABLE KEYS */;
-/*!40000 ALTER TABLE `fez_record_search_key_end_date__shadow` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Dumping data for table `fez_record_search_key_end_page`
@@ -1493,14 +1237,7 @@ LOCK TABLES `fez_record_search_key_end_page` WRITE;
 /*!40000 ALTER TABLE `fez_record_search_key_end_page` ENABLE KEYS */;
 UNLOCK TABLES;
 
---
--- Dumping data for table `fez_record_search_key_end_page__shadow`
---
 
-LOCK TABLES `fez_record_search_key_end_page__shadow` WRITE;
-/*!40000 ALTER TABLE `fez_record_search_key_end_page__shadow` DISABLE KEYS */;
-/*!40000 ALTER TABLE `fez_record_search_key_end_page__shadow` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Dumping data for table `fez_record_search_key_extent`
@@ -1511,14 +1248,7 @@ LOCK TABLES `fez_record_search_key_extent` WRITE;
 /*!40000 ALTER TABLE `fez_record_search_key_extent` ENABLE KEYS */;
 UNLOCK TABLES;
 
---
--- Dumping data for table `fez_record_search_key_extent__shadow`
---
 
-LOCK TABLES `fez_record_search_key_extent__shadow` WRITE;
-/*!40000 ALTER TABLE `fez_record_search_key_extent__shadow` DISABLE KEYS */;
-/*!40000 ALTER TABLE `fez_record_search_key_extent__shadow` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Dumping data for table `fez_record_search_key_file_attachment_content`
@@ -1529,14 +1259,7 @@ LOCK TABLES `fez_record_search_key_file_attachment_content` WRITE;
 /*!40000 ALTER TABLE `fez_record_search_key_file_attachment_content` ENABLE KEYS */;
 UNLOCK TABLES;
 
---
--- Dumping data for table `fez_record_search_key_file_attachment_content__shadow`
---
 
-LOCK TABLES `fez_record_search_key_file_attachment_content__shadow` WRITE;
-/*!40000 ALTER TABLE `fez_record_search_key_file_attachment_content__shadow` DISABLE KEYS */;
-/*!40000 ALTER TABLE `fez_record_search_key_file_attachment_content__shadow` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Dumping data for table `fez_record_search_key_file_attachment_name`
@@ -1547,14 +1270,7 @@ LOCK TABLES `fez_record_search_key_file_attachment_name` WRITE;
 /*!40000 ALTER TABLE `fez_record_search_key_file_attachment_name` ENABLE KEYS */;
 UNLOCK TABLES;
 
---
--- Dumping data for table `fez_record_search_key_file_attachment_name__shadow`
---
 
-LOCK TABLES `fez_record_search_key_file_attachment_name__shadow` WRITE;
-/*!40000 ALTER TABLE `fez_record_search_key_file_attachment_name__shadow` DISABLE KEYS */;
-/*!40000 ALTER TABLE `fez_record_search_key_file_attachment_name__shadow` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Dumping data for table `fez_record_search_key_file_description`
@@ -1565,14 +1281,7 @@ LOCK TABLES `fez_record_search_key_file_description` WRITE;
 /*!40000 ALTER TABLE `fez_record_search_key_file_description` ENABLE KEYS */;
 UNLOCK TABLES;
 
---
--- Dumping data for table `fez_record_search_key_file_description__shadow`
---
 
-LOCK TABLES `fez_record_search_key_file_description__shadow` WRITE;
-/*!40000 ALTER TABLE `fez_record_search_key_file_description__shadow` DISABLE KEYS */;
-/*!40000 ALTER TABLE `fez_record_search_key_file_description__shadow` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Dumping data for table `fez_record_search_key_file_downloads`
@@ -1592,14 +1301,7 @@ LOCK TABLES `fez_record_search_key_first_author_in_document_derived` WRITE;
 /*!40000 ALTER TABLE `fez_record_search_key_first_author_in_document_derived` ENABLE KEYS */;
 UNLOCK TABLES;
 
---
--- Dumping data for table `fez_record_search_key_first_author_in_document_derived__shadow`
---
 
-LOCK TABLES `fez_record_search_key_first_author_in_document_derived__shadow` WRITE;
-/*!40000 ALTER TABLE `fez_record_search_key_first_author_in_document_derived__shadow` DISABLE KEYS */;
-/*!40000 ALTER TABLE `fez_record_search_key_first_author_in_document_derived__shadow` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Dumping data for table `fez_record_search_key_first_author_in_fez_derived`
@@ -1610,14 +1312,7 @@ LOCK TABLES `fez_record_search_key_first_author_in_fez_derived` WRITE;
 /*!40000 ALTER TABLE `fez_record_search_key_first_author_in_fez_derived` ENABLE KEYS */;
 UNLOCK TABLES;
 
---
--- Dumping data for table `fez_record_search_key_first_author_in_fez_derived__shadow`
---
 
-LOCK TABLES `fez_record_search_key_first_author_in_fez_derived__shadow` WRITE;
-/*!40000 ALTER TABLE `fez_record_search_key_first_author_in_fez_derived__shadow` DISABLE KEYS */;
-/*!40000 ALTER TABLE `fez_record_search_key_first_author_in_fez_derived__shadow` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Dumping data for table `fez_record_search_key_follow_up_flags`
@@ -1628,14 +1323,7 @@ LOCK TABLES `fez_record_search_key_follow_up_flags` WRITE;
 /*!40000 ALTER TABLE `fez_record_search_key_follow_up_flags` ENABLE KEYS */;
 UNLOCK TABLES;
 
---
--- Dumping data for table `fez_record_search_key_follow_up_flags__shadow`
---
 
-LOCK TABLES `fez_record_search_key_follow_up_flags__shadow` WRITE;
-/*!40000 ALTER TABLE `fez_record_search_key_follow_up_flags__shadow` DISABLE KEYS */;
-/*!40000 ALTER TABLE `fez_record_search_key_follow_up_flags__shadow` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Dumping data for table `fez_record_search_key_follow_up_flags_imu`
@@ -1646,14 +1334,7 @@ LOCK TABLES `fez_record_search_key_follow_up_flags_imu` WRITE;
 /*!40000 ALTER TABLE `fez_record_search_key_follow_up_flags_imu` ENABLE KEYS */;
 UNLOCK TABLES;
 
---
--- Dumping data for table `fez_record_search_key_follow_up_flags_imu__shadow`
---
 
-LOCK TABLES `fez_record_search_key_follow_up_flags_imu__shadow` WRITE;
-/*!40000 ALTER TABLE `fez_record_search_key_follow_up_flags_imu__shadow` DISABLE KEYS */;
-/*!40000 ALTER TABLE `fez_record_search_key_follow_up_flags_imu__shadow` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Dumping data for table `fez_record_search_key_geographic_area`
@@ -1664,14 +1345,7 @@ LOCK TABLES `fez_record_search_key_geographic_area` WRITE;
 /*!40000 ALTER TABLE `fez_record_search_key_geographic_area` ENABLE KEYS */;
 UNLOCK TABLES;
 
---
--- Dumping data for table `fez_record_search_key_geographic_area__shadow`
---
 
-LOCK TABLES `fez_record_search_key_geographic_area__shadow` WRITE;
-/*!40000 ALTER TABLE `fez_record_search_key_geographic_area__shadow` DISABLE KEYS */;
-/*!40000 ALTER TABLE `fez_record_search_key_geographic_area__shadow` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Dumping data for table `fez_record_search_key_geographic_coordinates`
@@ -1682,14 +1356,7 @@ LOCK TABLES `fez_record_search_key_geographic_coordinates` WRITE;
 /*!40000 ALTER TABLE `fez_record_search_key_geographic_coordinates` ENABLE KEYS */;
 UNLOCK TABLES;
 
---
--- Dumping data for table `fez_record_search_key_geographic_coordinates__shadow`
---
 
-LOCK TABLES `fez_record_search_key_geographic_coordinates__shadow` WRITE;
-/*!40000 ALTER TABLE `fez_record_search_key_geographic_coordinates__shadow` DISABLE KEYS */;
-/*!40000 ALTER TABLE `fez_record_search_key_geographic_coordinates__shadow` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Dumping data for table `fez_record_search_key_herdc_code`
@@ -1700,14 +1367,7 @@ LOCK TABLES `fez_record_search_key_herdc_code` WRITE;
 /*!40000 ALTER TABLE `fez_record_search_key_herdc_code` ENABLE KEYS */;
 UNLOCK TABLES;
 
---
--- Dumping data for table `fez_record_search_key_herdc_code__shadow`
---
 
-LOCK TABLES `fez_record_search_key_herdc_code__shadow` WRITE;
-/*!40000 ALTER TABLE `fez_record_search_key_herdc_code__shadow` DISABLE KEYS */;
-/*!40000 ALTER TABLE `fez_record_search_key_herdc_code__shadow` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Dumping data for table `fez_record_search_key_herdc_status`
@@ -1718,14 +1378,7 @@ LOCK TABLES `fez_record_search_key_herdc_status` WRITE;
 /*!40000 ALTER TABLE `fez_record_search_key_herdc_status` ENABLE KEYS */;
 UNLOCK TABLES;
 
---
--- Dumping data for table `fez_record_search_key_herdc_status__shadow`
---
 
-LOCK TABLES `fez_record_search_key_herdc_status__shadow` WRITE;
-/*!40000 ALTER TABLE `fez_record_search_key_herdc_status__shadow` DISABLE KEYS */;
-/*!40000 ALTER TABLE `fez_record_search_key_herdc_status__shadow` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Dumping data for table `fez_record_search_key_identifier`
@@ -1736,14 +1389,7 @@ LOCK TABLES `fez_record_search_key_identifier` WRITE;
 /*!40000 ALTER TABLE `fez_record_search_key_identifier` ENABLE KEYS */;
 UNLOCK TABLES;
 
---
--- Dumping data for table `fez_record_search_key_identifier__shadow`
---
 
-LOCK TABLES `fez_record_search_key_identifier__shadow` WRITE;
-/*!40000 ALTER TABLE `fez_record_search_key_identifier__shadow` DISABLE KEYS */;
-/*!40000 ALTER TABLE `fez_record_search_key_identifier__shadow` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Dumping data for table `fez_record_search_key_institutional_status`
@@ -1754,14 +1400,7 @@ LOCK TABLES `fez_record_search_key_institutional_status` WRITE;
 /*!40000 ALTER TABLE `fez_record_search_key_institutional_status` ENABLE KEYS */;
 UNLOCK TABLES;
 
---
--- Dumping data for table `fez_record_search_key_institutional_status__shadow`
---
 
-LOCK TABLES `fez_record_search_key_institutional_status__shadow` WRITE;
-/*!40000 ALTER TABLE `fez_record_search_key_institutional_status__shadow` DISABLE KEYS */;
-/*!40000 ALTER TABLE `fez_record_search_key_institutional_status__shadow` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Dumping data for table `fez_record_search_key_interior_features`
@@ -1772,14 +1411,7 @@ LOCK TABLES `fez_record_search_key_interior_features` WRITE;
 /*!40000 ALTER TABLE `fez_record_search_key_interior_features` ENABLE KEYS */;
 UNLOCK TABLES;
 
---
--- Dumping data for table `fez_record_search_key_interior_features__shadow`
---
 
-LOCK TABLES `fez_record_search_key_interior_features__shadow` WRITE;
-/*!40000 ALTER TABLE `fez_record_search_key_interior_features__shadow` DISABLE KEYS */;
-/*!40000 ALTER TABLE `fez_record_search_key_interior_features__shadow` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Dumping data for table `fez_record_search_key_isannotationof`
@@ -1790,14 +1422,7 @@ LOCK TABLES `fez_record_search_key_isannotationof` WRITE;
 /*!40000 ALTER TABLE `fez_record_search_key_isannotationof` ENABLE KEYS */;
 UNLOCK TABLES;
 
---
--- Dumping data for table `fez_record_search_key_isannotationof__shadow`
---
 
-LOCK TABLES `fez_record_search_key_isannotationof__shadow` WRITE;
-/*!40000 ALTER TABLE `fez_record_search_key_isannotationof__shadow` DISABLE KEYS */;
-/*!40000 ALTER TABLE `fez_record_search_key_isannotationof__shadow` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Dumping data for table `fez_record_search_key_isbn`
@@ -1808,14 +1433,7 @@ LOCK TABLES `fez_record_search_key_isbn` WRITE;
 /*!40000 ALTER TABLE `fez_record_search_key_isbn` ENABLE KEYS */;
 UNLOCK TABLES;
 
---
--- Dumping data for table `fez_record_search_key_isbn__shadow`
---
 
-LOCK TABLES `fez_record_search_key_isbn__shadow` WRITE;
-/*!40000 ALTER TABLE `fez_record_search_key_isbn__shadow` DISABLE KEYS */;
-/*!40000 ALTER TABLE `fez_record_search_key_isbn__shadow` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Dumping data for table `fez_record_search_key_isdatacomponentof`
@@ -1826,14 +1444,7 @@ LOCK TABLES `fez_record_search_key_isdatacomponentof` WRITE;
 /*!40000 ALTER TABLE `fez_record_search_key_isdatacomponentof` ENABLE KEYS */;
 UNLOCK TABLES;
 
---
--- Dumping data for table `fez_record_search_key_isdatacomponentof__shadow`
---
 
-LOCK TABLES `fez_record_search_key_isdatacomponentof__shadow` WRITE;
-/*!40000 ALTER TABLE `fez_record_search_key_isdatacomponentof__shadow` DISABLE KEYS */;
-/*!40000 ALTER TABLE `fez_record_search_key_isdatacomponentof__shadow` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Dumping data for table `fez_record_search_key_isderivationof`
@@ -1844,14 +1455,7 @@ LOCK TABLES `fez_record_search_key_isderivationof` WRITE;
 /*!40000 ALTER TABLE `fez_record_search_key_isderivationof` ENABLE KEYS */;
 UNLOCK TABLES;
 
---
--- Dumping data for table `fez_record_search_key_isderivationof__shadow`
---
 
-LOCK TABLES `fez_record_search_key_isderivationof__shadow` WRITE;
-/*!40000 ALTER TABLE `fez_record_search_key_isderivationof__shadow` DISABLE KEYS */;
-/*!40000 ALTER TABLE `fez_record_search_key_isderivationof__shadow` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Dumping data for table `fez_record_search_key_isi_loc`
@@ -1862,14 +1466,7 @@ LOCK TABLES `fez_record_search_key_isi_loc` WRITE;
 /*!40000 ALTER TABLE `fez_record_search_key_isi_loc` ENABLE KEYS */;
 UNLOCK TABLES;
 
---
--- Dumping data for table `fez_record_search_key_isi_loc__shadow`
---
 
-LOCK TABLES `fez_record_search_key_isi_loc__shadow` WRITE;
-/*!40000 ALTER TABLE `fez_record_search_key_isi_loc__shadow` DISABLE KEYS */;
-/*!40000 ALTER TABLE `fez_record_search_key_isi_loc__shadow` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Dumping data for table `fez_record_search_key_ismemberof`
@@ -1880,14 +1477,7 @@ LOCK TABLES `fez_record_search_key_ismemberof` WRITE;
 /*!40000 ALTER TABLE `fez_record_search_key_ismemberof` ENABLE KEYS */;
 UNLOCK TABLES;
 
---
--- Dumping data for table `fez_record_search_key_ismemberof__shadow`
---
 
-LOCK TABLES `fez_record_search_key_ismemberof__shadow` WRITE;
-/*!40000 ALTER TABLE `fez_record_search_key_ismemberof__shadow` DISABLE KEYS */;
-/*!40000 ALTER TABLE `fez_record_search_key_ismemberof__shadow` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Dumping data for table `fez_record_search_key_issn`
@@ -1898,14 +1488,7 @@ LOCK TABLES `fez_record_search_key_issn` WRITE;
 /*!40000 ALTER TABLE `fez_record_search_key_issn` ENABLE KEYS */;
 UNLOCK TABLES;
 
---
--- Dumping data for table `fez_record_search_key_issn__shadow`
---
 
-LOCK TABLES `fez_record_search_key_issn__shadow` WRITE;
-/*!40000 ALTER TABLE `fez_record_search_key_issn__shadow` DISABLE KEYS */;
-/*!40000 ALTER TABLE `fez_record_search_key_issn__shadow` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Dumping data for table `fez_record_search_key_issue_number`
@@ -1916,14 +1499,7 @@ LOCK TABLES `fez_record_search_key_issue_number` WRITE;
 /*!40000 ALTER TABLE `fez_record_search_key_issue_number` ENABLE KEYS */;
 UNLOCK TABLES;
 
---
--- Dumping data for table `fez_record_search_key_issue_number__shadow`
---
 
-LOCK TABLES `fez_record_search_key_issue_number__shadow` WRITE;
-/*!40000 ALTER TABLE `fez_record_search_key_issue_number__shadow` DISABLE KEYS */;
-/*!40000 ALTER TABLE `fez_record_search_key_issue_number__shadow` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Dumping data for table `fez_record_search_key_journal_name`
@@ -1934,14 +1510,7 @@ LOCK TABLES `fez_record_search_key_journal_name` WRITE;
 /*!40000 ALTER TABLE `fez_record_search_key_journal_name` ENABLE KEYS */;
 UNLOCK TABLES;
 
---
--- Dumping data for table `fez_record_search_key_journal_name__shadow`
---
 
-LOCK TABLES `fez_record_search_key_journal_name__shadow` WRITE;
-/*!40000 ALTER TABLE `fez_record_search_key_journal_name__shadow` DISABLE KEYS */;
-/*!40000 ALTER TABLE `fez_record_search_key_journal_name__shadow` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Dumping data for table `fez_record_search_key_journal_name_copy`
@@ -1961,14 +1530,7 @@ LOCK TABLES `fez_record_search_key_keywords` WRITE;
 /*!40000 ALTER TABLE `fez_record_search_key_keywords` ENABLE KEYS */;
 UNLOCK TABLES;
 
---
--- Dumping data for table `fez_record_search_key_keywords__shadow`
---
 
-LOCK TABLES `fez_record_search_key_keywords__shadow` WRITE;
-/*!40000 ALTER TABLE `fez_record_search_key_keywords__shadow` DISABLE KEYS */;
-/*!40000 ALTER TABLE `fez_record_search_key_keywords__shadow` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Dumping data for table `fez_record_search_key_language`
@@ -1979,14 +1541,7 @@ LOCK TABLES `fez_record_search_key_language` WRITE;
 /*!40000 ALTER TABLE `fez_record_search_key_language` ENABLE KEYS */;
 UNLOCK TABLES;
 
---
--- Dumping data for table `fez_record_search_key_language__shadow`
---
 
-LOCK TABLES `fez_record_search_key_language__shadow` WRITE;
-/*!40000 ALTER TABLE `fez_record_search_key_language__shadow` DISABLE KEYS */;
-/*!40000 ALTER TABLE `fez_record_search_key_language__shadow` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Dumping data for table `fez_record_search_key_language_of_book_title`
@@ -1997,14 +1552,7 @@ LOCK TABLES `fez_record_search_key_language_of_book_title` WRITE;
 /*!40000 ALTER TABLE `fez_record_search_key_language_of_book_title` ENABLE KEYS */;
 UNLOCK TABLES;
 
---
--- Dumping data for table `fez_record_search_key_language_of_book_title__shadow`
---
 
-LOCK TABLES `fez_record_search_key_language_of_book_title__shadow` WRITE;
-/*!40000 ALTER TABLE `fez_record_search_key_language_of_book_title__shadow` DISABLE KEYS */;
-/*!40000 ALTER TABLE `fez_record_search_key_language_of_book_title__shadow` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Dumping data for table `fez_record_search_key_language_of_journal_name`
@@ -2015,14 +1563,7 @@ LOCK TABLES `fez_record_search_key_language_of_journal_name` WRITE;
 /*!40000 ALTER TABLE `fez_record_search_key_language_of_journal_name` ENABLE KEYS */;
 UNLOCK TABLES;
 
---
--- Dumping data for table `fez_record_search_key_language_of_journal_name__shadow`
---
 
-LOCK TABLES `fez_record_search_key_language_of_journal_name__shadow` WRITE;
-/*!40000 ALTER TABLE `fez_record_search_key_language_of_journal_name__shadow` DISABLE KEYS */;
-/*!40000 ALTER TABLE `fez_record_search_key_language_of_journal_name__shadow` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Dumping data for table `fez_record_search_key_language_of_parent_title`
@@ -2033,14 +1574,7 @@ LOCK TABLES `fez_record_search_key_language_of_parent_title` WRITE;
 /*!40000 ALTER TABLE `fez_record_search_key_language_of_parent_title` ENABLE KEYS */;
 UNLOCK TABLES;
 
---
--- Dumping data for table `fez_record_search_key_language_of_parent_title__shadow`
---
 
-LOCK TABLES `fez_record_search_key_language_of_parent_title__shadow` WRITE;
-/*!40000 ALTER TABLE `fez_record_search_key_language_of_parent_title__shadow` DISABLE KEYS */;
-/*!40000 ALTER TABLE `fez_record_search_key_language_of_parent_title__shadow` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Dumping data for table `fez_record_search_key_language_of_proceedings_title`
@@ -2051,14 +1585,7 @@ LOCK TABLES `fez_record_search_key_language_of_proceedings_title` WRITE;
 /*!40000 ALTER TABLE `fez_record_search_key_language_of_proceedings_title` ENABLE KEYS */;
 UNLOCK TABLES;
 
---
--- Dumping data for table `fez_record_search_key_language_of_proceedings_title__shadow`
---
 
-LOCK TABLES `fez_record_search_key_language_of_proceedings_title__shadow` WRITE;
-/*!40000 ALTER TABLE `fez_record_search_key_language_of_proceedings_title__shadow` DISABLE KEYS */;
-/*!40000 ALTER TABLE `fez_record_search_key_language_of_proceedings_title__shadow` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Dumping data for table `fez_record_search_key_language_of_title`
@@ -2069,14 +1596,7 @@ LOCK TABLES `fez_record_search_key_language_of_title` WRITE;
 /*!40000 ALTER TABLE `fez_record_search_key_language_of_title` ENABLE KEYS */;
 UNLOCK TABLES;
 
---
--- Dumping data for table `fez_record_search_key_language_of_title__shadow`
---
 
-LOCK TABLES `fez_record_search_key_language_of_title__shadow` WRITE;
-/*!40000 ALTER TABLE `fez_record_search_key_language_of_title__shadow` DISABLE KEYS */;
-/*!40000 ALTER TABLE `fez_record_search_key_language_of_title__shadow` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Dumping data for table `fez_record_search_key_link`
@@ -2087,14 +1607,7 @@ LOCK TABLES `fez_record_search_key_link` WRITE;
 /*!40000 ALTER TABLE `fez_record_search_key_link` ENABLE KEYS */;
 UNLOCK TABLES;
 
---
--- Dumping data for table `fez_record_search_key_link__shadow`
---
 
-LOCK TABLES `fez_record_search_key_link__shadow` WRITE;
-/*!40000 ALTER TABLE `fez_record_search_key_link__shadow` DISABLE KEYS */;
-/*!40000 ALTER TABLE `fez_record_search_key_link__shadow` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Dumping data for table `fez_record_search_key_link_description`
@@ -2105,14 +1618,7 @@ LOCK TABLES `fez_record_search_key_link_description` WRITE;
 /*!40000 ALTER TABLE `fez_record_search_key_link_description` ENABLE KEYS */;
 UNLOCK TABLES;
 
---
--- Dumping data for table `fez_record_search_key_link_description__shadow`
---
 
-LOCK TABLES `fez_record_search_key_link_description__shadow` WRITE;
-/*!40000 ALTER TABLE `fez_record_search_key_link_description__shadow` DISABLE KEYS */;
-/*!40000 ALTER TABLE `fez_record_search_key_link_description__shadow` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Dumping data for table `fez_record_search_key_loc_subject_heading`
@@ -2123,14 +1629,7 @@ LOCK TABLES `fez_record_search_key_loc_subject_heading` WRITE;
 /*!40000 ALTER TABLE `fez_record_search_key_loc_subject_heading` ENABLE KEYS */;
 UNLOCK TABLES;
 
---
--- Dumping data for table `fez_record_search_key_loc_subject_heading__shadow`
---
 
-LOCK TABLES `fez_record_search_key_loc_subject_heading__shadow` WRITE;
-/*!40000 ALTER TABLE `fez_record_search_key_loc_subject_heading__shadow` DISABLE KEYS */;
-/*!40000 ALTER TABLE `fez_record_search_key_loc_subject_heading__shadow` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Dumping data for table `fez_record_search_key_location`
@@ -2141,14 +1640,7 @@ LOCK TABLES `fez_record_search_key_location` WRITE;
 /*!40000 ALTER TABLE `fez_record_search_key_location` ENABLE KEYS */;
 UNLOCK TABLES;
 
---
--- Dumping data for table `fez_record_search_key_location__shadow`
---
 
-LOCK TABLES `fez_record_search_key_location__shadow` WRITE;
-/*!40000 ALTER TABLE `fez_record_search_key_location__shadow` DISABLE KEYS */;
-/*!40000 ALTER TABLE `fez_record_search_key_location__shadow` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Dumping data for table `fez_record_search_key_na_explanation`
@@ -2159,14 +1651,7 @@ LOCK TABLES `fez_record_search_key_na_explanation` WRITE;
 /*!40000 ALTER TABLE `fez_record_search_key_na_explanation` ENABLE KEYS */;
 UNLOCK TABLES;
 
---
--- Dumping data for table `fez_record_search_key_na_explanation__shadow`
---
 
-LOCK TABLES `fez_record_search_key_na_explanation__shadow` WRITE;
-/*!40000 ALTER TABLE `fez_record_search_key_na_explanation__shadow` DISABLE KEYS */;
-/*!40000 ALTER TABLE `fez_record_search_key_na_explanation__shadow` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Dumping data for table `fez_record_search_key_native_script_book_title`
@@ -2177,14 +1662,7 @@ LOCK TABLES `fez_record_search_key_native_script_book_title` WRITE;
 /*!40000 ALTER TABLE `fez_record_search_key_native_script_book_title` ENABLE KEYS */;
 UNLOCK TABLES;
 
---
--- Dumping data for table `fez_record_search_key_native_script_book_title__shadow`
---
 
-LOCK TABLES `fez_record_search_key_native_script_book_title__shadow` WRITE;
-/*!40000 ALTER TABLE `fez_record_search_key_native_script_book_title__shadow` DISABLE KEYS */;
-/*!40000 ALTER TABLE `fez_record_search_key_native_script_book_title__shadow` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Dumping data for table `fez_record_search_key_native_script_conference_name`
@@ -2195,14 +1673,7 @@ LOCK TABLES `fez_record_search_key_native_script_conference_name` WRITE;
 /*!40000 ALTER TABLE `fez_record_search_key_native_script_conference_name` ENABLE KEYS */;
 UNLOCK TABLES;
 
---
--- Dumping data for table `fez_record_search_key_native_script_conference_name__shadow`
---
 
-LOCK TABLES `fez_record_search_key_native_script_conference_name__shadow` WRITE;
-/*!40000 ALTER TABLE `fez_record_search_key_native_script_conference_name__shadow` DISABLE KEYS */;
-/*!40000 ALTER TABLE `fez_record_search_key_native_script_conference_name__shadow` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Dumping data for table `fez_record_search_key_native_script_journal_name`
@@ -2213,14 +1684,7 @@ LOCK TABLES `fez_record_search_key_native_script_journal_name` WRITE;
 /*!40000 ALTER TABLE `fez_record_search_key_native_script_journal_name` ENABLE KEYS */;
 UNLOCK TABLES;
 
---
--- Dumping data for table `fez_record_search_key_native_script_journal_name__shadow`
---
 
-LOCK TABLES `fez_record_search_key_native_script_journal_name__shadow` WRITE;
-/*!40000 ALTER TABLE `fez_record_search_key_native_script_journal_name__shadow` DISABLE KEYS */;
-/*!40000 ALTER TABLE `fez_record_search_key_native_script_journal_name__shadow` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Dumping data for table `fez_record_search_key_native_script_proceedings_title`
@@ -2231,14 +1695,7 @@ LOCK TABLES `fez_record_search_key_native_script_proceedings_title` WRITE;
 /*!40000 ALTER TABLE `fez_record_search_key_native_script_proceedings_title` ENABLE KEYS */;
 UNLOCK TABLES;
 
---
--- Dumping data for table `fez_record_search_key_native_script_proceedings_title__shadow`
---
 
-LOCK TABLES `fez_record_search_key_native_script_proceedings_title__shadow` WRITE;
-/*!40000 ALTER TABLE `fez_record_search_key_native_script_proceedings_title__shadow` DISABLE KEYS */;
-/*!40000 ALTER TABLE `fez_record_search_key_native_script_proceedings_title__shadow` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Dumping data for table `fez_record_search_key_native_script_title`
@@ -2249,14 +1706,7 @@ LOCK TABLES `fez_record_search_key_native_script_title` WRITE;
 /*!40000 ALTER TABLE `fez_record_search_key_native_script_title` ENABLE KEYS */;
 UNLOCK TABLES;
 
---
--- Dumping data for table `fez_record_search_key_native_script_title__shadow`
---
 
-LOCK TABLES `fez_record_search_key_native_script_title__shadow` WRITE;
-/*!40000 ALTER TABLE `fez_record_search_key_native_script_title__shadow` DISABLE KEYS */;
-/*!40000 ALTER TABLE `fez_record_search_key_native_script_title__shadow` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Dumping data for table `fez_record_search_key_newspaper`
@@ -2267,14 +1717,7 @@ LOCK TABLES `fez_record_search_key_newspaper` WRITE;
 /*!40000 ALTER TABLE `fez_record_search_key_newspaper` ENABLE KEYS */;
 UNLOCK TABLES;
 
---
--- Dumping data for table `fez_record_search_key_newspaper__shadow`
---
 
-LOCK TABLES `fez_record_search_key_newspaper__shadow` WRITE;
-/*!40000 ALTER TABLE `fez_record_search_key_newspaper__shadow` DISABLE KEYS */;
-/*!40000 ALTER TABLE `fez_record_search_key_newspaper__shadow` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Dumping data for table `fez_record_search_key_notes`
@@ -2285,14 +1728,7 @@ LOCK TABLES `fez_record_search_key_notes` WRITE;
 /*!40000 ALTER TABLE `fez_record_search_key_notes` ENABLE KEYS */;
 UNLOCK TABLES;
 
---
--- Dumping data for table `fez_record_search_key_notes__shadow`
---
 
-LOCK TABLES `fez_record_search_key_notes__shadow` WRITE;
-/*!40000 ALTER TABLE `fez_record_search_key_notes__shadow` DISABLE KEYS */;
-/*!40000 ALTER TABLE `fez_record_search_key_notes__shadow` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Dumping data for table `fez_record_search_key_org_id`
@@ -2303,14 +1739,7 @@ LOCK TABLES `fez_record_search_key_org_id` WRITE;
 /*!40000 ALTER TABLE `fez_record_search_key_org_id` ENABLE KEYS */;
 UNLOCK TABLES;
 
---
--- Dumping data for table `fez_record_search_key_org_id__shadow`
---
 
-LOCK TABLES `fez_record_search_key_org_id__shadow` WRITE;
-/*!40000 ALTER TABLE `fez_record_search_key_org_id__shadow` DISABLE KEYS */;
-/*!40000 ALTER TABLE `fez_record_search_key_org_id__shadow` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Dumping data for table `fez_record_search_key_org_name`
@@ -2321,14 +1750,7 @@ LOCK TABLES `fez_record_search_key_org_name` WRITE;
 /*!40000 ALTER TABLE `fez_record_search_key_org_name` ENABLE KEYS */;
 UNLOCK TABLES;
 
---
--- Dumping data for table `fez_record_search_key_org_name__shadow`
---
 
-LOCK TABLES `fez_record_search_key_org_name__shadow` WRITE;
-/*!40000 ALTER TABLE `fez_record_search_key_org_name__shadow` DISABLE KEYS */;
-/*!40000 ALTER TABLE `fez_record_search_key_org_name__shadow` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Dumping data for table `fez_record_search_key_org_role`
@@ -2339,14 +1761,7 @@ LOCK TABLES `fez_record_search_key_org_role` WRITE;
 /*!40000 ALTER TABLE `fez_record_search_key_org_role` ENABLE KEYS */;
 UNLOCK TABLES;
 
---
--- Dumping data for table `fez_record_search_key_org_role__shadow`
---
 
-LOCK TABLES `fez_record_search_key_org_role__shadow` WRITE;
-/*!40000 ALTER TABLE `fez_record_search_key_org_role__shadow` DISABLE KEYS */;
-/*!40000 ALTER TABLE `fez_record_search_key_org_role__shadow` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Dumping data for table `fez_record_search_key_org_unit_name`
@@ -2357,14 +1772,7 @@ LOCK TABLES `fez_record_search_key_org_unit_name` WRITE;
 /*!40000 ALTER TABLE `fez_record_search_key_org_unit_name` ENABLE KEYS */;
 UNLOCK TABLES;
 
---
--- Dumping data for table `fez_record_search_key_org_unit_name__shadow`
---
 
-LOCK TABLES `fez_record_search_key_org_unit_name__shadow` WRITE;
-/*!40000 ALTER TABLE `fez_record_search_key_org_unit_name__shadow` DISABLE KEYS */;
-/*!40000 ALTER TABLE `fez_record_search_key_org_unit_name__shadow` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Dumping data for table `fez_record_search_key_output_availability`
@@ -2375,14 +1783,7 @@ LOCK TABLES `fez_record_search_key_output_availability` WRITE;
 /*!40000 ALTER TABLE `fez_record_search_key_output_availability` ENABLE KEYS */;
 UNLOCK TABLES;
 
---
--- Dumping data for table `fez_record_search_key_output_availability__shadow`
---
 
-LOCK TABLES `fez_record_search_key_output_availability__shadow` WRITE;
-/*!40000 ALTER TABLE `fez_record_search_key_output_availability__shadow` DISABLE KEYS */;
-/*!40000 ALTER TABLE `fez_record_search_key_output_availability__shadow` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Dumping data for table `fez_record_search_key_parent_publication`
@@ -2393,14 +1794,7 @@ LOCK TABLES `fez_record_search_key_parent_publication` WRITE;
 /*!40000 ALTER TABLE `fez_record_search_key_parent_publication` ENABLE KEYS */;
 UNLOCK TABLES;
 
---
--- Dumping data for table `fez_record_search_key_parent_publication__shadow`
---
 
-LOCK TABLES `fez_record_search_key_parent_publication__shadow` WRITE;
-/*!40000 ALTER TABLE `fez_record_search_key_parent_publication__shadow` DISABLE KEYS */;
-/*!40000 ALTER TABLE `fez_record_search_key_parent_publication__shadow` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Dumping data for table `fez_record_search_key_patent_number`
@@ -2411,14 +1805,7 @@ LOCK TABLES `fez_record_search_key_patent_number` WRITE;
 /*!40000 ALTER TABLE `fez_record_search_key_patent_number` ENABLE KEYS */;
 UNLOCK TABLES;
 
---
--- Dumping data for table `fez_record_search_key_patent_number__shadow`
---
 
-LOCK TABLES `fez_record_search_key_patent_number__shadow` WRITE;
-/*!40000 ALTER TABLE `fez_record_search_key_patent_number__shadow` DISABLE KEYS */;
-/*!40000 ALTER TABLE `fez_record_search_key_patent_number__shadow` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Dumping data for table `fez_record_search_key_period`
@@ -2429,14 +1816,7 @@ LOCK TABLES `fez_record_search_key_period` WRITE;
 /*!40000 ALTER TABLE `fez_record_search_key_period` ENABLE KEYS */;
 UNLOCK TABLES;
 
---
--- Dumping data for table `fez_record_search_key_period__shadow`
---
 
-LOCK TABLES `fez_record_search_key_period__shadow` WRITE;
-/*!40000 ALTER TABLE `fez_record_search_key_period__shadow` DISABLE KEYS */;
-/*!40000 ALTER TABLE `fez_record_search_key_period__shadow` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Dumping data for table `fez_record_search_key_phonetic_book_title`
@@ -2447,14 +1827,7 @@ LOCK TABLES `fez_record_search_key_phonetic_book_title` WRITE;
 /*!40000 ALTER TABLE `fez_record_search_key_phonetic_book_title` ENABLE KEYS */;
 UNLOCK TABLES;
 
---
--- Dumping data for table `fez_record_search_key_phonetic_book_title__shadow`
---
 
-LOCK TABLES `fez_record_search_key_phonetic_book_title__shadow` WRITE;
-/*!40000 ALTER TABLE `fez_record_search_key_phonetic_book_title__shadow` DISABLE KEYS */;
-/*!40000 ALTER TABLE `fez_record_search_key_phonetic_book_title__shadow` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Dumping data for table `fez_record_search_key_phonetic_conference_name`
@@ -2465,14 +1838,7 @@ LOCK TABLES `fez_record_search_key_phonetic_conference_name` WRITE;
 /*!40000 ALTER TABLE `fez_record_search_key_phonetic_conference_name` ENABLE KEYS */;
 UNLOCK TABLES;
 
---
--- Dumping data for table `fez_record_search_key_phonetic_conference_name__shadow`
---
 
-LOCK TABLES `fez_record_search_key_phonetic_conference_name__shadow` WRITE;
-/*!40000 ALTER TABLE `fez_record_search_key_phonetic_conference_name__shadow` DISABLE KEYS */;
-/*!40000 ALTER TABLE `fez_record_search_key_phonetic_conference_name__shadow` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Dumping data for table `fez_record_search_key_phonetic_journal_name`
@@ -2483,14 +1849,7 @@ LOCK TABLES `fez_record_search_key_phonetic_journal_name` WRITE;
 /*!40000 ALTER TABLE `fez_record_search_key_phonetic_journal_name` ENABLE KEYS */;
 UNLOCK TABLES;
 
---
--- Dumping data for table `fez_record_search_key_phonetic_journal_name__shadow`
---
 
-LOCK TABLES `fez_record_search_key_phonetic_journal_name__shadow` WRITE;
-/*!40000 ALTER TABLE `fez_record_search_key_phonetic_journal_name__shadow` DISABLE KEYS */;
-/*!40000 ALTER TABLE `fez_record_search_key_phonetic_journal_name__shadow` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Dumping data for table `fez_record_search_key_phonetic_newspaper`
@@ -2501,14 +1860,7 @@ LOCK TABLES `fez_record_search_key_phonetic_newspaper` WRITE;
 /*!40000 ALTER TABLE `fez_record_search_key_phonetic_newspaper` ENABLE KEYS */;
 UNLOCK TABLES;
 
---
--- Dumping data for table `fez_record_search_key_phonetic_newspaper__shadow`
---
 
-LOCK TABLES `fez_record_search_key_phonetic_newspaper__shadow` WRITE;
-/*!40000 ALTER TABLE `fez_record_search_key_phonetic_newspaper__shadow` DISABLE KEYS */;
-/*!40000 ALTER TABLE `fez_record_search_key_phonetic_newspaper__shadow` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Dumping data for table `fez_record_search_key_phonetic_title`
@@ -2519,14 +1871,7 @@ LOCK TABLES `fez_record_search_key_phonetic_title` WRITE;
 /*!40000 ALTER TABLE `fez_record_search_key_phonetic_title` ENABLE KEYS */;
 UNLOCK TABLES;
 
---
--- Dumping data for table `fez_record_search_key_phonetic_title__shadow`
---
 
-LOCK TABLES `fez_record_search_key_phonetic_title__shadow` WRITE;
-/*!40000 ALTER TABLE `fez_record_search_key_phonetic_title__shadow` DISABLE KEYS */;
-/*!40000 ALTER TABLE `fez_record_search_key_phonetic_title__shadow` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Dumping data for table `fez_record_search_key_place_of_publication`
@@ -2537,14 +1882,7 @@ LOCK TABLES `fez_record_search_key_place_of_publication` WRITE;
 /*!40000 ALTER TABLE `fez_record_search_key_place_of_publication` ENABLE KEYS */;
 UNLOCK TABLES;
 
---
--- Dumping data for table `fez_record_search_key_place_of_publication__shadow`
---
 
-LOCK TABLES `fez_record_search_key_place_of_publication__shadow` WRITE;
-/*!40000 ALTER TABLE `fez_record_search_key_place_of_publication__shadow` DISABLE KEYS */;
-/*!40000 ALTER TABLE `fez_record_search_key_place_of_publication__shadow` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Dumping data for table `fez_record_search_key_prn`
@@ -2555,14 +1893,7 @@ LOCK TABLES `fez_record_search_key_prn` WRITE;
 /*!40000 ALTER TABLE `fez_record_search_key_prn` ENABLE KEYS */;
 UNLOCK TABLES;
 
---
--- Dumping data for table `fez_record_search_key_prn__shadow`
---
 
-LOCK TABLES `fez_record_search_key_prn__shadow` WRITE;
-/*!40000 ALTER TABLE `fez_record_search_key_prn__shadow` DISABLE KEYS */;
-/*!40000 ALTER TABLE `fez_record_search_key_prn__shadow` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Dumping data for table `fez_record_search_key_proceedings_title`
@@ -2573,14 +1904,7 @@ LOCK TABLES `fez_record_search_key_proceedings_title` WRITE;
 /*!40000 ALTER TABLE `fez_record_search_key_proceedings_title` ENABLE KEYS */;
 UNLOCK TABLES;
 
---
--- Dumping data for table `fez_record_search_key_proceedings_title__shadow`
---
 
-LOCK TABLES `fez_record_search_key_proceedings_title__shadow` WRITE;
-/*!40000 ALTER TABLE `fez_record_search_key_proceedings_title__shadow` DISABLE KEYS */;
-/*!40000 ALTER TABLE `fez_record_search_key_proceedings_title__shadow` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Dumping data for table `fez_record_search_key_publisher`
@@ -2591,14 +1915,7 @@ LOCK TABLES `fez_record_search_key_publisher` WRITE;
 /*!40000 ALTER TABLE `fez_record_search_key_publisher` ENABLE KEYS */;
 UNLOCK TABLES;
 
---
--- Dumping data for table `fez_record_search_key_publisher__shadow`
---
 
-LOCK TABLES `fez_record_search_key_publisher__shadow` WRITE;
-/*!40000 ALTER TABLE `fez_record_search_key_publisher__shadow` DISABLE KEYS */;
-/*!40000 ALTER TABLE `fez_record_search_key_publisher__shadow` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Dumping data for table `fez_record_search_key_publisher_id`
@@ -2609,14 +1926,7 @@ LOCK TABLES `fez_record_search_key_publisher_id` WRITE;
 /*!40000 ALTER TABLE `fez_record_search_key_publisher_id` ENABLE KEYS */;
 UNLOCK TABLES;
 
---
--- Dumping data for table `fez_record_search_key_publisher_id__shadow`
---
 
-LOCK TABLES `fez_record_search_key_publisher_id__shadow` WRITE;
-/*!40000 ALTER TABLE `fez_record_search_key_publisher_id__shadow` DISABLE KEYS */;
-/*!40000 ALTER TABLE `fez_record_search_key_publisher_id__shadow` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Dumping data for table `fez_record_search_key_refereed`
@@ -2627,14 +1937,7 @@ LOCK TABLES `fez_record_search_key_refereed` WRITE;
 /*!40000 ALTER TABLE `fez_record_search_key_refereed` ENABLE KEYS */;
 UNLOCK TABLES;
 
---
--- Dumping data for table `fez_record_search_key_refereed__shadow`
---
 
-LOCK TABLES `fez_record_search_key_refereed__shadow` WRITE;
-/*!40000 ALTER TABLE `fez_record_search_key_refereed__shadow` DISABLE KEYS */;
-/*!40000 ALTER TABLE `fez_record_search_key_refereed__shadow` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Dumping data for table `fez_record_search_key_report_number`
@@ -2645,14 +1948,7 @@ LOCK TABLES `fez_record_search_key_report_number` WRITE;
 /*!40000 ALTER TABLE `fez_record_search_key_report_number` ENABLE KEYS */;
 UNLOCK TABLES;
 
---
--- Dumping data for table `fez_record_search_key_report_number__shadow`
---
 
-LOCK TABLES `fez_record_search_key_report_number__shadow` WRITE;
-/*!40000 ALTER TABLE `fez_record_search_key_report_number__shadow` DISABLE KEYS */;
-/*!40000 ALTER TABLE `fez_record_search_key_report_number__shadow` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Dumping data for table `fez_record_search_key_research_program`
@@ -2663,14 +1959,7 @@ LOCK TABLES `fez_record_search_key_research_program` WRITE;
 /*!40000 ALTER TABLE `fez_record_search_key_research_program` ENABLE KEYS */;
 UNLOCK TABLES;
 
---
--- Dumping data for table `fez_record_search_key_research_program__shadow`
---
 
-LOCK TABLES `fez_record_search_key_research_program__shadow` WRITE;
-/*!40000 ALTER TABLE `fez_record_search_key_research_program__shadow` DISABLE KEYS */;
-/*!40000 ALTER TABLE `fez_record_search_key_research_program__shadow` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Dumping data for table `fez_record_search_key_rights`
@@ -2681,14 +1970,7 @@ LOCK TABLES `fez_record_search_key_rights` WRITE;
 /*!40000 ALTER TABLE `fez_record_search_key_rights` ENABLE KEYS */;
 UNLOCK TABLES;
 
---
--- Dumping data for table `fez_record_search_key_rights__shadow`
---
 
-LOCK TABLES `fez_record_search_key_rights__shadow` WRITE;
-/*!40000 ALTER TABLE `fez_record_search_key_rights__shadow` DISABLE KEYS */;
-/*!40000 ALTER TABLE `fez_record_search_key_rights__shadow` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Dumping data for table `fez_record_search_key_roman_script_book_title`
@@ -2699,14 +1981,7 @@ LOCK TABLES `fez_record_search_key_roman_script_book_title` WRITE;
 /*!40000 ALTER TABLE `fez_record_search_key_roman_script_book_title` ENABLE KEYS */;
 UNLOCK TABLES;
 
---
--- Dumping data for table `fez_record_search_key_roman_script_book_title__shadow`
---
 
-LOCK TABLES `fez_record_search_key_roman_script_book_title__shadow` WRITE;
-/*!40000 ALTER TABLE `fez_record_search_key_roman_script_book_title__shadow` DISABLE KEYS */;
-/*!40000 ALTER TABLE `fez_record_search_key_roman_script_book_title__shadow` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Dumping data for table `fez_record_search_key_roman_script_conference_name`
@@ -2717,14 +1992,7 @@ LOCK TABLES `fez_record_search_key_roman_script_conference_name` WRITE;
 /*!40000 ALTER TABLE `fez_record_search_key_roman_script_conference_name` ENABLE KEYS */;
 UNLOCK TABLES;
 
---
--- Dumping data for table `fez_record_search_key_roman_script_conference_name__shadow`
---
 
-LOCK TABLES `fez_record_search_key_roman_script_conference_name__shadow` WRITE;
-/*!40000 ALTER TABLE `fez_record_search_key_roman_script_conference_name__shadow` DISABLE KEYS */;
-/*!40000 ALTER TABLE `fez_record_search_key_roman_script_conference_name__shadow` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Dumping data for table `fez_record_search_key_roman_script_journal_name`
@@ -2735,14 +2003,7 @@ LOCK TABLES `fez_record_search_key_roman_script_journal_name` WRITE;
 /*!40000 ALTER TABLE `fez_record_search_key_roman_script_journal_name` ENABLE KEYS */;
 UNLOCK TABLES;
 
---
--- Dumping data for table `fez_record_search_key_roman_script_journal_name__shadow`
---
 
-LOCK TABLES `fez_record_search_key_roman_script_journal_name__shadow` WRITE;
-/*!40000 ALTER TABLE `fez_record_search_key_roman_script_journal_name__shadow` DISABLE KEYS */;
-/*!40000 ALTER TABLE `fez_record_search_key_roman_script_journal_name__shadow` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Dumping data for table `fez_record_search_key_roman_script_proceedings_title`
@@ -2753,14 +2014,7 @@ LOCK TABLES `fez_record_search_key_roman_script_proceedings_title` WRITE;
 /*!40000 ALTER TABLE `fez_record_search_key_roman_script_proceedings_title` ENABLE KEYS */;
 UNLOCK TABLES;
 
---
--- Dumping data for table `fez_record_search_key_roman_script_proceedings_title__shadow`
---
 
-LOCK TABLES `fez_record_search_key_roman_script_proceedings_title__shadow` WRITE;
-/*!40000 ALTER TABLE `fez_record_search_key_roman_script_proceedings_title__shadow` DISABLE KEYS */;
-/*!40000 ALTER TABLE `fez_record_search_key_roman_script_proceedings_title__shadow` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Dumping data for table `fez_record_search_key_roman_script_title`
@@ -2771,14 +2025,7 @@ LOCK TABLES `fez_record_search_key_roman_script_title` WRITE;
 /*!40000 ALTER TABLE `fez_record_search_key_roman_script_title` ENABLE KEYS */;
 UNLOCK TABLES;
 
---
--- Dumping data for table `fez_record_search_key_roman_script_title__shadow`
---
 
-LOCK TABLES `fez_record_search_key_roman_script_title__shadow` WRITE;
-/*!40000 ALTER TABLE `fez_record_search_key_roman_script_title__shadow` DISABLE KEYS */;
-/*!40000 ALTER TABLE `fez_record_search_key_roman_script_title__shadow` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Dumping data for table `fez_record_search_key_scopus_id`
@@ -2789,14 +2036,7 @@ LOCK TABLES `fez_record_search_key_scopus_id` WRITE;
 /*!40000 ALTER TABLE `fez_record_search_key_scopus_id` ENABLE KEYS */;
 UNLOCK TABLES;
 
---
--- Dumping data for table `fez_record_search_key_scopus_id__shadow`
---
 
-LOCK TABLES `fez_record_search_key_scopus_id__shadow` WRITE;
-/*!40000 ALTER TABLE `fez_record_search_key_scopus_id__shadow` DISABLE KEYS */;
-/*!40000 ALTER TABLE `fez_record_search_key_scopus_id__shadow` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Dumping data for table `fez_record_search_key_sensitivity_explanation`
@@ -2807,14 +2047,7 @@ LOCK TABLES `fez_record_search_key_sensitivity_explanation` WRITE;
 /*!40000 ALTER TABLE `fez_record_search_key_sensitivity_explanation` ENABLE KEYS */;
 UNLOCK TABLES;
 
---
--- Dumping data for table `fez_record_search_key_sensitivity_explanation__shadow`
---
 
-LOCK TABLES `fez_record_search_key_sensitivity_explanation__shadow` WRITE;
-/*!40000 ALTER TABLE `fez_record_search_key_sensitivity_explanation__shadow` DISABLE KEYS */;
-/*!40000 ALTER TABLE `fez_record_search_key_sensitivity_explanation__shadow` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Dumping data for table `fez_record_search_key_series`
@@ -2825,14 +2058,7 @@ LOCK TABLES `fez_record_search_key_series` WRITE;
 /*!40000 ALTER TABLE `fez_record_search_key_series` ENABLE KEYS */;
 UNLOCK TABLES;
 
---
--- Dumping data for table `fez_record_search_key_series__shadow`
---
 
-LOCK TABLES `fez_record_search_key_series__shadow` WRITE;
-/*!40000 ALTER TABLE `fez_record_search_key_series__shadow` DISABLE KEYS */;
-/*!40000 ALTER TABLE `fez_record_search_key_series__shadow` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Dumping data for table `fez_record_search_key_start_date`
@@ -2843,14 +2069,7 @@ LOCK TABLES `fez_record_search_key_start_date` WRITE;
 /*!40000 ALTER TABLE `fez_record_search_key_start_date` ENABLE KEYS */;
 UNLOCK TABLES;
 
---
--- Dumping data for table `fez_record_search_key_start_date__shadow`
---
 
-LOCK TABLES `fez_record_search_key_start_date__shadow` WRITE;
-/*!40000 ALTER TABLE `fez_record_search_key_start_date__shadow` DISABLE KEYS */;
-/*!40000 ALTER TABLE `fez_record_search_key_start_date__shadow` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Dumping data for table `fez_record_search_key_start_page`
@@ -2861,14 +2080,7 @@ LOCK TABLES `fez_record_search_key_start_page` WRITE;
 /*!40000 ALTER TABLE `fez_record_search_key_start_page` ENABLE KEYS */;
 UNLOCK TABLES;
 
---
--- Dumping data for table `fez_record_search_key_start_page__shadow`
---
 
-LOCK TABLES `fez_record_search_key_start_page__shadow` WRITE;
-/*!40000 ALTER TABLE `fez_record_search_key_start_page__shadow` DISABLE KEYS */;
-/*!40000 ALTER TABLE `fez_record_search_key_start_page__shadow` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Dumping data for table `fez_record_search_key_structural_systems`
@@ -2879,14 +2091,7 @@ LOCK TABLES `fez_record_search_key_structural_systems` WRITE;
 /*!40000 ALTER TABLE `fez_record_search_key_structural_systems` ENABLE KEYS */;
 UNLOCK TABLES;
 
---
--- Dumping data for table `fez_record_search_key_structural_systems__shadow`
---
 
-LOCK TABLES `fez_record_search_key_structural_systems__shadow` WRITE;
-/*!40000 ALTER TABLE `fez_record_search_key_structural_systems__shadow` DISABLE KEYS */;
-/*!40000 ALTER TABLE `fez_record_search_key_structural_systems__shadow` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Dumping data for table `fez_record_search_key_style`
@@ -2897,14 +2102,7 @@ LOCK TABLES `fez_record_search_key_style` WRITE;
 /*!40000 ALTER TABLE `fez_record_search_key_style` ENABLE KEYS */;
 UNLOCK TABLES;
 
---
--- Dumping data for table `fez_record_search_key_style__shadow`
---
 
-LOCK TABLES `fez_record_search_key_style__shadow` WRITE;
-/*!40000 ALTER TABLE `fez_record_search_key_style__shadow` DISABLE KEYS */;
-/*!40000 ALTER TABLE `fez_record_search_key_style__shadow` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Dumping data for table `fez_record_search_key_subcategory`
@@ -2915,14 +2113,7 @@ LOCK TABLES `fez_record_search_key_subcategory` WRITE;
 /*!40000 ALTER TABLE `fez_record_search_key_subcategory` ENABLE KEYS */;
 UNLOCK TABLES;
 
---
--- Dumping data for table `fez_record_search_key_subcategory__shadow`
---
 
-LOCK TABLES `fez_record_search_key_subcategory__shadow` WRITE;
-/*!40000 ALTER TABLE `fez_record_search_key_subcategory__shadow` DISABLE KEYS */;
-/*!40000 ALTER TABLE `fez_record_search_key_subcategory__shadow` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Dumping data for table `fez_record_search_key_subject`
@@ -2933,14 +2124,7 @@ LOCK TABLES `fez_record_search_key_subject` WRITE;
 /*!40000 ALTER TABLE `fez_record_search_key_subject` ENABLE KEYS */;
 UNLOCK TABLES;
 
---
--- Dumping data for table `fez_record_search_key_subject__shadow`
---
 
-LOCK TABLES `fez_record_search_key_subject__shadow` WRITE;
-/*!40000 ALTER TABLE `fez_record_search_key_subject__shadow` DISABLE KEYS */;
-/*!40000 ALTER TABLE `fez_record_search_key_subject__shadow` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Dumping data for table `fez_record_search_key_surrounding_features`
@@ -2951,14 +2135,7 @@ LOCK TABLES `fez_record_search_key_surrounding_features` WRITE;
 /*!40000 ALTER TABLE `fez_record_search_key_surrounding_features` ENABLE KEYS */;
 UNLOCK TABLES;
 
---
--- Dumping data for table `fez_record_search_key_surrounding_features__shadow`
---
 
-LOCK TABLES `fez_record_search_key_surrounding_features__shadow` WRITE;
-/*!40000 ALTER TABLE `fez_record_search_key_surrounding_features__shadow` DISABLE KEYS */;
-/*!40000 ALTER TABLE `fez_record_search_key_surrounding_features__shadow` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Dumping data for table `fez_record_search_key_total_chapters`
@@ -2969,14 +2146,7 @@ LOCK TABLES `fez_record_search_key_total_chapters` WRITE;
 /*!40000 ALTER TABLE `fez_record_search_key_total_chapters` ENABLE KEYS */;
 UNLOCK TABLES;
 
---
--- Dumping data for table `fez_record_search_key_total_chapters__shadow`
---
 
-LOCK TABLES `fez_record_search_key_total_chapters__shadow` WRITE;
-/*!40000 ALTER TABLE `fez_record_search_key_total_chapters__shadow` DISABLE KEYS */;
-/*!40000 ALTER TABLE `fez_record_search_key_total_chapters__shadow` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Dumping data for table `fez_record_search_key_total_pages`
@@ -2987,14 +2157,7 @@ LOCK TABLES `fez_record_search_key_total_pages` WRITE;
 /*!40000 ALTER TABLE `fez_record_search_key_total_pages` ENABLE KEYS */;
 UNLOCK TABLES;
 
---
--- Dumping data for table `fez_record_search_key_total_pages__shadow`
---
 
-LOCK TABLES `fez_record_search_key_total_pages__shadow` WRITE;
-/*!40000 ALTER TABLE `fez_record_search_key_total_pages__shadow` DISABLE KEYS */;
-/*!40000 ALTER TABLE `fez_record_search_key_total_pages__shadow` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Dumping data for table `fez_record_search_key_translated_book_title`
@@ -3005,14 +2168,7 @@ LOCK TABLES `fez_record_search_key_translated_book_title` WRITE;
 /*!40000 ALTER TABLE `fez_record_search_key_translated_book_title` ENABLE KEYS */;
 UNLOCK TABLES;
 
---
--- Dumping data for table `fez_record_search_key_translated_book_title__shadow`
---
 
-LOCK TABLES `fez_record_search_key_translated_book_title__shadow` WRITE;
-/*!40000 ALTER TABLE `fez_record_search_key_translated_book_title__shadow` DISABLE KEYS */;
-/*!40000 ALTER TABLE `fez_record_search_key_translated_book_title__shadow` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Dumping data for table `fez_record_search_key_translated_conference_name`
@@ -3023,14 +2179,7 @@ LOCK TABLES `fez_record_search_key_translated_conference_name` WRITE;
 /*!40000 ALTER TABLE `fez_record_search_key_translated_conference_name` ENABLE KEYS */;
 UNLOCK TABLES;
 
---
--- Dumping data for table `fez_record_search_key_translated_conference_name__shadow`
---
 
-LOCK TABLES `fez_record_search_key_translated_conference_name__shadow` WRITE;
-/*!40000 ALTER TABLE `fez_record_search_key_translated_conference_name__shadow` DISABLE KEYS */;
-/*!40000 ALTER TABLE `fez_record_search_key_translated_conference_name__shadow` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Dumping data for table `fez_record_search_key_translated_journal_name`
@@ -3041,14 +2190,7 @@ LOCK TABLES `fez_record_search_key_translated_journal_name` WRITE;
 /*!40000 ALTER TABLE `fez_record_search_key_translated_journal_name` ENABLE KEYS */;
 UNLOCK TABLES;
 
---
--- Dumping data for table `fez_record_search_key_translated_journal_name__shadow`
---
 
-LOCK TABLES `fez_record_search_key_translated_journal_name__shadow` WRITE;
-/*!40000 ALTER TABLE `fez_record_search_key_translated_journal_name__shadow` DISABLE KEYS */;
-/*!40000 ALTER TABLE `fez_record_search_key_translated_journal_name__shadow` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Dumping data for table `fez_record_search_key_translated_newspaper`
@@ -3059,14 +2201,7 @@ LOCK TABLES `fez_record_search_key_translated_newspaper` WRITE;
 /*!40000 ALTER TABLE `fez_record_search_key_translated_newspaper` ENABLE KEYS */;
 UNLOCK TABLES;
 
---
--- Dumping data for table `fez_record_search_key_translated_newspaper__shadow`
---
 
-LOCK TABLES `fez_record_search_key_translated_newspaper__shadow` WRITE;
-/*!40000 ALTER TABLE `fez_record_search_key_translated_newspaper__shadow` DISABLE KEYS */;
-/*!40000 ALTER TABLE `fez_record_search_key_translated_newspaper__shadow` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Dumping data for table `fez_record_search_key_translated_proceedings_title`
@@ -3077,14 +2212,7 @@ LOCK TABLES `fez_record_search_key_translated_proceedings_title` WRITE;
 /*!40000 ALTER TABLE `fez_record_search_key_translated_proceedings_title` ENABLE KEYS */;
 UNLOCK TABLES;
 
---
--- Dumping data for table `fez_record_search_key_translated_proceedings_title__shadow`
---
 
-LOCK TABLES `fez_record_search_key_translated_proceedings_title__shadow` WRITE;
-/*!40000 ALTER TABLE `fez_record_search_key_translated_proceedings_title__shadow` DISABLE KEYS */;
-/*!40000 ALTER TABLE `fez_record_search_key_translated_proceedings_title__shadow` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Dumping data for table `fez_record_search_key_translated_title`
@@ -3095,14 +2223,7 @@ LOCK TABLES `fez_record_search_key_translated_title` WRITE;
 /*!40000 ALTER TABLE `fez_record_search_key_translated_title` ENABLE KEYS */;
 UNLOCK TABLES;
 
---
--- Dumping data for table `fez_record_search_key_translated_title__shadow`
---
 
-LOCK TABLES `fez_record_search_key_translated_title__shadow` WRITE;
-/*!40000 ALTER TABLE `fez_record_search_key_translated_title__shadow` DISABLE KEYS */;
-/*!40000 ALTER TABLE `fez_record_search_key_translated_title__shadow` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Dumping data for table `fez_record_search_key_volume_number`
@@ -3113,14 +2234,7 @@ LOCK TABLES `fez_record_search_key_volume_number` WRITE;
 /*!40000 ALTER TABLE `fez_record_search_key_volume_number` ENABLE KEYS */;
 UNLOCK TABLES;
 
---
--- Dumping data for table `fez_record_search_key_volume_number__shadow`
---
 
-LOCK TABLES `fez_record_search_key_volume_number__shadow` WRITE;
-/*!40000 ALTER TABLE `fez_record_search_key_volume_number__shadow` DISABLE KEYS */;
-/*!40000 ALTER TABLE `fez_record_search_key_volume_number__shadow` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Dumping data for table `fez_record_search_key_xsd_display_option`
@@ -3131,14 +2245,7 @@ LOCK TABLES `fez_record_search_key_xsd_display_option` WRITE;
 /*!40000 ALTER TABLE `fez_record_search_key_xsd_display_option` ENABLE KEYS */;
 UNLOCK TABLES;
 
---
--- Dumping data for table `fez_record_search_key_xsd_display_option__shadow`
---
 
-LOCK TABLES `fez_record_search_key_xsd_display_option__shadow` WRITE;
-/*!40000 ALTER TABLE `fez_record_search_key_xsd_display_option__shadow` DISABLE KEYS */;
-/*!40000 ALTER TABLE `fez_record_search_key_xsd_display_option__shadow` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Dumping data for table `fez_rid_jobs`
