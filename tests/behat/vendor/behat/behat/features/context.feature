@@ -311,10 +311,6 @@ Feature: Context consistency
       """
       [Behat\Testwork\Suite\Exception\SuiteConfigurationException]
         `contexts` setting of the "default" suite is expected to be an array, string given.
-
-
-
-      behat [-s|--suite="..."] [-f|--format="..."] [-o|--out="..."] [--format-settings="..."] [--init] [--lang="..."] [--name="..."] [--tags="..."] [--role="..."] [--story-syntax] [-d|--definitions="..."] [--append-snippets] [--no-snippets] [--strict] [--rerun] [--stop-on-failure] [--dry-run] [paths]
       """
 
   Scenario: Unexisting custom context class
@@ -341,10 +337,6 @@ Feature: Context consistency
     """
     [Behat\Behat\Context\Exception\ContextNotFoundException]
       `UnexistentContext` context class not found and can not be used.
-
-
-
-    behat [-s|--suite="..."] [-f|--format="..."] [-o|--out="..."] [--format-settings="..."] [--init] [--lang="..."] [--name="..."] [--tags="..."] [--role="..."] [--story-syntax] [-d|--definitions="..."] [--append-snippets] [--no-snippets] [--strict] [--rerun] [--stop-on-failure] [--dry-run] [paths]
     """
 
   Scenario: Unexisting context argument
@@ -373,8 +365,105 @@ Feature: Context consistency
       """
       [Behat\Testwork\Argument\Exception\UnknownParameterValueException]
         `CoreContext::__construct()` does not expect argument `$unexistingParam`.
+      """
 
+  Scenario: Suite without contexts and FeatureContext available
+    Given a file named "behat.yml" with:
+      """
+      default:
+        suites:
+          first:
+            contexts: []
+      """
+    And a file named "features/some.feature" with:
+      """
+      Feature: Apples story
+        In order to eat apple
+        As a little kid
+        I need to have an apple in my pocket
 
+        Scenario: I'm little hungry
+          Given I have 3 apples
+          When I ate 1 apple
+          Then I should have 2 apples
+      """
+    When I run "behat --no-colors -fpretty --format-settings='{\"paths\": true}' features"
+    Then it should pass with:
+      """
+      Feature: Apples story
+        In order to eat apple
+        As a little kid
+        I need to have an apple in my pocket
 
-      behat [-s|--suite="..."] [-f|--format="..."] [-o|--out="..."] [--format-settings="..."] [--init] [--lang="..."] [--name="..."] [--tags="..."] [--role="..."] [--story-syntax] [-d|--definitions="..."] [--append-snippets] [--no-snippets] [--strict] [--rerun] [--stop-on-failure] [--dry-run] [paths]
+        Scenario: I'm little hungry   # features/some.feature:6
+          Given I have 3 apples
+          When I ate 1 apple
+          Then I should have 2 apples
+
+      1 scenario (1 undefined)
+      3 steps (3 undefined)
+
+      --- Snippets for the following steps in the first suite were not generated (does your context implement SnippetAcceptingContext interface?):
+
+          Given I have 3 apples
+          When I ate 1 apple
+          Then I should have 2 apples
+      """
+
+  Scenario: Suite with custom context and FeatureContext available
+    Given a file named "behat.yml" with:
+      """
+      default:
+        suites:
+          first:
+            contexts:
+              - CustomContext
+      """
+    And a file named "features/bootstrap/FeatureContext.php" with:
+      """
+      <?php use Behat\Behat\Context\Context;
+
+      class FeatureContext implements Context {
+          /** @BeforeScenario */
+          public function beforeScenario() {
+              echo "Setting up";
+          }
+
+          /** @Given step */
+          public function step() {}
+      }
+      """
+    And a file named "features/bootstrap/CustomContext.php" with:
+      """
+      <?php class CustomContext extends FeatureContext {}
+      """
+    And a file named "features/some.feature" with:
+      """
+      Feature:
+        Scenario:
+          Given step
+        Scenario:
+          Given step
+      """
+    When I run "behat --no-colors -fpretty --format-settings='{\"paths\": true}' features"
+    Then it should pass with:
+      """
+      Feature:
+
+        ┌─ @BeforeScenario # CustomContext::beforeScenario()
+        │
+        │  Setting up
+        │
+        Scenario:    # features/some.feature:2
+          Given step # CustomContext::step()
+
+        ┌─ @BeforeScenario # CustomContext::beforeScenario()
+        │
+        │  Setting up
+        │
+        Scenario:    # features/some.feature:4
+          Given step # CustomContext::step()
+
+      2 scenarios (2 passed)
+      2 steps (2 passed)
       """

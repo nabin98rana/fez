@@ -71,9 +71,10 @@ Feature: Test that deleting communities/collections/records works correctly
     And I wait for "2" seconds
     And I confirm the popup
     And I turn on waiting checks
+    And I am on the homepage
     And I wait for solr
     And I wait for bgps
-    And I am on the homepage
+    And I wait for "2" seconds
     And I fill in "Search Entry" with "title:(\"Delete Test Collection\")"
     And I press "search_entry_submit"
     Then I should see "(0 results found)"
@@ -99,9 +100,10 @@ Feature: Test that deleting communities/collections/records works correctly
     And I wait for "2" seconds
     And I confirm the popup
     And I turn on waiting checks
+    And I am on the homepage
     And I wait for solr
     And I wait for bgps
-    And I am on the homepage
+    And I wait for "2" seconds
     And I fill in "Search Entry" with "title:(\"Delete Test Community\")"
     And I press "search_entry_submit"
     Then I should see "(0 results found)"

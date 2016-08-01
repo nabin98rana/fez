@@ -65,7 +65,7 @@ class YamlDumper extends Dumper
                 $class = substr($class, 1);
             }
 
-            $code .= sprintf("        class: %s\n", $class);
+            $code .= sprintf("        class: %s\n", $this->dumper->dump($class));
         }
 
         if (!$definition->isPublic()) {
@@ -89,15 +89,11 @@ class YamlDumper extends Dumper
         }
 
         if ($definition->getFile()) {
-            $code .= sprintf("        file: %s\n", $definition->getFile());
+            $code .= sprintf("        file: %s\n", $this->dumper->dump($definition->getFile()));
         }
 
         if ($definition->isSynthetic()) {
             $code .= sprintf("        synthetic: true\n");
-        }
-
-        if ($definition->isSynchronized(false)) {
-            $code .= sprintf("        synchronized: true\n");
         }
 
         if ($definition->isDeprecated()) {
@@ -116,20 +112,8 @@ class YamlDumper extends Dumper
             $code .= sprintf("        autowiring_types:\n%s", $autowiringTypesCode);
         }
 
-        if ($definition->getFactoryClass(false)) {
-            $code .= sprintf("        factory_class: %s\n", $definition->getFactoryClass(false));
-        }
-
         if ($definition->isLazy()) {
             $code .= sprintf("        lazy: true\n");
-        }
-
-        if ($definition->getFactoryMethod(false)) {
-            $code .= sprintf("        factory_method: %s\n", $definition->getFactoryMethod(false));
-        }
-
-        if ($definition->getFactoryService(false)) {
-            $code .= sprintf("        factory_service: %s\n", $definition->getFactoryService(false));
         }
 
         if ($definition->getArguments()) {
@@ -146,10 +130,6 @@ class YamlDumper extends Dumper
 
         if (!$definition->isShared()) {
             $code .= "        shared: false\n";
-        }
-
-        if (ContainerInterface::SCOPE_CONTAINER !== $scope = $definition->getScope(false)) {
-            $code .= sprintf("        scope: %s\n", $scope);
         }
 
         if (null !== $decorated = $definition->getDecoratedService()) {

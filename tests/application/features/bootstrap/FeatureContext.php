@@ -437,8 +437,15 @@ class FeatureContext extends MinkContext
             !($this->getSession()->getDriver() instanceof Behat\Mink\Driver\ZombieDriver)) {
 
             if (!$this->isModal) {
-                $this->getSession()->wait(5000, "dojo.byId('powered-by')");
-                $this->getSession()->wait(5000, 'typeof window.jQuery == "function"');
+                try {
+                  $this->getSession()->wait(5000, "dojo.byId('powered-by')");
+                } catch (Exception $e) {
+                  if (strpos($e->getMessage(), 'stale') !== false) {
+                    echo "Found a stale element, retrying wait for search entry box";
+                    sleep(2);
+                    $this->waitForSearchEntryBoxToAppear($scope);
+                  }
+                }                $this->getSession()->wait(5000, 'typeof window.jQuery == "function"');
                 $javascriptError = ($this->getSession()->evaluateScript("return window.jsErrors"));
                 if (!empty($javascriptError)) {
                     throw new Exception("Javascript Error: ".$javascriptError[0]);
@@ -924,7 +931,15 @@ class FeatureContext extends MinkContext
      */
     public function iSeeIdOrWaitForSeconds($see, $wait)
     {
+      try {
         $this->getSession()->wait($wait*1000, "dojo.byId('$see')");
+      } catch (Exception $e) {
+        if (strpos($e->getMessage(), 'stale') !== false) {
+          echo "Found a stale element, retrying see or wait";
+          sleep(2);
+          $this->iSeeIdOrWaitForSeconds($see, $wait);
+        }
+      }
     }
 
     /**
