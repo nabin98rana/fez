@@ -445,7 +445,8 @@ class FeatureContext extends MinkContext
                     sleep(2);
                     $this->waitForSearchEntryBoxToAppear($scope);
                   }
-                }                $this->getSession()->wait(5000, 'typeof window.jQuery == "function"');
+                }
+                $this->getSession()->wait(5000, 'typeof window.jQuery == "function"');
                 $javascriptError = ($this->getSession()->evaluateScript("return window.jsErrors"));
                 if (!empty($javascriptError)) {
                     throw new Exception("Javascript Error: ".$javascriptError[0]);
