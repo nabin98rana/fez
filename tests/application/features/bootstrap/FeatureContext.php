@@ -183,6 +183,23 @@ class FeatureContext extends MinkContext
     }
 
     /**
+     * Checks the DOM is ready.
+     *
+     * @AfterStep @javascript
+     */
+    public function afterStepJavascript($event) {
+        try {
+            if ($this->getSession()->getDriver()->getBrowserName() == 'safari' ||
+                $this->getSession()->getDriver()->getBrowserName() == 'internet explorer') {
+                $this->getSession()->wait(1000, false);
+            } else {
+                $this->getSession()->wait(1000, '(document.readyState === "complete")');
+            }
+        } catch (\Exception $e) {
+        }
+    }
+
+    /**
      * @Given /^I click "([^"]*)"$/
      */
     public function iClick($field) {
