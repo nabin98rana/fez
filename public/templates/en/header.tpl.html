@@ -78,7 +78,7 @@
 <link rel="stylesheet" type="text/css" media="screen" href="{$rel_url}css/jquery/fez/jquery-ui.custom.min.css" />
 <script type="text/javascript" src="{$rel_url}js/jquery/jquery-ui.custom.min.js"></script>
 {/if}
-    
+
 {if $include_stats_map == 1 && APP_USE_GOOGLE_MAP_SWITCH == 'ON'}
 <script>
     $.noConflict();  {* prototype interfears with jquery *}
@@ -101,13 +101,13 @@
 {if $refresh_rate}
 <meta http-equiv="Refresh" content="{$refresh_rate};URL={$app_base_url}{$refresh_page}" />
 {/if}
-{if $isUser}
+{if $isUser && app_environment != "testing"}
   {$najax_header nofilter}
 {/if}
 {$meta_head nofilter}
 <script type="text/javascript">
 	<!--
-    {if $isUser}
+    {if $isUser && app_environment != "testing"}
 	{$najax_register nofilter}
     {/if}
 	{* Change the window.onload if we're using dojo so that this doesn't overwrite our flash uploader callback *}
@@ -131,7 +131,7 @@
 		  }
 		}
 	}
-	
+
     {/literal}
     {if $header_include_flash_uploader_files == 1 && $smarty.const.APP_ENABLE_FLASH_UPLOADER_SWITCH == 'ON'}
         );
@@ -139,7 +139,7 @@
         rel_url = '{$rel_url}';
         cell_color = '{$cell_color}';
         value_color = '{$value_color}';
-	
+
     {if $include_stats_map == 1 && APP_USE_GOOGLE_MAP_SWITCH == 'ON'}
     {include file="stats_map.javascript_include.tpl.html"}
     {/if}

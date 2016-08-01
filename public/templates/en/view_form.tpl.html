@@ -41,7 +41,7 @@ function loadPreview(pid,datastreamID, alt, origami)
 <input type="hidden" name="cat" value="assign" />
 
 {* Div to show the outstanding workflows if they exist *}
-{if ($isEditor || $isAdministrator)}
+{if ($isEditor || $isAdministrator) && app_environment != "testing"}
 {if ($outstandingStatus != '')}
 {literal}
 <script type="text/javascript">
