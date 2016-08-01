@@ -39,15 +39,15 @@ Feature: Check list view displays the correct information entered into a pid, co
     And I wait for solr
     And I wait for bgps
     And I follow "Logout"
-    And I fill in "Search Entry" with "title:(\"Test Community for list view\")"
+    And I carefully fill search entry with "title:(\"Test Community for list view\")"
     And I press "search_entry_submit"
     Then I should see "Test Community for list view"
     Then I should not see "No records could be found"
-    And I fill in "Search Entry" with "title:(\"Test Collection for list view\")"
+    And I carefully fill search entry with "title:(\"Test Collection for list view\")"
     And I press "search_entry_submit"
     Then I should see "Test Collection for list view"
     Then I should not see "No records could be found"
-    And I fill in "Search Entry" with "title:(\"Test Pid for list view\")"
+    And I carefully fill search entry with "title:(\"Test Pid for list view\")"
     And I press "search_entry_submit"
     Then I should see "Test Pid for list view"
     Then I should see "123456"

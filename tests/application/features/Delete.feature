@@ -45,7 +45,7 @@ Feature: Test that deleting communities/collections/records works correctly
     And I should not see "Detailed History"
     And I wait for solr
     And I wait for bgps
-    And I fill in "Search Entry" with "title:(\"Security Test Name 2012\")"
+    And I carefully fill search entry with "title:(\"Security Test Name 2012\")"
     And I press "search_entry_submit"
     Then I should see "(0 results found)"
 
@@ -62,7 +62,7 @@ Feature: Test that deleting communities/collections/records works correctly
     And I wait for "2" seconds
     And I wait for solr
     And I wait for bgps
-    And I fill in "Search Entry" with "title:(\"Delete Test Collection\")"
+    And I carefully fill search entry with "title:(\"Delete Test Collection\")"
     And I press "search_entry_submit"
     And I press "Select All"
     And I turn off waiting checks
@@ -75,7 +75,7 @@ Feature: Test that deleting communities/collections/records works correctly
     And I wait for solr
     And I wait for bgps
     And I wait for "2" seconds
-    And I fill in "Search Entry" with "title:(\"Delete Test Collection\")"
+    And I carefully fill search entry with "title:(\"Delete Test Collection\")"
     And I press "search_entry_submit"
     Then I should see "(0 results found)"
 
@@ -91,7 +91,7 @@ Feature: Test that deleting communities/collections/records works correctly
     And I wait for "2" seconds
     And I wait for solr
     And I wait for bgps
-    And I fill in "Search Entry" with "title:(\"Delete Test Community\")"
+    And I carefully fill search entry with "title:(\"Delete Test Community\")"
     And I press "search_entry_submit"
     And I press "Select All"
     And I turn off waiting checks
@@ -104,6 +104,6 @@ Feature: Test that deleting communities/collections/records works correctly
     And I wait for solr
     And I wait for bgps
     And I wait for "2" seconds
-    And I fill in "Search Entry" with "title:(\"Delete Test Community\")"
+    And I carefully fill search entry with "title:(\"Delete Test Community\")"
     And I press "search_entry_submit"
     Then I should see "(0 results found)"

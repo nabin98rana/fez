@@ -35,7 +35,7 @@ Feature: Check datastream policy works correctly
     And I press "Publish"
     And I wait for bgps
     And I wait for solr
-    And I fill in "Search Entry" with "title:(\"Test Datastream Policy Collection\")"
+    And I carefully fill search entry with "title:(\"Test Datastream Policy Collection\")"
     And I press "search_entry_submit"
     And I follow "Edit Security for Selected Collection"
     And I select "Thesis officers only" from "Datastream FezACML Policy for datastreams"
@@ -59,22 +59,22 @@ Feature: Check datastream policy works correctly
     And I wait for "2" seconds
     And I wait for bgps
     And I wait for solr
-    And I fill in "Search Entry" with "title:(\"Test Title Datastream policy 1\")"
+    And I carefully fill search entry with "title:(\"Test Title Datastream policy 1\")"
     And I press "search_entry_submit"
     And I follow "Test Title Datastream policy 1"
     And I should see a datastream link for "test.pdf"
-    And I fill in "Search Entry" with "title:(\"Test Title Datastream policy 2\")"
+    And I carefully fill search entry with "title:(\"Test Title Datastream policy 2\")"
     And I press "search_entry_submit"
     And I follow "Test Title Datastream policy 2"
     And I should see a datastream link for "test.pdf"
     And I follow "Logout"
     Given I login as user no groups
-    And I fill in "Search Entry" with "title:(\"Test Title Datastream policy 1\")"
+    And I carefully fill search entry with "title:(\"Test Title Datastream policy 1\")"
     And I press "search_entry_submit"
     And I follow "Test Title Datastream policy 1"
     And I should see "test.pdf"
     And I should not see any datastream view links
-    And I fill in "Search Entry" with "title:(\"Test Title Datastream policy 2\")"
+    And I carefully fill search entry with "title:(\"Test Title Datastream policy 2\")"
     And I press "search_entry_submit"
     And I follow "Test Title Datastream policy 2"
     And I should see "test.pdf"
@@ -82,7 +82,7 @@ Feature: Check datastream policy works correctly
 
   Scenario: I change the policy for datastreams in the Collection. This won't change above datastreams since they have recieved policies to not inherit.
     Given I login as administrator
-    And I fill in "Search Entry" with "title:(\"Test Datastream Policy Collection\")"
+    And I carefully fill search entry with "title:(\"Test Datastream Policy Collection\")"
     And I press "search_entry_submit"
     And I follow "Edit Security for Selected Collection"
     And I select "UPOs only" from "Datastream FezACML Policy for datastreams"
@@ -93,22 +93,22 @@ Feature: Check datastream policy works correctly
     And I wait for solr
     When I am on "/"
     And I wait for "2" seconds
-    And I fill in "Search Entry" with "title:(\"Test Title Datastream policy 1\")"
+    And I carefully fill search entry with "title:(\"Test Title Datastream policy 1\")"
     And I press "search_entry_submit"
     And I follow "Test Title Datastream policy 1"
     And I should see a datastream link for "test.pdf"
-    And I fill in "Search Entry" with "title:(\"Test Title Datastream policy 2\")"
+    And I carefully fill search entry with "title:(\"Test Title Datastream policy 2\")"
     And I press "search_entry_submit"
     And I follow "Test Title Datastream policy 2"
     And I should see a datastream link for "test.pdf"
     And I follow "Logout"
     Given I login as thesis officer
-    And I fill in "Search Entry" with "title:(\"Test Title Datastream policy 1\")"
+    And I carefully fill search entry with "title:(\"Test Title Datastream policy 1\")"
     And I press "search_entry_submit"
     And I follow "Test Title Datastream policy 1"
     And I should see "test.pdf"
     And I should not see any datastream view links
-    And I fill in "Search Entry" with "title:(\"Test Title Datastream policy 2\")"
+    And I carefully fill search entry with "title:(\"Test Title Datastream policy 2\")"
     And I press "search_entry_submit"
     And I follow "Test Title Datastream policy 2"
     And I should see "test.pdf"
@@ -117,7 +117,7 @@ Feature: Check datastream policy works correctly
 
   Scenario: I change the policy for datastreams in the Collection back to nothing. Then add a pid and change it's datastream policy. Then check Datastream follows the pid policy
     Given I login as administrator
-    And I fill in "Search Entry" with "title:(\"Test Datastream Policy Collection\")"
+    And I carefully fill search entry with "title:(\"Test Datastream Policy Collection\")"
     And I press "search_entry_submit"
     And I follow "Edit Security for Selected Collection"
     And I select "Please choose an option" from "Datastream FezACML Policy for datastreams"
@@ -140,7 +140,7 @@ Feature: Check datastream policy works correctly
     And I press "Publish"
     And I wait for bgps
     And I wait for solr
-    And I fill in "Search Entry" with "title:(\"Test Title Datastream policy 3\")"
+    And I carefully fill search entry with "title:(\"Test Title Datastream policy 3\")"
     And I press "search_entry_submit"
     And I follow "Test Title Datastream policy 3"
     And I follow "Edit Security for Select Record"
@@ -154,13 +154,13 @@ Feature: Check datastream policy works correctly
     And I wait for "2" seconds
     And I follow "Logout"
     Given I login as thesis officer
-    And I fill in "Search Entry" with "title:(\"Test Title Datastream policy 3\")"
+    And I carefully fill search entry with "title:(\"Test Title Datastream policy 3\")"
     And I press "search_entry_submit"
     And I follow "Test Title Datastream policy 3"
     And I should see "test.pdf"
     And I should not see any datastream view links
     And I follow "Logout"
-    And I fill in "Search Entry" with "title:(\"Test Title Datastream policy 3\")"
+    And I carefully fill search entry with "title:(\"Test Title Datastream policy 3\")"
     And I press "search_entry_submit"
     And I follow "Test Title Datastream policy 3"
     And I should see "test.pdf"
@@ -180,7 +180,7 @@ Feature: Check datastream policy works correctly
     And I press "Publish"
     And I wait for bgps
     And I wait for solr
-    And I fill in "Search Entry" with "title:(\"Test Title Datastream policy 4\")"
+    And I carefully fill search entry with "title:(\"Test Title Datastream policy 4\")"
     And I press "search_entry_submit"
     And I follow "Test Title Datastream policy 4"
     And I follow "More options"
@@ -194,7 +194,7 @@ Feature: Check datastream policy works correctly
     And I turn on waiting checks
     When I am on "/"
     And I wait for "2" seconds
-    And I fill in "Search Entry" with "title:(\"Test Title Datastream policy 4\")"
+    And I carefully fill search entry with "title:(\"Test Title Datastream policy 4\")"
     And I press "search_entry_submit"
     And I follow "Test Title Datastream policy 4"
     And I follow "Edit Security for Select Record"
@@ -206,14 +206,14 @@ Feature: Check datastream policy works correctly
     And I turn on waiting checks
     And I follow "Logout"
     Given I login as UPO
-    And I fill in "Search Entry" with "title:(\"Test Title Datastream policy 4\")"
+    And I carefully fill search entry with "title:(\"Test Title Datastream policy 4\")"
     And I press "search_entry_submit"
     And I follow "Test Title Datastream policy 4"
     And I should see "test.pdf"
     And I should not see any datastream view links
     And I follow "Logout"
     Given I login as thesis officer
-    And I fill in "Search Entry" with "title:(\"Test Title Datastream policy 4\")"
+    And I carefully fill search entry with "title:(\"Test Title Datastream policy 4\")"
     And I press "search_entry_submit"
     And I follow "Test Title Datastream policy 4"
     And I should see a datastream link for "test.pdf"
