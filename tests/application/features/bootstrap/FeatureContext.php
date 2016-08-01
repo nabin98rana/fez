@@ -690,6 +690,22 @@ class FeatureContext extends MinkContext
 
     }
 
+
+    /**
+     * @Given /^I carefully fill search entry with "(.*)"$/
+     */
+    public function iCarefullyFillSearchEntryWith($search) {
+      try {
+        $this->fillField("search_entry", $search);
+      } catch (Exception $e) {
+        if (strpos($e->getMessage(), 'stale') !== false) {
+          echo "Found a stale element, retrying filling search_entry";
+          sleep(2);
+          $this->iCarefullyFillSearchEntryWith($search);
+        }
+      }
+    }
+
     /**
      * @When /^I go to the "([^"]+)" page$/
      */

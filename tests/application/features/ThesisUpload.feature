@@ -29,7 +29,7 @@ Feature: Test that Thesis upload correctly. @bug it can't check the swf uploader
     And I should see "Thesis Test Writer Name"
     And I should see "Thesis Test Name 2012"
     And I should see "Test Data Collection"
-    And I fill in "Search Entry" with "title:(\"Thesis Test Name 2012\")"
+    And I carefully fill search entry with "title:(\"Thesis Test Name 2012\")"
     And I press "search_entry_submit"
     And I should see "No records could be found."
     And I am on "/my_fez_traditional.php"
