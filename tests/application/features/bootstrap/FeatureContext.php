@@ -429,6 +429,22 @@ class FeatureContext extends MinkContext
   }
 
   /**
+   * @Given /^I press search$/
+   */
+  public function iPressSearch() {
+    try {
+      $this->getSession()->wait(1000, '(document.readyState === "complete")');
+      $this->getSession()->getPage()->pressButton('search_entry_submit');
+    } catch (Exception $e) {
+      if (strpos($e->getMessage(), 'stale') !== false) {
+        echo "Found a stale element, retrying wait for search entry box";
+        sleep(1);
+        $this->iPressSearch();
+      }
+    }
+  }
+
+  /**
    * @BeforeFeature
    *
    * @param FeatureEvent $event

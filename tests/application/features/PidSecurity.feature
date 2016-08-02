@@ -30,14 +30,14 @@ Feature: Pid security
     And I am on the homepage
     And I see "search_entry" id or wait for "5" seconds
     And I carefully fill search entry with "title:(\"Security Test Journal Title2012\")"
-    And I press "search_entry_submit"
+    And I press search
     When I follow "Click to view Journal Article"
     Then I should see "Login to"
     Given I login as administrator
     And I am on the homepage
     And I see "search_entry" id or wait for "5" seconds
     And I carefully fill search entry with "title:(\"Security Test Journal Title2012\")"
-    And I press "search_entry_submit"
+    And I press search
     When I follow "Click to view Journal Article"
     Then I should see "Security Test Journal Title2012"
 
@@ -45,7 +45,7 @@ Feature: Pid security
     Given I login as administrator
     And I am on the homepage
     And I carefully fill search entry with "title:(\"Security Test Journal Title2012\")"
-    And I press "search_entry_submit"
+    And I press search
     When I follow "Click to view Journal Article"
     And I follow "More options"
     And I follow "Edit Security for Select Record"
@@ -59,7 +59,7 @@ Feature: Pid security
     Given I login as administrator
     And I see "search_entry" id or wait for "5" seconds
     And I carefully fill search entry with "title:(\"Security Test Journal Title2012\")"
-    And I press "search_entry_submit"
+    And I press search
     When I follow "Click to view Journal Article"
     Then I should see "Security Test Journal Title2012"
     Then I should see "Workflows"
@@ -69,7 +69,7 @@ Feature: Pid security
     And I am on the homepage
     And I see "search_entry" id or wait for "5" seconds
     And I carefully fill search entry with "title:(\"Security Test Journal Title2012\")"
-    And I press "search_entry_submit"
+    And I press search
     When I follow "Click to view Journal Article"
     And I follow "More options"
     And I follow "Edit Security for Select Record"
@@ -83,14 +83,14 @@ Feature: Pid security
     #test non logged in cannot see it
     And I see "search_entry" id or wait for "5" seconds
     And I carefully fill search entry with "title:(\"Security Test Journal Title2012\")"
-    And I press "search_entry_submit"
+    And I press search
     Then I should see "No records could be found"
     #test admins can see it
     Given I login as administrator
     And I am on the homepage
     And I see "search_entry" id or wait for "5" seconds
     And I carefully fill search entry with "title:(\"Security Test Journal Title2012\")"
-    And I press "search_entry_submit"
+    And I press search
     When I follow "Click to view Journal Article"
     Then I should see "Security Test Journal Title2012"
     #Then I should see "Workflows"
