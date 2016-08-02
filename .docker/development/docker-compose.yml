@@ -4,12 +4,18 @@ fezdevelopmentrunner:
     - APP_ENVIRONMENT=development
     - JAVA_HOME=/usr/lib/jvm/jre
     - JHOVE_HOME=/usr/local/jhove
+    - AWS_ACCESS_KEY_ID
+    - AWS_SECRET_ACCESS_KEY
+    - AWS_CLOUDFRONT_KEY_PAIR_ID
+    - AWS_CLOUDFRONT_PRIVATE_KEY_FILE
+    - AWS_CLOUDFRONT_FILE_SERVE_URL
+    - FEZ_S3_BUCKET
+    - FEZ_S3_SRC_PREFIX
   links:
     - cache
     - fez
     - fedora
     - fezdb
-    - fedoradb
     - selenium
     - solr
   volumes:
@@ -54,17 +60,20 @@ fpm:
   environment:
     - APP_ENVIRONMENT=development
     - XDEBUG_CONFIG=idekey=fez
+    #XDEBUG_REMOTE_HOST gets set in dev.sh to your ip
+    - XDEBUG_REMOTE_HOST
     - PHP_IDE_CONFIG=serverName=dev-fez.library.uq.edu.au
     - JAVA_HOME=/usr/lib/jvm/jre
     - JHOVE_HOME=/usr/local/jhove
     - COMMIT_HASH
     - AWS_ACCESS_KEY_ID
     - AWS_SECRET_ACCESS_KEY
+    - FEZ_S3_BUCKET
+    - FEZ_S3_SRC_PREFIX
     - WEBCRON_TOKEN=southpark
   links:
     - fezdb
     - fedora
-    - fedoradb
     - solr
   volumes:
     - ../../:/var/app/current
@@ -100,7 +109,7 @@ fedora:
     - FEDORA_HOME=/opt/fedora
     - FEDORA_WEBAPP_HOME=/opt/fedora/tomcat/webapps/fedora
   links:
-    - fedoradb
+    - fezdb
   ports:
     - "10081:10081"
     - "10082:10082"
@@ -114,23 +123,6 @@ fedoradata:
   build: ./fedora/data/
   volumes:
     - ./data/fedora:/data
-
-fedoradb:
-  build: ./fedora/db/
-  environment:
-    - MYSQL_ROOT_PASSWORD=development
-    - MYSQL_USER=fedoraAdmin
-    - MYSQL_PASSWORD=fedoraAdmin
-    - MYSQL_DATABASE=fedora3
-  ports:
-    - "3307:3306"
-  privileged: true
-  volumes_from:
-    - fedoradbdata
-    - logs
-
-fedoradbdata:
-  build: ./backend/db/data/
 
 solr:
   build: ./solr/

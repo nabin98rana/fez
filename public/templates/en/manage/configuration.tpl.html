@@ -2346,7 +2346,16 @@ function restoreDefaultColours(el)
               {include file="error_icon.tpl.html" field="app_scopus_api_key"}
             </td>
           </tr>
-          <tr>
+					<tr>
+						<th>Scopus InstToken</th>
+						<td>
+							<input type="text" name="app_scopus_insttoken" value="{$config_settings.app_scopus_insttoken}" size="100" />
+							<br />Scopus Insttoken (can be used instead of IP auth for Scopus).
+							{include file="error_icon.tpl.html" field="app_scopus_insttoken"}
+						</td>
+					</tr>
+
+			<tr>
             <th>Scopus Import Collection</th>
             <td>
               <input type="text" name="app_scopus_import_collection" value="{$config_settings.app_scopus_import_collection}" size="100" />
@@ -2545,6 +2554,14 @@ function restoreDefaultColours(el)
 							<input type="text" name="aws_s3_bucket" value="{$config_settings.aws_s3_bucket}" size="100" />
 							<br />The bucket name for storing all Fez S3 related content.
 							{include file="error_icon.tpl.html" field="aws_s3_bucket"}
+						</td>
+					</tr>
+					<tr>
+						<th>S3 Src Prefix</th>
+						<td>
+							<input type="text" name="aws_s3_src_prefix" value="{$config_settings.aws_s3_src_prefix}" size="100" />
+							<br />Optional prefix for all S3 src paths.
+							{include file="error_icon.tpl.html" field="aws_s3_src_prefix"}
 						</td>
 					</tr>
 					<tr>

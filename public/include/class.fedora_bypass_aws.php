@@ -33,6 +33,7 @@
 include_once(APP_INC_PATH . "class.error_handler.php");
 include_once(APP_INC_PATH . "class.setup.php");
 include_once(APP_INC_PATH . "class.misc.php");
+include_once(APP_INC_PATH . "class.exiftool.php");
 require_once(APP_INC_PATH . "nusoap.php");
 include_once(APP_PEAR_PATH . "/HTTP/Request.php");
 include_once(APP_INC_PATH . "class.aws.php");
@@ -329,7 +330,9 @@ class Fedora_API implements FedoraApiInterface {
 //				$ds['altIDs']       = "";
 				$ds['label']        = $baseKey;
 				$ds['versionable']  = "true";
-//				$ds['MIMEType']     = $object['ContentType'];
+        // getting mimetype from exiftool table data instead of aws metadata because aws would require a headobject api call per object = too many calls = probably slow
+        $exifData = Exiftool::getDetails($pid, $baseKey);
+        $ds['MIMEType'] = $exifData['exif_mime_type'];
 				$ds['formatURI']    = "";
 				$ds['createDate']   = (string)$object['LastModified'];
 				$ds['size']         = $object['Size'];
@@ -456,7 +459,9 @@ class Fedora_API implements FedoraApiInterface {
 		$dsData['versionID'] = $dsArray['VersionId'];
 		$dsData['label'] = ''; //TODO: convert to use PUT'd metadata for label
 		$dsData['controlGroup'] = "M";
-		$dsData['MIMEType'] = $dsArray['ContentType'];
+    // getting mimetype from exiftool table data instead of aws metadata because aws would require a headobject api call per object = too many calls = probably slow
+    $exifData = Exiftool::getDetails($pid, $dsID);
+		$dsData['MIMEType'] = $exifData['exif_mime_type'];
 		$dsData['createDate'] = (string)$dsArray['LastModified']; //TODO: convert to saved meta
 		$dsData['location'] = NULL; //TODO Check if this is needed and if so fill with a real value.
 		$dsData['formatURI'] = NULL; //TODO Check if this is needed and if so fill with a real value.

@@ -1,13 +1,15 @@
 #!/bin/bash
 
 echo Starting test run..
+CONTAINER_BASE_DIR=/var/app/current
 
 i=0
+MAX_LOOPS=100
 MYSQL_HEALTH_CMD="mysqladmin ping -hfezdb -ufez -pfez"
 HEALTH_MSG=$(${MYSQL_HEALTH_CMD} 2>&1)
 while ! [[ -n "${HEALTH_MSG}" && ${HEALTH_MSG} != *"failed"* && ${HEALTH_MSG} != *"denied"* ]]; do
   i=`expr ${i} + 1`
-  if [ ${i} -ge ${MAX_LOOPS} ]; then
+  if [[ ${i} -ge ${MAX_LOOPS} ]]; then
     echo "$(date) - MySQL still not reachable, giving up"
     exit 1
   fi
@@ -16,30 +18,25 @@ while ! [[ -n "${HEALTH_MSG}" && ${HEALTH_MSG} != *"failed"* && ${HEALTH_MSG} !=
   HEALTH_MSG=$(${MYSQL_HEALTH_CMD} 2>&1)
 done
 
-cd /var/app/current/tests/application && php init.php
+cd ${CONTAINER_BASE_DIR}/.docker/testing
+if [[ ! -f "../../public/config.inc.php" ]]; then
+    cp config.inc.php ../../public/
+fi
+
+cd ${CONTAINER_BASE_DIR}/tests/application
+
+echo Creating schema..
+php init.php schema
 
 echo Starting upgrading..
 UPGRADE_RES=$(curl -s http://fez/upgrade/index.php?upgradeOnly=1 | grep succeeded)
-if [ "${UPGRADE_RES}" == "" ]; then
+if [[ "${UPGRADE_RES}" == "" ]]; then
   echo "failed to run upgrade scripts! :("
   exit 1
 fi
 
 echo Seeding SQL data..
+php init.php seed
 
-CONTAINER_DB_SEED_DIR=/var/app/current/.docker/development/backend/db/seed
-mysql -uroot -pdevelopment -hfezdb mysql < ${CONTAINER_DB_SEED_DIR}/installdb.sql
-mysql -uroot -pdevelopment -hfezdb fez < ${CONTAINER_DB_SEED_DIR}/citation.sql
-mysql -uroot -pdevelopment -hfezdb fez < ${CONTAINER_DB_SEED_DIR}/cvs.sql
-mysql -uroot -pdevelopment -hfezdb fez < ${CONTAINER_DB_SEED_DIR}/development.sql
-mysql -uroot -pdevelopment -hfezdb fez < ${CONTAINER_DB_SEED_DIR}/workflows.sql
-mysql -uroot -pdevelopment -hfezdb fez < ${CONTAINER_DB_SEED_DIR}/xsd.sql
-mysql -uroot -pdevelopment -hfezdb fez < ${CONTAINER_DB_SEED_DIR}/jetsetup.sql
-mysql -uroot -pdevelopment -hfezdb fez < ${CONTAINER_DB_SEED_DIR}/disablesolr.sql
-
-echo Running tests..
-
-cd /var/app/current/
-./tests/application/run-tests.sh
-#docker -v
-#docker-compose -v
+echo Running tests.. $1
+./run-tests.sh $1

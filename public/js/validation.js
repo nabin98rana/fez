@@ -453,8 +453,8 @@ function xsdmfValidate(field, value, vtype, title, name) {
             errors[errors.length] = new Option(title+' (needs to be in numeric format)', name);
 		}
 	} else if (vtype == 'date') {
-		if (!isWhitespace(value) && !isDate(value)) {
-            errors[errors.length] = new Option(title+' (needs to be in date format)', name);
+		if (!isDate(value)) {
+            errors[errors.length] = new Option(title+' (needs to be in date format eg 19/04/2016)', name);
 		}
 	} else if (vtype == 'email') {
 		if (!isWhitespace(value) && !isEmail(value)) {
@@ -473,6 +473,11 @@ function xsdmfValidate(field, value, vtype, title, name) {
             errors[errors.length] = new Option(title+'s (needs to be integer)', name);
         }
     }
+}
+
+function isDate(input) {
+    var pattern =/^([0-9]{1,2})\/([0-9]{1,2})\/([0-9]{4})$/;
+    return pattern.test(input);
 }
 
 function xsdmfValidateLength(field, value, maxLength, title, name) {
