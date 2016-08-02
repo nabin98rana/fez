@@ -13,9 +13,9 @@ class loginHelper {
     } catch (Exception $e) {
       if (strpos($e->getMessage(), 'stale') !== false) {
         echo "Found a stale element, retrying login";
-        sleep(2);
-        $this->waitForLogoutLogin($page);
       }
+      sleep(2);
+      $this->waitForLogoutLogin($page);
     }
   }
 
@@ -32,9 +32,9 @@ class loginHelper {
     } catch (Exception $e) {
       if (strpos($e->getMessage(), 'stale') !== false) {
         echo "Found a stale element, retrying login";
-        sleep(2);
-        $this->iLoginAsAdministrator($page);
       }
+      sleep(2);
+      $this->iLoginAsAdministrator($page);
     }
   }
 
@@ -51,9 +51,9 @@ class loginHelper {
     } catch (Exception $e) {
       if (strpos($e->getMessage(), 'stale') !== false) {
         echo "Found a stale element, retrying login";
-        sleep(2);
-        $this->iLoginAsUPO($page);
       }
+      sleep(2);
+      $this->iLoginAsUPO($page);
     }
   }
 
@@ -70,9 +70,9 @@ class loginHelper {
     } catch (Exception $e) {
       if (strpos($e->getMessage(), 'stale') !== false) {
         echo "Found a stale element, retrying login";
-        sleep(2);
-        $this->iLoginAsSuperAdministrator($page);
       }
+      sleep(2);
+      $this->iLoginAsSuperAdministrator($page);
     }
   }
 
@@ -89,9 +89,9 @@ class loginHelper {
     } catch (Exception $e) {
       if (strpos($e->getMessage(), 'stale') !== false) {
         echo "Found a stale element, retrying login";
-        sleep(2);
-        $this->iLoginAsUserNoGroups($page);
       }
+      sleep(2);
+      $this->iLoginAsUserNoGroups($page);
     }
   }
 
@@ -108,9 +108,9 @@ class loginHelper {
     } catch (Exception $e) {
       if (strpos($e->getMessage(), 'stale') !== false) {
         echo "Found a stale element, retrying login";
-        sleep(2);
-        $this->iLoginAsThesisOfficer($page);
       }
+      sleep(2);
+      $this->iLoginAsThesisOfficer($page);
     }
   }
 }
