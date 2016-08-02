@@ -101,13 +101,13 @@
 {if $refresh_rate}
 <meta http-equiv="Refresh" content="{$refresh_rate};URL={$app_base_url}{$refresh_page}" />
 {/if}
-{if $isUser && app_environment != "testing"}
+{if $isUser && $app_environment != "testing"}
   {$najax_header nofilter}
 {/if}
 {$meta_head nofilter}
 <script type="text/javascript">
 	<!--
-    {if $isUser && app_environment != "testing"}
+    {if $isUser && $app_environment != "testing"}
 	{$najax_register nofilter}
     {/if}
 	{* Change the window.onload if we're using dojo so that this doesn't overwrite our flash uploader callback *}

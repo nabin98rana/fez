@@ -23,9 +23,8 @@ Feature: Security
     And I wait for bgps
     And I follow "Logout"
     And I am on the homepage
-    And I see "search_entry" id or wait for "5" seconds
     And I carefully fill search entry with "title:(\"Security Test Community\")"
-    And I press "search_entry_submit"
+    And I press search
     Then I should see "(1 results found)"
 
   Scenario: Create a community, collection, set the collection to viewable by admins only
@@ -58,9 +57,8 @@ Feature: Security
     And I wait for solr
     And I wait for bgps
     And I am on the homepage
-    And I see "search_entry" id or wait for "5" seconds
     And I carefully fill search entry with "title:(\"Security Test Collection Masqueraders\")"
-    And I press "search_entry_submit"
+    And I press search
     Then I should see "(0 results found)"
 
   Scenario: Create a new secure lister community,
@@ -78,9 +76,8 @@ Feature: Security
     And I wait for solr
     And I wait for bgps
     And I am on the homepage
-    And I see "search_entry" id or wait for "5" seconds
     And I carefully fill search entry with "title:(\"Security Test Community Masqueraders\")"
-    And I press "search_entry_submit"
+    And I press search
     And I follow "Edit Security for Selected Community"
     And I choose the "Masqueraders" group for the "Lister" role
     And I choose the "Masqueraders" group for the "Viewer" role
@@ -101,9 +98,8 @@ Feature: Security
     And I wait for solr
     And I wait for bgps
     And I am on the homepage
-    And I see "search_entry" id or wait for "5" seconds
     And I carefully fill search entry with "title:(\"Security Test Collection Multiple Inheritance Open\")"
-    And I press "search_entry_submit"
+    And I press search
     Then I should see "(1 results found)"
 
   Scenario: When an administrator deletes the open unsecured community then
@@ -112,7 +108,7 @@ Feature: Security
     Given I login as administrator
     And I am on the homepage
     And I carefully fill search entry with "title:(\"Security Test Community Open\")"
-    And I press "search_entry_submit"
+    And I press search
     And I press "Select All"
     And I turn off waiting checks
     And I press "Delete"
@@ -123,9 +119,8 @@ Feature: Security
     And I wait for solr
     And I wait for bgps
     And I am on the homepage
-    And I see "search_entry" id or wait for "5" seconds
     And I carefully fill search entry with "title:(\"Security Test Collection Multiple Inheritance Open\")"
-    And I press "search_entry_submit"
+    And I press search
     And I wait for "2" seconds
     And I follow "Edit Security for Selected Collection"
     And I press "Save Changes"
@@ -134,8 +129,7 @@ Feature: Security
     And I wait for bgps
     And I am on the homepage
     And I carefully fill search entry with "title:(\"Security Test Collection Multiple Inheritance Open\")"
-    And I wait for "2" seconds
-    And I press "search_entry_submit"
+    And I press search
     Then I should see "(0 results found)"
 
   @purge
