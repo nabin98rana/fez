@@ -33,7 +33,11 @@
 </center>
 
 <script type="text/javascript">
-setTimeout('closeAndRefresh()', 1000);
+{if $app_environment != "testing"}
+  window.close();
+{else}
+  setTimeout('closeAndRefresh()', 0);
+{/if}
 </script>
 <br />
 <!--

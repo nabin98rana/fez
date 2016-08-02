@@ -437,7 +437,7 @@ class FeatureContext extends MinkContext
       $this->getSession()->getPage()->pressButton('search_entry_submit');
     } catch (Exception $e) {
       if (strpos($e->getMessage(), 'stale') !== false) {
-        echo "Found a stale element, retrying wait for search entry box";
+        echo "Found a stale element, retrying wait for search entry button";
         sleep(1);
         $this->iPressSearch();
       }
@@ -558,9 +558,9 @@ class FeatureContext extends MinkContext
     } catch (Exception $e) {
       if (strpos($e->getMessage(), 'stale') !== false) {
         echo "Found a stale element, retrying filling search_entry";
-        sleep(2);
-        $this->iCarefullyFillSearchEntryWith($search);
       }
+      sleep(2);
+      $this->iCarefullyFillSearchEntryWith($search);
     }
   }
 
