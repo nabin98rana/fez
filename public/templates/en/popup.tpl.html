@@ -33,8 +33,8 @@
 </center>
 
 <script type="text/javascript">
-{if $app_environment != "testing"}
-  window.close();
+{if $app_environment == "testing"}
+  setTimeout('closeAndRefresh()', 0);
 {else}
   setTimeout('closeAndRefresh()', 1000);
 {/if}
