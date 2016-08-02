@@ -153,17 +153,11 @@ class FeatureContext extends MinkContext
 
   /**
    * Checks the DOM is ready.
-   *
    * @AfterStep @javascript
    */
   public function afterStepJavascript($event) {
     try {
-      if ($this->getSession()->getDriver()->getBrowserName() == 'safari' ||
-        $this->getSession()->getDriver()->getBrowserName() == 'internet explorer') {
-        $this->getSession()->wait(1000, false);
-      } else {
-        $this->getSession()->wait(1000, '(document.readyState === "complete")');
-      }
+      $this->getSession()->wait(1000, '(document.readyState === "complete")');
     } catch (\Exception $e) {
     }
   }
@@ -417,7 +411,7 @@ class FeatureContext extends MinkContext
 
       if (!$this->isModal) {
         try {
-          $this->getSession()->wait(5000, "dojo.byId('powered-by')");
+          $this->getSession()->wait(1000, '(document.readyState === "complete")');
         } catch (Exception $e) {
           if (strpos($e->getMessage(), 'stale') !== false) {
             echo "Found a stale element, retrying wait for search entry box";
@@ -455,11 +449,6 @@ class FeatureContext extends MinkContext
   public function afterScenario($scope)
   {
     $this->getSession()->reset();
-    if (!($this->getSession()->getDriver() instanceof Behat\Mink\Driver\GoutteDriver) &&
-      !($this->getSession()->getDriver() instanceof Behat\Mink\Driver\ZombieDriver)
-    ) {
-      //$this->getSession()->switchToWindow();
-    }
   }
 
   /**
@@ -488,8 +477,6 @@ class FeatureContext extends MinkContext
   public function assertPopupMessage($message)
   {
     return $message == $this->getSession()->getDriver()->getWebDriverSession()->getAlert_text();
-
-
   }
 
   /**
@@ -544,7 +531,6 @@ class FeatureContext extends MinkContext
     $element->click();
 
   }
-
 
   /**
    * @Given /^I carefully fill search entry with "(.*)"$/

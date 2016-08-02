@@ -2,20 +2,39 @@
 
 class loginHelper {
 
-  /* Wait for the logout/login pages to render correctly
+  /**
+   * Wait for the logout/login pages to render correctly
    *
-   *
+   * @param string $page
+   * @param string $user
+   * @param string $pass
+   * @param bool $loadLoginPage
    */
-  private function waitForLogoutLogin($page) {
+  private function login($page, $user, $pass, $loadLoginPage = true) {
+    if ($loadLoginPage) {
+      try {
+        $page->visit("/login.php");
+        $page->getSession()->wait(1000, '(document.readyState === "complete")');
+      } catch (Exception $e) {
+        if (strpos($e->getMessage(), 'stale') !== false) {
+          echo "Found a stale element, retrying login";
+        }
+        sleep(2);
+        $this->login($page, $user, $pass);
+      }
+    }
+
     try {
-      $page->visit("/login.php");
-      $page->getSession()->wait(10000, "dojo.byId('powered-by')");
+      $page->fillField("username", $user);
+      $page->fillField("passwd", $pass);
+      $page->pressButton("Login");
+      $page->visit("/");
     } catch (Exception $e) {
       if (strpos($e->getMessage(), 'stale') !== false) {
         echo "Found a stale element, retrying login";
       }
       sleep(2);
-      $this->waitForLogoutLogin($page);
+      $this->login($page, $user, $pass, false);
     }
   }
 
@@ -23,94 +42,34 @@ class loginHelper {
    * @Given /^I login as administrator$/
    */
   public function iLoginAsAdministrator($page) {
-    try {
-      $this->waitForLogoutLogin($page);
-      $page->fillField("username", "admin_test");
-      $page->fillField("passwd", "Ilovedonkey5");
-      $page->pressButton("Login");
-      $page->visit("/");
-    } catch (Exception $e) {
-      if (strpos($e->getMessage(), 'stale') !== false) {
-        echo "Found a stale element, retrying login";
-      }
-      sleep(2);
-      $this->iLoginAsAdministrator($page);
-    }
+    $this->login($page, "admin_test", "Ilovedonkey5");
   }
 
   /**
    * @Given /^I login as UPO$/
    */
   public function iLoginAsUPO($page) {
-    try {
-      $this->waitForLogoutLogin($page);
-      $page->fillField("username", "upo_test");
-      $page->fillField("passwd", "Ilovedonkey5");
-      $page->pressButton("Login");
-      $page->visit("/");
-    } catch (Exception $e) {
-      if (strpos($e->getMessage(), 'stale') !== false) {
-        echo "Found a stale element, retrying login";
-      }
-      sleep(2);
-      $this->iLoginAsUPO($page);
-    }
+    $this->login($page, "upo_test", "Ilovedonkey5");
   }
 
   /**
    * @Given /^I login as super administrator$/
    */
   public function iLoginAsSuperAdministrator($page) {
-    try {
-      $this->waitForLogoutLogin($page);
-      $page->fillField("username", "superadmin_test");
-      $page->fillField("passwd", "Ilovedonkey5");
-      $page->pressButton("Login");
-      $page->visit("/");
-    } catch (Exception $e) {
-      if (strpos($e->getMessage(), 'stale') !== false) {
-        echo "Found a stale element, retrying login";
-      }
-      sleep(2);
-      $this->iLoginAsSuperAdministrator($page);
-    }
+    $this->login($page, "superadmin_test", "Ilovedonkey5");
   }
 
   /**
    * @Given /^I login as user no groups$/
    */
   public function iLoginAsUserNoGroups($page) {
-    try {
-      $this->waitForLogoutLogin($page);
-      $page->fillField("username", "user_test");
-      $page->fillField("passwd", "Ilovedonkey5");
-      $page->pressButton("Login");
-      $page->visit("/");
-    } catch (Exception $e) {
-      if (strpos($e->getMessage(), 'stale') !== false) {
-        echo "Found a stale element, retrying login";
-      }
-      sleep(2);
-      $this->iLoginAsUserNoGroups($page);
-    }
+    $this->login($page, "user_test", "Ilovedonkey5");
   }
 
   /**
    * @Given /^I login as thesis officer$/
    */
   public function iLoginAsThesisOfficer($page) {
-    try {
-      $this->waitForLogoutLogin($page);
-      $page->fillField("username", "thesisofficer_test");
-      $page->fillField("passwd", "Ilovedonkey5");
-      $page->pressButton("Login");
-      $page->visit("/");
-    } catch (Exception $e) {
-      if (strpos($e->getMessage(), 'stale') !== false) {
-        echo "Found a stale element, retrying login";
-      }
-      sleep(2);
-      $this->iLoginAsThesisOfficer($page);
-    }
+    $this->login($page, "thesisofficer_test", "Ilovedonkey5");
   }
 }
