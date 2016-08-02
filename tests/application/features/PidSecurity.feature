@@ -43,6 +43,7 @@ Feature: Pid security
 
   Scenario: I login as admin and set a pids security to only create for a certain group as check that group can create
     Given I login as administrator
+    And I am on the homepage
     And I carefully fill search entry with "title:(\"Security Test Journal Title2012\")"
     And I press "search_entry_submit"
     When I follow "Click to view Journal Article"
