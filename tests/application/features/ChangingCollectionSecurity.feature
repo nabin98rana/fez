@@ -54,7 +54,7 @@ Feature: Changing Collection Security
     And I press "Save"
     And I wait for solr
     And I wait for bgps
-    And I wait for "10" seconds
+    And I am on the homepage
     And I carefully fill search entry with "title:(\"Test Pid Security to be changed after pid created\")"
     And I press search
     Then I should not see "No records could be found"
