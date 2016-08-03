@@ -1,4 +1,4 @@
-@javascript @smoke
+@javascript @smoke @nodata
 Feature: Test edit pages for javascript errors, differing settings can cause different issues
 #We have added Javascript tests to all pages tested so for now we just have to visit pages that do not have tests on them already. Currently using test UPO as an approximate user
 

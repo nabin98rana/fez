@@ -1,4 +1,4 @@
-@javascript @destructive @jet
+@javascript @destructive @jet @datadependant
 Feature: Test Language of Title fields https://www.pivotaltracker.com/story/show/26403903
   Language of title fields should remain hidden on the form, until foreign language is selected on Language field.
   Language of title fields should not have default value.

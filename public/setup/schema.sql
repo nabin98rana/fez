@@ -194,7 +194,7 @@ DROP TABLE IF EXISTS `fez_auth_quick_rules`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `fez_auth_quick_rules` (
   `qac_id` int(11) unsigned NOT NULL DEFAULT '0',
-  `qac_role` int(11) DEFAULT NULL,
+  `qac_aro_id` int(11) DEFAULT NULL,
   `qac_arg_id` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;

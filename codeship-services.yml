@@ -16,9 +16,9 @@ fpmtestrunner:
     - fez
     - fezdb
     - fedora
-    - fedoradb
     - selenium
   volumes_from:
+    - fezcode
     - fedoradata
     - cache
 
@@ -26,8 +26,8 @@ selenium:
   image: selenium/standalone-chrome-debug:2.53.0
   environment:
     - JAVA_OPTS=-Dselenium.LOGGER.level=WARNING
-  ports:
-    - "5902:5900"
+#  ports:
+#    - "5902:5900"
   links:
     - fez
     - fedora
@@ -45,11 +45,12 @@ fez:
 
 fezcode:
   build:
-    dockerfile_path: "Dockerfile.staging"
+    dockerfile_path: "Dockerfile.codeonly"
 
 fpm:
   build:
     dockerfile_path: "Dockerfile"
+    path: ./.docker/development/backend/fpm/
   #encrypted_env_file: ./.codeship/dockerenv.encrypted
   environment:
     APP_ENVIRONMENT: "testing"
@@ -60,9 +61,9 @@ fpm:
   links:
     - fezdb
     - fedora
-    - fedoradb
   volumes_from:
     - fedoradata
+    - fezcode
     - cache
 
 fezdb:
@@ -90,26 +91,12 @@ fedora:
     FEDORA_HOME: "/opt/fedora"
     FEDORA_WEBAPP_HOME: "/opt/fedora/tomcat/webapps/fedora"
   links:
-    - fedoradb
-  ports:
-    - "10083:10081"
+    - fezdb
+#  ports:
+#    - "10083:10081"
   volumes_from:
     - fedoradata
     - cache
-
-fedoradb:
-  build:
-    image: codeship_fedoradb
-    dockerfile_path: Dockerfile
-    path: ./.docker/development/backend/db/
-  cap_add:
-    - SYS_ADMIN
-  environment:
-    - MYSQL_ROOT_PASSWORD=development
-    - MYSQL_USER=fedoraAdmin
-    - MYSQL_PASSWORD=fedoraAdmin
-    - MYSQL_DATABASE=fedora3
-  privileged: true
 
 cache:
   build:

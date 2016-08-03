@@ -1,12 +1,20 @@
-- service: fpmtestrunner
-  command: .codeship/jet.sh
-- service: fezstaging
-  type: push
-  tag: staging
-  image_name: uql-registry.library.uq.edu.au/staging/fez
-  image_tag: "{{.CommitID}}"
-  registry: uql-registry.library.uq.edu.au
-  encrypted_dockercfg_path: dockercfg.encrypted
-- service: awsdeployment
-  tag: staging
-  command: scripts/backend-deployment-staging.sh
+- type: parallel
+  steps:
+  - service: fpmtestrunner
+    command: .codeship/jet.sh @datadependant
+  - service: fpmtestrunner
+    command: .codeship/jet.sh @nodata
+
+- type: serial
+  name: deployment
+  steps:
+  - service: fezstaging
+    type: push
+    tag: staging
+    image_name: uql-registry.library.uq.edu.au/staging/fez
+    image_tag: "{{.CommitID}}"
+    registry: uql-registry.library.uq.edu.au
+    encrypted_dockercfg_path: dockercfg.encrypted
+  - service: awsdeployment
+    tag: staging
+    command: scripts/backend-deployment-staging.sh

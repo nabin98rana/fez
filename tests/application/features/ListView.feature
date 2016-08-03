@@ -1,5 +1,5 @@
 # features/ListView.feature
-@javascript @destructive @jet
+@javascript @destructive @jet @nodata
 Feature: Check list view displays the correct information entered into a pid, collection or community
 
   Scenario: I login as admin and create communities, collections and pids and see all the information displays in lists correctly
@@ -33,20 +33,22 @@ Feature: Check list view displays the correct information entered into a pid, co
     And I select "Article" from "Sub-type"
     And I check "Copyright Agreement"
     And I select "2010" from "Publication date"
+    And I select "10" from "Publication date month"
+    And I select "20" from "Publication date day"
     And I press "Publish"
     And I wait for solr
     And I wait for bgps
     And I follow "Logout"
-    And I fill in "Search Entry" with "title:(\"Test Community for list view\")"
-    And I press "search_entry_submit"
+    And I carefully fill search entry with "title:(\"Test Community for list view\")"
+    And I press search
     Then I should see "Test Community for list view"
     Then I should not see "No records could be found"
-    And I fill in "Search Entry" with "title:(\"Test Collection for list view\")"
-    And I press "search_entry_submit"
+    And I carefully fill search entry with "title:(\"Test Collection for list view\")"
+    And I press search
     Then I should see "Test Collection for list view"
     Then I should not see "No records could be found"
-    And I fill in "Search Entry" with "title:(\"Test Pid for list view\")"
-    And I press "search_entry_submit"
+    And I carefully fill search entry with "title:(\"Test Pid for list view\")"
+    And I press search
     Then I should see "Test Pid for list view"
     Then I should see "123456"
     Then I should see "List test journal"

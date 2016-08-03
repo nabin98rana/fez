@@ -1,5 +1,5 @@
 # features/ThesisUpload.feature
-@javascript @destructive @jet
+@javascript @destructive @jet @datadependant
 Feature: Test that Thesis upload correctly. @bug it can't check the swf uploader
 
   Scenario: I login as admin, create a pid, then delete it and check it is not longer accessiable
@@ -29,8 +29,8 @@ Feature: Test that Thesis upload correctly. @bug it can't check the swf uploader
     And I should see "Thesis Test Writer Name"
     And I should see "Thesis Test Name 2012"
     And I should see "Test Data Collection"
-    And I fill in "Search Entry" with "title:(\"Thesis Test Name 2012\")"
-    And I press "search_entry_submit"
+    And I carefully fill search entry with "title:(\"Thesis Test Name 2012\")"
+    And I press search
     And I should see "No records could be found."
     And I am on "/my_fez_traditional.php"
     And I fill in "Title" with "Thesis Test Name 2012"

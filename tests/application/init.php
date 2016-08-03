@@ -104,6 +104,9 @@ function parseMySQLdump($conn, $url, $ignoreErrors = false) {
     $sql_line = str_replace('%AWS_SECRET_ACCESS_KEY%', @$_SERVER['AWS_SECRET_ACCESS_KEY'], $sql_line);
     $sql_line = str_replace('%FEZ_S3_BUCKET%', @$_SERVER['FEZ_S3_BUCKET'], $sql_line);
     $sql_line = str_replace('%FEZ_S3_SRC_PREFIX%', @$_SERVER['FEZ_S3_SRC_PREFIX'], $sql_line);
+    $sql_line = str_replace('%AWS_CLOUDFRONT_KEY_PAIR_ID%', @$_SERVER['AWS_CLOUDFRONT_KEY_PAIR_ID'], $sql_line);
+    $sql_line = str_replace('%AWS_CLOUDFRONT_PRIVATE_KEY_FILE%', @$_SERVER['AWS_CLOUDFRONT_PRIVATE_KEY_FILE'], $sql_line);
+    $sql_line = str_replace('%AWS_CLOUDFRONT_FILE_SERVE_URL%', @$_SERVER['AWS_CLOUDFRONT_FILE_SERVE_URL'], $sql_line);
 
     $tsl = trim($sql_line);
     if (($sql_line != "") && (substr($tsl, 0, 2) != "--") && (substr($tsl, 0, 1) != "#")) {
@@ -132,6 +135,11 @@ function runSeed($conn) {
   parseMySQLdump($conn, $path . "development.sql");
   parseMySQLdump($conn, $path . "workflows.sql");
   parseMySQLdump($conn, $path . "xsd.sql");
+
+  if ($_SERVER['APP_ENVIRONMENT'] === 'testing') {
+    parseMySQLdump($conn, $path . "jetsetup.sql");
+    parseMySQLdump($conn, $path . "disablesolr.sql");
+  }
 
   // Finished unless AWS environment is configured
   if (
@@ -180,6 +188,15 @@ function runSeed($conn) {
     $db->exec("UPDATE " . APP_TABLE_PREFIX . "config " .
       " SET config_value = 'ON' " .
       " WHERE config_name='app_xsdmf_index_switch'");
+    $db->exec("UPDATE " . APP_TABLE_PREFIX . "config " .
+      " SET config_value = '' " .
+      " WHERE config_name='app_fedora_username'");
+    $db->exec("UPDATE " . APP_TABLE_PREFIX . "config " .
+      " SET config_value = '' " .
+      " WHERE config_name='app_fedora_pwd'");
+
+    parseMySQLdump($conn, $path . "nofedora.sql");
+
   } catch (Exception $ex) {
     return;
   }

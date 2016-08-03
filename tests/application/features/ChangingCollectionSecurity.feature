@@ -1,4 +1,4 @@
-@javascript @destructive @jet
+@javascript @destructive @jet @nodata
 Feature: Changing Collection Security
 
   Scenario: I login as admin and set a Collection security to allow inheriting pids to view, then turn it off and check pids can no longer be viewed
@@ -26,6 +26,8 @@ Feature: Changing Collection Security
     And I wait for "2" seconds
     And I fill in "Title" with "Test Pid Security to be changed after pid created"
     And I select "2010" from "Publication date"
+    And I select "10" from "Publication date month"
+    And I select "20" from "Publication date day"
     And I fill in "Journal name" with "Security Test Journal name"
     And I fill in "Author 1" with "Security Test Author name"
     And I select "Article" from "Sub-type"
@@ -35,14 +37,14 @@ Feature: Changing Collection Security
     And I wait for solr
     And I wait for bgps
     And I am on the homepage
-    And I fill in "Search Entry" with "title:(\"Test Community Security to be changed after pid created\")"
-    And I press "search_entry_submit"
+    And I carefully fill search entry with "title:(\"Test Community Security to be changed after pid created\")"
+    And I press search
     Then I should not see "No records could be found"
-    And I fill in "Search Entry" with "title:(\"Test Collection Security to be changed after pid created\")"
-    And I press "search_entry_submit"
+    And I carefully fill search entry with "title:(\"Test Collection Security to be changed after pid created\")"
+    And I press search
     Then I should not see "No records could be found"
-    And I fill in "Search Entry" with "title:(\"Test Pid Security to be changed after pid created\")"
-    And I press "search_entry_submit"
+    And I carefully fill search entry with "title:(\"Test Pid Security to be changed after pid created\")"
+    And I press search
     Then I should not see "No records could be found"
     Given I login as administrator
     And I go to the temporary record pid view page
@@ -52,27 +54,25 @@ Feature: Changing Collection Security
     And I press "Save"
     And I wait for solr
     And I wait for bgps
-    And I wait for "10" seconds
-    And I fill in "Search Entry" with "title:(\"Test Pid Security to be changed after pid created\")"
-    And I press "search_entry_submit"
+    And I am on the homepage
+    And I carefully fill search entry with "title:(\"Test Pid Security to be changed after pid created\")"
+    And I press search
     Then I should not see "No records could be found"
-    And I fill in "Search Entry" with "title:(\"Test Collection Security to be changed after pid created\")"
-    And I press "search_entry_submit"
+    And I carefully fill search entry with "title:(\"Test Collection Security to be changed after pid created\")"
+    And I press search
     Then I should not see "No records could be found"
-    And I fill in "Search Entry" with "title:(\"Test Community Security to be changed after pid created\")"
-    And I press "search_entry_submit"
-    And I follow "Test Community Security to be changed after pid created"
+    And I carefully fill search entry with "title:("Test Community Security to be changed after pid created")"
     And I follow "Test Collection Security to be changed after pid created"
     And I follow "Test Pid Security to be changed after pid created"
     And I follow "Logout"
     And I am on the homepage
     And I wait for solr
     And I wait for bgps
-    And I fill in "Search Entry" with "title:(\"Test Collection Security to be changed after pid created\")"
-    And I press "search_entry_submit"
+    And I carefully fill search entry with "title:(\"Test Collection Security to be changed after pid created\")"
+    And I press search
     Then I should see "No records could be found"
-    And I fill in "Search Entry" with "title:(\"Test Pid Security to be changed after pid created\")"
-    And I press "search_entry_submit"
+    And I carefully fill search entry with "title:(\"Test Pid Security to be changed after pid created\")"
+    And I press search
     Then I should see "No records could be found"
 
   @purge

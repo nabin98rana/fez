@@ -1,5 +1,5 @@
 # features/AccessiblePages.feature
-@javascript
+@javascript @nodata
 Feature: Check that all pages still give correct output
 
   @cloned
@@ -22,7 +22,7 @@ Feature: Check that all pages still give correct output
     And I should not see "Create New Community"
     And I should not see "(0 results found)"
 
-  @jet @clean
+  @jet @clean @basic1
   Scenario: A user needs contact information
     Given I am on "/about"
     Then I should see "About this site"

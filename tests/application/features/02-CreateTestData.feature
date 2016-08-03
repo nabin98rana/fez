@@ -1,4 +1,4 @@
-@javascript @smoke
+@javascript @smoke @datadependant
 Feature: Create test data feature
 
   @jet @only @seed
@@ -34,6 +34,8 @@ Feature: Create test data feature
     And I fill in "Author 1" with "Test Author"
     And I select "Article" from "Sub-type"
     And I select "2015" from "Publication date"
+    And I select "10" from "Publication date month"
+    And I select "20" from "Publication date day"
     And I check "Copyright Agreement"
     And I press "Publish"
     And I attach a file to the current record
