@@ -42,8 +42,8 @@ Feature: Check datastream policy works correctly
     And I turn off waiting checks
     And I press "Save Changes"
     And I turn on waiting checks
-    When I am on "/"
-    And I wait for "2" seconds
+    And I am on the homepage
+    And I wait for "3" seconds
     And I go to the test journal article view page
     And I follow "More options"
     And I follow "Clone Selected Record"
@@ -55,10 +55,10 @@ Feature: Check datastream policy works correctly
     And I select "Article" from "Sub-type"
     And I press "Publish"
     And I follow "Logout"
-    Given I login as thesis officer
-    And I wait for "2" seconds
     And I wait for bgps
     And I wait for solr
+    And I wait for "3" seconds
+    Given I login as thesis officer
     And I carefully fill search entry with "title:(\"Test Title Datastream policy 1\")"
     And I press search
     And I follow "Test Title Datastream policy 1"
@@ -91,8 +91,7 @@ Feature: Check datastream policy works correctly
     And I turn on waiting checks
     And I wait for bgps
     And I wait for solr
-    When I am on "/"
-    And I wait for "2" seconds
+    And I am on the homepage
     And I carefully fill search entry with "title:(\"Test Title Datastream policy 1\")"
     And I press search
     And I follow "Test Title Datastream policy 1"
@@ -126,8 +125,8 @@ Feature: Check datastream policy works correctly
     And I turn on waiting checks
     And I wait for bgps
     And I wait for solr
-    When I am on "/"
-    And I wait for "2" seconds
+    And I am on the homepage
+    And I wait for "3" seconds
     And I go to the test journal article view page
     And I follow "More options"
     And I follow "Clone Selected Record"
@@ -148,11 +147,12 @@ Feature: Check datastream policy works correctly
     And I turn off waiting checks
     And I press "Save Changes"
     And I turn on waiting checks
-    And I wait for bgps
-    And I wait for solr
-    When I am on "/"
-    And I wait for "2" seconds
+    And I switch to window ""
     And I follow "Logout"
+    And I am on the homepage
+    And I wait for solr
+    And I wait for bgps
+    And I wait for "3" seconds
     Given I login as thesis officer
     And I carefully fill search entry with "title:(\"Test Title Datastream policy 3\")"
     And I press search
@@ -192,8 +192,7 @@ Feature: Check datastream policy works correctly
     And I wait for bgps
     And I wait for solr
     And I turn on waiting checks
-    When I am on "/"
-    And I wait for "2" seconds
+    And I am on the homepage
     And I carefully fill search entry with "title:(\"Test Title Datastream policy 4\")"
     And I press search
     And I follow "Test Title Datastream policy 4"
@@ -205,6 +204,8 @@ Feature: Check datastream policy works correctly
     And I wait for solr
     And I turn on waiting checks
     And I follow "Logout"
+    And I am on the homepage
+    And I wait for "3" seconds
     Given I login as UPO
     And I carefully fill search entry with "title:(\"Test Title Datastream policy 4\")"
     And I press search
