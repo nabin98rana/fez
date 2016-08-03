@@ -554,12 +554,13 @@ class FeatureContext extends MinkContext
   public function iCarefullyFillSearchEntryWith($search)
   {
     try {
+      sleep(3);
       $this->fillField("search_entry", $search);
     } catch (Exception $e) {
       if (strpos($e->getMessage(), 'stale') !== false) {
         echo "Found a stale element, retrying filling search_entry";
       }
-      sleep(2);
+      sleep(3);
       $this->iCarefullyFillSearchEntryWith($search);
     }
   }

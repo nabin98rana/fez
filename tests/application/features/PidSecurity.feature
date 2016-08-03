@@ -54,6 +54,7 @@ Feature: Pid security
     And I am on the homepage
     And I wait for solr
     And I wait for bgps
+    And I wait for "3" seconds
     Given I login as administrator
     And I carefully fill search entry with "title:(\"Security Test Journal Title2012\")"
     And I press search
