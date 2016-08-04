@@ -67,26 +67,7 @@ CREATE TABLE `fez_auth_datastream_index2_not_inherited` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
---
--- Table structure for table `fez_auth_datastream_index2_not_inherited__shadow`
---
 
-DROP TABLE IF EXISTS `fez_auth_datastream_index2_not_inherited__shadow`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `fez_auth_datastream_index2_not_inherited__shadow` (
-  `authdii_did` varchar(64) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT '',
-  `authdii_role` int(11) unsigned NOT NULL DEFAULT '0',
-  `authdii_arg_id` int(11) unsigned NOT NULL DEFAULT '0',
-  `authdii_edition_stamp` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (`authdii_did`,`authdii_role`,`authdii_arg_id`,`authdii_edition_stamp`),
-  KEY `authii_role_arg_id` (`authdii_role`,`authdii_arg_id`),
-  KEY `authii_role` (`authdii_did`,`authdii_role`),
-  KEY `authii_pid_arg_id` (`authdii_did`,`authdii_arg_id`),
-  KEY `authii_pid` (`authdii_did`),
-  KEY `authii_arg_id` (`authdii_arg_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Table structure for table `fez_auth_index2`
@@ -143,26 +124,7 @@ CREATE TABLE `fez_auth_index2_not_inherited` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
---
--- Table structure for table `fez_auth_index2_not_inherited__shadow`
---
 
-DROP TABLE IF EXISTS `fez_auth_index2_not_inherited__shadow`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `fez_auth_index2_not_inherited__shadow` (
-  `authii_pid` varchar(64) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT '',
-  `authii_role` int(11) unsigned NOT NULL DEFAULT '0',
-  `authii_arg_id` int(11) unsigned NOT NULL DEFAULT '0',
-  `authii_edition_stamp` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (`authii_pid`,`authii_role`,`authii_arg_id`,`authii_edition_stamp`),
-  KEY `authii_role_arg_id` (`authii_role`,`authii_arg_id`),
-  KEY `authii_role` (`authii_pid`,`authii_role`),
-  KEY `authii_pid_arg_id` (`authii_pid`,`authii_arg_id`),
-  KEY `authii_pid` (`authii_pid`),
-  KEY `authii_arg_id` (`authii_arg_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Table structure for table `fez_auth_index2_pre_fez2_upgrade`
@@ -839,34 +801,6 @@ CREATE TABLE `fez_file_attachments` (
   `fat_security_inherited` char(1) DEFAULT NULL,
   PRIMARY KEY (`fat_did`),
   KEY `unique_pid_hash` (`fat_hash`,`fat_pid`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `fez_file_attachments_shadow`
---
-
-DROP TABLE IF EXISTS `fez_file_attachments_shadow`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `fez_file_attachments_shadow` (
-  `fat_did` int(11) NOT NULL AUTO_INCREMENT,
-  `fat_hash` varchar(50) NOT NULL,
-  `fat_filename` varchar(200) NOT NULL,
-  `fat_label` varchar(200) DEFAULT NULL,
-  `fat_version` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `fat_metaid` int(11) NOT NULL,
-  `fat_state` enum('A','D') NOT NULL DEFAULT 'A',
-  `fat_size` int(20) NOT NULL DEFAULT '0',
-  `fat_pid` varchar(15) NOT NULL DEFAULT '0',
-  `fat_mimetype` varchar(100) DEFAULT NULL,
-  `fat_controlgroup` char(1) NOT NULL DEFAULT 'M',
-  `fat_xdis_id` int(11) DEFAULT '5',
-  `fat_copyright` char(1) DEFAULT NULL,
-  `fat_watermark` char(1) DEFAULT NULL,
-  `fat_security_inherited` char(1) DEFAULT NULL,
-  `fat_stamp` datetime DEFAULT NULL,
-  PRIMARY KEY (`fat_did`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -1720,6 +1654,7 @@ CREATE TABLE `fez_record_search_key` (
   `rek_scopus_doc_type` varchar(255) DEFAULT NULL,
   `rek_wok_doc_type_xsdmf_id` int(11) DEFAULT NULL,
   `rek_wok_doc_type` varchar(255) DEFAULT NULL,
+  `rek_security_inherited` tinyint(4) NULL,
   PRIMARY KEY (`rek_pid`),
   KEY `rek_display_type` (`rek_display_type`),
   KEY `rek_status` (`rek_status`),
@@ -1738,78 +1673,7 @@ CREATE TABLE `fez_record_search_key` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
---
--- Table structure for table `fez_record_search_key__shadow`
---
 
-DROP TABLE IF EXISTS `fez_record_search_key__shadow`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `fez_record_search_key__shadow` (
-  `rek_pid` varchar(64) NOT NULL COMMENT 'PID',
-  `rek_title_xsdmf_id` int(11) DEFAULT NULL,
-  `rek_title` varchar(1000) DEFAULT NULL COMMENT 'Title',
-  `rek_description_xsdmf_id` int(11) DEFAULT NULL,
-  `rek_description` text COMMENT 'Description',
-  `rek_display_type_xsdmf_id` int(11) DEFAULT NULL,
-  `rek_display_type` int(11) DEFAULT NULL COMMENT 'Display Type',
-  `rek_status_xsdmf_id` int(11) DEFAULT NULL,
-  `rek_status` int(11) DEFAULT NULL COMMENT 'Status',
-  `rek_date_xsdmf_id` int(11) DEFAULT NULL,
-  `rek_date` datetime DEFAULT NULL COMMENT 'Date',
-  `rek_object_type_xsdmf_id` int(11) DEFAULT NULL,
-  `rek_object_type` int(11) DEFAULT NULL COMMENT 'Object Type',
-  `rek_depositor_xsdmf_id` int(11) DEFAULT NULL,
-  `rek_depositor` int(11) DEFAULT NULL COMMENT 'Depositor',
-  `rek_created_date_xsdmf_id` int(11) DEFAULT NULL,
-  `rek_created_date` datetime DEFAULT NULL COMMENT 'Created Date',
-  `rek_updated_date_xsdmf_id` int(11) DEFAULT NULL,
-  `rek_updated_date` datetime DEFAULT NULL COMMENT 'Updated Date',
-  `rek_file_downloads` int(11) DEFAULT '0',
-  `rek_views` int(11) DEFAULT '0',
-  `rek_citation` text,
-  `rek_sequence` int(11) DEFAULT '0' COMMENT 'Sequence order in a parent object',
-  `rek_sequence_xsdmf_id` int(11) DEFAULT NULL,
-  `rek_genre_xsdmf_id` int(11) DEFAULT NULL,
-  `rek_genre` varchar(255) DEFAULT NULL COMMENT 'Genre',
-  `rek_genre_type_xsdmf_id` int(11) DEFAULT NULL,
-  `rek_genre_type` varchar(255) DEFAULT NULL COMMENT 'Genre Type',
-  `rek_formatted_title_xsdmf_id` int(11) DEFAULT NULL,
-  `rek_formatted_title` text COMMENT 'Formatted Title',
-  `rek_formatted_abstract_xsdmf_id` int(11) DEFAULT NULL,
-  `rek_formatted_abstract` text COMMENT 'Formatted Abstract',
-  `rek_depositor_affiliation_xsdmf_id` int(11) DEFAULT NULL,
-  `rek_depositor_affiliation` int(11) DEFAULT NULL,
-  `rek_thomson_citation_count` int(11) DEFAULT NULL,
-  `rek_gs_citation_count` int(4) DEFAULT NULL,
-  `rek_gs_cited_by_link` text,
-  `rek_thomson_citation_count_xsdmf_id` int(11) DEFAULT NULL,
-  `rek_subtype_xsdmf_id` int(11) DEFAULT NULL,
-  `rek_subtype` varchar(255) DEFAULT NULL,
-  `rek_scopus_citation_count` int(11) DEFAULT NULL,
-  `rek_herdc_notes_xsdmf_id` int(11) DEFAULT NULL,
-  `rek_herdc_notes` text,
-  `rek_scopus_doc_type_xsdmf_id` int(11) DEFAULT NULL,
-  `rek_scopus_doc_type` varchar(255) DEFAULT NULL,
-  `rek_wok_doc_type_xsdmf_id` int(11) DEFAULT NULL,
-  `rek_wok_doc_type` varchar(255) DEFAULT NULL,
-  `rek_stamp` datetime DEFAULT NULL,
-  KEY `rek_display_type` (`rek_display_type`),
-  KEY `rek_status` (`rek_status`),
-  KEY `rek_date` (`rek_date`),
-  KEY `rek_object_type` (`rek_object_type`),
-  KEY `rek_depositor` (`rek_depositor`),
-  KEY `rek_created_date` (`rek_created_date`),
-  KEY `rek_updated_date` (`rek_updated_date`),
-  KEY `rek_title` (`rek_title`(255)),
-  KEY `rek_views` (`rek_views`),
-  KEY `rek_file_downloads` (`rek_file_downloads`),
-  KEY `rek_sequence` (`rek_sequence`),
-  KEY `rek_genre` (`rek_genre`),
-  KEY `rek_genre_type` (`rek_genre_type`),
-  KEY `rek_subtype` (`rek_subtype`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Table structure for table `fez_record_search_key_access_conditions`
@@ -1829,25 +1693,7 @@ CREATE TABLE `fez_record_search_key_access_conditions` (
 ) ENGINE=InnoDB AUTO_INCREMENT=21 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
---
--- Table structure for table `fez_record_search_key_access_conditions__shadow`
---
 
-DROP TABLE IF EXISTS `fez_record_search_key_access_conditions__shadow`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `fez_record_search_key_access_conditions__shadow` (
-  `rek_access_conditions_id` int(11) NOT NULL AUTO_INCREMENT,
-  `rek_access_conditions_pid` varchar(64) DEFAULT NULL,
-  `rek_access_conditions_xsdmf_id` int(11) DEFAULT NULL,
-  `rek_access_conditions` varchar(255) DEFAULT NULL,
-  `rek_access_conditions_stamp` datetime DEFAULT NULL,
-  PRIMARY KEY (`rek_access_conditions_id`),
-  UNIQUE KEY `rek_access_conditions_pid_2` (`rek_access_conditions_pid`,`rek_access_conditions_stamp`),
-  KEY `rek_access_conditions` (`rek_access_conditions`),
-  KEY `rek_access_conditions_pid` (`rek_access_conditions_pid`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Table structure for table `fez_record_search_key_adt_id`
@@ -1868,25 +1714,7 @@ CREATE TABLE `fez_record_search_key_adt_id` (
 ) ENGINE=InnoDB AUTO_INCREMENT=12183 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
---
--- Table structure for table `fez_record_search_key_adt_id__shadow`
---
 
-DROP TABLE IF EXISTS `fez_record_search_key_adt_id__shadow`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `fez_record_search_key_adt_id__shadow` (
-  `rek_adt_id_id` int(11) NOT NULL AUTO_INCREMENT,
-  `rek_adt_id_pid` varchar(64) DEFAULT NULL,
-  `rek_adt_id_xsdmf_id` int(11) DEFAULT NULL,
-  `rek_adt_id` varchar(255) DEFAULT NULL,
-  `rek_adt_id_stamp` datetime DEFAULT NULL,
-  PRIMARY KEY (`rek_adt_id_id`),
-  UNIQUE KEY `rek_adt_id_pid` (`rek_adt_id_pid`),
-  UNIQUE KEY `rek_adt_id_pid_2` (`rek_adt_id_pid`,`rek_adt_id_stamp`),
-  KEY `rek_adt_id` (`rek_adt_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Table structure for table `fez_record_search_key_alternative_title`
@@ -1910,26 +1738,7 @@ CREATE TABLE `fez_record_search_key_alternative_title` (
 ) ENGINE=InnoDB AUTO_INCREMENT=2225 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
---
--- Table structure for table `fez_record_search_key_alternative_title__shadow`
---
 
-DROP TABLE IF EXISTS `fez_record_search_key_alternative_title__shadow`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `fez_record_search_key_alternative_title__shadow` (
-  `rek_alternative_title_id` int(11) NOT NULL AUTO_INCREMENT,
-  `rek_alternative_title_pid` varchar(64) DEFAULT NULL,
-  `rek_alternative_title_xsdmf_id` int(11) DEFAULT NULL,
-  `rek_alternative_title` varchar(255) DEFAULT NULL,
-  `rek_alternative_title_order` int(11) DEFAULT '1',
-  `rek_alternative_title_stamp` datetime DEFAULT NULL,
-  PRIMARY KEY (`rek_alternative_title_id`),
-  KEY `rek_alternative_title` (`rek_alternative_title`),
-  KEY `rek_alternative_title_pid` (`rek_alternative_title_pid`),
-  KEY `rek_alternative_title_order` (`rek_alternative_title_order`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Table structure for table `fez_record_search_key_ands_collection_type`
@@ -1949,25 +1758,7 @@ CREATE TABLE `fez_record_search_key_ands_collection_type` (
 ) ENGINE=InnoDB AUTO_INCREMENT=35 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
---
--- Table structure for table `fez_record_search_key_ands_collection_type__shadow`
---
 
-DROP TABLE IF EXISTS `fez_record_search_key_ands_collection_type__shadow`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `fez_record_search_key_ands_collection_type__shadow` (
-  `rek_ands_collection_type_id` int(11) NOT NULL AUTO_INCREMENT,
-  `rek_ands_collection_type_pid` varchar(64) DEFAULT NULL,
-  `rek_ands_collection_type_xsdmf_id` int(11) DEFAULT NULL,
-  `rek_ands_collection_type` varchar(255) DEFAULT NULL,
-  `rek_ands_collection_type_stamp` datetime DEFAULT NULL,
-  PRIMARY KEY (`rek_ands_collection_type_id`),
-  UNIQUE KEY `rek_ands_collection_type_pid_2` (`rek_ands_collection_type_pid`,`rek_ands_collection_type_stamp`),
-  KEY `rek_ands_collection_type` (`rek_ands_collection_type`),
-  KEY `rek_ands_collection_type_pid` (`rek_ands_collection_type_pid`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Table structure for table `fez_record_search_key_architectural_features`
@@ -1990,25 +1781,7 @@ CREATE TABLE `fez_record_search_key_architectural_features` (
 ) ENGINE=MyISAM AUTO_INCREMENT=42661 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
---
--- Table structure for table `fez_record_search_key_architectural_features__shadow`
---
 
-DROP TABLE IF EXISTS `fez_record_search_key_architectural_features__shadow`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `fez_record_search_key_architectural_features__shadow` (
-  `rek_architectural_features_id` int(11) NOT NULL AUTO_INCREMENT,
-  `rek_architectural_features_pid` varchar(64) DEFAULT NULL,
-  `rek_architectural_features_xsdmf_id` int(11) DEFAULT NULL,
-  `rek_architectural_features_order` int(11) DEFAULT '1',
-  `rek_architectural_features` varchar(255) DEFAULT NULL,
-  `rek_architectural_features_stamp` datetime DEFAULT NULL,
-  PRIMARY KEY (`rek_architectural_features_id`),
-  KEY `rek_architectural_features_pid` (`rek_architectural_features_pid`),
-  FULLTEXT KEY `fulltext` (`rek_architectural_features`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Table structure for table `fez_record_search_key_assigned_group_id`
@@ -2032,26 +1805,7 @@ CREATE TABLE `fez_record_search_key_assigned_group_id` (
 ) ENGINE=InnoDB AUTO_INCREMENT=100 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
---
--- Table structure for table `fez_record_search_key_assigned_group_id__shadow`
---
 
-DROP TABLE IF EXISTS `fez_record_search_key_assigned_group_id__shadow`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `fez_record_search_key_assigned_group_id__shadow` (
-  `rek_assigned_group_id_id` int(11) NOT NULL AUTO_INCREMENT,
-  `rek_assigned_group_id_pid` varchar(64) DEFAULT NULL,
-  `rek_assigned_group_id_xsdmf_id` int(11) DEFAULT NULL,
-  `rek_assigned_group_id` int(11) DEFAULT NULL,
-  `rek_assigned_group_id_order` int(11) DEFAULT '1',
-  `rek_assigned_group_id_stamp` datetime DEFAULT NULL,
-  PRIMARY KEY (`rek_assigned_group_id_id`),
-  KEY `rek_assigned_group_id_pid` (`rek_assigned_group_id_pid`),
-  KEY `rek_assigned_group_id` (`rek_assigned_group_id`),
-  KEY `rek_assigned_group_id_order` (`rek_assigned_group_id_order`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Table structure for table `fez_record_search_key_assigned_user_id`
@@ -2075,26 +1829,7 @@ CREATE TABLE `fez_record_search_key_assigned_user_id` (
 ) ENGINE=InnoDB AUTO_INCREMENT=480555 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
---
--- Table structure for table `fez_record_search_key_assigned_user_id__shadow`
---
 
-DROP TABLE IF EXISTS `fez_record_search_key_assigned_user_id__shadow`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `fez_record_search_key_assigned_user_id__shadow` (
-  `rek_assigned_user_id_id` int(11) NOT NULL AUTO_INCREMENT,
-  `rek_assigned_user_id_pid` varchar(64) DEFAULT NULL,
-  `rek_assigned_user_id_xsdmf_id` int(11) DEFAULT NULL,
-  `rek_assigned_user_id` int(11) DEFAULT NULL,
-  `rek_assigned_user_id_order` int(11) DEFAULT '1',
-  `rek_assigned_user_id_stamp` datetime DEFAULT NULL,
-  PRIMARY KEY (`rek_assigned_user_id_id`),
-  KEY `rek_assigned_user_id_pid` (`rek_assigned_user_id_pid`),
-  KEY `rek_assigned_user_id` (`rek_assigned_user_id`),
-  KEY `rek_assigned_user_id_order` (`rek_assigned_user_id_order`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Table structure for table `fez_record_search_key_author`
@@ -2118,26 +1853,7 @@ CREATE TABLE `fez_record_search_key_author` (
 ) ENGINE=InnoDB AUTO_INCREMENT=17812015 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
---
--- Table structure for table `fez_record_search_key_author__shadow`
---
 
-DROP TABLE IF EXISTS `fez_record_search_key_author__shadow`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `fez_record_search_key_author__shadow` (
-  `rek_author_id` int(11) NOT NULL AUTO_INCREMENT,
-  `rek_author_pid` varchar(64) DEFAULT NULL,
-  `rek_author_xsdmf_id` int(11) DEFAULT NULL,
-  `rek_author` varchar(255) DEFAULT NULL,
-  `rek_author_order` int(11) DEFAULT '1',
-  `rek_author_stamp` datetime DEFAULT NULL,
-  PRIMARY KEY (`rek_author_id`),
-  KEY `rek_author_pid` (`rek_author_pid`),
-  KEY `rek_author` (`rek_author`),
-  KEY `rek_author_order` (`rek_author_order`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Temporary table structure for view `fez_record_search_key_author_author_id`
@@ -2199,25 +1915,7 @@ CREATE TABLE `fez_record_search_key_author_count` (
 ) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
---
--- Table structure for table `fez_record_search_key_author_count__shadow`
---
 
-DROP TABLE IF EXISTS `fez_record_search_key_author_count__shadow`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `fez_record_search_key_author_count__shadow` (
-  `rek_author_count_id` int(11) NOT NULL AUTO_INCREMENT,
-  `rek_author_count_pid` varchar(64) DEFAULT NULL,
-  `rek_author_count_xsdmf_id` int(11) DEFAULT NULL,
-  `rek_author_count` varchar(255) DEFAULT NULL,
-  `rek_author_count_stamp` datetime DEFAULT NULL,
-  PRIMARY KEY (`rek_author_count_id`),
-  UNIQUE KEY `rek_author_count_pid_2` (`rek_author_count_pid`,`rek_author_count_stamp`),
-  KEY `rek_author_count` (`rek_author_count`),
-  KEY `rek_author_count_pid` (`rek_author_count_pid`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Table structure for table `fez_record_search_key_author_id`
@@ -2241,28 +1939,7 @@ CREATE TABLE `fez_record_search_key_author_id` (
 ) ENGINE=InnoDB AUTO_INCREMENT=17539205 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
---
--- Table structure for table `fez_record_search_key_author_id__shadow`
---
 
-DROP TABLE IF EXISTS `fez_record_search_key_author_id__shadow`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `fez_record_search_key_author_id__shadow` (
-  `rek_author_id_id` int(11) NOT NULL AUTO_INCREMENT,
-  `rek_author_id_pid` varchar(64) DEFAULT NULL,
-  `rek_author_id_xsdmf_id` int(11) DEFAULT NULL,
-  `rek_author_id` int(11) DEFAULT NULL,
-  `rek_author_id_order` int(11) DEFAULT '1',
-  `rek_author_id_stamp` datetime DEFAULT NULL,
-  PRIMARY KEY (`rek_author_id_id`),
-  UNIQUE KEY `unique_constraint_pid_order` (`rek_author_id_pid`,`rek_author_id_order`),
-  UNIQUE KEY `rek_author_id_pid_2` (`rek_author_id_pid`,`rek_author_id_stamp`),
-  KEY `rek_author_id_pid` (`rek_author_id_pid`),
-  KEY `rek_author_id` (`rek_author_id`),
-  KEY `rek_author_id_order` (`rek_author_id_order`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Table structure for table `fez_record_search_key_author_role`
@@ -2281,23 +1958,7 @@ CREATE TABLE `fez_record_search_key_author_role` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
---
--- Table structure for table `fez_record_search_key_author_role__shadow`
---
 
-DROP TABLE IF EXISTS `fez_record_search_key_author_role__shadow`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `fez_record_search_key_author_role__shadow` (
-  `rek_author_role_id` int(11) NOT NULL AUTO_INCREMENT,
-  `rek_author_role_pid` varchar(64) DEFAULT NULL,
-  `rek_author_role_xsdmf_id` int(11) DEFAULT NULL,
-  `rek_author_role_order` int(11) DEFAULT '1',
-  `rek_author_role` varchar(255) DEFAULT NULL,
-  `rek_author_role_stamp` datetime DEFAULT NULL,
-  PRIMARY KEY (`rek_author_role_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Table structure for table `fez_record_search_key_book_title`
@@ -2316,24 +1977,7 @@ CREATE TABLE `fez_record_search_key_book_title` (
 ) ENGINE=InnoDB AUTO_INCREMENT=153281 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
---
--- Table structure for table `fez_record_search_key_book_title__shadow`
---
 
-DROP TABLE IF EXISTS `fez_record_search_key_book_title__shadow`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `fez_record_search_key_book_title__shadow` (
-  `rek_book_title_id` int(11) NOT NULL AUTO_INCREMENT,
-  `rek_book_title_pid` varchar(64) DEFAULT NULL,
-  `rek_book_title_xsdmf_id` int(11) DEFAULT NULL,
-  `rek_book_title` text,
-  `rek_book_title_stamp` datetime DEFAULT NULL,
-  PRIMARY KEY (`rek_book_title_id`),
-  UNIQUE KEY `rek_book_title_pid` (`rek_book_title_pid`),
-  UNIQUE KEY `rek_book_title_pid_2` (`rek_book_title_pid`,`rek_book_title_stamp`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Table structure for table `fez_record_search_key_building_materials`
@@ -2356,25 +2000,7 @@ CREATE TABLE `fez_record_search_key_building_materials` (
 ) ENGINE=MyISAM AUTO_INCREMENT=25671 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
---
--- Table structure for table `fez_record_search_key_building_materials__shadow`
---
 
-DROP TABLE IF EXISTS `fez_record_search_key_building_materials__shadow`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `fez_record_search_key_building_materials__shadow` (
-  `rek_building_materials_id` int(11) NOT NULL AUTO_INCREMENT,
-  `rek_building_materials_pid` varchar(64) DEFAULT NULL,
-  `rek_building_materials_xsdmf_id` int(11) DEFAULT NULL,
-  `rek_building_materials_order` int(11) DEFAULT '1',
-  `rek_building_materials` varchar(255) DEFAULT NULL,
-  `rek_building_materials_stamp` datetime DEFAULT NULL,
-  PRIMARY KEY (`rek_building_materials_id`),
-  KEY `rek_building_materials_pid` (`rek_building_materials_pid`),
-  FULLTEXT KEY `fulltext` (`rek_building_materials`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Table structure for table `fez_record_search_key_case_sensitive`
@@ -2519,25 +2145,7 @@ CREATE TABLE `fez_record_search_key_category` (
 ) ENGINE=MyISAM AUTO_INCREMENT=13465 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
---
--- Table structure for table `fez_record_search_key_category__shadow`
---
 
-DROP TABLE IF EXISTS `fez_record_search_key_category__shadow`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `fez_record_search_key_category__shadow` (
-  `rek_category_id` int(11) NOT NULL AUTO_INCREMENT,
-  `rek_category_pid` varchar(64) DEFAULT NULL,
-  `rek_category_xsdmf_id` int(11) DEFAULT NULL,
-  `rek_category_order` int(11) DEFAULT '1',
-  `rek_category` text,
-  `rek_category_stamp` datetime DEFAULT NULL,
-  PRIMARY KEY (`rek_category_id`),
-  KEY `rek_category_pid` (`rek_category_pid`),
-  FULLTEXT KEY `rek_category` (`rek_category`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Table structure for table `fez_record_search_key_chapter_number`
@@ -2558,25 +2166,7 @@ CREATE TABLE `fez_record_search_key_chapter_number` (
 ) ENGINE=InnoDB AUTO_INCREMENT=55992 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
---
--- Table structure for table `fez_record_search_key_chapter_number__shadow`
---
 
-DROP TABLE IF EXISTS `fez_record_search_key_chapter_number__shadow`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `fez_record_search_key_chapter_number__shadow` (
-  `rek_chapter_number_id` int(11) NOT NULL AUTO_INCREMENT,
-  `rek_chapter_number_pid` varchar(64) DEFAULT NULL,
-  `rek_chapter_number_xsdmf_id` int(11) DEFAULT NULL,
-  `rek_chapter_number` varchar(255) DEFAULT NULL,
-  `rek_chapter_number_stamp` datetime DEFAULT NULL,
-  PRIMARY KEY (`rek_chapter_number_id`),
-  UNIQUE KEY `rek_chapter_number_pid` (`rek_chapter_number_pid`),
-  UNIQUE KEY `rek_chapter_number_pid_2` (`rek_chapter_number_pid`,`rek_chapter_number_stamp`),
-  KEY `rek_chapter_number` (`rek_chapter_number`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Table structure for table `fez_record_search_key_collection_year`
@@ -2597,25 +2187,7 @@ CREATE TABLE `fez_record_search_key_collection_year` (
 ) ENGINE=InnoDB AUTO_INCREMENT=1671843 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
---
--- Table structure for table `fez_record_search_key_collection_year__shadow`
---
 
-DROP TABLE IF EXISTS `fez_record_search_key_collection_year__shadow`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `fez_record_search_key_collection_year__shadow` (
-  `rek_collection_year_id` int(11) NOT NULL AUTO_INCREMENT,
-  `rek_collection_year_pid` varchar(64) DEFAULT NULL,
-  `rek_collection_year_xsdmf_id` int(11) DEFAULT NULL,
-  `rek_collection_year` datetime DEFAULT NULL,
-  `rek_collection_year_stamp` datetime DEFAULT NULL,
-  PRIMARY KEY (`rek_collection_year_id`),
-  UNIQUE KEY `rek_collection_year_pid` (`rek_collection_year_pid`),
-  UNIQUE KEY `rek_collection_year_pid_2` (`rek_collection_year_pid`,`rek_collection_year_stamp`),
-  KEY `rek_collection_year` (`rek_collection_year`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Table structure for table `fez_record_search_key_condition`
@@ -2638,27 +2210,7 @@ CREATE TABLE `fez_record_search_key_condition` (
 ) ENGINE=MyISAM AUTO_INCREMENT=5495 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
---
--- Table structure for table `fez_record_search_key_condition__shadow`
---
 
-DROP TABLE IF EXISTS `fez_record_search_key_condition__shadow`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `fez_record_search_key_condition__shadow` (
-  `rek_condition_id` int(11) NOT NULL AUTO_INCREMENT,
-  `rek_condition_pid` varchar(64) DEFAULT NULL,
-  `rek_condition_xsdmf_id` int(11) DEFAULT NULL,
-  `rek_condition_order` int(11) DEFAULT '1',
-  `rek_condition` text,
-  `rek_condition_stamp` datetime DEFAULT NULL,
-  PRIMARY KEY (`rek_condition_id`),
-  UNIQUE KEY `unique_constraint_pid_order` (`rek_condition_pid`,`rek_condition_order`),
-  UNIQUE KEY `rek_condition_pid_2` (`rek_condition_pid`,`rek_condition_stamp`),
-  KEY `rek_condition_pid` (`rek_condition_pid`),
-  FULLTEXT KEY `rek_condition` (`rek_condition`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Table structure for table `fez_record_search_key_conference_dates`
@@ -2679,25 +2231,7 @@ CREATE TABLE `fez_record_search_key_conference_dates` (
 ) ENGINE=InnoDB AUTO_INCREMENT=637792 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
---
--- Table structure for table `fez_record_search_key_conference_dates__shadow`
---
 
-DROP TABLE IF EXISTS `fez_record_search_key_conference_dates__shadow`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `fez_record_search_key_conference_dates__shadow` (
-  `rek_conference_dates_id` int(11) NOT NULL AUTO_INCREMENT,
-  `rek_conference_dates_pid` varchar(64) DEFAULT NULL,
-  `rek_conference_dates_xsdmf_id` int(11) DEFAULT NULL,
-  `rek_conference_dates` varchar(255) DEFAULT NULL,
-  `rek_conference_dates_stamp` datetime DEFAULT NULL,
-  PRIMARY KEY (`rek_conference_dates_id`),
-  UNIQUE KEY `rek_conference_dates_pid` (`rek_conference_dates_pid`),
-  UNIQUE KEY `rek_conference_dates_pid_2` (`rek_conference_dates_pid`,`rek_conference_dates_stamp`),
-  KEY `rek_conference_dates` (`rek_conference_dates`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Table structure for table `fez_record_search_key_conference_id`
@@ -2717,25 +2251,7 @@ CREATE TABLE `fez_record_search_key_conference_id` (
 ) ENGINE=InnoDB AUTO_INCREMENT=22 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
---
--- Table structure for table `fez_record_search_key_conference_id__shadow`
---
 
-DROP TABLE IF EXISTS `fez_record_search_key_conference_id__shadow`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `fez_record_search_key_conference_id__shadow` (
-  `rek_conference_id_id` int(11) NOT NULL AUTO_INCREMENT,
-  `rek_conference_id_pid` varchar(64) DEFAULT NULL,
-  `rek_conference_id_xsdmf_id` int(11) DEFAULT NULL,
-  `rek_conference_id` int(11) DEFAULT NULL,
-  `rek_conference_id_stamp` datetime DEFAULT NULL,
-  PRIMARY KEY (`rek_conference_id_id`),
-  UNIQUE KEY `rek_conference_id_pid_2` (`rek_conference_id_pid`,`rek_conference_id_stamp`),
-  KEY `rek_conference_id` (`rek_conference_id`),
-  KEY `rek_conference_id_pid` (`rek_conference_id_pid`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Table structure for table `fez_record_search_key_conference_location`
@@ -2757,26 +2273,7 @@ CREATE TABLE `fez_record_search_key_conference_location` (
 ) ENGINE=MyISAM AUTO_INCREMENT=648947 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
---
--- Table structure for table `fez_record_search_key_conference_location__shadow`
---
 
-DROP TABLE IF EXISTS `fez_record_search_key_conference_location__shadow`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `fez_record_search_key_conference_location__shadow` (
-  `rek_conference_location_id` int(11) NOT NULL AUTO_INCREMENT,
-  `rek_conference_location_pid` varchar(64) DEFAULT NULL,
-  `rek_conference_location_xsdmf_id` int(11) DEFAULT NULL,
-  `rek_conference_location` varchar(255) DEFAULT NULL,
-  `rek_conference_location_stamp` datetime DEFAULT NULL,
-  PRIMARY KEY (`rek_conference_location_id`),
-  UNIQUE KEY `rek_conference_location_pid` (`rek_conference_location_pid`),
-  UNIQUE KEY `rek_conference_location_pid_2` (`rek_conference_location_pid`,`rek_conference_location_stamp`),
-  KEY `rek_conference_location` (`rek_conference_location`),
-  FULLTEXT KEY `rek_conference_location_ft` (`rek_conference_location`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Table structure for table `fez_record_search_key_conference_name`
@@ -2798,26 +2295,7 @@ CREATE TABLE `fez_record_search_key_conference_name` (
 ) ENGINE=MyISAM AUTO_INCREMENT=632707 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
---
--- Table structure for table `fez_record_search_key_conference_name__shadow`
---
 
-DROP TABLE IF EXISTS `fez_record_search_key_conference_name__shadow`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `fez_record_search_key_conference_name__shadow` (
-  `rek_conference_name_id` int(11) NOT NULL AUTO_INCREMENT,
-  `rek_conference_name_pid` varchar(64) DEFAULT NULL,
-  `rek_conference_name_xsdmf_id` int(11) DEFAULT NULL,
-  `rek_conference_name` varchar(255) DEFAULT NULL,
-  `rek_conference_name_stamp` datetime DEFAULT NULL,
-  PRIMARY KEY (`rek_conference_name_id`),
-  UNIQUE KEY `rek_conference_name_pid` (`rek_conference_name_pid`),
-  UNIQUE KEY `rek_conference_name_pid_2` (`rek_conference_name_pid`,`rek_conference_name_stamp`),
-  KEY `rek_conference_name` (`rek_conference_name`),
-  FULLTEXT KEY `rek_conference_name_ft` (`rek_conference_name`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Table structure for table `fez_record_search_key_contact_details_email`
@@ -2836,24 +2314,7 @@ CREATE TABLE `fez_record_search_key_contact_details_email` (
 ) ENGINE=InnoDB AUTO_INCREMENT=25 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
---
--- Table structure for table `fez_record_search_key_contact_details_email__shadow`
---
 
-DROP TABLE IF EXISTS `fez_record_search_key_contact_details_email__shadow`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `fez_record_search_key_contact_details_email__shadow` (
-  `rek_contact_details_email_id` int(11) NOT NULL AUTO_INCREMENT,
-  `rek_contact_details_email_pid` varchar(64) DEFAULT NULL,
-  `rek_contact_details_email_xsdmf_id` int(11) DEFAULT NULL,
-  `rek_contact_details_email_order` int(11) DEFAULT '1',
-  `rek_contact_details_email` varchar(255) DEFAULT NULL,
-  `rek_contact_details_email_stamp` datetime DEFAULT NULL,
-  PRIMARY KEY (`rek_contact_details_email_id`),
-  UNIQUE KEY `rek_contact_details_email_pid` (`rek_contact_details_email_pid`,`rek_contact_details_email_stamp`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Table structure for table `fez_record_search_key_contact_details_physical`
@@ -2872,24 +2333,7 @@ CREATE TABLE `fez_record_search_key_contact_details_physical` (
 ) ENGINE=InnoDB AUTO_INCREMENT=23 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
---
--- Table structure for table `fez_record_search_key_contact_details_physical__shadow`
---
 
-DROP TABLE IF EXISTS `fez_record_search_key_contact_details_physical__shadow`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `fez_record_search_key_contact_details_physical__shadow` (
-  `rek_contact_details_physical_id` int(11) NOT NULL AUTO_INCREMENT,
-  `rek_contact_details_physical_pid` varchar(64) DEFAULT NULL,
-  `rek_contact_details_physical_xsdmf_id` int(11) DEFAULT NULL,
-  `rek_contact_details_physical_order` int(11) DEFAULT '1',
-  `rek_contact_details_physical` varchar(255) DEFAULT NULL,
-  `rek_contact_details_physical_stamp` datetime DEFAULT NULL,
-  PRIMARY KEY (`rek_contact_details_physical_id`),
-  UNIQUE KEY `rek_contact_details_physical_pid` (`rek_contact_details_physical_pid`,`rek_contact_details_physical_stamp`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Table structure for table `fez_record_search_key_contributor`
@@ -2913,28 +2357,7 @@ CREATE TABLE `fez_record_search_key_contributor` (
 ) ENGINE=InnoDB AUTO_INCREMENT=2203509 DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
---
--- Table structure for table `fez_record_search_key_contributor__shadow`
---
 
-DROP TABLE IF EXISTS `fez_record_search_key_contributor__shadow`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `fez_record_search_key_contributor__shadow` (
-  `rek_contributor_id` int(11) NOT NULL AUTO_INCREMENT,
-  `rek_contributor_pid` varchar(64) CHARACTER SET utf8 DEFAULT NULL,
-  `rek_contributor_xsdmf_id` int(11) DEFAULT NULL,
-  `rek_contributor` varchar(255) CHARACTER SET utf8 DEFAULT NULL,
-  `rek_contributor_order` int(11) DEFAULT '1',
-  `rek_contributor_stamp` datetime DEFAULT NULL,
-  PRIMARY KEY (`rek_contributor_id`),
-  UNIQUE KEY `unique_constraint_pid_order` (`rek_contributor_pid`,`rek_contributor_order`),
-  UNIQUE KEY `rek_contributor_pid_2` (`rek_contributor_pid`,`rek_contributor_stamp`),
-  KEY `rek_contributor_pid` (`rek_contributor_pid`),
-  KEY `rek_contributor` (`rek_contributor`),
-  KEY `rek_contributor_order` (`rek_contributor_order`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
-/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Temporary table structure for view `fez_record_search_key_contributor_contributor_id`
@@ -2980,28 +2403,7 @@ CREATE TABLE `fez_record_search_key_contributor_id` (
 ) ENGINE=InnoDB AUTO_INCREMENT=1605488 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
---
--- Table structure for table `fez_record_search_key_contributor_id__shadow`
---
 
-DROP TABLE IF EXISTS `fez_record_search_key_contributor_id__shadow`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `fez_record_search_key_contributor_id__shadow` (
-  `rek_contributor_id_id` int(11) NOT NULL AUTO_INCREMENT,
-  `rek_contributor_id_pid` varchar(64) DEFAULT NULL,
-  `rek_contributor_id_xsdmf_id` int(11) DEFAULT NULL,
-  `rek_contributor_id` int(11) DEFAULT NULL,
-  `rek_contributor_id_order` int(11) DEFAULT '1',
-  `rek_contributor_id_stamp` datetime DEFAULT NULL,
-  PRIMARY KEY (`rek_contributor_id_id`),
-  UNIQUE KEY `unique_constraint_pid_order` (`rek_contributor_id_pid`,`rek_contributor_id_order`),
-  UNIQUE KEY `rek_contributor_id_pid_2` (`rek_contributor_id_pid`,`rek_contributor_id_stamp`),
-  KEY `rek_contributor_id_pid` (`rek_contributor_id_pid`),
-  KEY `rek_contributor_id` (`rek_contributor_id`),
-  KEY `rek_contributor_id_order` (`rek_contributor_id_order`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Table structure for table `fez_record_search_key_contributor_role`
@@ -3020,24 +2422,7 @@ CREATE TABLE `fez_record_search_key_contributor_role` (
 ) ENGINE=InnoDB AUTO_INCREMENT=25 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
---
--- Table structure for table `fez_record_search_key_contributor_role__shadow`
---
 
-DROP TABLE IF EXISTS `fez_record_search_key_contributor_role__shadow`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `fez_record_search_key_contributor_role__shadow` (
-  `rek_contributor_role_id` int(11) NOT NULL AUTO_INCREMENT,
-  `rek_contributor_role_pid` varchar(64) DEFAULT NULL,
-  `rek_contributor_role_xsdmf_id` int(11) DEFAULT NULL,
-  `rek_contributor_role_order` int(11) DEFAULT '1',
-  `rek_contributor_role` varchar(255) DEFAULT NULL,
-  `rek_contributor_role_stamp` datetime DEFAULT NULL,
-  PRIMARY KEY (`rek_contributor_role_id`),
-  UNIQUE KEY `rek_contributor_role_pid` (`rek_contributor_role_pid`,`rek_contributor_role_stamp`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Table structure for table `fez_record_search_key_convener`
@@ -3058,25 +2443,7 @@ CREATE TABLE `fez_record_search_key_convener` (
 ) ENGINE=InnoDB AUTO_INCREMENT=35927 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
---
--- Table structure for table `fez_record_search_key_convener__shadow`
---
 
-DROP TABLE IF EXISTS `fez_record_search_key_convener__shadow`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `fez_record_search_key_convener__shadow` (
-  `rek_convener_id` int(11) NOT NULL AUTO_INCREMENT,
-  `rek_convener_pid` varchar(64) DEFAULT NULL,
-  `rek_convener_xsdmf_id` int(11) DEFAULT NULL,
-  `rek_convener` varchar(255) DEFAULT NULL,
-  `rek_convener_stamp` datetime DEFAULT NULL,
-  PRIMARY KEY (`rek_convener_id`),
-  UNIQUE KEY `rek_convener_pid` (`rek_convener_pid`),
-  UNIQUE KEY `rek_convener_pid_2` (`rek_convener_pid`,`rek_convener_stamp`),
-  KEY `rek_convener` (`rek_convener`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Temporary table structure for view `fez_record_search_key_core`
@@ -3586,26 +2953,7 @@ CREATE TABLE `fez_record_search_key_country_of_issue` (
 ) ENGINE=MyISAM AUTO_INCREMENT=1005 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
---
--- Table structure for table `fez_record_search_key_country_of_issue__shadow`
---
 
-DROP TABLE IF EXISTS `fez_record_search_key_country_of_issue__shadow`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `fez_record_search_key_country_of_issue__shadow` (
-  `rek_country_of_issue_id` int(11) NOT NULL AUTO_INCREMENT,
-  `rek_country_of_issue_pid` varchar(64) DEFAULT NULL,
-  `rek_country_of_issue_xsdmf_id` int(11) DEFAULT NULL,
-  `rek_country_of_issue` varchar(255) DEFAULT NULL,
-  `rek_country_of_issue_stamp` datetime DEFAULT NULL,
-  PRIMARY KEY (`rek_country_of_issue_id`),
-  UNIQUE KEY `rek_country_of_issue_pid` (`rek_country_of_issue_pid`),
-  UNIQUE KEY `rek_country_of_issue_pid_2` (`rek_country_of_issue_pid`,`rek_country_of_issue_stamp`),
-  KEY `rek_country_of_issue` (`rek_country_of_issue`),
-  FULLTEXT KEY `rek_country_of_issue_ft` (`rek_country_of_issue`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Table structure for table `fez_record_search_key_coverage_period`
@@ -3624,24 +2972,7 @@ CREATE TABLE `fez_record_search_key_coverage_period` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
---
--- Table structure for table `fez_record_search_key_coverage_period__shadow`
---
 
-DROP TABLE IF EXISTS `fez_record_search_key_coverage_period__shadow`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `fez_record_search_key_coverage_period__shadow` (
-  `rek_coverage_period_id` int(11) NOT NULL AUTO_INCREMENT,
-  `rek_coverage_period_pid` varchar(64) DEFAULT NULL,
-  `rek_coverage_period_xsdmf_id` int(11) DEFAULT NULL,
-  `rek_coverage_period_order` int(11) DEFAULT '1',
-  `rek_coverage_period` varchar(255) DEFAULT NULL,
-  `rek_coverage_period_stamp` datetime DEFAULT NULL,
-  PRIMARY KEY (`rek_coverage_period_id`),
-  UNIQUE KEY `rek_coverage_period_pid` (`rek_coverage_period_pid`,`rek_coverage_period_stamp`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Table structure for table `fez_record_search_key_date_available`
@@ -3662,25 +2993,7 @@ CREATE TABLE `fez_record_search_key_date_available` (
 ) ENGINE=InnoDB AUTO_INCREMENT=479407 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
---
--- Table structure for table `fez_record_search_key_date_available__shadow`
---
 
-DROP TABLE IF EXISTS `fez_record_search_key_date_available__shadow`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `fez_record_search_key_date_available__shadow` (
-  `rek_date_available_id` int(11) NOT NULL AUTO_INCREMENT,
-  `rek_date_available_pid` varchar(64) DEFAULT NULL,
-  `rek_date_available_xsdmf_id` int(11) DEFAULT NULL,
-  `rek_date_available` datetime DEFAULT NULL COMMENT 'Date Available',
-  `rek_date_available_stamp` datetime DEFAULT NULL,
-  PRIMARY KEY (`rek_date_available_id`),
-  UNIQUE KEY `rek_date_available_pid` (`rek_date_available_pid`),
-  UNIQUE KEY `rek_date_available_pid_2` (`rek_date_available_pid`,`rek_date_available_stamp`),
-  KEY `rek_date_available` (`rek_date_available`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Table structure for table `fez_record_search_key_doi`
@@ -3700,25 +3013,7 @@ CREATE TABLE `fez_record_search_key_doi` (
 ) ENGINE=InnoDB AUTO_INCREMENT=135809 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
---
--- Table structure for table `fez_record_search_key_doi__shadow`
---
 
-DROP TABLE IF EXISTS `fez_record_search_key_doi__shadow`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `fez_record_search_key_doi__shadow` (
-  `rek_doi_id` int(11) NOT NULL AUTO_INCREMENT,
-  `rek_doi_pid` varchar(64) DEFAULT NULL,
-  `rek_doi_xsdmf_id` int(11) DEFAULT NULL,
-  `rek_doi` varchar(255) DEFAULT NULL,
-  `rek_doi_stamp` datetime DEFAULT NULL,
-  PRIMARY KEY (`rek_doi_id`),
-  UNIQUE KEY `rek_doi_pid_2` (`rek_doi_pid`,`rek_doi_stamp`),
-  KEY `rek_doi` (`rek_doi`),
-  KEY `rek_doi_pid` (`rek_doi_pid`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Table structure for table `fez_record_search_key_edition`
@@ -3739,25 +3034,7 @@ CREATE TABLE `fez_record_search_key_edition` (
 ) ENGINE=InnoDB AUTO_INCREMENT=58334 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
---
--- Table structure for table `fez_record_search_key_edition__shadow`
---
 
-DROP TABLE IF EXISTS `fez_record_search_key_edition__shadow`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `fez_record_search_key_edition__shadow` (
-  `rek_edition_id` int(11) NOT NULL AUTO_INCREMENT,
-  `rek_edition_pid` varchar(64) DEFAULT NULL,
-  `rek_edition_xsdmf_id` int(11) DEFAULT NULL,
-  `rek_edition` varchar(255) DEFAULT NULL,
-  `rek_edition_stamp` datetime DEFAULT NULL,
-  PRIMARY KEY (`rek_edition_id`),
-  UNIQUE KEY `rek_edition_pid` (`rek_edition_pid`),
-  UNIQUE KEY `rek_edition_pid_2` (`rek_edition_pid`,`rek_edition_stamp`),
-  KEY `rek_edition` (`rek_edition`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Table structure for table `fez_record_search_key_end_date`
@@ -3777,25 +3054,7 @@ CREATE TABLE `fez_record_search_key_end_date` (
 ) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
---
--- Table structure for table `fez_record_search_key_end_date__shadow`
---
 
-DROP TABLE IF EXISTS `fez_record_search_key_end_date__shadow`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `fez_record_search_key_end_date__shadow` (
-  `rek_end_date_id` int(11) NOT NULL AUTO_INCREMENT,
-  `rek_end_date_pid` varchar(64) DEFAULT NULL,
-  `rek_end_date_xsdmf_id` int(11) DEFAULT NULL,
-  `rek_end_date` datetime DEFAULT NULL,
-  `rek_end_date_stamp` datetime DEFAULT NULL,
-  PRIMARY KEY (`rek_end_date_id`),
-  UNIQUE KEY `rek_end_date_pid_2` (`rek_end_date_pid`,`rek_end_date_stamp`),
-  KEY `rek_end_date` (`rek_end_date`),
-  KEY `rek_end_date_pid` (`rek_end_date_pid`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Table structure for table `fez_record_search_key_end_page`
@@ -3816,25 +3075,7 @@ CREATE TABLE `fez_record_search_key_end_page` (
 ) ENGINE=InnoDB AUTO_INCREMENT=3682177 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
---
--- Table structure for table `fez_record_search_key_end_page__shadow`
---
 
-DROP TABLE IF EXISTS `fez_record_search_key_end_page__shadow`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `fez_record_search_key_end_page__shadow` (
-  `rek_end_page_id` int(11) NOT NULL AUTO_INCREMENT,
-  `rek_end_page_pid` varchar(64) DEFAULT NULL,
-  `rek_end_page_xsdmf_id` int(11) DEFAULT NULL,
-  `rek_end_page` varchar(255) DEFAULT NULL,
-  `rek_end_page_stamp` datetime DEFAULT NULL,
-  PRIMARY KEY (`rek_end_page_id`),
-  UNIQUE KEY `rek_end_page_pid` (`rek_end_page_pid`),
-  UNIQUE KEY `rek_end_page_pid_2` (`rek_end_page_pid`,`rek_end_page_stamp`),
-  KEY `rek_end_page` (`rek_end_page`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Table structure for table `fez_record_search_key_extent`
@@ -3854,25 +3095,7 @@ CREATE TABLE `fez_record_search_key_extent` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
---
--- Table structure for table `fez_record_search_key_extent__shadow`
---
 
-DROP TABLE IF EXISTS `fez_record_search_key_extent__shadow`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `fez_record_search_key_extent__shadow` (
-  `rek_extent_id` int(11) NOT NULL AUTO_INCREMENT,
-  `rek_extent_pid` varchar(64) DEFAULT NULL,
-  `rek_extent_xsdmf_id` int(11) DEFAULT NULL,
-  `rek_extent` varchar(255) DEFAULT NULL,
-  `rek_extent_stamp` datetime DEFAULT NULL,
-  PRIMARY KEY (`rek_extent_id`),
-  UNIQUE KEY `rek_extent_pid_2` (`rek_extent_pid`,`rek_extent_stamp`),
-  KEY `rek_extent` (`rek_extent`),
-  KEY `rek_extent_pid` (`rek_extent_pid`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Table structure for table `fez_record_search_key_file_attachment_content`
@@ -3894,26 +3117,7 @@ CREATE TABLE `fez_record_search_key_file_attachment_content` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
---
--- Table structure for table `fez_record_search_key_file_attachment_content__shadow`
---
 
-DROP TABLE IF EXISTS `fez_record_search_key_file_attachment_content__shadow`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `fez_record_search_key_file_attachment_content__shadow` (
-  `rek_file_attachment_content_id` int(11) NOT NULL AUTO_INCREMENT,
-  `rek_file_attachment_content_pid` varchar(64) DEFAULT NULL,
-  `rek_file_attachment_content_xsdmf_id` int(11) DEFAULT NULL,
-  `rek_file_attachment_content` text,
-  `rek_file_attachment_content_order` int(11) DEFAULT '1',
-  `rek_file_attachment_content_stamp` datetime DEFAULT NULL,
-  PRIMARY KEY (`rek_file_attachment_content_id`),
-  UNIQUE KEY `unique_constraint_pid_order` (`rek_file_attachment_content_pid`,`rek_file_attachment_content_order`),
-  UNIQUE KEY `rek_file_attachment_content_pid` (`rek_file_attachment_content_pid`,`rek_file_attachment_content_stamp`),
-  KEY `rek_file_attachment_content_order` (`rek_file_attachment_content_order`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Table structure for table `fez_record_search_key_file_attachment_name`
@@ -3937,29 +3141,7 @@ CREATE TABLE `fez_record_search_key_file_attachment_name` (
 ) ENGINE=InnoDB AUTO_INCREMENT=1602226 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
---
--- Table structure for table `fez_record_search_key_file_attachment_name__shadow`
---
 
-DROP TABLE IF EXISTS `fez_record_search_key_file_attachment_name__shadow`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `fez_record_search_key_file_attachment_name__shadow` (
-  `rek_file_attachment_name_id` int(11) NOT NULL AUTO_INCREMENT,
-  `rek_file_attachment_name_pid` varchar(64) DEFAULT NULL,
-  `rek_file_attachment_name_xsdmf_id` int(11) DEFAULT NULL,
-  `rek_file_attachment_name` varchar(255) DEFAULT NULL,
-  `rek_file_attachment_name_order` int(11) DEFAULT '1',
-  `rek_file_attachment_name_stamp` datetime DEFAULT NULL,
-  PRIMARY KEY (`rek_file_attachment_name_id`),
-  UNIQUE KEY `rek_file_attachment_name_pid_unique` (`rek_file_attachment_name_pid`,`rek_file_attachment_name`),
-  UNIQUE KEY `unique_constraint_pid_order` (`rek_file_attachment_name_pid`,`rek_file_attachment_name_order`),
-  UNIQUE KEY `rek_file_attachment_name_pid` (`rek_file_attachment_name_pid`,`rek_file_attachment_name_stamp`),
-  KEY `rek_file_attachment_name_id` (`rek_file_attachment_name_pid`),
-  KEY `rek_file_attachment_name` (`rek_file_attachment_name`),
-  KEY `rek_file_attachment_name_order` (`rek_file_attachment_name_order`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Table structure for table `fez_record_search_key_file_description`
@@ -3981,27 +3163,7 @@ CREATE TABLE `fez_record_search_key_file_description` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
---
--- Table structure for table `fez_record_search_key_file_description__shadow`
---
 
-DROP TABLE IF EXISTS `fez_record_search_key_file_description__shadow`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `fez_record_search_key_file_description__shadow` (
-  `rek_file_description_id` int(11) NOT NULL AUTO_INCREMENT,
-  `rek_file_description_pid` varchar(64) DEFAULT NULL,
-  `rek_file_description_xsdmf_id` int(11) DEFAULT NULL,
-  `rek_file_description_order` int(11) DEFAULT '1',
-  `rek_file_description` text,
-  `rek_file_description_stamp` datetime DEFAULT NULL,
-  PRIMARY KEY (`rek_file_description_id`),
-  UNIQUE KEY `unique_constraint_pid_order` (`rek_file_description_pid`,`rek_file_description_order`),
-  UNIQUE KEY `rek_file_description_pid_2` (`rek_file_description_pid`,`rek_file_description_stamp`),
-  KEY `rek_file_description_pid` (`rek_file_description_pid`),
-  FULLTEXT KEY `rek_file_description` (`rek_file_description`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Table structure for table `fez_record_search_key_file_downloads`
@@ -4038,26 +3200,7 @@ CREATE TABLE `fez_record_search_key_first_author_in_document_derived` (
 ) ENGINE=InnoDB AUTO_INCREMENT=2944028 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
---
--- Table structure for table `fez_record_search_key_first_author_in_document_derived__shadow`
---
 
-DROP TABLE IF EXISTS `fez_record_search_key_first_author_in_document_derived__shadow`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `fez_record_search_key_first_author_in_document_derived__shadow` (
-  `rek_first_author_in_document_derived_id` int(11) NOT NULL AUTO_INCREMENT,
-  `rek_first_author_in_document_derived_pid` varchar(64) DEFAULT NULL,
-  `rek_first_author_in_document_derived_xsdmf_id` int(11) DEFAULT NULL,
-  `rek_first_author_in_document_derived` varchar(255) DEFAULT NULL,
-  `rek_first_author_in_document_derived_stamp` datetime DEFAULT NULL,
-  PRIMARY KEY (`rek_first_author_in_document_derived_id`),
-  UNIQUE KEY `unique_pid_value` (`rek_first_author_in_document_derived_pid`,`rek_first_author_in_document_derived`),
-  UNIQUE KEY `rek_first_author_in_document_derived_pid` (`rek_first_author_in_document_derived_pid`),
-  UNIQUE KEY `rek_first_author_in_document_d_2` (`rek_first_author_in_document_derived_pid`,`rek_first_author_in_document_derived_stamp`),
-  KEY `rek_first_author_in_document_derived` (`rek_first_author_in_document_derived`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Table structure for table `fez_record_search_key_first_author_in_fez_derived`
@@ -4077,25 +3220,7 @@ CREATE TABLE `fez_record_search_key_first_author_in_fez_derived` (
 ) ENGINE=InnoDB AUTO_INCREMENT=1523485 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
---
--- Table structure for table `fez_record_search_key_first_author_in_fez_derived__shadow`
---
 
-DROP TABLE IF EXISTS `fez_record_search_key_first_author_in_fez_derived__shadow`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `fez_record_search_key_first_author_in_fez_derived__shadow` (
-  `rek_first_author_in_fez_derived_id` int(11) NOT NULL AUTO_INCREMENT,
-  `rek_first_author_in_fez_derived_pid` varchar(64) DEFAULT NULL,
-  `rek_first_author_in_fez_derived_xsdmf_id` int(11) DEFAULT NULL,
-  `rek_first_author_in_fez_derived` varchar(255) DEFAULT NULL,
-  `rek_first_author_in_fez_derived_stamp` datetime DEFAULT NULL,
-  PRIMARY KEY (`rek_first_author_in_fez_derived_id`),
-  UNIQUE KEY `rek_first_author_in_fez_derived_pid` (`rek_first_author_in_fez_derived_pid`),
-  UNIQUE KEY `rek_first_author_in_fez_derive_2` (`rek_first_author_in_fez_derived_pid`,`rek_first_author_in_fez_derived_stamp`),
-  KEY `rek_first_author_in_fez_derived` (`rek_first_author_in_fez_derived`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Table structure for table `fez_record_search_key_follow_up_flags`
@@ -4115,25 +3240,7 @@ CREATE TABLE `fez_record_search_key_follow_up_flags` (
 ) ENGINE=InnoDB AUTO_INCREMENT=390523 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
---
--- Table structure for table `fez_record_search_key_follow_up_flags__shadow`
---
 
-DROP TABLE IF EXISTS `fez_record_search_key_follow_up_flags__shadow`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `fez_record_search_key_follow_up_flags__shadow` (
-  `rek_follow_up_flags_id` int(11) NOT NULL AUTO_INCREMENT,
-  `rek_follow_up_flags_pid` varchar(64) DEFAULT NULL,
-  `rek_follow_up_flags_xsdmf_id` int(11) DEFAULT NULL,
-  `rek_follow_up_flags` int(11) DEFAULT NULL,
-  `rek_follow_up_flags_stamp` datetime DEFAULT NULL,
-  PRIMARY KEY (`rek_follow_up_flags_id`),
-  UNIQUE KEY `rek_follow_up_flags_pid` (`rek_follow_up_flags_pid`),
-  UNIQUE KEY `rek_follow_up_flags_pid_2` (`rek_follow_up_flags_pid`,`rek_follow_up_flags_stamp`),
-  KEY `rek_follow_up_flags` (`rek_follow_up_flags`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Table structure for table `fez_record_search_key_follow_up_flags_imu`
@@ -4153,25 +3260,7 @@ CREATE TABLE `fez_record_search_key_follow_up_flags_imu` (
 ) ENGINE=InnoDB AUTO_INCREMENT=272766 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
---
--- Table structure for table `fez_record_search_key_follow_up_flags_imu__shadow`
---
 
-DROP TABLE IF EXISTS `fez_record_search_key_follow_up_flags_imu__shadow`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `fez_record_search_key_follow_up_flags_imu__shadow` (
-  `rek_follow_up_flags_imu_id` int(11) NOT NULL AUTO_INCREMENT,
-  `rek_follow_up_flags_imu_pid` varchar(64) DEFAULT NULL,
-  `rek_follow_up_flags_imu_xsdmf_id` int(11) DEFAULT NULL,
-  `rek_follow_up_flags_imu` int(11) DEFAULT NULL,
-  `rek_follow_up_flags_imu_stamp` datetime DEFAULT NULL,
-  PRIMARY KEY (`rek_follow_up_flags_imu_id`),
-  UNIQUE KEY `rek_follow_up_flags_imu_pid` (`rek_follow_up_flags_imu_pid`),
-  UNIQUE KEY `rek_follow_up_flags_imu_pid_2` (`rek_follow_up_flags_imu_pid`,`rek_follow_up_flags_imu_stamp`),
-  KEY `rek_follow_up_flags_imu` (`rek_follow_up_flags_imu`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Table structure for table `fez_record_search_key_geographic_area`
@@ -4190,24 +3279,7 @@ CREATE TABLE `fez_record_search_key_geographic_area` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
---
--- Table structure for table `fez_record_search_key_geographic_area__shadow`
---
 
-DROP TABLE IF EXISTS `fez_record_search_key_geographic_area__shadow`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `fez_record_search_key_geographic_area__shadow` (
-  `rek_geographic_area_id` int(11) NOT NULL AUTO_INCREMENT,
-  `rek_geographic_area_pid` varchar(64) DEFAULT NULL,
-  `rek_geographic_area_xsdmf_id` int(11) DEFAULT NULL,
-  `rek_geographic_area_order` int(11) DEFAULT '1',
-  `rek_geographic_area` varchar(255) DEFAULT NULL,
-  `rek_geographic_area_stamp` datetime DEFAULT NULL,
-  PRIMARY KEY (`rek_geographic_area_id`),
-  UNIQUE KEY `rek_geographic_area_pid` (`rek_geographic_area_pid`,`rek_geographic_area_stamp`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Table structure for table `fez_record_search_key_geographic_coordinates`
@@ -4226,24 +3298,7 @@ CREATE TABLE `fez_record_search_key_geographic_coordinates` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
---
--- Table structure for table `fez_record_search_key_geographic_coordinates__shadow`
---
 
-DROP TABLE IF EXISTS `fez_record_search_key_geographic_coordinates__shadow`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `fez_record_search_key_geographic_coordinates__shadow` (
-  `rek_geographic_coordinates_id` int(11) NOT NULL AUTO_INCREMENT,
-  `rek_geographic_coordinates_pid` varchar(64) DEFAULT NULL,
-  `rek_geographic_coordinates_xsdmf_id` int(11) DEFAULT NULL,
-  `rek_geographic_coordinates_order` int(11) DEFAULT '1',
-  `rek_geographic_coordinates` varchar(255) DEFAULT NULL,
-  `rek_geographic_coordinates_stamp` datetime DEFAULT NULL,
-  PRIMARY KEY (`rek_geographic_coordinates_id`),
-  UNIQUE KEY `rek_geographic_coordinates_pid` (`rek_geographic_coordinates_pid`,`rek_geographic_coordinates_stamp`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Table structure for table `fez_record_search_key_herdc_code`
@@ -4263,25 +3318,7 @@ CREATE TABLE `fez_record_search_key_herdc_code` (
 ) ENGINE=InnoDB AUTO_INCREMENT=2605172 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
---
--- Table structure for table `fez_record_search_key_herdc_code__shadow`
---
 
-DROP TABLE IF EXISTS `fez_record_search_key_herdc_code__shadow`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `fez_record_search_key_herdc_code__shadow` (
-  `rek_herdc_code_id` int(11) NOT NULL AUTO_INCREMENT,
-  `rek_herdc_code_pid` varchar(64) DEFAULT NULL,
-  `rek_herdc_code_xsdmf_id` int(11) DEFAULT NULL,
-  `rek_herdc_code` int(11) DEFAULT NULL,
-  `rek_herdc_code_stamp` datetime DEFAULT NULL,
-  PRIMARY KEY (`rek_herdc_code_id`),
-  UNIQUE KEY `rek_herdc_pid` (`rek_herdc_code_pid`),
-  UNIQUE KEY `rek_herdc_code_pid` (`rek_herdc_code_pid`,`rek_herdc_code_stamp`),
-  KEY `rek_herdc` (`rek_herdc_code`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Table structure for table `fez_record_search_key_herdc_status`
@@ -4301,25 +3338,7 @@ CREATE TABLE `fez_record_search_key_herdc_status` (
 ) ENGINE=InnoDB AUTO_INCREMENT=1800420 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
---
--- Table structure for table `fez_record_search_key_herdc_status__shadow`
---
 
-DROP TABLE IF EXISTS `fez_record_search_key_herdc_status__shadow`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `fez_record_search_key_herdc_status__shadow` (
-  `rek_herdc_status_id` int(11) NOT NULL AUTO_INCREMENT,
-  `rek_herdc_status_pid` varchar(64) DEFAULT NULL,
-  `rek_herdc_status_xsdmf_id` int(11) DEFAULT NULL,
-  `rek_herdc_status` int(11) DEFAULT NULL,
-  `rek_herdc_status_stamp` datetime DEFAULT NULL,
-  PRIMARY KEY (`rek_herdc_status_id`),
-  UNIQUE KEY `rek_herdc_status_pid` (`rek_herdc_status_pid`),
-  UNIQUE KEY `rek_herdc_status_pid_2` (`rek_herdc_status_pid`,`rek_herdc_status_stamp`),
-  KEY `rek_herdc_status` (`rek_herdc_status`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Table structure for table `fez_record_search_key_identifier`
@@ -4342,28 +3361,7 @@ CREATE TABLE `fez_record_search_key_identifier` (
 ) ENGINE=InnoDB AUTO_INCREMENT=17 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
---
--- Table structure for table `fez_record_search_key_identifier__shadow`
---
 
-DROP TABLE IF EXISTS `fez_record_search_key_identifier__shadow`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `fez_record_search_key_identifier__shadow` (
-  `rek_identifier_id` int(11) NOT NULL AUTO_INCREMENT,
-  `rek_identifier_pid` varchar(64) DEFAULT NULL,
-  `rek_identifier_xsdmf_id` int(11) DEFAULT NULL,
-  `rek_identifier` varchar(255) DEFAULT NULL,
-  `rek_identifier_order` int(11) DEFAULT '1',
-  `rek_identifier_stamp` datetime DEFAULT NULL,
-  PRIMARY KEY (`rek_identifier_id`),
-  UNIQUE KEY `unique_constraint_pid_order` (`rek_identifier_pid`,`rek_identifier_order`),
-  UNIQUE KEY `rek_identifier_pid_2` (`rek_identifier_pid`,`rek_identifier_stamp`),
-  KEY `rek_identifier_pid` (`rek_identifier_pid`),
-  KEY `rek_identifier` (`rek_identifier`),
-  KEY `rek_identifier_order` (`rek_identifier_order`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Table structure for table `fez_record_search_key_institutional_status`
@@ -4383,25 +3381,7 @@ CREATE TABLE `fez_record_search_key_institutional_status` (
 ) ENGINE=InnoDB AUTO_INCREMENT=1699656 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
---
--- Table structure for table `fez_record_search_key_institutional_status__shadow`
---
 
-DROP TABLE IF EXISTS `fez_record_search_key_institutional_status__shadow`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `fez_record_search_key_institutional_status__shadow` (
-  `rek_institutional_status_id` int(11) NOT NULL AUTO_INCREMENT,
-  `rek_institutional_status_pid` varchar(64) DEFAULT NULL,
-  `rek_institutional_status_xsdmf_id` int(11) DEFAULT NULL,
-  `rek_institutional_status` int(11) DEFAULT NULL,
-  `rek_institutional_status_stamp` datetime DEFAULT NULL,
-  PRIMARY KEY (`rek_institutional_status_id`),
-  UNIQUE KEY `rek_institutional_status_pid` (`rek_institutional_status_pid`),
-  UNIQUE KEY `rek_institutional_status_pid_2` (`rek_institutional_status_pid`,`rek_institutional_status_stamp`),
-  KEY `rek_institutional_status` (`rek_institutional_status`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Table structure for table `fez_record_search_key_interior_features`
@@ -4424,27 +3404,7 @@ CREATE TABLE `fez_record_search_key_interior_features` (
 ) ENGINE=MyISAM AUTO_INCREMENT=815 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
---
--- Table structure for table `fez_record_search_key_interior_features__shadow`
---
 
-DROP TABLE IF EXISTS `fez_record_search_key_interior_features__shadow`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `fez_record_search_key_interior_features__shadow` (
-  `rek_interior_features_id` int(11) NOT NULL AUTO_INCREMENT,
-  `rek_interior_features_pid` varchar(64) DEFAULT NULL,
-  `rek_interior_features_xsdmf_id` int(11) DEFAULT NULL,
-  `rek_interior_features_order` int(11) DEFAULT '1',
-  `rek_interior_features` varchar(255) DEFAULT NULL,
-  `rek_interior_features_stamp` datetime DEFAULT NULL,
-  PRIMARY KEY (`rek_interior_features_id`),
-  UNIQUE KEY `unique_constraint_pid_order` (`rek_interior_features_pid`,`rek_interior_features_order`),
-  UNIQUE KEY `rek_interior_features_pid_2` (`rek_interior_features_pid`,`rek_interior_features_stamp`),
-  KEY `rek_interior_features_pid` (`rek_interior_features_pid`),
-  FULLTEXT KEY `rek_interior_features` (`rek_interior_features`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Table structure for table `fez_record_search_key_isannotationof`
@@ -4466,26 +3426,7 @@ CREATE TABLE `fez_record_search_key_isannotationof` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
---
--- Table structure for table `fez_record_search_key_isannotationof__shadow`
---
 
-DROP TABLE IF EXISTS `fez_record_search_key_isannotationof__shadow`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `fez_record_search_key_isannotationof__shadow` (
-  `rek_isannotationof_id` int(11) NOT NULL AUTO_INCREMENT,
-  `rek_isannotationof_pid` varchar(64) DEFAULT NULL,
-  `rek_isannotationof_xsdmf_id` int(11) DEFAULT NULL,
-  `rek_isannotationof` varchar(64) DEFAULT NULL,
-  `rek_isannotationof_order` int(11) DEFAULT '1',
-  `rek_isannotationof_stamp` datetime DEFAULT NULL,
-  PRIMARY KEY (`rek_isannotationof_id`),
-  UNIQUE KEY `unique_constraint_pid_order` (`rek_isannotationof_pid`,`rek_isannotationof_order`),
-  UNIQUE KEY `rek_isannotationof_pid` (`rek_isannotationof_pid`,`rek_isannotationof_stamp`),
-  KEY `rek_isannotationof_order` (`rek_isannotationof_order`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Table structure for table `fez_record_search_key_isbn`
@@ -4505,24 +3446,7 @@ CREATE TABLE `fez_record_search_key_isbn` (
 ) ENGINE=InnoDB AUTO_INCREMENT=600469 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
---
--- Table structure for table `fez_record_search_key_isbn__shadow`
---
 
-DROP TABLE IF EXISTS `fez_record_search_key_isbn__shadow`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `fez_record_search_key_isbn__shadow` (
-  `rek_isbn_id` int(11) NOT NULL AUTO_INCREMENT,
-  `rek_isbn_pid` varchar(64) DEFAULT NULL,
-  `rek_isbn_xsdmf_id` int(11) DEFAULT NULL,
-  `rek_isbn` varchar(255) DEFAULT NULL,
-  `rek_isbn_stamp` datetime DEFAULT NULL,
-  PRIMARY KEY (`rek_isbn_id`),
-  UNIQUE KEY `rek_isbn_pid` (`rek_isbn_pid`),
-  UNIQUE KEY `rek_isbn_pid_2` (`rek_isbn_pid`,`rek_isbn_stamp`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Table structure for table `fez_record_search_key_isdatacomponentof`
@@ -4543,26 +3467,7 @@ CREATE TABLE `fez_record_search_key_isdatacomponentof` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
---
--- Table structure for table `fez_record_search_key_isdatacomponentof__shadow`
---
 
-DROP TABLE IF EXISTS `fez_record_search_key_isdatacomponentof__shadow`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `fez_record_search_key_isdatacomponentof__shadow` (
-  `rek_isdatacomponentof_id` int(11) NOT NULL AUTO_INCREMENT,
-  `rek_isdatacomponentof_pid` varchar(64) DEFAULT NULL,
-  `rek_isdatacomponentof_xsdmf_id` int(11) DEFAULT NULL,
-  `rek_isdatacomponentof` varchar(64) DEFAULT NULL,
-  `rek_isdatacomponentof_order` int(11) DEFAULT '1',
-  `rek_isdatacomponentof_stamp` datetime DEFAULT NULL,
-  PRIMARY KEY (`rek_isdatacomponentof_id`),
-  UNIQUE KEY `unique_constraint_pid_order` (`rek_isdatacomponentof_pid`,`rek_isdatacomponentof_order`),
-  UNIQUE KEY `rek_isdatacomponentof_pid` (`rek_isdatacomponentof_pid`,`rek_isdatacomponentof_stamp`),
-  KEY `rek_isdatacomponentof_order` (`rek_isdatacomponentof_order`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Table structure for table `fez_record_search_key_isderivationof`
@@ -4586,28 +3491,7 @@ CREATE TABLE `fez_record_search_key_isderivationof` (
 ) ENGINE=InnoDB AUTO_INCREMENT=7350 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
---
--- Table structure for table `fez_record_search_key_isderivationof__shadow`
---
 
-DROP TABLE IF EXISTS `fez_record_search_key_isderivationof__shadow`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `fez_record_search_key_isderivationof__shadow` (
-  `rek_isderivationof_id` int(11) NOT NULL AUTO_INCREMENT,
-  `rek_isderivationof_pid` varchar(64) DEFAULT NULL,
-  `rek_isderivationof_xsdmf_id` int(11) DEFAULT NULL,
-  `rek_isderivationof` varchar(64) DEFAULT NULL,
-  `rek_isderivationof_order` int(11) DEFAULT '1',
-  `rek_isderivationof_stamp` datetime DEFAULT NULL,
-  PRIMARY KEY (`rek_isderivationof_id`),
-  UNIQUE KEY `unique_constraint_pid_order` (`rek_isderivationof_pid`,`rek_isderivationof_order`),
-  UNIQUE KEY `rek_isderivationof_pid_2` (`rek_isderivationof_pid`,`rek_isderivationof_stamp`),
-  KEY `rek_isderivationof` (`rek_isderivationof`),
-  KEY `rek_isderivationof_pid` (`rek_isderivationof_pid`),
-  KEY `rek_isderivationof_order` (`rek_isderivationof_order`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Table structure for table `fez_record_search_key_isi_loc`
@@ -4628,25 +3512,7 @@ CREATE TABLE `fez_record_search_key_isi_loc` (
 ) ENGINE=InnoDB AUTO_INCREMENT=2776271 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
---
--- Table structure for table `fez_record_search_key_isi_loc__shadow`
---
 
-DROP TABLE IF EXISTS `fez_record_search_key_isi_loc__shadow`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `fez_record_search_key_isi_loc__shadow` (
-  `rek_isi_loc_id` int(11) NOT NULL AUTO_INCREMENT,
-  `rek_isi_loc_pid` varchar(64) DEFAULT NULL,
-  `rek_isi_loc_xsdmf_id` int(11) DEFAULT NULL,
-  `rek_isi_loc` varchar(255) DEFAULT NULL,
-  `rek_isi_loc_stamp` datetime DEFAULT NULL,
-  PRIMARY KEY (`rek_isi_loc_id`),
-  UNIQUE KEY `rek_isi_loc_pid` (`rek_isi_loc_pid`),
-  UNIQUE KEY `rek_isi_loc_pid_2` (`rek_isi_loc_pid`,`rek_isi_loc_stamp`),
-  KEY `rek_isi_loc` (`rek_isi_loc`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Table structure for table `fez_record_search_key_ismemberof`
@@ -4670,28 +3536,7 @@ CREATE TABLE `fez_record_search_key_ismemberof` (
 ) ENGINE=InnoDB AUTO_INCREMENT=7432784 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
---
--- Table structure for table `fez_record_search_key_ismemberof__shadow`
---
 
-DROP TABLE IF EXISTS `fez_record_search_key_ismemberof__shadow`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `fez_record_search_key_ismemberof__shadow` (
-  `rek_ismemberof_id` int(11) NOT NULL AUTO_INCREMENT,
-  `rek_ismemberof_pid` varchar(64) DEFAULT NULL,
-  `rek_ismemberof_xsdmf_id` int(11) DEFAULT NULL,
-  `rek_ismemberof` varchar(64) DEFAULT NULL,
-  `rek_ismemberof_order` int(11) DEFAULT '1',
-  `rek_ismemberof_stamp` datetime DEFAULT NULL,
-  PRIMARY KEY (`rek_ismemberof_id`),
-  UNIQUE KEY `unique_constraint_pid_order` (`rek_ismemberof_pid`,`rek_ismemberof_order`),
-  UNIQUE KEY `rek_ismemberof_pid_2` (`rek_ismemberof_pid`,`rek_ismemberof_stamp`),
-  KEY `rek_ismemberof_pid_value` (`rek_ismemberof_pid`,`rek_ismemberof`),
-  KEY `rek_ismemberof_pid` (`rek_ismemberof`),
-  KEY `rek_ismemberof_order` (`rek_ismemberof_order`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Table structure for table `fez_record_search_key_issn`
@@ -4712,25 +3557,7 @@ CREATE TABLE `fez_record_search_key_issn` (
 ) ENGINE=InnoDB AUTO_INCREMENT=2845785 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
---
--- Table structure for table `fez_record_search_key_issn__shadow`
---
 
-DROP TABLE IF EXISTS `fez_record_search_key_issn__shadow`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `fez_record_search_key_issn__shadow` (
-  `rek_issn_id` int(11) NOT NULL AUTO_INCREMENT,
-  `rek_issn_pid` varchar(64) DEFAULT NULL,
-  `rek_issn_xsdmf_id` int(11) DEFAULT NULL,
-  `rek_issn` varchar(255) DEFAULT NULL,
-  `rek_issn_stamp` datetime DEFAULT NULL,
-  PRIMARY KEY (`rek_issn_id`),
-  UNIQUE KEY `rek_issn_pid` (`rek_issn_pid`),
-  UNIQUE KEY `rek_issn_pid_2` (`rek_issn_pid`,`rek_issn_stamp`),
-  KEY `rek_issn` (`rek_issn`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Table structure for table `fez_record_search_key_issue_number`
@@ -4751,25 +3578,7 @@ CREATE TABLE `fez_record_search_key_issue_number` (
 ) ENGINE=InnoDB AUTO_INCREMENT=3006115 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
---
--- Table structure for table `fez_record_search_key_issue_number__shadow`
---
 
-DROP TABLE IF EXISTS `fez_record_search_key_issue_number__shadow`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `fez_record_search_key_issue_number__shadow` (
-  `rek_issue_number_id` int(11) NOT NULL AUTO_INCREMENT,
-  `rek_issue_number_pid` varchar(64) DEFAULT NULL,
-  `rek_issue_number_xsdmf_id` int(11) DEFAULT NULL,
-  `rek_issue_number` varchar(255) DEFAULT NULL,
-  `rek_issue_number_stamp` datetime DEFAULT NULL,
-  PRIMARY KEY (`rek_issue_number_id`),
-  UNIQUE KEY `rek_issue_number_pid` (`rek_issue_number_pid`),
-  UNIQUE KEY `rek_issue_number_pid_2` (`rek_issue_number_pid`,`rek_issue_number_stamp`),
-  KEY `rek_issue_number` (`rek_issue_number`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Table structure for table `fez_record_search_key_journal_name`
@@ -4791,26 +3600,7 @@ CREATE TABLE `fez_record_search_key_journal_name` (
 ) ENGINE=MyISAM AUTO_INCREMENT=3358005 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
---
--- Table structure for table `fez_record_search_key_journal_name__shadow`
---
 
-DROP TABLE IF EXISTS `fez_record_search_key_journal_name__shadow`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `fez_record_search_key_journal_name__shadow` (
-  `rek_journal_name_id` int(11) NOT NULL AUTO_INCREMENT,
-  `rek_journal_name_pid` varchar(64) DEFAULT NULL,
-  `rek_journal_name_xsdmf_id` int(11) DEFAULT NULL,
-  `rek_journal_name` varchar(255) DEFAULT NULL,
-  `rek_journal_name_stamp` datetime DEFAULT NULL,
-  PRIMARY KEY (`rek_journal_name_id`),
-  UNIQUE KEY `rek_journal_name_pid` (`rek_journal_name_pid`),
-  UNIQUE KEY `rek_journal_name_pid_2` (`rek_journal_name_pid`,`rek_journal_name_stamp`),
-  KEY `rek_journal_name` (`rek_journal_name`),
-  FULLTEXT KEY `rek_journal_name_ft` (`rek_journal_name`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Table structure for table `fez_record_search_key_journal_name_copy`
@@ -4855,30 +3645,7 @@ CREATE TABLE `fez_record_search_key_keywords` (
 ) ENGINE=MyISAM AUTO_INCREMENT=20633793 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
---
--- Table structure for table `fez_record_search_key_keywords__shadow`
---
 
-DROP TABLE IF EXISTS `fez_record_search_key_keywords__shadow`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `fez_record_search_key_keywords__shadow` (
-  `rek_keywords_id` int(11) NOT NULL AUTO_INCREMENT,
-  `rek_keywords_pid` varchar(64) DEFAULT NULL,
-  `rek_keywords_xsdmf_id` int(11) DEFAULT NULL,
-  `rek_keywords` varchar(255) DEFAULT NULL,
-  `rek_keywords_order` int(11) DEFAULT '1',
-  `rek_keywords_stamp` datetime DEFAULT NULL,
-  PRIMARY KEY (`rek_keywords_id`),
-  UNIQUE KEY `id_pid_combo` (`rek_keywords_id`,`rek_keywords_pid`),
-  UNIQUE KEY `unique_constraint_pid_order` (`rek_keywords_pid`,`rek_keywords_order`),
-  UNIQUE KEY `rek_keywords_pid_2` (`rek_keywords_pid`,`rek_keywords_stamp`),
-  KEY `rek_keywords_pid` (`rek_keywords_pid`),
-  KEY `rek_keywords` (`rek_keywords`),
-  KEY `rek_keywords_order` (`rek_keywords_order`),
-  FULLTEXT KEY `rek_keywords_fulltext` (`rek_keywords`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Table structure for table `fez_record_search_key_language`
@@ -4901,27 +3668,7 @@ CREATE TABLE `fez_record_search_key_language` (
 ) ENGINE=InnoDB AUTO_INCREMENT=3080672 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
---
--- Table structure for table `fez_record_search_key_language__shadow`
---
 
-DROP TABLE IF EXISTS `fez_record_search_key_language__shadow`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `fez_record_search_key_language__shadow` (
-  `rek_language_id` int(11) NOT NULL AUTO_INCREMENT,
-  `rek_language_pid` varchar(64) DEFAULT NULL,
-  `rek_language_xsdmf_id` int(11) DEFAULT NULL,
-  `rek_language` varchar(255) CHARACTER SET utf8 COLLATE utf8_bin DEFAULT NULL,
-  `rek_language_order` int(11) DEFAULT '1',
-  `rek_language_stamp` datetime DEFAULT NULL,
-  PRIMARY KEY (`rek_language_id`),
-  UNIQUE KEY `unique_constraint_pid_order` (`rek_language_pid`,`rek_language_order`),
-  UNIQUE KEY `rek_language_pid_2` (`rek_language_pid`,`rek_language_stamp`),
-  KEY `rek_language` (`rek_language`),
-  KEY `rek_language_pid` (`rek_language_pid`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Table structure for table `fez_record_search_key_language_of_book_title`
@@ -4943,27 +3690,7 @@ CREATE TABLE `fez_record_search_key_language_of_book_title` (
 ) ENGINE=InnoDB AUTO_INCREMENT=1478 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
---
--- Table structure for table `fez_record_search_key_language_of_book_title__shadow`
---
 
-DROP TABLE IF EXISTS `fez_record_search_key_language_of_book_title__shadow`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `fez_record_search_key_language_of_book_title__shadow` (
-  `rek_language_of_book_title_id` int(11) NOT NULL AUTO_INCREMENT,
-  `rek_language_of_book_title_pid` varchar(64) DEFAULT NULL,
-  `rek_language_of_book_title_xsdmf_id` int(11) DEFAULT NULL,
-  `rek_language_of_book_title_order` int(11) DEFAULT '1',
-  `rek_language_of_book_title` varchar(255) CHARACTER SET utf8 COLLATE utf8_bin DEFAULT NULL,
-  `rek_language_of_book_title_stamp` datetime DEFAULT NULL,
-  PRIMARY KEY (`rek_language_of_book_title_id`),
-  UNIQUE KEY `unique_constraint_pid_order` (`rek_language_of_book_title_pid`,`rek_language_of_book_title_order`),
-  UNIQUE KEY `rek_language_of_book_title_pid_2` (`rek_language_of_book_title_pid`,`rek_language_of_book_title_stamp`),
-  KEY `rek_language_of_book_title` (`rek_language_of_book_title`),
-  KEY `rek_language_of_book_title_pid` (`rek_language_of_book_title_pid`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Table structure for table `fez_record_search_key_language_of_journal_name`
@@ -4985,27 +3712,7 @@ CREATE TABLE `fez_record_search_key_language_of_journal_name` (
 ) ENGINE=InnoDB AUTO_INCREMENT=8289 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
---
--- Table structure for table `fez_record_search_key_language_of_journal_name__shadow`
---
 
-DROP TABLE IF EXISTS `fez_record_search_key_language_of_journal_name__shadow`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `fez_record_search_key_language_of_journal_name__shadow` (
-  `rek_language_of_journal_name_id` int(11) NOT NULL AUTO_INCREMENT,
-  `rek_language_of_journal_name_pid` varchar(64) DEFAULT NULL,
-  `rek_language_of_journal_name_xsdmf_id` int(11) DEFAULT NULL,
-  `rek_language_of_journal_name_order` int(11) DEFAULT '1',
-  `rek_language_of_journal_name` varchar(255) CHARACTER SET utf8 COLLATE utf8_bin DEFAULT NULL,
-  `rek_language_of_journal_name_stamp` datetime DEFAULT NULL,
-  PRIMARY KEY (`rek_language_of_journal_name_id`),
-  UNIQUE KEY `unique_constraint_pid_order` (`rek_language_of_journal_name_pid`,`rek_language_of_journal_name_order`),
-  UNIQUE KEY `rek_language_of_journal_name_p_2` (`rek_language_of_journal_name_pid`,`rek_language_of_journal_name_stamp`),
-  KEY `rek_language_of_journal_name` (`rek_language_of_journal_name`),
-  KEY `rek_language_of_journal_name_pid` (`rek_language_of_journal_name_pid`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Table structure for table `fez_record_search_key_language_of_parent_title`
@@ -5025,25 +3732,7 @@ CREATE TABLE `fez_record_search_key_language_of_parent_title` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
---
--- Table structure for table `fez_record_search_key_language_of_parent_title__shadow`
---
 
-DROP TABLE IF EXISTS `fez_record_search_key_language_of_parent_title__shadow`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `fez_record_search_key_language_of_parent_title__shadow` (
-  `rek_language_of_parent_title_id` int(11) NOT NULL AUTO_INCREMENT,
-  `rek_language_of_parent_title_pid` varchar(64) DEFAULT NULL,
-  `rek_language_of_parent_title_xsdmf_id` int(11) DEFAULT NULL,
-  `rek_language_of_parent_title` varchar(255) CHARACTER SET utf8 COLLATE utf8_bin DEFAULT NULL,
-  `rek_language_of_parent_title_stamp` datetime DEFAULT NULL,
-  PRIMARY KEY (`rek_language_of_parent_title_id`),
-  UNIQUE KEY `rek_language_of_parent_title_pid` (`rek_language_of_parent_title_pid`),
-  UNIQUE KEY `rek_language_of_parent_title_p_2` (`rek_language_of_parent_title_pid`,`rek_language_of_parent_title_stamp`),
-  KEY `rek_language_of_parent_title` (`rek_language_of_parent_title`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Table structure for table `fez_record_search_key_language_of_proceedings_title`
@@ -5065,27 +3754,7 @@ CREATE TABLE `fez_record_search_key_language_of_proceedings_title` (
 ) ENGINE=InnoDB AUTO_INCREMENT=2342 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
---
--- Table structure for table `fez_record_search_key_language_of_proceedings_title__shadow`
---
 
-DROP TABLE IF EXISTS `fez_record_search_key_language_of_proceedings_title__shadow`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `fez_record_search_key_language_of_proceedings_title__shadow` (
-  `rek_language_of_proceedings_title_id` int(11) NOT NULL AUTO_INCREMENT,
-  `rek_language_of_proceedings_title_pid` varchar(64) DEFAULT NULL,
-  `rek_language_of_proceedings_title_xsdmf_id` int(11) DEFAULT NULL,
-  `rek_language_of_proceedings_title_order` int(11) DEFAULT '1',
-  `rek_language_of_proceedings_title` varchar(255) CHARACTER SET utf8 COLLATE utf8_bin DEFAULT NULL,
-  `rek_language_of_proceedings_title_stamp` datetime DEFAULT NULL,
-  PRIMARY KEY (`rek_language_of_proceedings_title_id`),
-  UNIQUE KEY `unique_constraint_pid_order` (`rek_language_of_proceedings_title_pid`,`rek_language_of_proceedings_title_order`),
-  UNIQUE KEY `rek_language_of_proceedings_ti_2` (`rek_language_of_proceedings_title_pid`,`rek_language_of_proceedings_title_stamp`),
-  KEY `rek_language_of_proceedings_title` (`rek_language_of_proceedings_title`),
-  KEY `rek_language_of_proceedings_title_pid` (`rek_language_of_proceedings_title_pid`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Table structure for table `fez_record_search_key_language_of_title`
@@ -5108,27 +3777,7 @@ CREATE TABLE `fez_record_search_key_language_of_title` (
 ) ENGINE=InnoDB AUTO_INCREMENT=9857 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
---
--- Table structure for table `fez_record_search_key_language_of_title__shadow`
---
 
-DROP TABLE IF EXISTS `fez_record_search_key_language_of_title__shadow`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `fez_record_search_key_language_of_title__shadow` (
-  `rek_language_of_title_id` int(11) NOT NULL AUTO_INCREMENT,
-  `rek_language_of_title_pid` varchar(64) DEFAULT NULL,
-  `rek_language_of_title_xsdmf_id` int(11) DEFAULT NULL,
-  `rek_language_of_title` varchar(255) CHARACTER SET utf8 COLLATE utf8_bin DEFAULT NULL,
-  `rek_language_of_title_order` int(11) DEFAULT '1',
-  `rek_language_of_title_stamp` datetime DEFAULT NULL,
-  PRIMARY KEY (`rek_language_of_title_id`),
-  UNIQUE KEY `unique_constraint_pid_order` (`rek_language_of_title_pid`,`rek_language_of_title_order`),
-  UNIQUE KEY `rek_language_of_title_pid_2` (`rek_language_of_title_pid`,`rek_language_of_title_stamp`),
-  KEY `rek_language_of_title` (`rek_language_of_title`),
-  KEY `rek_language_of_title_pid` (`rek_language_of_title_pid`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Table structure for table `fez_record_search_key_link`
@@ -5150,27 +3799,7 @@ CREATE TABLE `fez_record_search_key_link` (
 ) ENGINE=InnoDB AUTO_INCREMENT=2838023 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
---
--- Table structure for table `fez_record_search_key_link__shadow`
---
 
-DROP TABLE IF EXISTS `fez_record_search_key_link__shadow`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `fez_record_search_key_link__shadow` (
-  `rek_link_id` int(11) NOT NULL AUTO_INCREMENT,
-  `rek_link_pid` varchar(64) DEFAULT NULL,
-  `rek_link_xsdmf_id` int(11) DEFAULT NULL,
-  `rek_link` text,
-  `rek_link_order` int(11) DEFAULT '1',
-  `rek_link_stamp` datetime DEFAULT NULL,
-  PRIMARY KEY (`rek_link_id`),
-  UNIQUE KEY `unique_constraint_pid_order` (`rek_link_pid`,`rek_link_order`),
-  UNIQUE KEY `rek_link_pid_2` (`rek_link_pid`,`rek_link_stamp`),
-  KEY `rek_link_pid` (`rek_link_pid`),
-  KEY `rek_link_order` (`rek_link_order`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Table structure for table `fez_record_search_key_link_description`
@@ -5192,27 +3821,7 @@ CREATE TABLE `fez_record_search_key_link_description` (
 ) ENGINE=InnoDB AUTO_INCREMENT=2838003 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
---
--- Table structure for table `fez_record_search_key_link_description__shadow`
---
 
-DROP TABLE IF EXISTS `fez_record_search_key_link_description__shadow`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `fez_record_search_key_link_description__shadow` (
-  `rek_link_description_id` int(11) NOT NULL AUTO_INCREMENT,
-  `rek_link_description_pid` varchar(64) DEFAULT NULL,
-  `rek_link_description_xsdmf_id` int(11) DEFAULT NULL,
-  `rek_link_description` text,
-  `rek_link_description_order` int(11) DEFAULT '1',
-  `rek_link_description_stamp` datetime DEFAULT NULL,
-  PRIMARY KEY (`rek_link_description_id`),
-  UNIQUE KEY `unique_constraint_pid_order` (`rek_link_description_pid`,`rek_link_description_order`),
-  UNIQUE KEY `rek_link_description_pid_2` (`rek_link_description_pid`,`rek_link_description_stamp`),
-  KEY `rek_link_description_pid` (`rek_link_description_pid`),
-  KEY `rek_link_description_order` (`rek_link_description_order`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Temporary table structure for view `fez_record_search_key_link_link_description`
@@ -5253,24 +3862,7 @@ CREATE TABLE `fez_record_search_key_loc_subject_heading` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
---
--- Table structure for table `fez_record_search_key_loc_subject_heading__shadow`
---
 
-DROP TABLE IF EXISTS `fez_record_search_key_loc_subject_heading__shadow`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `fez_record_search_key_loc_subject_heading__shadow` (
-  `rek_loc_subject_heading_id` int(11) NOT NULL AUTO_INCREMENT,
-  `rek_loc_subject_heading_pid` varchar(64) DEFAULT NULL,
-  `rek_loc_subject_heading_xsdmf_id` int(11) DEFAULT NULL,
-  `rek_loc_subject_heading_order` int(11) DEFAULT '1',
-  `rek_loc_subject_heading` varchar(255) DEFAULT NULL,
-  `rek_loc_subject_heading_stamp` datetime DEFAULT NULL,
-  PRIMARY KEY (`rek_loc_subject_heading_id`),
-  UNIQUE KEY `rek_loc_subject_heading_pid` (`rek_loc_subject_heading_pid`,`rek_loc_subject_heading_stamp`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Table structure for table `fez_record_search_key_location`
@@ -5294,28 +3886,7 @@ CREATE TABLE `fez_record_search_key_location` (
 ) ENGINE=MyISAM AUTO_INCREMENT=19527 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
---
--- Table structure for table `fez_record_search_key_location__shadow`
---
 
-DROP TABLE IF EXISTS `fez_record_search_key_location__shadow`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `fez_record_search_key_location__shadow` (
-  `rek_location_id` int(11) NOT NULL AUTO_INCREMENT,
-  `rek_location_pid` varchar(64) DEFAULT NULL,
-  `rek_location_xsdmf_id` int(11) DEFAULT NULL,
-  `rek_location` varchar(255) DEFAULT NULL,
-  `rek_location_order` int(11) DEFAULT NULL,
-  `rek_location_stamp` datetime DEFAULT NULL,
-  PRIMARY KEY (`rek_location_id`),
-  UNIQUE KEY `unique_constraint_pid_order` (`rek_location_pid`,`rek_location_order`),
-  UNIQUE KEY `rek_location_pid_2` (`rek_location_pid`,`rek_location_stamp`),
-  KEY `rek_location` (`rek_location`),
-  KEY `rek_location_pid` (`rek_location_pid`),
-  FULLTEXT KEY `rek_location_ft` (`rek_location`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Table structure for table `fez_record_search_key_na_explanation`
@@ -5335,25 +3906,7 @@ CREATE TABLE `fez_record_search_key_na_explanation` (
 ) ENGINE=MyISAM AUTO_INCREMENT=37 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
---
--- Table structure for table `fez_record_search_key_na_explanation__shadow`
---
 
-DROP TABLE IF EXISTS `fez_record_search_key_na_explanation__shadow`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `fez_record_search_key_na_explanation__shadow` (
-  `rek_na_explanation_id` int(11) NOT NULL AUTO_INCREMENT,
-  `rek_na_explanation_pid` varchar(64) DEFAULT NULL,
-  `rek_na_explanation_xsdmf_id` int(11) DEFAULT NULL,
-  `rek_na_explanation` text,
-  `rek_na_explanation_stamp` datetime DEFAULT NULL,
-  PRIMARY KEY (`rek_na_explanation_id`),
-  UNIQUE KEY `rek_na_explanation_pid` (`rek_na_explanation_pid`),
-  UNIQUE KEY `rek_na_explanation_pid_2` (`rek_na_explanation_pid`,`rek_na_explanation_stamp`),
-  FULLTEXT KEY `rek_na_explanation` (`rek_na_explanation`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Table structure for table `fez_record_search_key_native_script_book_title`
@@ -5373,25 +3926,7 @@ CREATE TABLE `fez_record_search_key_native_script_book_title` (
 ) ENGINE=InnoDB AUTO_INCREMENT=630 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
---
--- Table structure for table `fez_record_search_key_native_script_book_title__shadow`
---
 
-DROP TABLE IF EXISTS `fez_record_search_key_native_script_book_title__shadow`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `fez_record_search_key_native_script_book_title__shadow` (
-  `rek_native_script_book_title_id` int(11) NOT NULL AUTO_INCREMENT,
-  `rek_native_script_book_title_pid` varchar(64) DEFAULT NULL,
-  `rek_native_script_book_title_xsdmf_id` int(11) DEFAULT NULL,
-  `rek_native_script_book_title` varchar(255) DEFAULT NULL,
-  `rek_native_script_book_title_stamp` datetime DEFAULT NULL,
-  PRIMARY KEY (`rek_native_script_book_title_id`),
-  UNIQUE KEY `rek_native_script_book_title_p_2` (`rek_native_script_book_title_pid`,`rek_native_script_book_title_stamp`),
-  KEY `rek_native_script_book_title` (`rek_native_script_book_title`),
-  KEY `rek_native_script_book_title_pid` (`rek_native_script_book_title_pid`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Table structure for table `fez_record_search_key_native_script_conference_name`
@@ -5411,25 +3946,7 @@ CREATE TABLE `fez_record_search_key_native_script_conference_name` (
 ) ENGINE=InnoDB AUTO_INCREMENT=128 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
---
--- Table structure for table `fez_record_search_key_native_script_conference_name__shadow`
---
 
-DROP TABLE IF EXISTS `fez_record_search_key_native_script_conference_name__shadow`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `fez_record_search_key_native_script_conference_name__shadow` (
-  `rek_native_script_conference_name_id` int(11) NOT NULL AUTO_INCREMENT,
-  `rek_native_script_conference_name_pid` varchar(64) DEFAULT NULL,
-  `rek_native_script_conference_name_xsdmf_id` int(11) DEFAULT NULL,
-  `rek_native_script_conference_name` varchar(255) DEFAULT NULL,
-  `rek_native_script_conference_name_stamp` datetime DEFAULT NULL,
-  PRIMARY KEY (`rek_native_script_conference_name_id`),
-  UNIQUE KEY `rek_native_script_conference_n_2` (`rek_native_script_conference_name_pid`,`rek_native_script_conference_name_stamp`),
-  KEY `rek_native_script_conference_name` (`rek_native_script_conference_name`),
-  KEY `rek_native_script_conference_name_pid` (`rek_native_script_conference_name_pid`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Table structure for table `fez_record_search_key_native_script_journal_name`
@@ -5449,25 +3966,7 @@ CREATE TABLE `fez_record_search_key_native_script_journal_name` (
 ) ENGINE=InnoDB AUTO_INCREMENT=1099 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
---
--- Table structure for table `fez_record_search_key_native_script_journal_name__shadow`
---
 
-DROP TABLE IF EXISTS `fez_record_search_key_native_script_journal_name__shadow`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `fez_record_search_key_native_script_journal_name__shadow` (
-  `rek_native_script_journal_name_id` int(11) NOT NULL AUTO_INCREMENT,
-  `rek_native_script_journal_name_pid` varchar(64) DEFAULT NULL,
-  `rek_native_script_journal_name_xsdmf_id` int(11) DEFAULT NULL,
-  `rek_native_script_journal_name` varchar(255) DEFAULT NULL,
-  `rek_native_script_journal_name_stamp` datetime DEFAULT NULL,
-  PRIMARY KEY (`rek_native_script_journal_name_id`),
-  UNIQUE KEY `rek_native_script_journal_name_2` (`rek_native_script_journal_name_pid`,`rek_native_script_journal_name_stamp`),
-  KEY `rek_native_script_journal_name` (`rek_native_script_journal_name`),
-  KEY `rek_native_script_journal_name_pid` (`rek_native_script_journal_name_pid`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Table structure for table `fez_record_search_key_native_script_proceedings_title`
@@ -5487,25 +3986,7 @@ CREATE TABLE `fez_record_search_key_native_script_proceedings_title` (
 ) ENGINE=InnoDB AUTO_INCREMENT=113 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
---
--- Table structure for table `fez_record_search_key_native_script_proceedings_title__shadow`
---
 
-DROP TABLE IF EXISTS `fez_record_search_key_native_script_proceedings_title__shadow`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `fez_record_search_key_native_script_proceedings_title__shadow` (
-  `rek_native_script_proceedings_title_id` int(11) NOT NULL AUTO_INCREMENT,
-  `rek_native_script_proceedings_title_pid` varchar(64) DEFAULT NULL,
-  `rek_native_script_proceedings_title_xsdmf_id` int(11) DEFAULT NULL,
-  `rek_native_script_proceedings_title` varchar(255) DEFAULT NULL,
-  `rek_native_script_proceedings_title_stamp` datetime DEFAULT NULL,
-  PRIMARY KEY (`rek_native_script_proceedings_title_id`),
-  UNIQUE KEY `rek_native_script_proceedings__2` (`rek_native_script_proceedings_title_pid`,`rek_native_script_proceedings_title_stamp`),
-  KEY `rek_native_script_proceedings_title` (`rek_native_script_proceedings_title`),
-  KEY `rek_native_script_proceedings_title_pid` (`rek_native_script_proceedings_title_pid`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Table structure for table `fez_record_search_key_native_script_title`
@@ -5525,25 +4006,7 @@ CREATE TABLE `fez_record_search_key_native_script_title` (
 ) ENGINE=InnoDB AUTO_INCREMENT=1528 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
---
--- Table structure for table `fez_record_search_key_native_script_title__shadow`
---
 
-DROP TABLE IF EXISTS `fez_record_search_key_native_script_title__shadow`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `fez_record_search_key_native_script_title__shadow` (
-  `rek_native_script_title_id` int(11) NOT NULL AUTO_INCREMENT,
-  `rek_native_script_title_pid` varchar(64) DEFAULT NULL,
-  `rek_native_script_title_xsdmf_id` int(11) DEFAULT NULL,
-  `rek_native_script_title` varchar(255) DEFAULT NULL,
-  `rek_native_script_title_stamp` datetime DEFAULT NULL,
-  PRIMARY KEY (`rek_native_script_title_id`),
-  UNIQUE KEY `rek_native_script_title_pid_2` (`rek_native_script_title_pid`,`rek_native_script_title_stamp`),
-  KEY `rek_native_script_title` (`rek_native_script_title`),
-  KEY `rek_native_script_title_pid` (`rek_native_script_title_pid`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Table structure for table `fez_record_search_key_newspaper`
@@ -5565,26 +4028,7 @@ CREATE TABLE `fez_record_search_key_newspaper` (
 ) ENGINE=MyISAM AUTO_INCREMENT=1356 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
---
--- Table structure for table `fez_record_search_key_newspaper__shadow`
---
 
-DROP TABLE IF EXISTS `fez_record_search_key_newspaper__shadow`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `fez_record_search_key_newspaper__shadow` (
-  `rek_newspaper_id` int(11) NOT NULL AUTO_INCREMENT,
-  `rek_newspaper_pid` varchar(64) DEFAULT NULL,
-  `rek_newspaper_xsdmf_id` int(11) DEFAULT NULL,
-  `rek_newspaper` varchar(255) DEFAULT NULL,
-  `rek_newspaper_stamp` datetime DEFAULT NULL,
-  PRIMARY KEY (`rek_newspaper_id`),
-  UNIQUE KEY `rek_newspaper_pid` (`rek_newspaper_pid`),
-  UNIQUE KEY `rek_newspaper_pid_2` (`rek_newspaper_pid`,`rek_newspaper_stamp`),
-  KEY `rek_newspaper` (`rek_newspaper`),
-  FULLTEXT KEY `rek_newspaper_ft` (`rek_newspaper`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Table structure for table `fez_record_search_key_notes`
@@ -5604,25 +4048,7 @@ CREATE TABLE `fez_record_search_key_notes` (
 ) ENGINE=MyISAM AUTO_INCREMENT=609336 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
---
--- Table structure for table `fez_record_search_key_notes__shadow`
---
 
-DROP TABLE IF EXISTS `fez_record_search_key_notes__shadow`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `fez_record_search_key_notes__shadow` (
-  `rek_notes_id` int(11) NOT NULL AUTO_INCREMENT,
-  `rek_notes_pid` varchar(64) NOT NULL DEFAULT '',
-  `rek_notes_xsdmf_id` int(11) DEFAULT NULL,
-  `rek_notes` text,
-  `rek_notes_stamp` datetime DEFAULT NULL,
-  PRIMARY KEY (`rek_notes_id`),
-  UNIQUE KEY `rek_notes_pid` (`rek_notes_pid`),
-  UNIQUE KEY `rek_notes_pid_2` (`rek_notes_pid`,`rek_notes_stamp`),
-  FULLTEXT KEY `rek_notes` (`rek_notes`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Table structure for table `fez_record_search_key_org_id`
@@ -5641,24 +4067,7 @@ CREATE TABLE `fez_record_search_key_org_id` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
---
--- Table structure for table `fez_record_search_key_org_id__shadow`
---
 
-DROP TABLE IF EXISTS `fez_record_search_key_org_id__shadow`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `fez_record_search_key_org_id__shadow` (
-  `rek_org_id_id` int(11) NOT NULL AUTO_INCREMENT,
-  `rek_org_id_pid` varchar(64) DEFAULT NULL,
-  `rek_org_id_xsdmf_id` int(11) DEFAULT NULL,
-  `rek_org_id_order` int(11) DEFAULT '1',
-  `rek_org_id` varchar(255) DEFAULT NULL,
-  `rek_org_id_stamp` datetime DEFAULT NULL,
-  PRIMARY KEY (`rek_org_id_id`),
-  UNIQUE KEY `rek_org_id_pid` (`rek_org_id_pid`,`rek_org_id_stamp`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Table structure for table `fez_record_search_key_org_name`
@@ -5678,24 +4087,7 @@ CREATE TABLE `fez_record_search_key_org_name` (
 ) ENGINE=InnoDB AUTO_INCREMENT=155734 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
---
--- Table structure for table `fez_record_search_key_org_name__shadow`
---
 
-DROP TABLE IF EXISTS `fez_record_search_key_org_name__shadow`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `fez_record_search_key_org_name__shadow` (
-  `rek_org_name_id` int(11) NOT NULL AUTO_INCREMENT,
-  `rek_org_name_pid` varchar(64) DEFAULT NULL,
-  `rek_org_name_xsdmf_id` int(11) DEFAULT NULL,
-  `rek_org_name` varchar(255) DEFAULT NULL,
-  `rek_org_name_stamp` datetime DEFAULT NULL,
-  PRIMARY KEY (`rek_org_name_id`),
-  UNIQUE KEY `rek_org_name_pid` (`rek_org_name_pid`),
-  UNIQUE KEY `rek_org_name_pid_2` (`rek_org_name_pid`,`rek_org_name_stamp`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Table structure for table `fez_record_search_key_org_role`
@@ -5714,24 +4106,7 @@ CREATE TABLE `fez_record_search_key_org_role` (
 ) ENGINE=InnoDB AUTO_INCREMENT=27 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
---
--- Table structure for table `fez_record_search_key_org_role__shadow`
---
 
-DROP TABLE IF EXISTS `fez_record_search_key_org_role__shadow`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `fez_record_search_key_org_role__shadow` (
-  `rek_org_role_id` int(11) NOT NULL AUTO_INCREMENT,
-  `rek_org_role_pid` varchar(64) DEFAULT NULL,
-  `rek_org_role_xsdmf_id` int(11) DEFAULT NULL,
-  `rek_org_role_order` int(11) DEFAULT '1',
-  `rek_org_role` varchar(255) DEFAULT NULL,
-  `rek_org_role_stamp` datetime DEFAULT NULL,
-  PRIMARY KEY (`rek_org_role_id`),
-  UNIQUE KEY `rek_org_role_pid` (`rek_org_role_pid`,`rek_org_role_stamp`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Table structure for table `fez_record_search_key_org_unit_name`
@@ -5751,24 +4126,7 @@ CREATE TABLE `fez_record_search_key_org_unit_name` (
 ) ENGINE=InnoDB AUTO_INCREMENT=144974 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
---
--- Table structure for table `fez_record_search_key_org_unit_name__shadow`
---
 
-DROP TABLE IF EXISTS `fez_record_search_key_org_unit_name__shadow`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `fez_record_search_key_org_unit_name__shadow` (
-  `rek_org_unit_name_id` int(11) NOT NULL AUTO_INCREMENT,
-  `rek_org_unit_name_pid` varchar(64) DEFAULT NULL,
-  `rek_org_unit_name_xsdmf_id` int(11) DEFAULT NULL,
-  `rek_org_unit_name` varchar(255) DEFAULT NULL,
-  `rek_org_unit_name_stamp` datetime DEFAULT NULL,
-  PRIMARY KEY (`rek_org_unit_name_id`),
-  UNIQUE KEY `rek_org_unit_name_pid` (`rek_org_unit_name_pid`),
-  UNIQUE KEY `rek_org_unit_name_pid_2` (`rek_org_unit_name_pid`,`rek_org_unit_name_stamp`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Table structure for table `fez_record_search_key_output_availability`
@@ -5788,24 +4146,7 @@ CREATE TABLE `fez_record_search_key_output_availability` (
 ) ENGINE=InnoDB AUTO_INCREMENT=2527 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
---
--- Table structure for table `fez_record_search_key_output_availability__shadow`
---
 
-DROP TABLE IF EXISTS `fez_record_search_key_output_availability__shadow`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `fez_record_search_key_output_availability__shadow` (
-  `rek_output_availability_id` int(11) NOT NULL AUTO_INCREMENT,
-  `rek_output_availability_pid` varchar(64) DEFAULT NULL,
-  `rek_output_availability_xsdmf_id` int(11) DEFAULT NULL,
-  `rek_output_availability` varchar(1) DEFAULT NULL,
-  `rek_output_availability_stamp` datetime DEFAULT NULL,
-  PRIMARY KEY (`rek_output_availability_id`),
-  UNIQUE KEY `rek_output_availability_pid` (`rek_output_availability_pid`),
-  UNIQUE KEY `rek_output_availability_pid_2` (`rek_output_availability_pid`,`rek_output_availability_stamp`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Table structure for table `fez_record_search_key_parent_publication`
@@ -5827,26 +4168,7 @@ CREATE TABLE `fez_record_search_key_parent_publication` (
 ) ENGINE=MyISAM AUTO_INCREMENT=3044 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
---
--- Table structure for table `fez_record_search_key_parent_publication__shadow`
---
 
-DROP TABLE IF EXISTS `fez_record_search_key_parent_publication__shadow`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `fez_record_search_key_parent_publication__shadow` (
-  `rek_parent_publication_id` int(11) NOT NULL AUTO_INCREMENT,
-  `rek_parent_publication_pid` varchar(64) DEFAULT NULL,
-  `rek_parent_publication_xsdmf_id` int(11) DEFAULT NULL,
-  `rek_parent_publication` varchar(255) DEFAULT NULL,
-  `rek_parent_publication_stamp` datetime DEFAULT NULL,
-  PRIMARY KEY (`rek_parent_publication_id`),
-  UNIQUE KEY `rek_parent_publication_pid` (`rek_parent_publication_pid`),
-  UNIQUE KEY `rek_parent_publication_pid_2` (`rek_parent_publication_pid`,`rek_parent_publication_stamp`),
-  KEY `rek_parent_publication` (`rek_parent_publication`),
-  FULLTEXT KEY `rek_parent_publication_ft` (`rek_parent_publication`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Table structure for table `fez_record_search_key_patent_number`
@@ -5867,25 +4189,7 @@ CREATE TABLE `fez_record_search_key_patent_number` (
 ) ENGINE=InnoDB AUTO_INCREMENT=1625 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
---
--- Table structure for table `fez_record_search_key_patent_number__shadow`
---
 
-DROP TABLE IF EXISTS `fez_record_search_key_patent_number__shadow`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `fez_record_search_key_patent_number__shadow` (
-  `rek_patent_number_id` int(11) NOT NULL AUTO_INCREMENT,
-  `rek_patent_number_pid` varchar(64) DEFAULT NULL,
-  `rek_patent_number_xsdmf_id` int(11) DEFAULT NULL,
-  `rek_patent_number` varchar(255) DEFAULT NULL,
-  `rek_patent_number_stamp` datetime DEFAULT NULL,
-  PRIMARY KEY (`rek_patent_number_id`),
-  UNIQUE KEY `rek_patent_number_pid` (`rek_patent_number_pid`),
-  UNIQUE KEY `rek_patent_number_pid_2` (`rek_patent_number_pid`,`rek_patent_number_stamp`),
-  KEY `rek_patent_number` (`rek_patent_number`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Table structure for table `fez_record_search_key_period`
@@ -5907,27 +4211,7 @@ CREATE TABLE `fez_record_search_key_period` (
 ) ENGINE=MyISAM AUTO_INCREMENT=6004 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
---
--- Table structure for table `fez_record_search_key_period__shadow`
---
 
-DROP TABLE IF EXISTS `fez_record_search_key_period__shadow`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `fez_record_search_key_period__shadow` (
-  `rek_period_id` int(11) NOT NULL AUTO_INCREMENT,
-  `rek_period_pid` varchar(64) DEFAULT NULL,
-  `rek_period_xsdmf_id` int(11) DEFAULT NULL,
-  `rek_period_order` int(11) DEFAULT '1',
-  `rek_period` text,
-  `rek_period_stamp` datetime DEFAULT NULL,
-  PRIMARY KEY (`rek_period_id`),
-  UNIQUE KEY `unique_constraint_pid_order` (`rek_period_pid`,`rek_period_order`),
-  UNIQUE KEY `rek_period_pid_2` (`rek_period_pid`,`rek_period_stamp`),
-  KEY `rek_period_pid` (`rek_period_pid`),
-  FULLTEXT KEY `rek_period` (`rek_period`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Table structure for table `fez_record_search_key_phonetic_book_title`
@@ -5947,24 +4231,7 @@ CREATE TABLE `fez_record_search_key_phonetic_book_title` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
---
--- Table structure for table `fez_record_search_key_phonetic_book_title__shadow`
---
 
-DROP TABLE IF EXISTS `fez_record_search_key_phonetic_book_title__shadow`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `fez_record_search_key_phonetic_book_title__shadow` (
-  `rek_phonetic_book_title_id` int(11) NOT NULL AUTO_INCREMENT,
-  `rek_phonetic_book_title_pid` varchar(64) DEFAULT NULL,
-  `rek_phonetic_book_title_xsdmf_id` int(11) DEFAULT NULL,
-  `rek_phonetic_book_title` varchar(255) DEFAULT NULL,
-  `rek_phonetic_book_title_stamp` datetime DEFAULT NULL,
-  PRIMARY KEY (`rek_phonetic_book_title_id`),
-  UNIQUE KEY `rek_phonetic_book_title_pid` (`rek_phonetic_book_title_pid`),
-  UNIQUE KEY `rek_phonetic_book_title_pid_2` (`rek_phonetic_book_title_pid`,`rek_phonetic_book_title_stamp`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Table structure for table `fez_record_search_key_phonetic_conference_name`
@@ -5984,24 +4251,7 @@ CREATE TABLE `fez_record_search_key_phonetic_conference_name` (
 ) ENGINE=InnoDB AUTO_INCREMENT=15 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
---
--- Table structure for table `fez_record_search_key_phonetic_conference_name__shadow`
---
 
-DROP TABLE IF EXISTS `fez_record_search_key_phonetic_conference_name__shadow`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `fez_record_search_key_phonetic_conference_name__shadow` (
-  `rek_phonetic_conference_name_id` int(11) NOT NULL AUTO_INCREMENT,
-  `rek_phonetic_conference_name_pid` varchar(64) DEFAULT NULL,
-  `rek_phonetic_conference_name_xsdmf_id` int(11) DEFAULT NULL,
-  `rek_phonetic_conference_name` varchar(255) DEFAULT NULL,
-  `rek_phonetic_conference_name_stamp` datetime DEFAULT NULL,
-  PRIMARY KEY (`rek_phonetic_conference_name_id`),
-  UNIQUE KEY `rek_phonetic_conference_name_pid` (`rek_phonetic_conference_name_pid`),
-  UNIQUE KEY `rek_phonetic_conference_name_p_2` (`rek_phonetic_conference_name_pid`,`rek_phonetic_conference_name_stamp`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Table structure for table `fez_record_search_key_phonetic_journal_name`
@@ -6021,24 +4271,7 @@ CREATE TABLE `fez_record_search_key_phonetic_journal_name` (
 ) ENGINE=InnoDB AUTO_INCREMENT=38 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
---
--- Table structure for table `fez_record_search_key_phonetic_journal_name__shadow`
---
 
-DROP TABLE IF EXISTS `fez_record_search_key_phonetic_journal_name__shadow`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `fez_record_search_key_phonetic_journal_name__shadow` (
-  `rek_phonetic_journal_name_id` int(11) NOT NULL AUTO_INCREMENT,
-  `rek_phonetic_journal_name_pid` varchar(64) DEFAULT NULL,
-  `rek_phonetic_journal_name_xsdmf_id` int(11) DEFAULT NULL,
-  `rek_phonetic_journal_name` varchar(255) DEFAULT NULL,
-  `rek_phonetic_journal_name_stamp` datetime DEFAULT NULL,
-  PRIMARY KEY (`rek_phonetic_journal_name_id`),
-  UNIQUE KEY `rek_phonetic_journal_name_pid` (`rek_phonetic_journal_name_pid`),
-  UNIQUE KEY `rek_phonetic_journal_name_pid_2` (`rek_phonetic_journal_name_pid`,`rek_phonetic_journal_name_stamp`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Table structure for table `fez_record_search_key_phonetic_newspaper`
@@ -6058,24 +4291,7 @@ CREATE TABLE `fez_record_search_key_phonetic_newspaper` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
---
--- Table structure for table `fez_record_search_key_phonetic_newspaper__shadow`
---
 
-DROP TABLE IF EXISTS `fez_record_search_key_phonetic_newspaper__shadow`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `fez_record_search_key_phonetic_newspaper__shadow` (
-  `rek_phonetic_newspaper_id` int(11) NOT NULL AUTO_INCREMENT,
-  `rek_phonetic_newspaper_pid` varchar(64) DEFAULT NULL,
-  `rek_phonetic_newspaper_xsdmf_id` int(11) DEFAULT NULL,
-  `rek_phonetic_newspaper` varchar(255) DEFAULT NULL,
-  `rek_phonetic_newspaper_stamp` datetime DEFAULT NULL,
-  PRIMARY KEY (`rek_phonetic_newspaper_id`),
-  UNIQUE KEY `rek_phonetic_newspaper_pid` (`rek_phonetic_newspaper_pid`),
-  UNIQUE KEY `rek_phonetic_newspaper_pid_2` (`rek_phonetic_newspaper_pid`,`rek_phonetic_newspaper_stamp`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Table structure for table `fez_record_search_key_phonetic_title`
@@ -6095,24 +4311,7 @@ CREATE TABLE `fez_record_search_key_phonetic_title` (
 ) ENGINE=InnoDB AUTO_INCREMENT=1987 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
---
--- Table structure for table `fez_record_search_key_phonetic_title__shadow`
---
 
-DROP TABLE IF EXISTS `fez_record_search_key_phonetic_title__shadow`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `fez_record_search_key_phonetic_title__shadow` (
-  `rek_phonetic_title_id` int(11) NOT NULL AUTO_INCREMENT,
-  `rek_phonetic_title_pid` varchar(64) DEFAULT NULL,
-  `rek_phonetic_title_xsdmf_id` int(11) DEFAULT NULL,
-  `rek_phonetic_title` varchar(255) DEFAULT NULL,
-  `rek_phonetic_title_stamp` datetime DEFAULT NULL,
-  PRIMARY KEY (`rek_phonetic_title_id`),
-  UNIQUE KEY `rek_phonetic_title_pid` (`rek_phonetic_title_pid`),
-  UNIQUE KEY `rek_phonetic_title_pid_2` (`rek_phonetic_title_pid`,`rek_phonetic_title_stamp`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Table structure for table `fez_record_search_key_place_of_publication`
@@ -6134,26 +4333,7 @@ CREATE TABLE `fez_record_search_key_place_of_publication` (
 ) ENGINE=MyISAM AUTO_INCREMENT=2752608 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
---
--- Table structure for table `fez_record_search_key_place_of_publication__shadow`
---
 
-DROP TABLE IF EXISTS `fez_record_search_key_place_of_publication__shadow`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `fez_record_search_key_place_of_publication__shadow` (
-  `rek_place_of_publication_id` int(11) NOT NULL AUTO_INCREMENT,
-  `rek_place_of_publication_pid` varchar(64) DEFAULT NULL,
-  `rek_place_of_publication_xsdmf_id` int(11) DEFAULT NULL,
-  `rek_place_of_publication` varchar(255) DEFAULT NULL,
-  `rek_place_of_publication_stamp` datetime DEFAULT NULL,
-  PRIMARY KEY (`rek_place_of_publication_id`),
-  UNIQUE KEY `rek_place_of_publication_pid` (`rek_place_of_publication_pid`),
-  UNIQUE KEY `rek_place_of_publication_pid_2` (`rek_place_of_publication_pid`,`rek_place_of_publication_stamp`),
-  KEY `rek_place_of_publication` (`rek_place_of_publication`),
-  FULLTEXT KEY `rek_place_of_publication_ft` (`rek_place_of_publication`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Table structure for table `fez_record_search_key_prn`
@@ -6174,25 +4354,7 @@ CREATE TABLE `fez_record_search_key_prn` (
 ) ENGINE=InnoDB AUTO_INCREMENT=1062755 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
---
--- Table structure for table `fez_record_search_key_prn__shadow`
---
 
-DROP TABLE IF EXISTS `fez_record_search_key_prn__shadow`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `fez_record_search_key_prn__shadow` (
-  `rek_prn_id` int(11) NOT NULL AUTO_INCREMENT,
-  `rek_prn_pid` varchar(64) DEFAULT NULL,
-  `rek_prn_xsdmf_id` int(11) DEFAULT NULL,
-  `rek_prn` varchar(255) DEFAULT NULL,
-  `rek_prn_stamp` datetime DEFAULT NULL,
-  PRIMARY KEY (`rek_prn_id`),
-  UNIQUE KEY `rek_prn_pid` (`rek_prn_pid`),
-  UNIQUE KEY `rek_prn_pid_2` (`rek_prn_pid`,`rek_prn_stamp`),
-  KEY `rek_prn` (`rek_prn`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Table structure for table `fez_record_search_key_proceedings_title`
@@ -6214,26 +4376,7 @@ CREATE TABLE `fez_record_search_key_proceedings_title` (
 ) ENGINE=MyISAM AUTO_INCREMENT=597424 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
---
--- Table structure for table `fez_record_search_key_proceedings_title__shadow`
---
 
-DROP TABLE IF EXISTS `fez_record_search_key_proceedings_title__shadow`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `fez_record_search_key_proceedings_title__shadow` (
-  `rek_proceedings_title_id` int(11) NOT NULL AUTO_INCREMENT,
-  `rek_proceedings_title_pid` varchar(64) DEFAULT NULL,
-  `rek_proceedings_title_xsdmf_id` int(11) DEFAULT NULL,
-  `rek_proceedings_title` varchar(255) DEFAULT NULL,
-  `rek_proceedings_title_stamp` datetime DEFAULT NULL,
-  PRIMARY KEY (`rek_proceedings_title_id`),
-  UNIQUE KEY `rek_proceedings_title_pid` (`rek_proceedings_title_pid`),
-  UNIQUE KEY `rek_proceedings_title_pid_2` (`rek_proceedings_title_pid`,`rek_proceedings_title_stamp`),
-  KEY `rek_proceedings_title` (`rek_proceedings_title`),
-  FULLTEXT KEY `rek_proceedings_title_ft` (`rek_proceedings_title`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Table structure for table `fez_record_search_key_publisher`
@@ -6255,26 +4398,7 @@ CREATE TABLE `fez_record_search_key_publisher` (
 ) ENGINE=MyISAM AUTO_INCREMENT=2860672 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
---
--- Table structure for table `fez_record_search_key_publisher__shadow`
---
 
-DROP TABLE IF EXISTS `fez_record_search_key_publisher__shadow`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `fez_record_search_key_publisher__shadow` (
-  `rek_publisher_id` int(11) NOT NULL AUTO_INCREMENT,
-  `rek_publisher_pid` varchar(64) DEFAULT NULL,
-  `rek_publisher_xsdmf_id` int(11) DEFAULT NULL,
-  `rek_publisher` varchar(255) DEFAULT NULL,
-  `rek_publisher_stamp` datetime DEFAULT NULL,
-  PRIMARY KEY (`rek_publisher_id`),
-  UNIQUE KEY `rek_publisher_pid` (`rek_publisher_pid`),
-  UNIQUE KEY `rek_publisher_pid_2` (`rek_publisher_pid`,`rek_publisher_stamp`),
-  KEY `rek_publisher` (`rek_publisher`),
-  FULLTEXT KEY `rek_publisher_ft` (`rek_publisher`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Table structure for table `fez_record_search_key_publisher_id`
@@ -6294,25 +4418,7 @@ CREATE TABLE `fez_record_search_key_publisher_id` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
---
--- Table structure for table `fez_record_search_key_publisher_id__shadow`
---
 
-DROP TABLE IF EXISTS `fez_record_search_key_publisher_id__shadow`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `fez_record_search_key_publisher_id__shadow` (
-  `rek_publisher_id_id` int(11) NOT NULL AUTO_INCREMENT,
-  `rek_publisher_id_pid` varchar(64) DEFAULT NULL,
-  `rek_publisher_id_xsdmf_id` int(11) DEFAULT NULL,
-  `rek_publisher_id` int(11) DEFAULT NULL,
-  `rek_publisher_id_stamp` datetime DEFAULT NULL,
-  PRIMARY KEY (`rek_publisher_id_id`),
-  UNIQUE KEY `rek_publisher_id_pid_2` (`rek_publisher_id_pid`,`rek_publisher_id_stamp`),
-  KEY `rek_publisher_id` (`rek_publisher_id`),
-  KEY `rek_publisher_id_pid` (`rek_publisher_id_pid`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Table structure for table `fez_record_search_key_refereed`
@@ -6333,25 +4439,7 @@ CREATE TABLE `fez_record_search_key_refereed` (
 ) ENGINE=InnoDB AUTO_INCREMENT=1406195 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
---
--- Table structure for table `fez_record_search_key_refereed__shadow`
---
 
-DROP TABLE IF EXISTS `fez_record_search_key_refereed__shadow`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `fez_record_search_key_refereed__shadow` (
-  `rek_refereed_id` int(11) NOT NULL AUTO_INCREMENT,
-  `rek_refereed_pid` varchar(64) DEFAULT NULL,
-  `rek_refereed_xsdmf_id` int(11) DEFAULT NULL,
-  `rek_refereed` int(11) DEFAULT NULL,
-  `rek_refereed_stamp` datetime DEFAULT NULL,
-  PRIMARY KEY (`rek_refereed_id`),
-  UNIQUE KEY `rek_refereed_pid` (`rek_refereed_pid`),
-  UNIQUE KEY `rek_refereed_pid_2` (`rek_refereed_pid`,`rek_refereed_stamp`),
-  KEY `rek_refereed` (`rek_refereed`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Table structure for table `fez_record_search_key_report_number`
@@ -6371,24 +4459,7 @@ CREATE TABLE `fez_record_search_key_report_number` (
 ) ENGINE=InnoDB AUTO_INCREMENT=7535 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
---
--- Table structure for table `fez_record_search_key_report_number__shadow`
---
 
-DROP TABLE IF EXISTS `fez_record_search_key_report_number__shadow`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `fez_record_search_key_report_number__shadow` (
-  `rek_report_number_id` int(11) NOT NULL AUTO_INCREMENT,
-  `rek_report_number_pid` varchar(64) DEFAULT NULL,
-  `rek_report_number_xsdmf_id` int(11) DEFAULT NULL,
-  `rek_report_number` varchar(255) DEFAULT NULL,
-  `rek_report_number_stamp` datetime DEFAULT NULL,
-  PRIMARY KEY (`rek_report_number_id`),
-  UNIQUE KEY `rek_report_number_pid` (`rek_report_number_pid`),
-  UNIQUE KEY `rek_report_number_pid_2` (`rek_report_number_pid`,`rek_report_number_stamp`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Table structure for table `fez_record_search_key_research_program`
@@ -6412,28 +4483,7 @@ CREATE TABLE `fez_record_search_key_research_program` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
---
--- Table structure for table `fez_record_search_key_research_program__shadow`
---
 
-DROP TABLE IF EXISTS `fez_record_search_key_research_program__shadow`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `fez_record_search_key_research_program__shadow` (
-  `rek_research_program_id` int(11) NOT NULL AUTO_INCREMENT,
-  `rek_research_program_pid` varchar(64) DEFAULT NULL,
-  `rek_research_program_xsdmf_id` int(11) DEFAULT NULL,
-  `rek_research_program` varchar(255) DEFAULT NULL,
-  `rek_research_program_order` int(11) DEFAULT '1',
-  `rek_research_program_stamp` datetime DEFAULT NULL,
-  PRIMARY KEY (`rek_research_program_id`),
-  UNIQUE KEY `unique_constraint_pid_order` (`rek_research_program_pid`,`rek_research_program_order`),
-  UNIQUE KEY `rek_research_program_pid_2` (`rek_research_program_pid`,`rek_research_program_stamp`),
-  KEY `rek_research_program_pid` (`rek_research_program_pid`),
-  KEY `rek_research_program` (`rek_research_program`),
-  KEY `rek_research_program_order` (`rek_research_program_order`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Table structure for table `fez_record_search_key_rights`
@@ -6452,24 +4502,7 @@ CREATE TABLE `fez_record_search_key_rights` (
 ) ENGINE=InnoDB AUTO_INCREMENT=21886 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
---
--- Table structure for table `fez_record_search_key_rights__shadow`
---
 
-DROP TABLE IF EXISTS `fez_record_search_key_rights__shadow`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `fez_record_search_key_rights__shadow` (
-  `rek_rights_id` int(11) NOT NULL AUTO_INCREMENT,
-  `rek_rights_pid` varchar(64) DEFAULT NULL,
-  `rek_rights_xsdmf_id` int(11) DEFAULT NULL,
-  `rek_rights` text,
-  `rek_rights_stamp` datetime DEFAULT NULL,
-  PRIMARY KEY (`rek_rights_id`),
-  UNIQUE KEY `rek_rights_pid` (`rek_rights_pid`),
-  UNIQUE KEY `rek_rights_pid_2` (`rek_rights_pid`,`rek_rights_stamp`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Table structure for table `fez_record_search_key_roman_script_book_title`
@@ -6489,25 +4522,7 @@ CREATE TABLE `fez_record_search_key_roman_script_book_title` (
 ) ENGINE=InnoDB AUTO_INCREMENT=631 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
---
--- Table structure for table `fez_record_search_key_roman_script_book_title__shadow`
---
 
-DROP TABLE IF EXISTS `fez_record_search_key_roman_script_book_title__shadow`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `fez_record_search_key_roman_script_book_title__shadow` (
-  `rek_roman_script_book_title_id` int(11) NOT NULL AUTO_INCREMENT,
-  `rek_roman_script_book_title_pid` varchar(64) DEFAULT NULL,
-  `rek_roman_script_book_title_xsdmf_id` int(11) DEFAULT NULL,
-  `rek_roman_script_book_title` varchar(255) DEFAULT NULL,
-  `rek_roman_script_book_title_stamp` datetime DEFAULT NULL,
-  PRIMARY KEY (`rek_roman_script_book_title_id`),
-  UNIQUE KEY `rek_roman_script_book_title_pi_2` (`rek_roman_script_book_title_pid`,`rek_roman_script_book_title_stamp`),
-  KEY `rek_roman_script_book_title` (`rek_roman_script_book_title`),
-  KEY `rek_roman_script_book_title_pid` (`rek_roman_script_book_title_pid`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Table structure for table `fez_record_search_key_roman_script_conference_name`
@@ -6527,25 +4542,7 @@ CREATE TABLE `fez_record_search_key_roman_script_conference_name` (
 ) ENGINE=InnoDB AUTO_INCREMENT=123 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
---
--- Table structure for table `fez_record_search_key_roman_script_conference_name__shadow`
---
 
-DROP TABLE IF EXISTS `fez_record_search_key_roman_script_conference_name__shadow`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `fez_record_search_key_roman_script_conference_name__shadow` (
-  `rek_roman_script_conference_name_id` int(11) NOT NULL AUTO_INCREMENT,
-  `rek_roman_script_conference_name_pid` varchar(64) DEFAULT NULL,
-  `rek_roman_script_conference_name_xsdmf_id` int(11) DEFAULT NULL,
-  `rek_roman_script_conference_name` varchar(255) DEFAULT NULL,
-  `rek_roman_script_conference_name_stamp` datetime DEFAULT NULL,
-  PRIMARY KEY (`rek_roman_script_conference_name_id`),
-  UNIQUE KEY `rek_roman_script_conference_na_2` (`rek_roman_script_conference_name_pid`,`rek_roman_script_conference_name_stamp`),
-  KEY `rek_roman_script_conference_name` (`rek_roman_script_conference_name`),
-  KEY `rek_roman_script_conference_name_pid` (`rek_roman_script_conference_name_pid`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Table structure for table `fez_record_search_key_roman_script_journal_name`
@@ -6565,25 +4562,7 @@ CREATE TABLE `fez_record_search_key_roman_script_journal_name` (
 ) ENGINE=InnoDB AUTO_INCREMENT=1106 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
---
--- Table structure for table `fez_record_search_key_roman_script_journal_name__shadow`
---
 
-DROP TABLE IF EXISTS `fez_record_search_key_roman_script_journal_name__shadow`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `fez_record_search_key_roman_script_journal_name__shadow` (
-  `rek_roman_script_journal_name_id` int(11) NOT NULL AUTO_INCREMENT,
-  `rek_roman_script_journal_name_pid` varchar(64) DEFAULT NULL,
-  `rek_roman_script_journal_name_xsdmf_id` int(11) DEFAULT NULL,
-  `rek_roman_script_journal_name` varchar(255) DEFAULT NULL,
-  `rek_roman_script_journal_name_stamp` datetime DEFAULT NULL,
-  PRIMARY KEY (`rek_roman_script_journal_name_id`),
-  UNIQUE KEY `rek_roman_script_journal_name__2` (`rek_roman_script_journal_name_pid`,`rek_roman_script_journal_name_stamp`),
-  KEY `rek_roman_script_journal_name` (`rek_roman_script_journal_name`),
-  KEY `rek_roman_script_journal_name_pid` (`rek_roman_script_journal_name_pid`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Table structure for table `fez_record_search_key_roman_script_proceedings_title`
@@ -6603,25 +4582,7 @@ CREATE TABLE `fez_record_search_key_roman_script_proceedings_title` (
 ) ENGINE=InnoDB AUTO_INCREMENT=117 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
---
--- Table structure for table `fez_record_search_key_roman_script_proceedings_title__shadow`
---
 
-DROP TABLE IF EXISTS `fez_record_search_key_roman_script_proceedings_title__shadow`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `fez_record_search_key_roman_script_proceedings_title__shadow` (
-  `rek_roman_script_proceedings_title_id` int(11) NOT NULL AUTO_INCREMENT,
-  `rek_roman_script_proceedings_title_pid` varchar(64) DEFAULT NULL,
-  `rek_roman_script_proceedings_title_xsdmf_id` int(11) DEFAULT NULL,
-  `rek_roman_script_proceedings_title` varchar(255) DEFAULT NULL,
-  `rek_roman_script_proceedings_title_stamp` datetime DEFAULT NULL,
-  PRIMARY KEY (`rek_roman_script_proceedings_title_id`),
-  UNIQUE KEY `rek_roman_script_proceedings_t_2` (`rek_roman_script_proceedings_title_pid`,`rek_roman_script_proceedings_title_stamp`),
-  KEY `rek_roman_script_proceedings_title` (`rek_roman_script_proceedings_title`),
-  KEY `rek_roman_script_proceedings_title_pid` (`rek_roman_script_proceedings_title_pid`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Table structure for table `fez_record_search_key_roman_script_title`
@@ -6641,25 +4602,7 @@ CREATE TABLE `fez_record_search_key_roman_script_title` (
 ) ENGINE=InnoDB AUTO_INCREMENT=1495 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
---
--- Table structure for table `fez_record_search_key_roman_script_title__shadow`
---
 
-DROP TABLE IF EXISTS `fez_record_search_key_roman_script_title__shadow`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `fez_record_search_key_roman_script_title__shadow` (
-  `rek_roman_script_title_id` int(11) NOT NULL AUTO_INCREMENT,
-  `rek_roman_script_title_pid` varchar(64) DEFAULT NULL,
-  `rek_roman_script_title_xsdmf_id` int(11) DEFAULT NULL,
-  `rek_roman_script_title` varchar(255) DEFAULT NULL,
-  `rek_roman_script_title_stamp` datetime DEFAULT NULL,
-  PRIMARY KEY (`rek_roman_script_title_id`),
-  UNIQUE KEY `rek_roman_script_title_pid_2` (`rek_roman_script_title_pid`,`rek_roman_script_title_stamp`),
-  KEY `rek_roman_script_title` (`rek_roman_script_title`),
-  KEY `rek_roman_script_title_pid` (`rek_roman_script_title_pid`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Table structure for table `fez_record_search_key_scopus_id`
@@ -6680,25 +4623,7 @@ CREATE TABLE `fez_record_search_key_scopus_id` (
 ) ENGINE=InnoDB AUTO_INCREMENT=1278950 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
---
--- Table structure for table `fez_record_search_key_scopus_id__shadow`
---
 
-DROP TABLE IF EXISTS `fez_record_search_key_scopus_id__shadow`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `fez_record_search_key_scopus_id__shadow` (
-  `rek_scopus_id_id` int(11) NOT NULL AUTO_INCREMENT,
-  `rek_scopus_id_pid` varchar(64) DEFAULT NULL,
-  `rek_scopus_id_xsdmf_id` int(11) DEFAULT NULL,
-  `rek_scopus_id` varchar(255) DEFAULT NULL,
-  `rek_scopus_id_stamp` datetime DEFAULT NULL,
-  PRIMARY KEY (`rek_scopus_id_id`),
-  UNIQUE KEY `rek_scopus_id_pid` (`rek_scopus_id_pid`),
-  UNIQUE KEY `rek_scopus_id_pid_2` (`rek_scopus_id_pid`,`rek_scopus_id_stamp`),
-  KEY `rek_scopus_id` (`rek_scopus_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Table structure for table `fez_record_search_key_sensitivity_explanation`
@@ -6718,25 +4643,7 @@ CREATE TABLE `fez_record_search_key_sensitivity_explanation` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
---
--- Table structure for table `fez_record_search_key_sensitivity_explanation__shadow`
---
 
-DROP TABLE IF EXISTS `fez_record_search_key_sensitivity_explanation__shadow`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `fez_record_search_key_sensitivity_explanation__shadow` (
-  `rek_sensitivity_explanation_id` int(11) NOT NULL AUTO_INCREMENT,
-  `rek_sensitivity_explanation_pid` varchar(64) DEFAULT NULL,
-  `rek_sensitivity_explanation_xsdmf_id` int(11) DEFAULT NULL,
-  `rek_sensitivity_explanation` text,
-  `rek_sensitivity_explanation_stamp` datetime DEFAULT NULL,
-  PRIMARY KEY (`rek_sensitivity_explanation_id`),
-  UNIQUE KEY `rek_sensitivity_explanation_pid` (`rek_sensitivity_explanation_pid`),
-  UNIQUE KEY `rek_sensitivity_explanation_pi_2` (`rek_sensitivity_explanation_pid`,`rek_sensitivity_explanation_stamp`),
-  FULLTEXT KEY `rek_sensitivity_explanation` (`rek_sensitivity_explanation`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Table structure for table `fez_record_search_key_series`
@@ -6758,26 +4665,7 @@ CREATE TABLE `fez_record_search_key_series` (
 ) ENGINE=MyISAM AUTO_INCREMENT=42757 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
---
--- Table structure for table `fez_record_search_key_series__shadow`
---
 
-DROP TABLE IF EXISTS `fez_record_search_key_series__shadow`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `fez_record_search_key_series__shadow` (
-  `rek_series_id` int(11) NOT NULL AUTO_INCREMENT,
-  `rek_series_pid` varchar(64) DEFAULT NULL,
-  `rek_series_xsdmf_id` int(11) DEFAULT NULL,
-  `rek_series` varchar(255) DEFAULT NULL,
-  `rek_series_stamp` datetime DEFAULT NULL,
-  PRIMARY KEY (`rek_series_id`),
-  UNIQUE KEY `rek_series_pid` (`rek_series_pid`),
-  UNIQUE KEY `rek_series_pid_2` (`rek_series_pid`,`rek_series_stamp`),
-  KEY `rek_series` (`rek_series`),
-  FULLTEXT KEY `rek_series_ft` (`rek_series`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Table structure for table `fez_record_search_key_start_date`
@@ -6797,25 +4685,7 @@ CREATE TABLE `fez_record_search_key_start_date` (
 ) ENGINE=InnoDB AUTO_INCREMENT=19 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
---
--- Table structure for table `fez_record_search_key_start_date__shadow`
---
 
-DROP TABLE IF EXISTS `fez_record_search_key_start_date__shadow`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `fez_record_search_key_start_date__shadow` (
-  `rek_start_date_id` int(11) NOT NULL AUTO_INCREMENT,
-  `rek_start_date_pid` varchar(64) DEFAULT NULL,
-  `rek_start_date_xsdmf_id` int(11) DEFAULT NULL,
-  `rek_start_date` datetime DEFAULT NULL,
-  `rek_start_date_stamp` datetime DEFAULT NULL,
-  PRIMARY KEY (`rek_start_date_id`),
-  UNIQUE KEY `rek_start_date_pid_2` (`rek_start_date_pid`,`rek_start_date_stamp`),
-  KEY `rek_start_date` (`rek_start_date`),
-  KEY `rek_start_date_pid` (`rek_start_date_pid`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Table structure for table `fez_record_search_key_start_page`
@@ -6836,25 +4706,7 @@ CREATE TABLE `fez_record_search_key_start_page` (
 ) ENGINE=InnoDB AUTO_INCREMENT=3733853 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
---
--- Table structure for table `fez_record_search_key_start_page__shadow`
---
 
-DROP TABLE IF EXISTS `fez_record_search_key_start_page__shadow`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `fez_record_search_key_start_page__shadow` (
-  `rek_start_page_id` int(11) NOT NULL AUTO_INCREMENT,
-  `rek_start_page_pid` varchar(64) DEFAULT NULL,
-  `rek_start_page_xsdmf_id` int(11) DEFAULT NULL,
-  `rek_start_page` varchar(255) DEFAULT NULL,
-  `rek_start_page_stamp` datetime DEFAULT NULL,
-  PRIMARY KEY (`rek_start_page_id`),
-  UNIQUE KEY `rek_start_page_pid` (`rek_start_page_pid`),
-  UNIQUE KEY `rek_start_page_pid_2` (`rek_start_page_pid`,`rek_start_page_stamp`),
-  KEY `rek_start_page` (`rek_start_page`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Table structure for table `fez_record_search_key_structural_systems`
@@ -6876,27 +4728,7 @@ CREATE TABLE `fez_record_search_key_structural_systems` (
 ) ENGINE=MyISAM AUTO_INCREMENT=19633 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
---
--- Table structure for table `fez_record_search_key_structural_systems__shadow`
---
 
-DROP TABLE IF EXISTS `fez_record_search_key_structural_systems__shadow`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `fez_record_search_key_structural_systems__shadow` (
-  `rek_structural_systems_id` int(11) NOT NULL AUTO_INCREMENT,
-  `rek_structural_systems_pid` varchar(64) DEFAULT NULL,
-  `rek_structural_systems_xsdmf_id` int(11) DEFAULT NULL,
-  `rek_structural_systems_order` int(11) DEFAULT '1',
-  `rek_structural_systems` text,
-  `rek_structural_systems_stamp` datetime DEFAULT NULL,
-  PRIMARY KEY (`rek_structural_systems_id`),
-  UNIQUE KEY `unique_constraint_pid_order` (`rek_structural_systems_pid`,`rek_structural_systems_order`),
-  UNIQUE KEY `rek_structural_systems_pid_2` (`rek_structural_systems_pid`,`rek_structural_systems_stamp`),
-  KEY `rek_structural_systems_pid` (`rek_structural_systems_pid`),
-  FULLTEXT KEY `rek_structural_systems` (`rek_structural_systems`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Table structure for table `fez_record_search_key_style`
@@ -6918,27 +4750,7 @@ CREATE TABLE `fez_record_search_key_style` (
 ) ENGINE=MyISAM AUTO_INCREMENT=1493 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
---
--- Table structure for table `fez_record_search_key_style__shadow`
---
 
-DROP TABLE IF EXISTS `fez_record_search_key_style__shadow`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `fez_record_search_key_style__shadow` (
-  `rek_style_id` int(11) NOT NULL AUTO_INCREMENT,
-  `rek_style_pid` varchar(64) DEFAULT NULL,
-  `rek_style_xsdmf_id` int(11) DEFAULT NULL,
-  `rek_style_order` int(11) DEFAULT '1',
-  `rek_style` text,
-  `rek_style_stamp` datetime DEFAULT NULL,
-  PRIMARY KEY (`rek_style_id`),
-  UNIQUE KEY `unique_constraint_pid_order` (`rek_style_pid`,`rek_style_order`),
-  UNIQUE KEY `rek_style_pid_2` (`rek_style_pid`,`rek_style_stamp`),
-  KEY `rek_style_pid` (`rek_style_pid`),
-  FULLTEXT KEY `rek_style` (`rek_style`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Table structure for table `fez_record_search_key_subcategory`
@@ -6960,27 +4772,7 @@ CREATE TABLE `fez_record_search_key_subcategory` (
 ) ENGINE=MyISAM AUTO_INCREMENT=16027 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
---
--- Table structure for table `fez_record_search_key_subcategory__shadow`
---
 
-DROP TABLE IF EXISTS `fez_record_search_key_subcategory__shadow`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `fez_record_search_key_subcategory__shadow` (
-  `rek_subcategory_id` int(11) NOT NULL AUTO_INCREMENT,
-  `rek_subcategory_pid` varchar(64) DEFAULT NULL,
-  `rek_subcategory_xsdmf_id` int(11) DEFAULT NULL,
-  `rek_subcategory_order` int(11) DEFAULT '1',
-  `rek_subcategory` varchar(255) DEFAULT NULL,
-  `rek_subcategory_stamp` datetime DEFAULT NULL,
-  PRIMARY KEY (`rek_subcategory_id`),
-  UNIQUE KEY `unique_constraint_pid_order` (`rek_subcategory_pid`,`rek_subcategory_order`),
-  UNIQUE KEY `rek_subcategory_pid_2` (`rek_subcategory_pid`,`rek_subcategory_stamp`),
-  KEY `rek_subcategory_pid` (`rek_subcategory_pid`),
-  FULLTEXT KEY `rek_subcategory` (`rek_subcategory`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Table structure for table `fez_record_search_key_subject`
@@ -7004,28 +4796,7 @@ CREATE TABLE `fez_record_search_key_subject` (
 ) ENGINE=InnoDB AUTO_INCREMENT=6611157 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
---
--- Table structure for table `fez_record_search_key_subject__shadow`
---
 
-DROP TABLE IF EXISTS `fez_record_search_key_subject__shadow`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `fez_record_search_key_subject__shadow` (
-  `rek_subject_id` int(11) NOT NULL AUTO_INCREMENT,
-  `rek_subject_pid` varchar(64) DEFAULT NULL,
-  `rek_subject_xsdmf_id` int(11) DEFAULT NULL,
-  `rek_subject` int(11) DEFAULT NULL,
-  `rek_subject_order` int(11) DEFAULT '1',
-  `rek_subject_stamp` datetime DEFAULT NULL,
-  PRIMARY KEY (`rek_subject_id`),
-  UNIQUE KEY `unique_constraint_pid_order` (`rek_subject_pid`,`rek_subject_order`),
-  UNIQUE KEY `rek_subject_pid_2` (`rek_subject_pid`,`rek_subject_stamp`),
-  KEY `rek_subject_pid` (`rek_subject_pid`,`rek_subject`),
-  KEY `rek_subject` (`rek_subject`),
-  KEY `rek_subject_order` (`rek_subject_order`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Table structure for table `fez_record_search_key_surrounding_features`
@@ -7047,27 +4818,7 @@ CREATE TABLE `fez_record_search_key_surrounding_features` (
 ) ENGINE=MyISAM AUTO_INCREMENT=5842 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
---
--- Table structure for table `fez_record_search_key_surrounding_features__shadow`
---
 
-DROP TABLE IF EXISTS `fez_record_search_key_surrounding_features__shadow`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `fez_record_search_key_surrounding_features__shadow` (
-  `rek_surrounding_features_id` int(11) NOT NULL AUTO_INCREMENT,
-  `rek_surrounding_features_pid` varchar(64) DEFAULT NULL,
-  `rek_surrounding_features_xsdmf_id` int(11) DEFAULT NULL,
-  `rek_surrounding_features_order` int(11) DEFAULT '1',
-  `rek_surrounding_features` text,
-  `rek_surrounding_features_stamp` datetime DEFAULT NULL,
-  PRIMARY KEY (`rek_surrounding_features_id`),
-  UNIQUE KEY `unique_constraint_pid_order` (`rek_surrounding_features_pid`,`rek_surrounding_features_order`),
-  UNIQUE KEY `rek_surrounding_features_pid_2` (`rek_surrounding_features_pid`,`rek_surrounding_features_stamp`),
-  KEY `rek_surrounding_features_pid` (`rek_surrounding_features_pid`),
-  FULLTEXT KEY `rek_surrounding_features` (`rek_surrounding_features`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Table structure for table `fez_record_search_key_total_chapters`
@@ -7088,25 +4839,7 @@ CREATE TABLE `fez_record_search_key_total_chapters` (
 ) ENGINE=InnoDB AUTO_INCREMENT=97175 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
---
--- Table structure for table `fez_record_search_key_total_chapters__shadow`
---
 
-DROP TABLE IF EXISTS `fez_record_search_key_total_chapters__shadow`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `fez_record_search_key_total_chapters__shadow` (
-  `rek_total_chapters_id` int(11) NOT NULL AUTO_INCREMENT,
-  `rek_total_chapters_pid` varchar(64) DEFAULT NULL,
-  `rek_total_chapters_xsdmf_id` int(11) DEFAULT NULL,
-  `rek_total_chapters` varchar(255) DEFAULT NULL,
-  `rek_total_chapters_stamp` datetime DEFAULT NULL,
-  PRIMARY KEY (`rek_total_chapters_id`),
-  UNIQUE KEY `rek_total_chapters_pid` (`rek_total_chapters_pid`),
-  UNIQUE KEY `rek_total_chapters_pid_2` (`rek_total_chapters_pid`,`rek_total_chapters_stamp`),
-  KEY `rek_total_chapters` (`rek_total_chapters`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Table structure for table `fez_record_search_key_total_pages`
@@ -7127,25 +4860,7 @@ CREATE TABLE `fez_record_search_key_total_pages` (
 ) ENGINE=InnoDB AUTO_INCREMENT=3406767 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
---
--- Table structure for table `fez_record_search_key_total_pages__shadow`
---
 
-DROP TABLE IF EXISTS `fez_record_search_key_total_pages__shadow`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `fez_record_search_key_total_pages__shadow` (
-  `rek_total_pages_id` int(11) NOT NULL AUTO_INCREMENT,
-  `rek_total_pages_pid` varchar(64) DEFAULT NULL,
-  `rek_total_pages_xsdmf_id` int(11) DEFAULT NULL,
-  `rek_total_pages` varchar(255) DEFAULT NULL,
-  `rek_total_pages_stamp` datetime DEFAULT NULL,
-  PRIMARY KEY (`rek_total_pages_id`),
-  UNIQUE KEY `rek_total_pages_pid` (`rek_total_pages_pid`),
-  UNIQUE KEY `rek_total_pages_pid_2` (`rek_total_pages_pid`,`rek_total_pages_stamp`),
-  KEY `rek_total_pages` (`rek_total_pages`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Table structure for table `fez_record_search_key_translated_book_title`
@@ -7165,24 +4880,7 @@ CREATE TABLE `fez_record_search_key_translated_book_title` (
 ) ENGINE=InnoDB AUTO_INCREMENT=699 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
---
--- Table structure for table `fez_record_search_key_translated_book_title__shadow`
---
 
-DROP TABLE IF EXISTS `fez_record_search_key_translated_book_title__shadow`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `fez_record_search_key_translated_book_title__shadow` (
-  `rek_translated_book_title_id` int(11) NOT NULL AUTO_INCREMENT,
-  `rek_translated_book_title_pid` varchar(64) DEFAULT NULL,
-  `rek_translated_book_title_xsdmf_id` int(11) DEFAULT NULL,
-  `rek_translated_book_title` varchar(255) DEFAULT NULL,
-  `rek_translated_book_title_stamp` datetime DEFAULT NULL,
-  PRIMARY KEY (`rek_translated_book_title_id`),
-  UNIQUE KEY `rek_translated_book_title_pid` (`rek_translated_book_title_pid`),
-  UNIQUE KEY `rek_translated_book_title_pid_2` (`rek_translated_book_title_pid`,`rek_translated_book_title_stamp`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Table structure for table `fez_record_search_key_translated_conference_name`
@@ -7202,24 +4900,7 @@ CREATE TABLE `fez_record_search_key_translated_conference_name` (
 ) ENGINE=InnoDB AUTO_INCREMENT=161 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
---
--- Table structure for table `fez_record_search_key_translated_conference_name__shadow`
---
 
-DROP TABLE IF EXISTS `fez_record_search_key_translated_conference_name__shadow`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `fez_record_search_key_translated_conference_name__shadow` (
-  `rek_translated_conference_name_id` int(11) NOT NULL AUTO_INCREMENT,
-  `rek_translated_conference_name_pid` varchar(64) DEFAULT NULL,
-  `rek_translated_conference_name_xsdmf_id` int(11) DEFAULT NULL,
-  `rek_translated_conference_name` varchar(255) DEFAULT NULL,
-  `rek_translated_conference_name_stamp` datetime DEFAULT NULL,
-  PRIMARY KEY (`rek_translated_conference_name_id`),
-  UNIQUE KEY `rek_translated_conference_name_pid` (`rek_translated_conference_name_pid`),
-  UNIQUE KEY `rek_translated_conference_name_2` (`rek_translated_conference_name_pid`,`rek_translated_conference_name_stamp`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Table structure for table `fez_record_search_key_translated_journal_name`
@@ -7239,24 +4920,7 @@ CREATE TABLE `fez_record_search_key_translated_journal_name` (
 ) ENGINE=InnoDB AUTO_INCREMENT=1147 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
---
--- Table structure for table `fez_record_search_key_translated_journal_name__shadow`
---
 
-DROP TABLE IF EXISTS `fez_record_search_key_translated_journal_name__shadow`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `fez_record_search_key_translated_journal_name__shadow` (
-  `rek_translated_journal_name_id` int(11) NOT NULL AUTO_INCREMENT,
-  `rek_translated_journal_name_pid` varchar(64) DEFAULT NULL,
-  `rek_translated_journal_name_xsdmf_id` int(11) DEFAULT NULL,
-  `rek_translated_journal_name` varchar(255) DEFAULT NULL,
-  `rek_translated_journal_name_stamp` datetime DEFAULT NULL,
-  PRIMARY KEY (`rek_translated_journal_name_id`),
-  UNIQUE KEY `rek_translated_journal_name_pid` (`rek_translated_journal_name_pid`),
-  UNIQUE KEY `rek_translated_journal_name_pi_2` (`rek_translated_journal_name_pid`,`rek_translated_journal_name_stamp`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Table structure for table `fez_record_search_key_translated_newspaper`
@@ -7276,24 +4940,7 @@ CREATE TABLE `fez_record_search_key_translated_newspaper` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
---
--- Table structure for table `fez_record_search_key_translated_newspaper__shadow`
---
 
-DROP TABLE IF EXISTS `fez_record_search_key_translated_newspaper__shadow`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `fez_record_search_key_translated_newspaper__shadow` (
-  `rek_translated_newspaper_id` int(11) NOT NULL AUTO_INCREMENT,
-  `rek_translated_newspaper_pid` varchar(64) DEFAULT NULL,
-  `rek_translated_newspaper_xsdmf_id` int(11) DEFAULT NULL,
-  `rek_translated_newspaper` varchar(255) DEFAULT NULL,
-  `rek_translated_newspaper_stamp` datetime DEFAULT NULL,
-  PRIMARY KEY (`rek_translated_newspaper_id`),
-  UNIQUE KEY `rek_translated_newspaper_pid` (`rek_translated_newspaper_pid`),
-  UNIQUE KEY `rek_translated_newspaper_pid_2` (`rek_translated_newspaper_pid`,`rek_translated_newspaper_stamp`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Table structure for table `fez_record_search_key_translated_proceedings_title`
@@ -7313,25 +4960,7 @@ CREATE TABLE `fez_record_search_key_translated_proceedings_title` (
 ) ENGINE=InnoDB AUTO_INCREMENT=125 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
---
--- Table structure for table `fez_record_search_key_translated_proceedings_title__shadow`
---
 
-DROP TABLE IF EXISTS `fez_record_search_key_translated_proceedings_title__shadow`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `fez_record_search_key_translated_proceedings_title__shadow` (
-  `rek_translated_proceedings_title_id` int(11) NOT NULL AUTO_INCREMENT,
-  `rek_translated_proceedings_title_pid` varchar(64) DEFAULT NULL,
-  `rek_translated_proceedings_title_xsdmf_id` int(11) DEFAULT NULL,
-  `rek_translated_proceedings_title` varchar(255) DEFAULT NULL,
-  `rek_translated_proceedings_title_stamp` datetime DEFAULT NULL,
-  PRIMARY KEY (`rek_translated_proceedings_title_id`),
-  UNIQUE KEY `rek_translated_proceedings_tit_2` (`rek_translated_proceedings_title_pid`,`rek_translated_proceedings_title_stamp`),
-  KEY `rek_translated_proceedings_title` (`rek_translated_proceedings_title`),
-  KEY `rek_translated_proceedings_title_pid` (`rek_translated_proceedings_title_pid`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Table structure for table `fez_record_search_key_translated_title`
@@ -7351,24 +4980,7 @@ CREATE TABLE `fez_record_search_key_translated_title` (
 ) ENGINE=InnoDB AUTO_INCREMENT=1945 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
---
--- Table structure for table `fez_record_search_key_translated_title__shadow`
---
 
-DROP TABLE IF EXISTS `fez_record_search_key_translated_title__shadow`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `fez_record_search_key_translated_title__shadow` (
-  `rek_translated_title_id` int(11) NOT NULL AUTO_INCREMENT,
-  `rek_translated_title_pid` varchar(64) DEFAULT NULL,
-  `rek_translated_title_xsdmf_id` int(11) DEFAULT NULL,
-  `rek_translated_title` varchar(255) DEFAULT NULL,
-  `rek_translated_title_stamp` datetime DEFAULT NULL,
-  PRIMARY KEY (`rek_translated_title_id`),
-  UNIQUE KEY `rek_translated_title_pid` (`rek_translated_title_pid`),
-  UNIQUE KEY `rek_translated_title_pid_2` (`rek_translated_title_pid`,`rek_translated_title_stamp`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Table structure for table `fez_record_search_key_volume_number`
@@ -7389,25 +5001,7 @@ CREATE TABLE `fez_record_search_key_volume_number` (
 ) ENGINE=InnoDB AUTO_INCREMENT=3452905 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
---
--- Table structure for table `fez_record_search_key_volume_number__shadow`
---
 
-DROP TABLE IF EXISTS `fez_record_search_key_volume_number__shadow`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `fez_record_search_key_volume_number__shadow` (
-  `rek_volume_number_id` int(11) NOT NULL AUTO_INCREMENT,
-  `rek_volume_number_pid` varchar(64) DEFAULT NULL,
-  `rek_volume_number_xsdmf_id` int(11) DEFAULT NULL,
-  `rek_volume_number` varchar(255) DEFAULT NULL,
-  `rek_volume_number_stamp` datetime DEFAULT NULL,
-  PRIMARY KEY (`rek_volume_number_id`),
-  UNIQUE KEY `rek_volume_number_pid` (`rek_volume_number_pid`),
-  UNIQUE KEY `rek_volume_number_pid_2` (`rek_volume_number_pid`,`rek_volume_number_stamp`),
-  KEY `rek_volume_number` (`rek_volume_number`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Table structure for table `fez_record_search_key_xsd_display_option`
@@ -7431,26 +5025,7 @@ CREATE TABLE `fez_record_search_key_xsd_display_option` (
 ) ENGINE=InnoDB AUTO_INCREMENT=72815 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
---
--- Table structure for table `fez_record_search_key_xsd_display_option__shadow`
---
 
-DROP TABLE IF EXISTS `fez_record_search_key_xsd_display_option__shadow`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `fez_record_search_key_xsd_display_option__shadow` (
-  `rek_xsd_display_option_id` int(11) NOT NULL AUTO_INCREMENT,
-  `rek_xsd_display_option_pid` varchar(64) DEFAULT NULL,
-  `rek_xsd_display_option_xsdmf_id` int(11) DEFAULT NULL,
-  `rek_xsd_display_option` int(11) DEFAULT NULL,
-  `rek_xsd_display_option_order` int(11) DEFAULT '1',
-  `rek_xsd_display_option_stamp` datetime DEFAULT NULL,
-  PRIMARY KEY (`rek_xsd_display_option_id`),
-  KEY `rek_xsd_display_option_pid` (`rek_xsd_display_option_pid`),
-  KEY `rek_xsd_display_option` (`rek_xsd_display_option`),
-  KEY `rek_xsd_display_option_order` (`rek_xsd_display_option_order`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Table structure for table `fez_rid_jobs`

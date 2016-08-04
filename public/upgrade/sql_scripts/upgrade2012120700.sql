@@ -12,20 +12,6 @@ CREATE TABLE IF NOT EXISTS %TABLE_PREFIX%record_search_key_fields_of_research (
   KEY rek_fields_of_research_order (rek_fields_of_research_order)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-CREATE TABLE IF NOT EXISTS %TABLE_PREFIX%record_search_key_fields_of_research__shadow (
-  rek_fields_of_research_id int(11) NOT NULL AUTO_INCREMENT,
-  rek_fields_of_research_pid varchar(64) DEFAULT NULL,
-  rek_fields_of_research_xsdmf_id int(11) DEFAULT NULL,
-  rek_fields_of_research int(11) DEFAULT NULL,
-  rek_fields_of_research_order int(11) DEFAULT '1',
-  rek_fields_of_research_stamp datetime DEFAULT NULL,
-  PRIMARY KEY (rek_fields_of_research_id),
-  UNIQUE KEY unique_constraint (rek_fields_of_research_pid,rek_fields_of_research_order,rek_fields_of_research_stamp),
-  KEY rek_fields_of_research_pid (rek_fields_of_research_pid),
-  KEY rek_fields_of_research (rek_fields_of_research),
-  KEY rek_fields_of_research_order (rek_fields_of_research_order)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
 CREATE TABLE IF NOT EXISTS %TABLE_PREFIX%record_search_key_seo_code (
   rek_seo_code_id int(11) NOT NULL AUTO_INCREMENT,
   rek_seo_code_pid varchar(64) DEFAULT NULL,
@@ -35,20 +21,6 @@ CREATE TABLE IF NOT EXISTS %TABLE_PREFIX%record_search_key_seo_code (
   PRIMARY KEY (rek_seo_code_id),
   UNIQUE KEY unique_constraint (rek_seo_code_pid,rek_seo_code,rek_seo_code_order),
   UNIQUE KEY unique_constraint_pid_order (rek_seo_code_pid,rek_seo_code_order),
-  KEY rek_seo_code_pid (rek_seo_code_pid),
-  KEY rek_seo_code (rek_seo_code),
-  KEY rek_seo_code_order (rek_seo_code_order)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
-CREATE TABLE IF NOT EXISTS %TABLE_PREFIX%record_search_key_seo_code__shadow (
-  rek_seo_code_id int(11) NOT NULL AUTO_INCREMENT,
-  rek_seo_code_pid varchar(64) DEFAULT NULL,
-  rek_seo_code_xsdmf_id int(11) DEFAULT NULL,
-  rek_seo_code int(11) DEFAULT NULL,
-  rek_seo_code_order int(11) DEFAULT '1',
-  rek_seo_code_stamp datetime DEFAULT NULL,
-  PRIMARY KEY (rek_seo_code_id),
-  UNIQUE KEY unique_constraint (rek_seo_code_pid,rek_seo_code_order,rek_seo_code_stamp),
   KEY rek_seo_code_pid (rek_seo_code_pid),
   KEY rek_seo_code (rek_seo_code),
   KEY rek_seo_code_order (rek_seo_code_order)

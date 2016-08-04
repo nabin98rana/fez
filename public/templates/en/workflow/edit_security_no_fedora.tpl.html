@@ -29,10 +29,12 @@
             })
             .change();
         });
+        function validateForm() {
+        }
     </script>
 {/literal}
 
-<table width="99%" bgcolor="{$cell_color}" border="0" cellspacing="0" cellpadding="1" align="center">
+<table width="100%" bgcolor="{$cell_color}" border="0" cellspacing="0" cellpadding="1" align="center">
 
 <input type="hidden" name="cat" value="update_security">
 <input type="hidden" name="xdis_id" value="{$xdis_id}">
@@ -56,6 +58,7 @@
 
             <tr>
                 <td bgcolor="{$light_color}" colspan="1">
+                    <label for="role" style="display:none">Role</label>
                     <select id="role" name="role">
                         {foreach from=$possible_roles key=k item=v}
                             <option value="{$k}">{$v}</option>
@@ -64,6 +67,7 @@
                 </td>
 
                 <td bgcolor="{$light_color}" colspan="1">
+                    <label for="groups_type" style="display:none">Group Type</label>
                     <select class="groups_type" id="groups_type" name="groups_type">
                         {foreach from=$group_types key=k item=v}
                             <option value="{$k}">{$v}</option>
@@ -71,51 +75,64 @@
                     </select>
                 </td>
                 <td bgcolor="{$light_color}" colspan="1">
-
+                  <label for="in_ad" style="display:none">In AD</label>
                     <select id="in_ad"  style="display: none;">
                         <option value="on">on</option>
                         <option value="off">off</option>
                     </select>
 
                     <input type="text" size="50" id="group_free_text" name ="group"  />
+
+                    <label for="internal_group_list" style="display:none">Internal Group List</label>
                     <select id="internal_group_list"  style="display: none;">
                         {foreach from=$internal_group_list key=k item=v}
                             <option value="{$k}">{$v}</option>
                         {/foreach}
                     </select>
+
+                    <label for="internal_user_list" style="display:none">Internal User List</label>
                     <select id="internal_user_list"  style="display: none;">
                         {foreach from=$internal_user_list key=k item=v}
                             <option value="{$k}">{$v}</option>
                         {/foreach}
                     </select>
                 </td>
-                <td bgcolor="{$light_color}" colspan="3"></td>
+                <td bgcolor="{$light_color}" colspan="3">
+                  &nbsp;&nbsp;&nbsp;<input type="submit" name="submit" value="Add" />
+                </td>
             </tr>
+            <tr>
+                <td style="width: 4px; text-align: center; white-space: nowrap; background: {$row_color}" colspan='4'>
+
+                </td>
+            </tr>
+            {if ($record_type != 'Community')}
+              <tr><td>&nbsp;</td></tr>
+              <tr>
+                <td colspan="2"><b><label for="inherit">Inherit Security from Parent Hierarchy?</label></b></td>
+                <td><input type="checkbox" name="inherit" id="inherit" value="1" {if ($inherits_security)} checked="checked" {/if} /></td>
+              </tr>
+            {/if}
+            {if ($did)}
+              <tr><td>Watermarked</td><td><input type="checkbox" name="watermark" value="{$watermark}" {if ($watermark)} checked="checked" {/if} /></td></tr>
+              <tr><td>Copyright</td><td><input type="checkbox" name="copyright" value="{$copyright}" {if ($copyright)} checked="checked" {/if} /></td></tr>
+            {/if}
             {if ($record_type != 'Community' && $record_type != 'Datastream')}
-                <tr>
-                 <th>
-                     Datastream FezACML Policy for datastreams
-                 </th>
-                    <td>
-                <select id="Datastream FezACML Policy for datastreams" name="datastream_policy">
+              <tr><td>&nbsp;</td></tr>
+              <tr>
+                <td colspan="2">
+                  <b><label for="datastream_policy">Datastream FezACML Policy for datastreams</label></b>
+                </td>
+                <td>
+                  <select id="Datastream FezACML Policy for datastreams" name="datastream_policy" id="datastream_policy">
                     <option value="0">Please choose an option</option>
                     {foreach from=$datastream_policy key=k item=v}
                     <option value="{$k}" {if $selected_datastream_policy == $k} selected{/if}>{$v}</option>
                     {/foreach}
-                </select>
-                </td></tr>
-            {/if}
-            <tr>
-                <td style="width: 4px; text-align: center; white-space: nowrap; background: {$row_color}" colspan='4'>
-                    <input type="submit" name="submit" value="Add" />
+                  </select>
                 </td>
-            </tr>
-            {if ($record_type != 'Community')}
-                <tr><td><label for="inherit">Inherit Security from Parent Hierarchy?</label></td><td><input type="checkbox" name="inherit" id="inherit" value="1" {if ($inherits_security)} checked="checked" {/if} /></td></tr>
-            {/if}
-            {if ($did)}
-                <tr><td>Watermarked</td><td><input type="checkbox" name="watermark" value="{$watermark}" {if ($watermark)} checked="checked" {/if} /></td></tr>
-                <tr><td>Copyright</td><td><input type="checkbox" name="copyright" value="{$copyright}" {if ($copyright)} checked="checked" {/if} /></td></tr>
+              </tr>
+              <tr><td>&nbsp;</td></tr>
             {/if}
             <tr><td>&nbsp;</td></tr>
             <tr>
@@ -155,7 +172,7 @@
                     <td bgcolor="{$light_color}" colspan="1">
                                    {if (!$security_permission.inherited)}N{else}Y{/if}
                     </td>
-                    <td style=" text-align: center; white-space: nowrap;" bgcolor="{$light_color}" >
+                    <td style=" text-align: center; white-space: nowrap;" bgcolor="{$light_color}" colspan="2">
                         {if (!$security_permission.inherited)}<input type="checkbox" name="items[]" value="{$security_permission.row}" />{/if}
                         {if (!$inherits_security) & ($security_permission.inherited)} Set alternate {$security_permission.aro_role}<br /> permissions to remove{/if}
                     </td>
