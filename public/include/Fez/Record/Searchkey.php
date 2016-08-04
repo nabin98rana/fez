@@ -48,6 +48,9 @@ class Fez_Record_Searchkey
     protected $_db = null;
     protected $_pid = null;
     protected $_version = null;
+    /**
+     * @var Fez_Record_SearchkeyShadow
+     */
     protected $_shadow = null;
 
     /**
@@ -303,7 +306,7 @@ class Fez_Record_Searchkey
         if (!empty($clone_attached_datastreams)) {
             $sekData[1]['file_attachment_name']['xsdmf_value'] = null;
             $xsdmf_id = XSD_HTML_Match::getXSDMF_IDBySekIDXDIS_ID(Search_Key::getID('File Attachment Name'), $xdis_str);
-            $sekData[1]['file_attachment_name']['xsdmf_id'] = $xsdmf_id[0];;
+            $sekData[1]['file_attachment_name']['xsdmf_id'] = $xsdmf_id[0];
         }
         $recordSearchKey = new Fez_Record_Searchkey();
         $result = $recordSearchKey->insertRecord($sekData);
@@ -886,10 +889,12 @@ class Fez_Record_Searchkey
         foreach ($data as $field => $valueArray) {
             $fieldname = "rek_" . $field;
 
-            $stmtFields[] = $fieldname;
-            $stmtValues[] = $this->_db->quote($valueArray['xsdmf_value']);
-            $stmtFields[] = $fieldname . "_xsdmf_id";
-            $stmtValues[] = $valueArray['xsdmf_id'];
+            if (!empty($valueArray['xsdmf_value'])) {
+              $stmtFields[] = $fieldname;
+              $stmtValues[] = $this->_db->quote($valueArray['xsdmf_value']);
+              $stmtFields[] = $fieldname . "_xsdmf_id";
+              $stmtValues[] = $valueArray['xsdmf_id'];
+            }
         }
 
         // Build the query statement
