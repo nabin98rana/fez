@@ -328,23 +328,31 @@ class Fez_Record_Searchkey
           $datastreams = Fedora_API::callGetDatastreams($pid);
 
           foreach ($datastreams as $ds_value) {
-            if (isset($ds_value['controlGroup']) && $ds_value['controlGroup'] == 'M'
-              && $clone_attached_datastreams) {
+            if (isset($ds_value['controlGroup'])) {
 
-              $new_did = Fedora_API::getUploadLocationByLocalRef($new_pid, $ds_value['ID'], $ds_value['full_path'], $ds_value['label'],
-                $ds_value['MIMEType'], $ds_value['controlGroup'], null, $ds_value['versionable']);
-              $perms = AuthNoFedoraDatastreams::getNonInheritedSecurityPermissions($ds_value['id']);
-              foreach ($perms as $perm) {
-                AuthNoFedoraDatastreams::addRoleSecurityPermissions($new_did, $perm['authdii_role'], $perm['argr_arg_id'], '0');
+              if ($ds_value['controlGroup'] == 'M') {
+
+                $new_did = Fedora_API::callAddDatastream(
+                  $new_pid, $ds_value['ID'], $ds_value['location'], $ds_value['label'],
+                  $ds_value['state'], $ds_value['MIMEType'], $ds_value['controlGroup'], $ds_value['versionable']
+                );
+
+                $perms = AuthNoFedoraDatastreams::getNonInheritedSecurityPermissions($ds_value['id']);
+                foreach ($perms as $perm) {
+                  AuthNoFedoraDatastreams::addRoleSecurityPermissions($new_did, $perm['authdii_role'], $perm['argr_arg_id'], '0');
+                }
+
+                AuthNoFedoraDatastreams::recalculatePermissions($new_did);
+
+                Exiftool::cloneExif($pid, $ds_value['ID'], $new_pid, $new_did);
+
+              } else if ($ds_value['controlGroup'] == 'R') {
+                $new_did = Fedora_API::callAddDatastream(
+                  $new_pid, $ds_value['ID'], $ds_value['location'], $ds_value['label'],
+                  $ds_value['state'], $ds_value['MIMEType'], $ds_value['controlGroup'], $ds_value['versionable']
+                );
+
               }
-              AuthNoFedoraDatastreams::recalculatePermissions($new_did);
-
-            } elseif (isset($ds_value['controlGroup']) && $ds_value['controlGroup'] == 'R'
-              && $clone_attached_datastreams) {
-              Fedora_API::callAddDatastream(
-                $new_pid, $ds_value['ID'], $ds_value['location'], $ds_value['label'],
-                $ds_value['state'], $ds_value['MIMEType'], $ds_value['controlGroup'], $ds_value['versionable']
-              );
             }
           }
         }
