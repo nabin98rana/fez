@@ -318,10 +318,13 @@ class Fedora_API {
 
     curl_setopt($ch, CURLOPT_POST, 1);
 
+    $cfile = new CURLFile($tempFile,'text/xml','file');
+
 //				curl_setopt($ch, CURLOPT_INFILE, $fp);
 //				curl_setopt($ch, CURLOPT_INFILESIZE, strlen($foxml));
+    //"file" => "@" . $tempFile . ";type=text/xml",
     curl_setopt($ch, CURLOPT_POSTFIELDS, array(
-      "file" => "@" . $tempFile . ";type=text/xml",
+      "file" => $cfile,
       "format" => "info:fedora/fedora-system:FOXML-1.0"
     ));
 
@@ -689,8 +692,9 @@ class Fedora_API {
         $ch = curl_init($getString);
         @curl_setopt($ch, CURLOPT_SAFE_UPLOAD, FALSE);
         curl_setopt($ch, CURLOPT_POST, 1);
+        $cfile = new CURLFile($dsLocation, $mimetype,'file');
         curl_setopt($ch, CURLOPT_POSTFIELDS, array(
-          "file_name" => "@" . $dsLocation . ";type=" . $mimetype,
+          "file_name" => $cfile,
           "dsLabel" => urlencode($dsLabel),
           "versionable" => $versionable,
           "mimeType" => $mimetype,
@@ -718,8 +722,9 @@ class Fedora_API {
         exit;
       }
       fclose($fp);
+      $cfile = new CURLFile($tempFile, $mimetype,'file');
       curl_setopt($ch, CURLOPT_POSTFIELDS, array(
-        "file[]" => "@" . $tempFile . ";type=" . $mimetype,
+        "file[]" => $cfile,
         "dsLabel" => urlencode($dsLabel),
         "versionable" => $versionable,
         "mimeType" => $mimetype,
@@ -818,8 +823,9 @@ class Fedora_API {
       ));
     }
     elseif ($dsLocation != "") {
+      $cfile = new CURLFile($dsLocation, $mimetype,'file');
       curl_setopt($ch, CURLOPT_POSTFIELDS, array(
-        "file" => "@" . $dsLocation . ";type=" . $mimetype,
+        "file" => $cfile,
         "dsLabel" => urlencode($dsLabel),
         "versionable" => $versionable,
         "mimeType" => $mimetype,
@@ -842,8 +848,8 @@ class Fedora_API {
         exit;
       }
       fclose($fp);
-
-      $params = array("file" => "@".$tempFile.";type=".$mimetype);
+      $cfile = new CURLFile($tempFile, $mimetype,'file');
+      $params = array("file" => $cfile);
       curl_setopt($ch, CURLOPT_POSTFIELDS, $params);
     }
 
