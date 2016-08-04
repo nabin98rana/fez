@@ -170,11 +170,13 @@ class Fedora_API implements FedoraApiInterface {
 	 */
 	public static function getUploadLocation($pid, $dsIDName, $file, $dsLabel, $mimetype = 'text/xml', $controlGroup = 'M', $dsID = NULL, $versionable = FALSE)
 	{
+    $loc_dir = '';
 
 		if (!is_numeric(strpos($dsIDName, "/"))) {
 			$loc_dir = APP_TEMP_DIR;
 		}
 
+    $file_full = '';
 		if (!empty($file) && (trim($file) != "")) {
 //			$file_full = $loc_dir . str_replace(":", "_", $pid) . "_" . $dsIDName . ".xml";
 			$file_full = $loc_dir . $dsIDName;
@@ -182,7 +184,6 @@ class Fedora_API implements FedoraApiInterface {
 			fwrite($fp, $file);
 			fclose($fp);
 		}
-
 		$versionable = $versionable === true ? 'true' : $versionable === false ? 'false' : $versionable;
 		$dsExists = Fedora_API::datastreamExists($pid, $dsIDName, true);
 
@@ -257,50 +258,27 @@ class Fedora_API implements FedoraApiInterface {
 	 * @param bool|string $versionable Whether to version control this datastream or not
 	 * @param string $xmlContent If it an X based xml content file then it uses a var rather than a file location
 	 * @param int $current_tries A counter of how many times this function has retried the addition of a datastream
-	 * @return void
+	 * @return string
 	 */
 	public static function callAddDatastream($pid, $dsID, $dsLocation, $dsLabel, $dsState, $mimetype, $controlGroup = 'M', $versionable = FALSE, $xmlContent = "", $current_tries = 0)
 	{
-		if ($mimetype == "") {
-			$mimetype = "text/xml";
-		}
-		$dsIDOld = $dsID;
 		if (is_numeric(strpos($dsID, chr(92)))) {
 			$dsID = substr($dsID, strrpos($dsID, chr(92))+1);
-			if ($dsLabel == $dsIDOld) {
-				$dsLabel = $dsID;
-			}
 		}
-		$dsIDName = $dsID;
-		if (is_numeric(strpos($dsIDName, "/"))) {
-			$dsIDName = substr($dsIDName, strrpos($dsIDName, "/")+1);
-		}
-
 		if (! Zend_Registry::isRegistered('version')) {
 			Zend_Registry::set('version', Date_API::getCurrentDateGMT());
 		}
 
-		$now = Zend_Registry::get('version');
-
-//		$resourceDataLocation = $dsLocation;
-//		$filesDataSize = filesize($dsLocation);
-//		$meta = array('mimetype' => $mimetype,
-//			'filename' => $dsIDName,
-//			'label' => $dsLabel,
-//			'controlgroup' => 'M',
-//			'state' => 'A',
-//			'size' => $filesDataSize,
-//			'updateTS' => $now,
-//			'pid' => $pid);
-//		$dsr = new DSResource(APP_DSTREE_PATH, $resourceDataLocation, $meta);
-//		$dsr->save();
-
 		$aws = AWS::get();
 		$dataPath = Fedora_API::getDataPath($pid);
-		if ($aws->postFile($dataPath, array($dsLocation))) {
-			$success = 1;
-		}
-		unlink($dsLocation);
+
+    if (stripos($dsLocation, APP_TEMP_DIR) === 0) {
+      $aws->postFile($dataPath, [$dsLocation]);
+      unlink($dsLocation);
+    } else {
+      $aws->copyFile($dsLocation, $dataPath."/".$dsID);
+    }
+    return $dsID;
 	}
 
 	/**
@@ -313,14 +291,18 @@ class Fedora_API implements FedoraApiInterface {
 	 */
 	public static function callGetDatastreams($pid, $createdDT = NULL, $dsState = 'A')
 	{
-
 		$aws = AWS::get();
 		$dataPath = Fedora_API::getDataPath($pid);
-		$datastreams = array();
+		$dataStreams = [];
 		$dsIDListArray = $aws->listObjects($dataPath);
 
 		foreach ($dsIDListArray as $object) {
-			$baseKey = basename($object['Key']);
+      $baseKey = basename($object['Key']);
+      if ($baseKey != basename($dataPath)) {
+        $dataStreams[] = Fedora_API::callGetDatastream($pid, $baseKey, $createdDT);
+      }
+
+			/*$baseKey = basename($object['Key']);
 			if ($baseKey != basename($dataPath)) {
 				$ds = array();
 				//TODO: Add created date and mimetype from custom metadata PUT onto the object by Fez
@@ -340,8 +322,8 @@ class Fedora_API implements FedoraApiInterface {
 //				$ds['location']     = $object['location'];
 				$ds['checksumType'] = "MD5";
 				$ds['checksum']     = $object['eTag'];
-				$datastreams[] = $ds;
-			}
+				$dataStreams[] = $ds;
+			}*/
 		}
 
 		//Add on the links 'R' based datastreams
@@ -353,11 +335,10 @@ class Fedora_API implements FedoraApiInterface {
 			$linkDS['location'] = $linkDS['ID'];
 			$linkDS['label'] = trim($link['rek_link_description']);
 			$linkDS['controlGroup'] = 'R';
-			$datastreams[] = $linkDS;
+      $dataStreams[] = $linkDS;
 		}
 
-
-		return $datastreams;
+		return $dataStreams;
 	}
 
 	/**
@@ -463,7 +444,7 @@ class Fedora_API implements FedoraApiInterface {
     $exifData = Exiftool::getDetails($pid, $dsID);
 		$dsData['MIMEType'] = $exifData['exif_mime_type'];
 		$dsData['createDate'] = (string)$dsArray['LastModified']; //TODO: convert to saved meta
-		$dsData['location'] = NULL; //TODO Check if this is needed and if so fill with a real value.
+		$dsData['location'] = $dataPath."/".$dsID;
 		$dsData['formatURI'] = NULL; //TODO Check if this is needed and if so fill with a real value.
 		$dsData['checksumType'] = 'MD5';
 		$dsData['checksum'] = str_replace('"', '', $dsArray['ETag']);

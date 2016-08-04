@@ -292,6 +292,32 @@ class AWS
   }
 
   /**
+   * Copies a file from the S3 source $src to another S3 src $newSrc
+   * @param string $src
+   * @param string $newSrc
+   * @return boolean
+   */
+  public function copyFile($src, $newSrc)
+  {
+    // Create an Amazon S3 client using the shared configuration data.
+    $client = $this->sdk->createS3();
+
+    $key = $this->createPath($src, '');
+    $newKey = $this->createPath($newSrc, '');
+    try {
+      $client->copyObject(array(
+        'Bucket'     => $this->s3Bucket,
+        'Key'        => $newKey,
+        'CopySource' => "{$this->s3Bucket}/{$key}",
+      ));
+      return true;
+    } catch (\Aws\S3\Exception\S3Exception $e) {
+      $this->log->err($e->getMessage());
+      return false;
+    }
+  }
+
+  /**
    * @param string $src
    * @param string $content
    * @param string $fileName
