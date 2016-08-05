@@ -12,20 +12,6 @@ CREATE TABLE %TABLE_PREFIX%record_search_key_supervisor (
   KEY rek_supervisor_order (rek_supervisor_order)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-CREATE TABLE %TABLE_PREFIX%record_search_key_supervisor__shadow (
-  rek_supervisor_id int(11) NOT NULL AUTO_INCREMENT,
-  rek_supervisor_pid varchar(64) DEFAULT NULL,
-  rek_supervisor_xsdmf_id int(11) DEFAULT NULL,
-  rek_supervisor varchar(255) DEFAULT NULL,
-  rek_supervisor_order int(11) DEFAULT '1',
-  rek_supervisor_stamp datetime DEFAULT NULL,
-  PRIMARY KEY (rek_supervisor_id),
-  UNIQUE KEY unique_constraint (rek_supervisor_pid,rek_supervisor_order,rek_supervisor_stamp),
-  KEY rek_supervisor_pid (rek_supervisor_pid),
-  KEY rek_supervisor (rek_supervisor),
-  KEY rek_supervisor_order (rek_supervisor_order)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
 CREATE TABLE %TABLE_PREFIX%record_search_key_supervisor_id (
   rek_supervisor_id_id int(11) NOT NULL AUTO_INCREMENT,
   rek_supervisor_id_pid varchar(64) DEFAULT NULL,
@@ -35,20 +21,6 @@ CREATE TABLE %TABLE_PREFIX%record_search_key_supervisor_id (
   PRIMARY KEY (rek_supervisor_id_id),
   UNIQUE KEY unique_constraint (rek_supervisor_id_pid,rek_supervisor_id,rek_supervisor_id_order),
   UNIQUE KEY unique_constraint_pid_order (rek_supervisor_id_pid,rek_supervisor_id_order),
-  KEY rek_supervisor_id_pid (rek_supervisor_id_pid),
-  KEY rek_supervisor_id (rek_supervisor_id),
-  KEY rek_supervisor_id_order (rek_supervisor_id_order)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
-CREATE TABLE %TABLE_PREFIX%record_search_key_supervisor_id__shadow (
-  rek_supervisor_id_id int(11) NOT NULL AUTO_INCREMENT,
-  rek_supervisor_id_pid varchar(64) DEFAULT NULL,
-  rek_supervisor_id_xsdmf_id int(11) DEFAULT NULL,
-  rek_supervisor_id int(11) DEFAULT NULL,
-  rek_supervisor_id_order int(11) DEFAULT '1',
-  rek_supervisor_id_stamp datetime DEFAULT NULL,
-  PRIMARY KEY (rek_supervisor_id_id),
-  UNIQUE KEY unique_constraint (rek_supervisor_id_pid,rek_supervisor_id_order,rek_supervisor_id_stamp),
   KEY rek_supervisor_id_pid (rek_supervisor_id_pid),
   KEY rek_supervisor_id (rek_supervisor_id),
   KEY rek_supervisor_id_order (rek_supervisor_id_order)

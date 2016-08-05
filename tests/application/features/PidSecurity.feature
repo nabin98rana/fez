@@ -22,43 +22,44 @@ Feature: Pid security
     And I follow "Edit Security for Select Record"
     And I uncheck "Inherit"
     Given I choose the "Masqueraders" group for the "Viewer" role
+    And I wait for "3" seconds
     And I press "Save"
     And I switch to window ""
     And I wait for solr
     And I wait for bgps
     And I follow "Logout"
     And I am on the homepage
-    And I see "search_entry" id or wait for "2" seconds
-    And I fill in "Search Entry" with "title:(\"Security Test Journal Title2012\")"
-    And I press "search_entry_submit"
+    And I carefully fill search entry with "title:(\"Security Test Journal Title2012\")"
+    And I press search
     When I follow "Click to view Journal Article"
     Then I should see "Login to"
     Given I login as administrator
     And I am on the homepage
-    And I see "search_entry" id or wait for "2" seconds
-    And I fill in "Search Entry" with "title:(\"Security Test Journal Title2012\")"
-    And I press "search_entry_submit"
+    And I carefully fill search entry with "title:(\"Security Test Journal Title2012\")"
+    And I press search
     When I follow "Click to view Journal Article"
     Then I should see "Security Test Journal Title2012"
 
   Scenario: I login as admin and set a pids security to only create for a certain group as check that group can create
     Given I login as administrator
-    And I fill in "Search Entry" with "title:(\"Security Test Journal Title2012\")"
-    And I press "search_entry_submit"
+    And I am on the homepage
+    And I carefully fill search entry with "title:(\"Security Test Journal Title2012\")"
+    And I press search
     When I follow "Click to view Journal Article"
     And I follow "More options"
     And I follow "Edit Security for Select Record"
     Given I choose the "Masqueraders" group for the "Editor" role
+    And I wait for "3" seconds
     And I press "Save"
     And I switch to window ""
     And I follow "Logout"
+    And I am on the homepage
     And I wait for solr
     And I wait for bgps
-    And I am on the homepage
+    And I wait for "3" seconds
     Given I login as administrator
-    And I see "search_entry" id or wait for "2" seconds
-    And I fill in "Search Entry" with "title:(\"Security Test Journal Title2012\")"
-    And I press "search_entry_submit"
+    And I carefully fill search entry with "title:(\"Security Test Journal Title2012\")"
+    And I press search
     When I follow "Click to view Journal Article"
     Then I should see "Security Test Journal Title2012"
     Then I should see "Workflows"
@@ -66,30 +67,28 @@ Feature: Pid security
   Scenario: I login as admin and set a pids security to list for a certain group and check only that group can list
     Given I login as administrator
     And I am on the homepage
-    And I see "search_entry" id or wait for "2" seconds
-    And I fill in "Search Entry" with "title:(\"Security Test Journal Title2012\")"
-    And I press "search_entry_submit"
+    And I carefully fill search entry with "title:(\"Security Test Journal Title2012\")"
+    And I press search
     When I follow "Click to view Journal Article"
     And I follow "More options"
     And I follow "Edit Security for Select Record"
     Given I choose the "Masqueraders" group for the "Lister" role
+    And I wait for "3" seconds
     And I press "Save"
     And I switch to window ""
     And I follow "Logout"
+    And I am on the homepage
     And I wait for solr
     And I wait for bgps
     #test non logged in cannot see it
-    And I am on the homepage
-    And I see "search_entry" id or wait for "2" seconds
-    And I fill in "Search Entry" with "title:(\"Security Test Journal Title2012\")"
-    And I press "search_entry_submit"
+    And I carefully fill search entry with "title:(\"Security Test Journal Title2012\")"
+    And I press search
     Then I should see "No records could be found"
     #test admins can see it
     Given I login as administrator
     And I am on the homepage
-    And I see "search_entry" id or wait for "2" seconds
-    And I fill in "Search Entry" with "title:(\"Security Test Journal Title2012\")"
-    And I press "search_entry_submit"
+    And I carefully fill search entry with "title:(\"Security Test Journal Title2012\")"
+    And I press search
     When I follow "Click to view Journal Article"
     Then I should see "Security Test Journal Title2012"
     #Then I should see "Workflows"

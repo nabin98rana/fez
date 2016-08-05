@@ -238,6 +238,11 @@ class Template_API
 			$user_agent = 'other';
 		}
 		$this->assign("user_agent", $user_agent);
+
+    // If we are running a test then disable najax and notifications in smarty template includes
+    // because they interfere with behat selectors and cause browser element staleness and instability of tests
+    $this->assign("app_environment", $_SERVER['APP_ENVIRONMENT']);
+
 		// create the list of collections
 		$username = Auth::getUsername();
 	    if ($username != '') {
@@ -427,7 +432,7 @@ class Template_API
 			"highlight_color" => "#" . APP_HIGHLIGHT_COLOR
 		));
 		$this->assign('phpini_upload_max_filesize', Misc::convertSize(ini_get('upload_max_filesize')));
-    if ($username) {
+    if ($username && $_SERVER['APP_ENVIRONMENT'] != "testing") {
       // don't show ajax flash message if one of the basic auth / ARC IPs
       if (!defined('APP_BASIC_AUTH_IP') || (!in_array($_SERVER['REMOTE_ADDR'], $ipPool))) {
           $this->registerNajax(NAJAX_Client::register('Session', APP_RELATIVE_URL.'ajax.php'));

@@ -1172,16 +1172,26 @@ class XSD_DisplayObject
 		if (APP_FEDORA_BYPASS == "ON" && count($return['list']) > 0 && $skipIndex != true && count($this->specify_list) == 0) {
 			$return = $return['list'][0];
 			foreach ($return as $sek_id => $value) {
-				// test sek id to xsdmf id later
-				///echo ucwords(str_replace("_", "", str_replace("rek_", "", $sek_id)))."\n";
-				//echo Search_Key::getID(ucwords(str_replace("_", " ", str_replace("rek_", "", $sek_id))))."\n";
 				$xdis_list = XSD_Relationship::getColListByXDIS($return['rek_display_type']);
 				array_push($xdis_list, $return['rek_display_type']);
 				$xdis_str = implode(", ", $xdis_list);
-				$xsdmf_array = array();
-				$xsdmf_array =  XSD_HTML_Match::getXSDMF_IDBySekIDXDIS_ID(Search_Key::getID(ucwords(str_replace("_", " ", str_replace("rek_", "", $sek_id)))), $xdis_str);
+        $sek = Search_Key::getID(ucwords(str_replace("_", " ", str_replace("rek_", "", $sek_id))));
+				$xsdmf_array =  XSD_HTML_Match::getXSDMF_IDBySekIDXDIS_ID($sek, $xdis_str);
+        $function = Search_Key::getLookupFunctionBySek_ID($sek);
 				foreach ($xsdmf_array as $xsdmf_id) {
-					$return_pid[$xsdmf_id] = $value;
+          if (! empty($function)) {
+            if (is_array($value)) {
+              $sek_values = [];
+              foreach ($value as $v) {
+                $sek_values[] = Search_Key::getOptions($function . "('" . $v . "')");
+              }
+            } else {
+              $sek_values = Search_Key::getOptions($function . "('" . $value . "')");
+            }
+            $return_pid[$xsdmf_id] = $sek_values;
+          } else {
+            $return_pid[$xsdmf_id] = $value;
+          }
 				}
 			}
 			//Add a lookup for all the files in S3/bypass dir
