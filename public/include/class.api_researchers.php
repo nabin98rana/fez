@@ -459,6 +459,18 @@ aut_people_australia_id, aut_description, aut_orcid_id, aut_google_scholar_id, a
         return $res;
     }
 
+
+    /**
+     * Set the "other" account for this user.
+     *
+     * If they are a student other is aut_org_username, if they are staff it
+     * is aut_student_username
+     *
+     * @param      $username
+     * @param null $value
+     *
+     * @return bool
+     */
     public static function updateUQLinkedAccount($username, $value=null) {
         $db = DB_API::get();
         $isStudent = preg_match('/^s\d+$/', $username);
@@ -478,18 +490,78 @@ aut_people_australia_id, aut_description, aut_orcid_id, aut_google_scholar_id, a
         return (1 == $db->update(APP_TABLE_PREFIX . '_author', $data, $where));
     }
 
+    /**
+     * Remove the account for this user
+     *
+     * If they are a student other is aut_org_username, if they are staff it
+     * is aut_student_username
+     *
+     * @param      $username
+     *
+     * @return bool
+     */
+    public static function removeUQAccount($username) {
+        $db = DB_API::get();
+        $isStudent = preg_match('/^s\d+$/', $username);
+
+        // the username passed in will be the one they are logged in
+        // as, so we assume they want to remove the "other" username
+        if ($isStudent) {
+            $where =  'aut_student_username = ' . $db->quote($username);
+        } else {
+            $where =  'aut_org_username = ' . $db->quote($username);
+        }
+
+        return (1 == $db->delete(APP_TABLE_PREFIX . '_author', $where));
+    }
+
+
+    /**
+     * Unlink the "other" account for this user
+     *
+     * If they are a student other is aut_org_username, if they are staff it
+     * is aut_student_username
+     *
+     * @param $username
+     */
     public static function removeUQLinkedAccounts($username) {
         self::updateUQLinkedAccount($username);
     }
 
+
+    /**
+     * Update the "other" username with the passed in value
+     *
+     * If they are a student other is aut_org_username, if they are staff it
+     * is aut_student_username
+     *
+     * @param $username
+     * @param $linkedAccount
+     */
     public static function linkUQAccounts($username, $linkedAccount)
     {
+        // change the ownership of any objects in fez and its subsystems
+        self::moveUQAccount($username, $linkedAccount);
+        // remove the old account
+        self::removeUQAccount($linkedAccount);
         // add new user id to their account
         self::updateUQLinkedAccount($username, $linkedAccount);
-        // remove any existing accounts and change the ownership
-        // of any objects in fez and its subsystems
     }
 
+
+    /**
+     * Reassigning ownership of any objects in fez and its subsystems
+     *
+     * @param $username username for account which will keep data
+     * @param $movingUsername
+     */
+    public static function moveUQAccount($username, $movingUsername)
+    {
+        // collect underpants
+    }
+
+
+    /**
 
     /**
      * Returns any UQ accounts which have the same staff and student ids
