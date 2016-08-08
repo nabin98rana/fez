@@ -115,10 +115,12 @@ class AuthRules
       $loop = 0;
       foreach ($group as $row) {
         $ar_id = AuthRules::getOrCreateRule($row['rule'], $row['value']);
-        $values[$loop][] = $arg_id;
-        $values[$loop][] = $ar_id;
-        $values_sql[] = '(?,?)';
-        $loop++;
+        if (! AuthRules::groupRuleExists($arg_id, $ar_id)) {
+          $values[$loop][] = $arg_id;
+          $values[$loop][] = $ar_id;
+          $values_sql[] = '(?,?)';
+          $loop++;
+        }
       }
 
       // make an insert statement
@@ -151,6 +153,31 @@ class AuthRules
     $gcache[$rmd5] = $arg_id;
 
     return $arg_id;
+  }
+
+  /**
+   * @param int $arg_id
+   * @param int $ar_id
+   * @return bool
+   */
+  function groupRuleExists($arg_id, $ar_id)
+  {
+    $log = FezLog::get();
+    $db = DB_API::get();
+    $dbtp = APP_TABLE_PREFIX;
+
+    // does group rule exist in table
+    $stmt = "SELECT argr_arg_id 
+                 FROM " . $dbtp . "auth_rule_group_rules 
+                 WHERE argr_arg_id=? AND argr_ar_id=?";
+    $res = null;
+    try {
+      $res = $db->fetchRow($stmt, array($arg_id, $ar_id));
+    } catch (Exception $ex) {
+      $log->err($ex);
+      $res = null;
+    }
+    return (!empty($res));
   }
 
   /**

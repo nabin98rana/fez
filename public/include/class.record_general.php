@@ -431,8 +431,6 @@ class RecordGeneral
 
         // Update the search keys for this PID with new value
         Record::updateSearchKeys($this->pid, $searchKeyData);
-        $recordSearchkeyShadow = new Fez_Record_SearchkeyShadow($this->pid);
-        $recordSearchkeyShadow->copyRecordSearchKeyToShadow();
     } else {
 
         // Update the XML for FezMD datastream,

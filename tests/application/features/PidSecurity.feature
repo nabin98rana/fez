@@ -22,6 +22,7 @@ Feature: Pid security
     And I follow "Edit Security for Select Record"
     And I uncheck "Inherit"
     Given I choose the "Masqueraders" group for the "Viewer" role
+    And I wait for "3" seconds
     And I press "Save"
     And I switch to window ""
     And I wait for solr
@@ -48,12 +49,14 @@ Feature: Pid security
     And I follow "More options"
     And I follow "Edit Security for Select Record"
     Given I choose the "Masqueraders" group for the "Editor" role
+    And I wait for "3" seconds
     And I press "Save"
     And I switch to window ""
     And I follow "Logout"
     And I am on the homepage
     And I wait for solr
     And I wait for bgps
+    And I wait for "3" seconds
     Given I login as administrator
     And I carefully fill search entry with "title:(\"Security Test Journal Title2012\")"
     And I press search
@@ -70,6 +73,7 @@ Feature: Pid security
     And I follow "More options"
     And I follow "Edit Security for Select Record"
     Given I choose the "Masqueraders" group for the "Lister" role
+    And I wait for "3" seconds
     And I press "Save"
     And I switch to window ""
     And I follow "Logout"

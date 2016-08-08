@@ -28,7 +28,6 @@ Feature: Test that Thesis upload correctly. @bug it can't check the swf uploader
     And I should see "01 Mathematical Sciences"
     And I should see "Thesis Test Writer Name"
     And I should see "Thesis Test Name 2012"
-    And I should see "Test Data Collection"
     And I carefully fill search entry with "title:(\"Thesis Test Name 2012\")"
     And I press search
     And I should see "No records could be found."
@@ -37,6 +36,7 @@ Feature: Test that Thesis upload correctly. @bug it can't check the swf uploader
     And I press "search_button"
     And I should see "Thesis Test Writer Name"
     And I follow "Thesis Test Name 2012"
+    And I should see "Test Data Collection"
     And I follow "Delete Selected Record"
     And I fill in "historyDetail" with "Test Thesis"
     And I press "Delete"

@@ -60,7 +60,8 @@ if ((php_sapi_name()==="cli") || (User::isUserSuperAdministrator($isUser))) {
 
 
     $query[0] = "SELECT rek_pid AS pid FROM " . APP_TABLE_PREFIX . "record_search_key
-                 INNER JOIN fez_record_search_key_issn ON rek_issn_pid = rek_pid
+                 INNER JOIN " . APP_TABLE_PREFIX . "xsd_display ON rek_display_type = xdis_id AND xdis_title in ('Journal Article', 'Conference Paper')
+                 INNER JOIN " . APP_TABLE_PREFIX . "record_search_key_issn ON rek_issn_pid = rek_pid
                  INNER JOIN " . APP_TABLE_PREFIX . "ulrichs ON ulr_issn = rek_issn
                  LEFT JOIN " . APP_TABLE_PREFIX . "record_search_key_refereed_source ON rek_refereed_source_pid = rek_pid
                  WHERE ulr_refereed = 'true'
@@ -69,12 +70,14 @@ if ((php_sapi_name()==="cli") || (User::isUserSuperAdministrator($isUser))) {
                  GROUP BY pid";
 
     $query[1] = "SELECT rek_pid AS pid FROM " . APP_TABLE_PREFIX . "record_search_key
+                 INNER JOIN " . APP_TABLE_PREFIX . "xsd_display ON rek_display_type = xdis_id AND xdis_title in ('Journal Article', 'Conference Paper')
                  INNER JOIN " . APP_TABLE_PREFIX . "record_search_key_isi_loc ON rek_isi_loc_pid = rek_pid
                  LEFT JOIN " . APP_TABLE_PREFIX . "record_search_key_refereed_source ON rek_refereed_source_pid = rek_pid
                  WHERE ((rek_refereed_source != " .$refereedSourceCV[0]. " && rek_refereed_source != " .$refereedSourceCV[1]. ") OR rek_refereed_source IS NULL)
                  AND (rek_genre != 'thesis' AND rek_genre != 'database')";
 
     $query[2] = "SELECT rek_pid AS pid FROM " . APP_TABLE_PREFIX . "record_search_key INNER JOIN " . APP_TABLE_PREFIX . "matched_journals ON rek_pid = mtj_pid
+                 INNER JOIN " . APP_TABLE_PREFIX . "xsd_display ON rek_display_type = xdis_id AND xdis_title in ('Journal Article', 'Conference Paper')
                  LEFT JOIN " . APP_TABLE_PREFIX . "journal ON mtj_jnl_id = jnl_id
                  LEFT JOIN " . APP_TABLE_PREFIX . "record_search_key_refereed_source ON rek_refereed_source_pid = rek_pid
                  WHERE (jnl_era_year = 2012)
@@ -83,6 +86,7 @@ if ((php_sapi_name()==="cli") || (User::isUserSuperAdministrator($isUser))) {
                  AND (rek_genre != 'thesis' AND rek_genre != 'database')";
 
     $query[3] = "SELECT rek_pid AS pid FROM " . APP_TABLE_PREFIX . "record_search_key INNER JOIN " . APP_TABLE_PREFIX . "matched_journals ON rek_pid = mtj_pid
+                 INNER JOIN " . APP_TABLE_PREFIX . "xsd_display ON rek_display_type = xdis_id AND xdis_title in ('Journal Article', 'Conference Paper')
                  LEFT JOIN " . APP_TABLE_PREFIX . "journal ON mtj_jnl_id = jnl_id
                  LEFT JOIN " . APP_TABLE_PREFIX . "record_search_key_refereed_source ON rek_refereed_source_pid = rek_pid
                  WHERE (jnl_era_year = 2015)
@@ -91,6 +95,7 @@ if ((php_sapi_name()==="cli") || (User::isUserSuperAdministrator($isUser))) {
                  AND (rek_genre != 'thesis' AND rek_genre != 'database')";
 
     $query[4] = "SELECT rek_pid AS pid FROM " . APP_TABLE_PREFIX . "record_search_key INNER JOIN " . APP_TABLE_PREFIX . "matched_journals ON rek_pid = mtj_pid
+                 INNER JOIN " . APP_TABLE_PREFIX . "xsd_display ON rek_display_type = xdis_id AND xdis_title in ('Journal Article', 'Conference Paper')
                  LEFT JOIN " . APP_TABLE_PREFIX . "journal ON mtj_jnl_id = jnl_id
                  LEFT JOIN " . APP_TABLE_PREFIX . "record_search_key_refereed_source ON rek_refereed_source_pid = rek_pid
                  WHERE (jnl_era_year = 2010)
@@ -99,10 +104,13 @@ if ((php_sapi_name()==="cli") || (User::isUserSuperAdministrator($isUser))) {
                  AND (rek_genre != 'thesis' AND rek_genre != 'database')";
 
     $query[5] = "SELECT rek_refereed_pid AS pid FROM " . APP_TABLE_PREFIX . "record_search_key_refereed
+                 INNER JOIN " . APP_TABLE_PREFIX . "record_search_key ON rek_pid = rek_refereed_pid
+                 INNER JOIN " . APP_TABLE_PREFIX . "xsd_display ON rek_display_type = xdis_id AND xdis_title in ('Journal Article', 'Conference Paper')
                  LEFT JOIN " . APP_TABLE_PREFIX . "record_search_key_refereed_source ON rek_refereed_source_pid = rek_refereed_pid
                  WHERE rek_refereed_source_pid IS NULL";
 
     $query[6] = "SELECT rek_pid AS pid FROM " . APP_TABLE_PREFIX . "record_search_key
+                 INNER JOIN " . APP_TABLE_PREFIX . "xsd_display ON rek_display_type = xdis_id AND xdis_title in ('Journal Article', 'Conference Paper')
                  LEFT JOIN " . APP_TABLE_PREFIX . "record_search_key_refereed_source
                  ON rek_refereed_source_pid = rek_pid
                  WHERE rek_refereed_source IS NULL
@@ -142,7 +150,7 @@ if ((php_sapi_name()==="cli") || (User::isUserSuperAdministrator($isUser))) {
             echo $pid.' ';
             flush();
             ob_flush();
-           
+
         }
     }
     echo "Script finished: " . date('Y-m-d H:i:s') . "\n";
