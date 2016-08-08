@@ -106,6 +106,7 @@ function publicationsUpload($list, $id)
     $tpl->assign("app_admin_email", APP_ADMIN_EMAIL);
     $tpl->assign("org_name", APP_ORG_NAME);
     $tpl->assign("aut_org_username", Author::getOrgUsername($id));
+    $tpl->assign("aut_student_username", Author::getOrgUsername($id));
     $request_data = $tpl->getTemplateContents();
     
     $xml_request_data = new DOMDocument();

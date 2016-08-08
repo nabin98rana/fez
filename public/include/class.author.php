@@ -220,9 +220,10 @@ class Author
              FROM
                 " . APP_TABLE_PREFIX . "author
              WHERE
-                aut_org_username = ".$db->quote($username) . " ";
+                (aut_student_username = ".$db->quote($username) . "
+                OR aut_org_username = ".$db->quote($username) . ")";
     if ($exclude != '') {
-      $stmt .= "AND aut_id != " . $db->quote($exclude) . "";
+      $stmt .= " AND aut_id != " . $db->quote($exclude) . "";
     }
 
     try {
@@ -349,12 +350,12 @@ class Author
     return $res;
   }
 
-  public static function getDetailsByUsername($aut_org_username)
+  public static function getDetailsByUsername($username)
   {
     $log = FezLog::get();
     $db = DB_API::get();
 
-    if (empty($aut_org_username)) {
+    if (empty($username)) {
        return "";
     }
 
@@ -363,8 +364,9 @@ class Author
              FROM
                 " . APP_TABLE_PREFIX . "author
              WHERE
-                aut_org_username=".$db->quote($aut_org_username)."
-             OR aut_mypub_url=".$db->quote($aut_org_username);
+                aut_org_username=".$db->quote($username)."
+                OR aut_student_username=".$db->quote($username)."
+             OR aut_mypub_url=".$db->quote($username);
     try {
       $res = $db->fetchRow($stmt, array(), Zend_Db::FETCH_ASSOC);
     }
@@ -473,6 +475,11 @@ class Author
     } else {
       $stmt .= ",aut_org_username=null ";
     }
+      if (trim($_POST["student_username"] !== "")) {
+          $stmt .= ",aut_student_username=" . $db->quote(trim($_POST["student_username"])) . " ";
+      } else {
+          $stmt .= ",aut_student_username=null ";
+      }
     $stmt .= "WHERE
                     aut_id=" . $db->quote($_POST["id"], 'INTEGER');
     try {
@@ -503,10 +510,10 @@ class Author
              SET
                 aut_mypub_url=? ";
     $stmt .= "WHERE
-                aut_org_username=?";
+                aut_org_username=? OR aut_student_username=?";
 
     try {
-      $db->query($stmt, array($mypub_url, $username));
+      $db->query($stmt, array($mypub_url, $username, $username));
     }
     catch(Exception $ex) {
       $log->err($ex);
@@ -560,7 +567,7 @@ class Author
             $db->update(
                 APP_TABLE_PREFIX . 'author',
                 $data,
-                'aut_org_username = ' . $db->quote($org_username)
+                '(aut_org_username = ' . $db->quote($org_username) . ' OR aut_student_username = ' . $db->quote($org_username) . ')'
             );
         }
         catch(Exception $ex) {
@@ -616,6 +623,9 @@ class Author
     if (trim($_POST["org_username"] !== "")) {
       $insert .= ", aut_org_username ";
     }
+    if (trim($_POST["student_username"] !== "")) {
+          $insert .= ", aut_student_username ";
+      }
     if ($_POST["mname"] !== "") {
       $insert .= ", aut_mname ";
     }
@@ -1666,7 +1676,8 @@ class Author
     }
 
     $stmt = "SELECT
-                    aut_org_username
+                    aut_org_username,
+                    aut_student_username
                  FROM
                     " . APP_TABLE_PREFIX . "author
                     WHERE
@@ -1808,15 +1819,16 @@ class Author
     $researcher_id = $profile->researcherID;
     $employee_id = $profile->employeeID;
     $password = $profile->{'temp-password'};
-    $aut_org_username = $employee_id;
+    $username = $employee_id;
 
-    if ($aut_org_username) {
+    if ($username) {
       $stmt = "UPDATE
                   " . APP_TABLE_PREFIX . "author
                SET
                   aut_researcher_id=" . $db->quote($researcher_id) . "
                WHERE
-                  aut_org_username=" . $db->quote($aut_org_username);
+                  aut_org_username=" . $db->quote($username) . "
+                  aut_student_username=" . $db->quote($username);
 
       try {
         $db->query($stmt, array());
@@ -1838,8 +1850,8 @@ class Author
    * Method used to set the ResearcherID for an author.
    *
    * @access  public
-   * @param string $aut_org_username The author id of the author
-   * @param string $aut_org_username The ResearcherID of the author
+   * @param string $aut_id The author id of the author
+   * @param string $researcher_id The ResearcherID of the author
    *
    * @return  bool True if ResearcherID is set else false
    */
@@ -1868,12 +1880,12 @@ class Author
   /**
    * Method used to set the ResearcherID for an author.
    *
-   * @param string $aut_org_username The org username of the author
-   * @param string $aut_org_username The ResearcherID of the author
+   * @param string $username The org username of the author
+   * @param string $researcher_id The ResearcherID of the author
    *
    * @return  bool True if ResearcherID is set else false
    */
-  public static function setResearcherIdByOrgUsername($aut_org_username, $researcher_id)
+  public static function setResearcherIdByOrgUsername($username, $researcher_id)
   {
     $log = FezLog::get();
     $db = DB_API::get();
@@ -1883,10 +1895,11 @@ class Author
              SET
                 aut_researcher_id=?
              WHERE
-                aut_org_username=?";
+                aut_org_username=?;
+                OR aut_student_username=?";
 
     try {
-      $db->query($stmt, array($researcher_id, $aut_org_username));
+      $db->query($stmt, array($researcher_id, $username, $username));
     }
     catch(Exception $ex) {
       $log->err($ex);
@@ -1915,7 +1928,7 @@ class Author
                     aut_researcher_id=" . $db->quote($researcher_id);
 
     try {
-      $db->query($stmt, array($mypub_url, $username));
+      $db->query($stmt);
     }
     catch(Exception $ex) {
       $log->err($ex);
@@ -2096,20 +2109,21 @@ class Author
     /**
      * Check if a requested author has a ResearcherID.
      *
-     * @param string $aut_org_username Author username
+     * @param string $username Author username
      * @return boolean True if the requested author has ResearcherID, false otherwise.
      */
-    public static function hasResearcherID($aut_org_username = null)
+    public static function hasResearcherID($username = null)
     {
-        if (empty($aut_org_username)) {
+        if (empty($username)) {
             return false;
         }
 
         $db  = DB_API::get();
-        $log = FezLog::get();
 
         $stmt = "SELECT * FROM " . APP_TABLE_PREFIX . "author
-                 WHERE aut_org_username = " . $db->quote($aut_org_username, 'STRING') . "
+                 WHERE (
+                 aut_org_username = " . $db->quote($username, 'STRING') . "
+                 OR aut_student_username = " . $db->quote($username, 'STRING') . ")
                       AND aut_researcher_id IS NOT NULL
                       AND aut_researcher_id != ''
                       AND aut_researcher_id != '-1';";

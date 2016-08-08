@@ -81,13 +81,20 @@ class BackgroundProcess_Generate_Sitemap extends BackgroundProcess
             INNER JOIN " . APP_TABLE_PREFIX . "record_search_key_author_id ON rek_author_id = aut_id
             INNER JOIN " . APP_TABLE_PREFIX . "record_search_key ON rek_pid = rek_author_id_pid
             WHERE aut_mypub_url  IS NOT NULL AND aut_mypub_url != ''
-            GROUP BY aut_mypub_url)
+            GROUP BY url)
             UNION
             (SELECT aut_org_username AS url, MAX(rek_updated_date) AS recent_date  FROM " . APP_TABLE_PREFIX . "author
             INNER JOIN " . APP_TABLE_PREFIX . "record_search_key_author_id ON rek_author_id = aut_id
             INNER JOIN " . APP_TABLE_PREFIX . "record_search_key ON rek_pid = rek_author_id_pid
-            WHERE aut_mypub_url IS  NULL OR aut_mypub_url = ''
-            GROUP BY aut_org_username);";
+            WHERE aut_org_username IS NOT NULL AND (aut_mypub_url IS  NULL OR aut_mypub_url = '')
+            GROUP BY url)
+            UNION
+            (SELECT aut_student_username AS url, MAX(rek_updated_date) AS recent_date  FROM " . APP_TABLE_PREFIX . "author
+            INNER JOIN " . APP_TABLE_PREFIX . "record_search_key_author_id ON rek_author_id = aut_id
+            INNER JOIN " . APP_TABLE_PREFIX . "record_search_key ON rek_pid = rek_author_id_pid
+            WHERE aut_student_username IS NOT NULL AND (aut_mypub_url IS  NULL OR aut_mypub_url = '')
+            GROUP BY url)
+            ;";
     $userUrlList = $db->fetchAll($stmt);
 
     foreach ($userUrlList as $userUrl) {

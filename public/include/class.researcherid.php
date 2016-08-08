@@ -382,6 +382,7 @@ class ResearcherID {
         $tpl->assign("app_admin_email", APP_ADMIN_EMAIL);
         $tpl->assign("org_name", APP_ORG_NAME);
         $tpl->assign("aut_org_username", Author::getOrgUsername($id));
+        $tpl->assign("aut_student_username", Author::getOrgUsername($id));
         $request_data = $tpl->getTemplateContents();
 
         $xml_request_data = new DOMDocument();
@@ -1270,6 +1271,7 @@ class ResearcherID {
         case "rpu_response_url":
         case "rpu_response_status":
         case "rpu_aut_org_username":
+        case "rpu_aut_student_username":
           $values[] = $db->quote($value, "STRING");
           $fields[] = $key;
           break;
@@ -1328,6 +1330,7 @@ class ResearcherID {
         case "rpu_response_url":
         case "rpu_response_status":
         case "rpu_aut_org_username":
+        case "rpu_aut_student_username":
           $values[] = $key . " = " . $db->quote($value, "STRING");
           break;
 
@@ -1407,6 +1410,7 @@ class ResearcherID {
       }
     }
 
+    // todo(xxcgreen): add student?
     $data = array(
       "rpu_aut_org_username" => implode(", ", $author),
       "rpu_response_status" => implode(", ", $status)

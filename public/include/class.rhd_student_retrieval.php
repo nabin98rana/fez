@@ -76,7 +76,7 @@ class RhdStudentRetrieval
         // iterate through and munge them into fez friendly format
         foreach ($students as $user) {
             $userInsert[] = [
-                'aut_org_username'   => lcfirst($user->OPRID),
+                'aut_student_username'   => lcfirst($user->OPRID),
                 'aut_org_student_id' => $user->EMPLID,
                 'aut_display_name'   => $user->LAST_NAME . ', ' . $user->FIRST_NAME, // meh...
                 'aut_fname'          => $user->FIRST_NAME,

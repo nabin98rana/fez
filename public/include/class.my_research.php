@@ -834,6 +834,7 @@ class MyResearch
         $author = Auth::getActingUsername();
         $user = Auth::getUsername();
         $correction = @$_POST['correction_upload'];
+        $jobID = MyResearch::markClaimedPubAsNeedingCorrection($pid, $author, $user, $correction);
 
         // 2. Send an email to Eventum about it
         $authorDetails = Author::getDetailsByUsername($author);
@@ -1107,6 +1108,7 @@ class MyResearch
             = "
 				SELECT
 					aut_org_username AS username,
+					aut_student_username AS student_username,
 					aut_fname AS first_name,
 					UCASE(aut_lname) AS last_name,";
 
@@ -1119,11 +1121,11 @@ class MyResearch
         $stmt
             .= " FROM
 					" . APP_TABLE_PREFIX . "author INNER JOIN
-					hr_position_vw on aut_org_username = user_name
+					hr_position_vw on (aut_org_username = user_name || aut_student_username = user_name)
 				WHERE
 					aou = " . $db->quote($orgID) . "
 					AND user_name != ''
-				GROUP BY aut_org_username, aut_fname, aut_lname
+				GROUP BY aut_id, aut_fname, aut_lname
 				ORDER BY
 					aut_lname ASC,
 					aut_fname ASC;
@@ -1272,6 +1274,7 @@ class MyResearch
             = "
 				SELECT
 					aut_org_username AS username,
+					aut_student_username AS student_username,
 					aut_fname AS first_name,
 					UCASE(aut_lname) AS last_name,";
 
@@ -1284,24 +1287,26 @@ class MyResearch
         $stmt
             .= " FROM
 					" . APP_TABLE_PREFIX . "author INNER JOIN
-					hr_position_vw on aut_org_username = user_name
+					hr_position_vw on (aut_org_username = user_name || aut_student_username = user_name)
 				WHERE ";
         if (is_numeric(strpos(APP_SQL_DBTYPE, "pgsql"))) {
             $stmt
                 .= "
 					(aut_org_username ILIKE " . $db->quote("%$username%") . "
+					OR aut_student_username ILIKE " . $db->quote("%$username%") . "
 					OR CONCAT_WS(' ', aut_fname, aut_lname) ILIKE " . $db->quote("%$username%") . ")
 					AND user_name != ''";
         } else {
             $stmt
                 .= "
 					(aut_org_username LIKE " . $db->quote("%$username%") . "
+					OR aut_student_username ILIKE " . $db->quote("%$username%") . "
 					OR CONCAT_WS(' ', aut_fname, aut_lname) LIKE " . $db->quote("%$username%") . ")
 					AND user_name != ''";
         }
         $stmt
             .= "
-				GROUP BY aut_org_username, aut_fname, aut_lname
+				GROUP BY aut_id, aut_fname, aut_lname
 				ORDER BY
 					aut_lname ASC,
 					aut_fname ASC;

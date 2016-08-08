@@ -71,8 +71,10 @@ class FezAuthorInsertion
         $inLimit = 200;
 
         // isolate the usernames of the users, using fancy PHP 5.5 function
-        $userNames = array_column($users, 'aut_org_username');
-        
+        $staffUserNames = array_column($users, 'aut_org_username');
+        $studentUserNames = array_column($users, 'aut_student_username');
+        $userNames = array_merge($staffUserNames, $studentUserNames);
+
         // we'll push the ones which exist onto here
         $existingUserNames = [];
 
@@ -100,10 +102,16 @@ class FezAuthorInsertion
      */
     private function listExistingAuthors($users)
     {
-        $select = $this->db->select();
-
-        $select->from('fez_author', ['LOWER(aut_org_username)'])
+        $selectStaff = $this->db->select()
+            ->from('fez_author', ['LOWER(aut_org_username)'])
             ->where('aut_org_username IN (?)', $users);
+
+        $selectStudent = $this->db->select()
+            ->from('fez_author', ['LOWER(aut_student_username)'])
+            ->where('aut_student_username IN (?)', $users);
+
+        $select = $this->db->select()
+            ->union($selectStaff, $selectStudent);
 
         return $this->db->fetchCol($select);
     }
@@ -137,7 +145,10 @@ class FezAuthorInsertion
         $successful = 0;
 
         foreach ($users as $user) {
-            if (is_null($existingUsernames) || !in_array(strtolower($user['aut_org_username']), $existingUsernames)) {
+            if (is_null($existingUsernames) ||
+                (!in_array(strtolower($user['aut_org_username']), $existingUsernames) &&
+                !in_array(strtolower($user['aut_student_username']), $existingUsernames))
+            ) {
                 if ($this->db->insert('fez_author', $user)) {
                     ++$successful;
                 }

@@ -694,7 +694,7 @@ class WosRecItem extends RecordImport
             if (count($this->author_ids) > 0) {
                 $aut_details = Author::getDetails($this->author_ids[0]);
                 $history .= " via Researcher ID download of " . $aut_details['aut_display_name'] . " (" .
-                        $aut_details['aut_researcher_id'] . " - " . $aut_details['aut_id'] . " - " . $aut_details['aut_org_username'] . ")";
+                        $aut_details['aut_researcher_id'] . " - " . $aut_details['aut_id'] . " - " . ($aut_details['aut_org_username'] ?: $aut_details['aut_student_username']) . ")";
             }
 
 
@@ -753,7 +753,7 @@ class WosRecItem extends RecordImport
                     if (count($this->author_ids) > 0) {
                         $aut_details = Author::getDetails($this->author_ids[0]);
                         $historyScopus .= " via Researcher ID download of " . $aut_details['aut_display_name'] . " (" .
-                            $aut_details['aut_researcher_id'] . " - " . $aut_details['aut_id'] . " - " . $aut_details['aut_org_username'] . ")";
+                            $aut_details['aut_researcher_id'] . " - " . $aut_details['aut_id'] . " - " . ($aut_details['aut_org_username'] ?: $aut_details['aut_student_username']). ")";
                     }
                 $pid = $sri->save($historyScopus, APP_SCOPUS_IMPORT_COLLECTION);
                 if(empty($pid)) {
@@ -794,7 +794,7 @@ class WosRecItem extends RecordImport
                 if (count($this->author_ids) > 0) {
                     $aut_details = Author::getDetails($this->author_ids[0]);
                     $history .= " via Researcher ID download of " . $aut_details['aut_display_name'] . " (" .
-                            $aut_details['aut_researcher_id'] . " - " . $aut_details['aut_id'] . " - " . $aut_details['aut_org_username'] . ")";
+                    $aut_details['aut_researcher_id'] . " - " . $aut_details['aut_id'] . " - " . ($aut_details['aut_org_username'] ?: $aut_details['aut_student_username']). ")";
                 }
 
             // MODS
@@ -963,7 +963,7 @@ class WosRecItem extends RecordImport
     return TRUE;
   }
     function getRidFromDaisID($node, $daisID) {
-        $log = FezLog::get();
+        //$log = FezLog::get();
         $elements = $node->getElementsByTagName("item")->item(0);
         $elements = $elements->getElementsByTagName("name");
         foreach($elements as $element) {
