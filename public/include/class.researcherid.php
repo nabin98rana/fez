@@ -1870,11 +1870,11 @@ class ResearcherID {
   /**
    * Method used to perform a service request
    *
-   * @access  private
+   * @access  public
    * @param   string $post Data to POST to the service
    * @return  DOMDocument The XML returned by the service.
    */
-  private static function doServiceRequest($post_fields) {
+  public static function doServiceRequest($post_fields) {
     $log = FezLog::get();
     $db = DB_API::get();
 
