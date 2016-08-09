@@ -4114,14 +4114,12 @@ class Record
         $temp = array();
         $temp_value = '';
         if(!empty($res)) {
-          if (!is_array($res)) {
-            eval("\$temp_value = ".$sek_details["sek_lookup_function"]."(".$res.");");
-            $temp[$res] = $temp_value;
-          } else {
+          if (is_array($res)) {
             foreach ($res as $rdata) {
-              eval("\$temp_value = ".$sek_details["sek_lookup_function"]."(".$rdata.");");
-              $temp[$rdata] = $temp_value;
+              $temp[$rdata] = Search_Key::getOptions($sek_details["sek_lookup_function"] . "('" . $rdata . "')");
             }
+          } else {
+            $temp[$res] = Search_Key::getOptions($sek_details["sek_lookup_function"] . "('" . $res . "')");
           }
         }
         $res = $temp;
