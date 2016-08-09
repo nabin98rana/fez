@@ -12,6 +12,10 @@ WHERE config_name = 'app_solr_local_file_path';
 
 UPDATE fez_config
 SET config_value = 'OFF'
+WHERE config_name = 'app_analytics_switch';
+
+UPDATE fez_config
+SET config_value = 'OFF'
 WHERE config_name = 'app_piwik_switch';
 
 UPDATE fez_config

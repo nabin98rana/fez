@@ -46,7 +46,7 @@ Feature: Test that deleting communities/collections/records works correctly
     And I wait for solr
     And I wait for bgps
     And I carefully fill search entry with "title:(\"Security Test Name 2012\")"
-    And I press "search_entry_submit"
+    And I press search
     Then I should see "(0 results found)"
 
   Scenario: Delete Collection
@@ -63,7 +63,7 @@ Feature: Test that deleting communities/collections/records works correctly
     And I wait for solr
     And I wait for bgps
     And I carefully fill search entry with "title:(\"Delete Test Collection\")"
-    And I press "search_entry_submit"
+    And I press search
     And I press "Select All"
     And I turn off waiting checks
     And I press "Delete"
@@ -76,7 +76,7 @@ Feature: Test that deleting communities/collections/records works correctly
     And I wait for bgps
     And I wait for "2" seconds
     And I carefully fill search entry with "title:(\"Delete Test Collection\")"
-    And I press "search_entry_submit"
+    And I press search
     Then I should see "(0 results found)"
 
   Scenario: Delete Community
@@ -92,7 +92,7 @@ Feature: Test that deleting communities/collections/records works correctly
     And I wait for solr
     And I wait for bgps
     And I carefully fill search entry with "title:(\"Delete Test Community\")"
-    And I press "search_entry_submit"
+    And I press search
     And I press "Select All"
     And I turn off waiting checks
     And I press "Delete"
@@ -105,5 +105,5 @@ Feature: Test that deleting communities/collections/records works correctly
     And I wait for bgps
     And I wait for "2" seconds
     And I carefully fill search entry with "title:(\"Delete Test Community\")"
-    And I press "search_entry_submit"
+    And I press search
     Then I should see "(0 results found)"

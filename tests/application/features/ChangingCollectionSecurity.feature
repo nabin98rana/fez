@@ -38,28 +38,30 @@ Feature: Changing Collection Security
     And I wait for bgps
     And I am on the homepage
     And I carefully fill search entry with "title:(\"Test Community Security to be changed after pid created\")"
-    And I press "search_entry_submit"
+    And I press search
     Then I should not see "No records could be found"
     And I carefully fill search entry with "title:(\"Test Collection Security to be changed after pid created\")"
-    And I press "search_entry_submit"
+    And I press search
     Then I should not see "No records could be found"
     And I carefully fill search entry with "title:(\"Test Pid Security to be changed after pid created\")"
-    And I press "search_entry_submit"
+    And I press search
     Then I should not see "No records could be found"
     Given I login as administrator
     And I go to the temporary record pid view page
     When I follow "Edit Security for Select Record"
     Given I choose the "Masqueraders" group for the "Lister" role
+    And I wait for "3" seconds
     Given I choose the "Masqueraders" group for the "Viewer" role
-    And I press "Save"
+    And I wait for "3" seconds
+    And I press "Save Changes"
     And I wait for solr
     And I wait for bgps
-    And I wait for "10" seconds
+    And I am on the homepage
     And I carefully fill search entry with "title:(\"Test Pid Security to be changed after pid created\")"
-    And I press "search_entry_submit"
+    And I press search
     Then I should not see "No records could be found"
     And I carefully fill search entry with "title:(\"Test Collection Security to be changed after pid created\")"
-    And I press "search_entry_submit"
+    And I press search
     Then I should not see "No records could be found"
     And I carefully fill search entry with "title:("Test Community Security to be changed after pid created")"
     And I follow "Test Collection Security to be changed after pid created"
@@ -69,10 +71,10 @@ Feature: Changing Collection Security
     And I wait for solr
     And I wait for bgps
     And I carefully fill search entry with "title:(\"Test Collection Security to be changed after pid created\")"
-    And I press "search_entry_submit"
+    And I press search
     Then I should see "No records could be found"
     And I carefully fill search entry with "title:(\"Test Pid Security to be changed after pid created\")"
-    And I press "search_entry_submit"
+    And I press search
     Then I should see "No records could be found"
 
   @purge
@@ -80,4 +82,4 @@ Feature: Changing Collection Security
     Given I am on "/"
     Then I clean up title "Test Community Security to be changed after pid created"
     Then I clean up title "Test Collection Security to be changed after pid created"
-    Then I clean up title "Test Pid Security to be changed after pid created"
+    #Then I clean up title "Test Pid Security to be changed after pid created"
