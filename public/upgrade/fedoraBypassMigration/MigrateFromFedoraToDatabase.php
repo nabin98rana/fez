@@ -557,7 +557,14 @@ class MigrateFromFedoraToDatabase
   public function setMaximumPID()
   {
     // Get the maximum PID number from Fedora
-    $nextPID = Fedora_API::getNextPID(false);
+    $nextPID = '';
+    while (empty($nextPID)) {
+      $nextPID = Fedora_API::getNextPID(false);
+      // Fedora may still be initialising
+      if (empty($nextPID)) {
+        sleep(10);
+      }
+    }
     $nextPIDParts = explode(":", $nextPID);
     $nextPIDNumber = $nextPIDParts[1];
 

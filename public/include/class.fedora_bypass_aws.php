@@ -224,7 +224,7 @@ class Fedora_API implements FedoraApiInterface {
 		if ($aws->postFile($dataPath, array($dsLocation))) {
 			$success = 1;
 		}
-
+    Fedora_API::storeFileAttachment($pid, $dsIDName, 'A', $mimetype, $controlGroup);
 		return $success;
 	}
 
@@ -278,8 +278,70 @@ class Fedora_API implements FedoraApiInterface {
     } else {
       $aws->copyFile($dsLocation, $dataPath."/".$dsID);
     }
+    Fedora_API::storeFileAttachment($pid, $dsID, $dsState, $mimetype, $controlGroup);
     return $dsID;
 	}
+
+  /**
+   * Stores the datastream in the file attachments table
+   * @param string $pid The persistent identifier of the object to be purged
+   * @param string $dsID The ID of the datastream
+   * @param string $dsState The datastream state
+   * @param string $mimetype The mimetype of the datastream
+   * @param string $controlGroup The control group of the datastream
+   */
+	private static function storeFileAttachment($pid, $dsID, $dsState, $mimetype, $controlGroup = 'M')
+  {
+    $log = FezLog::get();
+    $db = DB_API::get();
+
+    if (! Zend_Registry::isRegistered('version')) {
+      Zend_Registry::set('version', Date_API::getCurrentDateGMT());
+    }
+
+    $fatArray = [
+      ':hash' => '',
+      ':filename' => $dsID,
+      ':metaid' => 0,
+      ':state' => $dsState,
+      ':size' => 0,
+      ':version' => Zend_Registry::get('version'),
+      ':mimetype' => $mimetype,
+      ':pid' => $pid,
+      ':controlgroup' => $controlGroup,
+      ':security_inherited' => 0
+    ];
+    $fatDid = '';
+    $stmt = "SELECT fat_did FROM " . APP_TABLE_PREFIX . "file_attachments WHERE "
+      . "fat_pid = :pid AND fat_filename = :filename";
+    try {
+      $fatDid = $db->fetchOne($stmt, [
+        ':filename' => $dsID,
+        ':pid' => $pid
+      ]);
+    }
+    catch(Exception $ex) {
+      $log->err($ex);
+    }
+
+    if ($fatDid) {
+      $fatArray[':id'] = $fatDid;
+      $stmt = "REPLACE INTO " . APP_TABLE_PREFIX . "file_attachments "
+        . "(fat_did, fat_hash, fat_filename, fat_metaid, fat_state, fat_version, fat_pid, fat_size, fat_mimetype, fat_controlgroup, fat_security_inherited) VALUES "
+        . "(:id, :hash, :filename, :metaid, :state, :version, :pid, :size, :mimetype, :controlgroup, :security_inherited)";
+
+    } else {
+      $stmt = "INSERT INTO " . APP_TABLE_PREFIX . "file_attachments "
+        . "(fat_hash, fat_filename, fat_metaid, fat_state, fat_version, fat_pid, fat_size, fat_mimetype, fat_controlgroup, fat_security_inherited) VALUES "
+        . "(:hash, :filename, :metaid, :state, :version, :pid, :size, :mimetype, :controlgroup, :security_inherited)";
+    }
+    try {
+      $db->query($stmt, $fatArray);
+    }
+    catch(Exception $ex) {
+      $log->err($ex);
+    }
+  }
 
 	/**
 	 *This function creates an array of all the datastreams for a specific object.
@@ -654,8 +716,21 @@ class Fedora_API implements FedoraApiInterface {
 	 */
 	public static function deleteDatastream($pid, $dsID)
 	{
-		$aws = AWS::get();
+    $log = FezLog::get();
+    $db = DB_API::get();
+    $aws = AWS::get();
+
 		$dataPath = Fedora_API::getDataPath($pid);
+    try {
+      $sql = "DELETE FROM " . APP_TABLE_PREFIX . "file_attachments WHERE "
+        . "fat_filename = :filename AND fat_pid = :pid";
+      $db->query($sql, [
+        ':filename' => $dsID,
+        ':pid' => $pid
+      ]);
+    } catch (Exception $e) {
+      $log->err($e->getMessage());
+    }
 		return $aws->deleteById($dataPath, $dsID);
 	}
 
@@ -672,8 +747,21 @@ class Fedora_API implements FedoraApiInterface {
 	 */
 	public static function callPurgeDatastream($pid, $dsID, $startDT = NULL, $endDT = NULL, $logMessage = "Purged Datastream from Fez", $force = FALSE)
 	{
-		$aws = AWS::get();
-		$dataPath = Fedora_API::getDataPath($pid);
+    $log = FezLog::get();
+    $db = DB_API::get();
+    $aws = AWS::get();
+
+    $dataPath = Fedora_API::getDataPath($pid);
+    try {
+      $sql = "DELETE FROM " . APP_TABLE_PREFIX . "file_attachments WHERE "
+        . "fat_filename = :filename AND fat_pid = :pid";
+      $db->query($sql, [
+        ':filename' => $dsID,
+        ':pid' => $pid
+      ]);
+    } catch (Exception $e) {
+      $log->err($e->getMessage());
+    }
 		return $aws->purgeById($dataPath, $dsID);
 	}
 }
