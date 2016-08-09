@@ -841,7 +841,7 @@ class Search_Key
      * @param   integer $sek_smarty_variable The search key variable
      * @return  array The list of search key options
      */
-    function getOptions($sek_smarty_variable)
+    public static function getOptions($sek_smarty_variable)
     {
         $log = FezLog::get();
 

@@ -494,12 +494,17 @@ if (!empty($pid) && $record->checkExists()) {
 
   // If we have a Journal Article of a Conference Paper, we want to display the sub-type information.
   if ($xdis_title == 'Journal Article') {
-    $sub_type = Record::getSearchKeyIndexValue($pid, "Subtype", false);
+    $sub_type = Record::getSearchKeyIndexValue($pid, "Subtype", true);
   } elseif ($xdis_title == 'Conference Paper') {
-    $sub_type = Record::getSearchKeyIndexValue($pid, "Genre Type", false);
+    $sub_type = Record::getSearchKeyIndexValue($pid, "Genre Type", true);
   } else {
     $sub_type = false;
   }
+  if (is_array($sub_type)) {
+    $values = array_values($sub_type);
+    $sub_type = $values[0];
+  }
+
   $tpl->assign("sub_type", $sub_type);
 
   if (empty($details)) {
@@ -523,7 +528,7 @@ if (!empty($pid) && $record->checkExists()) {
     $datastreams = Misc::cleanDatastreamListLite($datastreams, $pid);
 
     $doi = Record::getSearchKeyIndexValue($pid, 'DOI');
-    $tpl->assign(altmetricDOI, $doi);
+    $tpl->assign('altmetricDOI', $doi);
 
     if ($datastreams) {
 

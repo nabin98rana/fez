@@ -36,12 +36,13 @@
 
 <table width="100%" bgcolor="{$cell_color}" border="0" cellspacing="0" cellpadding="1" align="center">
 
-<input type="hidden" name="cat" value="update_security">
+<input type="hidden" name="cat" value="update_security_fedora_bypass"/>
 <input type="hidden" name="xdis_id" value="{$xdis_id}">
 <input type="hidden" name="sta_id" value="{$sta_id}">
 <input type="hidden" name="pid" value="{$pid}">
 <input type="hidden" name="did" value="{$did}">
 <input type="hidden" name="id" value="{$id}">
+<input type="hidden" name="action" value="save">
 {section name="i" loop=$xsd_display_fields}
 	{if $xsd_display_fields[i].xsdmf_title == 'state'}
 <input type="hidden" name="state" value="{$xsd_display_fields[i].xsdmf_static_text}">
@@ -52,10 +53,6 @@
         <table bgcolor="#FFFFFF" width="100%" cellspacing="1" cellpadding="2" border="0">
 
       		<div class="error">{$error_message}</div>
-              <input type="hidden" name="action" value="save"/>
-              <input type="hidden" name="cat" value="update_security_fedora_bypass"/>
-              <input type="hidden" name="id" value="{$id}"/>
-
             <tr>
                 <td bgcolor="{$light_color}" colspan="1">
                     <label for="role" style="display:none">Role</label>
