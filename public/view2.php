@@ -523,7 +523,7 @@ if (!empty($pid) && $record->checkExists()) {
     $datastreams = Misc::cleanDatastreamListLite($datastreams, $pid);
 
     $doi = Record::getSearchKeyIndexValue($pid, 'DOI');
-    $tpl->assign(altmetricDOI, $doi);
+    $tpl->assign('altmetricDOI', $doi);
 
     if ($datastreams) {
 
