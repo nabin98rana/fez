@@ -423,7 +423,7 @@ class AuthNoFedoraDatastreams
     return $res;
   }
 
-  function getInheritedDatastreamPolicyPermissions($did)
+  public static function getInheritedDatastreamPolicyPermissions($did)
   {
 
     $pid = AuthNoFedoraDatastreams::getPid($did);
@@ -438,7 +438,7 @@ class AuthNoFedoraDatastreams
     return $permissions;
   }
 
-  function getPid($did)
+  public static function getPid($did)
   {
     $log = FezLog::get();
     $db = DB_API::get();
@@ -457,7 +457,7 @@ class AuthNoFedoraDatastreams
     return $res;
   }
 
-  function getDid($pid, $dsID)
+  public static function getDid($pid, $dsID)
   {
     $log = FezLog::get();
     $db = DB_API::get();
@@ -618,7 +618,7 @@ class AuthNoFedoraDatastreams
     AuthNoFedoraDatastreams::recalculatePermissions($did);
   }
 
-  function getAllSecurityPermissionsDescriptions($did)
+  public static function getAllSecurityPermissionsDescriptions($did)
   {
     $log = FezLog::get();
     $db = DB_API::get();

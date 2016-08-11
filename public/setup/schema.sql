@@ -637,34 +637,6 @@ CREATE TABLE `fez_datastream_cache` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Table structure for table `fez_digital_object`
---
-
-DROP TABLE IF EXISTS `fez_digital_object`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `fez_digital_object` (
-  `pidns` varchar(5) NOT NULL,
-  `pidint` int(11) NOT NULL,
-  `xdis_id` int(11) NOT NULL,
-  `sta_id` int(11) NOT NULL,
-  `usr_id` int(11) NOT NULL,
-  `grp_id` int(11) DEFAULT NULL,
-  `copyright` enum('on','off') NOT NULL DEFAULT 'on',
-  `depositor` int(11) DEFAULT NULL,
-  `depositor_affiliation` int(11) DEFAULT NULL,
-  `additional_notes` text,
-  `refereed` enum('on','off') DEFAULT NULL,
-  `herdc_status` int(11) DEFAULT NULL,
-  `institutional_status` int(11) DEFAULT NULL,
-  `follow_up` enum('on','off') NOT NULL DEFAULT 'off',
-  `follow_up_imu` enum('on','off') NOT NULL DEFAULT 'off',
-  `created` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (`pidns`,`pidint`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
 -- Table structure for table `fez_eprints_import_pids`
 --
 
@@ -785,22 +757,15 @@ DROP TABLE IF EXISTS `fez_file_attachments`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `fez_file_attachments` (
   `fat_did` int(11) NOT NULL AUTO_INCREMENT,
-  `fat_hash` varchar(50) NOT NULL,
   `fat_filename` varchar(200) NOT NULL,
-  `fat_label` varchar(200) DEFAULT NULL,
-  `fat_version` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `fat_metaid` int(11) NOT NULL,
-  `fat_state` enum('A','D') NOT NULL DEFAULT 'A',
-  `fat_size` int(20) NOT NULL DEFAULT '0',
   `fat_pid` varchar(15) NOT NULL DEFAULT '0',
   `fat_mimetype` varchar(100) DEFAULT NULL,
-  `fat_controlgroup` char(1) NOT NULL DEFAULT 'M',
-  `fat_xdis_id` int(11) DEFAULT '5',
+  `fat_url` text,
   `fat_copyright` char(1) DEFAULT NULL,
   `fat_watermark` char(1) DEFAULT NULL,
   `fat_security_inherited` char(1) DEFAULT NULL,
   PRIMARY KEY (`fat_did`),
-  KEY `unique_pid_hash` (`fat_hash`,`fat_pid`)
+  KEY `unique_pid_filename` (`fat_pid`, `fat_filename`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
