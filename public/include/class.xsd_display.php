@@ -1142,7 +1142,7 @@ class XSD_DisplayObject
 	 * @param   string $pid The persistent identifier of the record
 	 * @return  array The list of match fields with the values from the datastream
 	 */
-	function getXSDMF_Values($pid, $createdDT=null, $skipIndex = false)
+	function getXSDMF_Values($pid, $createdDT=null, $skipIndex = false, $getLookup = false)
 	{
 
 		$log = FezLog::get();
@@ -1178,7 +1178,10 @@ class XSD_DisplayObject
         $sek = Search_Key::getID(ucwords(str_replace("_", " ", str_replace("rek_", "", $sek_id))));
 				$xsdmf_array =  XSD_HTML_Match::getXSDMF_IDBySekIDXDIS_ID($sek, $xdis_str);
         $function = Search_Key::getLookupFunctionBySek_ID($sek);
-				foreach ($xsdmf_array as $xsdmf_id) {
+        if ($getLookup === false) {
+          $function = NULL;
+        }
+        foreach ($xsdmf_array as $xsdmf_id) {
           if (! empty($function)) {
             if (is_array($value)) {
               $sek_values = [];
