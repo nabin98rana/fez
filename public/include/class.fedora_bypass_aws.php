@@ -214,18 +214,7 @@ class Fedora_API implements FedoraApiInterface {
 	 */
 	public static function getUploadLocationByLocalRef($pid, $dsIDName, $dsLocation, $dsLabel, $mimetype, $controlGroup = 'M', $dsID = NULL, $versionable = FALSE)
 	{
-		$success = 0;
-		if (! Zend_Registry::isRegistered('version')) {
-			Zend_Registry::set('version', Date_API::getCurrentDateGMT());
-		}
-
-		$aws = AWS::get();
-		$dataPath = Fedora_API::getDataPath($pid);
-		if ($aws->postFile($dataPath, array($dsLocation))) {
-			$success = 1;
-		}
-
-		return $success;
+    return Fedora_API::callAddDatastream($pid, $dsIDName, $dsLocation, $dsLabel, 'A', $mimetype, $controlGroup, $versionable, '', false);
 	}
 
 	/**
@@ -257,29 +246,86 @@ class Fedora_API implements FedoraApiInterface {
 	 * @param string $controlGroup The control group of the datastream
 	 * @param bool|string $versionable Whether to version control this datastream or not
 	 * @param string $xmlContent If it an X based xml content file then it uses a var rather than a file location
-	 * @param int $current_tries A counter of how many times this function has retried the addition of a datastream
+	 * @param bool $unlinkLocalFile
 	 * @return string
 	 */
-	public static function callAddDatastream($pid, $dsID, $dsLocation, $dsLabel, $dsState, $mimetype, $controlGroup = 'M', $versionable = FALSE, $xmlContent = "", $current_tries = 0)
+	public static function callAddDatastream($pid, $dsID, $dsLocation, $dsLabel, $dsState, $mimetype, $controlGroup = 'M', $versionable = FALSE, $xmlContent = "", $unlinkLocalFile = false)
 	{
 		if (is_numeric(strpos($dsID, chr(92)))) {
 			$dsID = substr($dsID, strrpos($dsID, chr(92))+1);
-		}
-		if (! Zend_Registry::isRegistered('version')) {
-			Zend_Registry::set('version', Date_API::getCurrentDateGMT());
 		}
 
 		$aws = AWS::get();
 		$dataPath = Fedora_API::getDataPath($pid);
 
     if (stripos($dsLocation, APP_TEMP_DIR) === 0) {
-      $aws->postFile($dataPath, [$dsLocation]);
-      unlink($dsLocation);
+      $obj = $aws->postFile($dataPath, [$dsLocation]);
+      if ($obj) {
+        $obj = $obj[0];
+      }
+      if ($unlinkLocalFile) {
+        unlink($dsLocation);
+      }
     } else {
-      $aws->copyFile($dsLocation, $dataPath."/".$dsID);
+      $obj = $aws->copyFile($dsLocation, $dataPath."/".$dsID);
     }
+    if (! $obj) {
+      return false;
+    }
+    Fedora_API::storeFileAttachment($pid, $dsID, $mimetype, $obj);
     return $dsID;
 	}
+
+  /**
+   * Stores the datastream in the file attachments table
+   * @param string $pid The persistent identifier of the object to be purged
+   * @param string $dsID The ID of the datastream
+   * @param string $mimetype The mimetype of the datastream
+   * @param AWS\Result $object The object in S3
+   */
+	private static function storeFileAttachment($pid, $dsID, $mimetype, $object)
+  {
+    $log = FezLog::get();
+    $db = DB_API::get();
+
+    $fatArray = [
+      ':filename' => $dsID,
+      ':pid' => $pid,
+      ':mimetype' => $mimetype,
+      ':url' => $object['ObjectURL'],
+      ':security_inherited' => 0
+    ];
+    $fatDid = '';
+    $stmt = "SELECT fat_did FROM " . APP_TABLE_PREFIX . "file_attachments WHERE "
+      . "fat_pid = :pid AND fat_filename = :filename";
+    try {
+      $fatDid = $db->fetchOne($stmt, [
+        ':filename' => $dsID,
+        ':pid' => $pid
+      ]);
+    }
+    catch(Exception $ex) {
+      $log->err($ex);
+    }
+
+    if ($fatDid) {
+      $fatArray[':id'] = $fatDid;
+      $stmt = "REPLACE INTO " . APP_TABLE_PREFIX . "file_attachments "
+        . "(fat_did, fat_filename, fat_pid, fat_mimetype, fat_url, fat_security_inherited) VALUES "
+        . "(:id, :filename, :pid, :mimetype, :url, :security_inherited)";
+
+    } else {
+      $stmt = "INSERT INTO " . APP_TABLE_PREFIX . "file_attachments "
+        . "(fat_filename, fat_pid, fat_mimetype, fat_url, fat_security_inherited) VALUES "
+        . "(:filename, :pid, :mimetype, :url, :security_inherited)";
+    }
+    try {
+      $db->query($stmt, $fatArray);
+    }
+    catch(Exception $ex) {
+      $log->err($ex);
+    }
+  }
 
 	/**
 	 *This function creates an array of all the datastreams for a specific object.
@@ -430,10 +476,15 @@ class Fedora_API implements FedoraApiInterface {
 	 */
 	public static function callGetDatastream($pid, $dsID, $createdDT = NULL)
 	{
+    $log = FezLog::get();
+    $db = DB_API::get();
 		$aws = AWS::get();
+
 		$dataPath = Fedora_API::getDataPath($pid);
 
-		$dsArray = $aws->getObject($dataPath."/".$dsID, $createdDT);
+    $createdDT = NULL; // Force NULL until S3 versions are supported
+
+		$dsArray = $aws->getObject($dataPath."/".$dsID);
 		$dsData = array();
 
 		$dsData['ID'] = $dsID;
@@ -654,8 +705,21 @@ class Fedora_API implements FedoraApiInterface {
 	 */
 	public static function deleteDatastream($pid, $dsID)
 	{
-		$aws = AWS::get();
+    $log = FezLog::get();
+    $db = DB_API::get();
+    $aws = AWS::get();
+
 		$dataPath = Fedora_API::getDataPath($pid);
+    try {
+      $sql = "DELETE FROM " . APP_TABLE_PREFIX . "file_attachments WHERE "
+        . "fat_filename = :filename AND fat_pid = :pid";
+      $db->query($sql, [
+        ':filename' => $dsID,
+        ':pid' => $pid
+      ]);
+    } catch (Exception $e) {
+      $log->err($e->getMessage());
+    }
 		return $aws->deleteById($dataPath, $dsID);
 	}
 
@@ -672,8 +736,21 @@ class Fedora_API implements FedoraApiInterface {
 	 */
 	public static function callPurgeDatastream($pid, $dsID, $startDT = NULL, $endDT = NULL, $logMessage = "Purged Datastream from Fez", $force = FALSE)
 	{
-		$aws = AWS::get();
-		$dataPath = Fedora_API::getDataPath($pid);
+    $log = FezLog::get();
+    $db = DB_API::get();
+    $aws = AWS::get();
+
+    $dataPath = Fedora_API::getDataPath($pid);
+    try {
+      $sql = "DELETE FROM " . APP_TABLE_PREFIX . "file_attachments WHERE "
+        . "fat_filename = :filename AND fat_pid = :pid";
+      $db->query($sql, [
+        ':filename' => $dsID,
+        ':pid' => $pid
+      ]);
+    } catch (Exception $e) {
+      $log->err($e->getMessage());
+    }
 		return $aws->purgeById($dataPath, $dsID);
 	}
 }

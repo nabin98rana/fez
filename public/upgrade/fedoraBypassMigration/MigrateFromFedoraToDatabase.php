@@ -178,8 +178,8 @@ class MigrateFromFedoraToDatabase
     // Create shadow tables for search keys
     $this->createSearchKeyShadowTables();
 
-    // Create Digital Object tables
-    $this->createDigitalObjectTables();
+    // Create file attachment and auth quick rules tables
+    $this->createAdditionalTables();
 
     // Upgrade table schema for all datastream permissions and pid non inherited permissions
     $this->updateForDatastreamPermission();
@@ -557,7 +557,14 @@ class MigrateFromFedoraToDatabase
   public function setMaximumPID()
   {
     // Get the maximum PID number from Fedora
-    $nextPID = Fedora_API::getNextPID(false);
+    $nextPID = '';
+    while (empty($nextPID)) {
+      $nextPID = Fedora_API::getNextPID(false);
+      // Fedora may still be initialising
+      if (empty($nextPID)) {
+        sleep(10);
+      }
+    }
     $nextPIDParts = explode(":", $nextPID);
     $nextPIDNumber = $nextPIDParts[1];
 
@@ -615,22 +622,8 @@ class MigrateFromFedoraToDatabase
   /**
    * Create tables and update db schema to store Digital Object & attached files.
    */
-  public function createDigitalObjectTables()
+  public function createAdditionalTables()
   {
-
-    // Run this script: upgrade2012031200.sql
-    // Creates digital object table.
-    $file = APP_PATH . "/upgrade/sql_scripts/upgrade2012031200.sql";
-    try {
-      $this->_upgradeHelper->parse_mysql_dump($file);
-      // echo chr(10) . "\n<br />Successfully created Digital Object table";
-    } catch (Exception $e) {
-      echo "\n<br> Failed creating Digital Object tables. file = " . $file . " Ex: " . $e->getMessage();
-      return false;
-    }
-
-
-    // Run this script: upgrade2012022100.sql
     // Creates file_attachments table and its shadow table.
     $file = APP_PATH . "/upgrade/sql_scripts/upgrade2012022100.sql";
     try {
@@ -641,7 +634,6 @@ class MigrateFromFedoraToDatabase
       return false;
     }
 
-    // Run this script: upgrade2012081000.sql
     // Add auth quick rules table.
     $file = APP_PATH . "/upgrade/sql_scripts/upgrade2012081000.sql";
     try {
@@ -654,7 +646,6 @@ class MigrateFromFedoraToDatabase
     ob_flush();
     return true;
   }
-
 
   /**
    * This script is based on rm_fedora.php. 1.1 - 1.4, 1.6 - 1.7

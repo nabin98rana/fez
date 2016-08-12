@@ -238,7 +238,7 @@ class AWS
    * @param string $src
    * @param array $files array of full file path strings $files
    * @param bool $deleteAfter if true it will unlink each file in $files after each successful upload
-   * @return boolean
+   * @return array|boolean An array of AWS\Result objects, or false if the post failed
    */
   public function postFile($src, $files, $deleteAfter = false)
   {
@@ -270,7 +270,7 @@ class AWS
           'size' => $fileSize,
       ];
       try {
-        $client->putObject([
+        $res = $client->putObject([
             'Bucket' => $this->s3Bucket,
             'Key' => $key,
             'SourceFile' => $file,
@@ -278,7 +278,7 @@ class AWS
             'ServerSideEncryption' => 'AES256',
             'Metadata' => $meta
         ]);
-        $results[] = $meta;
+        $results[] = $res;
       } catch (\Aws\S3\Exception\S3Exception $e) {
         $this->log->err($e->getMessage());
         return false;
@@ -288,14 +288,14 @@ class AWS
       }
     }
 
-    return true; // TODO: return false when the response didn't work, log an error
+    return $results;
   }
 
   /**
    * Copies a file from the S3 source $src to another S3 src $newSrc
    * @param string $src
    * @param string $newSrc
-   * @return boolean
+   * @return AWS\Result|boolean An AWS\Result object, or false if the copy failed
    */
   public function copyFile($src, $newSrc)
   {
@@ -305,12 +305,12 @@ class AWS
     $key = $this->createPath($src, '');
     $newKey = $this->createPath($newSrc, '');
     try {
-      $client->copyObject(array(
+      $res = $client->copyObject(array(
         'Bucket'     => $this->s3Bucket,
         'Key'        => $newKey,
         'CopySource' => "{$this->s3Bucket}/{$key}",
       ));
-      return true;
+      return $res;
     } catch (\Aws\S3\Exception\S3Exception $e) {
       $this->log->err($e->getMessage());
       return false;
@@ -322,7 +322,7 @@ class AWS
    * @param string $content
    * @param string $fileName
    * @param string $mimeType
-   * @return boolean
+   * @return AWS\Result|boolean An AWS\Result object, or false if the post failed
    */
   public function postContent($src, $content, $fileName, $mimeType)
   {
@@ -335,8 +335,6 @@ class AWS
     }
 
     $maxSize = 9999999999;
-
-    $results = [];
 
     $fileSize = sizeof($content);
 
@@ -354,7 +352,7 @@ class AWS
 
     try {
       $key = $this->createPath($src, $fileName);
-      $client->putObject([
+      $res = $client->putObject([
           'Bucket' => $this->s3Bucket,
           'Key' => $key,
           'Body' => $content,
@@ -362,13 +360,12 @@ class AWS
           'ServerSideEncryption' => 'AES256',
           'Metadata' => $meta
       ]);
-      $results[] = $meta;
+      return $res;
+
     } catch (\Aws\S3\Exception\S3Exception $e) {
       $this->log->err($e->getMessage());
       return false;
     }
-
-    return true; // TODO: return false when the response didn't work, log an error
   }
 
   /**
