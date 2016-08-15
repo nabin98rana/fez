@@ -166,7 +166,7 @@ class Fedora_API implements FedoraApiInterface {
 	 * @param string $controlGroup The control group of the datastream
 	 * @param string $dsID The ID of the datastream
 	 * @param bool|string $versionable Whether to version control this datastream or not
-	 * @return string
+	 * @return integer
 	 */
 	public static function getUploadLocation($pid, $dsIDName, $file, $dsLabel, $mimetype = 'text/xml', $controlGroup = 'M', $dsID = NULL, $versionable = FALSE)
 	{
@@ -184,17 +184,21 @@ class Fedora_API implements FedoraApiInterface {
 			fwrite($fp, $file);
 			fclose($fp);
 		}
+    $dsID = '';
+
 		$versionable = $versionable === true ? 'true' : $versionable === false ? 'false' : $versionable;
 		$dsExists = Fedora_API::datastreamExists($pid, $dsIDName, true);
 
 		if ($dsExists !== true) {
-			Fedora_API::callAddDatastream($pid, $dsIDName, $file_full, $dsLabel, "A", $mimetype, $controlGroup, $versionable, '');
-		}
+			$dsID = Fedora_API::callAddDatastream($pid, $dsIDName, $file_full, $dsLabel, "A", $mimetype, $controlGroup, $versionable, '');
+		} else {
+      $dsID = Fedora_API::getDid($pid, $dsIDName);
+    }
 
 		if (is_file($file_full)) {
 			unlink($file_full);
 		}
-		return $dsIDName;
+		return $dsID;
 	}
 
 	/**
@@ -247,7 +251,7 @@ class Fedora_API implements FedoraApiInterface {
 	 * @param bool|string $versionable Whether to version control this datastream or not
 	 * @param string $xmlContent If it an X based xml content file then it uses a var rather than a file location
 	 * @param bool $unlinkLocalFile
-	 * @return string
+	 * @return integer
 	 */
 	public static function callAddDatastream($pid, $dsID, $dsLocation, $dsLabel, $dsState, $mimetype, $controlGroup = 'M', $versionable = FALSE, $xmlContent = "", $unlinkLocalFile = false)
 	{
@@ -272,42 +276,31 @@ class Fedora_API implements FedoraApiInterface {
     if (! $obj) {
       return false;
     }
-    Fedora_API::storeFileAttachment($pid, $dsID, $mimetype, $obj);
-    return $dsID;
+    return Fedora_API::storeFileAttachment($pid, $dsID, $mimetype, $obj);
 	}
 
   /**
    * Stores the datastream in the file attachments table
    * @param string $pid The persistent identifier of the object to be purged
-   * @param string $dsID The ID of the datastream
+   * @param string $dsName The name of the datastream
    * @param string $mimetype The mimetype of the datastream
    * @param AWS\Result $object The object in S3
+   * @return integer The datastream ID
    */
-	private static function storeFileAttachment($pid, $dsID, $mimetype, $object)
+	private static function storeFileAttachment($pid, $dsName, $mimetype, $object)
   {
     $log = FezLog::get();
     $db = DB_API::get();
 
     $fatArray = [
-      ':filename' => $dsID,
+      ':filename' => $dsName,
       ':pid' => $pid,
       ':mimetype' => $mimetype,
       ':url' => $object['ObjectURL'],
       ':security_inherited' => 0
     ];
-    $fatDid = '';
-    $stmt = "SELECT fat_did FROM " . APP_TABLE_PREFIX . "file_attachments WHERE "
-      . "fat_pid = :pid AND fat_filename = :filename";
-    try {
-      $fatDid = $db->fetchOne($stmt, [
-        ':filename' => $dsID,
-        ':pid' => $pid
-      ]);
-    }
-    catch(Exception $ex) {
-      $log->err($ex);
-    }
 
+    $fatDid = Fedora_API::getDid($pid, $dsName);
     if ($fatDid) {
       $fatArray[':id'] = $fatDid;
       $stmt = "REPLACE INTO " . APP_TABLE_PREFIX . "file_attachments "
@@ -321,9 +314,32 @@ class Fedora_API implements FedoraApiInterface {
     }
     try {
       $db->query($stmt, $fatArray);
+      $fatDid = $db->lastInsertId(APP_TABLE_PREFIX . "file_attachments", "fat_did");
     }
     catch(Exception $ex) {
       $log->err($ex);
+    }
+
+    return $fatDid;
+  }
+
+  private static function getDid($pid, $dsName)
+  {
+    $log = FezLog::get();
+    $db = DB_API::get();
+
+    $stmt = "SELECT fat_did FROM " . APP_TABLE_PREFIX . "file_attachments WHERE "
+      . "fat_pid = :pid AND fat_filename = :filename";
+    try {
+      $fatDid = $db->fetchOne($stmt, [
+        ':filename' => $dsName,
+        ':pid' => $pid
+      ]);
+      return $fatDid;
+    }
+    catch(Exception $ex) {
+      $log->err($ex);
+      return false;
     }
   }
 
