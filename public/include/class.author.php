@@ -432,6 +432,12 @@ class Author
       }
     }
 
+    if (trim($_POST["student_username"] !== "")) {
+      if (Author::getIDByUsername(trim($_POST["student_username"]), $_POST["id"])) {
+        return -4;
+      }
+    }
+
     $rid = "";
     // RIDs are always 11 chars
     if (strlen(trim($_POST["researcher_id"])) == 11 || strlen(trim($_POST["researcher_id"])) == 0) {
@@ -451,14 +457,14 @@ class Author
                     aut_lname=" . $db->quote(trim($_POST["lname"])) . ",
                     aut_display_name=" . $db->quote(trim($_POST["dname"])) . ",
                     aut_position=" . $db->quote(trim($_POST["position"])) . ",
-          					aut_email=" . $db->quote(trim($_POST["email"])) . ",
+          			aut_email=" . $db->quote(trim($_POST["email"])) . ",
                     aut_homepage_link=" . $db->quote(trim($_POST["homepage_link"])) . ",
                     aut_ref_num=" . $db->quote(trim($_POST["aut_ref_num"])) . ",
                     aut_scopus_id=" . $db->quote(trim($_POST["scopus_id"])).",
                     aut_google_scholar_id=" . $db->quote(trim($_POST["google_scholar_id"])).",
-					          aut_people_australia_id=" . $db->quote(trim($_POST["people_australia_id"])).",
+					aut_people_australia_id=" . $db->quote(trim($_POST["people_australia_id"])).",
                     aut_mypub_url=" . $db->quote(trim($_POST["mypub_url"])).",
-          					aut_description=" . $db->quote($stripped_description) . ",
+          			aut_description=" . $db->quote($stripped_description) . ",
                     aut_update_date=" . $db->quote(Date_API::getCurrentDateGMT());
     if (trim($_POST["org_staff_id"] !== "")) {
       $stmt .= ",aut_org_staff_id=" . $db->quote(trim($_POST["org_staff_id"])) . " ";
@@ -475,11 +481,11 @@ class Author
     } else {
       $stmt .= ",aut_org_username=null ";
     }
-      if (trim($_POST["student_username"] !== "")) {
-          $stmt .= ",aut_student_username=" . $db->quote(trim($_POST["student_username"])) . " ";
-      } else {
-          $stmt .= ",aut_student_username=null ";
-      }
+    if (trim($_POST["student_username"] !== "")) {
+      $stmt .= ",aut_student_username=" . $db->quote(trim($_POST["student_username"])) . " ";
+    } else {
+      $stmt .= ",aut_student_username=null ";
+    }
     $stmt .= "WHERE
                     aut_id=" . $db->quote($_POST["id"], 'INTEGER');
     try {
@@ -605,6 +611,12 @@ class Author
       }
     }
 
+    if (trim($_POST["student_username"] !== "")) {
+      if (Author::getIDByUsername(trim($_POST["student_username"]))) {
+        return -4;
+      }
+    }
+
     $insert = "INSERT INTO
                     " . APP_TABLE_PREFIX . "author
                  (
@@ -624,8 +636,8 @@ class Author
       $insert .= ", aut_org_username ";
     }
     if (trim($_POST["student_username"] !== "")) {
-          $insert .= ", aut_student_username ";
-      }
+      $insert .= ", aut_student_username ";
+    }
     if ($_POST["mname"] !== "") {
       $insert .= ", aut_mname ";
     }
@@ -681,6 +693,9 @@ class Author
     }
     if (trim($_POST["org_username"] !== "")) {
       $values .= ", " . $db->quote(trim($_POST["org_username"]));
+    }
+    if (trim($_POST["student_username"] !== "")) {
+      $values .= ", " . $db->quote(trim($_POST["student_username"]));
     }
     if ($_POST["mname"] !== "") {
       $values .= ", " . $db->quote(trim($_POST["mname"]));
@@ -760,13 +775,13 @@ class Author
             $where_stmt .= " AND ";
           }
 			    if (is_numeric(strpos(APP_SQL_DBTYPE, "pgsql"))) {
-						$where_stmt .= " (aut_fname ILIKE ".$db->quote('%'.$name.'%')." OR aut_lname ILIKE ".$db->quote('%'.$name.'%')." OR aut_org_username ILIKE ".$db->quote($name.'%').") ";
+						$where_stmt .= " (aut_fname ILIKE ".$db->quote('%'.$name.'%')." OR aut_lname ILIKE ".$db->quote('%'.$name.'%')." OR aut_org_username ILIKE ".$db->quote($name.'%').") OR aut_student_username ILIKE ".$db->quote($name.'%').") ";
 					} else {
-          	$where_stmt .= " (aut_fname LIKE ".$db->quote($name.'%')." OR aut_lname LIKE ".$db->quote($name.'%')." OR aut_org_username LIKE ".$db->quote($name.'%').") ";
+          	$where_stmt .= " (aut_fname LIKE ".$db->quote($name.'%')." OR aut_lname LIKE ".$db->quote($name.'%')." OR aut_org_username LIKE ".$db->quote($name.'%').") OR aut_student_username LIKE ".$db->quote($name.'%').")";
 					}
         }
       } else {
-        $where_stmt .= " WHERE MATCH(aut_fname, aut_lname) AGAINST (".$db->quote(''.$filter.'*')." IN BOOLEAN MODE) OR aut_org_username LIKE ".$db->quote($filter.'%')." ";
+        $where_stmt .= " WHERE MATCH(aut_fname, aut_lname) AGAINST (".$db->quote(''.$filter.'*')." IN BOOLEAN MODE) OR aut_org_username LIKE ".$db->quote($filter.'%')." OR aut_student_username LIKE ".$db->quote($filter.'%')." ";
         $extra_stmt = " , MATCH(aut_fname, aut_lname) AGAINST (".$db->quote($filter).") as Relevance ";
         $extra_order_stmt = " Relevance DESC, ";
       }
@@ -937,7 +952,7 @@ class Author
     }
 
     $start = $current_row * $max;
-    $stmt = "SELECT SQL_CALC_FOUND_ROWS
+    $stmt = "SELECT SQL_CALC_FOUND_ROWS *
                  FROM
                     " . APP_TABLE_PREFIX . "author
         ".$where_stmt."
@@ -1666,7 +1681,7 @@ class Author
   }
 
 
-  function getOrgUsername($aut_id)
+  static function getOrgUsernames($aut_id)
   {
     $log = FezLog::get();
     $db = DB_API::get();
@@ -1685,7 +1700,7 @@ class Author
                  ORDER BY
                     aut_title";
     try {
-      $res = $db->fetchOne($stmt);
+      $res = $db->fetch($stmt);
     }
     catch(Exception $ex) {
       $log->err($ex);
