@@ -291,7 +291,6 @@ DROP TABLE IF EXISTS `fez_author`;
 CREATE TABLE `fez_author` (
   `aut_id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `aut_org_username` varchar(255) DEFAULT NULL,
-  `aut_student_username` varchar(255) DEFAULT NULL,
   `aut_org_staff_id` varchar(255) DEFAULT NULL,
   `aut_display_name` varchar(255) DEFAULT NULL,
   `aut_fname` varchar(255) DEFAULT NULL,
@@ -317,7 +316,6 @@ CREATE TABLE `fez_author` (
   PRIMARY KEY (`aut_id`),
   UNIQUE KEY `aut_org_staff_id` (`aut_org_staff_id`),
   UNIQUE KEY `aut_org_username` (`aut_org_username`),
-  UNIQUE KEY `aut_student_username` (`aut_student_username`),
   FULLTEXT KEY `aut_fname` (`aut_fname`,`aut_lname`),
   FULLTEXT KEY `aut_display_name` (`aut_display_name`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;

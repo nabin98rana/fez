@@ -11,7 +11,7 @@
             	   {if is_array($details[$author_details])}
             		 {if $details[$author_details][$loop_num].aut_id != ""}
             		   {assign var="author_id" value=$details[$author_details][$loop_num]}
-            		   <option value="{$author_id.aut_id}" selected>{$author_id.aut_display_name} ({$author_id.aut_id}) ({$author_id.aut_org_username})</option>
+            		   <option value="{$author_id.aut_id}" selected>{$author_id.aut_display_name} ({$author_id.aut_id}) ({$author_id.username})</option>
             		  {/if}
             	   {/if}
             	{/if}

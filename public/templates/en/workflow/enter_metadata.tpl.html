@@ -265,7 +265,7 @@
 			<input type="button" maxlength="55"  name="simple_toggle" value="Show All Fields" onclick="javascript:toggleCreateMode(); this.disabled = true;" class="button" />
 
 		{/if}
-        {if $isUPO && $acting_user.aut_org_username != $actual_user}
+        {if $isUPO && ($acting_user.aut_org_username != $actual_user || $acting_user.aut_student_username != $actual_user)}
           &nbsp;Currently acting as: <b>{$acting_user.aut_org_username}</b> &nbsp; ({$acting_user.aut_display_name}, {$acting_user.org_unit_description})
         {/if}
 	</td>
