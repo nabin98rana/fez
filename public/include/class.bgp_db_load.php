@@ -32,13 +32,13 @@
 
 include_once(APP_INC_PATH . 'class.background_process.php');
 
-class BackgroundProcess_Staging_Db_Load extends BackgroundProcess
+class BackgroundProcess_Db_Load extends BackgroundProcess
 {
   function __construct()
   {
     parent::__construct();
-    $this->include = 'class.bgp_staging_db_load.php';
-    $this->name = 'Staging DB load';
+    $this->include = 'class.bgp_db_load.php';
+    $this->name = 'DB load';
   }
 
   function run() {
@@ -49,15 +49,19 @@ class BackgroundProcess_Staging_Db_Load extends BackgroundProcess
   }
 
   function loadDb() {
-    if ($_SERVER['APP_ENVIRONMENT'] !== 'staging') {
-      echo 'Not in staging..';
+    $environment = $_SERVER['APP_ENVIRONMENT'];
+    if (
+      $environment !== 'production' ||
+      $environment !== 'staging'
+    ) {
+      echo 'Not in production/staging..';
       return;
     }
     set_time_limit(0);
 
     $log = FezLog::get();
     $db = DB_API::get();
-    $path = '/tmp/staging';
+    $path = '/tmp/' . $environment;
 
     system("rm -Rf ${path}");
     mkdir($path);
@@ -66,13 +70,13 @@ class BackgroundProcess_Staging_Db_Load extends BackgroundProcess
     if (! system("AWS_ACCESS_KEY_ID=" .
       AWS_KEY. " AWS_SECRET_ACCESS_KEY=" .
       AWS_SECRET .
-      " bash -c \"aws s3 cp s3://uql-fez-staging/fezstaging.tar.gz ${path}/fezstaging.tar.gz\"")
+      " bash -c \"aws s3 cp s3://uql-fez-${environment}/fez${environment}.tar.gz ${path}/fez${environment}.tar.gz\"")
     ) {
-      $log->err('Staging import failed: Unable to copy Fez staging DB from S3');
+      $log->err('DB load failed: Unable to copy Fez DB from S3');
       exit;
     }
 
-    system("cd ${path} && tar xzvf ${path}/fezstaging.tar.gz --no-same-owner --strip-components 1");
+    system("cd ${path} && tar xzvf ${path}/fez${environment}.tar.gz --no-same-owner --strip-components 1");
 
     $files = glob($path . "/*.sql");
     foreach ($files as $sql) {
