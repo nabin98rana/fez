@@ -1,5 +1,5 @@
 {
-  "family": "fez",
+  "family": "fezproduction",
   "containerDefinitions": [
     {
       "name": "nginx",
@@ -8,7 +8,7 @@
       "memory": 256,
       "portMappings": [
         {
-          "hostPort": 8006,
+          "hostPort": 8007,
           "containerPort": 80,
           "protocol": "tcp"
         }
