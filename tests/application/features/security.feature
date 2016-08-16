@@ -52,6 +52,7 @@ Feature: Security
     And I uncheck "Inherit Security from Parent Hierarchy?"
     And I choose the "Masqueraders" group for the "Lister" role
     And I choose the "Masqueraders" group for the "Viewer" role
+    And I wait for "3" seconds
     And I press "Save Changes"
     And I follow "Logout"
     And I wait for solr
@@ -81,6 +82,7 @@ Feature: Security
     And I follow "Edit Security for Selected Community"
     And I choose the "Masqueraders" group for the "Lister" role
     And I choose the "Masqueraders" group for the "Viewer" role
+    And I wait for "3" seconds
     And I press "Save Changes"
     And I wait for solr
     And I wait for bgps

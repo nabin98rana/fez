@@ -431,8 +431,6 @@ class RecordGeneral
 
         // Update the search keys for this PID with new value
         Record::updateSearchKeys($this->pid, $searchKeyData);
-        $recordSearchkeyShadow = new Fez_Record_SearchkeyShadow($this->pid);
-        $recordSearchkeyShadow->copyRecordSearchKeyToShadow();
     } else {
 
         // Update the XML for FezMD datastream,
@@ -1976,7 +1974,7 @@ class RecordGeneral
    * @access  public
    * @return  array $this->details The details of the object
    */
-  function getDetails($dsID = "", $xdis_id = "")
+  function getDetails($dsID = "", $xdis_id = "", $getLookup = false)
   {
     $log = FezLog::get();
     $db = DB_API::get();
@@ -1993,7 +1991,7 @@ class RecordGeneral
         if ($dsID != "") {
           $this->details = $this->display->getXSDMF_Values_Datastream($this->pid, $dsID, $this->createdDT);
         } else {
-          $this->details = $this->display->getXSDMF_Values($this->pid, $this->createdDT);
+          $this->details = $this->display->getXSDMF_Values($this->pid, $this->createdDT, false, $getLookup);
         }
       } else {
         $log->err(

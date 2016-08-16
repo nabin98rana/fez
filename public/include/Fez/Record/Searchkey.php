@@ -48,6 +48,9 @@ class Fez_Record_Searchkey
     protected $_db = null;
     protected $_pid = null;
     protected $_version = null;
+    /**
+     * @var Fez_Record_SearchkeyShadow
+     */
     protected $_shadow = null;
 
     /**
@@ -303,7 +306,7 @@ class Fez_Record_Searchkey
         if (!empty($clone_attached_datastreams)) {
             $sekData[1]['file_attachment_name']['xsdmf_value'] = null;
             $xsdmf_id = XSD_HTML_Match::getXSDMF_IDBySekIDXDIS_ID(Search_Key::getID('File Attachment Name'), $xdis_str);
-            $sekData[1]['file_attachment_name']['xsdmf_id'] = $xsdmf_id[0];;
+            $sekData[1]['file_attachment_name']['xsdmf_id'] = $xsdmf_id[0];
         }
         $recordSearchKey = new Fez_Record_Searchkey();
         $result = $recordSearchKey->insertRecord($sekData);
@@ -325,23 +328,31 @@ class Fez_Record_Searchkey
           $datastreams = Fedora_API::callGetDatastreams($pid);
 
           foreach ($datastreams as $ds_value) {
-            if (isset($ds_value['controlGroup']) && $ds_value['controlGroup'] == 'M'
-              && $clone_attached_datastreams) {
+            if (isset($ds_value['controlGroup'])) {
 
-              $new_did = Fedora_API::getUploadLocationByLocalRef($new_pid, $ds_value['ID'], $ds_value['full_path'], $ds_value['label'],
-                $ds_value['MIMEType'], $ds_value['controlGroup'], null, $ds_value['versionable']);
-              $perms = AuthNoFedoraDatastreams::getNonInheritedSecurityPermissions($ds_value['id']);
-              foreach ($perms as $perm) {
-                AuthNoFedoraDatastreams::addRoleSecurityPermissions($new_did, $perm['authdii_role'], $perm['argr_arg_id'], '0');
+              if ($ds_value['controlGroup'] == 'M') {
+
+                $new_did = Fedora_API::callAddDatastream(
+                  $new_pid, $ds_value['ID'], $ds_value['location'], $ds_value['label'],
+                  $ds_value['state'], $ds_value['MIMEType'], $ds_value['controlGroup'], $ds_value['versionable']
+                );
+
+                $perms = AuthNoFedoraDatastreams::getNonInheritedSecurityPermissions($ds_value['id']);
+                foreach ($perms as $perm) {
+                  AuthNoFedoraDatastreams::addRoleSecurityPermissions($new_did, $perm['authdii_role'], $perm['argr_arg_id'], '0');
+                }
+
+                AuthNoFedoraDatastreams::recalculatePermissions($new_did);
+
+                Exiftool::cloneExif($pid, $ds_value['ID'], $new_pid, $ds_value['ID']);
+
+              } else if ($ds_value['controlGroup'] == 'R') {
+                $new_did = Fedora_API::callAddDatastream(
+                  $new_pid, $ds_value['ID'], $ds_value['location'], $ds_value['label'],
+                  $ds_value['state'], $ds_value['MIMEType'], $ds_value['controlGroup'], $ds_value['versionable']
+                );
+
               }
-              AuthNoFedoraDatastreams::recalculatePermissions($new_did);
-
-            } elseif (isset($ds_value['controlGroup']) && $ds_value['controlGroup'] == 'R'
-              && $clone_attached_datastreams) {
-              Fedora_API::callAddDatastream(
-                $new_pid, $ds_value['ID'], $ds_value['location'], $ds_value['label'],
-                $ds_value['state'], $ds_value['MIMEType'], $ds_value['controlGroup'], $ds_value['versionable']
-              );
             }
           }
         }
@@ -886,10 +897,12 @@ class Fez_Record_Searchkey
         foreach ($data as $field => $valueArray) {
             $fieldname = "rek_" . $field;
 
-            $stmtFields[] = $fieldname;
-            $stmtValues[] = $this->_db->quote($valueArray['xsdmf_value']);
-            $stmtFields[] = $fieldname . "_xsdmf_id";
-            $stmtValues[] = $valueArray['xsdmf_id'];
+            if (!empty($valueArray['xsdmf_value'])) {
+              $stmtFields[] = $fieldname;
+              $stmtValues[] = $this->_db->quote($valueArray['xsdmf_value']);
+              $stmtFields[] = $fieldname . "_xsdmf_id";
+              $stmtValues[] = $valueArray['xsdmf_id'];
+            }
         }
 
         // Build the query statement

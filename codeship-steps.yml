@@ -18,3 +18,6 @@
   - service: awsdeployment
     tag: staging
     command: scripts/backend-deployment-staging.sh
+  - service: awsdeployment
+    tag: production
+    command: scripts/backend-deployment-production.sh

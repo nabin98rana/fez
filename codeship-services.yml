@@ -109,6 +109,11 @@ fezstaging:
     image: codeship_fezstaging
     dockerfile_path: Dockerfile.staging
 
+fezproduction:
+  build:
+    image: codeship_fezproduction
+    dockerfile_path: Dockerfile.production
+
 awsdeployment:
   build:
     dockerfile_path: "Dockerfile.deploy"

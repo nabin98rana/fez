@@ -95,7 +95,7 @@ if (APP_FEDORA_BYPASS == 'ON') {
     $internal_user_list = User::getAssocList();
     $internal_group_list = Group::getAssocListAll();
 
-    $tpl->assign("datastream_policy", FezACML::getQuickTemplateAssocListNoFedora());
+    $tpl->assign("datastream_policy", FezACML::getQuickTemplateAssocList());
 
     $xdis_title = XSD_Display::getTitle($xdis_id);
     $tpl->assign("xdis_title", $xdis_title);

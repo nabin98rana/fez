@@ -9,12 +9,14 @@ set +x
 if [ "${WEBCRON_TOKEN}" != "" ]; then
   sed -i "s/WEBCRON_TOKEN/${WEBCRON_TOKEN}/" ${BASE_DIR}/.docker/production/fez.cron
 fi
-if [ "${APP_ENVIRONMENT}" == "production" ]; then
-  aws s3 cp s3://uql/ecs/default/services/fez/config.php ${BASE_DIR}/public/config.php
-  aws s3 cp ${BASE_DIR}/.docker/production/fez.cron s3://uql/ecs/default/services/crond/cron.d/fez
-else
-  cp ${BASE_DIR}/.docker/testing/config.inc.php /var/app/current/public/config.inc.php
-fi
+
+aws s3 cp s3://uql/ecs/default/services/fezproduction/config.inc.php ${BASE_DIR}/public/config.inc.php
+aws s3 cp s3://uql/fez/fez_production_cloudfront_private_key.pem ${BASE_DIR}/data/
+aws s3 cp ${BASE_DIR}/.docker/production/fez.cron s3://uql/ecs/default/services/crond/cron.d/fezproduction
+aws s3 cp s3://uql-fez-production/GeoIP.dat.gz /usr/share/GeoIP/GeoIP.dat.gz && /bin/gunzip -f /usr/share/GeoIP/GeoIP.dat.gz
+aws s3 cp s3://uql-fez-production/GeoLiteCity.dat.gz /usr/share/GeoIP/GeoLiteCity.dat.gz && /bin/gunzip -f /usr/share/GeoIP/GeoLiteCity.dat.gz
+cp ${BASE_DIR}/.docker/production/robots.txt ${BASE_DIR}/public/
+chmod -R 777 ${BASE_DIR}/public/include/htmlpurifier/library/HTMLPurifier
 
 rm -f /etc/php.d/15-xdebug.ini
 

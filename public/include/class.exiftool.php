@@ -202,6 +202,19 @@ class Exiftool
 		}
 	}
 
+	public static function cloneExif($pid, $dsID, $newPid, $newDsID)
+  {
+    $exif = Exiftool::getDetails($pid, $dsID);
+    $exif['exif_pid'] = $newPid;
+    $exif['exif_dsid'] = $newDsID;
+    $newExif = [];
+    foreach($exif as $k => $v) {
+      $newExif[str_replace('exif_', '', $k)] = $v;
+    }
+    $newExif['exif_all'] = $newExif['all'];
+    Exiftool::insert($newExif);
+  }
+
 
 	/**
 	 * Returns the exiftool information as an array - credit goes to the Drupal MAQUM module for this function
