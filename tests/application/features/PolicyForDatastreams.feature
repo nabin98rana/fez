@@ -31,7 +31,6 @@ Feature: Check datastream policy works correctly
     And I select "Journal Article Version MODS 1.0" from "new_xdis_id"
     And I press "Clone Record"
     And I fill in "Title" with "Test Title Datastream policy 1"
-    And I select "Article" from "Sub-type"
     And I press "Publish"
     And I wait for bgps
     And I wait for solr
@@ -52,7 +51,6 @@ Feature: Check datastream policy works correctly
     And I select "Journal Article Version MODS 1.0" from "new_xdis_id"
     And I press "Clone Record"
     And I fill in "Title" with "Test Title Datastream policy 2"
-    And I select "Article" from "Sub-type"
     And I press "Publish"
     And I follow "Logout"
     And I wait for bgps
@@ -135,7 +133,6 @@ Feature: Check datastream policy works correctly
     And I select "Journal Article Version MODS 1.0" from "new_xdis_id"
     And I press "Clone Record"
     And I fill in "Title" with "Test Title Datastream policy 3"
-    And I select "Article" from "Sub-type"
     And I press "Publish"
     And I wait for bgps
     And I wait for solr
@@ -176,7 +173,6 @@ Feature: Check datastream policy works correctly
     And I select "Journal Article Version MODS 1.0" from "new_xdis_id"
     And I press "Clone Record"
     And I fill in "Title" with "Test Title Datastream policy 4"
-    And I select "Article" from "Sub-type"
     And I press "Publish"
     And I wait for bgps
     And I wait for solr
@@ -188,6 +184,7 @@ Feature: Check datastream policy works correctly
     And I follow "Edit Security for Selected Datastream"
     Given I choose the "UPOs" group for the "Lister" role
     And I turn off waiting checks
+    And I wait for "3" seconds
     And I press "Save Changes"
     And I wait for bgps
     And I wait for solr
@@ -224,7 +221,7 @@ Feature: Check datastream policy works correctly
     Given I am on "/"
     Then I clean up title "Test Datastream Policy Community"
     Then I clean up title "Test Datastream Policy Collection"
-    Then I clean up title "Test Title Datastream policy 1"
-    Then I clean up title "Test Title Datastream policy 2"
-    Then I clean up title "Test Title Datastream policy 3"
-    Then I clean up title "Test Title Datastream policy 4"
+    #Then I clean up title "Test Title Datastream policy 1"
+    #Then I clean up title "Test Title Datastream policy 2"
+    #Then I clean up title "Test Title Datastream policy 3"
+    #Then I clean up title "Test Title Datastream policy 4"
