@@ -18,6 +18,13 @@
   - service: awsdeployment
     tag: staging
     command: scripts/backend-deployment-staging.sh
+  - service: fezproduction
+    type: push
+    tag: production
+    image_name: uql-registry.library.uq.edu.au/production/fez
+    image_tag: "{{.CommitID}}"
+    registry: uql-registry.library.uq.edu.au
+    encrypted_dockercfg_path: dockercfg.encrypted
   - service: awsdeployment
     tag: production
     command: scripts/backend-deployment-production.sh
