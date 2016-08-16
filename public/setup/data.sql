@@ -336,15 +336,6 @@ LOCK TABLES `fez_datastream_cache` WRITE;
 UNLOCK TABLES;
 
 --
--- Dumping data for table `fez_digital_object`
---
-
-LOCK TABLES `fez_digital_object` WRITE;
-/*!40000 ALTER TABLE `fez_digital_object` DISABLE KEYS */;
-/*!40000 ALTER TABLE `fez_digital_object` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
 -- Dumping data for table `fez_eprints_import_pids`
 --
 
