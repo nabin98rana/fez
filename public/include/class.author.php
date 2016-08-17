@@ -1344,12 +1344,17 @@ class Author
 
     $dbtp = APP_TABLE_PREFIX;
 
+    // remove spaces
+    $term = trim($term);
+
     // some function like concat_ws might not be supportd in all databases, however postgresql does
     // have a mysql_compat plugin library that adds these..
     // Could be done in the code later if it is a problem
-    $stmt = "SELECT aut_id as id, concat_ws(' - ', aut_org_username, aut_org_staff_id)  as username,
-             aut_fullname as name  FROM (
-                SELECT aut_id, aut_org_username, aut_org_staff_id, aut_display_name as aut_fullname";
+    $stmt = "SELECT aut_id as id, aut_orcid_id, concat_ws(' - ', aut_org_username, aut_org_staff_id) AS username,
+             concat_ws(' - ', aut_student_username, aut_org_student_id) AS student_username,
+             aut_fullname AS name  FROM (
+                SELECT aut_id, aut_org_username, aut_orcid_id, aut_student_username, aut_org_staff_id, aut_org_student_id,
+                 aut_display_name AS aut_fullname";
 
     // For the Author table we are going to keep it in MyISAM if you are using MySQL because there is no
     // table locking issue with this table like with others.
@@ -1361,9 +1366,9 @@ class Author
         if (strlen($term) < 8 && (strpos($term, ' ') !== FALSE)) {
             $tempTerm = substr($term, 0, strpos($term, ' '));;
             $tempTerm = str_replace(array(',', ' '),'',$tempTerm);
-            $stmt .= ' , MATCH (aut_lname) AGAINST ("'.$tempTerm.'") AS Relevance';
+            $stmt .= ', MATCH (aut_lname) AGAINST ("'.$tempTerm.'") AS Relevance';
         } else {
-            $stmt .= " , MATCH (aut_display_name) AGAINST (".$db->quote($term).") as Relevance ";
+            $stmt .= ", MATCH (aut_display_name) AGAINST (".$db->quote($term).") as Relevance ";
         }
     }
 
@@ -1378,7 +1383,7 @@ class Author
 
     } else if (is_numeric(strpos(APP_SQL_DBTYPE, "mysql"))) {
       $stmt .= " WHERE ( aut_lname = ".$db->quote($term)." OR MATCH (aut_display_name) AGAINST (".$db->quote(''.$term.'*')." IN BOOLEAN MODE)
-                 OR MATCH (aut_org_username) AGAINST (".$db->quote($term)." IN BOOLEAN MODE) OR aut_ref_num = ".$db->quote($term);
+                 OR MATCH (aut_org_username) AGAINST (".$db->quote($term)." IN BOOLEAN MODE) OR  MATCH (aut_student_username) AGAINST (".$db->quote($term)." IN BOOLEAN MODE) OR aut_ref_num = ".$db->quote($term);
     } else {
       $stmt .= " WHERE (";
       $names = explode(" ", $term);
@@ -1391,10 +1396,12 @@ class Author
         if (is_numeric(strpos(APP_SQL_DBTYPE, "pgsql"))) {
           $stmt .= " (aut_fname ILIKE ".$db->quote('%'.$name.'%')."
                       OR aut_lname ILIKE ".$db->quote('%'.$name.'%')."
+                      OR aut_student_username = ".$db->quote($name)."
                       OR aut_org_username = ".$db->quote($name).") ";
         } else {
           $stmt .= " (aut_fname LIKE ".$db->quote($name.'%')."
                      OR aut_lname LIKE ".$db->quote($name.'%')."
+                     OR aut_student_username = ".$db->quote($name)."
                      OR aut_org_username = ".$db->quote($name).") ";
         }
       }
@@ -1403,7 +1410,8 @@ class Author
     $stmt .= " ) ";
 
     if (APP_AUTHOR_SUGGEST_MODE == 2) {
-      $stmt .= " AND ((aut_org_username IS NOT NULL AND aut_org_username != '') OR (aut_org_staff_id IS NOT NULL AND aut_org_staff_id != '') OR (aut_ref_num IS NOT NULL AND aut_ref_num != ''))";
+        // $stmt .= " AND ((aut_org_username IS NOT NULL AND aut_org_username != '') OR (aut_org_staff_id IS NOT NULL AND aut_org_staff_id != '') OR (aut_ref_num IS NOT NULL AND aut_ref_num != ''))";
+        $stmt .= " AND ((aut_org_username IS NOT NULL AND aut_org_username != '') OR (aut_student_username IS NOT NULL AND aut_student_username != '') OR (aut_org_staff_id IS NOT NULL AND aut_org_staff_id != '') OR (aut_org_student_id IS NOT NULL AND aut_org_student_id != '') OR (aut_ref_num IS NOT NULL AND aut_ref_num != ''))";
     }
 
     if (is_numeric($term)) {
@@ -1426,9 +1434,29 @@ class Author
       return '';
     }
 
-    return $res;
+    return self::filterSuggest($res, $assoc);
   }
 
+    /**
+     * Add any additional filtering required for autosuggest
+     *
+     * @param   Array $rows to filter
+     * @return Array
+     */
+  private static function filterSuggest($rows) {
+      $returnVal = [];
+
+      foreach ($rows as $key => $row) {
+          // if this is a student username who hasn't linked their ORCID
+          // do not return them
+          if (preg_match('/^s\d+$/', $row['username']) && empty($row['aut_orcid_id'])) {
+              continue;
+          }
+          $returnVal[] = $row;
+      }
+
+      return $returnVal;
+  }
 
   /**
    * Method used to get an associative array of author ID and title

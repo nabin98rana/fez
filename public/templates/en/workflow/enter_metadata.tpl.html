@@ -265,8 +265,8 @@
 			<input type="button" maxlength="55"  name="simple_toggle" value="Show All Fields" onclick="javascript:toggleCreateMode(); this.disabled = true;" class="button" />
 
 		{/if}
-        {if $isUPO && ($acting_user.aut_org_username != $actual_user || $acting_user.aut_student_username != $actual_user)}
-          &nbsp;Currently acting as: <b>{$acting_user.aut_org_username}</b> &nbsp; ({$acting_user.aut_display_name}, {$acting_user.org_unit_description})
+        {if $isUPO && $acting_user.aut_org_username != $actual_user && $acting_user.aut_student_username != $actual_user}
+          &nbsp;Currently acting as: <b>{if $acting_user.aut_org_username}{$acting_user.aut_org_username}{else}{$acting_user.aut_student_username}{/if}</b> &nbsp; ({$acting_user.aut_display_name}, {$acting_user.org_unit_description})
         {/if}
 	</td>
 </tr>
@@ -735,27 +735,27 @@
                                   AND ($temp_attached_xsdmf_id == $xsd_display_fields[i].xsdmf_attached_xsdmf_id)}
 									<br />
 								    <table>
-                                       <tr {if ($isApprover != 1 && $xsd_display_fields[a].xsdmf_show_simple_create == 0 && $xsd_display_fields[a].xsdmf_required != 1) || $xsd_display_fields[i].xsdmf_invisible == 1}style="display:none"{/if}>
-								           <td>
-								           <span class="default"><b>{$xsd_display_fields[a].xsdmf_title}:</b></span>
-								           {assign var="attached_field_id" value="xsd_display_fields_"|cat:$temp_attached_xsdmf_id|cat:"_"|cat:$loop_num}
-										    <select class="default" id="{$attached_field_id}" name="{$attached_field_id}">
-											   <option value="0">(none)</option>
-											</select>
-										</td>
-										<td>
-							                <!-- Google suggest style selection -->
-							                {* IE HACK: We want the suggest dropdown to be on top of any other auto-suggest controls which appear below it *}
-	                                        {* smarty.section.i.index is used incase this suggest control is used by more than 1 element ie. Author and Editor *}
-											<div id="{if ($xsd_display_fields[a].xsdmf_html_input == 'publisher_suggestor')}publishersuggest
-											{elseif ($xsd_display_fields[a].xsdmf_html_input == 'conference_suggestor')}conferencesuggest
-											{else}authorsuggest{/if}" style="width:25em;height:2em;position:relative;z-index:{math equation="2000 - x - y" y=$loop_num x=$smarty.section.i.index};">
-											  <div id="{$attached_field_id}_container" style="position:absolute;top:1.6em;"></div>
-	                                        	<input size="51" id="{$attached_field_id}_lookup" type="text" />
-	                                        </div>
-	                                    </td>
-	                                    </tr>
-	                                </table>
+                      <tr {if ($isApprover != 1 && $xsd_display_fields[a].xsdmf_show_simple_create == 0 && $xsd_display_fields[a].xsdmf_required != 1) || $xsd_display_fields[i].xsdmf_invisible == 1}style="display:none"{/if}>
+                        <td>
+                          <span class="default"><b>{$xsd_display_fields[a].xsdmf_title}:</b></span>
+                          {assign var="attached_field_id" value="xsd_display_fields_"|cat:$temp_attached_xsdmf_id|cat:"_"|cat:$loop_num}
+                          <select class="default" id="{$attached_field_id}" name="{$attached_field_id}">
+                            <option value="0">(none)</option>
+                          </select>
+                        </td>
+										    <td>
+							            <!-- Google suggest style selection -->
+							            {* IE HACK: We want the suggest dropdown to be on top of any other auto-suggest controls which appear below it *}
+	                        {* smarty.section.i.index is used incase this suggest control is used by more than 1 element ie. Author and Editor *}
+											    <div id="{if ($xsd_display_fields[a].xsdmf_html_input == 'publisher_suggestor')}publishersuggest
+											    {elseif ($xsd_display_fields[a].xsdmf_html_input == 'conference_suggestor')}conferencesuggest
+											    {else}authorsuggest{/if}" style="width:25em;height:2em;position:relative;z-index:{math equation="2000 - x - y" y=$loop_num x=$smarty.section.i.index};">
+											    <div id="{$attached_field_id}_container" style="position:absolute;top:1.6em;"></div>
+	                        <input size="51" id="{$attached_field_id}_lookup" type="text" />
+	                        </div>
+	                      </td>
+	                     </tr>
+	                  </table>
 	                                {literal}
 	                                <script type="text/javascript">
 
@@ -770,13 +770,22 @@
 	                                this.oAutoComp{/literal}{$loop_num}{literal} = new YAHOO.widget.AutoComplete('{/literal}{$attached_field_id}_lookup','{$attached_field_id}_container{literal}', myDataSource);
 	                                this.oAutoComp{/literal}{$loop_num}{literal}.maxResultsDisplayed = 60;
 	                                this.oAutoComp{/literal}{$loop_num}{literal}.formatResult = function(oResultItem, sQuery) {
-	                                    var usernameTxt = "";
-	                                    if( oResultItem[1].username != "" && oResultItem[1].username != null )
+	                                    var usernameTxt = '';
+																			if( oResultItem[1].username !== '' && oResultItem[1].username !== null
+																				&& oResultItem[1].student_username !== '' && oResultItem[1].student_username !== null )
+																			{
+																				usernameTxt = ' (' +  oResultItem[1].username + ', ' + oResultItem[1].student_username + ')';
+																			}
+	                                    else if( oResultItem[1].student_username !== '' && oResultItem[1].student_username !== null )
 	                                    {
-	                                        usernameTxt = ' (' +  oResultItem[1].username + ')'
+	                                        usernameTxt = ' (' +  oResultItem[1].student_username + ')';
 	                                    }
-								        idTxt = ' (' +  oResultItem[1].id + ')'
-								        return oResultItem[1].name + idTxt + usernameTxt;
+																			else
+																			{
+																				usernameTxt = ' (' +  oResultItem[1].username + ')';
+																			}
+								                      idTxt = ' (' +  oResultItem[1].id + ')'
+								                      return oResultItem[1].name + idTxt + usernameTxt;
 	                                };
 	                                this.oAutoComp{/literal}{$loop_num}{literal}.registerControls(document.getElementById('xsd_display_fields_{/literal}{$xsd_display_fields[i].xsdmf_id}_{$loop_num}'), document.getElementById('{$attached_field_id}'){literal});
 	                                this.oAutoComp{/literal}{$loop_num}{literal}.textboxFocusEvent.subscribe(function(){
@@ -889,7 +898,6 @@
 					                    this.oAutoComp{/literal}{$xsd_display_fields[i].xsdmf_id}{literal}_0 = new YAHOO.widget.AutoComplete('xsd_display_fields_{/literal}{$xsd_display_fields[i].xsdmf_id}_0','{$xsd_display_fields[i].xsdmf_id}_0_container{literal}', myDataSource);
 					                    this.oAutoComp{/literal}{$xsd_display_fields[i].xsdmf_id}{literal}_0.maxResultsDisplayed = 10;
 					                    this.oAutoComp{/literal}{$xsd_display_fields[i].xsdmf_id}{literal}_0.formatResult = function(oResultItem, sQuery) {
-
 					                        return oResultItem[1].name;
 					                    };
 
