@@ -56,7 +56,7 @@ class BackgroundProcess_Db_Load extends BackgroundProcess
       $environment !== 'production' ||
       $environment !== 'staging'
     ) {
-      $log->err('DB load failed: Unknown environment - ' , $environment);
+      $log->err('DB load failed: Unknown environment - ' . $environment);
       return;
     }
     set_time_limit(0);
