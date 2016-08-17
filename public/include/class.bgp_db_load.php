@@ -49,20 +49,21 @@ class BackgroundProcess_Db_Load extends BackgroundProcess
   }
 
   function loadDb() {
+    $log = FezLog::get();
+
     $environment = $_SERVER['APP_ENVIRONMENT'];
     if (
       $environment !== 'production' ||
       $environment !== 'staging'
     ) {
-      echo 'Not in production/staging..';
+      $log->err('DB load failed: Unknown environment - ' , $environment);
       return;
     }
     set_time_limit(0);
 
-    $log = FezLog::get();
+
     $db = DB_API::get();
     $path = '/tmp/' . $environment;
-
     system("rm -Rf ${path}");
     mkdir($path);
     chdir($path);

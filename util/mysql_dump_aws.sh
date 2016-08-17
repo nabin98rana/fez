@@ -106,4 +106,4 @@ curl -X PUT -T "${file}" \
     -H "Authorization: AWS ${s3Key}:${signature}" \
     https://${bucket}.s3.amazonaws.com/${file}
 
-wget -O - "${FEZ_URL}/api/cron_register_bgp.php?file=bgp_db_load&class=BackgroundProcess_Db_Load&wsptoken=${WEBCRON_TOKEN}"
+wget -O - "${FEZ_URL}/api/cron_register_bgp.php?file=bgp_db_load&class=BackgroundProcess_Db_Load&token=${WEBCRON_TOKEN}"
