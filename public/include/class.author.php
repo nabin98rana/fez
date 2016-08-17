@@ -1352,9 +1352,9 @@ class Author
     // Could be done in the code later if it is a problem
     $stmt = "SELECT aut_id as id, aut_orcid_id, concat_ws(' - ', aut_org_username, aut_org_staff_id) AS username,
              concat_ws(' - ', aut_student_username, aut_org_student_id) AS student_username,
-             aut_fullname AS name  FROM (
+             aut_fullname AS name, publications FROM (
                 SELECT aut_id, aut_org_username, aut_orcid_id, aut_student_username, aut_org_staff_id, aut_org_student_id,
-                 aut_display_name AS aut_fullname";
+                 aut_display_name AS aut_fullname, COUNT(rek_author_id) AS publications";
 
     // For the Author table we are going to keep it in MyISAM if you are using MySQL because there is no
     // table locking issue with this table like with others.
@@ -1373,6 +1373,7 @@ class Author
     }
 
     $stmt .= " FROM ".$dbtp."author";
+    $stmt .= " LEFT JOIN " . $dbtp . "record_search_key_author_id ON aut_id = rek_author_id";
 
     if (is_numeric($term)) {
         if (($term[0]) == 0) {
@@ -1414,6 +1415,8 @@ class Author
         $stmt .= " AND ((aut_org_username IS NOT NULL AND aut_org_username != '') OR (aut_student_username IS NOT NULL AND aut_student_username != '') OR (aut_org_staff_id IS NOT NULL AND aut_org_staff_id != '') OR (aut_org_student_id IS NOT NULL AND aut_org_student_id != '') OR (aut_ref_num IS NOT NULL AND aut_ref_num != ''))";
     }
 
+    $stmt .= " GROUP BY aut_id";
+
     if (is_numeric($term)) {
       $stmt .= " LIMIT 60 OFFSET 0) as tempsuggest";
     } else if (is_numeric(strpos(APP_SQL_DBTYPE, "mysql"))) {
@@ -1449,7 +1452,7 @@ class Author
       foreach ($rows as $key => $row) {
           // if this is a student username who hasn't linked their ORCID
           // do not return them
-          if (preg_match('/^s\d+$/', $row['username']) && empty($row['aut_orcid_id'])) {
+          if (preg_match('/^s\d+$/', $row['username']) && empty($row['aut_orcid_id']) && empty($row['publications'])) {
               continue;
           }
           $returnVal[] = $row;

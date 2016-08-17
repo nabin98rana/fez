@@ -1121,7 +1121,7 @@ class MyResearch
         $stmt
             .= " FROM
 					" . APP_TABLE_PREFIX . "author INNER JOIN
-					hr_position_vw on (aut_org_username = user_name || aut_student_username = user_name)
+					hr_position_vw on aut_org_username = user_name 
 				WHERE
 					aou = " . $db->quote($orgID) . "
 					AND user_name != ''
