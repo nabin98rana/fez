@@ -1,4 +1,7 @@
 <?php
+if ((php_sapi_name()!=="cli")) {
+  return;
+}
 /**
  * The purpose of this script is to
  * set up shadow tables with version information for all pids inc deleted

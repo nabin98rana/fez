@@ -175,29 +175,7 @@ function runSeed($conn) {
   }
 
   include_once(APP_INC_PATH . "/../upgrade/fedoraBypassMigration/MigrateFromFedoraToDatabase.php");
-  $migrate = new MigrateFromFedoraToDatabase();
-
-  $db = DB_API::get();
-  try {
-    $db->exec("UPDATE " . APP_TABLE_PREFIX . "config " .
-      " SET config_value = 'ON' " .
-      " WHERE config_name='app_fedora_bypass'");
-    $db->exec("UPDATE " . APP_TABLE_PREFIX . "config " .
-      " SET config_value = 'UQ' " .
-      " WHERE config_name='app_pid_namespace'");
-    $db->exec("UPDATE " . APP_TABLE_PREFIX . "config " .
-      " SET config_value = 'ON' " .
-      " WHERE config_name='app_xsdmf_index_switch'");
-    $db->exec("UPDATE " . APP_TABLE_PREFIX . "config " .
-      " SET config_value = '' " .
-      " WHERE config_name='app_fedora_username'");
-    $db->exec("UPDATE " . APP_TABLE_PREFIX . "config " .
-      " SET config_value = '' " .
-      " WHERE config_name='app_fedora_pwd'");
-
-    parseMySQLdump($conn, $path . "nofedora.sql");
-
-  } catch (Exception $ex) {
-    return;
-  }
+  $migrate = new MigrateFromFedoraToDatabase(false);
+  $migrate->runMigration();
+  parseMySQLdump($conn, $path . "nofedora.sql");
 }
