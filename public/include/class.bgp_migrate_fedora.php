@@ -1,9 +1,9 @@
-#!/usr/bin/php
 <?php
+/* vim: set expandtab tabstop=4 shiftwidth=4: */
 // +----------------------------------------------------------------------+
 // | Fez - Digital Repository System                                      |
 // +----------------------------------------------------------------------+
-// | Copyright (c) 2005, 2006, 2007 The University of Queensland,         |
+// | Copyright (c) 2005, 2006 The University of Queensland,               |
 // | Australian Partnership for Sustainable Repositories,                 |
 // | eScholarship Project                                                 |
 // |                                                                      |
@@ -27,27 +27,26 @@
 // | 59 Temple Place - Suite 330                                          |
 // | Boston, MA 02111-1307, USA.                                          |
 // +----------------------------------------------------------------------+
+// | Authors: Rhys Palmer <r.palmer@library.uq.edu.au>                    |
+// +----------------------------------------------------------------------+
 
-/**
- * This script calls Fedora bypass migration in stages.
- *
- * @version 1.0, 2012-03-08
- * @author Elvi Shu <e.shu at library.uq.edu.au>
- * @license http://www.gnu.org/licenses/gpl.html GPL License
- * @copyright (c) 2012 The University of Queensland
- *
- */
+include_once(APP_INC_PATH . 'class.background_process.php');
+include_once(APP_INC_PATH . '../upgrade/fedoraBypassMigration/MigrateFromFedoraToDatabase.php');
 
-if ((php_sapi_name()!=="cli")) {
-  return;
+class BackgroundProcess_Migrate_Fedora extends BackgroundProcess
+{
+  function __construct()
+  {
+    parent::__construct();
+    $this->include = 'class.bgp_migrate_fedora.php';
+    $this->name = 'Migrate Fedora';
+  }
+
+  function run() {
+    $this->setState(BGP_RUNNING);
+    extract(unserialize($this->inputs));
+    $migrate = new MigrateFromFedoraToDatabase(false);
+    $migrate->runMigration();
+    $this->setState(BGP_FINISHED);
+  }
 }
-
-ini_set("display_errors", 1);
-ini_set('implicit_flush', 1);
-error_reporting(E_ALL & ~E_NOTICE & ~E_STRICT);
-ob_end_flush();
-
-include_once dirname(dirname(__FILE__)).DIRECTORY_SEPARATOR."MigrateFromFedoraToDatabase.php";
-
-$migrate = new MigrateFromFedoraToDatabase(false);
-$migrate->runMigration();

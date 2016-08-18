@@ -70,7 +70,10 @@ class MigrateFromFedoraToDatabase
     $this->_upgradeHelper = new upgrade();
 
     $this->_parseConfig($config);
+  }
 
+  public function runMigration()
+  {
     // Message/warning about the checklist required before running the migration script.
     $this->preMigration();
 
@@ -155,19 +158,29 @@ class MigrateFromFedoraToDatabase
    */
   public function postMigration()
   {
-    echo chr(10) .
-      "\n<br /> Congratulations! You have completed all the migration steps.
-            <br /> Your Fez system is now ready to function without Fedora.
-            <br /> Below are the configurations required to turn off Fedora:
-            <ul>
-                <li> Admin -> Fedora Setting -> Set 'Bypass Fedora' to ON. </li>
-                <li> Admin -> Fedora Setting -> Set 'Use Index for getting data rather than querying xml datastreams' to ON. </li>
-                <li> Admin -> Fedora Setting -> Remove Fedora's credentials.</li>
-                <li> Stop Fedora application on Tomcat service</li>
-            </ul>
-         ";
-  }
+    $db = DB_API::get();
 
+    $db->query("UPDATE " . APP_TABLE_PREFIX . "config " .
+      " SET config_value = 'true' " .
+      " WHERE config_name='aws_enabled'");
+    $db->query("UPDATE " . APP_TABLE_PREFIX . "config " .
+      " SET config_value = 'true' " .
+      " WHERE config_name='aws_s3_enabled'");
+    $db->query("UPDATE " . APP_TABLE_PREFIX . "config " .
+      " SET config_value = 'ON' " .
+      " WHERE config_name='app_fedora_bypass'");
+    $db->query("UPDATE " . APP_TABLE_PREFIX . "config " .
+      " SET config_value = 'ON' " .
+      " WHERE config_name='app_xsdmf_index_switch'");
+    $db->query("UPDATE " . APP_TABLE_PREFIX . "config " .
+      " SET config_value = '' " .
+      " WHERE config_name='app_fedora_username'");
+    $db->query("UPDATE " . APP_TABLE_PREFIX . "config " .
+      " SET config_value = '' " .
+      " WHERE config_name='app_fedora_pwd'");
+
+    echo "Congratulations! Your Fez system is now ready to function without Fedora.\n";
+  }
 
   /**
    * First round of migration, updating database schema.
@@ -460,9 +473,8 @@ class MigrateFromFedoraToDatabase
     // echo chr(10) . "\n<br /> Start migrating Fedora ManagedContent to Fez CAS system....";
     // echo chr(10) . "\n<br /> This may take a while depending on the size of datastreams";
     ob_flush();
-    include("./migrate_fedora_managedcontent_to_fezCAS.php");
+    include("./migrate_fedora_managedcontent_to_s3.php");
   }
-
 
   /**
    * Call bulk 'reindex' workflow on all PIDS.

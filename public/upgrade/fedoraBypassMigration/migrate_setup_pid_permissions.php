@@ -29,6 +29,10 @@
 // | Author: Aaron Brown <a.brown@library.uq.edu.au>                           |
 // +----------------------------------------------------------------------+
 
+if ((php_sapi_name()!=="cli")) {
+  return;
+}
+
 /**
  * The purpose of this script is to
  * set up non inherited and version permissions for all pids
