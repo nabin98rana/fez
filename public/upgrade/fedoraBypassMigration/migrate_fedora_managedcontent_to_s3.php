@@ -47,7 +47,7 @@ $log = FezLog::get();
 $db = DB_API::get();
 
 $pids = '';
-$stmt = "SELECT * FROM " . APP_TABLE_PREFIX . "exif where exif_pid = 'UQ:3718' ORDER BY exif_pid ";  //where exif_pid = 'UQ:21033'
+$stmt = "SELECT * FROM " . APP_TABLE_PREFIX . "exif where exif_pid = 'UQ:316342' ORDER BY exif_pid ";  //where exif_pid = 'UQ:21033'
 try {
   $pids = $db->fetchAll($stmt);
 } catch (Exception $ex) {
