@@ -22,7 +22,11 @@ class bookReaderImplementation
 
     public function getCloudfrontURL($pid, $resource, $file) {
       $aws = AWS::get();
-      $path = AWS_S3_SRC_PREFIX.'/'.str_replace('../', '', BR_IMG_DIR) . $pid . '/' .$resource .'/' ;
+      $s3Prefix = '';
+      if (defined('AWS_S3_SRC_PREFIX')) {
+        $s3Prefix = AWS_S3_SRC_PREFIX.'/';
+      }
+      $path = $s3Prefix.str_replace('../', '', BR_IMG_DIR) . $pid . '/' .$resource .'/' ;
       $cfURL = $aws->getById($path, $file);
       return $cfURL;
     }
