@@ -617,6 +617,14 @@ class RecordGeneral
           $this->pid, "RELS-EXT", "A", "Relationships to other objects", $newXML, "text/xml", "inherit"
       );
       Record::setIndexMatchingFields($this->pid);
+      History::addHistory($this->pid, null, "", "", TRUE, 'Copied into collection ' . $value);
+
+      $searchKeyData = array();
+      $details = Record::getDetailsLite($this->pid);
+      $searchKeyData[0]['updated_date'] = array('xsdmf_id' => $details[0]['rek_updated_date_xsdmf_id'], 'xsdmf_value' => Date_API::getCurrentDateGMT());
+
+      Record::updateSearchKeys($this->pid, $searchKeyData);
+
       return 1;
     }
 
