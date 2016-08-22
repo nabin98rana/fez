@@ -1161,7 +1161,7 @@ class XSD_DisplayObject
 			$return = array();
 			$options = array();
 			$filter = array();
-			$filter["searchKey".Search_Key::getID("Pid")] = str_replace(":", "\:", $pid);
+			$filter["searchKey".Search_Key::getID("Pid")] = str_replace(":", "\\:", $pid);
 			//$filter["searchKey0"] = "UQ\:81784";
 			$current_row = 0;
 			$max = 1;
@@ -1176,6 +1176,10 @@ class XSD_DisplayObject
 				array_push($xdis_list, $return['rek_display_type']);
 				$xdis_str = implode(", ", $xdis_list);
         $sek = Search_Key::getID(ucwords(str_replace("_", " ", str_replace("rek_", "", $sek_id))));
+        $sek_details = Search_Key::getDetails($sek);
+        if ($sek_details['sek_cardinality'] == 0 && !in_array($value)) {
+          $return[$sek] = [$value];
+        }
 				$xsdmf_array =  XSD_HTML_Match::getXSDMF_IDBySekIDXDIS_ID($sek, $xdis_str);
         $function = Search_Key::getLookupFunctionBySek_ID($sek);
         if ($getLookup === false) {

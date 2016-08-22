@@ -34,11 +34,6 @@ class bookReaderPDFConverter
     {
         $sourceFile = trim($sourceFile);
 
-        if(strstr($pid,':'))
-        {
-            $pid = str_replace(':','_',$pid);
-        }
-
         //Is the source file on the filesystem or do we need to download it?
         if (strstr($sourceFile, 'http://') || strstr($sourceFile, 'https://')) {
               $this->sourceFilePath = $this->getURLSource($sourceFile);
@@ -64,11 +59,18 @@ class bookReaderPDFConverter
         {
             $this->sourceInfo();
         }
-
+        if(strstr($pid,':'))
+        {
+          $pid = str_replace(':','_',$pid);
+        }
         //If this is to store in s3, save to a temp folder mirroring the non-s3 path
         if ($this->useS3) {
           $this->bookreaderDataPath = APP_TEMP_DIR . $pid . '/' . $this->sourceFileStat['filename'];
-          $this->s3bookreaderDataPath = AWS_S3_SRC_PREFIX.'/'.str_replace('../', '', BR_IMG_DIR) . $pid . '/' . $this->sourceFileStat['filename'];
+          $s3Prefix = '';
+          if (defined('AWS_S3_SRC_PREFIX') && !empty(AWS_S3_SRC_PREFIX)) {
+            $s3Prefix = AWS_S3_SRC_PREFIX.'/';
+          }
+          $this->s3bookreaderDataPath = $s3Prefix.str_replace('../', '', BR_IMG_DIR) . $pid . '/' . $this->sourceFileStat['filename'];
         } else {
           $this->bookreaderDataPath = APP_PATH . BR_IMG_DIR . $pid . '/' . $this->sourceFileStat['filename'];
         }

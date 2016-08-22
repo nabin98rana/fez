@@ -48,7 +48,7 @@ class AWS
     ]);
     $this->launchedTasks = 0;
     $this->s3Bucket = $s3Bucket;
-    if (defined('AWS_S3_SRC_PREFIX') && AWS_S3_SRC_PREFIX != '') {
+    if (defined('AWS_S3_SRC_PREFIX')) {
       $this->s3SrcPrefix = $s3SrcPrefix;
     } else {
       $this->s3SrcPrefix = '';

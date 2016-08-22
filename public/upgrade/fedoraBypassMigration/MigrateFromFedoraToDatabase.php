@@ -290,7 +290,8 @@ class MigrateFromFedoraToDatabase
    */
   public function stepLASTMigration()
   {
-
+    // On libtools run the util/s3_sync_pidimages.sh script
+    echo "\n On libtools run the util/s3_sync_pidimages.sh script";
   }
 
   /**
@@ -507,6 +508,31 @@ class MigrateFromFedoraToDatabase
     // echo chr(10) . "\n<br /> Ok, we have done the reindex for ". ($loop * $limit) . "PIDs";
     ob_flush();
     return true;
+
+    // Attempt to bring in all the versions of a PID
+    /*$stmt = "SELECT rek_pid FROM " . APP_TABLE_PREFIX . "record_search_key
+                 ORDER BY rek_pid DESC ";
+    try {
+      $pids = $this->_db->fetchCol($stmt);
+    } catch (Exception $e) {
+      echo chr(10) . "\n<br /> Failed to retrieve pids. Query: " . $stmt;
+      return false;
+    }
+    foreach ($pids as $pid) {
+      $datastreams = Fedora_API::callGetDatastreams($pid, null, 'A');
+      $createdDates = $this->generateDSTimestamps($pid, $datastreams);
+      array_pop($createdDates);
+      $createdDates[] = null;
+
+      foreach ($createdDates as $createDT) {
+        $this->toggleAwsStatus(true);
+        $command = APP_PHP_EXEC . " \"" . APP_PATH . "upgrade/fedoraBypassMigration/migrate_pid_versions.php\" \"" .
+          $pid . "\" \"" . $createDT . "\"";
+        exec($command, $output);
+        print_r($output);
+        $this->toggleAwsStatus(false);
+      }
+    }*/
   }
 
   /**
@@ -934,5 +960,112 @@ class MigrateFromFedoraToDatabase
       // nothing to see here, return false on next line
     }
     return false;
+  }
+
+
+  protected function generateDSTimestamps($pid, $datastreams)
+  {
+    $createdDates = array();
+
+    // Retrieve all versions of all datastreams
+    foreach ($datastreams as $datastream) {
+      //probably only need to check the dates of the FezMD datastream. This should reduce calls to Fedora and improve performance - CK added 17/7/2009.
+      //Re-added mods since they also need checking
+      if ($datastream['ID'] == 'FezMD') {
+        $parms = array('pid' => $pid, 'dsID' => $datastream['ID']);
+
+        $datastreamVersions = Fedora_API::openSoapCall('getDatastreamHistory', $parms);
+
+        // Extract created dates from datastream versions
+        foreach ($datastreamVersions as $key => $var) {
+
+          // If a datastream contains multiple versions, Fedora bundles them in an array, however doesn't
+          // do if a datastream only has a single version.
+
+          // If the datastream is an array, retrieve value keyed under createDate
+          if (is_array($var) && array_key_exists('createDate', $var)) {
+            $createdDates[] = $var['createDate'];
+          } // If the datastream isn't an array, retrieve the createDate value
+          else if ($key === 'createDate') {
+            $createdDates[] = $var;
+          }
+        }
+      }
+    }
+
+    // Remove duplicate datestamps from array
+    $createdDates = array_unique($createdDates);
+
+    // Sort datestamps using the custom fedoraDateSorter function
+    usort($createdDates, "fedoraDateSorter");
+
+    // Iterate through amalgamated list of datestamps, removing those that are deemed to have been created
+    // too closely-together to have been a result of a user edit.
+    //
+    // Once a 'phantom' version has been found, iterate through the list again until all datestamps are
+    // suitably far apart.
+    /*do {
+      $phantomVersionFound = false;
+      for ($i = 1; $i < sizeof($createdDates); $i++) {
+
+        // If the time between the current datestamp and the previous datestamp is too low, remove the previous
+        // entry and scan the list from the start
+        if (strtotime($createdDates[$i]) - strtotime($createdDates[$i - 1]) < APP_VERSION_TIME_INTERVAL) {
+          array_splice($createdDates, $i - 1, 1);
+          $phantomVersionFound = true;
+          break;
+        }
+
+        if ($phantomVersionFound) break;
+      }
+    } while ($phantomVersionFound);*/
+
+    return $createdDates;
+  }
+
+  /**
+   * Custom date sorter for Fedora dates, used by PHP's usort()
+   *
+   * <p>
+   * Note: This function uses strtotime() directly on the dates, which appears to work but which may be flawed - I'm not
+   * familiar with Fedora's date format or whether it's custom or a standard format.
+   * </p>
+   */
+  protected function fedoraDateSorter($a, $b)
+  {
+    $unixTimestamp1 = strtotime($a);
+    $unixTimestamp2 = strtotime($b);
+
+    if ($unixTimestamp1 == $unixTimestamp2) return 0;
+    return ($unixTimestamp1 < $unixTimestamp2) ? -1 : 1;
+  }
+
+
+  protected function toggleAwsStatus($useAws)
+  {
+    $db = DB_API::get();
+
+    if ($useAws) {
+      $db->query("UPDATE " . APP_TABLE_PREFIX . "config " .
+        " SET config_value = 'true' " .
+        " WHERE config_name='aws_enabled'");
+      $db->query("UPDATE " . APP_TABLE_PREFIX . "config " .
+        " SET config_value = 'true' " .
+        " WHERE config_name='aws_s3_enabled'");
+      $db->query("UPDATE " . APP_TABLE_PREFIX . "config " .
+        " SET config_value = 'ON' " .
+        " WHERE config_name='app_fedora_bypass'");
+
+    } else {
+      $db->query("UPDATE " . APP_TABLE_PREFIX . "config " .
+        " SET config_value = 'false' " .
+        " WHERE config_name='aws_enabled'");
+      $db->query("UPDATE " . APP_TABLE_PREFIX . "config " .
+        " SET config_value = 'false' " .
+        " WHERE config_name='aws_s3_enabled'");
+      $db->query("UPDATE " . APP_TABLE_PREFIX . "config " .
+        " SET config_value = 'OFF' " .
+        " WHERE config_name='app_fedora_bypass'");
+    }
   }
 }
