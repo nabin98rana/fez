@@ -290,7 +290,8 @@ class MigrateFromFedoraToDatabase
    */
   public function stepLASTMigration()
   {
-
+    // On libtools run the util/s3_sync_pidimages.sh script
+    echo "\n On libtools run the util/s3_sync_pidimages.sh script";
   }
 
   /**
