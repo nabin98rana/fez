@@ -38,7 +38,6 @@ array_shift($argv);
 $ARGS = $argv;
 $tasks = (@$ARGS[0]) ? @$ARGS[0] : 'schema';
 
-include_once(APP_INC_PATH . "/../upgrade/fedoraBypassMigration/MigrateFromFedoraToDatabase.php");
 chdir(dirname(__FILE__));
 InitSystem::runDatabaseTasks($tasks);
 
@@ -241,7 +240,7 @@ Class InitSystem
     }
     $migrate = new MigrateFromFedoraToDatabase(false);
     $migrate->runMigration();
-    parseMySQLdump($conn, $path . "nofedora.sql");
+    InitSystem::parseMySQLdump($conn, $path . "nofedora.sql");
   }
 
 }
