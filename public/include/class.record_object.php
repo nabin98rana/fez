@@ -156,6 +156,7 @@ class RecordObject extends RecordGeneral
   function fedoraInsertUpdate($exclude_list = array(), $specify_list = array(), $params = array())
   {
 
+
     if (!empty($params)) {
       // dirty double hack as this function and all the ones it calls assumes this is
       // to do with a form submission
@@ -184,6 +185,7 @@ class RecordObject extends RecordGeneral
       $xdisDisplayFields = $_POST['xsd_display_fields'];
 
       $last = "";
+      $lastKey = null;
       //Load in all attached xsd display fields
       //Except the final one if it's empty since it is the empty field reserved for "new item" if a multiple field
       //Previous empty values may be needed to space out between values
