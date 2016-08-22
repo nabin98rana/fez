@@ -6,11 +6,12 @@ function usage {
   echo "    Dumps Fez database and copies the compressed export to S3. This script should be run on slave database servers only."
   echo
   echo "USAGE"
-  echo "    mysql_dump_aws.sh <MYSQL_DUMP_DIR> <MYSQL_DB_FEZ> <FEZ_STAGING_SITE>"
+  echo "    mysql_dump_aws.sh <APP_ENV> <MYSQL_DUMP_DIR> <MYSQL_DB_FEZ> <FEZ_URL>"
   echo
-  echo "    MYSQL_DUMP_DIR     = The directory to dump the database files to."
-  echo "    MYSQL_DB_FEZ       = The Fez database."
-  echo "    FEZ_STAGING_SITE   = The Fez staging URL."
+  echo "    APP_ENV        = The running environment (e.g. production)"
+  echo "    MYSQL_DUMP_DIR = The directory to dump the database files to."
+  echo "    MYSQL_DB_FEZ   = The Fez database."
+  echo "    FEZ_URL        = The Fez URL."
   echo
   echo "    The script expects the MySQL username/password to be set as the environment variables MYSQL_USER / MYSQL_PASS respectively,"
   echo "    and S3_KEY / S3_SECRET which provide access to the S3 bucket to store the dumped file."
@@ -18,13 +19,14 @@ function usage {
   exit
 }
 
-if [ "$#" -ne 3 ]; then
+if [ "$#" -ne 4 ]; then
   usage
 fi
 
-MYSQL_DUMP_DIR=$1
-MYSQL_DB_FEZ=$2
-FEZ_STAGING_SITE=$3
+APP_ENV=$1
+MYSQL_DUMP_DIR=$2
+MYSQL_DB_FEZ=$3
+FEZ_URL=$4
 
 if [ ! -d "${MYSQL_DUMP_DIR}" ]; then
   echo
@@ -34,7 +36,7 @@ if [ ! -d "${MYSQL_DUMP_DIR}" ]; then
 fi
 
 cd ${MYSQL_DUMP_DIR}
-rm -f fezstaging.tar.gz
+rm -f fez${APP_ENV}.tar.gz
 
 if [ -d "export" ]; then
     rm -Rf export
@@ -83,13 +85,13 @@ rm -f export/fez_thomson_citations_cache.txt
 rm -f export/fez_scopus_citations.txt
 rm -f export/fez_scopus_citations_cache.txt
 
-cp staging.fez.config.sql export/fez_config.sql
+cp ${APP_ENV}.fez.config.sql export/fez_config.sql
 
-tar -zcvf fezstaging.tar.gz export
+tar -zcvf fez${APP_ENV}.tar.gz export
 rm -Rf export
 
-bucket="uql-fez-staging"
-file="fezstaging.tar.gz"
+bucket="uql-fez-${APP_ENV}"
+file="fez${APP_ENV}.tar.gz"
 resource="/${bucket}/${file}"
 contentType="application/x-compressed-tar"
 dateValue=`date -R`
@@ -104,4 +106,4 @@ curl -X PUT -T "${file}" \
     -H "Authorization: AWS ${s3Key}:${signature}" \
     https://${bucket}.s3.amazonaws.com/${file}
 
-wget -O - "http://fez-staging.library.uq.edu.au/api/cron_register_bgp.php?file=bgp_staging_db_load&class=BackgroundProcess_Staging_Db_Load&token=${WEBCRON_TOKEN}"
+wget -O - "${FEZ_URL}/api/cron_register_bgp.php?file=bgp_db_load&class=BackgroundProcess_Db_Load&token=${WEBCRON_TOKEN}"

@@ -48,7 +48,11 @@ class AWS
     ]);
     $this->launchedTasks = 0;
     $this->s3Bucket = $s3Bucket;
-    $this->s3SrcPrefix = $s3SrcPrefix;
+    if (defined('AWS_S3_SRC_PREFIX')) {
+      $this->s3SrcPrefix = $s3SrcPrefix;
+    } else {
+      $this->s3SrcPrefix = '';
+    }
     putenv("AWS_ACCESS_KEY_ID=" . AWS_KEY);
     putenv("AWS_SECRET_ACCESS_KEY=" . AWS_SECRET);
   }

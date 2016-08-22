@@ -344,7 +344,7 @@ class Fez_Record_Searchkey
 
                 AuthNoFedoraDatastreams::recalculatePermissions($new_did);
 
-                Exiftool::cloneExif($pid, $ds_value['ID'], $new_pid, $new_did);
+                Exiftool::cloneExif($pid, $ds_value['ID'], $new_pid, $ds_value['ID']);
 
               } else if ($ds_value['controlGroup'] == 'R') {
                 $new_did = Fedora_API::callAddDatastream(
