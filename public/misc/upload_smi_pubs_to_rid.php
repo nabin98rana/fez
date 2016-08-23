@@ -44,7 +44,8 @@ $sleep = 1;
 
 $log = FezLog::get();
 $db = DB_API::get();
-  
+
+// todo(xxcgreen): does this need aut_org_student_id
 $stmt = "
         SELECT rek_pid FROM 
           fez_record_search_key r1 INNER JOIN

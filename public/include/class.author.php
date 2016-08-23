@@ -271,6 +271,41 @@ class Author
   }
 
   /**
+   * Method used to get the author ID of the given author org student ID.
+   *
+   * @access  public
+   * @param   string $orgStudentID The author org staff ID
+   * @return  integer The author ID
+   */
+  function getIDByOrgStudentID($orgStudentID, $exclude = '')
+  {
+    $log = FezLog::get();
+    $db = DB_API::get();
+
+    $stmt = "
+              SELECT
+                aut_id
+              FROM
+                " . APP_TABLE_PREFIX . "author
+              WHERE
+                aut_org_student_id = " . $db->quote($orgStudentID) . "
+            ";
+    if ($exclude != '') {
+      $stmt .= "AND aut_id != " . $db->quote($exclude) . "";
+    }
+
+    try {
+      $res = $db->fetchOne($stmt);
+    }
+    catch(Exception $ex) {
+      $log->err($ex);
+      return false;
+    }
+    return $res;
+  }
+
+
+  /**
    * Method used to get the title of a given author ID.
    *
    * @access  public
@@ -434,7 +469,13 @@ class Author
 
     if (trim($_POST["student_username"] !== "")) {
       if (Author::getIDByUsername(trim($_POST["student_username"]), $_POST["id"])) {
-        return -4;
+        return -5;
+      }
+    }
+
+    if (trim($_POST["org_student_id"] !== "")) {
+      if (Author::getIDByOrgStudentID(trim($_POST["org_student_id"]), $_POST["id"])) {
+        return -3;
       }
     }
 
@@ -613,7 +654,13 @@ class Author
 
     if (trim($_POST["student_username"] !== "")) {
       if (Author::getIDByUsername(trim($_POST["student_username"]))) {
-        return -4;
+        return -5;
+      }
+    }
+
+    if (trim($_POST["org_student_id"] !== "")) {
+      if (Author::getIDByOrgStudentID(trim($_POST["org_student_id"]))) {
+        return -6;
       }
     }
 
@@ -754,7 +801,7 @@ class Author
    * @access  public
    * @return  array The list of authors
    */
-  function getList($current_row = 0, $max = 25, $order_by = 'aut_lname', $filter="", $staff_id = "")
+  function getList($current_row = 0, $max = 25, $order_by = 'aut_lname', $filter="", $staff_or_student_id = "")
   {
     $log = FezLog::get();
     $db = DB_API::get();
@@ -785,9 +832,9 @@ class Author
         $extra_stmt = " , MATCH(aut_fname, aut_lname) AGAINST (".$db->quote($filter).") as Relevance ";
         $extra_order_stmt = " Relevance DESC, ";
       }
-    } else if (!empty($staff_id)) {
-      $where_stmt .= " WHERE aut_org_staff_id = ".$db->quote($staff_id);
-      $where_stmt .= " OR aut_org_student_id = ".$db->quote($staff_id);
+    } else if (!empty($staff_or_student_id)) {
+      $where_stmt .= " WHERE aut_org_staff_id = ".$db->quote($staff_or_student_id);
+      $where_stmt .= " OR aut_org_student_id = ".$db->quote($staff_or_student_id);
     }
 
     $start = $current_row * $max;
