@@ -39,14 +39,13 @@ function validateForm() {
 
 </style>
 {/literal}
-
 <input type="hidden" name="xdis_id" value="{$xdis_id}">
 <input type="hidden" name="cat" value="submit">
 <table>
     
     <tr>
         <td width="150" bgcolor="{$cell_color}" class="default">
-            <strong>* Author Text</strong>
+            <strong>* <label for="author_name">Author Text</label></strong>
         </td>
         <td class="default">
             <input type="text" id="author_name" name="author_name" /> This will find all authors for each record that match this string and update the author id with the value below. It is case sensitive and will fail if multiple authors are matched. Such as Lee matching Lee and Leep
@@ -54,8 +53,11 @@ function validateForm() {
     </tr>
     
     <tr>
-        <td width="150" bgcolor="{$cell_color}" class="default"><strong>* Author ID</strong></td>
-        <td class="default"><input type="text" name="author_id" id="author_id" readonly /> (Use author search to select Author ID)</td>
+        <td width="150" bgcolor="{$cell_color}" class="default">
+            <strong>* <label for="author_id">Author ID</label></strong>
+        </td>
+        <td class="default"><input type="text" name="author_id" id="author_id"
+       {if ! ($application_env == "development" || $application_env == "testing")}readonly{/if}/> (Use author search to select Author ID)</td>
     </tr>
     
     <tr>
