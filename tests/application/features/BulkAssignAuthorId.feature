@@ -1,5 +1,5 @@
 # features/BulkAssignAuthorId.feature
-@javascript @destructive @jet @datadependant @seed
+@javascript @destructive @jet @datadependant
 Feature: Check bulk assigning Author IDs works correctly
 
   Scenario: Assign an author ID to an author on a record using the Assign Author ID bulk workflow
