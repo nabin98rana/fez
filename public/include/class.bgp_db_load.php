@@ -31,6 +31,7 @@
 // +----------------------------------------------------------------------+
 
 include_once(APP_INC_PATH . 'class.background_process.php');
+include_once(APP_INC_PATH . 'class.bgp_migrate_fedora.php');
 
 class BackgroundProcess_Db_Load extends BackgroundProcess
 {
@@ -101,5 +102,11 @@ class BackgroundProcess_Db_Load extends BackgroundProcess
 
     $stmt = $con->prepare('DELETE FROM fez_user WHERE usr_username LIKE \'%\_test\'');
     $stmt->execute();
+
+    if ($environment === 'production') {
+      // Run migration from Fedora -> S3
+      $bgp = new BackgroundProcess_Migrate_Fedora();
+      $bgp->register(serialize([]), User::getUserIDByUsername('webcron'));
+    }
   }
 }
