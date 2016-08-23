@@ -1002,6 +1002,13 @@ class RecordGeneral
         FulltextQueue::singleton()->add($this->pid);
         FulltextQueue::singleton()->commit();
       }
+      History::addHistory($this->pid, null, "", "", TRUE, 'Removed from collection ' . $collection);
+
+      $searchKeyData = array();
+      $details = Record::getDetailsLite($this->pid);
+      $searchKeyData[0]['updated_date'] = array('xsdmf_id' => $details[0]['rek_updated_date_xsdmf_id'], 'xsdmf_value' => Date_API::getCurrentDateGMT());
+
+      Record::updateSearchKeys($this->pid, $searchKeyData);
       return true;
     }
 
