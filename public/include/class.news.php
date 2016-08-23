@@ -171,7 +171,7 @@ class News
                     nws_admin_only=" . $db->quote($_POST["admin_only"]) . ",
                     nws_status=" . $db->quote($_POST["status"]) . ",
 					";
-		if (($_POST["status"] == "active") && ($existing_res['published_date'] != '0000-00-00 00:00:00')) {
+		if (($_POST["status"] == "active") && ($existing_res['published_date'] != NULL)) {
 			$stmt .= "
 					nws_published_date = " . $db->quote(Date_API::getCurrentDateGMT()) . ",";
 		}
