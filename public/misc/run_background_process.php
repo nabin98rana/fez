@@ -48,49 +48,17 @@ if (defined('AWS_ENABLED') && AWS_ENABLED == 'true') {
 }
 
 $bgp_id = (@$ARGS[0]) ? @$ARGS[0] : @$_ENV['BGP_ID'];
-$base = @$ARGS[1];
-$launchTask = @$ARGS[2];
 
 if (!is_numeric($bgp_id)) {
   echo "bgp_id is not numeric so exiting $bgp_id";
   exit;
 }
 
-if ($useAws && ($launchTask == 'staging' || $launchTask == 'production')) {
-  $aws = AWS::get();
-  $family = 'fez' . $launchTask;
-  $result = $aws->runBackgroundTask($family, [
-    'containerOverrides' => [
-      [
-        'environment' => [
-          [
-            'name' => 'BGP_ID',
-            'value' => $bgp_id,
-          ],
-        ],
-        'name' => 'fpm',
-      ],
-    ],
-  ]);
-  // if this is a fulltext lock background process then set the lock value to the task ARN
-  $bgp = new BackgroundProcess($bgp_id);
-  $bgp_details = $bgp->getDetails();
-  if ($bgp_details['bgp_include'] == 'class.bgp_fulltext_index.php') {
-    //set bgp_task to $result->ARN so we can check it later
-    $log = FezLog::get();
-    $log->warn("ECS task dump = ".print_r($result, true)." for bgp ".$bgp_id);
-    $tasks = $result->get('tasks');
-    $bgp->setTask($tasks[0]['taskArn']);
-  }
+$bgp = new BackgroundProcess($bgp_id);
+$bgp->runCurrent();
 
-
-} else {
-  $bgp = new BackgroundProcess($bgp_id);
-  $bgp->runCurrent();
-
-  if ($useAws) {
-    // Continue to process any remaining background processes (going back to 100 IDs ago)
-    // before exiting the task
-    BackgroundProcess::runRemaining(((int) $bgp_id - 100));
-  }
+if ($useAws) {
+  // Continue to process any remaining background processes (going back to 100 IDs ago)
+  // before exiting the task
+  BackgroundProcess::runRemaining(((int) $bgp_id - 100));
 }

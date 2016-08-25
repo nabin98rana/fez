@@ -279,15 +279,44 @@ class BackgroundProcess {
 
 		$this->serialize();
 
-		$command = APP_PHP_EXEC . " \"" . APP_PATH . "misc/run_background_process.php\" \"" . $this->bgp_id . "\" \""
-			. APP_PATH . "\" \"" . strtolower($_SERVER['APPLICATION_ENV']) . "\"> "
-			. APP_TEMP_DIR . "fezbgp/fezbgp_" . $this->bgp_id . ".log";
-		if ((stristr(PHP_OS, 'win')) && (!stristr(PHP_OS, 'darwin'))) { // Windows Server
-			pclose(popen("start /min /b " . $command, 'r'));
-		}
-		else {
-			exec($command . " 2>&1 &");
-		}
+    $env = strtolower($_SERVER['APPLICATION_ENV']);
+    $useAws = false;
+    if (defined('AWS_ENABLED') && AWS_ENABLED == 'true') {
+      $useAws = true;
+    }
+    if ($useAws && ($env == 'staging' || $env == 'production')) {
+      $aws = AWS::get();
+      $family = 'fez' . $env;
+      $result = $aws->runBackgroundTask($family, [
+        'containerOverrides' => [
+          [
+            'environment' => [
+              [
+                'name' => 'BGP_ID',
+                'value' => $this->bgp_id,
+              ],
+            ],
+            'name' => 'fpm',
+          ],
+        ],
+      ]);
+      // if this is a fulltext lock background process then set the lock value to the task ARN
+      $bgp_details = $this->getDetails();
+      if ($bgp_details['bgp_include'] == 'class.bgp_fulltext_index.php') {
+        //set bgp_task to $result->ARN so we can check it later
+        $log->warn("ECS task dump = " . print_r($result, true) . " for bgp " . $this->bgp_id);
+        $tasks = $result->get('tasks');
+        $this->setTask($tasks[0]['taskArn']);
+      }
+    } else {
+      $command = APP_PHP_EXEC . " \"" . APP_PATH . "misc/run_background_process.php\" \"" .
+        $this->bgp_id . "\" > " . APP_TEMP_DIR . "fezbgp/fezbgp_" . $this->bgp_id . ".log";
+      if ((stristr(PHP_OS, 'win')) && (!stristr(PHP_OS, 'darwin'))) { // Windows Server
+        pclose(popen("start /min /b " . $command, 'r'));
+      } else {
+        exec($command . " 2>&1 &");
+      }
+    }
 
 		return $this->bgp_id;
 	}
