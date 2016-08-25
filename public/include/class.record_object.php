@@ -296,19 +296,7 @@ class RecordObject extends RecordGeneral
 
             $new_dsID = Foxml::makeNCName($fileInfo->getFilename());
 
-            if (defined('AWS_S3_ENABLED') && AWS_S3_ENABLED == 'true') {
-              Fedora_API::getUploadLocationByLocalRef($this->pid, $new_dsID, $resourceDataLocation, $new_dsID, $mimeDataType,"M",null,true);
-            } else {
-              $meta = array('mimetype' => $mimeDataType,
-                  'controlgroup' => 'M',
-                  'state' => 'A',
-                  'size' => $filesDataSize,
-                  'updateTS' => $now,
-                  'pid' => $this->pid);
-
-              $dsr = new DSResource(APP_DSTREE_PATH, $resourceDataLocation, $meta);
-              $dsr->save();
-            }
+            Fedora_API::getUploadLocationByLocalRef($this->pid, $new_dsID, $resourceDataLocation, $new_dsID, $mimeDataType,"M",null,true);
             array_push($fileNames, $new_dsID);
             $tmpFile = APP_TEMP_DIR . $new_dsID;
 //                      copy($path.$hash['rawHash'], $tmpFile);
@@ -361,20 +349,9 @@ class RecordObject extends RecordGeneral
       }
 
       //Mark any files required for deletion.
-      if (defined('AWS_S3_ENABLED') && AWS_S3_ENABLED == 'true') {
-        if (isset($_POST['removeFiles'])) {
-          foreach ($_POST['removeFiles'] as $removeFile) {
-            Fedora_API::deleteDatastream($this->pid, $removeFile);
-          }
-        }
-      } else {
-        if (isset($_POST['removeFiles'])) {
-          $dresource = new DSResource();
-
-          foreach ($_POST['removeFiles'] as $removeFile) {
-            $dresource->load($removeFile, $this->pid);
-            $dresource->dereference();
-          }
+      if (isset($_POST['removeFiles'])) {
+        foreach ($_POST['removeFiles'] as $removeFile) {
+          Fedora_API::deleteDatastream($this->pid, $removeFile);
         }
       }
 
