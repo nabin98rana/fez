@@ -44,8 +44,6 @@ include_once(APP_INC_PATH . "class.db_api.php");
 include_once(APP_INC_PATH . "class.workflow_trigger.php");
 include_once(APP_INC_PATH . "class.background_process_list.php");
 include_once(APP_INC_PATH . "class.fulltext_queue.php");
-include_once(APP_INC_PATH . 'class.digitalobject.php');
-include_once(APP_INC_PATH . "class.dsresource.php");
 include_once(APP_INC_PATH . "class.author_era_affiliations.php");
 include_once(APP_INC_PATH . "class.exiftool.php");
 include_once(APP_INC_PATH . "class.api.php");
@@ -123,9 +121,6 @@ else {
 if (APP_FEDORA_BYPASS == 'ON') {
   if (defined('AWS_S3_ENABLED') && AWS_S3_ENABLED != 'true') {
     $now = Date_API::getCurrentDateGMT();
-    $dsr = new DSResource();
-    $dsr->load($dsID, $pid);
-    $do = new DigitalObject();
     $dbgRec = new RecordObject($_GET['pid']);
   }
 }

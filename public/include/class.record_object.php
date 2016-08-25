@@ -175,7 +175,6 @@ class RecordObject extends RecordGeneral
     $existingDatastreams = array();
 
     if (APP_FEDORA_BYPASS == 'ON') {
-      $digObj = new DigitalObject();
       if (!Zend_Registry::isRegistered('version')) {
         Zend_Registry::set('version', Date_API::getCurrentDateGMT());
       }
@@ -248,12 +247,10 @@ class RecordObject extends RecordGeneral
       $xsdmf_id = XSD_HTML_Match::getXSDMF_IDBySekIDXDIS_ID(Search_Key::getID('Object Type'), $xdis_str);
       $xsd_display_fields[0]['object_type'] = array('xsdmf_id' => $xsdmf_id[0], 'xsdmf_value' => $xdis_details['xdis_object_type']);
 
-      $digObjData = array();
-
       $this->xdis_id = $_POST['xdis_id'];
 
       if (empty($this->pid)) {
-        $this->pid = $digObj->save($digObjData);
+        $this->pid = Fedora_API::getNextPID();
         $newPid = true;
       }
 
