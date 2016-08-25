@@ -49,9 +49,44 @@ class Fedora_API implements FedoraApiInterface {
 	 */
 	public static function getNextPID()
 	{
-		$digObj = new DigitalObject();
-		$pid = $digObj->save(array());
-		return $pid;
+    $log = FezLog::get();
+    $db = DB_API::get();
+
+    $pidInt = [];
+    $pidNs = APP_PID_NAMESPACE;
+
+    $db->beginTransaction();
+
+    try {
+      $sql = "SELECT MAX(pdg_highest_id)+1 AS pdg_highest_id FROM " . APP_TABLE_PREFIX
+        . "pid_gen WHERE pdg_namespace = :pdg_namespace";
+      $stmt = $db->query($sql, array(':pdg_namespace' => $pidNs));
+      $pidInt = $stmt->fetch();
+
+    } catch(Exception $e) {
+      $log->err($e->getMessage());
+    }
+    // Check to see if this the first pid for this namespace.
+    $pidInt = ($pidInt['pdg_highest_id'] == NULL) ? 1 : $pidInt['pdg_highest_id'];
+    $pid = $pidNs . ":" . $pidInt;
+
+    try {
+      $stmt = "DELETE FROM " . APP_TABLE_PREFIX . "pid_gen WHERE pdg_namespace = :pdg_namespace";
+      $db->query($stmt, [':pdg_namespace' => $pidNs]);
+
+      $stmt = "INSERT INTO " . APP_TABLE_PREFIX .
+        "pid_gen (pdg_namespace, pdg_highest_id) VALUES (:pdg_namespace, :pdg_highest_id)";
+      $db->query($stmt, [':pdg_namespace' => $pidNs, ':pdg_highest_id' => $pidInt]);
+
+      $db->commit();
+
+      return $pid;
+
+    } catch(Exception $e) {
+      $db->rollBack();
+      $log->err($e->getMessage());
+      return [];
+    }
 	}
 
 	/**
@@ -731,9 +766,10 @@ class Fedora_API implements FedoraApiInterface {
 
 		$dataPath = Fedora_API::getDataPath($pid);
     try {
-      $sql = "DELETE FROM " . APP_TABLE_PREFIX . "file_attachments WHERE "
+      $sql = "UPDATE " . APP_TABLE_PREFIX . "file_attachments SET fat_state = :state WHERE "
         . "fat_filename = :filename AND fat_pid = :pid";
       $db->query($sql, [
+        ':state' => 'D',
         ':filename' => $dsID,
         ':pid' => $pid
       ]);
