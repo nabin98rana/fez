@@ -276,7 +276,7 @@ class Fedora_API implements FedoraApiInterface {
     if (! $obj) {
       return false;
     }
-    return Fedora_API::storeFileAttachment($pid, $dsID, $mimetype, $obj);
+    return Fedora_API::storeFileAttachment($pid, $dsID, $mimetype, $obj, $dsState);
 	}
 
   /**
@@ -284,10 +284,11 @@ class Fedora_API implements FedoraApiInterface {
    * @param string $pid The persistent identifier of the object to be purged
    * @param string $dsName The name of the datastream
    * @param string $mimetype The mimetype of the datastream
+   * @param string $state The datastream state
    * @param AWS\Result $object The object in S3
    * @return integer The datastream ID
    */
-	private static function storeFileAttachment($pid, $dsName, $mimetype, $object)
+	private static function storeFileAttachment($pid, $dsName, $mimetype, $object, $state)
   {
     $log = FezLog::get();
     $db = DB_API::get();
@@ -297,20 +298,23 @@ class Fedora_API implements FedoraApiInterface {
       ':pid' => $pid,
       ':mimetype' => $mimetype,
       ':url' => $object['ObjectURL'],
-      ':security_inherited' => 0
+      ':security_inherited' => 0,
+      ':state' => $state,
     ];
 
     $fatDid = Fedora_API::getDid($pid, $dsName);
+    $cols = 'fat_filename, fat_pid, fat_mimetype, fat_url, fat_security_inherited, fat_state';
+    $vals = ':filename, :pid, :mimetype, :url, :security_inherited, :state';
     if ($fatDid) {
       $fatArray[':id'] = $fatDid;
       $stmt = "REPLACE INTO " . APP_TABLE_PREFIX . "file_attachments "
-        . "(fat_did, fat_filename, fat_pid, fat_mimetype, fat_url, fat_security_inherited) VALUES "
-        . "(:id, :filename, :pid, :mimetype, :url, :security_inherited)";
+        . "(fat_did, $cols) VALUES "
+        . "(:id, $vals)";
 
     } else {
       $stmt = "INSERT INTO " . APP_TABLE_PREFIX . "file_attachments "
-        . "(fat_filename, fat_pid, fat_mimetype, fat_url, fat_security_inherited) VALUES "
-        . "(:filename, :pid, :mimetype, :url, :security_inherited)";
+        . "($cols) VALUES "
+        . "($vals)";
     }
     try {
       $db->query($stmt, $fatArray);
