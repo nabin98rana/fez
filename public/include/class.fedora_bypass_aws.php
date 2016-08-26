@@ -525,12 +525,14 @@ class Fedora_API implements FedoraApiInterface {
   /**
    * Gets the history of a datastream.
    *
+   * @param string $pid The persistent identifier of the object
    * @param string $dsID The ID of the datastream
    * @return array of the history
    */
-  public static function callGetDatastreamHistory($dsID)
+  public static function callGetDatastreamHistory($pid, $dsID)
   {
-
+    $rec = new Fez_Record_SearchkeyShadow($pid);
+    return $rec->returnVersionDates();
   }
 
 	/**
