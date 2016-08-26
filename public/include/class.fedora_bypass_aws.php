@@ -522,6 +522,17 @@ class Fedora_API implements FedoraApiInterface {
 		return $dsData;
 	}
 
+  /**
+   * Gets the history of a datastream.
+   *
+   * @param string $dsID The ID of the datastream
+   * @return array of the history
+   */
+  public static function callGetDatastreamHistory($dsID)
+  {
+
+  }
+
 	/**
 	 * Does a datastream with a given ID already exist in an object
 	 *
