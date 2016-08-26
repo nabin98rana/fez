@@ -18,7 +18,7 @@ Feature: Check bulk assigning Author IDs works correctly
    And I wait for solr
    And I carefully fill search entry with "title:(\"Bulk Assign Author ID Test Title 1\")"
    And I press search
-   And I select the first record in the search results
+   And I select the first record in the search results with name "pids"
    And I select "Bulk Assign Author ID" from "Run bulk workflow"
    And I press "Run Workflow"
    And I fill in "Author Text" with "UQ Author"

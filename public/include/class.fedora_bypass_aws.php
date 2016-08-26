@@ -49,9 +49,44 @@ class Fedora_API implements FedoraApiInterface {
 	 */
 	public static function getNextPID()
 	{
-		$digObj = new DigitalObject();
-		$pid = $digObj->save(array());
-		return $pid;
+    $log = FezLog::get();
+    $db = DB_API::get();
+
+    $pidInt = [];
+    $pidNs = APP_PID_NAMESPACE;
+
+    $db->beginTransaction();
+
+    try {
+      $sql = "SELECT MAX(pdg_highest_id)+1 AS pdg_highest_id FROM " . APP_TABLE_PREFIX
+        . "pid_gen WHERE pdg_namespace = :pdg_namespace";
+      $stmt = $db->query($sql, array(':pdg_namespace' => $pidNs));
+      $pidInt = $stmt->fetch();
+
+    } catch(Exception $e) {
+      $log->err($e->getMessage());
+    }
+    // Check to see if this the first pid for this namespace.
+    $pidInt = ($pidInt['pdg_highest_id'] == NULL) ? 1 : $pidInt['pdg_highest_id'];
+    $pid = $pidNs . ":" . $pidInt;
+
+    try {
+      $stmt = "DELETE FROM " . APP_TABLE_PREFIX . "pid_gen WHERE pdg_namespace = :pdg_namespace";
+      $db->query($stmt, [':pdg_namespace' => $pidNs]);
+
+      $stmt = "INSERT INTO " . APP_TABLE_PREFIX .
+        "pid_gen (pdg_namespace, pdg_highest_id) VALUES (:pdg_namespace, :pdg_highest_id)";
+      $db->query($stmt, [':pdg_namespace' => $pidNs, ':pdg_highest_id' => $pidInt]);
+
+      $db->commit();
+
+      return $pid;
+
+    } catch(Exception $e) {
+      $db->rollBack();
+      $log->err($e->getMessage());
+      return [];
+    }
 	}
 
 	/**
@@ -107,7 +142,7 @@ class Fedora_API implements FedoraApiInterface {
 	 *
 	 * @param array $resultFields
 	 * @param int $maxResults
-	 * @param string $query_terms
+	 * @param string|array $queryTerms
 	 * @return array
 	 */
 	public static function callFindObjects($resultFields = array(
@@ -116,9 +151,47 @@ class Fedora_API implements FedoraApiInterface {
 		'identifier',
 		'description',
 		'state'
-	), $maxResults = 10, $query_terms = "")
+	), $maxResults = 10, $queryTerms = "")
 	{
+    $log = FezLog::get();
+    $db = DB_API::get();
 
+	  $list = [
+      'resultList' => [
+        'objectFields' => []
+      ],
+      'listSession' => [
+        'token' => null
+      ]
+    ];
+
+    $stmt = "SELECT rek_pid as pid, rek_title as title, rek_description as description" .
+      " FROM " . APP_TABLE_PREFIX . "record_search_key";
+
+    if (is_array($queryTerms)) {
+      if (array_key_exists('state', $queryTerms)) {
+        if ($queryTerms['state'] === 'D') {
+          $stmt = "SELECT rek_pid as pid, rek_title as title, rek_description as description 
+            FROM " . APP_TABLE_PREFIX . "record_search_key__shadow
+            WHERE rek_pid NOT IN (SELECT DISTINCT rek_pid FROM " . APP_TABLE_PREFIX . "record_search_key)
+            GROUP BY rek_pid";
+        }
+      }
+    }
+    else if (! empty($queryTerms) && $queryTerms != '*') {
+      $stmt .= " WHERE rek_pid LIKE " . $db->quote("%" . str_replace('*', '', $queryTerms) . "%");
+    }
+    if ($maxResults > 0) {
+      $stmt .= " LIMIT 0," . $db->quote($maxResults, 'INTEGER');
+    }
+    try {
+      $list['resultList']['objectFields'] = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
+      return $list;
+    }
+    catch(Exception $ex) {
+      $log->err($ex);
+      return [];
+    }
 	}
 
 	/**
@@ -276,7 +349,7 @@ class Fedora_API implements FedoraApiInterface {
     if (! $obj) {
       return false;
     }
-    return Fedora_API::storeFileAttachment($pid, $dsID, $mimetype, $obj);
+    return Fedora_API::storeFileAttachment($pid, $dsID, $mimetype, $obj, $dsState);
 	}
 
   /**
@@ -284,10 +357,11 @@ class Fedora_API implements FedoraApiInterface {
    * @param string $pid The persistent identifier of the object to be purged
    * @param string $dsName The name of the datastream
    * @param string $mimetype The mimetype of the datastream
+   * @param string $state The datastream state
    * @param AWS\Result $object The object in S3
    * @return integer The datastream ID
    */
-	private static function storeFileAttachment($pid, $dsName, $mimetype, $object)
+	private static function storeFileAttachment($pid, $dsName, $mimetype, $object, $state)
   {
     $log = FezLog::get();
     $db = DB_API::get();
@@ -297,20 +371,23 @@ class Fedora_API implements FedoraApiInterface {
       ':pid' => $pid,
       ':mimetype' => $mimetype,
       ':url' => $object['ObjectURL'],
-      ':security_inherited' => 0
+      ':security_inherited' => 0,
+      ':state' => $state,
     ];
 
     $fatDid = Fedora_API::getDid($pid, $dsName);
+    $cols = 'fat_filename, fat_pid, fat_mimetype, fat_url, fat_security_inherited, fat_state';
+    $vals = ':filename, :pid, :mimetype, :url, :security_inherited, :state';
     if ($fatDid) {
       $fatArray[':id'] = $fatDid;
       $stmt = "REPLACE INTO " . APP_TABLE_PREFIX . "file_attachments "
-        . "(fat_did, fat_filename, fat_pid, fat_mimetype, fat_url, fat_security_inherited) VALUES "
-        . "(:id, :filename, :pid, :mimetype, :url, :security_inherited)";
+        . "(fat_did, $cols) VALUES "
+        . "(:id, $vals)";
 
     } else {
       $stmt = "INSERT INTO " . APP_TABLE_PREFIX . "file_attachments "
-        . "(fat_filename, fat_pid, fat_mimetype, fat_url, fat_security_inherited) VALUES "
-        . "(:filename, :pid, :mimetype, :url, :security_inherited)";
+        . "($cols) VALUES "
+        . "($vals)";
     }
     try {
       $db->query($stmt, $fatArray);
@@ -727,9 +804,10 @@ class Fedora_API implements FedoraApiInterface {
 
 		$dataPath = Fedora_API::getDataPath($pid);
     try {
-      $sql = "DELETE FROM " . APP_TABLE_PREFIX . "file_attachments WHERE "
+      $sql = "UPDATE " . APP_TABLE_PREFIX . "file_attachments SET fat_state = :state WHERE "
         . "fat_filename = :filename AND fat_pid = :pid";
       $db->query($sql, [
+        ':state' => 'D',
         ':filename' => $dsID,
         ':pid' => $pid
       ]);
