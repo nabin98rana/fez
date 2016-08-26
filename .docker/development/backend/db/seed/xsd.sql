@@ -85,6 +85,7 @@ VALUES
 	(19,28,'FezMD Collection Display','1.0',4,1),
 	(83,29,'FezACML for Collections','1.0',4,1),
 	(84,29,'FezACML for Records','1.0',4,1),
+	(85,29,'FezACML for Datastreams','1.0',4,1),
 	(87,24,'Fedora RQF 2006 Collection Display','Dublin Core 1.0',2,1),
 	(111,28,'Simple FezMD Display','1.0',4,1),
 	(128,51,'Conference Paper MODS','1.0',4,1),
