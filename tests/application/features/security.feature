@@ -88,6 +88,7 @@ Feature: Security
     And I wait for bgps
     And I follow "Browse"
     And I follow "Security Test Community Masqueraders"
+    And I wait for "2" seconds
     And I press "Create"
     And I wait for "2" seconds
     And I fill in "Title" with "Security Test Collection Multiple Inheritance Open"
