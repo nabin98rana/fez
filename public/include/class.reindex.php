@@ -137,28 +137,37 @@ class Reindex
    * Method used for retrieving list of all PIDs in Fedora.
    *
    * @access  public
-   * @return  array The PIDs.
+   * @param array $fields
+   * @param int $maxResults
+   * @param string $terms
+   * @param string $state
+   * @return array The PIDs.
    *
    * Note: This turns out to be prohibitively slow. We have phased this out in favour of
    * direct access to the Fedora database. See class.fedora_direct_access.php.
    */
-  function getAllFedoraPIDs()
+  function getAllFedoraPIDs($fields = ['pid'], $maxResults = 0, $terms = "*", $state = 'A')
   {
     $resumeToken = "~"; // Initialisation to trigger first pass
     $fedoraPIDs = array();
     do {
       if ($resumeToken == "~") {
-        $res = Fedora_API::callFindObjects(array('pid'), 100, "*"); // First time.
+        if ($terms === "*") {
+          $queryTerms = ['state' => $state];
+        } else {
+          $queryTerms = $terms;
+        }
+        $res = Fedora_API::callFindObjects($fields, $maxResults, $queryTerms); // First time.
       } else {
         $res = Fedora_API::callResumeFindObjects($resumeToken); // Each subsequent time.
       }
       $fedoraObjects = @$res['resultList']['objectFields'];
-      $resumeToken = @$res['listSession']['token'];
-      if (sizeof($fedoraObjects) > 1) {
+      if (sizeof($fedoraObjects) > 0) {
         foreach ($fedoraObjects as $thing) {
-          array_push($fedoraPIDs, $thing['pid']);
+          $fedoraPIDs[] = $thing;
         }
       }
+      $resumeToken = @$res['listSession']['token'];
     } while ($resumeToken !== null);
 
     //sort($fedoraPIDs);      // Probably more appropriate to sort later, if at all.
@@ -169,16 +178,24 @@ class Reindex
    * Method used to get the list of PIDs in Fedora that are not in the Fez index.
    *
    * @access  public
-   * @return  array The list.
+   * @param int $page
+   * @param int $max
+   * @param string $terms
+   * @param string $state
+   * @return array
    */
   function getMissingList($page = 0, $max = 10, $terms = "*", $state = 'A')
   {
     $start = $max * $page;
     $return = array();
 
-    // Direct Access to Fedora
-    $fedoraDirect = new Fedora_Direct_Access();
-    $fedoraList = $fedoraDirect->fetchAllFedoraPIDs($terms, $state);
+    if (APP_FEDORA_BYPASS == 'ON') {
+      $fedoraList = Reindex::getAllFedoraPIDs(['pid'], $max, $terms, $state);
+    } else {
+      // Direct Access to Fedora
+      $fedoraDirect = new Fedora_Direct_Access();
+      $fedoraList = $fedoraDirect->fetchAllFedoraPIDs($terms, $state);
+    }
 
     // Correct for Oracle-produced array key case issue reported by Kostas
     foreach ($fedoraList as $fkey => $flist) {
@@ -249,9 +266,13 @@ class Reindex
     $start = $max * $page;
     $return = array();
 
-    // Direct Access to Fedora
-    $fedoraDirect = new Fedora_Direct_Access();
-    $fedoraList = $fedoraDirect->fetchAllFedoraPIDs($terms);
+    if (APP_FEDORA_BYPASS == 'ON') {
+      $fedoraList = Reindex::getAllFedoraPIDs(['pid'], $max, $terms);
+    } else {
+      // Direct Access to Fedora
+      $fedoraDirect = new Fedora_Direct_Access();
+      $fedoraList = $fedoraDirect->fetchAllFedoraPIDs($terms);
+    }
 
     // Correct for Oracle-produced array key case issue reported by Kostas
     foreach ($fedoraList as &$flist) {
@@ -354,9 +375,19 @@ class Reindex
 
     // are we doing an undelete?
     if (@$params['index_type'] == Reindex::INDEX_TYPE_UNDELETE) {
-      $fedoraList = $fedoraDirect->fetchAllFedoraPIDs($terms, 'D');
+      if (APP_FEDORA_BYPASS == 'ON') {
+        $fedoraList = Reindex::getAllFedoraPIDs(['pid'], 0, $terms, 'D');
+      } else {
+        // Direct Access to Fedora
+        $fedoraList = $fedoraDirect->fetchAllFedoraPIDs($terms, 'D');
+      }
     } else {
-      $fedoraList = $fedoraDirect->fetchAllFedoraPIDs($terms);
+      if (APP_FEDORA_BYPASS == 'ON') {
+        $fedoraList = Reindex::getAllFedoraPIDs(['pid'], 0, $terms);
+      } else {
+        // Direct Access to Fedora
+        $fedoraList = $fedoraDirect->fetchAllFedoraPIDs($terms);
+      }
     }
 
     // Correct for Oracle-produced array key case issue reported by Kostas
@@ -637,13 +668,10 @@ class Reindex
           History::addHistory($pid, null, "", "", true, 'Undeleted');
         }
         if (APP_FEDORA_BYPASS == "ON") {
-          //todo What need to be in here? The above markAsActive is needed for undelete
-
           if ($rebuild == true) {
             // need to rebuild presmd and image datastreams
             // get list of datastreams and iterate over them
             $ds = Fedora_API::callGetDatastreams($pid);
-
 
             foreach ($ds as $dsTitle) {
               $dsIDName = $dsTitle['ID'];
@@ -662,7 +690,6 @@ class Reindex
             }
 
             foreach ($ds as $dsTitle) {
-              $dsIDName = $dsTitle['ID'];
               if ($dsTitle['controlGroup'] == "M"
                 && !Misc::hasPrefix($dsIDName, 'preview_')
                 && !Misc::hasPrefix($dsIDName, 'web_')
@@ -670,20 +697,7 @@ class Reindex
                 && !Misc::hasPrefix($dsIDName, 'stream_')
                 && !Misc::hasPrefix($dsIDName, 'presmd_') // since presmd is stored as a binary to avoid parsing by fedora at the moment.
               ) {
-
-                $dsr = new DSResource();
-                $dsr->load($dsIDName, $pid);
-                $path = $dsr->returnPath();
-                $tmpFile = APP_TEMP_DIR.$dsIDName;
-                copy($path."/".$dsTitle['hash'], $tmpFile);
-
-                $new_dsID = Foxml::makeNCName($dsIDName);
-
-                Record::generatePresmd($pid, $new_dsID);
-                Workflow::processIngestTrigger($pid, $new_dsID, $dsTitle['MIMEType']);
-                if (is_file($tmpFile)) {
-                  unlink($tmpFile);
-                }
+                BatchImport::handleStandardFileImport($pid, $dsTitle['location'], $dsTitle['ID'], $xdis_id);
               }
             }
           }

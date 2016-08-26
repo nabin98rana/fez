@@ -529,11 +529,11 @@ class FeatureContext extends MinkContext
   }
 
   /**
-   * @When /^I select the first record in the search results$/
+   * @When /^I select the first record in the search results with name "([^"]*)"$/
    */
-  public function iSelectTheFirstRecordInTheSearchResults()
+  public function iSelectTheFirstRecordInTheSearchResultsWithName($name)
   {
-    $xpath = "//input[@name='pids[]']";
+    $xpath = "//input[@name='{$name}[]']";
     $this->iClickOnTheElementWithXPath($xpath);
   }
 
