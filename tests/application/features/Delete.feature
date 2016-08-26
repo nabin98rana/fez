@@ -49,6 +49,25 @@ Feature: Test that deleting communities/collections/records works correctly
     And I press search
     Then I should see "(0 results found)"
 
+  Scenario: Undelete record
+    Given I login as administrator
+    And I am on "/manage/index_new.php"
+    And I press "Undelete Fedora objects"
+    And I select the first record in the search results with name "items"
+    And I press "Undelete Selected Items"
+    And I wait for solr
+    And I wait for bgps
+    And I carefully fill search entry with "title:(\"Security Test Name 2012\")"
+    And I press search
+    And I follow "Security Test Name 2012"
+    And I turn off waiting checks
+    And I follow "Detailed History"
+    And I switch to window "_impact"
+    And I should see "Undeleted by"
+    And I press "Close"
+    And I switch to window ""
+    And I turn on waiting checks
+
   Scenario: Delete Collection
     Given I login as administrator
     And I go to the test community page
