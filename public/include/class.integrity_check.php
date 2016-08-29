@@ -88,7 +88,9 @@ class IntegrityCheck
     }
     // run deletes
     if ($runType == 'fix' || $runType == 'both') {
-      $this->doFedoraFezDelete();
+      if (APP_FEDORA_BYPASS != "ON") {
+        $this->doFedoraFezDelete();
+      }
       if (APP_SOLR_INDEXER == "ON") {
         $this->doFezSolrDeletes();
         $this->addSolrCitations();
