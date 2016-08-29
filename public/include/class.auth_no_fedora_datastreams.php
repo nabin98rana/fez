@@ -158,9 +158,9 @@ class AuthNoFedoraDatastreams
     $db = DB_API::get();
 
 
-    $stmt = "SELECT fat_security_inherited
-                            FROM " . APP_TABLE_PREFIX . "file_attachments
-                            WHERE fat_did = " . $db->quote($did);
+    $stmt = "SELECT dsi_security_inherited
+                            FROM " . APP_TABLE_PREFIX . "datastream_info
+                            WHERE dsi_id = " . $db->quote($did);
 
     try {
       $res = $db->fetchOne($stmt);
@@ -181,9 +181,9 @@ class AuthNoFedoraDatastreams
     $log = FezLog::get();
     $db = DB_API::get();
 
-    $stmt = "SELECT fat_watermark
-                FROM " . APP_TABLE_PREFIX . "file_attachments
-                WHERE fat_did = " . $db->quote($did);
+    $stmt = "SELECT dsi_watermark
+                FROM " . APP_TABLE_PREFIX . "datastream_info
+                WHERE dsi_id = " . $db->quote($did);
 
     try {
       $res = $db->fetchOne($stmt);
@@ -201,9 +201,9 @@ class AuthNoFedoraDatastreams
     $log = FezLog::get();
     $db = DB_API::get();
 
-    $stmt = "SELECT fat_copyright
-                FROM " . APP_TABLE_PREFIX . "file_attachments
-                WHERE fat_did = " . $db->quote($did);
+    $stmt = "SELECT dsi_copyright
+                FROM " . APP_TABLE_PREFIX . "datastream_info
+                WHERE dsi_id = " . $db->quote($did);
 
     try {
       $res = $db->fetchOne($stmt);
@@ -216,14 +216,14 @@ class AuthNoFedoraDatastreams
   }
 
   //set inherit permissions
-  function setInherited($did)
+  public static function setInherited($did)
   {
     $log = FezLog::get();
     $db = DB_API::get();
 
-    $stmt = "UPDATE " . APP_TABLE_PREFIX . "file_attachments
-                SET fat_security_inherited = '1'
-                WHERE fat_did = " . $db->quote($did);
+    $stmt = "UPDATE " . APP_TABLE_PREFIX . "datastream_info
+                SET dsi_security_inherited = '1'
+                WHERE dsi_id = " . $db->quote($did);
 
     try {
       $res = $db->exec($stmt);
@@ -241,9 +241,9 @@ class AuthNoFedoraDatastreams
     $log = FezLog::get();
     $db = DB_API::get();
 
-    $stmt = "UPDATE " . APP_TABLE_PREFIX . "file_attachments
-                    SET fat_security_inherited = '0'
-                    WHERE fat_did = " . $db->quote($did);
+    $stmt = "UPDATE " . APP_TABLE_PREFIX . "datastream_info
+                    SET dsi_security_inherited = '0'
+                    WHERE dsi_id = " . $db->quote($did);
 
     try {
       $res = $db->exec($stmt);
@@ -261,9 +261,9 @@ class AuthNoFedoraDatastreams
     $log = FezLog::get();
     $db = DB_API::get();
 
-    $stmt = "UPDATE " . APP_TABLE_PREFIX . "file_attachments
-                SET fat_copyright = '1'
-                WHERE fat_did = " . $db->quote($did);
+    $stmt = "UPDATE " . APP_TABLE_PREFIX . "datastream_info
+                SET dsi_copyright = '1'
+                WHERE dsi_id = " . $db->quote($did);
 
     try {
       $res = $db->exec($stmt);
@@ -281,9 +281,9 @@ class AuthNoFedoraDatastreams
     $log = FezLog::get();
     $db = DB_API::get();
 
-    $stmt = "UPDATE " . APP_TABLE_PREFIX . "file_attachments
-                    SET fat_copyright = '0'
-                    WHERE fat_did = " . $db->quote($did);
+    $stmt = "UPDATE " . APP_TABLE_PREFIX . "datastream_info
+                    SET dsi_copyright = '0'
+                    WHERE dsi_id = " . $db->quote($did);
 
     try {
       $res = $db->exec($stmt);
@@ -301,9 +301,9 @@ class AuthNoFedoraDatastreams
     $log = FezLog::get();
     $db = DB_API::get();
 
-    $stmt = "UPDATE " . APP_TABLE_PREFIX . "file_attachments
-                SET fat_watermark = '1'
-                WHERE fat_did = " . $db->quote($did);
+    $stmt = "UPDATE " . APP_TABLE_PREFIX . "datastream_info
+                SET dsi_watermark = '1'
+                WHERE dsi_id = " . $db->quote($did);
 
     try {
       $res = $db->exec($stmt);
@@ -321,9 +321,9 @@ class AuthNoFedoraDatastreams
     $log = FezLog::get();
     $db = DB_API::get();
 
-    $stmt = "UPDATE " . APP_TABLE_PREFIX . "file_attachments
-                    SET fat_watermark = '0'
-                    WHERE fat_did = " . $db->quote($did);
+    $stmt = "UPDATE " . APP_TABLE_PREFIX . "datastream_info
+                    SET dsi_watermark = '0'
+                    WHERE dsi_id = " . $db->quote($did);
 
     try {
       $res = $db->exec($stmt);
@@ -443,9 +443,9 @@ class AuthNoFedoraDatastreams
     $log = FezLog::get();
     $db = DB_API::get();
 
-    $stmt = "SELECT fat_pid
-                FROM " . APP_TABLE_PREFIX . "file_attachments
-                WHERE fat_did = " . $db->quote($did);
+    $stmt = "SELECT dsi_pid
+                FROM " . APP_TABLE_PREFIX . "datastream_info
+                WHERE dsi_id = " . $db->quote($did);
 
     try {
       $res = $db->fetchOne($stmt);
@@ -462,10 +462,10 @@ class AuthNoFedoraDatastreams
     $log = FezLog::get();
     $db = DB_API::get();
 
-    $stmt = "SELECT fat_did
-                FROM " . APP_TABLE_PREFIX . "file_attachments
-                WHERE fat_pid = " . $db->quote($pid) . " AND
-                fat_filename = " . $db->quote($dsID);
+    $stmt = "SELECT dsi_id
+                FROM " . APP_TABLE_PREFIX . "datastream_info
+                WHERE dsi_pid = " . $db->quote($pid) . " AND
+                dsi_dsid = " . $db->quote($dsID);
 
     try {
       $res = $db->fetchOne($stmt);

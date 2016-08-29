@@ -175,7 +175,6 @@ class RecordObject extends RecordGeneral
     $existingDatastreams = array();
 
     if (APP_FEDORA_BYPASS == 'ON') {
-      $digObj = new DigitalObject();
       if (!Zend_Registry::isRegistered('version')) {
         Zend_Registry::set('version', Date_API::getCurrentDateGMT());
       }
@@ -248,12 +247,10 @@ class RecordObject extends RecordGeneral
       $xsdmf_id = XSD_HTML_Match::getXSDMF_IDBySekIDXDIS_ID(Search_Key::getID('Object Type'), $xdis_str);
       $xsd_display_fields[0]['object_type'] = array('xsdmf_id' => $xsdmf_id[0], 'xsdmf_value' => $xdis_details['xdis_object_type']);
 
-      $digObjData = array();
-
       $this->xdis_id = $_POST['xdis_id'];
 
       if (empty($this->pid)) {
-        $this->pid = $digObj->save($digObjData);
+        $this->pid = Fedora_API::getNextPID();
         $newPid = true;
       }
 
@@ -299,19 +296,7 @@ class RecordObject extends RecordGeneral
 
             $new_dsID = Foxml::makeNCName($fileInfo->getFilename());
 
-            if (defined('AWS_S3_ENABLED') && AWS_S3_ENABLED == 'true') {
-              Fedora_API::getUploadLocationByLocalRef($this->pid, $new_dsID, $resourceDataLocation, $new_dsID, $mimeDataType,"M",null,true);
-            } else {
-              $meta = array('mimetype' => $mimeDataType,
-                  'controlgroup' => 'M',
-                  'state' => 'A',
-                  'size' => $filesDataSize,
-                  'updateTS' => $now,
-                  'pid' => $this->pid);
-
-              $dsr = new DSResource(APP_DSTREE_PATH, $resourceDataLocation, $meta);
-              $dsr->save();
-            }
+            Fedora_API::getUploadLocationByLocalRef($this->pid, $new_dsID, $resourceDataLocation, $new_dsID, $mimeDataType,"M",null,true);
             array_push($fileNames, $new_dsID);
             $tmpFile = APP_TEMP_DIR . $new_dsID;
 //                      copy($path.$hash['rawHash'], $tmpFile);
@@ -364,20 +349,9 @@ class RecordObject extends RecordGeneral
       }
 
       //Mark any files required for deletion.
-      if (defined('AWS_S3_ENABLED') && AWS_S3_ENABLED == 'true') {
-        if (isset($_POST['removeFiles'])) {
-          foreach ($_POST['removeFiles'] as $removeFile) {
-            Fedora_API::deleteDatastream($this->pid, $removeFile);
-          }
-        }
-      } else {
-        if (isset($_POST['removeFiles'])) {
-          $dresource = new DSResource();
-
-          foreach ($_POST['removeFiles'] as $removeFile) {
-            $dresource->load($removeFile, $this->pid);
-            $dresource->dereference();
-          }
+      if (isset($_POST['removeFiles'])) {
+        foreach ($_POST['removeFiles'] as $removeFile) {
+          Fedora_API::deleteDatastream($this->pid, $removeFile);
         }
       }
 

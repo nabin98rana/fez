@@ -48,7 +48,8 @@ class BackgroundProcess_Embargo_Period_Complete_Check extends BackgroundProcess
 
     $log = FezLog::get();
     $db = DB_API::get();
-    
+
+    $res = [];
     $stmt = "SELECT * FROM " . APP_TABLE_PREFIX . "datastream_info WHERE dsi_embargo_date < NOW() AND dsi_embargo_processed != 1";
     try {
       $res = $db->fetchAll($stmt);
@@ -58,9 +59,16 @@ class BackgroundProcess_Embargo_Period_Complete_Check extends BackgroundProcess
     }
 
     foreach ($res as $pidInfo) {
-      $pidPermisisons = Auth::getAuthPublic($pidInfo['dsi_pid'], $pidInfo['dsi_dsid']);
-      if (!($pidPermisisons['lister'] && $pidPermisisons['viewer'])) {
-        Datastream::setfezACMLInherit($pidInfo['dsi_pid'], $pidInfo['dsi_dsid']);
+      $pidPermissions = Auth::getAuthPublic($pidInfo['dsi_pid'], $pidInfo['dsi_dsid']);
+      if (!($pidPermissions['lister'] && $pidPermissions['viewer'])) {
+
+        if (APP_FEDORA_BYPASS == "ON") {
+          $did = AuthNoFedoraDatastreams::getDid($pidInfo['dsi_pid'], $pidInfo['dsi_dsid']);
+          AuthNoFedoraDatastreams::setInherited($did);
+        } else {
+          Datastream::setfezACMLInherit($pidInfo['dsi_pid'], $pidInfo['dsi_dsid']);
+        }
+
         echo $pidInfo['dsi_pid']." ".$pidInfo['dsi_dsid']." \n";
         if (APP_FILECACHE == "ON") {
           $cache = new fileCache($pidInfo['dsi_pid'], 'pid='.$pidInfo['dsi_pid']);

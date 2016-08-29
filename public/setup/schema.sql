@@ -623,20 +623,6 @@ CREATE TABLE `fez_custom_views_search_keys` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Table structure for table `fez_datastream_cache`
---
-
-DROP TABLE IF EXISTS `fez_datastream_cache`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `fez_datastream_cache` (
-  `dc_pid` varchar(64) NOT NULL,
-  `dc_dsid` varchar(255) NOT NULL,
-  PRIMARY KEY (`dc_pid`,`dc_dsid`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
 -- Table structure for table `fez_eprints_import_pids`
 --
 
@@ -745,27 +731,6 @@ CREATE TABLE `fez_favourites_search` (
   `fvs_description` varchar(2048) DEFAULT NULL,
   `fvs_unsubscribe_hash` varchar(40) DEFAULT NULL,
   PRIMARY KEY (`fvs_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `fez_file_attachments`
---
-
-DROP TABLE IF EXISTS `fez_file_attachments`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `fez_file_attachments` (
-  `fat_did` int(11) NOT NULL AUTO_INCREMENT,
-  `fat_filename` varchar(200) NOT NULL,
-  `fat_pid` varchar(15) NOT NULL DEFAULT '0',
-  `fat_mimetype` varchar(100) DEFAULT NULL,
-  `fat_url` text,
-  `fat_copyright` char(1) DEFAULT NULL,
-  `fat_watermark` char(1) DEFAULT NULL,
-  `fat_security_inherited` char(1) DEFAULT NULL,
-  PRIMARY KEY (`fat_did`),
-  KEY `unique_pid_filename` (`fat_pid`, `fat_filename`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 

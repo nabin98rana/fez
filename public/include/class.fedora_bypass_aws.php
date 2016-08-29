@@ -39,6 +39,7 @@ include_once(APP_PEAR_PATH . "/HTTP/Request.php");
 include_once(APP_INC_PATH . "class.aws.php");
 include_once(APP_INC_PATH . "class.links.php");
 include_once(APP_INC_PATH . "class.fedora_api_interface.php");
+include_once(APP_INC_PATH . "class.datastream.php");
 
 class Fedora_API implements FedoraApiInterface {
 
@@ -49,9 +50,44 @@ class Fedora_API implements FedoraApiInterface {
 	 */
 	public static function getNextPID()
 	{
-		$digObj = new DigitalObject();
-		$pid = $digObj->save(array());
-		return $pid;
+    $log = FezLog::get();
+    $db = DB_API::get();
+
+    $pidInt = [];
+    $pidNs = APP_PID_NAMESPACE;
+
+    $db->beginTransaction();
+
+    try {
+      $sql = "SELECT MAX(pdg_highest_id)+1 AS pdg_highest_id FROM " . APP_TABLE_PREFIX
+        . "pid_gen WHERE pdg_namespace = :pdg_namespace";
+      $stmt = $db->query($sql, array(':pdg_namespace' => $pidNs));
+      $pidInt = $stmt->fetch();
+
+    } catch(Exception $e) {
+      $log->err($e->getMessage());
+    }
+    // Check to see if this the first pid for this namespace.
+    $pidInt = ($pidInt['pdg_highest_id'] == NULL) ? 1 : $pidInt['pdg_highest_id'];
+    $pid = $pidNs . ":" . $pidInt;
+
+    try {
+      $stmt = "DELETE FROM " . APP_TABLE_PREFIX . "pid_gen WHERE pdg_namespace = :pdg_namespace";
+      $db->query($stmt, [':pdg_namespace' => $pidNs]);
+
+      $stmt = "INSERT INTO " . APP_TABLE_PREFIX .
+        "pid_gen (pdg_namespace, pdg_highest_id) VALUES (:pdg_namespace, :pdg_highest_id)";
+      $db->query($stmt, [':pdg_namespace' => $pidNs, ':pdg_highest_id' => $pidInt]);
+
+      $db->commit();
+
+      return $pid;
+
+    } catch(Exception $e) {
+      $db->rollBack();
+      $log->err($e->getMessage());
+      return [];
+    }
 	}
 
 	/**
@@ -107,7 +143,7 @@ class Fedora_API implements FedoraApiInterface {
 	 *
 	 * @param array $resultFields
 	 * @param int $maxResults
-	 * @param string $query_terms
+	 * @param string|array $queryTerms
 	 * @return array
 	 */
 	public static function callFindObjects($resultFields = array(
@@ -116,9 +152,47 @@ class Fedora_API implements FedoraApiInterface {
 		'identifier',
 		'description',
 		'state'
-	), $maxResults = 10, $query_terms = "")
+	), $maxResults = 10, $queryTerms = "")
 	{
+    $log = FezLog::get();
+    $db = DB_API::get();
 
+	  $list = [
+      'resultList' => [
+        'objectFields' => []
+      ],
+      'listSession' => [
+        'token' => null
+      ]
+    ];
+
+    $stmt = "SELECT rek_pid as pid, rek_title as title, rek_description as description" .
+      " FROM " . APP_TABLE_PREFIX . "record_search_key";
+
+    if (is_array($queryTerms)) {
+      if (array_key_exists('state', $queryTerms)) {
+        if ($queryTerms['state'] === 'D') {
+          $stmt = "SELECT rek_pid as pid, rek_title as title, rek_description as description 
+            FROM " . APP_TABLE_PREFIX . "record_search_key__shadow
+            WHERE rek_pid NOT IN (SELECT DISTINCT rek_pid FROM " . APP_TABLE_PREFIX . "record_search_key)
+            GROUP BY rek_pid";
+        }
+      }
+    }
+    else if (! empty($queryTerms) && $queryTerms != '*') {
+      $stmt .= " WHERE rek_pid LIKE " . $db->quote("%" . str_replace('*', '', $queryTerms) . "%");
+    }
+    if ($maxResults > 0) {
+      $stmt .= " LIMIT 0," . $db->quote($maxResults, 'INTEGER');
+    }
+    try {
+      $list['resultList']['objectFields'] = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
+      return $list;
+    }
+    catch(Exception $ex) {
+      $log->err($ex);
+      return [];
+    }
 	}
 
 	/**
@@ -276,72 +350,9 @@ class Fedora_API implements FedoraApiInterface {
     if (! $obj) {
       return false;
     }
-    return Fedora_API::storeFileAttachment($pid, $dsID, $mimetype, $obj);
+    return Datastream::addDatastreamInfo($pid, $dsID, $mimetype, $obj, $dsState);
 	}
 
-  /**
-   * Stores the datastream in the file attachments table
-   * @param string $pid The persistent identifier of the object to be purged
-   * @param string $dsName The name of the datastream
-   * @param string $mimetype The mimetype of the datastream
-   * @param AWS\Result $object The object in S3
-   * @return integer The datastream ID
-   */
-	private static function storeFileAttachment($pid, $dsName, $mimetype, $object)
-  {
-    $log = FezLog::get();
-    $db = DB_API::get();
-
-    $fatArray = [
-      ':filename' => $dsName,
-      ':pid' => $pid,
-      ':mimetype' => $mimetype,
-      ':url' => $object['ObjectURL'],
-      ':security_inherited' => 0
-    ];
-
-    $fatDid = Fedora_API::getDid($pid, $dsName);
-    if ($fatDid) {
-      $fatArray[':id'] = $fatDid;
-      $stmt = "REPLACE INTO " . APP_TABLE_PREFIX . "file_attachments "
-        . "(fat_did, fat_filename, fat_pid, fat_mimetype, fat_url, fat_security_inherited) VALUES "
-        . "(:id, :filename, :pid, :mimetype, :url, :security_inherited)";
-
-    } else {
-      $stmt = "INSERT INTO " . APP_TABLE_PREFIX . "file_attachments "
-        . "(fat_filename, fat_pid, fat_mimetype, fat_url, fat_security_inherited) VALUES "
-        . "(:filename, :pid, :mimetype, :url, :security_inherited)";
-    }
-    try {
-      $db->query($stmt, $fatArray);
-      $fatDid = $db->lastInsertId(APP_TABLE_PREFIX . "file_attachments", "fat_did");
-    }
-    catch(Exception $ex) {
-      $log->err($ex);
-    }
-
-    return $fatDid;
-  }
-
-  private static function getDid($pid, $dsName)
-  {
-    $log = FezLog::get();
-    $db = DB_API::get();
-
-    $stmt = "SELECT fat_did FROM " . APP_TABLE_PREFIX . "file_attachments WHERE "
-      . "fat_pid = :pid AND fat_filename = :filename";
-    try {
-      $fatDid = $db->fetchOne($stmt, [
-        ':filename' => $dsName,
-        ':pid' => $pid
-      ]);
-      return $fatDid;
-    }
-    catch(Exception $ex) {
-      $log->err($ex);
-      return false;
-    }
-  }
 
 	/**
 	 *This function creates an array of all the datastreams for a specific object.
@@ -363,29 +374,6 @@ class Fedora_API implements FedoraApiInterface {
       if ($baseKey != basename($dataPath)) {
         $dataStreams[] = Fedora_API::callGetDatastream($pid, $baseKey, $createdDT);
       }
-
-			/*$baseKey = basename($object['Key']);
-			if ($baseKey != basename($dataPath)) {
-				$ds = array();
-				//TODO: Add created date and mimetype from custom metadata PUT onto the object by Fez
-				$ds['controlGroup'] = "M";
-				$ds['ID']           = $baseKey;
-				$ds['versionID']    = $object['VersionId'];
-//				$ds['altIDs']       = "";
-				$ds['label']        = $baseKey;
-				$ds['versionable']  = "true";
-        // getting mimetype from exiftool table data instead of aws metadata because aws would require a headobject api call per object = too many calls = probably slow
-        $exifData = Exiftool::getDetails($pid, $baseKey);
-        $ds['MIMEType'] = $exifData['exif_mime_type'];
-				$ds['formatURI']    = "";
-				$ds['createDate']   = (string)$object['LastModified'];
-				$ds['size']         = $object['Size'];
-				$ds['state']        = 'A';
-//				$ds['location']     = $object['location'];
-				$ds['checksumType'] = "MD5";
-				$ds['checksum']     = $object['eTag'];
-				$dataStreams[] = $ds;
-			}*/
 		}
 
 		//Add on the links 'R' based datastreams
@@ -413,37 +401,7 @@ class Fedora_API implements FedoraApiInterface {
 	 */
 	public static function callListDatastreamsLite($pid, $refresh = FALSE, $current_tries = 0)
 	{
-		$log = FezLog::get();
-		$db = DB_API::get();
-
-		if (!is_numeric($pid)) {
-
-			$rows = array();
-
-			$sql = "SELECT fat_filename, fat_mimetype, fat_version FROM "
-				. APP_TABLE_PREFIX . "file_attachments WHERE fat_pid = :pid GROUP BY fat_filename";
-
-			try
-			{
-				$stmt = $db->query($sql, array(':pid' => $pid));
-				$rows = $stmt->fetchAll();
-			}
-			catch(Exception $e)
-			{
-				$log->err($e->getMessage());
-			}
-
-			$resultlist = array();
-			foreach($rows as $row)
-			{
-				$resultlist[] = array('dsid' => $row['fat_filename'],
-					'label' => $row['fat_filename'],
-					'mimeType' => $row['fat_mimetype']);
-			}
-			return $resultlist;
-		} else {
-			return array();
-		}
+    return Datastream::getDatastreamInfo($pid);
 	}
 
 	/**
@@ -492,8 +450,6 @@ class Fedora_API implements FedoraApiInterface {
 	 */
 	public static function callGetDatastream($pid, $dsID, $createdDT = NULL)
 	{
-    $log = FezLog::get();
-    $db = DB_API::get();
 		$aws = AWS::get();
 
 		$dataPath = Fedora_API::getDataPath($pid);
@@ -522,6 +478,19 @@ class Fedora_API implements FedoraApiInterface {
 		return $dsData;
 	}
 
+  /**
+   * Gets the history of a datastream.
+   *
+   * @param string $pid The persistent identifier of the object
+   * @param string $dsID The ID of the datastream
+   * @return array of the history
+   */
+  public static function callGetDatastreamHistory($pid, $dsID)
+  {
+    $rec = new Fez_Record_SearchkeyShadow($pid);
+    return $rec->returnVersionDates();
+  }
+
 	/**
 	 * Does a datastream with a given ID already exist in an object
 	 *
@@ -547,7 +516,7 @@ class Fedora_API implements FedoraApiInterface {
 	/**
 	 * Does a datastream with a given ID already exist in existing list array of datastreams
 	 *
-	 * @param string $existing_list The existing list of datastreams
+	 * @param array $existing_list The existing list of datastreams
 	 * @param string $dsID The ID of the datastream to be checked
 	 * @return boolean
 	 */
@@ -721,22 +690,12 @@ class Fedora_API implements FedoraApiInterface {
 	 */
 	public static function deleteDatastream($pid, $dsID)
 	{
-    $log = FezLog::get();
-    $db = DB_API::get();
     $aws = AWS::get();
 
-		$dataPath = Fedora_API::getDataPath($pid);
-    try {
-      $sql = "DELETE FROM " . APP_TABLE_PREFIX . "file_attachments WHERE "
-        . "fat_filename = :filename AND fat_pid = :pid";
-      $db->query($sql, [
-        ':filename' => $dsID,
-        ':pid' => $pid
-      ]);
-    } catch (Exception $e) {
-      $log->err($e->getMessage());
-    }
-		return $aws->deleteById($dataPath, $dsID);
+    Datastream::deleteDatastreamInfo($pid, $dsID);
+    $dataPath = Fedora_API::getDataPath($pid);
+
+    return $aws->deleteById($dataPath, $dsID);
 	}
 
 	/**
@@ -752,21 +711,11 @@ class Fedora_API implements FedoraApiInterface {
 	 */
 	public static function callPurgeDatastream($pid, $dsID, $startDT = NULL, $endDT = NULL, $logMessage = "Purged Datastream from Fez", $force = FALSE)
 	{
-    $log = FezLog::get();
-    $db = DB_API::get();
     $aws = AWS::get();
 
+    Datastream::purgeDatastreamInfo($pid, $dsID);
     $dataPath = Fedora_API::getDataPath($pid);
-    try {
-      $sql = "DELETE FROM " . APP_TABLE_PREFIX . "file_attachments WHERE "
-        . "fat_filename = :filename AND fat_pid = :pid";
-      $db->query($sql, [
-        ':filename' => $dsID,
-        ':pid' => $pid
-      ]);
-    } catch (Exception $e) {
-      $log->err($e->getMessage());
-    }
-		return $aws->purgeById($dataPath, $dsID);
+
+    return $aws->purgeById($dataPath, $dsID);
 	}
 }

@@ -327,15 +327,6 @@ LOCK TABLES `fez_custom_views_search_keys` WRITE;
 UNLOCK TABLES;
 
 --
--- Dumping data for table `fez_datastream_cache`
---
-
-LOCK TABLES `fez_datastream_cache` WRITE;
-/*!40000 ALTER TABLE `fez_datastream_cache` DISABLE KEYS */;
-/*!40000 ALTER TABLE `fez_datastream_cache` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
 -- Dumping data for table `fez_eprints_import_pids`
 --
 
@@ -378,15 +369,6 @@ UNLOCK TABLES;
 LOCK TABLES `fez_favourites` WRITE;
 /*!40000 ALTER TABLE `fez_favourites` DISABLE KEYS */;
 /*!40000 ALTER TABLE `fez_favourites` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Dumping data for table `fez_file_attachments`
---
-
-LOCK TABLES `fez_file_attachments` WRITE;
-/*!40000 ALTER TABLE `fez_file_attachments` DISABLE KEYS */;
-/*!40000 ALTER TABLE `fez_file_attachments` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -2466,7 +2448,7 @@ UNLOCK TABLES;
 
 LOCK TABLES `fez_user` WRITE;
 /*!40000 ALTER TABLE `fez_user` DISABLE KEYS */;
-INSERT INTO `fez_user` VALUES (1,'0000-00-00 00:00:00','active','21232f297a57a5a743894a0e4a801fc3','Administrator',NULL,NULL,'','','','admin',NULL,1,0,15,'2012-10-26 00:42:39',0,NULL,1);
+INSERT INTO `fez_user` VALUES (1,'2012-10-26 00:42:39','active','21232f297a57a5a743894a0e4a801fc3','Administrator',NULL,NULL,'','','','admin',NULL,1,0,15,'2012-10-26 00:42:39',0,NULL,1);
 /*!40000 ALTER TABLE `fez_user` ENABLE KEYS */;
 UNLOCK TABLES;
 
