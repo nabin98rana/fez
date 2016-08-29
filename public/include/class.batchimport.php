@@ -293,7 +293,7 @@ class BatchImport
    * @param   bool   $is_temp_file
    * @return  void
    */
-  function handleStandardFileImport($pid, $full_name, $short_name, $xdis_id = 0, $is_temp_file = false)
+  public static function handleStandardFileImport($pid, $full_name, $short_name, $xdis_id = 0, $is_temp_file = false)
   {
     $dsIDName = $short_name;
     $return_array = array();

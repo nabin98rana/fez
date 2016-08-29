@@ -5,16 +5,23 @@
     	<h1>Index Objects</h1>
     
         <div class="default admin-content">
-    		<img style="vertical-align: middle" src="{$rel_url}images/reindex_22.png" alt="" /> Scrape Fedora for records, and bring the Fez index up-to-date.
+    		<img style="vertical-align: middle" src="{$rel_url}images/reindex_22.png" alt="" />
+					{if ! $is_bypass}Scrape Fedora for records, and bring the Fez index up-to-date.
+					{else}Bring the Fez index up-to-date.{/if}
+
         </div>
     	
         <form id="reindex" method="post" action="{$smarty.server.PHP_SELF}">
             <div>
         		<input type="hidden" name="action" value="prompt" />
-        		<input type="submit" name="discover" value="Discover new Fedora objects" class="button" />
+						{if ! $is_bypass}
+        		  <input type="submit" name="discover" value="Discover new Fedora objects" class="button" />
+						{/if}
         		<input type="submit" name="reindex" value="Reindex known Fedora objects" class="button" />
         		<input type="submit" name="undelete" value="Undelete Fedora objects" class="button" />
-        		<input type="submit" name="origami" value="Reindex Origami Images" class="button" />
+						{if ! $is_bypass}
+        		  <input type="submit" name="origami" value="Reindex Origami Images" class="button" />
+						{/if}
             </div>
     	</form>
     

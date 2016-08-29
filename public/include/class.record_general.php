@@ -370,8 +370,7 @@ class RecordGeneral
   function getPublishedStatus($astext = false)
   {
     if(APP_FEDORA_BYPASS == 'ON') {
-        $do = new DigitalObject;
-        return $do->getStatus($this->pid);
+        return $this->getStatus();
 
     } else {
         $this->getDisplay();
@@ -1609,6 +1608,40 @@ class RecordGeneral
       return FALSE;
     }
     return $res;
+  }
+
+  /**
+   * Returns the objects status.
+   * NB: A record can be published but deleted, which means the tombstone is viewable by the public.
+   *
+   * @return bool|string
+   */
+  public function getStatus()
+  {
+    $log = FezLog::get();
+    $db = DB_API::get();
+
+    $stmt = "SELECT rek_status FROM " . APP_TABLE_PREFIX . "record_search_key WHERE"
+      . " rek_pid = ".$db->quote($this->pid);
+
+    try {
+      $result = $db->fetchOne($stmt);
+      if (empty($result)) {
+        $stmt = "SELECT rek_status FROM " . APP_TABLE_PREFIX . "record_search_key__shadow WHERE rek_pid = ".$db->quote($this->pid)." ORDER BY rek_stamp DESC LIMIT 1";
+        try {
+          $result = $db->fetchOne($stmt);
+        }
+        catch(Exception $ex) {
+          $log->err($ex);
+          return false;
+        }
+      }
+    } catch(Exception $ex) {
+      $log->err($ex);
+      return false;
+    }
+    return $result;
+
   }
 
 

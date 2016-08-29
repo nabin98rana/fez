@@ -342,6 +342,9 @@ function getOpenerPageElement(name)
 
 function getFormElement(f, field_name, num)
 {
+    if (f == null) {
+      return false;
+    }
     var y = 0;
     for (var i = 0; i < f.elements.length; i++) {
         if (num != null) {
@@ -370,6 +373,9 @@ function getFormElementByID(f, field_id, num)
 function getSelectedItems(field)
 {
     var selected = new Array();
+    if (field == null || field.options == null) {
+      return selected;
+    }
     for (var i = 0; i < field.options.length; i++) {
         if (field.options[i].selected) {
             selected[selected.length] = field.options[i];

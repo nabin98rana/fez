@@ -2772,46 +2772,6 @@ class AuthNoFedora
   }
 
 
-  public function isWatermarked($pid, $dsID = '')
-  {
-    $log = FezLog::get();
-    $db = DB_API::get();
-
-    $stmt = "SELECT watermark
-                FROM " . APP_TABLE_PREFIX . "file_attachments
-                WHERE pid = " . $db->quote($pid) . "
-                AND filename = " . $db->quote($dsID);
-
-    try {
-      $res = $db->fetchOne($stmt);
-    } catch (Exception $ex) {
-      $log->err($ex);
-      return array();
-    }
-
-    return $res;
-  }
-
-  public function isCopyrighted($pid)
-  {
-    $log = FezLog::get();
-    $db = DB_API::get();
-
-    $stmt = "SELECT copyright
-                FROM " . APP_TABLE_PREFIX . "file_attachments
-                WHERE pid = " . $db->quote($pid) . "
-                AND filename = " . $db->quote($dsID);
-
-    try {
-      $res = $db->fetchOne($stmt);
-    } catch (Exception $ex) {
-      $log->err($ex);
-      return array();
-    }
-
-    return $res;
-  }
-
   //set inherit permissions
   public static function setInherited($pid, $inherited = 1)
   {

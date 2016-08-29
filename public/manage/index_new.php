@@ -64,6 +64,12 @@ $tpl->assign("isUser", $isUser);
 $tpl->assign("isAdministrator", $isAdministrator);
 $tpl->assign("isSuperAdministrator", $isSuperAdministrator);
 
+if (APP_FEDORA_BYPASS == 'ON') {
+  $tpl->assign("is_bypass", true);
+} else {
+  $tpl->assign("is_bypass", false);
+}
+
 if (!($isAdministrator || $isSuperAdministrator)) {
     $tpl->assign("show_not_allowed_msg", true);
 }
@@ -85,21 +91,19 @@ if ($_POST["action"] !== "prompt" && $_POST["action"] !== "index") {
         }
     } elseif (!empty($_POST["undelete"])) {
         $index_type = Reindex::INDEX_TYPE_UNDELETE;
-    } elseif (!empty($_POST["origami"])) {
-        $index_type = Reindex::INDEX_TYPE_ORIGAMI;
     }
     
     if ($_POST["action"] == "prompt") {
         $display_screen = "PROMPT";
     } elseif ($_POST["action"] == "index") {
         $display_screen = "INDEX";
-        if (!empty($_POST["go_list"]) && empty($_POST["origami"])) {
+        if (!empty($_POST["go_list"])) {
             $params = $_POST;
         	$params['index_type'] = $index_type;
         	Reindex::indexFezFedoraObjects($params);
         }
         
-        if (!empty($_POST["do_all"]) || !empty($_POST["solr_do_all"]) || !empty($_POST["origami"])) {
+        if (!empty($_POST["do_all"]) || !empty($_POST["solr_do_all"])) {
             $params = &$_POST;
             $bgp = new BackgroundProcess_Index_Object();
             $bgp->register(serialize(compact('params','terms','index_type')), Auth::getUserID());
