@@ -327,15 +327,6 @@ LOCK TABLES `fez_custom_views_search_keys` WRITE;
 UNLOCK TABLES;
 
 --
--- Dumping data for table `fez_datastream_cache`
---
-
-LOCK TABLES `fez_datastream_cache` WRITE;
-/*!40000 ALTER TABLE `fez_datastream_cache` DISABLE KEYS */;
-/*!40000 ALTER TABLE `fez_datastream_cache` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
 -- Dumping data for table `fez_eprints_import_pids`
 --
 
@@ -378,15 +369,6 @@ UNLOCK TABLES;
 LOCK TABLES `fez_favourites` WRITE;
 /*!40000 ALTER TABLE `fez_favourites` DISABLE KEYS */;
 /*!40000 ALTER TABLE `fez_favourites` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Dumping data for table `fez_file_attachments`
---
-
-LOCK TABLES `fez_file_attachments` WRITE;
-/*!40000 ALTER TABLE `fez_file_attachments` DISABLE KEYS */;
-/*!40000 ALTER TABLE `fez_file_attachments` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --

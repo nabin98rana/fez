@@ -662,16 +662,6 @@ class MigrateFromFedoraToDatabase
    */
   public function createAdditionalTables()
   {
-    // Creates file_attachments table and its shadow table.
-    $file = APP_PATH . "/upgrade/sql_scripts/upgrade2012022100.sql";
-    try {
-      $this->_upgradeHelper->parse_mysql_dump($file);
-      // echo chr(10) . "\n<br />Successfully created File attachment  table";
-    } catch (Exception $e) {
-      echo "\n<br> Failed creating File attachment tables. file = " . $file . " Ex: " . $e->getMessage();
-      return false;
-    }
-
     // Add auth quick rules table.
     $file = APP_PATH . "/upgrade/sql_scripts/upgrade2012081000.sql";
     try {
