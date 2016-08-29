@@ -57,21 +57,23 @@ class BackgroundProcess_Alert_Datastream_Policy_Conflicts extends BackgroundProc
     $db = DB_API::get();
     $log = FezLog::get();
 
-    //----------------------- Stage one Datastream Policy conflicts (Is it in two collections with different set datastream policies -----------------------//
+    // Stage one Datastream Policy conflicts (Is it in two collections with
+    // different set datastream policies
 
     $body = '';
-    $stmt =     "SELECT rek_ismemberof_pid AS pid, GROUP_CONCAT(rek_ismemberof)  AS collections FROM fez_record_search_key_datastream_policy 
-                INNER JOIN fez_record_search_key_ismemberof
+    $stmt =     "SELECT rek_ismemberof_pid AS pid, GROUP_CONCAT(rek_ismemberof)  AS collections 
+                FROM " . APP_TABLE_PREFIX . "record_search_key_datastream_policy 
+                INNER JOIN " . APP_TABLE_PREFIX . "record_search_key_ismemberof
                 ON rek_ismemberof = rek_datastream_policy_pid
                 GROUP BY rek_ismemberof_pid
-                    HAVING COUNT(rek_ismemberof) > 1 AND MAX(rek_datastream_policy) != MIN(rek_datastream_policy)
-                    UNION
-                    SELECT rek_ismemberof_pid AS pid, rek_ismemberof AS collections FROM  fez_record_search_key_datastream_policy AS A
-                    INNER JOIN fez_record_search_key_ismemberof 
-                    ON rek_ismemberof = rek_datastream_policy_pid
-                    INNER JOIN fez_record_search_key_datastream_policy AS B
-                    ON rek_ismemberof_pid = B.rek_datastream_policy_pid
-                    WHERE A.rek_datastream_policy != B.rek_datastream_policy";
+                HAVING COUNT(rek_ismemberof) > 1 AND MAX(rek_datastream_policy) != MIN(rek_datastream_policy)
+                UNION
+                SELECT rek_ismemberof_pid AS pid, rek_ismemberof AS collections FROM " . APP_TABLE_PREFIX . "record_search_key_datastream_policy AS A
+                INNER JOIN " . APP_TABLE_PREFIX . "record_search_key_ismemberof 
+                ON rek_ismemberof = rek_datastream_policy_pid
+                INNER JOIN " . APP_TABLE_PREFIX . "record_search_key_datastream_policy AS B
+                ON rek_ismemberof_pid = B.rek_datastream_policy_pid
+                WHERE A.rek_datastream_policy != B.rek_datastream_policy";
 
     try {
       $res = $db->fetchAll($stmt);
@@ -83,7 +85,9 @@ class BackgroundProcess_Alert_Datastream_Policy_Conflicts extends BackgroundProc
     if (!empty($res)) {
       foreach ($res as $row) {
         $pid = $row['pid'];
-        $body .= "http:/espace.library.uq.edu.au/view/".$pid . "  has a datastream security policy that is in conflict with the collection security.  These collections it is in " . $row['collections'] . " have conflicting datastream policies with this pid.\n";
+        $body .= APP_URL . "/view/".$pid . "  has a datastream security policy that is in conflict with the " .
+          "collection security.  These collections it is in " . $row['collections'] .
+          " have conflicting datastream policies with this pid.\n";
       }
     }
 
@@ -104,8 +108,8 @@ class BackgroundProcess_Alert_Datastream_Policy_Conflicts extends BackgroundProc
     $body = '';
 
     //This is currently run ever two hours. It will have to be adapted if large collections are checked below
-    $stmt =     "SELECT rek_pid AS pid, rek_ismemberof FROM fez_record_search_key
-                  LEFT JOIN fez_record_search_key_ismemberof ON rek_pid = rek_ismemberof_pid
+    $stmt =     "SELECT rek_pid AS pid, rek_ismemberof FROM " . APP_TABLE_PREFIX . "record_search_key
+                  LEFT JOIN " . APP_TABLE_PREFIX . "record_search_key_ismemberof ON rek_pid = rek_ismemberof_pid
                   WHERE rek_ismemberof IN ('UQ:342107', 'UQ:335745')";
     try {
       $res = $db->fetchAll($stmt);
@@ -130,7 +134,8 @@ class BackgroundProcess_Alert_Datastream_Policy_Conflicts extends BackgroundProc
 
             $userPIDAuthGroups = Auth::getAuthorisationGroups($pid, $datastream['ID']);
             if (in_array('Viewer', $userPIDAuthGroups)) {
-              $body .= "http:/espace.library.uq.edu.au/view/" . $pid . "  has a datastream: " . $datastream['ID'] . "that's open in collection: " . $isMemberOf . " where datastreams should be closed.\n";
+              $body .= APP_URL . "/view/" . $pid . "  has a datastream: " . $datastream['ID'] .
+                "that's open in collection: " . $isMemberOf . " where datastreams should be closed.\n";
             }
 
           }
@@ -141,7 +146,7 @@ class BackgroundProcess_Alert_Datastream_Policy_Conflicts extends BackgroundProc
       $body .= "\nPlease refer to the eSpace Manager or Librarian as this issue must be resolved immediately.";
       $mail = new Mail_API;
       $subject = "Urgent warning: Open access file detected on an embargoed thesis";
-      $to = 'espace@library.uq.edu.au';
+      $to = APP_ADMIN_EMAIL;
       $from = APP_EMAIL_SYSTEM_FROM_ADDRESS;
       $mail->setTextBody(stripslashes($body));
       $mail->send($from, $to, $subject, false);
@@ -152,8 +157,8 @@ class BackgroundProcess_Alert_Datastream_Policy_Conflicts extends BackgroundProc
     $body = '';
 
     //This is currently run ever two hours. It will have to be adapted if large collections are checked below
-    $stmt =     "SELECT rek_pid AS pid, rek_ismemberof FROM fez_record_search_key
-                  LEFT JOIN fez_record_search_key_ismemberof ON rek_pid = rek_ismemberof_pid
+    $stmt =     "SELECT rek_pid AS pid, rek_ismemberof FROM " . APP_TABLE_PREFIX . "record_search_key
+                  LEFT JOIN " . APP_TABLE_PREFIX . "record_search_key_ismemberof ON rek_pid = rek_ismemberof_pid
                   WHERE rek_ismemberof IN ('UQ:335745')";
     try {
       $res = $db->fetchAll($stmt);
@@ -162,25 +167,26 @@ class BackgroundProcess_Alert_Datastream_Policy_Conflicts extends BackgroundProc
       $log->err($ex);
       return false;
     }
-    $status = Status::getID("Published");
+
     foreach ($res as $pid) {
       $isMemberOf = $pid['rek_ismemberof'];
       $pid = $pid['pid'];
       $record = new RecordObject($pid);
       $canView = $record->canView(false);
       if ($canView) {
-        $body .= "http:/espace.library.uq.edu.au/view/" . $pid . "  citation is open when it should be restricted in collection: " . $isMemberOf ."\n";
+        $body .= APP_URL . "/view/" . $pid . "  citation is open when it should be restricted " .
+          "in collection: " . $isMemberOf ."\n";
       }
     }
+
     if (!empty($body)) {
       $body .= "\nPlease refer to the eSpace Manager or Librarian as this issue must be resolved immediately.";
       $mail = new Mail_API;
       $subject = "Urgent warning: Open citation detected on an embargoed thesis";
-      $to = 'espace@library.uq.edu.au';
+      $to = APP_ADMIN_EMAIL;
       $from = APP_EMAIL_SYSTEM_FROM_ADDRESS;
       $mail->setTextBody(stripslashes($body));
       $mail->send($from, $to, $subject, false);
     }
-
   }
 }
