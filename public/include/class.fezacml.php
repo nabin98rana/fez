@@ -77,6 +77,31 @@ class FezACML
     return $res;
   }
 
+  /**
+   * Method used to get the quick template ID from the title.
+   *
+   * @return  int The ID of the quick auth template
+   */
+  public static function getQuickTemplateIdByTitle($title)
+  {
+    $log = FezLog::get();
+    $db = DB_API::get();
+
+    $stmt = "SELECT
+                    qat_id
+                 FROM
+                    " . APP_TABLE_PREFIX . "auth_quick_template
+                 WHERE qat_title = " . $db->quote($title);
+    try {
+      $res = $db->fetchOne($stmt);
+      return $res;
+
+    } catch (Exception $ex) {
+      $log->err($ex);
+      return '';
+    }
+  }
+
   public static function getDatastreamQuickRule($pid)
   {
     $log = FezLog::get();
