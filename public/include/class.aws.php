@@ -750,7 +750,7 @@ class AWS
    * @param string $id
    * @return string
    */
-  private function createPath($src, $id)
+  public function createPath($src, $id)
   {
     if (!empty($this->s3SrcPrefix) && strpos($src, $this->s3SrcPrefix) !== 0) {
       $src = $this->s3SrcPrefix . '/' . $src;
