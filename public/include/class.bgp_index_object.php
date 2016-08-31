@@ -103,7 +103,9 @@ class BackgroundProcess_Index_Object extends BackgroundProcess
 					$stream['MIMEType'] == 'image/tiff')) {
 
 						$this->setStatus("Creating Origami Tiles for DS - " .$stream['ID']);
-						Origami::createTitles($pid, $stream['ID'], $stream['MIMEType']);
+            if (APP_FEDORA_BYPASS != 'ON') {
+              Origami::createTitles($pid, $stream['ID'], $stream['MIMEType']);
+            }
 					}
 
 				}

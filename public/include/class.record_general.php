@@ -370,8 +370,7 @@ class RecordGeneral
   function getPublishedStatus($astext = false)
   {
     if(APP_FEDORA_BYPASS == 'ON') {
-        $do = new DigitalObject;
-        return $do->getStatus($this->pid);
+        return $this->getStatus();
 
     } else {
         $this->getDisplay();
@@ -617,6 +616,14 @@ class RecordGeneral
           $this->pid, "RELS-EXT", "A", "Relationships to other objects", $newXML, "text/xml", "inherit"
       );
       Record::setIndexMatchingFields($this->pid);
+      History::addHistory($this->pid, null, "", "", TRUE, 'Copied into collection ' . $value);
+
+      $searchKeyData = array();
+      $details = Record::getDetailsLite($this->pid);
+      $searchKeyData[0]['updated_date'] = array('xsdmf_id' => $details[0]['rek_updated_date_xsdmf_id'], 'xsdmf_value' => Date_API::getCurrentDateGMT());
+
+      Record::updateSearchKeys($this->pid, $searchKeyData);
+
       return 1;
     }
 
@@ -994,6 +1001,13 @@ class RecordGeneral
         FulltextQueue::singleton()->add($this->pid);
         FulltextQueue::singleton()->commit();
       }
+      History::addHistory($this->pid, null, "", "", TRUE, 'Removed from collection ' . $collection);
+
+      $searchKeyData = array();
+      $details = Record::getDetailsLite($this->pid);
+      $searchKeyData[0]['updated_date'] = array('xsdmf_id' => $details[0]['rek_updated_date_xsdmf_id'], 'xsdmf_value' => Date_API::getCurrentDateGMT());
+
+      Record::updateSearchKeys($this->pid, $searchKeyData);
       return true;
     }
 
@@ -1594,6 +1608,40 @@ class RecordGeneral
       return FALSE;
     }
     return $res;
+  }
+
+  /**
+   * Returns the objects status.
+   * NB: A record can be published but deleted, which means the tombstone is viewable by the public.
+   *
+   * @return bool|string
+   */
+  public function getStatus()
+  {
+    $log = FezLog::get();
+    $db = DB_API::get();
+
+    $stmt = "SELECT rek_status FROM " . APP_TABLE_PREFIX . "record_search_key WHERE"
+      . " rek_pid = ".$db->quote($this->pid);
+
+    try {
+      $result = $db->fetchOne($stmt);
+      if (empty($result)) {
+        $stmt = "SELECT rek_status FROM " . APP_TABLE_PREFIX . "record_search_key__shadow WHERE rek_pid = ".$db->quote($this->pid)." ORDER BY rek_stamp DESC LIMIT 1";
+        try {
+          $result = $db->fetchOne($stmt);
+        }
+        catch(Exception $ex) {
+          $log->err($ex);
+          return false;
+        }
+      }
+    } catch(Exception $ex) {
+      $log->err($ex);
+      return false;
+    }
+    return $result;
+
   }
 
 

@@ -61,7 +61,7 @@ include_once(APP_INC_PATH . "class.doc_type_xsd.php");
 include_once(APP_INC_PATH . "class.background_process.php");
 include_once(APP_INC_PATH . "class.foxml.php");
 include_once(APP_INC_PATH . "class.error_handler.php");
-
+include_once(APP_INC_PATH . "class.batchimport.php");
 
 /**
  * Batch Add
@@ -79,6 +79,8 @@ class BatchAdd
 
 	function insert($files, $files_FezACML, $xdis_id, $pid, $wftpl) 
 	{
+    $log = FezLog::get();
+
 		if (is_array($files)) {
 			foreach($files as $key => $ds) {
 				$short_ds = $ds;
@@ -88,11 +90,17 @@ class BatchAdd
 
 				// ID must start with _ or letter
 				$short_ds = Misc::shortFilename(Foxml::makeNCName($short_ds), 64);
-
-
 				$temp_store = APP_TEMP_DIR.$short_ds;
-				copy($ds,$temp_store);
 
+        $log->err($short_ds . ':' . $temp_store);
+
+        if (defined('AWS_S3_ENABLED') && AWS_S3_ENABLED == 'true') {
+
+          $log->err($ds . ':' . $temp_store);
+          BatchImport::getFileContent($ds, $temp_store);
+        } else {
+          copy($ds, $temp_store);
+        }
 
 				$mimetype = Misc::mime_content_type($temp_store);
 				if (APP_VERSION_UPLOADS_AND_LINKS == "ON") {
@@ -108,19 +116,26 @@ class BatchAdd
 					if (!empty($files_FezACML[$key])) {
 						$xmlObjNum = $files_FezACML[$key];
 						if (is_numeric($xmlObjNum) && $xmlObjNum != "-1" && $xmlObjNum != -1) {
-							$xmlObj = FezACML::getQuickTemplateValue($xmlObjNum);
-								
-							if ($xmlObj != false) {
-								$dsID = $short_ds;
-								$FezACML_dsID = FezACML::getFezACMLDSName($dsID);
-								if (Fedora_API::datastreamExists($pid, $FezACML_dsID)) {
-									Fedora_API::callModifyDatastreamByValue($pid, $FezACML_dsID, "A", "FezACML security for datastream - ".$dsID,
-									$xmlObj, "text/xml", "true");
-								} else {
-									Fedora_API::getUploadLocation($pid, $FezACML_dsID, $xmlObj, "FezACML security for datastream - ".$dsID,
-											"text/xml", "X",null,"true");
-								}
-							}
+
+              if (APP_FEDORA_BYPASS == 'ON') {
+                FezACML::updateDatastreamQuickRule($this->pid, $xmlObjNum);
+
+              } else {
+                $xmlObj = FezACML::getQuickTemplateValue($xmlObjNum);
+
+                if ($xmlObj != FALSE) {
+                  $dsID = $short_ds;
+                  $FezACML_dsID = FezACML::getFezACMLDSName($dsID);
+                  if (Fedora_API::datastreamExists($pid, $FezACML_dsID)) {
+                    Fedora_API::callModifyDatastreamByValue($pid, $FezACML_dsID, "A", "FezACML security for datastream - " . $dsID,
+                      $xmlObj, "text/xml", "true");
+                  }
+                  else {
+                    Fedora_API::getUploadLocation($pid, $FezACML_dsID, $xmlObj, "FezACML security for datastream - " . $dsID,
+                      "text/xml", "X", NULL, "true");
+                  }
+                }
+              }
 						}
 					}
 				}

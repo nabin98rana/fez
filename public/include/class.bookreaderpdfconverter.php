@@ -97,40 +97,21 @@ class bookReaderPDFConverter
     {
         $q = array();
 
-        if(APP_FEDORA_BYPASS == 'ON' && !$this->useS3)
+        $datastreams = Fedora_API::callGetDatastreams($pid);
+        $srcURL = APP_FEDORA_GET_URL."/".$pid . '/';
+        foreach($datastreams as $ds)
         {
-            $dsr = new DSResource();
-            $datastreams = $dsr->listStreams($pid);
-
-            foreach($datastreams as $ds)
+            if($ds['MIMEType'] == 'application/pdf' || $ds['MIMEType'] == 'application/pdf;')
             {
-                $dsr->load($ds['filename'], $pid);
-                $hash = $dsr->getHash();
-                $meta = $dsr->getMeta();
-
-                if($meta['mimetype'] == 'application/pdf' || $meta['mimetype'] == 'application/pdf;')
-                {
-                    $q[] = array($pid, APP_DSTREE_PATH.$hash['hashPath'].$hash['rawHash'], $convMeth, $ds['filename']);
-                }
+              if ($this->useS3) {
+                $fullURL = $ds['ID'];
+              } else {
+                $fullURL = $srcURL .$ds['ID'];
+              }
+              $q[] = array($pid, $fullURL, $convMeth);
             }
         }
-        else
-        {
-            $datastreams = Fedora_API::callGetDatastreams($pid);
-            $srcURL = APP_FEDORA_GET_URL."/".$pid . '/';
-            foreach($datastreams as $ds)
-            {
-                if($ds['MIMEType'] == 'application/pdf' || $ds['MIMEType'] == 'application/pdf;')
-                {
-                  if ($this->useS3) {
-                    $fullURL = $ds['ID'];
-                  } else {
-                    $fullURL = $srcURL .$ds['ID'];
-                  }
-                  $q[] = array($pid, $fullURL, $convMeth);
-                }
-            }
-        }
+
 
         $this->queue = $q;
     }

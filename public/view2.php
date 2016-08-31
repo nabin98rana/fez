@@ -290,7 +290,7 @@ if (!empty($pid) && $record->checkExists()) {
 
     $tpl->assign("sta_id", $record->getPublishedStatus());
     $tpl->assign("xsd_display_fields", $xsd_display_fields);
-    $details = $record->getDetails('', '', true);
+    $details = $record->getDetails();
 
     $parents = Record::getParentsDetails($pid);
 
@@ -907,15 +907,9 @@ function generateTimestamps($pid, $datastreams, $requestedVersionDate, $tpl)
 {
   $createdDates = array();
 
-  // TODO(bypass): Refactor to use the Fedora API interface so we don't need to check whether we're using the bypass
   if (APP_FEDORA_BYPASS == 'ON') {
-    $rec = new Fez_Record_SearchkeyShadow($pid);
-    $createdDates = $rec->returnVersionDates();
+    $createdDates = Fedora_API::callGetDatastreamHistory($pid, '');
 
-    /*foreach($versions as $version)
-    {
-        $createdDates[] = $version['createDate'];
-    }*/
   } else {
     // Retrieve all versions of all datastreams
     foreach ($datastreams as $datastream) {
@@ -924,7 +918,7 @@ function generateTimestamps($pid, $datastreams, $requestedVersionDate, $tpl)
 		if ($datastream['ID'] == 'FezMD' || $datastream['ID'] == 'MODS') {
         $parms = array('pid' => $pid, 'dsID' => $datastream['ID']);
 
-        $datastreamVersions = Fedora_API::openSoapCall('getDatastreamHistory', $parms); // TODO(bypass): refactor me
+        $datastreamVersions = Fedora_API::openSoapCall('getDatastreamHistory', $parms);
 
         // Extract created dates from datastream versions
         foreach ($datastreamVersions as $key => $var) {

@@ -242,6 +242,7 @@ class Template_API
     // If we are running a test then disable najax and notifications in smarty template includes
     // because they interfere with behat selectors and cause browser element staleness and instability of tests
     $this->assign("app_environment", $_SERVER['APP_ENVIRONMENT']);
+    $this->assign("application_env", $_SERVER['APPLICATION_ENV']);
 
 		// create the list of collections
 		$username = Auth::getUsername();

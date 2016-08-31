@@ -76,7 +76,7 @@ if ($access_ok) {
 
     $username = Auth::getUsername();
     //open the current directory
-    $filenames = BatchImport::getImportDirs($username);
+    $filenames = BatchImport::getImportFiles($username);
 
     uasort($filenames, 'strnatcasecmp');
 

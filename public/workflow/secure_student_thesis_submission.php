@@ -36,17 +36,33 @@
 
 $this->getRecordObject();
 
-$xmlObjNum = 3; // hardcoded to Only Theses Office Approve, View List. Printery View.
-$xmlObj = FezACML::getQuickTemplateValue($xmlObjNum);
-$pid = $this->pid;
-if ($xmlObj != false) {
-	$FezACML_dsID = "FezACML";
-	if (Fedora_API::datastreamExists($pid, $FezACML_dsID)) {
-		Fedora_API::callModifyDatastreamByValue($pid, $FezACML_dsID, "A", "FezACML",
+$env = strtolower($_SERVER['APPLICATION_ENV']);
+if ($env == 'staging' || $env == 'production' || empty($env)) {
+  $datastream_policy = 'Only Thesis Office Approve, View, List. Printery View.';
+} else {
+  $datastream_policy = 'Thesis officers only'; // for dev/testing
+}
+$id = FezACML::getQuickTemplateIdByTitle($datastream_policy);
+if (empty($id)) {
+  $log = FezLog::get();
+  $log->err('Datastream policy template not found');
+  return;
+}
+
+if (APP_FEDORA_BYPASS == 'ON') {
+	FezACML::updateDatastreamQuickRule($this->pid, $id);
+
+} else {
+	$xmlObj = FezACML::getQuickTemplateValue($id);
+	if ($xmlObj != false) {
+		$FezACML_dsID = "FezACML";
+		if (Fedora_API::datastreamExists($this->pid, $FezACML_dsID)) {
+			Fedora_API::callModifyDatastreamByValue($this->pid, $FezACML_dsID, "A", "FezACML",
 				$xmlObj, "text/xml", "inherit");
-	} else {
-		Fedora_API::getUploadLocation($pid, $FezACML_dsID, $xmlObj, "FezACML",
-				"text/xml", "X",null,"true");
+		} else {
+			Fedora_API::getUploadLocation($this->pid, $FezACML_dsID, $xmlObj, "FezACML",
+				"text/xml", "X", null, "true");
+		}
 	}
 }
-?>
+
