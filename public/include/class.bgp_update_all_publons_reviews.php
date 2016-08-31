@@ -36,6 +36,14 @@ include_once(APP_INC_PATH . 'class.api_researchers.php');
 
 class BackgroundProcess_Update_All_Publons_Reviews extends BackgroundProcess
 {
+  /*
+   * Limit is one per sixty seconds
+   *
+   * Value is in micro seconds
+   */
+  const RATE_LIMIT = 800000;
+
+
   function __construct()
   {
     parent::__construct();
@@ -43,7 +51,9 @@ class BackgroundProcess_Update_All_Publons_Reviews extends BackgroundProcess
     $this->name = 'Update all Publons reviews';
   }
 
-  function run() {
+
+  function run()
+  {
     $this->setState(BGP_RUNNING);
     extract(unserialize($this->inputs));
 
@@ -52,11 +62,14 @@ class BackgroundProcess_Update_All_Publons_Reviews extends BackgroundProcess
     $this->setState(BGP_FINISHED);
   }
 
-  function updateReviews() {
+
+  function updateReviews()
+  {
     $log = FezLog::get();
     $db = DB_API::get();
 
-    $stmt = "SELECT aut_orcid_id FROM " . APP_TABLE_PREFIX . "author WHERE aut_orcid_id IS NOT NULL AND aut_orcid_id != ''";
+    $stmt = "SELECT aut_orcid_id FROM " . APP_TABLE_PREFIX
+      . "author WHERE aut_orcid_id IS NOT NULL AND aut_orcid_id != ''";
 
     try {
       $res = $db->fetchCol($stmt);
@@ -66,14 +79,23 @@ class BackgroundProcess_Update_All_Publons_Reviews extends BackgroundProcess
     }
 
     foreach ($res as $orcid) {
-      $results = Publons::getUserData($orcid);
-
       $authorId = ApiResearchers::authorIdFromOrcid($orcid);
 
-      foreach ($results['results'] as $paper) {
-        Publons::savePublonsReview($authorId, $paper);
+      $user = Publons::getUser($orcid);
+
+      if ($user) {
+        Publons::savePublonsId($authorId, '1');  //Currently we don't want to store the publons id
+
+        $results = Publons::getUserData($orcid);
+
+
+        foreach ($results['results'] as $paper) {
+          Publons::savePublonsReview($authorId, $paper);
+        }
+      } else {
+        $log->err("Error receiving publons details for " . $orcid);
       }
-      usleep(800000);  // Rate limited to 60 per second
+      usleep(self::RATE_LIMIT);
     }
 
     echo "Updating publons tiered list\n";
