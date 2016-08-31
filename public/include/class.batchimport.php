@@ -289,14 +289,16 @@ class BatchImport
    * @param   string $pid The current persistent identifier
    * @param   string $full_name The full directory path inclusive filename
    * @param   string $short_name The basic filename without the directory path
-   * @param   int $xdis_id The XSD Display ID the object will have.
+   * @param   int    $xdis_id The XSD Display ID the object will have.
    * @param   bool   $is_temp_file
+   * @param   int    $qat_id The datastream quick auth template rule to apply
    * @return  void
    */
-  public static function handleStandardFileImport($pid, $full_name, $short_name, $xdis_id = 0, $is_temp_file = false)
+  public static function handleStandardFileImport(
+    $pid, $full_name, $short_name, $xdis_id = 0, $is_temp_file = false, $qat_id = -1
+  )
   {
     $dsIDName = $short_name;
-    $return_array = array();
     $ncName = Foxml::makeNCName($dsIDName);
 
     if ($is_temp_file) {
@@ -306,6 +308,7 @@ class BatchImport
       $temp_store = APP_TEMP_DIR . $ncName;
       self::getFileContent($full_name, $temp_store);
     }
+
     $mimetype = Misc::mime_content_type($temp_store);
     if ($mimetype == 'text/xml') {
       $controlgroup = 'X';
@@ -334,6 +337,25 @@ class BatchImport
     }
     if (APP_FEDORA_BYPASS != 'ON') {
       Record::setIndexMatchingFields($pid);
+    }
+
+    if (is_numeric($qat_id) && $qat_id != "-1" && $qat_id != -1) {
+      if (APP_FEDORA_BYPASS == 'ON') {
+        FezACML::updateDatastreamQuickRule($pid, $qat_id);
+
+      } else {
+        $xmlObj = FezACML::getQuickTemplateValue($qat_id);
+        if ($xmlObj != FALSE) {
+          $FezACML_dsID = FezACML::getFezACMLDSName($ncName);
+          if (Fedora_API::datastreamExists($pid, $FezACML_dsID)) {
+            Fedora_API::callModifyDatastreamByValue($pid, $FezACML_dsID, "A", "FezACML security for datastream - " . $ncName,
+              $xmlObj, "text/xml", "true");
+          } else {
+            Fedora_API::getUploadLocation($pid, $FezACML_dsID, $xmlObj, "FezACML security for datastream - " . $ncName,
+              "text/xml", "X", NULL, "true");
+          }
+        }
+      }
     }
   }
 
@@ -698,6 +720,38 @@ class BatchImport
   }
 
   /**
+   * Method used to get a list of file names in the import dir
+   *
+   * @param   string $subdir
+   * @return  mixed The array of file names or false on error
+   */
+  public static function getImportFiles($subdir = '')
+  {
+    $log = FezLog::get();
+    $subdir = str_replace('/', '', $subdir);
+
+    if (defined('AWS_S3_ENABLED') && AWS_S3_ENABLED == 'true') {
+      return self::getFileListFromS3($subdir);
+    }
+
+    $dirs = array();
+
+    $parent = empty($subdir) ? APP_SAN_IMPORT_DIR : APP_SAN_IMPORT_DIR . '/' . $subdir;
+    if ($handle = opendir($parent)) {
+      while (FALSE !== ($dir = readdir($handle))) {
+        if (!(!is_dir($parent . $dir) || $dir == '.' || $dir == '..')) {
+          $dirs[$dir] = $dir;
+        }
+      }
+      closedir($handle);
+    } else {
+      $log->err('Unable to open directory');
+    }
+
+    return $dirs;
+  }
+
+  /**
    * Method used to get a list of file names from an S3 bucket
    *
    * @param   string $subdir
@@ -708,13 +762,13 @@ class BatchImport
     $aws = new AWS(AWS_S3_SAN_IMPORT_BUCKET);
 
     $return = [];
-    $prefix = empty($subdir) ? self::AWS_SAN_IMPORT_PREFIX : self::AWS_SAN_IMPORT_PREFIX . '/' . $subdir;
+    $prefix = $aws->createPath((empty($subdir) ? self::AWS_SAN_IMPORT_PREFIX : self::AWS_SAN_IMPORT_PREFIX . '/' . $subdir), '');
     $dirs = $aws->listObjectsInBucket($prefix);
 
     foreach ($dirs as $dir) {
       // Don't skip the files, check all the things
       if ($dir['Size'] !== 0) {
-        $pattern = empty($subdir) ? self::AWS_SAN_IMPORT_PREFIX : self::AWS_SAN_IMPORT_PREFIX . '\/' . $subdir;
+        $pattern = str_replace('/', '\/', $prefix);
         preg_match('/^' . $pattern . '\/([^\/]+)\//', $dir['Key'], $matches);
         if (count($matches) === 2) {
           $d = trim($matches[1], '/');
@@ -735,7 +789,7 @@ class BatchImport
   private function getFileList($directory)
   {
     if (defined('AWS_S3_ENABLED') && AWS_S3_ENABLED == 'true') {
-      return $this->getFileListFromS3($directory);
+      return self::getFileListFromS3($directory);
     }
     return Misc::getFileList(APP_SAN_IMPORT_DIR. '/'. $directory, true, true);
   }
@@ -744,7 +798,7 @@ class BatchImport
    * @param String $directory
    * @return array
    */
-  private function getFileListFromS3($directory)
+  private static function getFileListFromS3($directory)
   {
     $aws = new AWS(AWS_S3_SAN_IMPORT_BUCKET);
 
@@ -754,7 +808,7 @@ class BatchImport
     foreach ($files as $file) {
       // Skip the folders
       if ($file['Size'] !== 0) {
-        $return[] = $file['Key'];
+        $return[$file['Key']] = $file['Key'];
       }
     }
     return $return;
@@ -767,7 +821,8 @@ class BatchImport
    */
   public static function getFileContent($file, $saveAs = '')
   {
-    if (defined('AWS_ENABLED') && AWS_ENABLED == 'true' && empty($saveAs)) {
+    $log = FezLog::get();
+    if (defined('AWS_ENABLED') && AWS_ENABLED == 'true') {
       $aws = new AWS(AWS_S3_SAN_IMPORT_BUCKET);
 
       $params = [];
@@ -775,7 +830,7 @@ class BatchImport
         $params['SaveAs'] = $saveAs;
       }
 
-      return $aws->getFileContent('', $file, $params);
+      return $aws->getFileContent($file, '', $params);
     }
 
     if (! empty($saveAs)) {

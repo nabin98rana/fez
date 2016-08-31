@@ -37,31 +37,43 @@
 include_once(APP_INC_PATH . "class.error_handler.php");
 include_once(APP_INC_PATH . "class.fezacml.php");
 include_once(APP_INC_PATH . "class.fedora_api.php");
-$log = FezLog::get();
-
 
 $this->getRecordObject();
 
-$xmlObjNum = 2; // hardcoded to Admin-only security settings
-$xmlObj = FezACML::getQuickTemplateValue($xmlObjNum);
-$pid = $this->pid;
+$env = strtolower($_SERVER['APPLICATION_ENV']);
+if ($env == 'staging' || $env == 'production' || empty($env)) {
+	$datastream_policy = 'Fully Embargoed (system admins only)';
+} else {
+	$datastream_policy = 'Thesis officers only'; // for dev/testing
+}
+$id = FezACML::getQuickTemplateIdByTitle($datastream_policy);
+if (empty($id)) {
+	$log = FezLog::get();
+	$log->err('Datastream policy template not found');
+	return;
+}
 
-if ($xmlObj != false) {
-	//check existing datastreams for any attachments
-	$ds = Fedora_API::callGetDatastreams($pid); 
-	foreach ($ds as $dstream) {
-		// file attachment datastreams will have controlGroup=M and will not begin with 'presmd_'
-		if (($dstream['controlGroup'] == 'M') && (substr($dstream['ID'], 0, 7) != 'presmd_')) {
-			$FezACML_dsID = "FezACML_" . $dstream['ID'] . ".xml";
-			if (Fedora_API::datastreamExists($pid, $FezACML_dsID)) {   //modify an existing datastream
-				Fedora_API::callModifyDatastreamByValue($pid, $FezACML_dsID, "A", "FezACML",
-					$xmlObj, "text/xml", "inherit");
-					
-			} else {     //add a new datastream 
-				Fedora_API::getUploadLocation($pid, $FezACML_dsID, $xmlObj, "FezACML",
-					"text/xml", "X",null,"true");
+if (APP_FEDORA_BYPASS == 'ON') {
+	FezACML::updateDatastreamQuickRule($this->pid, $id);
+
+} else {
+	$xmlObj = FezACML::getQuickTemplateValue($id);
+	if ($xmlObj != false) {
+		// check existing datastreams for any attachments
+		$ds = Fedora_API::callGetDatastreams($this->pid);
+		foreach ($ds as $dstream) {
+			// file attachment datastreams will have controlGroup=M and will not begin with 'presmd_'
+			if (($dstream['controlGroup'] == 'M') && (substr($dstream['ID'], 0, 7) != 'presmd_')) {
+				$FezACML_dsID = "FezACML_" . $dstream['ID'] . ".xml";
+				if (Fedora_API::datastreamExists($this->pid, $FezACML_dsID)) {   //modify an existing datastream
+					Fedora_API::callModifyDatastreamByValue($this->pid, $FezACML_dsID, "A", "FezACML",
+						$xmlObj, "text/xml", "inherit");
+
+				} else {     //add a new datastream
+					Fedora_API::getUploadLocation($this->pid, $FezACML_dsID, $xmlObj, "FezACML",
+						"text/xml", "X",null,"true");
+				}
 			}
 		}
 	}
 }
-?>
