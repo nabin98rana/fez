@@ -425,7 +425,7 @@ class BatchImport
         $counter++;
         $handled_as_xml = FALSE;
         $pid = Fedora_API::getNextPID();
-        $short_name = basename($file);
+        $short_name = Misc::shortFilename($file);
 
         if (Misc::endsWith(strtolower($file), '.csv')) {
           $xmlObj = self::getFileContent($file);
