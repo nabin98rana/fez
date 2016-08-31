@@ -1280,13 +1280,15 @@ class Record
                 $xsdmf_value = 'NULL';
                 $sek_value['xsdmf_id'] = 'NULL';
 
-              } elseif ($sek_value['xsdmf_value'] == 'on') {
+              } elseif ($sek_value['xsdmf_value'] == 'on' || $sek_value['xsdmf_value'] == 'off') {
                 $xsdDetails = XSD_HTML_Match::getDetailsByXSDMF_ID($sek_value['xsdmf_id']);
                 $searchKeyDetails = Search_Key::getDetails($xsdDetails['xsdmf_sek_id']);
                 if ($searchKeyDetails['sek_data_type'] == 'int') {
-                  $xsdmf_value = 1;
-                } else {
-                  $xsdmf_value = 0;
+                  if ($sek_value['xsdmf_value'] == 'on') {
+                    $xsdmf_value = 1;
+                  } else {
+                    $xsdmf_value = 0;
+                  }
                 }
               } else {
                 $sek_value['xsdmf_value'] = (is_array($sek_value['xsdmf_value']) && array_key_exists('Year', $sek_value['xsdmf_value']))
