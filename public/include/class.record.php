@@ -1438,11 +1438,13 @@ class Record
                 unset($stmtVars);
 
               } else {
-                if ($sek_value['xsdmf_value'] == 'on') {
+                if ($sek_value['xsdmf_value'] == 'on' || $sek_value['xsdmf_value'] == 'off') {
                   if ($searchKeyDetails['sek_data_type'] == 'int') {
-                    $sek_value['xsdmf_value'] = 1;
-                  } else {
-                    $sek_value['xsdmf_value'] = 0;
+                    if ($sek_value['xsdmf_value'] == 'on') {
+                      $sek_value['xsdmf_value'] = 1;
+                    } else {
+                      $sek_value['xsdmf_value'] = 0;
+                    }
                   }
                 }
                 $stmt .= "(" . $db->quote($pid) . "," . $db->quote($sek_value['xsdmf_id'], 'INTEGER') . "," . $db->quote($sek_value['xsdmf_value']);
