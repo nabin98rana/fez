@@ -44,7 +44,6 @@ if (is_array($temp_files)) {
 	$files = array();
 	$username = Auth::getUsername();
 	foreach ($temp_files as $t_file) {
-
 		if (defined('AWS_S3_ENABLED') && AWS_S3_ENABLED == 'true') {
 			$aws = new AWS(AWS_S3_SAN_IMPORT_BUCKET);
 			$t2_file = $aws->createPath($t_file, '');
@@ -61,5 +60,3 @@ if (is_array($temp_files)) {
 	$inputs_str = serialize($inputs);
 	$bgp_batch->register($inputs_str, Auth::getUserID());
 }
-
-?>

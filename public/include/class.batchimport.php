@@ -289,14 +289,16 @@ class BatchImport
    * @param   string $pid The current persistent identifier
    * @param   string $full_name The full directory path inclusive filename
    * @param   string $short_name The basic filename without the directory path
-   * @param   int $xdis_id The XSD Display ID the object will have.
+   * @param   int    $xdis_id The XSD Display ID the object will have.
    * @param   bool   $is_temp_file
+   * @param   int    $qat_id The datastream quick auth template rule to apply
    * @return  void
    */
-  public static function handleStandardFileImport($pid, $full_name, $short_name, $xdis_id = 0, $is_temp_file = false)
+  public static function handleStandardFileImport(
+    $pid, $full_name, $short_name, $xdis_id = 0, $is_temp_file = false, $qat_id = -1
+  )
   {
     $dsIDName = $short_name;
-    $return_array = array();
     $ncName = Foxml::makeNCName($dsIDName);
 
     if ($is_temp_file) {
@@ -306,6 +308,7 @@ class BatchImport
       $temp_store = APP_TEMP_DIR . $ncName;
       self::getFileContent($full_name, $temp_store);
     }
+
     $mimetype = Misc::mime_content_type($temp_store);
     if ($mimetype == 'text/xml') {
       $controlgroup = 'X';
@@ -334,6 +337,25 @@ class BatchImport
     }
     if (APP_FEDORA_BYPASS != 'ON') {
       Record::setIndexMatchingFields($pid);
+    }
+
+    if (is_numeric($qat_id) && $qat_id != "-1" && $qat_id != -1) {
+      if (APP_FEDORA_BYPASS == 'ON') {
+        FezACML::updateDatastreamQuickRule($pid, $qat_id);
+
+      } else {
+        $xmlObj = FezACML::getQuickTemplateValue($qat_id);
+        if ($xmlObj != FALSE) {
+          $FezACML_dsID = FezACML::getFezACMLDSName($ncName);
+          if (Fedora_API::datastreamExists($pid, $FezACML_dsID)) {
+            Fedora_API::callModifyDatastreamByValue($pid, $FezACML_dsID, "A", "FezACML security for datastream - " . $ncName,
+              $xmlObj, "text/xml", "true");
+          } else {
+            Fedora_API::getUploadLocation($pid, $FezACML_dsID, $xmlObj, "FezACML security for datastream - " . $ncName,
+              "text/xml", "X", NULL, "true");
+          }
+        }
+      }
     }
   }
 
@@ -786,7 +808,7 @@ class BatchImport
     foreach ($files as $file) {
       // Skip the folders
       if ($file['Size'] !== 0) {
-        $return[] = $file['Key'];
+        $return[$file['Key']] = $file['Key'];
       }
     }
     return $return;
@@ -799,7 +821,8 @@ class BatchImport
    */
   public static function getFileContent($file, $saveAs = '')
   {
-    if (defined('AWS_ENABLED') && AWS_ENABLED == 'true' && empty($saveAs)) {
+    $log = FezLog::get();
+    if (defined('AWS_ENABLED') && AWS_ENABLED == 'true') {
       $aws = new AWS(AWS_S3_SAN_IMPORT_BUCKET);
 
       $params = [];
@@ -807,7 +830,7 @@ class BatchImport
         $params['SaveAs'] = $saveAs;
       }
 
-      return $aws->getFileContent('', $file, $params);
+      return $aws->getFileContent($file, '', $params);
     }
 
     if (! empty($saveAs)) {
