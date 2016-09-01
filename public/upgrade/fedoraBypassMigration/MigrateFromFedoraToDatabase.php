@@ -604,7 +604,7 @@ class MigrateFromFedoraToDatabase
       }
     }
     $nextPIDParts = explode(":", $nextPID);
-    $nextPIDNumber = $nextPIDParts[1];
+    $nextPIDNumber = (int)$nextPIDParts[1];
 
     // Make sure we have the pid index table
     $tableName = APP_TABLE_PREFIX . "pid_index";
@@ -633,7 +633,7 @@ class MigrateFromFedoraToDatabase
 
     // Insert the maximum PID
     // echo "Fetching next PID from Fedora, and writing to pid_index table ... ";
-    $stmt = "INSERT INTO " . $tableName . " (pid_number) VALUES ('" . $nextPIDNumber . "');";
+    $stmt = "INSERT INTO " . $tableName . " (pid_number) VALUES ('" . ($nextPIDNumber - 1) . "');";
     $this->_db->exec($stmt);
     // echo "ok!\n";
     ob_flush();

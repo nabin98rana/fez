@@ -1,1 +1,0 @@
-ALTER TABLE %TABLE_PREFIX%auth_quick_rules_id ADD COLUMN qai_inherit tinyint(1) NULL AFTER qai_title; 
