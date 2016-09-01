@@ -326,7 +326,7 @@ class BatchImport
       $versionable = "false";
     }
 
-    Fedora_API::getUploadLocationByLocalRef(
+    $did = Fedora_API::getUploadLocationByLocalRef(
       $pid, $ncName, $temp_store, "", $mimetype, $controlgroup, null, $versionable
     );
     Record::generatePresmd($pid, $ncName);
@@ -341,7 +341,7 @@ class BatchImport
 
     if (is_numeric($qat_id) && $qat_id != "-1" && $qat_id != -1) {
       if (APP_FEDORA_BYPASS == 'ON') {
-        FezACML::updateDatastreamQuickRule($pid, $qat_id);
+        FezACML::updateDatastreamQuickRule($pid, $qat_id, $did);
 
       } else {
         $xmlObj = FezACML::getQuickTemplateValue($qat_id);

@@ -34,7 +34,7 @@ class AuthNoFedoraDatastreams
     }
   }
 
-  function addRoleSecurityPermissions($did, $role, $arg_id, $inherited = '0')
+  public static function addRoleSecurityPermissions($did, $role, $arg_id, $inherited = '0')
   {
     $log = FezLog::get();
     $db = DB_API::get();
@@ -376,7 +376,7 @@ class AuthNoFedoraDatastreams
     return $res;
   }
 
-  function getNonInheritedSecurityPermissions($did, $role = null)
+  public static function getNonInheritedSecurityPermissions($did, $role = null)
   {
     $log = FezLog::get();
     $db = DB_API::get();
@@ -497,7 +497,7 @@ class AuthNoFedoraDatastreams
   }
 
   //This assumes parent or non inherited data might be changed
-  function recalculatePermissions($did)
+  public static function recalculatePermissions($did)
   {
     $datastreamPolicyPermissions = AuthNoFedoraDatastreams::getInheritedDatastreamPolicyPermissions($did);
 

@@ -119,21 +119,54 @@ class FezACML
     return $res;
   }
 
-  public static function updateDatastreamQuickRule($pid, $rule)
+  public static function datastreamQuickRuleExists($pid, $rule)
   {
     $log = FezLog::get();
     $db = DB_API::get();
 
-    $stmt = "REPLACE INTO " . APP_TABLE_PREFIX . "auth_quick_rules_pid
-                 SET qrp_pid = " . $db->quote($pid) . ", qrp_qac_id = " . $db->quote($rule, 'INTEGER');;
+    $stmt = "SELECT qrp_qac_id FROM " . APP_TABLE_PREFIX . "auth_quick_rules_pid 
+              WHERE qrp_pid = " . $db->quote($pid) . " AND qrp_qac_id = " . $db->quote($rule);
+
     try {
-      $res = $db->exec($stmt);
+      $res = $db->fetchOne($stmt);
+      if ($res) {
+        return true;
+      }
     } catch (Exception $ex) {
       $log->err($ex);
-      return '';
     }
 
-    return $res;
+    return false;
+  }
+
+  public static function updateDatastreamQuickRule($pid, $rule, $did = null)
+  {
+    $log = FezLog::get();
+    $db = DB_API::get();
+
+    if (! self::datastreamQuickRuleExists($pid, $rule)) {
+      $stmt = "REPLACE INTO " . APP_TABLE_PREFIX . "auth_quick_rules_pid
+               SET qrp_pid = " . $db->quote($pid) . ", qrp_qac_id = " . $db->quote($rule, 'INTEGER');;
+      try {
+        $res = $db->exec($stmt);
+        return $res;
+
+      } catch (Exception $ex) {
+        $log->err($ex);
+        return '';
+      }
+    }
+
+    if (empty($did)) {
+      $datastreams = Fedora_API::callListDatastreamsLite($pid);
+      foreach ($datastreams as $ds) {
+        AuthNoFedoraDatastreams::recalculatePermissions($ds['dsid']);
+      }
+    } else {
+      AuthNoFedoraDatastreams::recalculatePermissions($did);
+    }
+
+
   }
 
   public static function getUsersByRolePidAssoc($pid, $role)
