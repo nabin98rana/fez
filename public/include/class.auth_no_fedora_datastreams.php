@@ -403,7 +403,7 @@ class AuthNoFedoraDatastreams
     return $res;
   }
 
-  function getInheritedDatastreamPolicyPermissionsFromPid($pid)
+  public static function getInheritedDatastreamPolicyPermissionsFromPid($pid)
   {
     $log = FezLog::get();
     $db = DB_API::get();

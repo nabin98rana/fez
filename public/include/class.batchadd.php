@@ -82,9 +82,10 @@ class BatchAdd
     if (is_array($files)) {
       foreach ($files as $key => $ds) {
         $qat_id = -1;
-        if (array_key_exists($key, $files_FezACML)) {
-          if (!empty($files_FezACML[$key])) {
-            $qat_id = $files_FezACML[$key];
+        $t_file = str_replace(".", "_", $ds);
+        if (array_key_exists($t_file, $files_FezACML)) {
+          if (!empty($files_FezACML[$t_file])) {
+            $qat_id = $files_FezACML[$t_file];
           }
         }
         BatchImport::handleStandardFileImport($pid, $ds, Misc::shortFilename($ds), $xdis_id, false, $qat_id);
