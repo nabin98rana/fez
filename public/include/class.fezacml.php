@@ -145,15 +145,18 @@ class FezACML
     $db = DB_API::get();
 
     if (! self::datastreamQuickRuleExists($pid, $rule)) {
-      $stmt = "REPLACE INTO " . APP_TABLE_PREFIX . "auth_quick_rules_pid
-               SET qrp_pid = " . $db->quote($pid) . ", qrp_qac_id = " . $db->quote($rule, 'INTEGER');;
+      $data = [
+        ':pid' => $pid,
+        ':qac_id' => $rule
+      ];
+      $stmt = "INSERT INTO " . APP_TABLE_PREFIX . "auth_quick_rules_pid "
+        . "(qrp_pid, qrp_qac_id) VALUES "
+        . "(:pid, :qac_id)";
       try {
-        $res = $db->exec($stmt);
-        return $res;
+        $db->query($stmt, $data);
 
       } catch (Exception $ex) {
         $log->err($ex);
-        return '';
       }
     }
 
@@ -165,8 +168,6 @@ class FezACML
     } else {
       AuthNoFedoraDatastreams::recalculatePermissions($did);
     }
-
-
   }
 
   public static function getUsersByRolePidAssoc($pid, $role)
