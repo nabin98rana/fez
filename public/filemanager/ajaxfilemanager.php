@@ -39,19 +39,10 @@ $manager->setSessionAction($sessionAction);
 $fileList = $manager->getFileList();
 
 $numFiles = count($fileList);
-$alertMsg = ' We cannot allow this file due to its filename, please rename it. Please check that the new name conforms to the following:<br/>';
-$alertMsg = $alertMsg.' - only upper or lowercase alphanumeric characters or underscores (a-z, A-Z, _ and 0-9 only, NO SPACES)<br/>';
-$alertMsg = $alertMsg.' - with only numbers and lowercase characters in the file extension,<br/>';
-$alertMsg = $alertMsg.' - under 45 characters,<br/>';
-$alertMsg = $alertMsg.' - with only one file extension (one period (.) character) and <br/>';
-$alertMsg = $alertMsg.' - starting with a letter. Eg "s12345678_phd_thesis.pdf"';
 for ($x = 0; $x < $numFiles; $x++) {
     $regexp = '/^[a-zA-Z][a-zA-Z0-9_]*[\.][a-z0-9]+$/';
     if ($fileList[$x]['type'] == 'file') {
-        if (!preg_match($regexp, $fileList[$x]['name']) || strlen($fileList[$x][$name]) > 45) {
-            $fileList[$x]['is_writable'] = 0;
-            $fileList[$x]['name'] = "<span style='color:red;'>".$fileList[$x]['name'] . "</span>" . $alertMsg;
-        }
+    		$manager->validateFile($fileList[$x]);
     } else {
         $fileList[$x]['is_writable'] = 0;
     }
@@ -145,6 +136,8 @@ $(document).ready(
 			</form>
 			
 		</div>
+
+		<?php if (! $manager->aws) { ?>
 		<div id="rightCol">
 			<fieldset id="fileFieldSet" style="display:none" >
 				<legend>File Information:</legend>
@@ -178,6 +171,7 @@ $(document).ready(
 					</tbody>
 				</table>
 			</fieldset>
+
 			<fieldset id="folderFieldSet" >
 				<legend>Folder Information</legend>
 				<table cellpadding="0" cellspacing="0" class="tableSummary" id="folderInfo">
@@ -213,9 +207,11 @@ $(document).ready(
 				</table>
 			</fieldset>
 			
-			
 		</div>
+		<?php } ?>
+
 	</div>
+
 	<div class="clear"></div>
 </body>
 </html>

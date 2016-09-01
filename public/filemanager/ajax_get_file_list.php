@@ -7,7 +7,7 @@
 	 *
 	 */
 	
-	if(!isset($manager))
+	if(!isset($manager) || (defined('AWS_S3_ENABLED') && AWS_S3_ENABLED == 'true'))
 	{
 		/**
 		 *  this is part of  script for processing file paste 
@@ -22,21 +22,6 @@
 		$manager = new manager();
 		$manager->setSessionAction($sessionAction);
 		$selectedDocuments = $sessionAction->get();
-		if(sizeof($selectedDocuments))
-		{
-			include_once(CLASS_FILE);
-			$file = new file();
-			foreach($selectedDocuments as $doc)
-			{
-				$sourcePath = $sessionAction->getFolder() . $doc;
-				if($file->copyTo($sourcePath, $manager->getCurrentFolderPath()) && $sessionAction->getAction() == "cut")
-				{//remove the souce files or folder
-					
-					$file->delete($sourcePath);
-				}	
-			}
-			$sessionAction->set(array());
-		}		
 		$fileList = $manager->getFileList();
 		$folderInfo = $manager->getFolderInfo();
 	}
@@ -65,29 +50,37 @@
 							</td>
 							<td>
 							<?php
-								if(strtolower($folderInfo['path']) ==  strtolower(CONFIG_SYS_ROOT_PATH))
+								if(
+									strtolower($folderInfo['path']) ==  strtolower(CONFIG_SYS_ROOT_PATH) ||
+									($manager->aws && $folderInfo['path'] == $manager->awsRoot)
+								)
 								{//this is root folder
 									?>
 									<span class="folderParent">&nbsp;</span>
 									<?php
 								}else
 								{
+									$parentPath = getParentPath($folderInfo['path']);
 									?>
 
-									<a href="<?php echo appendQueryString(appendQueryString(URL_AJAX_FILE_MANAGER, "path=" . getParentPath($folderInfo['path'])), makeQueryString(array('path'))); ?>" title="Single Click to get to the parent folder..."><span class="folderParent">&nbsp;</span></a>
+									<a href="<?php echo appendQueryString(appendQueryString(URL_AJAX_FILE_MANAGER, "path=" . $parentPath), makeQueryString(array('path'))); ?>" title="Single Click to get to the parent folder..."><span class="folderParent">&nbsp;</span></a>
 									<?php
 								}
 						?>
 							</td>
 							<td class="left" id="<?php echo $folderInfo['path']; ?>">
 							<?php
-							if($folderInfo['path'] ==  CONFIG_SYS_ROOT_PATH)
+							if(
+								$folderInfo['path'] ==  CONFIG_SYS_ROOT_PATH ||
+								($manager->aws && $folderInfo['path'] == $manager->awsRoot)
+							)
 							{
 								echo "&nbsp;";
 							}else
 							{
+								$parentPath = getParentPath($folderInfo['path']);
 							?>
-									<a href="<?php echo appendQueryString(appendQueryString(URL_AJAX_FILE_MANAGER, "path=" . getParentPath($folderInfo['path'])), makeQueryString(array('path'))); ?>" title="Single Click to get to the parent folder...">...</a>
+									<a href="<?php echo appendQueryString(appendQueryString(URL_AJAX_FILE_MANAGER, "path=" . $parentPath), makeQueryString(array('path'))); ?>" title="Single Click to get to the parent folder...">...</a>
 							<?php
 							}
 						?>
@@ -109,7 +102,7 @@
 
 								?>
 								<tr class="<?php echo $css; ?>" id="row<?php echo $count; ?>"  >
-									<td onclick="setDocInfo('<?php echo $file['type']; ?>', '<?php echo $count; ?>');"><input type="checkbox" name="check[]" id="check<?php echo $count; ?>" value="<?php echo $file['name']; ?>" <?php echo $strDisabled; ?> />
+									<td onclick="setDocInfo('<?php echo $file['type']; ?>', '<?php echo $count; ?>');"><input type="checkbox" name="check[]" id="check<?php echo $count; ?>" value="<?php echo ($manager->aws ? $file['path'] : $file['name']); ?>" <?php echo $strDisabled; ?> />
 										<input type="hidden" name="fileName<?php echo $count; ?>" value="<?php echo $file['name']; ?>" id="fileName<?php echo $count; ?>" />
 										<input type="hidden" name="fileSize<?php echo $count; ?>" value="<?php echo transformFileSize($file['size']); ?>" id="fileSize<?php echo $count; ?>" />
 										<input type="hidden" name="fileType<?php echo $count; ?>" value="<?php echo $file['fileType']; ?>" id="fileType<?php echo $count; ?>" />

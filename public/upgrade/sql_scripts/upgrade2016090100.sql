@@ -1,0 +1,1 @@
+ALTER TABLE %TABLE_PREFIX%auth_quick_template ADD qat_inherit tinyint(1) DEFAULT 0;
