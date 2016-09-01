@@ -194,7 +194,7 @@ class Datastream
 
       $rows = array();
 
-      $sql = "SELECT dsi_dsid, dsi_mimetype, dsi_version FROM "
+      $sql = "SELECT dsi_dsid, dsi_mimetype FROM "
         . APP_TABLE_PREFIX . "datastream_info WHERE dsi_pid = :dsi_pid GROUP BY dsi_dsid";
 
       try
