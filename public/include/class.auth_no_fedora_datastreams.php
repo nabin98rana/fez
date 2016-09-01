@@ -646,9 +646,9 @@ class AuthNoFedoraDatastreams
     $log = FezLog::get();
     $db = DB_API::get();
 
-    $stmt = "SELECT qai_inherit FROM " . APP_TABLE_PREFIX . "auth_quick_rules_id
+    $stmt = "SELECT qat_inherit FROM " . APP_TABLE_PREFIX . "auth_quick_template
                 INNER JOIN fez_auth_quick_rules_pid
-                ON qrp_qac_id = qai_id
+                ON qrp_qac_id = qat_id
                 WHERE qrp_pid = " . $db->quote($pid);
     try {
       $res = $db->fetchOne($stmt);
