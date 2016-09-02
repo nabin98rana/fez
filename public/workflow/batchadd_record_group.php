@@ -42,26 +42,29 @@ $wftpl = $this->getvar('template');
 $temp_files = $this->getVar('files');
 $folder = $this->getVar('folder');
 if (is_array($temp_files)) {
-	$files = array();
-	$files_FezACML = array();
+	$files = [];
+	$files_FezACML = [];
 	$username = Auth::getUsername();
-	foreach ($temp_files as $t_file) {
-		$t2_file = $folder.$t_file;
-		if (is_file($t2_file)) {
-			$t_file = str_replace(".", "_", $t_file);
-			if ($_POST[$t_file."_FezACML"]) {
-				array_push($files_FezACML, $_POST[$t_file."_FezACML"]);
-			} else {
-				array_push($files_FezACML, "-1");
-			}
-			array_push($files, $t2_file);
-		}
-    }   
-    
+  foreach ($temp_files as $t_file) {
+    if (defined('AWS_S3_ENABLED') && AWS_S3_ENABLED == 'true') {
+      $aws = new AWS(AWS_S3_SAN_IMPORT_BUCKET);
+      $t2_file = $aws->createPath($t_file, '');
+      array_push($files, $t2_file);
+    } else {
+      $t2_file = $folder . "/" . $t_file;
+      if (is_file($t2_file)) {
+        array_push($files, $t2_file);
+      }
+    }
+    $t_file = str_replace(".", "_", $t_file);
+    if (array_key_exists($t_file."_FezACML", $_POST)) {
+      $files_FezACML[$t_file] = $_POST[$t_file."_FezACML"];
+    } else {
+      $files_FezACML[$t_file] = -1;
+    }
+  }
 	$bgp_batch = new BackgroundProcess_BatchAdd_Record;
 	$inputs = compact('files', 'files_FezACML', 'xdis_id', 'pid', 'wftpl');
 	$inputs_str = serialize($inputs);
 	$bgp_batch->register($inputs_str, Auth::getUserID());
 }
-
-?>

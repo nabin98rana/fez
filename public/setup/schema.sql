@@ -162,19 +162,6 @@ CREATE TABLE `fez_auth_quick_rules` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Table structure for table `fez_auth_quick_rules_id`
---
-
-DROP TABLE IF EXISTS `fez_auth_quick_rules_id`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `fez_auth_quick_rules_id` (
-  `qai_id` int(11) DEFAULT NULL,
-  `qai_title` varchar(255) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
 -- Table structure for table `fez_auth_quick_rules_pid`
 --
 

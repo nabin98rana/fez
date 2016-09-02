@@ -88,15 +88,6 @@ LOCK TABLES `fez_auth_quick_rules` WRITE;
 UNLOCK TABLES;
 
 --
--- Dumping data for table `fez_auth_quick_rules_id`
---
-
-LOCK TABLES `fez_auth_quick_rules_id` WRITE;
-/*!40000 ALTER TABLE `fez_auth_quick_rules_id` DISABLE KEYS */;
-/*!40000 ALTER TABLE `fez_auth_quick_rules_id` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
 -- Dumping data for table `fez_auth_quick_rules_pid`
 --
 

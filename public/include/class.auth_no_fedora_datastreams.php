@@ -34,7 +34,7 @@ class AuthNoFedoraDatastreams
     }
   }
 
-  function addRoleSecurityPermissions($did, $role, $arg_id, $inherited = '0')
+  public static function addRoleSecurityPermissions($did, $role, $arg_id, $inherited = '0')
   {
     $log = FezLog::get();
     $db = DB_API::get();
@@ -376,7 +376,7 @@ class AuthNoFedoraDatastreams
     return $res;
   }
 
-  function getNonInheritedSecurityPermissions($did, $role = null)
+  public static function getNonInheritedSecurityPermissions($did, $role = null)
   {
     $log = FezLog::get();
     $db = DB_API::get();
@@ -403,7 +403,7 @@ class AuthNoFedoraDatastreams
     return $res;
   }
 
-  function getInheritedDatastreamPolicyPermissionsFromPid($pid)
+  public static function getInheritedDatastreamPolicyPermissionsFromPid($pid)
   {
     $log = FezLog::get();
     $db = DB_API::get();
@@ -497,7 +497,7 @@ class AuthNoFedoraDatastreams
   }
 
   //This assumes parent or non inherited data might be changed
-  function recalculatePermissions($did)
+  public static function recalculatePermissions($did)
   {
     $datastreamPolicyPermissions = AuthNoFedoraDatastreams::getInheritedDatastreamPolicyPermissions($did);
 
@@ -646,9 +646,9 @@ class AuthNoFedoraDatastreams
     $log = FezLog::get();
     $db = DB_API::get();
 
-    $stmt = "SELECT qai_inherit FROM " . APP_TABLE_PREFIX . "auth_quick_rules_id
+    $stmt = "SELECT qat_inherit FROM " . APP_TABLE_PREFIX . "auth_quick_template
                 INNER JOIN fez_auth_quick_rules_pid
-                ON qrp_qac_id = qai_id
+                ON qrp_qac_id = qat_id
                 WHERE qrp_pid = " . $db->quote($pid);
     try {
       $res = $db->fetchOne($stmt);

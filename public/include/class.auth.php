@@ -2633,7 +2633,7 @@ class AuthNoFedora
     }
   }
 
-  public function addRoleSecurityPermissions($pid, $role, $arg_id, $inherited = '0')
+  public static function addRoleSecurityPermissions($pid, $role, $arg_id, $inherited = '0')
   {
     $log = FezLog::get();
     $db = DB_API::get();
@@ -2918,7 +2918,7 @@ class AuthNoFedora
   }
 
   //This assumes parent or non inherited data might be changed
-  public function recalculatePermissions($pid)
+  public static function recalculatePermissions($pid)
   {
     $pidParentPermissions = AuthNoFedora::getParentsACML($pid);
     $pidNonInheritedPermissions = AuthNoFedora::getNonInheritedSecurityPermissions($pid);

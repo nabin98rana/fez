@@ -240,7 +240,6 @@ Class InitSystem
     }
     $migrate = new MigrateFromFedoraToDatabase(false);
     $migrate->runMigration();
-    InitSystem::parseMySQLdump($conn, $path . "nofedora.sql");
   }
 
 }
