@@ -152,10 +152,9 @@ class Reindex
     $fedoraPIDs = array();
     do {
       if ($resumeToken == "~") {
-        if ($terms === "*") {
-          $queryTerms = ['state' => $state];
-        } else {
-          $queryTerms = $terms;
+        $queryTerms = ['state' => $state];
+        if ($terms !== "*") {
+          $queryTerms['terms'] = $terms;
         }
         $res = Fedora_API::callFindObjects($fields, $maxResults, $queryTerms); // First time.
       } else {
