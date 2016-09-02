@@ -1283,6 +1283,7 @@ class Record
               } elseif ($sek_value['xsdmf_value'] == 'on' || $sek_value['xsdmf_value'] == 'off') {
                 $xsdDetails = XSD_HTML_Match::getDetailsByXSDMF_ID($sek_value['xsdmf_id']);
                 $searchKeyDetails = Search_Key::getDetails($xsdDetails['xsdmf_sek_id']);
+                $sek_value['xsdmf_value'] = Search_Key::cleanSearchKeyValue($searchKeyDetails, $sek_value['xsdmf_value']);
                 if ($searchKeyDetails['sek_data_type'] == 'int') {
                   if ($sek_value['xsdmf_value'] == 'on') {
                     $xsdmf_value = 1;
@@ -1366,20 +1367,9 @@ class Record
               && ($sekValTest != "NULL")
           ) {
 
-            // Added this notEmpty check to look for empty arrays.  Stops fez from writing empty keyword
-            // values to fez_record_search_key_keywords table.  -  heaphey
-            $notEmpty = 1;  // start assuming that value is not empty
-            if (is_array($sek_value['xsdmf_value'])) {
-              $stringvalue = implode("", $sek_value['xsdmf_value']);
-              if (strlen($stringvalue) == 0) {
-                $notEmpty = 0;  // this value is an array and it is empty
-                //Error_Handler::logError($sek_value['xsdmf_value']);
-              }
-            }
-
             $xsdDetails = XSD_HTML_Match::getDetailsByXSDMF_ID($sek_value['xsdmf_id']);
             $searchKeyDetails = Search_Key::getDetails($xsdDetails['xsdmf_sek_id']);
-
+            $sek_value['xsdmf_value'] = Search_Key::cleanSearchKeyValue($searchKeyDetails, $sek_value['xsdmf_value']);
             // do final check for cardinality before trying to insert/update an array of values in one to many tables
             if (is_array($sek_value['xsdmf_value'])) {
               if ($searchKeyDetails['sek_cardinality'] == 0) {
@@ -1390,6 +1380,17 @@ class Record
                 );
                 $ret = false;
                 continue;
+              }
+            }
+
+            // Added this notEmpty check to look for empty arrays.  Stops fez from writing empty keyword
+            // values to fez_record_search_key_keywords table.  -  heaphey
+            $notEmpty = 1;  // start assuming that value is not empty
+            if (is_array($sek_value['xsdmf_value'])) {
+              $stringvalue = implode("", $sek_value['xsdmf_value']);
+              if (strlen($stringvalue) == 0) {
+                $notEmpty = 0;  // this value is an array and it is empty
+                //Error_Handler::logError($sek_value['xsdmf_value']);
               }
             }
 

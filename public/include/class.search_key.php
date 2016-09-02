@@ -1769,4 +1769,42 @@ class Search_Key
 
         return $res;
     }
+
+    /* Take an array or a simple value and return it filtered for the SK */
+    public static function cleanSearchKeyValue($sekDetails, $value) {
+
+      if (!is_array($sekDetails)) {
+        return array();
+      }
+      $return = NULL;
+
+      if (is_array($value)) {
+        foreach ($value as $val) {
+          $return[] = Search_Key::cleanSearchKeyValue($sekDetails, $val);
+        }
+      } else {
+        switch ($sekDetails['sek_data_type']) {
+          case "text":
+            $return = $value;
+            break;
+          case "varchar":
+            //prevent mysql truncation errors, but doing it already
+            $return = substr($value, 0, 255);
+            break;
+          case "int":
+            if (!is_numeric($value)) {
+              $return = NULL;
+            } else {
+              $return = $value;
+            }
+            break;
+          case "date":
+            //already taken care of elsewhere, could be moved here later
+            $return = $value;
+            break;
+        }
+      }
+      return $return;
+    }
+
 }
