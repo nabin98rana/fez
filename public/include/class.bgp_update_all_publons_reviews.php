@@ -88,7 +88,6 @@ class BackgroundProcess_Update_All_Publons_Reviews extends BackgroundProcess
 
         $results = Publons::getUserData($orcid);
 
-
         foreach ($results['results'] as $paper) {
           Publons::savePublonsReview($authorId, $paper);
         }
