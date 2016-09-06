@@ -168,18 +168,24 @@ class Fedora_API implements FedoraApiInterface {
       " FROM " . APP_TABLE_PREFIX . "record_search_key";
 
     if (is_array($queryTerms)) {
-      if (array_key_exists('state', $queryTerms)) {
-        if ($queryTerms['state'] === 'D') {
-          $stmt = "SELECT rek_pid as pid, rek_title as title, rek_description as description 
-            FROM " . APP_TABLE_PREFIX . "record_search_key__shadow
-            WHERE rek_pid NOT IN (SELECT DISTINCT rek_pid FROM " . APP_TABLE_PREFIX . "record_search_key)
-            GROUP BY rek_pid";
-        }
+      if ($queryTerms['state'] === 'D') {
+        $stmt .= "__shadow WHERE rek_pid NOT IN (SELECT DISTINCT rek_pid FROM " . APP_TABLE_PREFIX . "record_search_key)";
       }
+
+      if (array_key_exists('terms', $queryTerms)) {
+        if ($queryTerms['state'] === 'D') {
+          $stmt .= " AND ";
+        } else {
+          $stmt .= " WHERE ";
+        }
+        $stmt .= "rek_pid LIKE " . $db->quote("%" . str_replace('*', '', $queryTerms['terms']) . "%");
+      }
+      $stmt .= ' GROUP BY rek_pid';
     }
     else if (! empty($queryTerms) && $queryTerms != '*') {
       $stmt .= " WHERE rek_pid LIKE " . $db->quote("%" . str_replace('*', '', $queryTerms) . "%");
     }
+
     if ($maxResults > 0) {
       $stmt .= " LIMIT 0," . $db->quote($maxResults, 'INTEGER');
     }
