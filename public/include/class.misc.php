@@ -4110,7 +4110,7 @@ public static function multi_implode($glue, $pieces)
   }
 
 
-  public static function shortFilename($filename, $maxlen = 64)
+  public static function shortFilename($filename, $maxlen = 40)
   {
     $pathstuff = pathinfo($filename);
     $filename = basename($pathstuff['basename'], ".".$pathstuff['extension']);
