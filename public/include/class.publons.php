@@ -36,21 +36,28 @@ include_once(APP_INC_PATH . "class.misc.php");
 
 class Publons
 {
-  /**
-   * Method used to perform a service request
-   *
-   */
-  public function getUser($orcidId, $url = null)
-  {
-    if (empty($url)) {
-      // the slash on the end of the URL is critical
-      $url = PUBLONS_BASE_URL . "academic/". urlencode($orcidId) . "/";
+    /**
+     * Method used to perform a service request
+     *
+     */
+    public function getUser($orcidId, $url = null)
+    {
+      if (empty($url)) {
+          // the slash on the end of the URL is critical
+          $url = PUBLONS_BASE_URL . "academic/". urlencode($orcidId) . "/";
+      }
+
+      $response = Publons::returnPublonsData($url);
+
+      $responseArray = json_decode($response, true);
+
+      if (is_array($responseArray) && array_key_exists('ids', $responseArray)) {
+          return $responseArray;
+      }
+
+      return false;
     }
 
-    $response = Publons::returnPublonsData($url);
-
-    return $response;
-  }
     /**
      * Method used to perform a service request
      *
