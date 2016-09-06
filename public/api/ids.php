@@ -70,16 +70,22 @@ if ($securityToken != APP_API_IDS_TOKEN) {
 
 if (!empty($list)) {
     $result = ApiResearchers::listId($author_username);
-    if (!empty($id_type)){
-        foreach($result as $details) {
-            if ($details['id'] == $id_type) {
-                echo json_encode($details);
-                exit();
-            }
-        }
-        echo json_encode(array(), JSON_FORCE_OBJECT);
+
+    if ($result) {
+      if (!empty($id_type)){
+          foreach($result as $details) {
+              if ($details['id'] == $id_type) {
+                  echo json_encode($details);
+                  exit();
+              }
+          }
+          echo json_encode(array(), JSON_FORCE_OBJECT);
+      } else {
+        echo json_encode($result);
+      }
     } else {
-    echo json_encode($result);
+      http_response_code(404);
+      echo json_encode(array("status" => "unknown user"));
     }
 } else {
     if (!empty($grant)) {

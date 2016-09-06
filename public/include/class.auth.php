@@ -654,11 +654,11 @@ class Auth
    * @param   string $dsID (optional) The datastream ID
    * @returns array $userPIDAuthGroups The authorisation groups (roles) the user belongs to against this object.
    */
-  public static function getAuthorisationGroups($pid, $dsID = "")
+  public static function getAuthorisationGroups($pid, $dsID = "", $skipUserPerms = false)
   {
 
     if (APP_FEDORA_BYPASS == 'ON') {
-      $userPIDAuthGroups = AuthNoFedora::getAuthorisationGroups($pid, $dsID);
+      $userPIDAuthGroups = AuthNoFedora::getAuthorisationGroups($pid, $dsID, $skipUserPerms);
     } else {
       $log = FezLog::get();
 
@@ -1028,6 +1028,10 @@ class Auth
   function getAuth($pid, $dsID = "")
   {
     $log = FezLog::get();
+
+    if (APP_FEDORA_BYPASS == 'ON') {
+      return AuthNoFedora::getAuthorisationGroups($pid, $dsID, true);
+    }
 
     static $roles_cache;
 
@@ -3078,7 +3082,7 @@ class AuthNoFedora
 //        AuthNoFedora::recalculatePermissions($pid);
   }
 
-  public static function getAuthorisationGroups($pid, $dsID = '')
+  public static function getAuthorisationGroups($pid, $dsID = '', $skipUserPerms = false)
   {
     $log = FezLog::get();
 
@@ -3092,15 +3096,19 @@ class AuthNoFedora
     }
     static $roles_cache;
     $inherit = false;
-    if ($dsID != "") {
-      if (isset($roles_cache[$pid][$dsID])) {
-        return $roles_cache[$pid][$dsID];
-      }
-    } else {
-      if (isset($roles_cache[$pid])) {
-        return $roles_cache[$pid];
+
+    if (! $skipUserPerms) {
+      if ($dsID != "") {
+        if (isset($roles_cache[$pid][$dsID])) {
+          return $roles_cache[$pid][$dsID];
+        }
+      } else {
+        if (isset($roles_cache[$pid])) {
+          return $roles_cache[$pid];
+        }
       }
     }
+
     $userPIDAuthGroups = array();
     // Usually everyone can list, view and view comments
     global $NonRestrictedRoles;
@@ -3112,6 +3120,10 @@ class AuthNoFedora
     } else {
       $permissions = AuthNoFedora::getAllSecurityPermissionsDescriptions($pid);
     }
+    if ($skipUserPerms) {
+      return $permissions;
+    }
+
     foreach ($permissions as $permission) {
       if (in_array($permission['aro_role'], $userPIDAuthGroups)) {
         $userPIDAuthGroups = array_diff($userPIDAuthGroups, array($permission['aro_role']));
