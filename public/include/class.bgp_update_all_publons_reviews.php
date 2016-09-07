@@ -92,7 +92,7 @@ class BackgroundProcess_Update_All_Publons_Reviews extends BackgroundProcess
           Publons::savePublonsReview($authorId, $paper);
         }
       } else {
-        $log->err("Error receiving publons details for " . $orcid);
+        $log->info("Error receiving publons details for " . $orcid);
       }
       usleep(self::RATE_LIMIT);
     }
