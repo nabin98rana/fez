@@ -2502,7 +2502,7 @@ class RecordGeneral
 
       try
       {
-          $sql = "SELECT mf.xsdmf_id, mf.xsdmf_html_input, xsdmf_smarty_variable, xsdmf_use_parent_option_list, TRIM(LOWER(REPLACE(sk.sek_title,\" \",\"_\"))) AS sek_title, "
+          $sql = "SELECT mf.xsdmf_id, mf.xsdmf_html_input, mf.xsdmf_cvo_save_type, xsdmf_smarty_variable, xsdmf_use_parent_option_list, TRIM(LOWER(REPLACE(sk.sek_title,\" \",\"_\"))) AS sek_title, "
           . "sk.sek_relationship, sk.sek_cardinality FROM " . APP_TABLE_PREFIX . "search_key sk, "
           . APP_TABLE_PREFIX . "xsd_display_matchfields mf WHERE sk.sek_id = "
           . "mf.xsdmf_sek_id AND mf.xsdmf_id IN (?)";
@@ -2527,6 +2527,16 @@ class RecordGeneral
                       unset($xsdFields[$field['xsdmf_id']][$xf_key]);
                   }
               }
+          }
+          // if this is controlled vocab, but save as the value, convert it
+          if ($field['xsdmf_html_input'] == 'contvocab_selector' && $field['xsdmf_cvo_save_type'] == 1) {
+            if (is_array($xsdFields[$field['xsdmf_id']])) {
+              foreach ($xsdFields[$field['xsdmf_id']] as $xf_key => $xf) {
+                $xsdFields[$field['xsdmf_id']][$xf_key] = Controlled_Vocab::getTitle($xf);
+              }
+            } else {
+              $xsdFields[$field['xsdmf_id']] = Controlled_Vocab::getTitle($xsdFields[$field['xsdmf_id']]);
+            }
           }
 
           if(is_array($xsdFields[$field['xsdmf_id']]) && isset($xsdFields[$field['xsdmf_id']]['Year']))

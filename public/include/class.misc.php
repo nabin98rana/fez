@@ -4265,7 +4265,7 @@ public static function multi_implode($glue, $pieces)
     return @$errs[$e];
   }
 
-  function MySQLDate($dateArray)
+  public static function MySQLDate($dateArray)
   {
       $dteSql = array();
       $dteSql[] = (isset($dateArray['Year']) && is_numeric($dateArray['Year'])) ? $dateArray['Year']: '0000';

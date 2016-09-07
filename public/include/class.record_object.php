@@ -185,7 +185,27 @@ class RecordObject extends RecordGeneral
 
       $last = "";
       $lastKey = null;
-      //Load in all attached xsd display fields
+      //Now add all the xsdmf_ref_id values
+      $xsdmf_list = XSD_HTML_Match::getListByDisplay($_POST['xdis_id']);
+      foreach ($xsdmf_list as $xsdmf) {
+        if ($xsdmf['xsdmf_html_input'] == 'xsdmf_id_ref') {
+          //now check if the posted data contains a reference to it
+          if (array_key_exists($xsdmf['xsdmf_id_ref'], $xdisDisplayFields)
+           && !empty($xdisDisplayFields[$xsdmf['xsdmf_id_ref']])) {
+              //now see if we are to transfer the value or the id
+            $xsdmf_details = XSD_HTML_Match::getDetailsByXSDMF_ID($xsdmf['xsdmf_id_ref']);
+            if ($xsdmf_details['xsdmf_html_input'] == 'contvocab_selector') {
+              if ($xsdmf['xsdmf_cvo_save_type'] == 1) {
+                $xdisDisplayFields[$xsdmf['xsdmf_id']] = Controlled_Vocab::getTitle($xdisDisplayFields[$xsdmf['xsdmf_id_ref']]);
+              } else {
+                $xdisDisplayFields[$xsdmf['xsdmf_id']] = $xdisDisplayFields[$xsdmf['xsdmf_id_ref']];
+              }
+           } else {
+              $xdisDisplayFields[$xsdmf['xsdmf_id']] = $xdisDisplayFields[$xsdmf['xsdmf_id_ref']];
+           }
+          }
+        }
+      }
       //Except the final one if it's empty since it is the empty field reserved for "new item" if a multiple field
       //Previous empty values may be needed to space out between values
       foreach ($_POST as $key => $value) {
@@ -205,6 +225,8 @@ class RecordObject extends RecordGeneral
       if (empty($lastValue)) {
         unset($xdisDisplayFields[$last][$lastKey]);
       }
+
+
 
       $xsd_display_fields = RecordGeneral::setDisplayFields($xdisDisplayFields);
 
