@@ -740,9 +740,9 @@ class RecordGeneral
                 }
                 if (is_array($datastreams[$datastreamName]) || $datastreams[$datastreamName] == "") {
                     echo "\n**** PID " . $this->pid . " without a " . $datastreamName .
-                    " datastream was found, this will need content model changing first **** \n";
-                    $this->_log->err("\n**** PID " . $this->pid . " without a " . $datastreamName .
-                    " datastream was found, this will need content model changing first **** \n");
+                    " datastream for search key ". $sk." was found, this will need content model changing first **** \n";
+                    $this->_log->warn("\n**** PID " . $this->pid . " without a " . $datastreamName .
+                    " datastream for search key ". $sk." was found, this will need content model changing first **** \n");
                 }
                 else
                 {
