@@ -1101,7 +1101,7 @@ abstract class RecordImport
             $pid = $rec->insertFromArray($mods, $collection, "MODS 1.0", $history, 0, $links, array());
 
             if(empty($pid)) {
-                $log->err('Insert fail, pid empty. Mods:' .  print_r($mods, true) . ' Collection: ' . $collection);
+                $log->warn('Insert fail, pid empty. Mods:' .  print_r($mods, true) . ' Collection: ' . $collection);
                 return FALSE;
             }
 
