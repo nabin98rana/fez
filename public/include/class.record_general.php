@@ -735,7 +735,7 @@ class RecordGeneral
                 $dsDetails = $this->getDatastreamNameDesc($sk);
                 $datastreamName = $dsDetails['datastreamname'];
                 $datastreamDesc = $dsDetails['datastreamdesc'];
-                if (!array_key_exists($datastreamName, $datastreams)) {
+                if (!array_key_exists($datastreamName, $datastreams) && $datastreamName != '') {
                     $datastreams[$datastreamName] = Fedora_API::callGetDatastreamContents($this->pid, $datastreamName, true);
                 }
                 if (is_array($datastreams[$datastreamName]) || $datastreams[$datastreamName] == "") {
@@ -759,7 +759,7 @@ class RecordGeneral
 
             if (count($search_keys_added) > 0) {
                 foreach ($datastreams as $datastreamName => $newXML) {
-                    if ($newXML != "") {
+                    if ($newXML != "" && $datastreamName != '') {
                         $dsExists = Fedora_API::datastreamExists($this->pid, $datastreamName);
                         if ($dsExists !== true) {
                             Fedora_API::getUploadLocation($this->pid, $datastreamName, $newXML, $datastreamDesc, "text/xml", "X", null, "true");
