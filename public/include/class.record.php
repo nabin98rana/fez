@@ -5172,7 +5172,7 @@ function getSearchKeyIndexValueShadow($pid, $searchKeyTitle, $getLookup=true, $s
     $log = FezLog::get();
 
     if (! @$mods['genre']) {
-      $log->err('A genre is required');
+      $log->warn('A genre is required');
       return false;
     }
     if (! @$mods['titleInfo']['title']) {
