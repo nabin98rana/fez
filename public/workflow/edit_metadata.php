@@ -90,10 +90,11 @@ if(APP_FEDORA_BYPASS == 'ON')
 }
 
 // if we have uploaded files using the flash uploader, then generate $_FILES array entries for them
-if (isset($_POST['uploader_files_uploaded']) && APP_FEDORA_BYPASS != 'ON')
+$tmpFilesArray = null;
+if (isset($_POST['uploader_files_uploaded']))
 {
 	$tmpFilesArray = Uploader::generateFilesArray($wfstatus->id, $_POST['uploader_files_uploaded']);
-	if (count($tmpFilesArray)) {
+	if (count($tmpFilesArray) && APP_FEDORA_BYPASS != 'ON') {
 		$_FILES = $tmpFilesArray;
 	}
 }
@@ -201,16 +202,19 @@ if (!empty($_POST['filePermissionsNew'])) {
         $xsdmf_id = XSD_HTML_Match::getXSDMFIDByTitleXDIS_ID('Description for File Upload', $_POST['xdis_id']);
         $_POST['xsd_display_fields'][$xsdmf_id][$count] = $_POST['description'][$i];
         $fileXdis_id = $_POST['uploader_files_uploaded'];
-        $filename = $_FILES['xsd_display_fields']['name'][$fileXdis_id][$count];
-        if (APP_FEDORA_BYPASS != 'ON') {
+
+        if(APP_FEDORA_BYPASS == 'ON') {
+          $filename = $tmpFilesArray['xsd_display_fields']['name'][$fileXdis_id][$count];
+        } else {
+          $filename = $_FILES['xsd_display_fields']['name'][$fileXdis_id][$count];
           Datastream::saveDatastreamSelectedPermissions($pid, $filename, $_POST['filePermissionsNew'][$i], $_POST['embargo_date'][$i]);
-          if ($_POST['filePermissionsNew'][$i] == 5 || !empty($_POST['embargo_date'][$i])) {
-            Datastream::setfezACML($pid, $filename, 10);
-          }
-          else {
-            if ($_POST['filePermissionsNew'][$i] == 8) {
-              Datastream::setfezACML($pid, $filename, 11);
-            }
+        }
+        if ($_POST['filePermissionsNew'][$i] == 5 || !empty($_POST['embargo_date'][$i])) {
+          Datastream::setfezACML($pid, $filename, 10);
+        }
+        else {
+          if ($_POST['filePermissionsNew'][$i] == 8) {
+            Datastream::setfezACML($pid, $filename, 11);
           }
         }
         $count++;
