@@ -9,6 +9,7 @@ feztestrunner:
     - AWS_ACCESS_KEY_ID
     - AWS_SECRET_ACCESS_KEY
     - FEZ_S3_BUCKET
+    - FEZ_S3_CACHE_BUCKET
     - FEZ_S3_SRC_PREFIX
   links:
     - cache
@@ -65,6 +66,7 @@ fpm:
     - AWS_ACCESS_KEY_ID
     - AWS_SECRET_ACCESS_KEY
     - FEZ_S3_BUCKET
+    - FEZ_S3_CACHE_BUCKET
     - FEZ_S3_SRC_PREFIX
   links:
     - fezdb
