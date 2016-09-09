@@ -194,14 +194,14 @@ if ($access_ok) {
                   $filename = $tmpFilesArray['xsd_display_fields']['name'][$fileXdis_id][$count];
                 } else {
                   $filename = $_FILES['xsd_display_fields']['name'][$fileXdis_id][$count];
-                  Datastream::saveDatastreamSelectedPermissions($pid, $filename, $_POST['filePermissionsNew'][$i], $_POST['embargo_date'][$i]);
+                  Datastream::saveDatastreamSelectedPermissions($wfstatus->pid, $filename, $_POST['filePermissionsNew'][$i], $_POST['embargo_date'][$i]);
                 }
                 if ($_POST['filePermissionsNew'][$i] == 5 || !empty($_POST['embargo_date'][$i])) {
-                  Datastream::setfezACML($pid, $filename, 10);
+                  Datastream::setfezACML($wfstatus->pid, $filename, 10);
                 }
                 else {
                   if ($_POST['filePermissionsNew'][$i] == 8) {
-                    Datastream::setfezACML($pid, $filename, 11);
+                    Datastream::setfezACML($wfstatus->pid, $filename, 11);
                   }
                 }
                 $count++;
