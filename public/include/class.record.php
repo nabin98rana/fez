@@ -1010,10 +1010,10 @@ class Record
    * @access  public
    * @return  integer The new Record ID
    */
-  function insert()
+  function insert($tmpFilesArray = [])
   {
     $record = new RecordObject();
-    $ret = $record->fedoraInsertUpdate();
+    $ret = $record->fedoraInsertUpdate([], [], [], $tmpFilesArray);
     return $record;
   }
 
