@@ -469,10 +469,10 @@ class Fez_Record_Searchkey
                 continue;
             }
 
-            $hasDelta = $this->_shadow->hasDelta($sekTitle);
-            if ($hasDelta) {
+            //$hasDelta = $this->_shadow->hasDelta($sekTitle);
+            //if ($hasDelta) {
               $this->_shadow->copySearchKeyToShadow($sekTitle);
-            }
+            //}
 
 //            if (!$this->_shadow->copySearchKeyToShadow($sekTitle)){
 //                continue;
@@ -707,7 +707,7 @@ class Fez_Record_Searchkey
             }
             // Check that the data to be inserted is not exactly the same as the new data. If it is exactly the same don't save it and just rely on deltas.
             $recordSearchKeyShadow = new Fez_Record_SearchkeyShadow($this->_pid);
-            $hasDelta = $recordSearchKeyShadow->hasDelta($sekTitle);
+            //$hasDelta = $recordSearchKeyShadow->hasDelta($sekTitle);
 
 
             // Query to backup old record to shadow table
@@ -726,9 +726,9 @@ class Fez_Record_Searchkey
             // Begin DB transaction explicitly. We want to be able to rollback if any of these queries failed.
             $this->_db->beginTransaction();
             try {
-                if ($hasDelta) {
+                //if ($hasDelta) {
                   $this->_db->exec($stmtBackupToShadow);
-                }
+                //}
                 $this->_db->exec($stmtDeleteOld);
                 $this->_db->exec($stmtInsertNew);
                 $this->_db->commit();

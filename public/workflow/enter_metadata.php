@@ -95,12 +95,13 @@ if(APP_FEDORA_BYPASS == 'ON')
 
 
 // if we have uploaded files using the flash uploader, then generate $_FILES array entries for them
-if (isset($_POST['uploader_files_uploaded']) && APP_FEDORA_BYPASS != 'ON')
+$tmpFilesArray = null;
+if (isset($_POST['uploader_files_uploaded']))
 {
-	$tmpFilesArray = Uploader::generateFilesArray($wfstatus->id, $_POST['uploader_files_uploaded']);
-	if (count($tmpFilesArray)) {
-		$_FILES = $tmpFilesArray;
-	}
+  $tmpFilesArray = Uploader::generateFilesArray($wfstatus->id, $_POST['uploader_files_uploaded']);
+  if (count($tmpFilesArray) && APP_FEDORA_BYPASS != 'ON') {
+    $_FILES = $tmpFilesArray;
+  }
 }
 
 $tpl = new Template_API();
@@ -188,12 +189,20 @@ if ($access_ok) {
             $count = 0;
             foreach($_POST['filePermissionsNew'] as $i => $value) {
                 $fileXdis_id = $_POST['uploader_files_uploaded'];
-                $filename = $_FILES['xsd_display_fields']['name'][$fileXdis_id][$count];
-                Datastream::saveDatastreamSelectedPermissions($wfstatus->pid, $filename, $_POST['filePermissionsNew'][$i], $_POST['embargo_date'][$i]);
+
+                if(APP_FEDORA_BYPASS == 'ON') {
+                  $filename = $tmpFilesArray['xsd_display_fields']['name'][$fileXdis_id][$count];
+                } else {
+                  $filename = $_FILES['xsd_display_fields']['name'][$fileXdis_id][$count];
+                  Datastream::saveDatastreamSelectedPermissions($pid, $filename, $_POST['filePermissionsNew'][$i], $_POST['embargo_date'][$i]);
+                }
                 if ($_POST['filePermissionsNew'][$i] == 5 || !empty($_POST['embargo_date'][$i])) {
-                    Datastream::setfezACML($wfstatus->pid, $filename, 10);
-                } else if ($_POST['filePermissionsNew'][$i] == 8 ) {
-                    Datastream::setfezACML($wfstatus->pid, $filename, 11);
+                  Datastream::setfezACML($pid, $filename, 10);
+                }
+                else {
+                  if ($_POST['filePermissionsNew'][$i] == 8) {
+                    Datastream::setfezACML($pid, $filename, 11);
+                  }
                 }
                 $count++;
             }

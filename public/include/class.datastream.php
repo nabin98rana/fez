@@ -103,6 +103,10 @@ class Datastream
 
   static function setfezACML($pid, $dsID, $fezACMLTemplateNum)
   {
+    if (APP_FEDORA_BYPASS == 'ON') {
+      $did = self::getDid($pid, $dsID);
+      return FezACML::updateDatastreamQuickRule($pid, $fezACMLTemplateNum, $did);
+    }
     $xmlObj = FezACML::getQuickTemplateValue($fezACMLTemplateNum);
     if ($xmlObj != false) {
       return self::setfezACMLXml($pid, $dsID, $xmlObj);
