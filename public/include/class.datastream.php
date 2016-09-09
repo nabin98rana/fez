@@ -133,23 +133,22 @@ class Datastream
       ':dsi_pid' => $pid,
       ':dsi_mimetype' => $mimetype,
       ':dsi_url' => $object['ObjectURL'],
-      ':dsi_security_inherited' => 0,
       ':dsi_state' => $state,
     ];
 
     $did = self::getDid($pid, $dsName);
-    $cols = 'dsi_dsid, dsi_pid, dsi_mimetype, dsi_url, dsi_security_inherited, dsi_state';
-    $vals = ':dsi_dsid, :dsi_pid, :dsi_mimetype, :dsi_url, :dsi_security_inherited, :dsi_state';
-    if ($did) {
-      $data[':dsi_id'] = $did;
-      $stmt = "REPLACE INTO " . APP_TABLE_PREFIX . "datastream_info "
-        . "(dsi_id, $cols) VALUES "
-        . "(:dsi_id, $vals)";
 
+    if ($did) {
+      $stmt = "UPDATE " . APP_TABLE_PREFIX . "datastream_info SET
+                  dsi_mimetype = :dsi_mimetype,
+                  dsi_url = :dsi_url,
+                  dsi_state = :dsi_state                    
+                  WHERE dsi_pid = :dsi_pid AND dsi_dsid = :dsi_dsid";
     } else {
+      $data[':dsi_security_inherited'] = 0;
       $stmt = "INSERT INTO " . APP_TABLE_PREFIX . "datastream_info "
-        . "($cols) VALUES "
-        . "($vals)";
+        . "(dsi_dsid, dsi_pid, dsi_mimetype, dsi_url, dsi_security_inherited, dsi_state) VALUES "
+        . "(:dsi_dsid, :dsi_pid, :dsi_mimetype, :dsi_url, :dsi_security_inherited, :dsi_state)";
     }
     try {
       $db->query($stmt, $data);
