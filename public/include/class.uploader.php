@@ -57,7 +57,7 @@ class Uploader
 	 **/
 	public static function generateFilesArray($wflId, $xsdmfId)
 	{
-	    $uploadDir = self::getUploadedFilePath($wflId);
+	  $uploadDir = self::getUploadedFilePath($wflId);
 		$returnArray = array();
 
 		// if the directory doesn't exist, return an empty array
@@ -71,10 +71,13 @@ class Uploader
 
 		foreach ($scandirList as $file) {
 			if (is_file("{$uploadDir}/{$file}")) {
-
-				// strip characters up to first period (this is the number prepended to the filename so that we get the files in order)
-				$start = strpos($file, '.');
-				$newFilename = substr($file, $start+1, strlen($file));
+        $pathstuff = pathinfo("{$uploadDir}/{$file}");
+        $newFilename = basename($pathstuff['basename'], ".".$pathstuff['extension']);
+        $start = strpos($newFilename, '.');
+        if ($start) {
+          $newFilename = substr($newFilename, $start+1, strlen($newFilename));
+        }
+        $newFilename .= "." . $pathstuff['extension'];
 				rename("{$uploadDir}/{$file}", "{$uploadDir}/{$newFilename}"); // move into new filename (so we don't get confused later)
 
 				// determine the file size and mime type

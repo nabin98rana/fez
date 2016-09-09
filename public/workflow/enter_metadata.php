@@ -180,7 +180,7 @@ if ($access_ok) {
             }
         }
 
-        $rec = Record::insert();
+        $rec = Record::insert($tmpFilesArray);
 
         $wfstatus->setCreatedPid($rec->pid);
         $wfstatus->pid = $rec->pid;
@@ -189,19 +189,15 @@ if ($access_ok) {
             $count = 0;
             foreach($_POST['filePermissionsNew'] as $i => $value) {
                 $fileXdis_id = $_POST['uploader_files_uploaded'];
+                $filename = $tmpFilesArray['xsd_display_fields']['name'][$fileXdis_id][$count];
+                Datastream::saveDatastreamSelectedPermissions($wfstatus->pid, $filename, $_POST['filePermissionsNew'][$i], $_POST['embargo_date'][$i]);
 
-                if(APP_FEDORA_BYPASS == 'ON') {
-                  $filename = $tmpFilesArray['xsd_display_fields']['name'][$fileXdis_id][$count];
-                } else {
-                  $filename = $_FILES['xsd_display_fields']['name'][$fileXdis_id][$count];
-                  Datastream::saveDatastreamSelectedPermissions($pid, $filename, $_POST['filePermissionsNew'][$i], $_POST['embargo_date'][$i]);
-                }
                 if ($_POST['filePermissionsNew'][$i] == 5 || !empty($_POST['embargo_date'][$i])) {
-                  Datastream::setfezACML($pid, $filename, 10);
+                  Datastream::setfezACML($wfstatus->pid, $filename, 10);
                 }
                 else {
                   if ($_POST['filePermissionsNew'][$i] == 8) {
-                    Datastream::setfezACML($pid, $filename, 11);
+                    Datastream::setfezACML($wfstatus->pid, $filename, 11);
                   }
                 }
                 $count++;

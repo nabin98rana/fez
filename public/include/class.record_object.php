@@ -153,7 +153,7 @@ class RecordObject extends RecordGeneral
    * @access  public
    * @return  string - pid
    */
-  function fedoraInsertUpdate($exclude_list = array(), $specify_list = array(), $params = array())
+  function fedoraInsertUpdate($exclude_list = array(), $specify_list = array(), $params = array(), $tmpFilesArray = array())
   {
 
 
@@ -288,7 +288,7 @@ class RecordObject extends RecordGeneral
 
         /*This condition required to stop additional ephemera
          in the tmp upload dir being attached to the pid*/
-        if (!isset($tmpFilesArray)) {
+        if (! count($tmpFilesArray)) {
           $tmpFilesArray = Uploader::generateFilesArray($wfstatus->id,
               $_POST['uploader_files_uploaded']);
         }
@@ -534,11 +534,13 @@ class RecordObject extends RecordGeneral
       ) {
         // first extract the image and save temporary copy
         if (APP_FEDORA_BYPASS == 'ON') {
-          $dsr = new DSResource();
-          $dsr->load($dsTitle['filename'], $pid);
-          $path = $dsr->returnPath();
-          $tmpFile = APP_TEMP_DIR . $dsIDName;
-          copy($path . "/" . $dsTitle['hash'], $tmpFile);
+          $tmpPth = APP_TEMP_DIR . $dsIDName;
+          $fhfs = fopen($tmpPth, 'ab');
+          $fileContent = Fedora_API::callGetDatastreamDissemination($pid, $dsIDName);
+          fwrite($fhfs, $fileContent['stream']);
+          fclose($fhfs);
+
+
         } else {
           $urldata = APP_FEDORA_GET_URL . "/" . $pid . "/" . $dsIDName;
           $handle = fopen(APP_TEMP_DIR . $dsIDName, "w");
