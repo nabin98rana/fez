@@ -153,7 +153,7 @@ class RecordObject extends RecordGeneral
    * @access  public
    * @return  string - pid
    */
-  function fedoraInsertUpdate($exclude_list = array(), $specify_list = array(), $params = array())
+  function fedoraInsertUpdate($exclude_list = array(), $specify_list = array(), $params = array(), $tmpFilesArray = array())
   {
 
 
@@ -288,7 +288,7 @@ class RecordObject extends RecordGeneral
 
         /*This condition required to stop additional ephemera
          in the tmp upload dir being attached to the pid*/
-        if (!isset($tmpFilesArray)) {
+        if (! count($tmpFilesArray)) {
           $tmpFilesArray = Uploader::generateFilesArray($wfstatus->id,
               $_POST['uploader_files_uploaded']);
         }
