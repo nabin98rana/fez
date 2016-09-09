@@ -126,7 +126,7 @@ class bookReaderPDFConverter
     {
 
         if ($this->useS3) {
-          $aws = AWS::get();
+          $aws = new AWS(AWS_S3_CACHE_BUCKET);
           $objects = $aws->listObjects($resourcePath);
           $pageCount = 0;
           foreach ($objects as $object) {
@@ -292,7 +292,7 @@ class bookReaderPDFConverter
       }
       // if using s3, it will have put the page images into a temp dir, now they need uploading
       if ($this->useS3) {
-        $aws = AWS::get();
+        $aws = new AWS(AWS_S3_CACHE_BUCKET);
         //upload the files (and tell postFile to delete them after each upload is a success)
         $files = Misc::getFileList($this->bookreaderDataPath, true, false);
         $aws->postFile($this->s3bookreaderDataPath, $files, true);

@@ -45,7 +45,7 @@ class fileCache {
 		$usingCache = false;
 
 		if ($this->useS3 == true && !$this->flushCache) {
-			$aws = AWS::get();
+      $aws = new AWS(AWS_S3_CACHE_BUCKET);
 			if ($aws->checkExistsById("cache", $this->cacheFileName)) {
 				$htmlContent = $aws->getFileContent("cache", $this->cacheFileName);
 				$usingCache = true;
@@ -142,7 +142,7 @@ class fileCache {
 		if($save) {
 
 			if ($this->useS3) {
-				$aws = AWS::get();
+        $aws = new AWS(AWS_S3_CACHE_BUCKET);
 				$aws->postContent("cache", $content, $this->cacheFileName, "text/html");
 			} else {
 				if(!is_dir($this->cachePath)) {
@@ -177,7 +177,7 @@ class fileCache {
 	function poisonAllCaches()
 	{
 		if ($this->useS3 == true) {
-			$aws = AWS::get();
+      $aws = new AWS(AWS_S3_CACHE_BUCKET);
 			$aws->deleteById("cache", $this->cacheFileName);
 		} else {
 			$locations = $this->getAllCacheLocations();
@@ -194,7 +194,7 @@ class fileCache {
 	function checkCacheFileExists()
 	{
 		if ($this->useS3 == true) {
-			$aws = AWS::get();
+      $aws = new AWS(AWS_S3_CACHE_BUCKET);
 			return $aws->checkExistsById("cache", $this->cacheFileName);
 		} else {
 			return (file_exists($this->cachePath . $this->cacheFileName));
