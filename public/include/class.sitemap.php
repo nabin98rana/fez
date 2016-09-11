@@ -34,7 +34,7 @@ class Sitemap {
     $this->baseUrl = 'http://'.APP_HOSTNAME.'/';
     $this->path = APP_PATH . "sitemap" . DIRECTORY_SEPARATOR;
     if (defined('AWS_S3_ENABLED') && AWS_S3_ENABLED == 'true') {
-      $this->aws = AWS::get();
+      $aws = new AWS(AWS_S3_CACHE_BUCKET);
       $this->compress = '';
     } else {
       $this->compress = ($compress) ? '.gz' : '';
