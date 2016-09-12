@@ -32,103 +32,103 @@
 // |          Rhys Palmer <r.rpalmer@library.uq.edu.au>                   |
 // +----------------------------------------------------------------------+
 
-include_once(APP_INC_PATH.'class.background_process.php');
+include_once(APP_INC_PATH . 'class.background_process.php');
 
 class BackgroundProcess_Bulk_Copy_Record_Collection extends BackgroundProcess
 {
-	function __construct()
-	{
-		parent::__construct();
-		$this->include = 'class.bgp_bulk_copy_record_collection.php';
-		$this->name = 'Bulk Copy Records to Collection';
-	}
+  function __construct()
+  {
+    parent::__construct();
+    $this->include = 'class.bgp_bulk_copy_record_collection.php';
+    $this->name = 'Bulk Copy Records to Collection';
+  }
 
-	function run()
-	{
-		$this->setState(BGP_RUNNING);
-		extract(unserialize($this->inputs));
+  function run()
+  {
+    $this->setState(BGP_RUNNING);
+    extract(unserialize($this->inputs));
 
-		if (!empty($options)) {
-			$this->setStatus("Running search");
-			$pids = $this->getPidsFromSearchBGP($options);
-			$this->setStatus("Found ".count($pids). " records");
-		}
+    if (!empty($options)) {
+      $this->setStatus("Running search");
+      $pids = $this->getPidsFromSearchBGP($options);
+      $this->setStatus("Found " . count($pids) . " records");
+    }
 
-		/*
-		 * Copy pid(s) to collection
-		 */
-		if (!empty($pids) && is_array($pids)) {
+    /*
+     * Copy pid(s) to collection
+     */
+    if (!empty($pids) && is_array($pids)) {
 
-			$this->setStatus("Copying ".count($pids)." Records to Collection ". $collection_pid);
+      $this->setStatus("Copying " . count($pids) . " Records to Collection " . $collection_pid);
 
-            $record_counter = 0;
-            $record_count = count($pids);
+      $record_counter = 0;
+      $record_count = count($pids);
 
-            // Get the configurations for ETA calculation
-            $eta_cfg = $this->getETAConfig();
+      // Get the configurations for ETA calculation
+      $eta_cfg = $this->getETAConfig();
 
-			foreach ($pids as $pid) {
-                $record_counter++;
+      foreach ($pids as $pid) {
+        $record_counter++;
 
-                $this->setHeartbeat();
-                $this->setProgress(++$this->pid_count);
+        $this->setHeartbeat();
+        $this->setProgress(++$this->pid_count);
 
-                // Get the ETA calculations
-                $eta = $this->getETA($record_counter, $record_count, $eta_cfg);
+        // Get the ETA calculations
+        $eta = $this->getETA($record_counter, $record_count, $eta_cfg);
 
-                $this->setProgress($eta['progress']);
-                $this->setStatus( "Copying:  '" . $pid . "' " .
-                                          "(" . $record_counter . "/" . $record_count . ") <br />".
-                                          "(Avg " . $eta['time_per_object'] . "s per Object. " .
-                                            "Expected Finish " . $eta['expected_finish'] . ")"
-                                        );
+        $this->setProgress($eta['progress']);
+        $this->setStatus("Copying:  '" . $pid . "' " .
+          "(" . $record_counter . "/" . $record_count . ") <br />" .
+          "(Avg " . $eta['time_per_object'] . "s per Object. " .
+          "Expected Finish " . $eta['expected_finish'] . ")"
+        );
 
 
-				$record = new RecordObject($pid);
+        $record = new RecordObject($pid);
 
-				if ($record->canEdit()) {
-					
-					// Make sure the record isn't already in the destination collection.
-					$ok_to_move = true;
-					$collections = Record::getParentsAll($pid);
-					if (count($collections) > 0) {
-						foreach ($collections as $collection) {
-							if ($collection['rek_pid'] == $collection_pid) {
-								$ok_to_move = false;
-								$this->setStatus("Skipped '".$pid."' because record is already in target collection");
-							}
-						}
-					}
+        if ($record->canEdit()) {
 
-					if ($ok_to_move) {
+          // Make sure the record isn't already in the destination collection.
+          $ok_to_move = true;
+          $collections = Record::getParentsAll($pid);
+          if (count($collections) > 0) {
+            foreach ($collections as $collection) {
+              if ($collection['rek_pid'] == $collection_pid) {
+                $ok_to_move = false;
+                $this->setStatus("Skipped '" . $pid . "' because record is already in target collection");
+              }
+            }
+          }
 
-						$res = $record->updateRELSEXT("rel:isMemberOf", $collection_pid, false);
-							
-						if ($res >= 1) {
-                            $this->setStatus("Copied record '". $pid ."' to collection '". $collection_pid ."'");
-							$this->pid_count++;
-						} else {
-                            $this->setStatus("ERROR Copying record '". $pid ."' to collection '". $collection_pid ."'");
-						}
-					}
-				} else {
-					$this->setStatus("Skipped '".$pid."'. User can't edit this record.");
-				}
-				 
-				$this->markPidAsFinished($pid);
-			}
-            
-            $this->setProgress(100);
-			$this->setStatus("Finished Bulk Copy to Collection '". $collection_pid ."'");
+          if ($ok_to_move) {
 
-		}
-		$this->setState(BGP_FINISHED);
-	}
+            $res = $record->updateRELSEXT("rel:isMemberOf", $collection_pid, false);
 
-	function getPidsFromSearchBGP($options)
-	{
-		$list = Record::getListing($options, array(9,10), 0, 'ALL', 'searchKey0');
-		$pids = array_keys(Misc::keyArray($list['list'],'rek_pid'));
-		return $pids;
-	}
+            if ($res >= 1) {
+              $this->setStatus("Copied record '" . $pid . "' to collection '" . $collection_pid . "'");
+              $this->pid_count++;
+            } else {
+              $this->setStatus("ERROR Copying record '" . $pid . "' to collection '" . $collection_pid . "'");
+            }
+          }
+        } else {
+          $this->setStatus("Skipped '" . $pid . "'. User can't edit this record.");
+        }
+
+        $this->markPidAsFinished($pid);
+      }
+
+      $this->setProgress(100);
+      $this->setStatus("Finished Bulk Copy to Collection '" . $collection_pid . "'");
+
+    }
+    $this->setState(BGP_FINISHED);
+  }
+
+  function getPidsFromSearchBGP($options)
+  {
+    $list = Record::getListing($options, array(9, 10), 0, 'ALL', 'searchKey0');
+    $pids = array_keys(Misc::keyArray($list['list'], 'rek_pid'));
+    return $pids;
+  }
 }
