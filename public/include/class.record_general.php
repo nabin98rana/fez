@@ -1830,6 +1830,7 @@ class RecordGeneral
           $record = new RecordObject($this->pid);
           $record->addSearchKeyValueList(array("Assigned Group ID"), $groupId, true);
       }
+      return;
     }
 
     $xmlString = Fedora_API::callGetDatastreamContents($this->pid, 'FezMD', true);
