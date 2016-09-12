@@ -203,6 +203,26 @@ class Fez_Record_Searchkey
         return true;
     }
 
+    public function updateRecordDisplayType($new_xdis_id)
+    {
+      $sekData = array();
+      $details = Record::getDetailsLite($this->_pid);
+
+      $sekData[0]['updated_date'] = array('xsdmf_id' => $details[0]['rek_updated_date_xsdmf_id'], 'xsdmf_value' => Date_API::getCurrentDateGMT());
+
+      $sekData[0]['display_type']['xsdmf_value'] = $new_xdis_id;
+
+      $xdis_list = XSD_Relationship::getListByXDIS($new_xdis_id);
+      array_push($xdis_list, array("0" => $new_xdis_id));
+      $xdis_str = Misc::sql_array_to_string($xdis_list);
+      $xsdmf_id = XSD_HTML_Match::getXSDMF_IDBySekIDXDIS_ID(Search_Key::getID('Display Type'), $xdis_str);
+      $sekData[0]['display_type']['xsdmf_id'] = $xsdmf_id[0];
+
+      Record::updateSearchKeys($this->_pid, $sekData);
+      if (APP_FEDORA_BYPASS == 'ON') {
+        Record::updateSearchKeys($this->_pid, $sekData, true); // Update shadow tables
+      }
+    }
 
     /**
      * Builds array of Search Keys Data, which used for inserting/updating a PID record search keys.

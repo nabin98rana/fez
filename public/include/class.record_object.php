@@ -110,6 +110,13 @@ class RecordObject extends RecordGeneral
    */
   function updateAdminDatastream($xdis_id)
   {
+    if (APP_FEDORA_BYPASS == 'ON') {
+      // Update record search key
+      $recordSearchKey = new Fez_Record_Searchkey($this->pid);
+      $recordSearchKey->updateRecordDisplayType($xdis_id);
+      return;
+    }
+
     $xdis_array = Fedora_API::callGetDatastreamContents($this->pid, 'FezMD');
     $this->xdis_id = $xdis_id;
     $newXML = '<FezMD xmlns:xsi="http://www.w3.org/2001/XMLSchema">';
