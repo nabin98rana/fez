@@ -577,6 +577,13 @@ class RecordGeneral
    */
   function updateRELSEXT($key, $value, $removeCurrent = true)
   {
+    if (APP_FEDORA_BYPASS == 'ON') {
+      // Update record search key
+      $recordSearchKey = new Fez_Record_Searchkey($this->pid);
+      $recordSearchKey->updateRecordIsMemberOf($value, $removeCurrent);
+      return;
+    }
+
     $newXML = "";
     $xmlString = Fedora_API::callGetDatastreamContents($this->pid, 'RELS-EXT', true);
 
@@ -973,6 +980,13 @@ class RecordGeneral
   {
     if ($collection == "") {
       return false;
+    }
+
+    if (APP_FEDORA_BYPASS == 'ON') {
+      // Update record search key
+      $recordSearchKey = new Fez_Record_Searchkey($this->pid);
+      $recordSearchKey->updateRecordIsMemberOf($collection, false, true);
+      return;
     }
 
     $newXML = "";
@@ -1830,6 +1844,7 @@ class RecordGeneral
           $record = new RecordObject($this->pid);
           $record->addSearchKeyValueList(array("Assigned Group ID"), $groupId, true);
       }
+      return;
     }
 
     $xmlString = Fedora_API::callGetDatastreamContents($this->pid, 'FezMD', true);

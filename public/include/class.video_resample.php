@@ -94,13 +94,13 @@ class Video_Resample
         $error .= "<b>ERROR:</b> given file filename not found or bad filename given<br>";
       }
       if (!empty($error)) {
-        $log->error($error);
+        $log->err($error);
       }
       $return_status = 0;
       $return_array = array();
       exec($command . $unix_extra, $return_array, $return_status);
       if ($return_status <> 0) {
-        $log->error("FFMpeg Error: " . implode(",", $return_array) . ", return status = $return_status, for command $command \n");
+        $log->err("FFMpeg Error: " . implode(",", $return_array) . ", return status = $return_status, for command $command \n");
       }
       if (!empty($newfile)) {
         unlink($full_file);
@@ -149,13 +149,13 @@ class Video_Resample
       if(!$file) $error .= "<b>ERROR:</b> no file specified<br>";
       if(!is_file($full_file)) { $error .= "<b>ERROR:</b> given file filename not found or bad filename given<br>"; }
       if (!empty($error)) {
-        $log->error($error);
+        $log->err($error);
       }
       $return_status = 0;
       $return_array = array();
       exec($command.$unix_extra , $return_array, $return_status);
       if ($return_status <> 0) {
-        $log->error("FFMpeg Error: ".implode(",", $return_array).", return status = $return_status, for command $command \n");
+        $log->err("FFMpeg Error: ".implode(",", $return_array).", return status = $return_status, for command $command \n");
       }
       if (!empty($newfile)) {
         unlink($full_file);

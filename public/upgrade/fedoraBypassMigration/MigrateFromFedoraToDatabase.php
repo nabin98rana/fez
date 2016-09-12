@@ -725,7 +725,7 @@ class MigrateFromFedoraToDatabase
       }
 
       // Remove any unique keys copied from the search key table from the shadow table
-      $this->_removeUniqueConstraintsNonCore($shadowTable);
+      $this->_removeUniqueConstraintsNonCore($shadowTable, $sk['sek_title_db']);
 
       // Add joint primary key
       if ($sk['sek_cardinality'] == 1) {
@@ -816,7 +816,6 @@ class MigrateFromFedoraToDatabase
     return true;
   }
 
-
   protected function _removeUniqueConstraintsCore()
   {
     // Core search key shadow table
@@ -849,48 +848,46 @@ class MigrateFromFedoraToDatabase
     // echo "ok!\n\n";
   }
 
-
   // 1.6 Remove unique constraints from non-core shadow tables
-  protected function _removeUniqueConstraintsNonCore($tableName)
+  protected function _removeUniqueConstraintsNonCore($tableName, $sekTitleDb)
   {
-    // echo "* Removing unique constraints from ". $tableName;
-
-    $stmt = "DROP INDEX unique_constraint ON " . $tableName . ";";
-
-    try {
-      $this->_db->exec($stmt);
-    } catch (Exception $ex) {
-      // echo "<br />No unique constraint to remove ";
-      return false;
-    }
-    // echo "ok!\n";
-
-
-    $stmt = "DROP INDEX unique_constraint_pid_order ON " . $tableName . ";";
-    try {
-      $this->_db->exec($stmt);
-    } catch (Exception $ex) {
-      // echo chr(10) . " <br /> No unique pid order constraint to remove. " . $stmt ;
-    }
-    // echo "ok!\n";
-
-    return true;
-  }
-
-
-  // 1.8 Add joint primary keys to shadow tables
-  protected function _addJointPrimaryKeyCore()
-  {
-    $tableName = APP_TABLE_PREFIX . "record_search_key" . $this->_shadowTableSuffix;
-
-    // echo " Adding joint primary key to fez_record_search_key__shadow";
-    $stmt = "ALTER TABLE " . $tableName . " DROP PRIMARY KEY;";
+    // echo " Removing autoincrement to $tableName";
+    $stmt = "ALTER TABLE " . $tableName . " MODIFY rek_" . $sekTitleDb . "_id INT NOT NULL;";
     try {
       $this->_db->exec($stmt);
     } catch (Exception $ex) {
       // May fail if PRIMARY key does not exist (MySQL version > 5.1)
       // echo "<br />NOTICE: No primary key to drop on ". $tableName;
     }
+
+    $stmt = "ALTER TABLE " . $tableName . " DROP PRIMARY KEY;";
+    try {
+      $this->_db->exec($stmt);
+    } catch (Exception $ex) {
+      // echo "<br />No constraint to remove " .$stmt . " - Exception=" . $ex;
+      return false;
+    }
+
+    $stmt = "SHOW INDEX FROM " . $tableName . " WHERE Non_unique = 0 AND Key_name != 'PRIMARY'";
+    $indexes = $this->_db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
+    foreach ($indexes as $idx) {
+      $stmt = "DROP INDEX " . $idx['Key_name'] . " ON " . $tableName . ";";
+      try {
+        $this->_db->exec($stmt);
+      } catch (Exception $ex) {
+        // echo chr(10) . " <br /> No unique constraint to remove. " . $stmt ;
+      }
+      // echo "ok!\n";
+    }
+
+    return true;
+  }
+
+  // 1.8 Add joint primary keys to shadow tables
+  protected function _addJointPrimaryKeyCore()
+  {
+    $tableName = APP_TABLE_PREFIX . "record_search_key" . $this->_shadowTableSuffix;
+
     $stmt = "ALTER TABLE " . $tableName . " ADD PRIMARY KEY (rek_pid, rek_stamp);";
     try {
       $this->_db->exec($stmt);
@@ -901,13 +898,9 @@ class MigrateFromFedoraToDatabase
     // echo "\n";
   }
 
-
-  protected function _addJointPrimaryKeyNonCore($tableName, $sekTitleDB)
+  protected function _addJointPrimaryKeyNonCore($tableName, $sekTitleDb)
   {
-
-    // echo " Adding joint primary key to ". $tableName;
-    $stmt = "ALTER TABLE " . $tableName . "
-                 ADD UNIQUE KEY unique_constraint (rek_" . $sekTitleDB . "_pid, rek_" . $sekTitleDB . "_stamp);";
+    $stmt = "ALTER TABLE " . $tableName . " ADD PRIMARY KEY (rek_" . $sekTitleDb . "_pid, rek_" . $sekTitleDb . "_stamp);";
     try {
       $this->_db->exec($stmt);
     } catch (Exception $ex) {
@@ -922,8 +915,7 @@ class MigrateFromFedoraToDatabase
   {
 
     // echo " Adding joint primary key to ". $tableName;
-    $stmt = "ALTER TABLE " . $tableName . "
-                   ADD UNIQUE KEY unique_constraint (rek_" . $sekTitleDB . "_pid, rek_" . $sekTitleDB . "_order, rek_" . $sekTitleDB . "_stamp);";
+    $stmt = "ALTER TABLE " . $tableName . " ADD PRIMARY KEY (rek_" . $sekTitleDB . "_pid, rek_" . $sekTitleDB . "_order, rek_" . $sekTitleDB . "_stamp);";
     try {
       $this->_db->exec($stmt);
     } catch (Exception $ex) {

@@ -21,7 +21,7 @@ class bookReaderImplementation
     }
 
     public function getCloudfrontURL($pid, $resource, $file) {
-      $aws = AWS::get();
+      $aws = new AWS(AWS_S3_CACHE_BUCKET);
       $s3Prefix = '';
       if (defined('AWS_S3_SRC_PREFIX')) {
         $s3Prefix = AWS_S3_SRC_PREFIX.'/';
