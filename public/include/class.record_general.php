@@ -982,6 +982,13 @@ class RecordGeneral
       return false;
     }
 
+    if (APP_FEDORA_BYPASS == 'ON') {
+      // Update record search key
+      $recordSearchKey = new Fez_Record_Searchkey($this->pid);
+      $recordSearchKey->updateRecordIsMemberOf($collection, false, true);
+      return;
+    }
+
     $newXML = "";
     $xmlString = Fedora_API::callGetDatastreamContents($this->pid, 'RELS-EXT', true);
 

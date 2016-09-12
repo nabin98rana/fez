@@ -216,7 +216,7 @@ class Fez_Record_Searchkey
     Record::updateSearchKeys($this->_pid, $sekData, true); // Update shadow tables
   }
 
-  public function updateRecordIsMemberOf($collection_pid, $removeCurrent)
+  public function updateRecordIsMemberOf($collection_pid, $removeCurrent, $removeFromSpecified = false)
   {
     $record = new RecordObject($this->_pid);
     $record->getDisplay();
@@ -228,6 +228,16 @@ class Fez_Record_Searchkey
       $sekData[1]['ismemberof']['xsdmf_value'] = array($collection_pid);
     } else {
       $sekData[1]['ismemberof']['xsdmf_value'][] = $collection_pid;
+    }
+
+    if ($removeFromSpecified) {
+      $keep = [];
+      foreach ($sekData[1]['ismemberof']['xsdmf_value'] as $collection) {
+        if ($collection != $collection_pid) {
+          $keep[] = $collection;
+        }
+      }
+      $sekData[1]['ismemberof']['xsdmf_value'] = $keep;
     }
 
     Record::updateSearchKeys($this->_pid, $sekData);
