@@ -206,12 +206,20 @@ Class InitSystem
     }
 
     InitSystem::parseMySQLdump($conn, $path . "aws.sql");
+
     include_once './../../public/config.inc.php';
     $aws = AWS::get();
-    $prefixes = ['cache', 'data', 'mail', 'san_import', 'sitemap', 'solr_upload'];
+    $prefixes = ['data'];
     foreach ($prefixes as $p) {
       $aws->deleteMatchingObjects($p);
       $aws->putObject($p . '/');
+    }
+    // now setup the cache
+    $aws = new AWS(AWS_S3_CACHE_BUCKET);
+    $prefixes = ['cache', 'mail', 'san_import', 'sitemap', 'solr_upload'];
+    foreach ($prefixes as $p) {
+      $aws->deleteMatchingObjects($p);
+      $aws->putObject($p . '/', array('StorageClass' => 'REDUCED_REDUNDANCY'));
     }
 
     include_once(APP_INC_PATH . "/../upgrade/fedoraBypassMigration/MigrateFromFedoraToDatabase.php");
