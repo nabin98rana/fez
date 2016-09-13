@@ -205,9 +205,12 @@ class Fez_Record_Searchkey
 
   public function updateRecordDisplayType($new_xdis_id)
   {
-    $sekData = array();
-    $details = Record::getDetailsLite($this->_pid);
-    $sekData[0]['updated_date'] = array('xsdmf_id' => $details[0]['rek_updated_date_xsdmf_id'], 'xsdmf_value' => Date_API::getCurrentDateGMT());
+    $record = new RecordObject($this->_pid);
+    $record->getDisplay();
+    $details = $record->getDetails();
+    $sekData = Fez_Record_Searchkey::buildSearchKeyDataByXSDMFID($details);
+
+    $sekData[0]['updated_date']['xsdmf_value'] = Date_API::getCurrentDateGMT();
     $sekData[0]['display_type']['xsdmf_value'] = $new_xdis_id;
     $xsdmf_id = $this->getXsdmfIdForSekTitle($new_xdis_id, 'Display Type');
     $sekData[0]['display_type']['xsdmf_id'] = $xsdmf_id[0];

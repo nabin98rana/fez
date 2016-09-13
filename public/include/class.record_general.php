@@ -422,8 +422,11 @@ class RecordGeneral
   function setStatusId($sta_id)
   {
     if (APP_FEDORA_BYPASS == 'ON') {
-        $searchKeyData = array();
-        $details = Record::getDetailsLite($this->pid);
+
+        $record = new RecordObject($this->pid);
+        $record->getDisplay();
+        $details = $record->getDetails();
+        $searchKeyData = Fez_Record_Searchkey::buildSearchKeyDataByXSDMFID($details);
         // $searchKeyData[0] for 1-to-1 search keys
         $searchKeyData[0]['status'] = array('xsdmf_id' => $details[0]['rek_status_xsdmf_id'], 'xsdmf_value' => $sta_id);
         $searchKeyData[0]['updated_date'] = array('xsdmf_id' => $details[0]['rek_updated_date_xsdmf_id'], 'xsdmf_value' => Date_API::getCurrentDateGMT());
