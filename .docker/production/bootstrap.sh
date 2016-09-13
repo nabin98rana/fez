@@ -18,7 +18,7 @@ aws s3 cp s3://uql-fez-production/GeoLiteCity.dat.gz /usr/share/GeoIP/GeoLiteCit
 cp ${BASE_DIR}/.docker/production/robots.txt ${BASE_DIR}/public/
 chmod -R 777 ${BASE_DIR}/public/include/htmlpurifier/library/HTMLPurifier
 
-rm -f /etc/php.d/15-xdebug.ini
+rm -f /etc/opt/remi/php70/php.d/15-xdebug.ini
 
 if [ "${NEWRELIC_LICENSE}" != "" ]; then
   sed -i "s/NEWRELIC_LICENSE/${NEWRELIC_LICENSE}/" /etc/nginx/conf.d/fez.conf
