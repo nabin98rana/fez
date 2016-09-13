@@ -568,7 +568,7 @@ class ResearcherID {
    */
   private static function getEmailMessageContents($email) {
     if (defined('AWS_ENABLED') && AWS_ENABLED == 'true') {
-      $aws = AWS::get();
+      $aws = new AWS(AWS_S3_CACHE_BUCKET);
       return $aws->getFileContent('', $email['Key']);
     }
 
@@ -738,7 +738,7 @@ class ResearcherID {
   private static function getRoutedEmailsFromS3() {
     $log = FezLog::get();
     $db = DB_API::get();
-    $aws = AWS::get();
+    $aws = new AWS(AWS_S3_CACHE_BUCKET);
 
     $return = [];
     $emails = $aws->listObjectsInBucket(self::AWS_S3_MAIL_PREFIX);
