@@ -471,6 +471,7 @@ class AWS
 
     $options['Bucket'] = $this->s3Bucket;
     $options['Key'] = $key;
+    $options['ServerSideEncryption'] = "AES256";
 
     try {
       $client->putObject($options);
