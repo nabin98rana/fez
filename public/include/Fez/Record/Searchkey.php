@@ -203,14 +203,27 @@ class Fez_Record_Searchkey
     return true;
   }
 
+  public function stripAbstract()
+  {
+    $sekData = $this->getSekDataByXSDMFID();
+    $sekData[0]['formatted_abstract']['xsdmf_value'] = '';
+
+    Record::updateSearchKeys($this->_pid, $sekData);
+    Record::updateSearchKeys($this->_pid, $sekData, true); // Update shadow tables
+  }
+
+  public function updateStatus($sta_id)
+  {
+    $sekData = $this->getSekDataByXSDMFID();
+    $sekData[0]['status']['xsdmf_value'] = $sta_id;
+
+    Record::updateSearchKeys($this->_pid, $sekData);
+    Record::updateSearchKeys($this->_pid, $sekData, true); // Update shadow tables
+  }
+
   public function updateRecordDisplayType($new_xdis_id)
   {
-    $record = new RecordObject($this->_pid);
-    $record->getDisplay();
-    $details = $record->getDetails();
-    $sekData = Fez_Record_Searchkey::buildSearchKeyDataByXSDMFID($details);
-
-    $sekData[0]['updated_date']['xsdmf_value'] = Date_API::getCurrentDateGMT();
+    $sekData = $this->getSekDataByXSDMFID();
     $sekData[0]['display_type']['xsdmf_value'] = $new_xdis_id;
     $xsdmf_id = $this->getXsdmfIdForSekTitle($new_xdis_id, 'Display Type');
     $sekData[0]['display_type']['xsdmf_id'] = $xsdmf_id[0];
@@ -221,12 +234,7 @@ class Fez_Record_Searchkey
 
   public function updateRecordIsMemberOf($collection_pid, $removeCurrent, $removeFromSpecified = false)
   {
-    $record = new RecordObject($this->_pid);
-    $record->getDisplay();
-    $details = $record->getDetails();
-    $sekData = Fez_Record_Searchkey::buildSearchKeyDataByXSDMFID($details);
-
-    $sekData[0]['updated_date']['xsdmf_value'] = Date_API::getCurrentDateGMT();
+    $sekData = $this->getSekDataByXSDMFID();
     if ($removeCurrent) {
       $sekData[1]['ismemberof']['xsdmf_value'] = array($collection_pid);
     } else {
@@ -320,6 +328,18 @@ class Fez_Record_Searchkey
       $details[$title]['value'] = Record::getSearchKeyIndexValue($this->_pid, $title, false);
     }
     return $details;
+  }
+
+  private function getSekDataByXSDMFID($changeUpdatedDate = true)
+  {
+    $record = new RecordObject($this->_pid);
+    $record->getDisplay();
+    $details = $record->getDetails();
+    $sekData = Fez_Record_Searchkey::buildSearchKeyDataByXSDMFID($details);
+    if ($changeUpdatedDate) {
+      $sekData[0]['updated_date']['xsdmf_value'] = Date_API::getCurrentDateGMT();
+    }
+    return $sekData;
   }
 
   public function cloneRecord($pid, $new_xdis_id = null, $is_succession = false, $clone_attached_datastreams = false, $collection_pid = null)
