@@ -81,11 +81,14 @@ if (!file_exists($filepath)) {
     if (Fedora_API::datastreamExists($pid, $new_file)) {
       Fedora_API::callPurgeDatastream($pid, $new_file);
     }
-    $newFileName = $new_file;
-    $delete_file = APP_TEMP_DIR . $new_file;
+    $dsIDName = $new_file;
     $new_file = APP_TEMP_DIR . $new_file;
+    $delete_file = $new_file;
+    if (APP_FEDORA_BYPASS != 'ON') {
+      $dsIDName = APP_TEMP_DIR . $new_file;
+    }
     if (file_exists($new_file)) {
-      Fedora_API::getUploadLocationByLocalRef($pid, $new_file, $new_file, $new_file, 'video/x-flv', 'M');
+      Fedora_API::getUploadLocationByLocalRef($pid, $dsIDName, $new_file, $new_file, 'video/x-flv', 'M');
       if (is_file($new_file)) {
         $deleteCommand = APP_DELETE_CMD . " " . $delete_file;
         exec($deleteCommand);
@@ -95,5 +98,3 @@ if (!file_exists($filepath)) {
     }
   }
 }
-
-

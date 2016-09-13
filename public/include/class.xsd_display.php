@@ -1212,7 +1212,9 @@ class XSD_DisplayObject
 					if (!is_array(@$return_pid[$xsdmf_id])) {
 						$return_pid[$xsdmf_id] = array();
 					}
-					array_push($return_pid[$xsdmf_id], $ds_value['ID']);
+					if (! in_array($ds_value['ID'], $return_pid[$xsdmf_id])) {
+            array_push($return_pid[$xsdmf_id], $ds_value['ID']);
+          }
 				}
 			}
 			$this->xsdmf_array[$pid] = $return_pid;

@@ -460,18 +460,21 @@ class AWS
 
   /**
    * @param string $prefix
+   * @param array $options - extra s3 put options like StorageClass
    * @return boolean
    */
-  public function putObject($prefix)
+  public function putObject($prefix, $options = array())
   {
     // Create an Amazon S3 client using the shared configuration data.
     $client = $this->sdk->createS3();
-     $key = $this->createPath('', $prefix);
+    $key = $this->createPath('', $prefix);
+
+    $options['Bucket'] = $this->s3Bucket;
+    $options['Key'] = $key;
+    $options['ServerSideEncryption'] = "AES256";
+
     try {
-      $client->putObject([
-        'Bucket' => $this->s3Bucket,
-        'Key' => $key,
-      ]);
+      $client->putObject($options);
     } catch (\Aws\S3\Exception\S3Exception $e) {
       $this->log->err($e->getMessage());
       return false;
