@@ -1085,6 +1085,13 @@ class RecordGeneral
    */
   function stripScopusID()
   {
+    if (APP_FEDORA_BYPASS == 'ON') {
+      // Update record search key
+      $recordSearchKey = new Fez_Record_Searchkey($this->pid);
+      $recordSearchKey->stripScopusID();
+      return true;
+    }
+
     $newXML = "";
     $xmlString = Fedora_API::callGetDatastreamContents($this->pid, 'MODS', true);
 

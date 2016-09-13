@@ -221,6 +221,15 @@ class Fez_Record_Searchkey
     Record::updateSearchKeys($this->_pid, $sekData, true); // Update shadow tables
   }
 
+  public function stripScopusID()
+  {
+    $sekData = $this->getSekDataByXSDMFID();
+    $sekData[1]['scopus_id']['xsdmf_value'] = ' ';
+
+    Record::updateSearchKeys($this->_pid, $sekData);
+    Record::updateSearchKeys($this->_pid, $sekData, true); // Update shadow tables
+  }
+
   public function updateStatus($sta_id)
   {
     $sekData = $this->getSekDataByXSDMFID();
