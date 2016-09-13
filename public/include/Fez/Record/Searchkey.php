@@ -236,7 +236,7 @@ class Fez_Record_Searchkey
     $sekData[0]['status']['xsdmf_value'] = $sta_id;
 
     Record::updateSearchKeys($this->_pid, $sekData);
-    Record::updateSearchKeys($this->_pid, $sekData, true); // Update shadow tables
+    //Record::updateSearchKeys($this->_pid, $sekData, true); // Update shadow tables
   }
 
   public function updateRecordDisplayType($new_xdis_id)
