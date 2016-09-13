@@ -212,6 +212,15 @@ class Fez_Record_Searchkey
     Record::updateSearchKeys($this->_pid, $sekData, true); // Update shadow tables
   }
 
+  public function stripIsiLoc()
+  {
+    $sekData = $this->getSekDataByXSDMFID();
+    $sekData[1]['isi_loc']['xsdmf_value'] = ' ';
+
+    Record::updateSearchKeys($this->_pid, $sekData);
+    Record::updateSearchKeys($this->_pid, $sekData, true); // Update shadow tables
+  }
+
   public function updateStatus($sta_id)
   {
     $sekData = $this->getSekDataByXSDMFID();
