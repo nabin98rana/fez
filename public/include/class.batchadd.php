@@ -68,88 +68,31 @@ include_once(APP_INC_PATH . "class.batchimport.php");
  */
 class BatchAdd
 {
-	var $pid;
-	var $externalDatastreams;
-	var $bgp; // background process object for keeping track of status since batch add runs in background
+  var $pid;
+  var $externalDatastreams;
+  var $bgp; // background process object for keeping track of status since batch add runs in background
 
-	function setBackgroundObject($bgp)
-	{
-		$this->bgp = $bgp;
-	}
+  function setBackgroundObject($bgp)
+  {
+    $this->bgp = $bgp;
+  }
 
-	function insert($files, $files_FezACML, $xdis_id, $pid, $wftpl) 
-	{
-    $log = FezLog::get();
-
-		if (is_array($files)) {
-			foreach($files as $key => $ds) {
-				$short_ds = $ds;
-				if (is_numeric(strpos($ds, "/"))) {
-					$short_ds = substr($ds, strrpos($ds, "/")+1); // take out any nasty slashes from the ds name itself
-				}
-
-				// ID must start with _ or letter
-				$short_ds = Misc::shortFilename(Foxml::makeNCName($short_ds), 64);
-				$temp_store = APP_TEMP_DIR.$short_ds;
-
-        $log->err($short_ds . ':' . $temp_store);
-
-        if (defined('AWS_S3_ENABLED') && AWS_S3_ENABLED == 'true') {
-
-          $log->err($ds . ':' . $temp_store);
-          BatchImport::getFileContent($ds, $temp_store);
-        } else {
-          copy($ds, $temp_store);
+  function insert($files, $files_FezACML, $xdis_id, $pid, $wftpl)
+  {
+    if (is_array($files)) {
+      foreach ($files as $key => $ds) {
+        $qat_id = -1;
+        $t_file = str_replace(".", "_", $ds);
+        if (array_key_exists($t_file, $files_FezACML)) {
+          if (!empty($files_FezACML[$t_file])) {
+            $qat_id = $files_FezACML[$t_file];
+          }
         }
-
-				$mimetype = Misc::mime_content_type($temp_store);
-				if (APP_VERSION_UPLOADS_AND_LINKS == "ON") {
-					$versionable = "true";
-				} else {
-					$versionable = "false";
-				}
-
-				Fedora_API::getUploadLocationByLocalRef($pid, $short_ds, $temp_store, $short_ds, $mimetype,"M",null,$versionable);
-				// Seeing if record::generatePresmd will work as well (will also do exiftool at the same time)
-				Record::generatePresmd($pid, $short_ds);
-				if (array_key_exists($key, $files_FezACML)) {
-					if (!empty($files_FezACML[$key])) {
-						$xmlObjNum = $files_FezACML[$key];
-						if (is_numeric($xmlObjNum) && $xmlObjNum != "-1" && $xmlObjNum != -1) {
-
-              if (APP_FEDORA_BYPASS == 'ON') {
-                FezACML::updateDatastreamQuickRule($this->pid, $xmlObjNum);
-
-              } else {
-                $xmlObj = FezACML::getQuickTemplateValue($xmlObjNum);
-
-                if ($xmlObj != FALSE) {
-                  $dsID = $short_ds;
-                  $FezACML_dsID = FezACML::getFezACMLDSName($dsID);
-                  if (Fedora_API::datastreamExists($pid, $FezACML_dsID)) {
-                    Fedora_API::callModifyDatastreamByValue($pid, $FezACML_dsID, "A", "FezACML security for datastream - " . $dsID,
-                      $xmlObj, "text/xml", "true");
-                  }
-                  else {
-                    Fedora_API::getUploadLocation($pid, $FezACML_dsID, $xmlObj, "FezACML security for datastream - " . $dsID,
-                      "text/xml", "X", NULL, "true");
-                  }
-                }
-              }
-						}
-					}
-				}
-				Workflow::processIngestTrigger($pid, $short_ds, $mimetype);
-				if (is_file($temp_store)) {
-					unlink($temp_store);
-				}
-                $record = new RecordObject($pid);
-                $record->setIndexMatchingFields();
-
-			}
-		} else {
-			return false;
-		}
-		return true;
-	}
+        BatchImport::handleStandardFileImport($pid, $ds, Misc::shortFilename($ds), $xdis_id, false, $qat_id);
+      }
+    } else {
+      return false;
+    }
+    return true;
+  }
 }

@@ -863,10 +863,14 @@ class FeatureContext extends MinkContext
   {
     $pid = $this->getPidFromUrl();
     if ($pid) {
-      BatchImport::handleStandardFileImport($pid, '/var/app/current/tests/application/data/test.pdf', 'test.pdf');
+      $fileName = 'test.pdf';
+      $file = APP_PATH . '../tests/application/data/' . $fileName;
+      $tempFile = APP_TEMP_DIR . $fileName;
+      copy($file, $tempFile);
+      BatchImport::handleStandardFileImport($pid, $tempFile, $fileName, 0, true);
+      unlink($tempFile);
     }
   }
-
 
   /**
    * This assumes iSaveRecordDetails has saved the records previous state and now we check it's unchanged
@@ -889,7 +893,6 @@ class FeatureContext extends MinkContext
       throw new Exception("Miss match on sek titles -  " . $errors . " - post update when there shouldn't be on pid: " . $pid[0]);
     }
   }
-
 
   /**
    * @Given /^I go to a random pid$/

@@ -372,7 +372,7 @@ class ScopusService
         if (!$curlResponse) {
             $this->_log->err(curl_errno($curlHandle));
         } elseif (is_numeric(strpos($curlResponse, 'service-error'))) {
-            $this->_log->err($curlResponse);
+            $this->_log->warn($curlResponse);
         }
 
         curl_close($curlHandle);

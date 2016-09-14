@@ -367,6 +367,11 @@ aut_people_australia_id, aut_description, aut_orcid_id, aut_google_scholar_id, a
 
         try {
             $res = $db->fetchRow($stmt);
+
+            if (!$res) {
+              $log->info("User " . $authorUsername . " tried to access ID List without appearing in fez_author table");
+              return false;
+            }
         } catch (Exception $ex) {
             $log->err($ex);
             return false;

@@ -48,6 +48,7 @@ include_once(APP_INC_PATH . "class.misc.php");
 include_once(APP_INC_PATH . "class.auth.php");
 include_once(APP_INC_PATH . "class.user.php");
 include_once(APP_INC_PATH . "class.date.php");
+include_once(APP_INC_PATH . "class.batchimport.php");
 include_once(APP_INC_PATH . "class.record.php");
 include_once(APP_INC_PATH . "class.workflow.php");
 include_once(APP_INC_PATH . "class.status.php");
@@ -152,10 +153,9 @@ class Reindex
     $fedoraPIDs = array();
     do {
       if ($resumeToken == "~") {
-        if ($terms === "*") {
-          $queryTerms = ['state' => $state];
-        } else {
-          $queryTerms = $terms;
+        $queryTerms = ['state' => $state];
+        if ($terms !== "*") {
+          $queryTerms['terms'] = $terms;
         }
         $res = Fedora_API::callFindObjects($fields, $maxResults, $queryTerms); // First time.
       } else {

@@ -59,29 +59,27 @@ class Fedora_API implements FedoraApiInterface {
     $db->beginTransaction();
 
     try {
-      $sql = "SELECT MAX(pdg_highest_id)+1 AS pdg_highest_id FROM " . APP_TABLE_PREFIX
-        . "pid_gen WHERE pdg_namespace = :pdg_namespace";
-      $stmt = $db->query($sql, array(':pdg_namespace' => $pidNs));
+      $sql = "SELECT MAX(pid_number)+1 AS next_id FROM " . APP_TABLE_PREFIX . "pid_index";
+      $stmt = $db->query($sql);
       $pidInt = $stmt->fetch();
 
     } catch(Exception $e) {
       $log->err($e->getMessage());
     }
     // Check to see if this the first pid for this namespace.
-    $pidInt = ($pidInt['pdg_highest_id'] == NULL) ? 1 : $pidInt['pdg_highest_id'];
-    $pid = $pidNs . ":" . $pidInt;
+    $pidInt = ($pidInt['next_id'] == NULL) ? 1 : $pidInt['next_id'];
 
     try {
-      $stmt = "DELETE FROM " . APP_TABLE_PREFIX . "pid_gen WHERE pdg_namespace = :pdg_namespace";
-      $db->query($stmt, [':pdg_namespace' => $pidNs]);
+      $stmt = "DELETE FROM " . APP_TABLE_PREFIX . "pid_index";
+      $db->query($stmt);
 
       $stmt = "INSERT INTO " . APP_TABLE_PREFIX .
-        "pid_gen (pdg_namespace, pdg_highest_id) VALUES (:pdg_namespace, :pdg_highest_id)";
-      $db->query($stmt, [':pdg_namespace' => $pidNs, ':pdg_highest_id' => $pidInt]);
+        "pid_index (pid_number) VALUES (:pid_number)";
+      $db->query($stmt, [':pid_number' => $pidInt]);
 
       $db->commit();
 
-      return $pid;
+      return $pidNs . ":" . $pidInt;
 
     } catch(Exception $e) {
       $db->rollBack();
@@ -170,18 +168,24 @@ class Fedora_API implements FedoraApiInterface {
       " FROM " . APP_TABLE_PREFIX . "record_search_key";
 
     if (is_array($queryTerms)) {
-      if (array_key_exists('state', $queryTerms)) {
-        if ($queryTerms['state'] === 'D') {
-          $stmt = "SELECT rek_pid as pid, rek_title as title, rek_description as description 
-            FROM " . APP_TABLE_PREFIX . "record_search_key__shadow
-            WHERE rek_pid NOT IN (SELECT DISTINCT rek_pid FROM " . APP_TABLE_PREFIX . "record_search_key)
-            GROUP BY rek_pid";
-        }
+      if ($queryTerms['state'] === 'D') {
+        $stmt .= "__shadow WHERE rek_pid NOT IN (SELECT DISTINCT rek_pid FROM " . APP_TABLE_PREFIX . "record_search_key)";
       }
+
+      if (array_key_exists('terms', $queryTerms)) {
+        if ($queryTerms['state'] === 'D') {
+          $stmt .= " AND ";
+        } else {
+          $stmt .= " WHERE ";
+        }
+        $stmt .= "rek_pid LIKE " . $db->quote("%" . str_replace('*', '', $queryTerms['terms']) . "%");
+      }
+      $stmt .= ' GROUP BY rek_pid';
     }
     else if (! empty($queryTerms) && $queryTerms != '*') {
       $stmt .= " WHERE rek_pid LIKE " . $db->quote("%" . str_replace('*', '', $queryTerms) . "%");
     }
+
     if ($maxResults > 0) {
       $stmt .= " LIMIT 0," . $db->quote($maxResults, 'INTEGER');
     }

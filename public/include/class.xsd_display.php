@@ -1186,7 +1186,8 @@ class XSD_DisplayObject
           $function = NULL;
         }
         foreach ($xsdmf_array as $xsdmf_id) {
-          if (! empty($function)) {
+          $xsdmf_details = XSD_HTML_Match::getDetailsByXSDMF_ID($xsdmf_id);
+          if (! empty($function) && $xsdmf_details['xsdmf_cvo_save_type'] == 0) {
             if (is_array($value)) {
               $sek_values = [];
               foreach ($value as $v) {
@@ -1211,7 +1212,9 @@ class XSD_DisplayObject
 					if (!is_array(@$return_pid[$xsdmf_id])) {
 						$return_pid[$xsdmf_id] = array();
 					}
-					array_push($return_pid[$xsdmf_id], $ds_value['ID']);
+					if (! in_array($ds_value['ID'], $return_pid[$xsdmf_id])) {
+            array_push($return_pid[$xsdmf_id], $ds_value['ID']);
+          }
 				}
 			}
 			$this->xsdmf_array[$pid] = $return_pid;

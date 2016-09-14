@@ -109,6 +109,7 @@ Class InitSystem
       $sql_line = str_replace('%AWS_ACCESS_KEY_ID%', @$_SERVER['AWS_ACCESS_KEY_ID'], $sql_line);
       $sql_line = str_replace('%AWS_SECRET_ACCESS_KEY%', @$_SERVER['AWS_SECRET_ACCESS_KEY'], $sql_line);
       $sql_line = str_replace('%FEZ_S3_BUCKET%', @$_SERVER['FEZ_S3_BUCKET'], $sql_line);
+      $sql_line = str_replace('%FEZ_S3_CACHE_BUCKET%', @$_SERVER['FEZ_S3_CACHE_BUCKET'], $sql_line);
       $sql_line = str_replace('%FEZ_S3_SRC_PREFIX%', @$_SERVER['FEZ_S3_SRC_PREFIX'], $sql_line);
       $sql_line = str_replace('%AWS_CLOUDFRONT_KEY_PAIR_ID%', @$_SERVER['AWS_CLOUDFRONT_KEY_PAIR_ID'], $sql_line);
       $sql_line = str_replace('%AWS_CLOUDFRONT_PRIVATE_KEY_FILE%', @$_SERVER['AWS_CLOUDFRONT_PRIVATE_KEY_FILE'], $sql_line);
@@ -185,6 +186,7 @@ Class InitSystem
         array_key_exists('AWS_ACCESS_KEY_ID', $_SERVER) &&
         array_key_exists('AWS_SECRET_ACCESS_KEY', $_SERVER) &&
         array_key_exists('FEZ_S3_BUCKET', $_SERVER) &&
+        array_key_exists('FEZ_S3_CACHE_BUCKET', $_SERVER) &&
         array_key_exists('FEZ_S3_SRC_PREFIX', $_SERVER) &&
         (
             strpos($_SERVER['FEZ_S3_BUCKET'], 'uql-fez-dev') === 0 ||
@@ -204,12 +206,20 @@ Class InitSystem
     }
 
     InitSystem::parseMySQLdump($conn, $path . "aws.sql");
+
     include_once './../../public/config.inc.php';
     $aws = AWS::get();
-    $prefixes = ['cache', 'data', 'mail', 'san_import', 'sitemap', 'solr_upload'];
+    $prefixes = ['data'];
     foreach ($prefixes as $p) {
       $aws->deleteMatchingObjects($p);
       $aws->putObject($p . '/');
+    }
+    // now setup the cache
+    $aws = new AWS(AWS_S3_CACHE_BUCKET);
+    $prefixes = ['cache', 'mail', 'san_import', 'sitemap', 'solr_upload'];
+    foreach ($prefixes as $p) {
+      $aws->deleteMatchingObjects($p);
+      $aws->putObject($p . '/', array('StorageClass' => 'REDUCED_REDUNDANCY'));
     }
 
     include_once(APP_INC_PATH . "/../upgrade/fedoraBypassMigration/MigrateFromFedoraToDatabase.php");
@@ -240,7 +250,6 @@ Class InitSystem
     }
     $migrate = new MigrateFromFedoraToDatabase(false);
     $migrate->runMigration();
-    InitSystem::parseMySQLdump($conn, $path . "nofedora.sql");
   }
 
 }

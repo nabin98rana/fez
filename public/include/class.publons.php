@@ -40,6 +40,28 @@ class Publons
      * Method used to perform a service request
      *
      */
+    public function getUser($orcidId, $url = null)
+    {
+      if (empty($url)) {
+          // the slash on the end of the URL is critical
+          $url = PUBLONS_BASE_URL . "academic/". urlencode($orcidId) . "/";
+      }
+
+      $response = Publons::returnPublonsData($url);
+
+      $responseArray = json_decode($response, true);
+
+      if (is_array($responseArray) && array_key_exists('ids', $responseArray)) {
+          return $responseArray;
+      }
+
+      return false;
+    }
+
+    /**
+     * Method used to perform a service request
+     *
+     */
     public function getUserData($orcidId, $url = null)
     {
     $log = FezLog::get();
@@ -94,11 +116,12 @@ class Publons
         // Do the service request
         $header[] = "Content-type: application/json";
         $header[] = 'Authorization: Token ' . PUBLONS_TOKEN;
-        $ch = curl_init($url);
+        $ch = curl_init();
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
         curl_setopt($ch, CURLOPT_TIMEOUT, 300);
         curl_setopt($ch, CURLOPT_HTTPHEADER, $header);
         curl_setopt($ch, CURLOPT_GET, 1);
+        curl_setopt($ch, CURLOPT_URL, $url);
 
         if (APP_HTTPS_CURL_CHECK_CERT == 'OFF') {
             curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
@@ -184,7 +207,7 @@ class Publons
         catch(Exception $ex) {
             $log->err($ex);
         }
-        Publons::savePublonsId($authorId, '1');  //Currently we don't want to store the publons id
+
         Publons::savePublonsJournal($paper);
         Publons::savePublonsPublisher($paper);
         return $res;
