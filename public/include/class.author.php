@@ -1988,7 +1988,7 @@ class Author
              SET
                 aut_researcher_id=?
              WHERE
-                aut_org_username=?;
+                aut_org_username=?
                 OR aut_student_username=?";
 
     try {
