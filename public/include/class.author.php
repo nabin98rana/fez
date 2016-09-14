@@ -1920,8 +1920,8 @@ class Author
                SET
                   aut_researcher_id=" . $db->quote($researcher_id) . "
                WHERE
-                  aut_org_username=" . $db->quote($username) . "
-                  aut_student_username=" . $db->quote($username);
+                  aut_org_username=" . $db->quote($username) . " 
+                  OR aut_student_username=" . $db->quote($username);
 
       try {
         $db->query($stmt, array());
