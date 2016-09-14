@@ -162,7 +162,7 @@ class Datastream
     return $did;
   }
 
-  private static function getDid($pid, $dsName)
+  public static function getDid($pid, $dsName)
   {
     $log = FezLog::get();
     $db = DB_API::get();

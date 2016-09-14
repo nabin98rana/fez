@@ -270,7 +270,7 @@ class Fedora_API implements FedoraApiInterface {
 		if ($dsExists !== true) {
 			$dsID = Fedora_API::callAddDatastream($pid, $dsIDName, $file_full, $dsLabel, "A", $mimetype, $controlGroup, $versionable, '');
 		} else {
-      $dsID = Fedora_API::getDid($pid, $dsIDName);
+      $dsID = Datastream::getDid($pid, $dsIDName);
     }
 
 		if (is_file($file_full)) {
