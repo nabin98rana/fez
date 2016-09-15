@@ -1010,10 +1010,10 @@ class Record
    * @access  public
    * @return  integer The new Record ID
    */
-  function insert()
+  function insert($tmpFilesArray = [])
   {
     $record = new RecordObject();
-    $ret = $record->fedoraInsertUpdate();
+    $ret = $record->fedoraInsertUpdate([], [], [], $tmpFilesArray);
     return $record;
   }
 
@@ -1103,6 +1103,7 @@ class Record
         return -1;
     }
 
+    $recordSearchkeyShadow = null;
     if ($shadow == true) {
         Zend_Registry::set('version', $date);
         $recordSearchkeyShadow = new Fez_Record_SearchkeyShadow($pid);
@@ -1113,12 +1114,12 @@ class Record
     foreach ($sekDet as $sval) {
       // if is a 1-M needs its own delete sql, otherwise if a 0 (1-1) the core delete will do it
       if ($sval['sek_relationship'] == 1) {
-        $sekTable = Search_Key::makeSQLTableName($sval['sek_title']);
+        $sekTable = $sval['sek_title_db'];
         if ($shadow == true) {
-            $hasDelta = $recordSearchkeyShadow->hasDelta($sval['sek_title']);
-            if ($hasDelta) {
+            //$hasDelta = $recordSearchkeyShadow->hasDelta($sval['sek_title']);
+            //if ($hasDelta) {
               $recordSearchkeyShadow->copySearchKeyToShadow($sekTable);
-            }
+            //}
         }
         $stmt = "DELETE FROM
                         " . APP_TABLE_PREFIX . "record_search_key_".$sekTable."
@@ -1419,7 +1420,7 @@ class Record
               $stmt .= " (rek_" . $sek_table . "_pid, rek_" . $sek_table . "_xsdmf_id, rek_" . $sek_table . $cardinalityCol;
 
               if ($shadow) {
-                $stmt .= ", rek_" . $sek_table . "_stamp";
+                $stmt .= ", rek_" . $sek_table . "_stamp, rek_" . $sek_table . "_id";
               }
               $stmt .= ") VALUES ";
 
@@ -1430,6 +1431,8 @@ class Record
                   $val = "(" . $db->quote($pid) . "," . $db->quote($sek_value['xsdmf_id'], 'INTEGER') . "," . $db->quote($value) . ", $cardinalityVal";
                   if ($shadow) {
                     $val .= ", " . $db->quote($now);
+                    $pidInt = explode(':', $pid);
+                    $val .= ", " . $db->quote($pidInt[1], 'INTEGER');
                   }
                   $val .= ")";
                   $stmtVars[] = $val;
@@ -1451,6 +1454,8 @@ class Record
                 $stmt .= "(" . $db->quote($pid) . "," . $db->quote($sek_value['xsdmf_id'], 'INTEGER') . "," . $db->quote($sek_value['xsdmf_value']);
                 if ($shadow) {
                   $stmt .= ", " . $db->quote($now);
+                  $pidInt = explode(':', $pid);
+                  $stmt .= ", " . $db->quote($pidInt[1], 'INTEGER');
                 }
                 $stmt .= ")";
               }
@@ -1495,7 +1500,11 @@ class Record
         }
 
 
-        $stmt .= " (rek_{$sekTable}_pid, rek_{$sekTable}) VALUES ";
+        $stmt .= " (rek_{$sekTable}_pid, rek_{$sekTable}";
+        if ($shadow) {
+          $stmt .= ", rek_{$sekTable}_stamp, rek_{$sekTable}_id";
+        }
+        $stmt .= ") VALUES ";
 
         eval("\$derivedValue = $deriveFunction(\$pid);");
 
@@ -1510,7 +1519,13 @@ class Record
             $cardinalityVal = 1;
             $stmtVars = array();
             foreach ($derivedValue as $value) {
-              $stmtVars[] = "(".$db->quote($pid).",".$db->quote($value).")";
+              $stmtIns = "(".$db->quote($pid).",".$db->quote($value);
+              if ($shadow) {
+                $stmtIns .= ", " . $db->quote($now);
+                $pidInt = explode(':', $pid);
+                $stmtIns .= ", " . $db->quote($pidInt[1], 'INTEGER');
+              }
+              $stmtVars[] = $stmtIns.")";
               $cardinalityVal++;
             }
             $stmt .= implode(",", $stmtVars);
@@ -1518,7 +1533,13 @@ class Record
 
           } elseif (trim($derivedValue) != '') {
             // deal with a single derived value
-            $stmt .= "(".$db->quote($pid).",".$db->quote($derivedValue).")";
+            $stmt .= "(".$db->quote($pid).",".$db->quote($derivedValue);
+            if ($shadow) {
+              $stmt .= ", " . $db->quote($now);
+              $pidInt = explode(':', $pid);
+              $stmt .= ", " . $db->quote($pidInt[1], 'INTEGER');
+            }
+            $stmt .= ")";
           }
 
           try {
@@ -2498,7 +2519,7 @@ class Record
       $sek_details = Search_Key::getBasicDetailsByTitle("File Attachment Name");
       $sek_sql_title = $sek_details['sek_title_db'];
       $res = array();
-      $res = Record::getSearchKeyByPIDS($sek_sql_title, $pids);
+      $res = Record::getSearchKeyByPIDS($sek_sql_title, $pids, false, $sek_details['sek_cardinality']);
       $t = array();
       $p = array();
       for ($i = 0; $i < count($res); $i++) {
@@ -2669,7 +2690,7 @@ class Record
 
       } else {
         if ($forceGetExtra == true) {
-          $res = Record::getSearchKeyByPIDS($sek_sql_title, $pids, $shadow);
+          $res = Record::getSearchKeyByPIDS($sek_sql_title, $pids, $shadow, $sekData['sek_cardinality']);
         } else {
           $res = $result;
         }
@@ -2732,7 +2753,7 @@ class Record
     }
   }
 
-  function getSearchKeyByPIDS($sek_sql_title, $pids = array(), $shadow = false, $previousToDate = '')
+  function getSearchKeyByPIDS($sek_sql_title, $pids, $shadow, $sek_cardinality)
   {
     $log = FezLog::get();
     $db = DB_API::get();
@@ -2741,7 +2762,6 @@ class Record
       return array();
     }
     $dbtp =  APP_TABLE_PREFIX;
-    $shadowSQL = '';
     if ($shadow) {
       $shadowSQL = '__shadow';
       $stmt = "SELECT
@@ -2753,9 +2773,10 @@ class Record
                     s1.rek_".$sek_sql_title."_pid IN (".Misc::arrayToSQLBindStr($pids).")
                     AND s1.rek_".$sek_sql_title."_stamp = (SELECT MAX(s2.rek_".$sek_sql_title."_stamp)
                       FROM " . $dbtp . "record_search_key_" . $sek_sql_title . $shadowSQL ." s2
-                      WHERE s1.rek_".$sek_sql_title."_pid = s2.rek_".$sek_sql_title."_pid)
-                 ORDER BY
-          rek_" . $sek_sql_title ."_id ASC ";
+                      WHERE s1.rek_".$sek_sql_title."_pid = s2.rek_".$sek_sql_title."_pid) ";
+      if ($sek_cardinality == 1) {
+        $stmt .= "ORDER BY rek_" . $sek_sql_title ."_order ASC";
+      }
     } else {
       $stmt = "SELECT
                     rek_" . $sek_sql_title ."_pid,
@@ -2766,6 +2787,9 @@ class Record
                     rek_".$sek_sql_title."_pid IN (".Misc::arrayToSQLBindStr($pids).")
                  ORDER BY
           rek_" . $sek_sql_title ."_id ASC ";
+      if ($sek_cardinality == 1) {
+        $stmt .= ", rek_" . $sek_sql_title ."_order ASC";
+      }
 
     }
 
@@ -5172,7 +5196,7 @@ function getSearchKeyIndexValueShadow($pid, $searchKeyTitle, $getLookup=true, $s
     $log = FezLog::get();
 
     if (! @$mods['genre']) {
-      $log->err('A genre is required');
+      $log->warn('A genre is required');
       return false;
     }
     if (! @$mods['titleInfo']['title']) {

@@ -422,14 +422,8 @@ class RecordGeneral
   function setStatusId($sta_id)
   {
     if (APP_FEDORA_BYPASS == 'ON') {
-        $searchKeyData = array();
-        $details = Record::getDetailsLite($this->pid);
-        // $searchKeyData[0] for 1-to-1 search keys
-        $searchKeyData[0]['status'] = array('xsdmf_id' => $details[0]['rek_status_xsdmf_id'], 'xsdmf_value' => $sta_id);
-        $searchKeyData[0]['updated_date'] = array('xsdmf_id' => $details[0]['rek_updated_date_xsdmf_id'], 'xsdmf_value' => Date_API::getCurrentDateGMT());
-
-        // Update the search keys for this PID with new value
-        Record::updateSearchKeys($this->pid, $searchKeyData);
+        $recordSearchKey = new Fez_Record_Searchkey($this->pid);
+        $recordSearchKey->updateStatus($sta_id);
     } else {
 
         // Update the XML for FezMD datastream,
@@ -577,6 +571,13 @@ class RecordGeneral
    */
   function updateRELSEXT($key, $value, $removeCurrent = true)
   {
+    if (APP_FEDORA_BYPASS == 'ON') {
+      // Update record search key
+      $recordSearchKey = new Fez_Record_Searchkey($this->pid);
+      $recordSearchKey->updateRecordIsMemberOf($value, $removeCurrent);
+      return 1;
+    }
+
     $newXML = "";
     $xmlString = Fedora_API::callGetDatastreamContents($this->pid, 'RELS-EXT', true);
 
@@ -735,14 +736,14 @@ class RecordGeneral
                 $dsDetails = $this->getDatastreamNameDesc($sk);
                 $datastreamName = $dsDetails['datastreamname'];
                 $datastreamDesc = $dsDetails['datastreamdesc'];
-                if (!array_key_exists($datastreamName, $datastreams)) {
+                if (!array_key_exists($datastreamName, $datastreams) && $datastreamName != '') {
                     $datastreams[$datastreamName] = Fedora_API::callGetDatastreamContents($this->pid, $datastreamName, true);
                 }
                 if (is_array($datastreams[$datastreamName]) || $datastreams[$datastreamName] == "") {
                     echo "\n**** PID " . $this->pid . " without a " . $datastreamName .
-                    " datastream was found, this will need content model changing first **** \n";
-                    $this->_log->err("\n**** PID " . $this->pid . " without a " . $datastreamName .
-                    " datastream was found, this will need content model changing first **** \n");
+                    " datastream for search key ". $sk." was found, this will need content model changing first **** \n";
+                    $this->_log->warn("\n**** PID " . $this->pid . " without a " . $datastreamName .
+                    " datastream for search key ". $sk." was found, this will need content model changing first **** \n");
                 }
                 else
                 {
@@ -759,7 +760,7 @@ class RecordGeneral
 
             if (count($search_keys_added) > 0) {
                 foreach ($datastreams as $datastreamName => $newXML) {
-                    if ($newXML != "") {
+                    if ($newXML != "" && $datastreamName != '') {
                         $dsExists = Fedora_API::datastreamExists($this->pid, $datastreamName);
                         if ($dsExists !== true) {
                             Fedora_API::getUploadLocation($this->pid, $datastreamName, $newXML, $datastreamDesc, "text/xml", "X", null, "true");
@@ -975,6 +976,13 @@ class RecordGeneral
       return false;
     }
 
+    if (APP_FEDORA_BYPASS == 'ON') {
+      // Update record search key
+      $recordSearchKey = new Fez_Record_Searchkey($this->pid);
+      $recordSearchKey->updateRecordIsMemberOf($collection, false, true);
+      return;
+    }
+
     $newXML = "";
     $xmlString = Fedora_API::callGetDatastreamContents($this->pid, 'RELS-EXT', true);
 
@@ -1026,6 +1034,12 @@ class RecordGeneral
    */
   function stripIsiLoc()
   {
+    if (APP_FEDORA_BYPASS == 'ON') {
+      // Update record search key
+      $recordSearchKey = new Fez_Record_Searchkey($this->pid);
+      $recordSearchKey->stripIsiLoc();
+      return true;
+    }
     $newXML = "";
     $xmlString = Fedora_API::callGetDatastreamContents($this->pid, 'MODS', true);
 
@@ -1071,6 +1085,13 @@ class RecordGeneral
    */
   function stripScopusID()
   {
+    if (APP_FEDORA_BYPASS == 'ON') {
+      // Update record search key
+      $recordSearchKey = new Fez_Record_Searchkey($this->pid);
+      $recordSearchKey->stripScopusID();
+      return true;
+    }
+
     $newXML = "";
     $xmlString = Fedora_API::callGetDatastreamContents($this->pid, 'MODS', true);
 
@@ -1738,6 +1759,12 @@ class RecordGeneral
    */
   function stripAbstract()
   {
+    if (APP_FEDORA_BYPASS == 'ON') {
+      // Update record search key
+      $recordSearchKey = new Fez_Record_Searchkey($this->pid);
+      $recordSearchKey->stripAbstract();
+      return true;
+    }
     $newXML = "";
     $xmlString = Fedora_API::callGetDatastreamContents($this->pid, 'MODS', true);
 
@@ -1830,6 +1857,7 @@ class RecordGeneral
           $record = new RecordObject($this->pid);
           $record->addSearchKeyValueList(array("Assigned Group ID"), $groupId, true);
       }
+      return;
     }
 
     $xmlString = Fedora_API::callGetDatastreamContents($this->pid, 'FezMD', true);
@@ -2502,7 +2530,7 @@ class RecordGeneral
 
       try
       {
-          $sql = "SELECT mf.xsdmf_id, mf.xsdmf_html_input, xsdmf_smarty_variable, xsdmf_use_parent_option_list, TRIM(LOWER(REPLACE(sk.sek_title,\" \",\"_\"))) AS sek_title, "
+          $sql = "SELECT mf.xsdmf_id, mf.xsdmf_html_input, mf.xsdmf_cvo_save_type, xsdmf_smarty_variable, xsdmf_use_parent_option_list, TRIM(LOWER(REPLACE(sk.sek_title,\" \",\"_\"))) AS sek_title, "
           . "sk.sek_relationship, sk.sek_cardinality FROM " . APP_TABLE_PREFIX . "search_key sk, "
           . APP_TABLE_PREFIX . "xsd_display_matchfields mf WHERE sk.sek_id = "
           . "mf.xsdmf_sek_id AND mf.xsdmf_id IN (?)";
@@ -2527,6 +2555,16 @@ class RecordGeneral
                       unset($xsdFields[$field['xsdmf_id']][$xf_key]);
                   }
               }
+          }
+          // if this is controlled vocab, but save as the value, convert it
+          if ($field['xsdmf_html_input'] == 'contvocab_selector' && $field['xsdmf_cvo_save_type'] == 1) {
+            if (is_array($xsdFields[$field['xsdmf_id']])) {
+              foreach ($xsdFields[$field['xsdmf_id']] as $xf_key => $xf) {
+                $xsdFields[$field['xsdmf_id']][$xf_key] = Controlled_Vocab::getTitle($xf);
+              }
+            } else {
+              $xsdFields[$field['xsdmf_id']] = Controlled_Vocab::getTitle($xsdFields[$field['xsdmf_id']]);
+            }
           }
 
           if(is_array($xsdFields[$field['xsdmf_id']]) && isset($xsdFields[$field['xsdmf_id']]['Year']))

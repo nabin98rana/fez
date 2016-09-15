@@ -5,6 +5,7 @@ Feature: Create test data feature
   Scenario: I login as admin and create a test community/collection/record
     Given I login as administrator
     And I follow "Browse"
+    And I wait for "2" seconds
     And I follow "Create New Community"
     And I wait for "2" seconds
     And I fill in "Keyword 1" with "automated testing"

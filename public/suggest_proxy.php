@@ -55,14 +55,16 @@ if ((!empty($xsdmf_id)) && is_numeric($xsdmf_id)) {
 else if (! empty($sek_id)) {
 	$sek_suggest_function = Search_Key::getSuggestFunctionBySek_ID($sek_id);
 }
-if(! $sek_suggest_function) {
+
+$filter = new Zend_Filter_Alnum(array('allowwhitespace' => true));
+$query = $filter->filter($_GET['query']);
+
+if(! $sek_suggest_function || strlen(trim($query)) < 3) {
 	echo json_encode(array('Result'=>false));
 	return false;
 }
 
 $suggestions = array();
-$filter = new Zend_Filter_Alnum(array('allowwhitespace' => true));
-$query = $filter->filter($_GET['query']);
 
 if ($sek_suggest_function == "Search_Key::suggestSearchKeyIndexValue") {
 	if($use_xsdmf_id) {

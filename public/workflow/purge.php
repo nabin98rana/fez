@@ -36,4 +36,3 @@
 $pid = $this->pid;
 Record::removeIndexRecord($pid);
 $res = Fedora_API::callPurgeObject($pid);
-?>

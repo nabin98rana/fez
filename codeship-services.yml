@@ -23,7 +23,8 @@ fpmtestrunner:
     - cache
 
 selenium:
-  image: selenium/standalone-chrome-debug:2.53.0
+  #image: selenium/standalone-chrome-debug:2.49.1 #swap for local debugging
+  image: selenium/standalone-chrome:2.49.1
   environment:
     - JAVA_OPTS=-Dselenium.LOGGER.level=WARNING
 #  ports:
