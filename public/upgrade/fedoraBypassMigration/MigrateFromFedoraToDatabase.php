@@ -690,15 +690,16 @@ class MigrateFromFedoraToDatabase
     $originalTable = APP_TABLE_PREFIX . "record_search_key";
 
     // Create the table
+    $this->_db->beginTransaction();
     if (!$this->_createOneShadowTable($originalTable)) {
       return false;
     }
-
     // Remove any unique keys copied from the search key table from the shadow table
     $this->_removeUniqueConstraintsCore();
 
     // Add a joint primary key
     $this->_addJointPrimaryKeyCore();
+    $this->_db->commit();
 
     // echo "<br /> End of 1.1. Now we have shadow for core search key shadow table ".$originalTable;
 
@@ -720,6 +721,7 @@ class MigrateFromFedoraToDatabase
       $shadowTable = APP_TABLE_PREFIX . "record_search_key_" . $sk['sek_title_db'] . $this->_shadowTableSuffix;
 
       // Create the table
+      $this->_db->beginTransaction();
       if (!$this->_createOneShadowTable($originalTable, $sk['sek_title_db'])) {
         return false;
       }
@@ -733,6 +735,7 @@ class MigrateFromFedoraToDatabase
       } else {
         $this->_addJointPrimaryKeyNonCore($shadowTable, $sk['sek_title_db']);
       }
+      $this->_db->commit();
 
       // echo "\n<br /> End of Shadowing " . $sk['sek_title_db'] . " table.. with a SuCCeSS!";
     }
@@ -759,7 +762,6 @@ class MigrateFromFedoraToDatabase
     $shadowTable = $originalTable . $this->_shadowTableSuffix;
 
     // Creates table duplicate from original sk table
-    // @todo: Update to use CREATE TABLE IF NOT EXISTS instead.
     if ($this->_isTableExists($shadowTable)) {
 
       $stmt = "DROP TABLE IF EXISTS " . $shadowTable;
