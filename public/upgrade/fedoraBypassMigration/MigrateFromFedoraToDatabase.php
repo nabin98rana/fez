@@ -690,7 +690,6 @@ class MigrateFromFedoraToDatabase
     $originalTable = APP_TABLE_PREFIX . "record_search_key";
 
     // Create the table
-    $this->_db->beginTransaction();
     if (!$this->_createOneShadowTable($originalTable)) {
       return false;
     }
@@ -699,7 +698,6 @@ class MigrateFromFedoraToDatabase
 
     // Add a joint primary key
     $this->_addJointPrimaryKeyCore();
-    $this->_db->commit();
 
     // echo "<br /> End of 1.1. Now we have shadow for core search key shadow table ".$originalTable;
 
@@ -721,7 +719,6 @@ class MigrateFromFedoraToDatabase
       $shadowTable = APP_TABLE_PREFIX . "record_search_key_" . $sk['sek_title_db'] . $this->_shadowTableSuffix;
 
       // Create the table
-      $this->_db->beginTransaction();
       if (!$this->_createOneShadowTable($originalTable, $sk['sek_title_db'])) {
         return false;
       }
@@ -735,7 +732,6 @@ class MigrateFromFedoraToDatabase
       } else {
         $this->_addJointPrimaryKeyNonCore($shadowTable, $sk['sek_title_db']);
       }
-      $this->_db->commit();
 
       // echo "\n<br /> End of Shadowing " . $sk['sek_title_db'] . " table.. with a SuCCeSS!";
     }
@@ -783,6 +779,18 @@ class MigrateFromFedoraToDatabase
     } catch (Exception $ex) {
       echo "<br />Table " . $shadowTable . " creation failed. Here is why: " . $stmt . " <br />" . $ex . ".\n";
       return false;
+    }
+
+    // Loop until the table exists from the create above
+    $count = 0;
+    while (! $this->_isTableExists($shadowTable)) {
+      $count++;
+      sleep(1);
+      if ($count > 20) {
+        // Bail
+        echo "<br />Table " . $shadowTable . " creation failed.\n";
+        return false;
+      }
     }
 
     // echo "<br />Table ". $shadowTable ." has been created.\n";
@@ -833,7 +841,7 @@ class MigrateFromFedoraToDatabase
       try {
         $this->_db->exec($stmt);
       } catch (Exception $ex) {
-        // echo chr(10) . " <br /> No unique constraint to remove. " . $stmt ;
+        echo "<br /> No unique constraint to remove. " . $stmt ;
       }
       // echo "ok!\n";
     }
@@ -844,7 +852,7 @@ class MigrateFromFedoraToDatabase
     try {
       $this->_db->exec($stmt);
     } catch (Exception $ex) {
-      // echo "<br />No constraint to remove " .$stmt . " - Exception=" . $ex;
+        echo "<br />No constraint to remove " .$stmt . " - Exception=" . $ex;
       return false;
     }
     // echo "ok!\n\n";
@@ -859,14 +867,14 @@ class MigrateFromFedoraToDatabase
       $this->_db->exec($stmt);
     } catch (Exception $ex) {
       // May fail if PRIMARY key does not exist (MySQL version > 5.1)
-      // echo "<br />NOTICE: No primary key to drop on ". $tableName;
+      echo "<br />NOTICE: No primary key to drop on ". $tableName;
     }
 
     $stmt = "ALTER TABLE " . $tableName . " DROP PRIMARY KEY;";
     try {
       $this->_db->exec($stmt);
     } catch (Exception $ex) {
-      // echo "<br />No constraint to remove " .$stmt . " - Exception=" . $ex;
+      echo "<br />No constraint to remove " .$stmt . " - Exception=" . $ex;
       return false;
     }
 
@@ -877,7 +885,7 @@ class MigrateFromFedoraToDatabase
       try {
         $this->_db->exec($stmt);
       } catch (Exception $ex) {
-        // echo chr(10) . " <br /> No unique constraint to remove. " . $stmt ;
+        echo "<br /> No unique constraint to remove. " . $stmt ;
       }
       // echo "ok!\n";
     }
