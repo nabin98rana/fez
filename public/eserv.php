@@ -145,28 +145,20 @@ if (!empty($pid) && !empty($dsID)) {
   $is_image = 0;
   $info = array();
 
-  if (APP_FEDORA_BYPASS != 'ON') {
-    $exif_array = Exiftool::getDetails($pid, $dsID);
-  }
-
-  if (APP_FEDORA_BYPASS == 'ON') {
-    $info['content_type'] = $dsMeta['mimetype'];
-    $info['download_content_length'] = $dsMeta['size'];
+  $exif_array = Exiftool::getDetails($pid, $dsID);
+  if ((!is_numeric($exif_array['exif_file_size']) || $requestedVersionDate != "") && (!$bookpage)) {
+    $getURL = APP_FEDORA_GET_URL . "/" . $pid . "/" . $dsID . $requestedVersionDate;
+    list($data, $info) = Misc::processURL_info($getURL);
   } else {
-    if ((!is_numeric($exif_array['exif_file_size']) || $requestedVersionDate != "") && (!$bookpage)) {
-      $getURL = APP_FEDORA_GET_URL . "/" . $pid . "/" . $dsID . $requestedVersionDate;
-      list($data, $info) = Misc::processURL_info($getURL);
-    } else {
-      $info['content_type'] = $exif_array['exif_mime_type'];
-      $info['download_content_length'] = $exif_array['exif_file_size'];
-    }
+    $info['content_type'] = $exif_array['exif_mime_type'];
+    $info['download_content_length'] = $exif_array['exif_file_size'];
   }
 
-  if (APP_FEDORA_BYPASS != 'ON') {
+//  if (APP_FEDORA_BYPASS != 'ON') {
     if ($info['download_content_length'] == 0 && $bookpage != true && (substr($dsID, -4) != ".xml")) {
       //$not_exists = true;   // Currently sending back incorrect values
     }
-  }
+//  }
 
 
   if ($not_exists == false) {
@@ -253,8 +245,22 @@ if (!empty($pid) && !empty($dsID)) {
     if (($stream == 1 && $is_video == 1) && (is_numeric(strpos($ctype, "flv")))) {
 
       $urldata = APP_FEDORA_GET_URL . "/" . $pid . "/" . $dsID . $requestedVersionDate;
-      $file = (APP_FEDORA_BYPASS == 'ON') ? $dsr->getResourcePath($hash['rawHash']) : $urldata;
-      $seekat = $_GET["pos"];
+
+
+
+
+      if (APP_FEDORA_BYPASS == 'ON') {
+        if (defined('AWS_S3_ENABLED') && AWS_S3_ENABLED == 'true') {
+          // If we are using S3 and Cloudfront, just redirect the user to a time signed CF url and exit
+          $file = Fedora_API::getCloudFrontURL($pid, $dsID);
+        } else {
+          $file = (APP_FEDORA_BYPASS == 'ON') ? $dsr->getResourcePath($hash['rawHash']) : $urldata;
+        }
+      }
+
+
+
+          $seekat = $_GET["pos"];
       if ($seekat == '') { // if seekat isn't defined, set it to -1, the default for stream_get_contents(), else stream won't get contents
         $seekat = -1;
       }

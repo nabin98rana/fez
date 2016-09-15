@@ -841,7 +841,7 @@ class MigrateFromFedoraToDatabase
       try {
         $this->_db->exec($stmt);
       } catch (Exception $ex) {
-        echo "<br /> No unique constraint to remove. " . $stmt ;
+        //echo "<br /> No unique constraint to remove. " . $stmt ;
       }
       // echo "ok!\n";
     }
@@ -852,8 +852,8 @@ class MigrateFromFedoraToDatabase
     try {
       $this->_db->exec($stmt);
     } catch (Exception $ex) {
-        echo "<br />No constraint to remove " .$stmt . " - Exception=" . $ex;
-      return false;
+      //echo "<br />No constraint to remove " .$stmt . " - Exception=" . $ex;
+      //return false;
     }
     // echo "ok!\n\n";
   }
@@ -874,8 +874,8 @@ class MigrateFromFedoraToDatabase
     try {
       $this->_db->exec($stmt);
     } catch (Exception $ex) {
-      echo "<br />No constraint to remove " .$stmt . " - Exception=" . $ex;
-      return false;
+      // echo "<br />No constraint to remove " .$stmt . " - Exception=" . $ex;
+      // return false;
     }
 
     $stmt = "SHOW INDEX FROM " . $tableName . " WHERE Non_unique = 0 AND Key_name != 'PRIMARY'";
@@ -885,7 +885,7 @@ class MigrateFromFedoraToDatabase
       try {
         $this->_db->exec($stmt);
       } catch (Exception $ex) {
-        echo "<br /> No unique constraint to remove. " . $stmt ;
+        //echo "<br /> No unique constraint to remove. " . $stmt ;
       }
       // echo "ok!\n";
     }
