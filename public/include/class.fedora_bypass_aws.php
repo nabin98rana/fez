@@ -229,7 +229,15 @@ class Fedora_API implements FedoraApiInterface {
 	 */
 	public static function callPurgeObject($pid)
 	{
+    $datastreams = Fedora_API::callGetDatastreams($pid);
+    foreach ($datastreams as $ds) {
+      if ($ds['controlGroup'] != 'R') {
+        Fedora_API::callPurgeDatastream($pid, $ds['ID']);
+      }
+    }
+    Links::purgeLinks($pid);
 
+    return true;
 	}
 
 	/**
