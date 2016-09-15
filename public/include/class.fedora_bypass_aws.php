@@ -229,7 +229,15 @@ class Fedora_API implements FedoraApiInterface {
 	 */
 	public static function callPurgeObject($pid)
 	{
+    $datastreams = Fedora_API::callGetDatastreams($pid);
+    foreach ($datastreams as $ds) {
+      if ($ds['controlGroup'] != 'R') {
+        Fedora_API::callPurgeDatastream($pid, $ds['ID']);
+      }
+    }
+    Links::purgeLinks($pid);
 
+    return true;
 	}
 
 	/**
@@ -270,7 +278,7 @@ class Fedora_API implements FedoraApiInterface {
 		if ($dsExists !== true) {
 			$dsID = Fedora_API::callAddDatastream($pid, $dsIDName, $file_full, $dsLabel, "A", $mimetype, $controlGroup, $versionable, '');
 		} else {
-      $dsID = Fedora_API::getDid($pid, $dsIDName);
+      $dsID = Datastream::getDid($pid, $dsIDName);
     }
 
 		if (is_file($file_full)) {

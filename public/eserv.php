@@ -87,20 +87,20 @@ if ((is_numeric(strpos($pid, ".."))) || (Misc::isPid($pid) != true) || (is_numer
 $acceptable_roles = array("Viewer", "Community_Admin", "Editor", "Creator", "Annotator");
 
 if (!empty($pid) && !empty($dsID)) {
-
-
   //Need to check if the datastream is deleted
   //if a book page the folder name it's in is the datastream name plus a .pdf
   $dsIDTemp = !$bookpage ? $dsID : current(explode("/", $dsID)) . '.pdf';
   $isDeleted = TRUE;
-  $dsCheck = Fedora_API::callGetDatastreams($pid);
-  foreach ($dsCheck as $pidDatastream) {
-    if ($pidDatastream[ID] == $dsIDTemp) {
-      $isDeleted = FALSE;
+  $dsExists = Fedora_API::datastreamExists($pid, $dsID);
+  if ($dsExists === TRUE) {
+    $dsCheck = Fedora_API::callGetDatastreams($pid);
+    foreach ($dsCheck as $pidDatastream) {
+      if ($pidDatastream[ID] == $dsIDTemp) {
+        $isDeleted = FALSE;
+      }
     }
+    $isDeleted = Record::isDeleted($pid) || $isDeleted;
   }
-  $isDeleted = Record::isDeleted($pid) || $isDeleted;
-
 
   if ($isDeleted) {
     header("HTTP/1.0 404 Not Found");
