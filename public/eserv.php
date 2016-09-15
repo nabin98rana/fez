@@ -102,7 +102,7 @@ if (!empty($pid) && !empty($dsID)) {
     $isDeleted = Record::isDeleted($pid) || $isDeleted;
   }
 
-  if ($isDeleted) {
+  if ($isDeleted && !$bookpage) {
     header("HTTP/1.0 404 Not Found");
     header("Status: 404 Not Found");
     $tpl = new Template_API();
@@ -256,6 +256,8 @@ if (!empty($pid) && !empty($dsID)) {
         } else {
           $file = (APP_FEDORA_BYPASS == 'ON') ? $dsr->getResourcePath($hash['rawHash']) : $urldata;
         }
+      } else {
+        $file = $urldata;
       }
 
 
