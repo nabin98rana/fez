@@ -56,6 +56,7 @@ class MigrateFromFedoraToDatabase
 
   protected $_log = null;
   protected $_db = null;
+  protected $_env = null;
   protected $_shadowTableSuffix = "__shadow";
   protected $_upgradeHelper = null;
 
@@ -74,6 +75,8 @@ class MigrateFromFedoraToDatabase
 
   public function runMigration()
   {
+    $this->_env = strtolower($_SERVER['APPLICATION_ENV']);
+
     // Message/warning about the checklist required before running the migration script.
     $this->preMigration();
 
@@ -474,7 +477,9 @@ class MigrateFromFedoraToDatabase
     // echo chr(10) . "\n<br /> Start migrating Fedora ManagedContent to Fez CAS system....";
     // echo chr(10) . "\n<br /> This may take a while depending on the size of datastreams";
     ob_flush();
-    include("./migrate_fedora_managedcontent_to_s3.php");
+    if ($this->_env == 'production') {
+      include("./migrate_fedora_managedcontent_to_s3.php");
+    }
   }
 
   /**
