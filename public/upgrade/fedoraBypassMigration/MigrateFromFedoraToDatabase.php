@@ -861,11 +861,11 @@ class MigrateFromFedoraToDatabase
     return true;
   }
 
-  protected function _removeUniqueConstraintsCore()
+  protected function _removeUniqueConstraintsCore($retries = 0)
   {
     // Core search key shadow table
     // echo chr(10) . "<br />" . "Removing unique constraint from fez_record_search_key__shadow ... ";
-
+    $retries++;
     $tableName = APP_TABLE_PREFIX . "record_search_key" . $this->_shadowTableSuffix;
 
     // We are removing primary key on shadow because PID is serving as primary key on the core search key table.
@@ -876,6 +876,12 @@ class MigrateFromFedoraToDatabase
     } catch (Exception $ex) {
       //echo "<br />No constraint to remove " .$stmt . " - Exception=" . $ex;
       //return false;
+      if ($retries > 5) {
+        return;
+      } else {
+        sleep(1);
+        $this->_removeUniqueConstraintsCore($retries);
+      }
     }
     // echo "ok!\n\n";
   }
