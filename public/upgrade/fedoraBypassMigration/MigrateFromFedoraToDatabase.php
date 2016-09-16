@@ -786,18 +786,6 @@ class MigrateFromFedoraToDatabase
       return false;
     }
 
-    // Loop until the table exists from the create above
-    $count = 0;
-    while (! $this->_isTableExists($shadowTable)) {
-      $count++;
-      sleep(1);
-      if ($count > 20) {
-        // Bail
-        echo "<br />Table " . $shadowTable . " creation failed.\n";
-        return false;
-      }
-    }
-
     // echo "<br />Table ". $shadowTable ." has been created.\n";
 
 
@@ -837,19 +825,6 @@ class MigrateFromFedoraToDatabase
     // echo chr(10) . "<br />" . "Removing unique constraint from fez_record_search_key__shadow ... ";
 
     $tableName = APP_TABLE_PREFIX . "record_search_key" . $this->_shadowTableSuffix;
-
-    $stmt = "SHOW INDEX FROM " . $tableName . " WHERE Non_unique = 0 AND Key_name != 'PRIMARY'";
-    $uniqueIndex = $this->_db->fetchRow($stmt);
-
-    if (is_array($uniqueIndex) && sizeof($uniqueIndex) > 0) {
-      $stmt = "DROP INDEX unique_constraint ON " . $tableName . ";";
-      try {
-        $this->_db->exec($stmt);
-      } catch (Exception $ex) {
-        //echo "<br /> No unique constraint to remove. " . $stmt ;
-      }
-      // echo "ok!\n";
-    }
 
     // We are removing primary key on shadow because PID is serving as primary key on the core search key table.
     // echo "* Removing primary key constraint from fez_record_search_key__shadow ... ";
@@ -899,43 +874,62 @@ class MigrateFromFedoraToDatabase
   }
 
   // 1.8 Add joint primary keys to shadow tables
-  protected function _addJointPrimaryKeyCore()
+  protected function _addJointPrimaryKeyCore($retries = 0)
   {
+    $retries++;
     $tableName = APP_TABLE_PREFIX . "record_search_key" . $this->_shadowTableSuffix;
 
     $stmt = "ALTER TABLE " . $tableName . " ADD PRIMARY KEY (rek_pid, rek_stamp);";
     try {
       $this->_db->exec($stmt);
+      return true;
     } catch (Exception $ex) {
-      echo "<br />Could not add joint primary key to " . $tableName . " because: " . $ex;
-      return false;
+      if ($retries > 5) {
+        echo "<br />Could not add joint primary key to " . $tableName . " because: " . $ex;
+        return false;
+      } else {
+        sleep(1);
+        return $this->_addJointPrimaryKeyCore($retries);
+      }
     }
     // echo "\n";
   }
 
-  protected function _addJointPrimaryKeyNonCore($tableName, $sekTitleDb)
+  protected function _addJointPrimaryKeyNonCore($tableName, $sekTitleDb, $retries = 0)
   {
+    $retries++;
     $stmt = "ALTER TABLE " . $tableName . " ADD PRIMARY KEY (rek_" . $sekTitleDb . "_pid, rek_" . $sekTitleDb . "_stamp);";
     try {
       $this->_db->exec($stmt);
+      return true;
     } catch (Exception $ex) {
-      echo "<br />Could not add joint primary key to " . $tableName . " because: " . $ex;
-      return false;
+      if ($retries > 5) {
+        echo "<br />Could not add joint primary key to " . $tableName . " because: " . $ex;
+        return false;
+      } else {
+        sleep(1);
+        return $this->_addJointPrimaryKeyNonCore($tableName, $sekTitleDb, $retries);
+      }
     }
     // echo "\n";
   }
 
-
-  protected function _addJointPrimaryKeyMultipleNonCore($tableName, $sekTitleDB)
+  protected function _addJointPrimaryKeyMultipleNonCore($tableName, $sekTitleDB, $retries = 0)
   {
-
+    $retries++;
     // echo " Adding joint primary key to ". $tableName;
     $stmt = "ALTER TABLE " . $tableName . " ADD PRIMARY KEY (rek_" . $sekTitleDB . "_pid, rek_" . $sekTitleDB . "_order, rek_" . $sekTitleDB . "_stamp);";
     try {
       $this->_db->exec($stmt);
+      return true;
     } catch (Exception $ex) {
-      echo "<br />Could not add joint primary key to " . $tableName . " because: " . $ex;
-      return false;
+      if ($retries > 5) {
+        echo "<br />Could not add joint primary key to " . $tableName . " because: " . $ex;
+        return false;
+      } else {
+        sleep(1);
+        return $this->_addJointPrimaryKeyMultipleNonCore($tableName, $sekTitleDB, $retries);
+      }
     }
     // echo "\n";
   }
