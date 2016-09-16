@@ -29,15 +29,12 @@
 // | Author: Elvi Shu <e.shu@library.uq.edu.au>                           |
 // +----------------------------------------------------------------------+
 
-if ((php_sapi_name()!=="cli")) {
+if ((php_sapi_name() !== "cli")) {
   return;
 }
 
 /**
- * The purpose of this script is to
- *   migrate Fedora managed contents (ie: PDFs, images, etc) to Fez CAS system.
- * Fez CAS system is storing file content in MD5 hash format and recording the file meta data in %TABLE_PREFIX%_file_attachments table.
- *
+ * The purpose of this script is to migrate Fedora managed contents.
  * This is a one-off migration script as part of Fedora-less project.
  */
 include_once dirname(dirname(dirname(__FILE__))) . DIRECTORY_SEPARATOR . 'config.inc.php';
@@ -46,46 +43,73 @@ set_time_limit(0);
 $log = FezLog::get();
 $db = DB_API::get();
 
-$pids = '';
-$stmt = "SELECT * FROM " . APP_TABLE_PREFIX . "exif ORDER BY exif_pid ";  //where exif_pid = 'UQ:21033'
+$stmt = 'select op.token as pid, dr.systemVersion as version, 
+  dr.objectState as state, ds.path as path from datastreamPaths ds
+left join objectPaths op on op.tokenDbID = ds.tokenDbID
+left join doRegistry dr on dr.doPID = op.token
+where ds.path like \'/espace/data/fedora_datastreams/2016/08%\'
+order by op.token ASC, dr.systemVersion ASC';
+
+$ds = [];
 try {
-  $pids = $db->fetchAll($stmt);
+  $ds = $db->fetchAll($stmt);
 } catch (Exception $ex) {
   echo "Failed to retrieve exif data. Error: " . $ex;
 }
-$totalPids = count($pids);
+
+$totalDs = count($ds);
 $counter = 0;
-foreach ($pids as $pid) {
-  $pid = $pid['pid'];
+$awsSrc = new AWS(APP_SAN_IMPORT_DIR, 'migration');
+
+foreach ($ds as $dataStream) {
   $counter++;
-  $datastreams = Fedora_API::callGetDatastreams($pid);
-  $datastreams = Misc::cleanDatastreamListLite($datastreams, $pid);
-  if (count($datastreams) > 0) {
-    echo "\nDoing PID $counter/$totalPids ($pid)\n";
-  }
+  $pid = $dataStream['pid'];
 
-  foreach ($datastreams as $datastream) {
+  echo "\nDoing PID $counter/$totalDs ($pid)\n";
+  Zend_Registry::set('version', Date_API::getCurrentDateGMT());
 
-    if ($datastream['controlGroup'] == 'M') {
+  $path = $dataStream['path'];
+  $state = $dataStream['state'];
+  $dsName = getDsNameFromPath($pid, $path);
+  $acml = Record::getACML($pid, $dsName);
 
-      Zend_Registry::set('version', Date_API::getCurrentDateGMT());
-
-      $fedoraFilePath = APP_FEDORA_GET_URL . "/" . $pid . "/" . $datastream['ID'];
-      $temp_store = APP_TEMP_DIR . $datastream['ID'];
-      file_put_contents($temp_store, fopen($fedoraFilePath, 'r'));
-
-      $acml = Record::getACML($pid, $datastream['ID']);
-      file_put_contents($temp_store . ".acml.xml", $acml);
-
-      toggleAwsStatus(true);
-      $command = APP_PHP_EXEC . " \"" . APP_PATH . "upgrade/fedoraBypassMigration/migrate_import_datastream.php\" \"" .
-        $pid . "\" \"" . $temp_store . "\" \"" . $datastream['ID'] . "\"";
-      exec($command);
-      @unlink($temp_store);
-      @unlink($temp_store . ".acml.xml");
-      toggleAwsStatus(false);
+  $exif = [];
+  $cloneExif = true;
+  if(
+    strpos($dsName, 'presmd_') === 0
+  ) {
+    $exif = ['exif_mime_type' => 'application/xml'];
+    $cloneExif = false;
+  } else {
+    $exif = Exiftool::getDetails($pid, $dsName);
+    if (! $exif) {
+      $cloneExif = false;
+      $exif['exif_mime_type'] = 'binary/octet-stream';
     }
   }
+
+  toggleAwsStatus(true);
+  $location = 'https://s3-ap-southeast-2.amazonaws.com/uql-fez-production-san/migration/' .
+    str_replace('/espace/data/fedora_datastreams/', '', $path);
+
+  if ($cloneExif) {
+    Exiftool::cloneExif($pid, $dsName, $pid, $dsName, $exif);
+  }
+
+  Fedora_API::callAddDatastream(
+    $pid, $dsName, $location, '', $state,
+    $exif['exif_mime_type'], 'M', false, "", false
+  );
+
+  $did = AuthNoFedoraDatastreams::getDid($pid, $dsName);
+  if (inheritsPermissions($acml)) {
+    AuthNoFedoraDatastreams::setInherited($did);
+  }
+  if ($acml) {
+    addDatastreamSecurity($acml, $did);
+  }
+  AuthNoFedoraDatastreams::recalculatePermissions($did);
+  toggleAwsStatus(false);
 }
 
 function toggleAwsStatus($useAws)
@@ -113,5 +137,67 @@ function toggleAwsStatus($useAws)
     $db->query("UPDATE " . APP_TABLE_PREFIX . "config " .
       " SET config_value = 'OFF' " .
       " WHERE config_name='app_fedora_bypass'");
+  }
+}
+
+function getDsNameFromPath($pid, $path)
+{
+  $pidMatch = str_replace(':', '_', $pid);
+  preg_match("/\\/$pidMatch\\+([^\\+]*)\\+/", $path, $matches);
+
+  if (count($matches) !== 2) {
+    return false;
+  }
+  return $matches[1];
+}
+
+function inheritsPermissions($acml)
+{
+  if ($acml == false) {
+    //if no acml then default is inherit
+    $inherit = true;
+  } else {
+    $xpath = new DOMXPath($acml);
+    $inheritSearch = $xpath->query('/FezACML[inherit_security="on"]');
+    $inherit = false;
+    if ($inheritSearch->length > 0) {
+      $inherit = true;
+    }
+  }
+  return $inherit;
+}
+
+function addDatastreamSecurity($acml, $did)
+{
+  // loop through the ACML docs found for the current pid or in the ancestry
+  $xpath = new DOMXPath($acml);
+  $roleNodes = $xpath->query('/FezACML/rule/role');
+
+  foreach ($roleNodes as $roleNode) {
+    $role = $roleNode->getAttribute('name');
+    // Use XPath to get the sub groups that have values
+    $groupNodes = $xpath->query('./*[string-length(normalize-space()) > 0]', $roleNode);
+
+    /* todo
+     * Empty rules override non-empty rules. Example:
+     * If a pid belongs to 2 collections, 1 collection has lister restricted to fez users
+     * and 1 collection has no restriction for lister, we want no restrictions for lister
+     * for this pid.
+     */
+
+    foreach ($groupNodes as $groupNode) {
+      $group_type = $groupNode->nodeName;
+      $group_values = explode(',', $groupNode->nodeValue);
+      foreach ($group_values as $group_value) {
+
+        //off is the same as lack of, so should be the same
+        if ($group_value != "off") {
+          $group_value = trim($group_value, ' ');
+
+          $arId = AuthRules::getOrCreateRule("!rule!role!" . $group_type, $group_value);
+          AuthNoFedoraDatastreams::addSecurityPermissions($did, $role, $arId);
+        }
+      }
+    }
   }
 }
