@@ -309,11 +309,12 @@ class AWS
     $key = $this->createPath($src, '');
     $newKey = $this->createPath($newSrc, '');
     try {
-      $res = $client->copyObject(array(
+      $object = [
         'Bucket'     => $this->s3Bucket,
         'Key'        => $newKey,
         'CopySource' => "{$this->s3Bucket}/{$key}",
-      ));
+      ];
+      $res = $client->copyObject($object);
       return $res;
     } catch (\Aws\S3\Exception\S3Exception $e) {
       $this->log->err($e->getMessage());
@@ -347,13 +348,6 @@ class AWS
       return false;
     }
 
-    $meta = [
-        'key'  => $fileName,
-        'type' => $mimeType,
-        'name' => $fileName,
-        'size' => $fileSize,
-    ];
-
     try {
       $key = $this->createPath($src, $fileName);
       $res = $client->putObject([
@@ -361,8 +355,7 @@ class AWS
           'Key' => $key,
           'Body' => $content,
           'ContentType' => $mimeType,
-          'ServerSideEncryption' => 'AES256',
-          'Metadata' => $meta
+          'ServerSideEncryption' => 'AES256'
       ]);
       return $res;
 
