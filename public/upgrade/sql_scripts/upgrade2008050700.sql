@@ -8,7 +8,7 @@ CREATE TABLE IF NOT EXISTS %TABLE_PREFIX%record_search_key_link (
   rek_link  text character set utf8 collate utf8_general_ci,
   PRIMARY KEY  (rek_link_id),
   KEY rek_link_pid (rek_link_pid)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE IF NOT EXISTS %TABLE_PREFIX%record_search_key_link_description (
   rek_link_description_id int(11) NOT NULL auto_increment,
@@ -17,7 +17,7 @@ CREATE TABLE IF NOT EXISTS %TABLE_PREFIX%record_search_key_link_description (
   rek_link_description  text character set utf8 collate utf8_general_ci,
   PRIMARY KEY  (rek_link_description_id),
   KEY rek_link_description_pid (rek_link_description_pid)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE IF NOT EXISTS %TABLE_PREFIX%record_search_key_parent_publication (
   rek_parent_publication_id int(11) NOT NULL auto_increment,
@@ -26,7 +26,7 @@ CREATE TABLE IF NOT EXISTS %TABLE_PREFIX%record_search_key_parent_publication (
   rek_parent_publication  varchar(255) character set utf8 collate utf8_general_ci default NULL,
   PRIMARY KEY  (rek_parent_publication_id),
   KEY rek_parent_publication_pid (rek_parent_publication_pid)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE IF NOT EXISTS %TABLE_PREFIX%record_search_key_convener (
   rek_convener_id int(11) NOT NULL auto_increment,
@@ -35,5 +35,5 @@ CREATE TABLE IF NOT EXISTS %TABLE_PREFIX%record_search_key_convener (
   rek_convener  varchar(255) character set utf8 collate utf8_general_ci default NULL,
   PRIMARY KEY  (rek_convener_id),
   KEY rek_convener_pid (rek_convener_pid)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
