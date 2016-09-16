@@ -6,4 +6,4 @@ CREATE TABLE IF NOT EXISTS %TABLE_PREFIX%record_search_key_rights (
   rek_rights  text character set utf8 collate utf8_general_ci,
   PRIMARY KEY  (rek_rights_id),
   KEY rek_rights_pid (rek_rights_pid)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
