@@ -5,4 +5,4 @@ CREATE TABLE %TABLE_PREFIX%main_chapter (
 	mc_author_id int(11) NOT NULL,
 	mc_status int(1) DEFAULT 0,
 	PRIMARY KEY (mc_id)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
