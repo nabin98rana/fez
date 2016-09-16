@@ -43,25 +43,19 @@
  * @author Elvi Shu <e.shu at library.uq.edu.au>
  * @license http://www.gnu.org/licenses/gpl.html GPL License
  * @copyright (c) 2012 The University of Queensland
- *
- * @example ./migrate.php Example class usage
  */
 include_once(APP_INC_PATH . "class.upgrade.php");
 include_once(APP_INC_PATH . 'class.bgp_index_object.php');
 include_once(APP_INC_PATH . 'class.reindex.php');
 
-
 class MigrateFromFedoraToDatabase
 {
-
   protected $_log = null;
   protected $_db = null;
   protected $_env = null;
   protected $_shadowTableSuffix = "__shadow";
   protected $_upgradeHelper = null;
-
   protected $_config = null;
-
 
   public function __construct($config = array())
   {
@@ -86,11 +80,8 @@ class MigrateFromFedoraToDatabase
     // Content migration
     $this->stepTwoMigration();
 
-    // Security recalculation
-    $this->stepThreeMigration();
-
     // De-dupe auth rules
-    $this->stepFourMigration();
+    $this->stepThreeMigration();
 
     // Post Migration message
     $this->postMigration();
@@ -104,7 +95,6 @@ class MigrateFromFedoraToDatabase
   protected function _parseConfig($config = array())
   {
     if (!is_array($config)) {
-      // Get lost
       return false;
     }
 
@@ -124,7 +114,6 @@ class MigrateFromFedoraToDatabase
       }
     }
   }
-
 
   /**
    * This step is to inform/warn/scare web administrator on what they are about to do.
@@ -190,7 +179,6 @@ class MigrateFromFedoraToDatabase
    */
   public function stepOneMigration()
   {
-
     // Create shadow tables for search keys
     $this->createSearchKeyShadowTables();
 
@@ -202,7 +190,6 @@ class MigrateFromFedoraToDatabase
 
     // Sets the maximum PID on PID index table.
     $this->setMaximumPID();
-
   }
 
 
@@ -221,24 +208,10 @@ class MigrateFromFedoraToDatabase
     $this->migrateManagedContent();
   }
 
-
-  /**
-   * Third round of migration, at this stage we should have the records copied/migrated.
-   * This stage we are doing touching up on the records, such as:
-   * - Security recalculation
-   * - ....
-   */
-  public function stepThreeMigration()
-  {
-    // Security for PIDs
-    $db = $this->_db;
-    include_once("./migrate_setup_pid_permissions.php");
-  }
-
   /**
    * Fourth round of migration, de-dupe the auth group rules
    */
-  public function stepFourMigration()
+  public function stepThreeMigration()
   {
     $stmt = "SELECT argr_arg_id, argr_ar_id FROM " . APP_TABLE_PREFIX . "auth_rule_group_rules";
 
@@ -307,9 +280,8 @@ class MigrateFromFedoraToDatabase
     $this->_mapSubjectField();
 
     // @todo: need to find out what search key should we map the Q Index code field.
-//        $this->_mapQIndexCode();
+    // $this->_mapQIndexCode();
   }
-
 
   protected function _mapQIndexCode()
   {
@@ -347,7 +319,6 @@ class MigrateFromFedoraToDatabase
     return true;
   }
 
-
   protected function _mapSubjectField()
   {
     // Check if Subject XSD fields have been mapped
@@ -381,7 +352,6 @@ class MigrateFromFedoraToDatabase
     return true;
   }
 
-
   /**
    * Adds search key columns / tables, which data have not been recorded in database.
    * This method is specific for eSpace.
@@ -391,7 +361,6 @@ class MigrateFromFedoraToDatabase
   {
     $this->_addSearchKeysCopyright();
   }
-
 
   /**
    * Add search key for 'copyright' field on core search key table.
@@ -432,7 +401,6 @@ class MigrateFromFedoraToDatabase
     return false;
   }
 
-
   /**
    * Returns an array of unmapped XSD fields.
    * @return array | boolean
@@ -462,7 +430,6 @@ class MigrateFromFedoraToDatabase
     return false;
   }
 
-
   /**
    * Run Fedora managed content migration script & security for the attached files.
    * @todo: update misc/migrate_fedora_managedcontent_to_fezCAS.php to return, instead of exit at the end of the script.
@@ -474,11 +441,76 @@ class MigrateFromFedoraToDatabase
    */
   public function migrateManagedContent()
   {
-    // echo chr(10) . "\n<br /> Start migrating Fedora ManagedContent to Fez CAS system....";
-    // echo chr(10) . "\n<br /> This may take a while depending on the size of datastreams";
     ob_flush();
-    if ($this->_env == 'production') {
-      include("./migrate_fedora_managedcontent_to_s3.php");
+    if ($this->_env != 'production') {
+      return;
+    }
+
+    $stmt = 'select op.token as pid, dr.systemVersion as version, 
+        dr.objectState as state, ds.path as path from datastreamPaths ds
+      left join objectPaths op on op.tokenDbID = ds.tokenDbID
+      left join doRegistry dr on dr.doPID = op.token
+      where ds.path like \'/espace/data/fedora_datastreams/2016/08%\'
+      order by op.token ASC, dr.systemVersion ASC';
+
+    $ds = [];
+    try {
+      $ds = $this->_db->fetchAll($stmt);
+    } catch (Exception $ex) {
+      echo "Failed to retrieve exif data. Error: " . $ex;
+    }
+
+    $totalDs = count($ds);
+    $counter = 0;
+
+    foreach ($ds as $dataStream) {
+      $counter++;
+      $pid = $dataStream['pid'];
+
+      echo "\nDoing PID $counter/$totalDs ($pid)\n";
+      Zend_Registry::set('version', Date_API::getCurrentDateGMT());
+
+      $path = $dataStream['path'];
+      $state = $dataStream['state'];
+      $dsName = $this->getDsNameFromPath($pid, $path);
+      $acml = Record::getACML($pid, $dsName);
+
+      $cloneExif = true;
+      if(
+        strpos($dsName, 'presmd_') === 0
+      ) {
+        $exif = ['exif_mime_type' => 'application/xml'];
+        $cloneExif = false;
+      } else {
+        $exif = Exiftool::getDetails($pid, $dsName);
+        if (! $exif) {
+          $cloneExif = false;
+          $exif['exif_mime_type'] = 'binary/octet-stream';
+        }
+      }
+
+      $this->toggleAwsStatus(true);
+      $location = 'https://s3-ap-southeast-2.amazonaws.com/uql-fez-production-san/migration/' .
+        str_replace('/espace/data/fedora_datastreams/', '', $path);
+
+      if ($cloneExif) {
+        Exiftool::cloneExif($pid, $dsName, $pid, $dsName, $exif);
+      }
+
+      Fedora_API::callAddDatastream(
+        $pid, $dsName, $location, '', $state,
+        $exif['exif_mime_type'], 'M', false, "", false
+      );
+
+      $did = AuthNoFedoraDatastreams::getDid($pid, $dsName);
+      if ($this->inheritsPermissions($acml)) {
+        AuthNoFedoraDatastreams::setInherited($did);
+      }
+      if ($acml) {
+        $this->addDatastreamSecurity($acml, $did);
+      }
+      AuthNoFedoraDatastreams::recalculatePermissions($did);
+      $this->toggleAwsStatus(false);
     }
   }
 
@@ -581,15 +613,28 @@ class MigrateFromFedoraToDatabase
     return true;
   }
 
-
   /**
    * Recalculate security.
    */
   public function recalculateSecurity()
   {
-    include("../../misc/migrate_security_recalculate.php");
+    // Get all PIDs without parents. Recalculate permissions. This will filter down to child pids and child datastreams
+    $stmt = "SELECT rek_pid FROM " . APP_TABLE_PREFIX . "record_search_key
+      LEFT JOIN fez_record_search_key_ismemberof
+      ON rek_ismemberof_pid = rek_pid
+      WHERE rek_ismemberof IS NULL";
+    $res = [];
+    try {
+      $res = $this->_db->fetchAll($stmt);
+    } catch (Exception $ex) {
+      $this->_log->err($ex);
+      echo "Failed to retrieve pid data. Error: " . $ex;
+    }
+    foreach ($res as $pid) {
+      AuthNoFedora::recalculatePermissions($pid);
+      echo 'Done: '.$pid.'<br />';
+    }
   }
-
 
   /**
    * Sets the maximum PID on PID index table.
@@ -644,7 +689,6 @@ class MigrateFromFedoraToDatabase
     ob_flush();
   }
 
-
   /**
    * Upgrade table schema for all datastream permissions and pid non inherited permissions
    */
@@ -660,7 +704,6 @@ class MigrateFromFedoraToDatabase
     }
     return true;
   }
-
 
   /**
    * Create tables and update db schema to store Digital Object & attached files.
@@ -745,7 +788,6 @@ class MigrateFromFedoraToDatabase
     ob_flush();
   }
 
-
   /**
    * Creates search key shadow table with matching schema with the original sk table.
    * Adds timestamp column on the shadow table record versioning.
@@ -812,9 +854,9 @@ class MigrateFromFedoraToDatabase
       // echo "<br />We have the stamp! Move on...";
     }
 
-//        }else {
-//            // echo "<br />Table ". $shadowTable ." already exists somewhere in the universe, let's move on...\n";
-//        }
+      // } else {
+      //   echo "<br />Table ". $shadowTable ." already exists somewhere in the universe, let's move on...\n";
+      // }
     ob_flush();
     return true;
   }
@@ -953,7 +995,6 @@ class MigrateFromFedoraToDatabase
     return false;
   }
 
-
   protected function generateDSTimestamps($pid, $datastreams)
   {
     $createdDates = array();
@@ -1031,7 +1072,6 @@ class MigrateFromFedoraToDatabase
     return ($unixTimestamp1 < $unixTimestamp2) ? -1 : 1;
   }
 
-
   protected function toggleAwsStatus($useAws)
   {
     $db = DB_API::get();
@@ -1057,6 +1097,68 @@ class MigrateFromFedoraToDatabase
       $db->query("UPDATE " . APP_TABLE_PREFIX . "config " .
         " SET config_value = 'OFF' " .
         " WHERE config_name='app_fedora_bypass'");
+    }
+  }
+
+  protected function getDsNameFromPath($pid, $path)
+  {
+    $pidMatch = str_replace(':', '_', $pid);
+    preg_match("/\\/$pidMatch\\+([^\\+]*)\\+/", $path, $matches);
+
+    if (count($matches) !== 2) {
+      return false;
+    }
+    return $matches[1];
+  }
+
+  protected function inheritsPermissions($acml)
+  {
+    if ($acml == false) {
+      //if no acml then default is inherit
+      $inherit = true;
+    } else {
+      $xpath = new DOMXPath($acml);
+      $inheritSearch = $xpath->query('/FezACML[inherit_security="on"]');
+      $inherit = false;
+      if ($inheritSearch->length > 0) {
+        $inherit = true;
+      }
+    }
+    return $inherit;
+  }
+
+  protected function addDatastreamSecurity($acml, $did)
+  {
+    // loop through the ACML docs found for the current pid or in the ancestry
+    $xpath = new DOMXPath($acml);
+    $roleNodes = $xpath->query('/FezACML/rule/role');
+
+    foreach ($roleNodes as $roleNode) {
+      $role = $roleNode->getAttribute('name');
+      // Use XPath to get the sub groups that have values
+      $groupNodes = $xpath->query('./*[string-length(normalize-space()) > 0]', $roleNode);
+
+      /* todo
+       * Empty rules override non-empty rules. Example:
+       * If a pid belongs to 2 collections, 1 collection has lister restricted to fez users
+       * and 1 collection has no restriction for lister, we want no restrictions for lister
+       * for this pid.
+       */
+
+      foreach ($groupNodes as $groupNode) {
+        $group_type = $groupNode->nodeName;
+        $group_values = explode(',', $groupNode->nodeValue);
+        foreach ($group_values as $group_value) {
+
+          //off is the same as lack of, so should be the same
+          if ($group_value != "off") {
+            $group_value = trim($group_value, ' ');
+
+            $arId = AuthRules::getOrCreateRule("!rule!role!" . $group_type, $group_value);
+            AuthNoFedoraDatastreams::addSecurityPermissions($did, $role, $arId);
+          }
+        }
+      }
     }
   }
 }
