@@ -693,7 +693,6 @@ class MigrateFromFedoraToDatabase
     if (!$this->_createOneShadowTable($originalTable)) {
       return false;
     }
-
     // Remove any unique keys copied from the search key table from the shadow table
     $this->_removeUniqueConstraintsCore();
 
@@ -759,7 +758,6 @@ class MigrateFromFedoraToDatabase
     $shadowTable = $originalTable . $this->_shadowTableSuffix;
 
     // Creates table duplicate from original sk table
-    // @todo: Update to use CREATE TABLE IF NOT EXISTS instead.
     if ($this->_isTableExists($shadowTable)) {
 
       $stmt = "DROP TABLE IF EXISTS " . $shadowTable;
@@ -781,6 +779,18 @@ class MigrateFromFedoraToDatabase
     } catch (Exception $ex) {
       echo "<br />Table " . $shadowTable . " creation failed. Here is why: " . $stmt . " <br />" . $ex . ".\n";
       return false;
+    }
+
+    // Loop until the table exists from the create above
+    $count = 0;
+    while (! $this->_isTableExists($shadowTable)) {
+      $count++;
+      sleep(1);
+      if ($count > 20) {
+        // Bail
+        echo "<br />Table " . $shadowTable . " creation failed.\n";
+        return false;
+      }
     }
 
     // echo "<br />Table ". $shadowTable ." has been created.\n";
@@ -831,7 +841,7 @@ class MigrateFromFedoraToDatabase
       try {
         $this->_db->exec($stmt);
       } catch (Exception $ex) {
-        // echo chr(10) . " <br /> No unique constraint to remove. " . $stmt ;
+        //echo "<br /> No unique constraint to remove. " . $stmt ;
       }
       // echo "ok!\n";
     }
@@ -842,8 +852,8 @@ class MigrateFromFedoraToDatabase
     try {
       $this->_db->exec($stmt);
     } catch (Exception $ex) {
-      // echo "<br />No constraint to remove " .$stmt . " - Exception=" . $ex;
-      return false;
+      //echo "<br />No constraint to remove " .$stmt . " - Exception=" . $ex;
+      //return false;
     }
     // echo "ok!\n\n";
   }
@@ -857,7 +867,7 @@ class MigrateFromFedoraToDatabase
       $this->_db->exec($stmt);
     } catch (Exception $ex) {
       // May fail if PRIMARY key does not exist (MySQL version > 5.1)
-      // echo "<br />NOTICE: No primary key to drop on ". $tableName;
+      echo "<br />NOTICE: No primary key to drop on ". $tableName;
     }
 
     $stmt = "ALTER TABLE " . $tableName . " DROP PRIMARY KEY;";
@@ -865,7 +875,7 @@ class MigrateFromFedoraToDatabase
       $this->_db->exec($stmt);
     } catch (Exception $ex) {
       // echo "<br />No constraint to remove " .$stmt . " - Exception=" . $ex;
-      return false;
+      // return false;
     }
 
     $stmt = "SHOW INDEX FROM " . $tableName . " WHERE Non_unique = 0 AND Key_name != 'PRIMARY'";
@@ -875,7 +885,7 @@ class MigrateFromFedoraToDatabase
       try {
         $this->_db->exec($stmt);
       } catch (Exception $ex) {
-        // echo chr(10) . " <br /> No unique constraint to remove. " . $stmt ;
+        //echo "<br /> No unique constraint to remove. " . $stmt ;
       }
       // echo "ok!\n";
     }

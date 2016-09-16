@@ -66,8 +66,10 @@ $tpl->assign("isSuperAdministrator", $isSuperAdministrator);
 
 if (APP_FEDORA_BYPASS == 'ON') {
   $tpl->assign("is_bypass", true);
+  $tpl->assign("base_name", "");
 } else {
   $tpl->assign("is_bypass", false);
+  $tpl->assign("base_name", "Fedora ");
 }
 
 if (!($isAdministrator || $isSuperAdministrator)) {
@@ -75,7 +77,7 @@ if (!($isAdministrator || $isSuperAdministrator)) {
 }
 
 $reindex = new Reindex;
-$terms = Pager::getParam('keywords')."*"; 
+$terms = Pager::getParam('keywords')."*";
 $tpl->assign('keywords', Pager::getParam('keywords'));
 
 if ($_POST["action"] !== "prompt" && $_POST["action"] !== "index") {
@@ -92,7 +94,7 @@ if ($_POST["action"] !== "prompt" && $_POST["action"] !== "index") {
     } elseif (!empty($_POST["undelete"])) {
         $index_type = Reindex::INDEX_TYPE_UNDELETE;
     }
-    
+
     if ($_POST["action"] == "prompt") {
         $display_screen = "PROMPT";
     } elseif ($_POST["action"] == "index") {
@@ -102,7 +104,7 @@ if ($_POST["action"] !== "prompt" && $_POST["action"] !== "index") {
         	$params['index_type'] = $index_type;
         	Reindex::indexFezFedoraObjects($params);
         }
-        
+
         if (!empty($_POST["do_all"]) || !empty($_POST["solr_do_all"])) {
             $params = &$_POST;
             $bgp = new BackgroundProcess_Index_Object();
@@ -127,7 +129,7 @@ $options = Pager::saveSearchParams();
 $tpl->assign("options", $options);
 
 if ($_POST["action"] == "prompt" || $_POST["action"] == "index") {
-    
+
     if ($index_type == Reindex::INDEX_TYPE_FEDORAINDEX) {
         $details = $reindex->getMissingList($pagerRow, $rows, $terms);
     } elseif ($index_type == Reindex::INDEX_TYPE_REINDEX || $index_type == Reindex::INDEX_TYPE_ORIGAMI) {
@@ -135,13 +137,13 @@ if ($_POST["action"] == "prompt" || $_POST["action"] == "index") {
     } elseif ($index_type == Reindex::INDEX_TYPE_UNDELETE) {
     	$details = $reindex->getDeletedList($pagerRow, $rows, $terms);
     }
-    
+
 	$tpl->assign("list", $details['list']);
 	$tpl->assign("list_info", $details['info']);
-	
+
 	$status_list = Status::getAssocList();
 	$communities_list = Community::getCreatorListAssoc();
-	
+
 	$tpl->assign('status_list', $status_list);
 	$tpl->assign('communities_list', $communities_list);
 	$tpl->registerNajax(NAJAX_Client::register('SelectReindexInfo', APP_RELATIVE_URL.'ajax.php'));

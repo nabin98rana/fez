@@ -466,6 +466,16 @@ class Reindex
 
   function reindexFullList($params, $terms)
   {
+
+    // This is irrelevant for bypass mode so return
+    if (APP_FEDORA_BYPASS == 'ON') {
+      if (!empty($this->bgp)) {
+        $this->bgp->setStatus("Full reindex is not relevant when in bypass mode, aborting.");
+        $this->bgp->setProgress(100);
+      }
+      return;
+    }
+
     $this->terms = $terms;
     $reindex_record_counter = 0;
     $bgp_details = $this->bgp->getDetails();

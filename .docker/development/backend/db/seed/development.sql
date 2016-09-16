@@ -51,7 +51,7 @@ SET config_value = '/data'
 WHERE config_name = 'app_fedora_path_direct';
 
 UPDATE fez_config
-SET config_value = 'ON'
+SET config_value = 'OFF'
 WHERE config_name = 'app_fedora_apia_direct';
 
 UPDATE fez_config

@@ -575,7 +575,7 @@ class RecordGeneral
       // Update record search key
       $recordSearchKey = new Fez_Record_Searchkey($this->pid);
       $recordSearchKey->updateRecordIsMemberOf($value, $removeCurrent);
-      return;
+      return 1;
     }
 
     $newXML = "";

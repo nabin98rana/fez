@@ -69,5 +69,28 @@ class Links
  		return $res;
  	}
 
+ 	public static function purgeLinks($pid)
+  {
+    $log = FezLog::get();
+    $db = DB_API::get();
 
+    $stmt = "
+ 			DELETE FROM
+ 				" . APP_TABLE_PREFIX . "record_search_key_link
+ 			WHERE
+ 			  rek_link_pid = ".$db->quote($pid);
+
+    $stmt2 = "
+ 			DELETE FROM
+ 				" . APP_TABLE_PREFIX . "record_search_key_link_description
+ 		  WHERE
+ 			  rek_link_description_pid = ".$db->quote($pid);
+    try {
+      $db->fetchAll($stmt);
+      $db->fetchAll($stmt2);
+    }
+    catch(Exception $ex) {
+      $log->err($ex);
+    }
+  }
 }

@@ -539,6 +539,8 @@ class RecordObject extends RecordGeneral
           && !Misc::hasPrefix($dsIDName, 'stream_')
           && !Misc::hasPrefix($dsIDName, 'thumbnail_')
       ) {
+        $new_dsID = Foxml::makeNCName($dsIDName);
+
         // first extract the image and save temporary copy
         if (APP_FEDORA_BYPASS == 'ON') {
           $tmpPth = APP_TEMP_DIR . $dsIDName;
@@ -553,7 +555,6 @@ class RecordObject extends RecordGeneral
           $handle = fopen(APP_TEMP_DIR . $dsIDName, "w");
           Misc::processURL($urldata, false, $handle);
           fclose($handle);
-          $new_dsID = Foxml::makeNCName($dsIDName);
           if ($new_dsID != $dsIDName) {
             // delete and re-ingest - need to do this because sometimes the object made it
             // into the repository even though it's dsID is illegal.

@@ -103,6 +103,11 @@ if ($accounts) {
 } else if (!empty($list)) {
     $result = ApiResearchers::listId($author_username);
 
+    // don't allow this to be cached, should be real time
+    header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
+    header("Cache-Control: post-check=0, pre-check=0", false);
+    header("Pragma: no-cache");
+
     if ($result) {
       if (!empty($id_type)){
           foreach($result as $details) {
