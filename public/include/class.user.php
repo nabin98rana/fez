@@ -1261,7 +1261,7 @@ class User
 			$db->exec($stmt);
 		}
 		catch(Exception $ex) {
-			$log->err($ex);
+			//$log->err($ex);
 			return -1;
 		}
 		$new_usr_id = $db->lastInsertId(APP_TABLE_PREFIX . "user", "usr_id");
