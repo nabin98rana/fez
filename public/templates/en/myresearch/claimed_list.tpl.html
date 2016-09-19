@@ -102,11 +102,6 @@ function correctionRequired(pid)
 			        </th>
                     <th style="text-align: center; padding: 2px;">
                         {if $list_info.total_rows > 0}
-						<img src="{$rel_url}images/tiered_journal_list_16.png" title="UQ Tiered Journal List" alt="UQ Tiered Journal List" />
-						{/if}
-					</th>
-                    <th style="text-align: center; padding: 2px;">
-                        {if $list_info.total_rows > 0}
                         <img src="{$rel_url}images/journal_listed_b_16.png" title="ERA 2015 Journal Listed" alt="ERA 2015 Journal Listed" />
                         {/if}
                     </th>
@@ -178,9 +173,6 @@ function correctionRequired(pid)
 					<a href="{$rel_url}view/{$list[i].rek_pid}" target="_blank">{$list[i].rek_title}</a>
 				{/if}
 				{if $list[i].rek_status != '2'} &nbsp; (not yet published by an Administrator) {/if}
-			</td>
-            <td style="vertical-align: middle; text-align: center; border-top:1px dashed #be87e9;">
-				{if $list[i].rj_tier_rank}<a href="#" title="{$list[i].rj_tier_title}">UQ Tier {$list[i].rj_tier_rank}</a>{else}<a href="#" title="This publication is not identified as being in the 2015 UQ Tiered Journal list.">-</a>{/if}
 			</td>
             <td style="vertical-align: middle; text-align: center; border-top:1px dashed #be87e9;">
                 {if $list[i].rj_2015_title}<a href="#" title="{$list[i].rj_2015_title}">Y</a>{else}<a href="#" title="This publication is outside the ERA 2015 window (pre-2008) and/or not identified as being in a 2015 ERA Listed Journal.">-</a>{/if}
