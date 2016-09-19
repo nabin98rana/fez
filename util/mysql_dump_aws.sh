@@ -74,6 +74,7 @@ mysqldump \
 ${MYSQL_CMD} -e 'start slave'
 
 rm -f export/__*
+rm -f export/fez_background_process.txt
 rm -f export/fez_config.sql
 rm -f export/fez_config.txt
 rm -f export/fez_statistics_all.txt

@@ -45,7 +45,7 @@ class BackgroundProcess_Migrate_Fedora extends BackgroundProcess
   function run() {
     $this->setState(BGP_RUNNING);
     extract(unserialize($this->inputs));
-    $migrate = new MigrateFromFedoraToDatabase(false);
+    $migrate = new MigrateFromFedoraToDatabase();
     $migrate->runMigration();
     $this->setState(BGP_FINISHED);
   }
