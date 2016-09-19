@@ -61,7 +61,7 @@ class MigrateFromFedoraToDatabase
 
   public function runMigration()
   {
-    $this->_env = strtolower($_SERVER['APPLICATION_ENV']);
+    $this->_env = strtolower($_SERVER['APP_ENVIRONMENT']);
 
     // Message/warning about backing up before running the migration script.
     $this->preMigration();
