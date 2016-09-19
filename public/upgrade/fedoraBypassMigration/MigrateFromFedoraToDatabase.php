@@ -50,6 +50,7 @@ class MigrateFromFedoraToDatabase
 {
   protected $_log = null;
   protected $_db = null;
+  protected $_fedoraDb = null;
   protected $_env = null;
   protected $_shadowTableSuffix = "__shadow";
 
@@ -57,6 +58,7 @@ class MigrateFromFedoraToDatabase
   {
     $this->_log = FezLog::get();
     $this->_db = DB_API::get();
+    $this->_fedoraDb = DB_API::get('fedora_db');
   }
 
   public function runMigration()
@@ -212,7 +214,7 @@ class MigrateFromFedoraToDatabase
 
     $ds = [];
     try {
-      $ds = $this->_db->fetchAll($stmt);
+      $ds = $this->_fedoraDb->fetchAll($stmt);
     } catch (Exception $ex) {
       echo "Failed to retrieve exif data. Error: " . $ex;
     }
