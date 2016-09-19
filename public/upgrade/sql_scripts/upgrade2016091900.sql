@@ -215,7 +215,7 @@ CREATE TABLE IF NOT EXISTS %TABLE_PREFIX%record_search_key_architectural_feature
   rek_architectural_features_stamp datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (rek_architectural_features_pid,rek_architectural_features_order,rek_architectural_features_stamp),
   KEY rek_architectural_features_pid (rek_architectural_features_pid),
-  FULLTEXT KEY fulltext (rek_architectural_features)
+  FULLTEXT KEY rek_architectural_features_ft (rek_architectural_features)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 
@@ -365,7 +365,7 @@ CREATE TABLE IF NOT EXISTS %TABLE_PREFIX%record_search_key_building_materials__s
   rek_building_materials_stamp datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (rek_building_materials_pid,rek_building_materials_order,rek_building_materials_stamp),
   KEY rek_building_materials_pid (rek_building_materials_pid),
-  FULLTEXT KEY fulltext (rek_building_materials)
+  FULLTEXT KEY rek_building_materials_ft (rek_building_materials)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 
@@ -384,7 +384,7 @@ CREATE TABLE IF NOT EXISTS %TABLE_PREFIX%record_search_key_category__shadow (
   rek_category_stamp datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (rek_category_pid,rek_category_order,rek_category_stamp),
   KEY rek_category_pid (rek_category_pid),
-  FULLTEXT KEY rek_category (rek_category)
+  FULLTEXT KEY rek_category_ft (rek_category)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 
@@ -437,7 +437,7 @@ CREATE TABLE IF NOT EXISTS %TABLE_PREFIX%record_search_key_condition__shadow (
   rek_condition_stamp datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (rek_condition_pid,rek_condition_order,rek_condition_stamp),
   KEY rek_condition_pid (rek_condition_pid),
-  FULLTEXT KEY rek_condition (rek_condition)
+  FULLTEXT KEY rek_condition_ft (rek_condition)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 
@@ -1114,7 +1114,7 @@ CREATE TABLE IF NOT EXISTS %TABLE_PREFIX%record_search_key_interior_features__sh
   rek_interior_features_stamp datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (rek_interior_features_pid,rek_interior_features_order,rek_interior_features_stamp),
   KEY rek_interior_features_pid (rek_interior_features_pid),
-  FULLTEXT KEY rek_interior_features (rek_interior_features)
+  FULLTEXT KEY rek_interior_features_ft (rek_interior_features)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 
@@ -1318,7 +1318,7 @@ CREATE TABLE IF NOT EXISTS %TABLE_PREFIX%record_search_key_keywords__shadow (
   KEY rek_keywords_pid (rek_keywords_pid),
   KEY rek_keywords (rek_keywords),
   KEY rek_keywords_order (rek_keywords_order),
-  FULLTEXT KEY keywords_fulltext_fresh (rek_keywords)
+  FULLTEXT KEY rek_keywords_ft (rek_keywords)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 
@@ -1524,7 +1524,7 @@ CREATE TABLE IF NOT EXISTS %TABLE_PREFIX%record_search_key_na_explanation__shado
   rek_na_explanation text,
   rek_na_explanation_stamp datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (rek_na_explanation_pid,rek_na_explanation_stamp),
-  FULLTEXT KEY rek_na_explanation (rek_na_explanation)
+  FULLTEXT KEY rek_na_explanation_ft (rek_na_explanation)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 
@@ -1648,7 +1648,7 @@ CREATE TABLE IF NOT EXISTS %TABLE_PREFIX%record_search_key_notes__shadow (
   rek_notes text,
   rek_notes_stamp datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (rek_notes_pid,rek_notes_stamp),
-  FULLTEXT KEY rek_notes (rek_notes)
+  FULLTEXT KEY rek_notes_ft (rek_notes)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 
@@ -1838,7 +1838,7 @@ CREATE TABLE IF NOT EXISTS %TABLE_PREFIX%record_search_key_period__shadow (
   rek_period_stamp datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (rek_period_pid,rek_period_order,rek_period_stamp),
   KEY rek_period_pid (rek_period_pid),
-  FULLTEXT KEY rek_period (rek_period)
+  FULLTEXT KEY rek_period_ft (rek_period)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 
@@ -1953,7 +1953,7 @@ CREATE TABLE IF NOT EXISTS %TABLE_PREFIX%record_search_key_print_details__shadow
   rek_print_details text,
   rek_print_details_stamp datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (rek_print_details_pid,rek_print_details_stamp),
-  FULLTEXT KEY rek_print_details (rek_print_details)
+  FULLTEXT KEY rek_print_details_ft (rek_print_details)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 
@@ -2146,7 +2146,7 @@ CREATE TABLE IF NOT EXISTS %TABLE_PREFIX%record_search_key_references__shadow (
   rek_references text,
   rek_references_stamp datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (rek_references_pid,rek_references_stamp),
-  FULLTEXT KEY rek_references (rek_references)
+  FULLTEXT KEY rek_references_ft (rek_references)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 
@@ -2393,7 +2393,7 @@ CREATE TABLE IF NOT EXISTS %TABLE_PREFIX%record_search_key_sensitivity_explanati
   rek_sensitivity_explanation text,
   rek_sensitivity_explanation_stamp datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (rek_sensitivity_explanation_pid,rek_sensitivity_explanation_stamp),
-  FULLTEXT KEY rek_sensitivity_explanation (rek_sensitivity_explanation)
+  FULLTEXT KEY rek_sensitivity_explanation_ft (rek_sensitivity_explanation)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 
@@ -2522,7 +2522,7 @@ CREATE TABLE IF NOT EXISTS %TABLE_PREFIX%record_search_key_structural_systems__s
   rek_structural_systems_stamp datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (rek_structural_systems_pid,rek_structural_systems_order,rek_structural_systems_stamp),
   KEY rek_structural_systems_pid (rek_structural_systems_pid),
-  FULLTEXT KEY rek_structural_systems (rek_structural_systems)
+  FULLTEXT KEY rek_structural_systems_ft (rek_structural_systems)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 
@@ -2541,7 +2541,7 @@ CREATE TABLE IF NOT EXISTS %TABLE_PREFIX%record_search_key_style__shadow (
   rek_style_stamp datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (rek_style_pid,rek_style_order,rek_style_stamp),
   KEY rek_style_pid (rek_style_pid),
-  FULLTEXT KEY rek_style (rek_style)
+  FULLTEXT KEY rek_style_ft (rek_style)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 
@@ -2560,7 +2560,7 @@ CREATE TABLE IF NOT EXISTS %TABLE_PREFIX%record_search_key_subcategory__shadow (
   rek_subcategory_stamp datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (rek_subcategory_pid,rek_subcategory_order,rek_subcategory_stamp),
   KEY rek_subcategory_pid (rek_subcategory_pid),
-  FULLTEXT KEY rek_subcategory (rek_subcategory)
+  FULLTEXT KEY rek_subcategory_ft (rek_subcategory)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 
@@ -2639,7 +2639,7 @@ CREATE TABLE IF NOT EXISTS %TABLE_PREFIX%record_search_key_surrounding_features_
   rek_surrounding_features_stamp datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (rek_surrounding_features_pid,rek_surrounding_features_order,rek_surrounding_features_stamp),
   KEY rek_surrounding_features_pid (rek_surrounding_features_pid),
-  FULLTEXT KEY rek_surrounding_features (rek_surrounding_features)
+  FULLTEXT KEY rek_surrounding_features_ft (rek_surrounding_features)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 
@@ -2761,7 +2761,7 @@ CREATE TABLE IF NOT EXISTS %TABLE_PREFIX%record_search_key_transcript__shadow (
   rek_transcript_stamp datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (rek_transcript_pid,rek_transcript_stamp),
   KEY rek_transcript_pid (rek_transcript_pid),
-  FULLTEXT KEY rek_transcript (rek_transcript)
+  FULLTEXT KEY rek_transcript_ft (rek_transcript)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 
