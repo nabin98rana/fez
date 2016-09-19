@@ -50,6 +50,7 @@ class MigrateFromFedoraToDatabase
 {
   protected $_log = null;
   protected $_db = null;
+  protected $_fedoraDb = null;
   protected $_env = null;
   protected $_shadowTableSuffix = "__shadow";
 
@@ -57,6 +58,7 @@ class MigrateFromFedoraToDatabase
   {
     $this->_log = FezLog::get();
     $this->_db = DB_API::get();
+    $this->_fedoraDb = DB_API::get('fedora_db');
   }
 
   public function runMigration()
@@ -212,7 +214,7 @@ class MigrateFromFedoraToDatabase
 
     $ds = [];
     try {
-      $ds = $this->_db->fetchAll($stmt);
+      $ds = $this->_fedoraDb->fetchAll($stmt);
     } catch (Exception $ex) {
       echo "Failed to retrieve exif data. Error: " . $ex;
     }
@@ -247,8 +249,7 @@ class MigrateFromFedoraToDatabase
       }
 
       $this->toggleAwsStatus(true);
-      $location = 'https://s3-ap-southeast-2.amazonaws.com/uql-fez-production-san/migration/' .
-        str_replace('/espace/data/fedora_datastreams/', '', $path);
+      $location = 'migration/' . str_replace('/espace/data/fedora_datastreams/', '', $path);
 
       if ($cloneExif) {
         Exiftool::cloneExif($pid, $dsName, $pid, $dsName, $exif);
@@ -256,7 +257,7 @@ class MigrateFromFedoraToDatabase
 
       Fedora_API::callAddDatastream(
         $pid, $dsName, $location, '', $state,
-        $exif['exif_mime_type'], 'M', false, "", false
+        $exif['exif_mime_type'], 'M', false, "", false, 'uql-fez-production-san'
       );
 
       $did = AuthNoFedoraDatastreams::getDid($pid, $dsName);
