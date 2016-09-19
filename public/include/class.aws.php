@@ -299,20 +299,24 @@ class AWS
    * Copies a file from the S3 source $src to another S3 src $newSrc
    * @param string $src
    * @param string $newSrc
+   * @param bool|string $srcBucket
    * @return AWS\Result|boolean An AWS\Result object, or false if the copy failed
    */
-  public function copyFile($src, $newSrc)
+  public function copyFile($src, $newSrc, $srcBucket = false)
   {
     // Create an Amazon S3 client using the shared configuration data.
     $client = $this->sdk->createS3();
 
     $key = $this->createPath($src, '');
     $newKey = $this->createPath($newSrc, '');
+    if (! $srcBucket) {
+      $srcBucket = $this->s3Bucket;
+    }
     try {
       $object = [
         'Bucket'     => $this->s3Bucket,
         'Key'        => $newKey,
-        'CopySource' => "{$this->s3Bucket}/{$key}",
+        'CopySource' => "{$srcBucket}/{$key}",
       ];
       $res = $client->copyObject($object);
       return $res;

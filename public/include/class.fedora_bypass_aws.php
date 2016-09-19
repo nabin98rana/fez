@@ -337,9 +337,10 @@ class Fedora_API implements FedoraApiInterface {
 	 * @param bool|string $versionable Whether to version control this datastream or not
 	 * @param string $xmlContent If it an X based xml content file then it uses a var rather than a file location
 	 * @param bool $unlinkLocalFile
+   * @param bool|string $srcBucket
 	 * @return integer
 	 */
-	public static function callAddDatastream($pid, $dsID, $dsLocation, $dsLabel, $dsState, $mimetype, $controlGroup = 'M', $versionable = FALSE, $xmlContent = "", $unlinkLocalFile = false)
+	public static function callAddDatastream($pid, $dsID, $dsLocation, $dsLabel, $dsState, $mimetype, $controlGroup = 'M', $versionable = FALSE, $xmlContent = "", $unlinkLocalFile = false, $srcBucket = false)
 	{
 		if (is_numeric(strpos($dsID, chr(92)))) {
 			$dsID = substr($dsID, strrpos($dsID, chr(92))+1);
@@ -357,7 +358,7 @@ class Fedora_API implements FedoraApiInterface {
         unlink($dsLocation);
       }
     } else {
-      $obj = $aws->copyFile($dsLocation, $dataPath."/".$dsID);
+      $obj = $aws->copyFile($dsLocation, $dataPath."/".$dsID, $srcBucket);
     }
     if (! $obj) {
       return false;
