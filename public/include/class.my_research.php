@@ -1300,7 +1300,7 @@ class MyResearch
             $stmt
                 .= "
 					(aut_org_username LIKE " . $db->quote("%$username%") . "
-					OR aut_student_username ILIKE " . $db->quote("%$username%") . "
+					OR aut_student_username LIKE " . $db->quote("%$username%") . "
 					OR CONCAT_WS(' ', aut_fname, aut_lname) LIKE " . $db->quote("%$username%") . ")
 					AND user_name != ''";
         }
