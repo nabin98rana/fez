@@ -231,8 +231,10 @@ class MigrateFromFedoraToDatabase
 
       $path = $dataStream['path'];
       $state = $dataStream['state'];
+      echo "Getting ACML from Fedora..\n";
       $dsName = $this->getDsNameFromPath($pid, $path);
       $acml = Record::getACML($pid, $dsName);
+      echo "Got ACML from Fedora..\n";
 
       $cloneExif = true;
       if(
@@ -255,6 +257,7 @@ class MigrateFromFedoraToDatabase
         Exiftool::cloneExif($pid, $dsName, $pid, $dsName, $exif);
       }
 
+      echo "Adding datastream for {$dsName}..\n";
       Fedora_API::callAddDatastream(
         $pid, $dsName, $location, '', $state,
         $exif['exif_mime_type'], 'M', false, "", false, 'uql-fez-production-san'
