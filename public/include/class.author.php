@@ -220,9 +220,10 @@ class Author
              FROM
                 " . APP_TABLE_PREFIX . "author
              WHERE
-                aut_org_username = ".$db->quote($username) . " ";
+                (aut_student_username = ".$db->quote($username) . "
+                OR aut_org_username = ".$db->quote($username) . ")";
     if ($exclude != '') {
-      $stmt .= "AND aut_id != " . $db->quote($exclude) . "";
+      $stmt .= " AND aut_id != " . $db->quote($exclude) . "";
     }
 
     try {
@@ -268,6 +269,41 @@ class Author
     }
     return $res;
   }
+
+  /**
+   * Method used to get the author ID of the given author org student ID.
+   *
+   * @access  public
+   * @param   string $orgStudentID The author org staff ID
+   * @return  integer The author ID
+   */
+  function getIDByOrgStudentID($orgStudentID, $exclude = '')
+  {
+    $log = FezLog::get();
+    $db = DB_API::get();
+
+    $stmt = "
+              SELECT
+                aut_id
+              FROM
+                " . APP_TABLE_PREFIX . "author
+              WHERE
+                aut_org_student_id = " . $db->quote($orgStudentID) . "
+            ";
+    if ($exclude != '') {
+      $stmt .= "AND aut_id != " . $db->quote($exclude) . "";
+    }
+
+    try {
+      $res = $db->fetchOne($stmt);
+    }
+    catch(Exception $ex) {
+      $log->err($ex);
+      return false;
+    }
+    return $res;
+  }
+
 
   /**
    * Method used to get the title of a given author ID.
@@ -349,12 +385,12 @@ class Author
     return $res;
   }
 
-  public static function getDetailsByUsername($aut_org_username)
+  public static function getDetailsByUsername($username)
   {
     $log = FezLog::get();
     $db = DB_API::get();
 
-    if (empty($aut_org_username)) {
+    if (empty($username)) {
        return "";
     }
 
@@ -363,8 +399,9 @@ class Author
              FROM
                 " . APP_TABLE_PREFIX . "author
              WHERE
-                aut_org_username=".$db->quote($aut_org_username)."
-             OR aut_mypub_url=".$db->quote($aut_org_username);
+                aut_org_username=".$db->quote($username)."
+                OR aut_student_username=".$db->quote($username)."
+             OR aut_mypub_url=".$db->quote($username);
     try {
       $res = $db->fetchRow($stmt, array(), Zend_Db::FETCH_ASSOC);
     }
@@ -430,6 +467,18 @@ class Author
       }
     }
 
+    if (trim($_POST["student_username"] !== "")) {
+      if (Author::getIDByUsername(trim($_POST["student_username"]), $_POST["id"])) {
+        return -5;
+      }
+    }
+
+    if (trim($_POST["org_student_id"] !== "")) {
+      if (Author::getIDByOrgStudentID(trim($_POST["org_student_id"]), $_POST["id"])) {
+        return -3;
+      }
+    }
+
     $rid = "";
     // RIDs are always 11 chars
     if (strlen(trim($_POST["researcher_id"])) == 11 || strlen(trim($_POST["researcher_id"])) == 0) {
@@ -449,14 +498,14 @@ class Author
                     aut_lname=" . $db->quote(trim($_POST["lname"])) . ",
                     aut_display_name=" . $db->quote(trim($_POST["dname"])) . ",
                     aut_position=" . $db->quote(trim($_POST["position"])) . ",
-          					aut_email=" . $db->quote(trim($_POST["email"])) . ",
+          			aut_email=" . $db->quote(trim($_POST["email"])) . ",
                     aut_homepage_link=" . $db->quote(trim($_POST["homepage_link"])) . ",
                     aut_ref_num=" . $db->quote(trim($_POST["aut_ref_num"])) . ",
                     aut_scopus_id=" . $db->quote(trim($_POST["scopus_id"])).",
                     aut_google_scholar_id=" . $db->quote(trim($_POST["google_scholar_id"])).",
-					          aut_people_australia_id=" . $db->quote(trim($_POST["people_australia_id"])).",
+					aut_people_australia_id=" . $db->quote(trim($_POST["people_australia_id"])).",
                     aut_mypub_url=" . $db->quote(trim($_POST["mypub_url"])).",
-          					aut_description=" . $db->quote($stripped_description) . ",
+          			aut_description=" . $db->quote($stripped_description) . ",
                     aut_update_date=" . $db->quote(Date_API::getCurrentDateGMT());
     if (trim($_POST["org_staff_id"] !== "")) {
       $stmt .= ",aut_org_staff_id=" . $db->quote(trim($_POST["org_staff_id"])) . " ";
@@ -472,6 +521,11 @@ class Author
       $stmt .= ",aut_org_username=" . $db->quote(trim($_POST["org_username"])) . " ";
     } else {
       $stmt .= ",aut_org_username=null ";
+    }
+    if (trim($_POST["student_username"] !== "")) {
+      $stmt .= ",aut_student_username=" . $db->quote(trim($_POST["student_username"])) . " ";
+    } else {
+      $stmt .= ",aut_student_username=null ";
     }
     $stmt .= "WHERE
                     aut_id=" . $db->quote($_POST["id"], 'INTEGER');
@@ -503,10 +557,10 @@ class Author
              SET
                 aut_mypub_url=? ";
     $stmt .= "WHERE
-                aut_org_username=?";
+                aut_org_username=? OR aut_student_username=?";
 
     try {
-      $db->query($stmt, array($mypub_url, $username));
+      $db->query($stmt, array($mypub_url, $username, $username));
     }
     catch(Exception $ex) {
       $log->err($ex);
@@ -560,7 +614,7 @@ class Author
             $db->update(
                 APP_TABLE_PREFIX . 'author',
                 $data,
-                'aut_org_username = ' . $db->quote($org_username)
+                '(aut_org_username = ' . $db->quote($org_username) . ' OR aut_student_username = ' . $db->quote($org_username) . ')'
             );
         }
         catch(Exception $ex) {
@@ -598,6 +652,18 @@ class Author
       }
     }
 
+    if (trim($_POST["student_username"] !== "")) {
+      if (Author::getIDByUsername(trim($_POST["student_username"]))) {
+        return -5;
+      }
+    }
+
+    if (trim($_POST["org_student_id"] !== "")) {
+      if (Author::getIDByOrgStudentID(trim($_POST["org_student_id"]))) {
+        return -6;
+      }
+    }
+
     $insert = "INSERT INTO
                     " . APP_TABLE_PREFIX . "author
                  (
@@ -615,6 +681,9 @@ class Author
     }
     if (trim($_POST["org_username"] !== "")) {
       $insert .= ", aut_org_username ";
+    }
+    if (trim($_POST["student_username"] !== "")) {
+      $insert .= ", aut_student_username ";
     }
     if ($_POST["mname"] !== "") {
       $insert .= ", aut_mname ";
@@ -671,6 +740,9 @@ class Author
     }
     if (trim($_POST["org_username"] !== "")) {
       $values .= ", " . $db->quote(trim($_POST["org_username"]));
+    }
+    if (trim($_POST["student_username"] !== "")) {
+      $values .= ", " . $db->quote(trim($_POST["student_username"]));
     }
     if ($_POST["mname"] !== "") {
       $values .= ", " . $db->quote(trim($_POST["mname"]));
@@ -729,7 +801,7 @@ class Author
    * @access  public
    * @return  array The list of authors
    */
-  function getList($current_row = 0, $max = 25, $order_by = 'aut_lname', $filter="", $staff_id = "")
+  function getList($current_row = 0, $max = 25, $order_by = 'aut_lname', $filter="", $staff_or_student_id = "")
   {
     $log = FezLog::get();
     $db = DB_API::get();
@@ -750,18 +822,19 @@ class Author
             $where_stmt .= " AND ";
           }
 			    if (is_numeric(strpos(APP_SQL_DBTYPE, "pgsql"))) {
-						$where_stmt .= " (aut_fname ILIKE ".$db->quote('%'.$name.'%')." OR aut_lname ILIKE ".$db->quote('%'.$name.'%')." OR aut_org_username ILIKE ".$db->quote($name.'%').") ";
+						$where_stmt .= " (aut_fname ILIKE ".$db->quote('%'.$name.'%')." OR aut_lname ILIKE ".$db->quote('%'.$name.'%')." OR aut_org_username ILIKE ".$db->quote($name.'%').") OR aut_student_username ILIKE ".$db->quote($name.'%').") ";
 					} else {
-          	$where_stmt .= " (aut_fname LIKE ".$db->quote($name.'%')." OR aut_lname LIKE ".$db->quote($name.'%')." OR aut_org_username LIKE ".$db->quote($name.'%').") ";
+          	$where_stmt .= " (aut_fname LIKE ".$db->quote($name.'%')." OR aut_lname LIKE ".$db->quote($name.'%')." OR aut_org_username LIKE ".$db->quote($name.'%').") OR aut_student_username LIKE ".$db->quote($name.'%').")";
 					}
         }
       } else {
-        $where_stmt .= " WHERE MATCH(aut_fname, aut_lname) AGAINST (".$db->quote(''.$filter.'*')." IN BOOLEAN MODE) OR aut_org_username LIKE ".$db->quote($filter.'%')." ";
+        $where_stmt .= " WHERE MATCH(aut_fname, aut_lname) AGAINST (".$db->quote(''.$filter.'*')." IN BOOLEAN MODE) OR aut_org_username LIKE ".$db->quote($filter.'%')." OR aut_student_username LIKE ".$db->quote($filter.'%')." ";
         $extra_stmt = " , MATCH(aut_fname, aut_lname) AGAINST (".$db->quote($filter).") as Relevance ";
         $extra_order_stmt = " Relevance DESC, ";
       }
-    } else if (!empty($staff_id)) {
-      $where_stmt .= " WHERE aut_org_staff_id = ".$db->quote($staff_id);
+    } else if (!empty($staff_or_student_id)) {
+      $where_stmt .= " WHERE aut_org_staff_id = ".$db->quote($staff_or_student_id);
+      $where_stmt .= " OR aut_org_student_id = ".$db->quote($staff_or_student_id);
     }
 
     $start = $current_row * $max;
@@ -926,7 +999,7 @@ class Author
     }
 
     $start = $current_row * $max;
-    $stmt = "SELECT SQL_CALC_FOUND_ROWS
+    $stmt = "SELECT SQL_CALC_FOUND_ROWS *
                  FROM
                     " . APP_TABLE_PREFIX . "author
         ".$where_stmt."
@@ -1318,12 +1391,17 @@ class Author
 
     $dbtp = APP_TABLE_PREFIX;
 
+    // remove spaces
+    $term = trim($term);
+
     // some function like concat_ws might not be supportd in all databases, however postgresql does
     // have a mysql_compat plugin library that adds these..
     // Could be done in the code later if it is a problem
-    $stmt = "SELECT aut_id as id, concat_ws(' - ', aut_org_username, aut_org_staff_id)  as username,
-             aut_fullname as name  FROM (
-                SELECT aut_id, aut_org_username, aut_org_staff_id, aut_display_name as aut_fullname";
+    $stmt = "SELECT aut_id as id, aut_orcid_id, concat_ws(' - ', aut_org_username, aut_org_staff_id) AS username,
+             concat_ws(' - ', aut_student_username, aut_org_student_id) AS student_username,
+             aut_fullname AS name, publications FROM (
+                SELECT aut_id, aut_org_username, aut_orcid_id, aut_student_username, aut_org_staff_id, aut_org_student_id,
+                 aut_display_name AS aut_fullname, COUNT(rek_author_id) AS publications";
 
     // For the Author table we are going to keep it in MyISAM if you are using MySQL because there is no
     // table locking issue with this table like with others.
@@ -1335,13 +1413,14 @@ class Author
         if (strlen($term) < 8 && (strpos($term, ' ') !== FALSE)) {
             $tempTerm = substr($term, 0, strpos($term, ' '));;
             $tempTerm = str_replace(array(',', ' '),'',$tempTerm);
-            $stmt .= ' , MATCH (aut_lname) AGAINST ("'.$tempTerm.'") AS Relevance';
+            $stmt .= ', MATCH (aut_lname) AGAINST ("'.$tempTerm.'") AS Relevance';
         } else {
-            $stmt .= " , MATCH (aut_display_name) AGAINST (".$db->quote($term).") as Relevance ";
+            $stmt .= ", MATCH (aut_display_name) AGAINST (".$db->quote($term).") as Relevance ";
         }
     }
 
     $stmt .= " FROM ".$dbtp."author";
+    $stmt .= " LEFT JOIN " . $dbtp . "record_search_key_author_id ON aut_id = rek_author_id";
 
     if (is_numeric($term)) {
         if (($term[0]) == 0) {
@@ -1352,7 +1431,7 @@ class Author
 
     } else if (is_numeric(strpos(APP_SQL_DBTYPE, "mysql"))) {
       $stmt .= " WHERE ( aut_lname = ".$db->quote($term)." OR MATCH (aut_display_name) AGAINST (".$db->quote(''.$term.'*')." IN BOOLEAN MODE)
-                 OR MATCH (aut_org_username) AGAINST (".$db->quote($term)." IN BOOLEAN MODE) OR aut_ref_num = ".$db->quote($term);
+                 OR MATCH (aut_org_username) AGAINST (".$db->quote($term)." IN BOOLEAN MODE) OR  MATCH (aut_student_username) AGAINST (".$db->quote($term)." IN BOOLEAN MODE) OR aut_ref_num = ".$db->quote($term);
     } else {
       $stmt .= " WHERE (";
       $names = explode(" ", $term);
@@ -1365,10 +1444,12 @@ class Author
         if (is_numeric(strpos(APP_SQL_DBTYPE, "pgsql"))) {
           $stmt .= " (aut_fname ILIKE ".$db->quote('%'.$name.'%')."
                       OR aut_lname ILIKE ".$db->quote('%'.$name.'%')."
+                      OR aut_student_username = ".$db->quote($name)."
                       OR aut_org_username = ".$db->quote($name).") ";
         } else {
           $stmt .= " (aut_fname LIKE ".$db->quote($name.'%')."
                      OR aut_lname LIKE ".$db->quote($name.'%')."
+                     OR aut_student_username = ".$db->quote($name)."
                      OR aut_org_username = ".$db->quote($name).") ";
         }
       }
@@ -1377,8 +1458,11 @@ class Author
     $stmt .= " ) ";
 
     if (APP_AUTHOR_SUGGEST_MODE == 2) {
-      $stmt .= " AND ((aut_org_username IS NOT NULL AND aut_org_username != '') OR (aut_org_staff_id IS NOT NULL AND aut_org_staff_id != '') OR (aut_ref_num IS NOT NULL AND aut_ref_num != ''))";
+        // $stmt .= " AND ((aut_org_username IS NOT NULL AND aut_org_username != '') OR (aut_org_staff_id IS NOT NULL AND aut_org_staff_id != '') OR (aut_ref_num IS NOT NULL AND aut_ref_num != ''))";
+        $stmt .= " AND ((aut_org_username IS NOT NULL AND aut_org_username != '') OR (aut_student_username IS NOT NULL AND aut_student_username != '') OR (aut_org_staff_id IS NOT NULL AND aut_org_staff_id != '') OR (aut_org_student_id IS NOT NULL AND aut_org_student_id != '') OR (aut_ref_num IS NOT NULL AND aut_ref_num != ''))";
     }
+
+    $stmt .= " GROUP BY aut_id";
 
     if (is_numeric($term)) {
       $stmt .= " LIMIT 60 OFFSET 0) as tempsuggest";
@@ -1400,9 +1484,29 @@ class Author
       return '';
     }
 
-    return $res;
+    return self::filterSuggest($res, $assoc);
   }
 
+    /**
+     * Add any additional filtering required for autosuggest
+     *
+     * @param   Array $rows to filter
+     * @return Array
+     */
+  private static function filterSuggest($rows) {
+      $returnVal = [];
+
+      foreach ($rows as $key => $row) {
+          // if this is a student username who hasn't linked their ORCID
+          // do not return them
+          if (preg_match('/^s\d+$/', $row['username']) && empty($row['aut_orcid_id']) && empty($row['publications'])) {
+              continue;
+          }
+          $returnVal[] = $row;
+      }
+
+      return $returnVal;
+  }
 
   /**
    * Method used to get an associative array of author ID and title
@@ -1655,7 +1759,7 @@ class Author
   }
 
 
-  function getOrgUsername($aut_id)
+  static function getOrgUsernames($aut_id)
   {
     $log = FezLog::get();
     $db = DB_API::get();
@@ -1665,7 +1769,8 @@ class Author
     }
 
     $stmt = "SELECT
-                    aut_org_username
+                    aut_org_username,
+                    aut_student_username
                  FROM
                     " . APP_TABLE_PREFIX . "author
                     WHERE
@@ -1673,7 +1778,7 @@ class Author
                  ORDER BY
                     aut_title";
     try {
-      $res = $db->fetchOne($stmt);
+      $res = $db->fetch($stmt);
     }
     catch(Exception $ex) {
       $log->err($ex);
@@ -1807,15 +1912,16 @@ class Author
     $researcher_id = $profile->researcherID;
     $employee_id = $profile->employeeID;
     $password = $profile->{'temp-password'};
-    $aut_org_username = $employee_id;
+    $username = $employee_id;
 
-    if ($aut_org_username) {
+    if ($username) {
       $stmt = "UPDATE
                   " . APP_TABLE_PREFIX . "author
                SET
                   aut_researcher_id=" . $db->quote($researcher_id) . "
                WHERE
-                  aut_org_username=" . $db->quote($aut_org_username);
+                  aut_org_username=" . $db->quote($username) . " 
+                  OR aut_student_username=" . $db->quote($username);
 
       try {
         $db->query($stmt, array());
@@ -1837,8 +1943,8 @@ class Author
    * Method used to set the ResearcherID for an author.
    *
    * @access  public
-   * @param string $aut_org_username The author id of the author
-   * @param string $aut_org_username The ResearcherID of the author
+   * @param string $aut_id The author id of the author
+   * @param string $researcher_id The ResearcherID of the author
    *
    * @return  bool True if ResearcherID is set else false
    */
@@ -1867,12 +1973,12 @@ class Author
   /**
    * Method used to set the ResearcherID for an author.
    *
-   * @param string $aut_org_username The org username of the author
-   * @param string $aut_org_username The ResearcherID of the author
+   * @param string $username The org username of the author
+   * @param string $researcher_id The ResearcherID of the author
    *
    * @return  bool True if ResearcherID is set else false
    */
-  public static function setResearcherIdByOrgUsername($aut_org_username, $researcher_id)
+  public static function setResearcherIdByOrgUsername($username, $researcher_id)
   {
     $log = FezLog::get();
     $db = DB_API::get();
@@ -1882,10 +1988,11 @@ class Author
              SET
                 aut_researcher_id=?
              WHERE
-                aut_org_username=?";
+                aut_org_username=?
+                OR aut_student_username=?";
 
     try {
-      $db->query($stmt, array($researcher_id, $aut_org_username));
+      $db->query($stmt, array($researcher_id, $username, $username));
     }
     catch(Exception $ex) {
       $log->err($ex);
@@ -1914,7 +2021,7 @@ class Author
                     aut_researcher_id=" . $db->quote($researcher_id);
 
     try {
-      $db->query($stmt, array($mypub_url, $username));
+      $db->query($stmt);
     }
     catch(Exception $ex) {
       $log->err($ex);
@@ -2095,20 +2202,21 @@ class Author
     /**
      * Check if a requested author has a ResearcherID.
      *
-     * @param string $aut_org_username Author username
+     * @param string $username Author username
      * @return boolean True if the requested author has ResearcherID, false otherwise.
      */
-    public static function hasResearcherID($aut_org_username = null)
+    public static function hasResearcherID($username = null)
     {
-        if (empty($aut_org_username)) {
+        if (empty($username)) {
             return false;
         }
 
         $db  = DB_API::get();
-        $log = FezLog::get();
 
         $stmt = "SELECT * FROM " . APP_TABLE_PREFIX . "author
-                 WHERE aut_org_username = " . $db->quote($aut_org_username, 'STRING') . "
+                 WHERE (
+                 aut_org_username = " . $db->quote($username, 'STRING') . "
+                 OR aut_student_username = " . $db->quote($username, 'STRING') . ")
                       AND aut_researcher_id IS NOT NULL
                       AND aut_researcher_id != ''
                       AND aut_researcher_id != '-1';";

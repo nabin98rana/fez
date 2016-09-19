@@ -251,7 +251,7 @@ class Template_API
 			if (is_numeric($authorDetails['aut_id'])) {
 				$isAuthor = 1;
 				if ($authorDetails['aut_mypub_url'] == '') {
-					$myPubURL = $authorDetails['aut_org_username'];
+					$myPubURL = $authorDetails['aut_org_username'] ?: $authorDetails['aut_student_username'];
 				} else {
 					$myPubURL = $authorDetails['aut_mypub_url'];
 				}

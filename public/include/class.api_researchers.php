@@ -51,9 +51,9 @@ class ApiResearchers
         $log = FezLog::get();
         $db = DB_API::get();
 
-        $stmt = "SELECT aut_id, aut_org_username,  aut_email,
+        $stmt = "SELECT aut_id, aut_org_username,  aut_student_username, aut_email,
 aut_display_name, aut_fname, aut_mname, aut_lname, aut_title, aut_position, aut_homepage_link, aut_researcher_id, aut_scopus_id, aut_mypub_url,
-aut_people_australia_id, aut_description, aut_orcid_id, aut_google_scholar_id, aut_rid_last_updated, aut_publons_id FROM " . APP_TABLE_PREFIX . "author WHERE aut_org_username =  " . $db->quote($author_username);
+aut_people_australia_id, aut_description, aut_orcid_id, aut_google_scholar_id, aut_rid_last_updated, aut_publons_id FROM " . APP_TABLE_PREFIX . "author WHERE aut_org_username =  " . $db->quote($author_username) . " OR aut_student_username = " . $db->quote($author_username);
 
         try {
             $res = $db->fetchAll($stmt);
@@ -83,7 +83,7 @@ aut_people_australia_id, aut_description, aut_orcid_id, aut_google_scholar_id, a
                 LEFT JOIN " . APP_TABLE_PREFIX . "record_search_key_author b on rek_pid = rek_author_pid
                 LEFT JOIN " . APP_TABLE_PREFIX . "record_search_key_author_id c on b.rek_author_pid = c.rek_author_id_pid and c.rek_author_id_order = b.rek_author_order
                 LEFT JOIN " . APP_TABLE_PREFIX . "record_search_key_journal_name on rek_pid = rek_journal_name
-                WHERE aut_org_username =" . $db->quote($author_username) . " AND rek_status = 2
+                WHERE (aut_org_username =" . $db->quote($author_username) . " OR aut_student_username =" . $db->quote($author_username) . " ) AND rek_status = 2
                 GROUP BY as_doi
                 ORDER BY as_1d DESC, as_2d DESC, as_3d DESC, as_4d DESC, as_5d DESC, as_6d DESC, as_1w DESC, as_1m DESC, as_3m DESC, as_6m DESC, as_1y DESC LIMIT 3";
 
@@ -115,7 +115,7 @@ aut_people_australia_id, aut_description, aut_orcid_id, aut_google_scholar_id, a
             LEFT JOIN fez_record_search_key_author b on rek_pid = rek_author_pid
             LEFT JOIN " . APP_TABLE_PREFIX . "record_search_key_author_id c on b.rek_author_pid = c.rek_author_id_pid and c.rek_author_id_order = b.rek_author_order
             LEFT JOIN fez_record_search_key_journal_name on rek_pid = rek_journal_name
-            WHERE aut_org_username = " . $db->quote($author_username) . " AND tc_created > UNIX_TIMESTAMP(DATE_ADD(CURDATE(),INTERVAL -180 DAY)) AND tc_diff_previous IS NOT NULL AND tc_diff_previous > 0 AND rek_status = 2
+            WHERE (aut_org_username = " . $db->quote($author_username) . " OR aut_student_username =" . $db->quote($author_username) . ") AND tc_created > UNIX_TIMESTAMP(DATE_ADD(CURDATE(),INTERVAL -180 DAY)) AND tc_diff_previous IS NOT NULL AND tc_diff_previous > 0 AND rek_status = 2
             GROUP BY tc_isi_loc, tc_created
             ORDER BY tc_created DESC LIMIT 3";
 
@@ -148,7 +148,7 @@ aut_people_australia_id, aut_description, aut_orcid_id, aut_google_scholar_id, a
             LEFT JOIN fez_record_search_key_author b on rek_pid = rek_author_pid
             LEFT JOIN " . APP_TABLE_PREFIX . "record_search_key_author_id c on b.rek_author_pid = c.rek_author_id_pid and c.rek_author_id_order = b.rek_author_order
             LEFT JOIN fez_record_search_key_journal_name on rek_pid = rek_journal_name
-            WHERE aut_org_username = " . $db->quote($author_username) . " AND sc_created > UNIX_TIMESTAMP(DATE_ADD(CURDATE(),INTERVAL -180 DAY)) AND sc_diff_previous IS NOT NULL  AND sc_diff_previous > 0 AND rek_status = 2
+            WHERE (aut_org_username = " . $db->quote($author_username) . " OR aut_student_username = " . $db->quote($author_username) . " ) AND sc_created > UNIX_TIMESTAMP(DATE_ADD(CURDATE(),INTERVAL -180 DAY)) AND sc_diff_previous IS NOT NULL  AND sc_diff_previous > 0 AND rek_status = 2
             GROUP BY sc_eid, sc_created
             ORDER BY sc_created DESC LIMIT 3";
 
@@ -213,7 +213,7 @@ aut_people_australia_id, aut_description, aut_orcid_id, aut_google_scholar_id, a
                 INNER JOIN " . APP_TABLE_PREFIX . "record_search_key_author_id ON rek_pid = rek_author_id_pid
                 INNER JOIN " . APP_TABLE_PREFIX . "auth_index2_lister ON authi_pid = rek_pid AND authi_arg_id = '11'
                 INNER JOIN " . APP_TABLE_PREFIX . "author on aut_id = rek_author_id
-                WHERE rek_display_type = 371 AND aut_org_username = " . $db->quote($author_username) . " AND rek_status = 2 " . $startYear . $endYear . "
+                WHERE rek_display_type = 371 AND (aut_org_username = " . $db->quote($author_username) . " OR aut_student_username = " . $db->quote($author_username) . ") AND rek_status = 2 " . $startYear . $endYear . "
                 GROUP BY(rek_pid)";
 
         try {
@@ -242,7 +242,7 @@ aut_people_australia_id, aut_description, aut_orcid_id, aut_google_scholar_id, a
                 INNER JOIN " . APP_TABLE_PREFIX . "record_search_key_isdatasetof ON A.rek_pid = rek_isdatasetof_pid
                 INNER JOIN " . APP_TABLE_PREFIX . "author on aut_id = rek_author_id
                 INNER JOIN " . APP_TABLE_PREFIX . "record_search_key AS B on rek_isdatasetof = B.rek_pid
-                WHERE A.rek_display_type = 371 AND aut_org_username = " . $db->quote($author_username) . " AND A.rek_status = 2 " . $startYear . $endYear . "
+                WHERE A.rek_display_type = 371 AND (aut_org_username = " . $db->quote($author_username) . " OR aut_student_username = " . $db->quote($author_username) . ") AND A.rek_status = 2 " . $startYear . $endYear . "
                 GROUP BY(rek_isdatasetof)";
 
         try {
@@ -285,7 +285,8 @@ aut_people_australia_id, aut_description, aut_orcid_id, aut_google_scholar_id, a
 
         $stmt = "UPDATE  " . APP_TABLE_PREFIX . "author
             SET " . $column . " = " . $db->quote($id) . "
-            WHERE aut_org_username = " . $db->quote($authorUsername);
+            WHERE aut_org_username = " . $db->quote($authorUsername) . "
+            OR aut_student_username = " . $db->quote($authorUsername);
 
         try {
             $res = $db->exec($stmt);
@@ -361,7 +362,8 @@ aut_people_australia_id, aut_description, aut_orcid_id, aut_google_scholar_id, a
         $db = DB_API::get();
 
         $stmt = "SELECT * FROM " . APP_TABLE_PREFIX . "author
-            WHERE aut_org_username = " . $db->quote($authorUsername);
+            WHERE aut_org_username = " . $db->quote($authorUsername) . "
+            OR aut_student_username = " . $db->quote($authorUsername);
 
         try {
             $res = $db->fetchRow($stmt);
@@ -460,5 +462,133 @@ aut_people_australia_id, aut_description, aut_orcid_id, aut_google_scholar_id, a
         }
 
         return $res;
+    }
+
+
+    /**
+     * Set the "other" account for this user.
+     *
+     * If they are a student other is aut_org_username, if they are staff it
+     * is aut_student_username
+     *
+     * @param      $username
+     * @param null $value
+     *
+     * @return bool
+     */
+    public static function updateUQLinkedAccount($username, $value=null) {
+        $db = DB_API::get();
+        $isStudent = preg_match('/^s\d+$/', $username);
+        $data = [];
+        $where = [];
+
+        // the username passed in will be the one they are logged in
+        // as, so we assume they want to remove the "other" username
+        if ($isStudent) {
+            $data['aut_org_username'] = $value;
+            $where[] =  'aut_student_username = ' . $db->quote($username);
+        } else {
+            $data['aut_student_username'] = $value;
+            $where[] =  'aut_org_username = ' . $db->quote($username);
+        }
+
+        return (1 == $db->update(APP_TABLE_PREFIX . '_author', $data, $where));
+    }
+
+    /**
+     * Remove the account for this user
+     *
+     * If they are a student other is aut_org_username, if they are staff it
+     * is aut_student_username
+     *
+     * @param      $username
+     *
+     * @return bool
+     */
+    public static function removeUQAccount($username) {
+        $db = DB_API::get();
+        $isStudent = preg_match('/^s\d+$/', $username);
+
+        // the username passed in will be the one they are logged in
+        // as, so we assume they want to remove the "other" username
+        if ($isStudent) {
+            $where =  'aut_student_username = ' . $db->quote($username);
+        } else {
+            $where =  'aut_org_username = ' . $db->quote($username);
+        }
+
+        return (1 == $db->delete(APP_TABLE_PREFIX . '_author', $where));
+    }
+
+
+    /**
+     * Unlink the "other" account for this user
+     *
+     * If they are a student other is aut_org_username, if they are staff it
+     * is aut_student_username
+     *
+     * @param $username
+     */
+    public static function removeUQLinkedAccounts($username) {
+        self::updateUQLinkedAccount($username);
+    }
+
+
+    /**
+     * Update the "other" username with the passed in value
+     *
+     * If they are a student other is aut_org_username, if they are staff it
+     * is aut_student_username
+     *
+     * @param $username
+     * @param $linkedAccount
+     */
+    public static function linkUQAccounts($username, $linkedAccount)
+    {
+        // change the ownership of any objects in fez and its subsystems
+        self::moveUQAccount($username, $linkedAccount);
+        // remove the old account
+        self::removeUQAccount($linkedAccount);
+        // add new user id to their account
+        self::updateUQLinkedAccount($username, $linkedAccount);
+    }
+
+
+    /**
+     * Reassigning ownership of any objects in fez and its subsystems
+     *
+     * @param $username username for account which will keep data
+     * @param $movingUsername
+     */
+    public static function moveUQAccount($username, $movingUsername)
+    {
+        // collect underpants
+    }
+
+
+    /**
+
+    /**
+     * Returns any UQ accounts which have the same staff and student ids
+     *
+     * @param $username
+     *
+     * @return array
+     */
+    public static function getLinkedUQAccount($username)
+    {
+        $db = DB_API::get();
+
+        $select = $db->select();
+
+        $select->from(APP_TABLE_PREFIX . 'author', [
+            'aut_org_username' => 'staff_username',
+            'aut_student_username' => 'student_username'
+        ])
+        ->where('aut_org_username = ?', $username)
+        ->orWhere('aut_student_username = ?', $username);
+
+        $stmt = $db->query($select);
+        return $stmt->fetch();
     }
 }

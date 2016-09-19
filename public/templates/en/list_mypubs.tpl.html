@@ -5,8 +5,8 @@
 
 <div class="aut-links">
 <ul>
-{if $aut_org_username != "" && $isUser}
-    <li class="btn"><a href="https://app.library.uq.edu.au/#/authors/{$aut_org_username}" title="Author Statistics" target="_blank">
+{if $username != "" && $isUser}
+    <li class="btn"><a href="https://app.library.uq.edu.au/#/authors/{$username}" title="Author Statistics" target="_blank">
         <span class="icon"><img src="{$rel_url}images/espace/uq.png"/></span> Author Statistics
     </a></li>
 {/if}
