@@ -212,13 +212,6 @@ class RecordView {
 						if (APP_MY_RESEARCH_MODULE == 'ON' && $logged_in) {
 							$rjinfo = Record::getRankedJournalInfo($this->record->pid);
 							if (is_array($rjinfo)) {
-								if (array_key_exists('rj_tier_rank', $rjinfo) && $rjinfo['rj_tier_rank'] == '') {
-									$rjinfo['rj_tier_rank'] = "N/R";
-								}
-
-								if (array_key_exists('rj_tier_rank', $rjinfo)) {
-									$rjl .= "&nbsp;&nbsp;&nbsp; <span style='color: #1e88ce' title='" . $rjinfo['rj_tier_title'] .  "'>(UQ Tiered Journal List: UQ Tier " . $rjinfo['rj_tier_rank'] . ")</span>";
-								}
 
 								/*if (array_key_exists('rj_2010_rank', $rjinfo) && $rjinfo['rj_2010_rank'] == '') {
                                 $rjinfo['rj_2010_rank'] = "N/R";
