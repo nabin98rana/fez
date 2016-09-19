@@ -222,9 +222,6 @@ Class InitSystem
       $aws->putObject($p . '/', array('StorageClass' => 'REDUCED_REDUNDANCY'));
     }
 
-    include_once(APP_INC_PATH . "/../upgrade/fedoraBypassMigration/MigrateFromFedoraToDatabase.php");
-    $migrate = new MigrateFromFedoraToDatabase();
-
     $db = DB_API::get();
     try {
       $db->exec("UPDATE " . APP_TABLE_PREFIX . "config " .
@@ -248,7 +245,9 @@ Class InitSystem
     } catch (Exception $ex) {
       return;
     }
-    $migrate = new MigrateFromFedoraToDatabase(false);
+
+    include_once(APP_INC_PATH . "/../upgrade/fedoraBypassMigration/MigrateFromFedoraToDatabase.php");
+    $migrate = new MigrateFromFedoraToDatabase();
     $migrate->runMigration();
   }
 

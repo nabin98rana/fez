@@ -29,22 +29,20 @@
 // +----------------------------------------------------------------------+
 
 /**
- * This script is to allow smooth migration on Fez system
- * from Fedora based record storaged to non-Fedora (database based).
- * It script ONLY supports removing Fedora for good, it is NOT intended for migrating the other way around.
+ * This script is to allow smooth migration on Fez system from Fedora based record storaged to non-Fedora (database based).
+ * The script ONLY supports removing Fedora for good, it is NOT intended for migrating the other way around.
  *
  * It executes individual migration scripts, such as:
- * - build/alter database schema,
- * - migrates existing record from Fedora XML,
- * - migrates attached files,
- * - runs sanity checking or run related test cases
+ * - migrates existing record from Fedora,
+ * - migrates attached datastreams,
+ * - runs sanity checking
  *
  * @version 1.0, 2012-03-08
  * @author Elvi Shu <e.shu at library.uq.edu.au>
  * @license http://www.gnu.org/licenses/gpl.html GPL License
  * @copyright (c) 2012 The University of Queensland
  */
-include_once(APP_INC_PATH . "class.upgrade.php");
+
 include_once(APP_INC_PATH . 'class.bgp_index_object.php');
 include_once(APP_INC_PATH . 'class.reindex.php');
 
@@ -54,22 +52,18 @@ class MigrateFromFedoraToDatabase
   protected $_db = null;
   protected $_env = null;
   protected $_shadowTableSuffix = "__shadow";
-  protected $_upgradeHelper = null;
-  protected $_config = null;
 
-  public function __construct($config = array())
+  public function __construct()
   {
-    $this->_config = new stdClass();
     $this->_log = FezLog::get();
     $this->_db = DB_API::get();
-    $this->_upgradeHelper = new upgrade();
   }
 
   public function runMigration()
   {
     $this->_env = strtolower($_SERVER['APPLICATION_ENV']);
 
-    // Message/warning about the checklist required before running the migration script.
+    // Message/warning about backing up before running the migration script.
     $this->preMigration();
 
     // Updating the structure of Fedora-less
@@ -86,31 +80,17 @@ class MigrateFromFedoraToDatabase
   }
 
   /**
-   * This step is to inform/warn/scare web administrator on what they are about to do.
+   * Any pre-migration tasks here
    */
-  public function preMigration()
+  private function preMigration()
   {
-    /* echo chr(10) . "\n<br /> Before running this migration script,
-        please make sure you have gone through the following checklist.
-        There is no way to revert the system once this script executed,
-        so make sure you have backup system to rollback to in the case of migration failure.
-        <ul>
-            <li> Merged fedora_bypass branch to the trunk. </li>
-            <li> BACKUP your DATABASE, and extra BACKUP for rollback.</li>
-            <li> Did we mention BACKUP? </li>
-            <li> Mapped all the XSD fields to the search keys accordingly.
-                 Refer to mapXSDFieldToSearchKey method for sample query </li>
-            <li> ... </li>
-        </ul>
-     ";*/
   }
 
-  /*
+  /**
    * At this stage, the Fez system has completed all the migration process,
    * and ready to switch off Fedora completely.
-   *
    */
-  public function postMigration()
+  private function postMigration()
   {
     $db = DB_API::get();
 
@@ -133,18 +113,21 @@ class MigrateFromFedoraToDatabase
       " SET config_value = '' " .
       " WHERE config_name='app_fedora_pwd'");
 
+    if ($this->_env == 'production') {
+      echo "\n*  On libtools run the util/s3_sync_pidimages.sh script\n";
+    }
+
     echo "Congratulations! Your Fez system is now ready to function without Fedora.\n";
   }
 
   /**
    * First round of migration, updating database schema.
    */
-  public function stepOneMigration()
+  private function stepOneMigration()
   {
     // Sets the maximum PID on PID index table.
     $this->setMaximumPID();
   }
-
 
   /**
    * Second round of migration, migrates existing content.
@@ -152,7 +135,7 @@ class MigrateFromFedoraToDatabase
    * 1. on all PIDS & managedContent, without outage.
    * 2. on updated PIDs / managedContents, after the #1 step.
    */
-  public function stepTwoMigration()
+  private function stepTwoMigration()
   {
     // Migrate all records from Fedora
     $this->migratePIDs();
@@ -162,9 +145,9 @@ class MigrateFromFedoraToDatabase
   }
 
   /**
-   * Fourth round of migration, de-dupe the auth group rules
+   * Third round of migration, de-dupe the auth group rules
    */
-  public function stepThreeMigration()
+  private function stepThreeMigration()
   {
     $stmt = "SELECT argr_arg_id, argr_ar_id FROM " . APP_TABLE_PREFIX . "auth_rule_group_rules";
 
@@ -210,41 +193,22 @@ class MigrateFromFedoraToDatabase
   }
 
   /**
-   * This is the last step of migration
-   * moving the following files:
-   * // mp3 -> flv
-   * // book -> jpg, used by bookreader
-   * These files are auto generated when a PID is created, we need a way to be able to read/convert these files without Fedora.
-   * Ref: eserv.php
-   */
-  public function stepLASTMigration()
-  {
-    // On libtools run the util/s3_sync_pidimages.sh script
-    echo "\n On libtools run the util/s3_sync_pidimages.sh script";
-  }
-
-  /**
    * Run Fedora managed content migration script & security for the attached files.
-   * @todo: update misc/migrate_fedora_managedcontent_to_fezCAS.php to return, instead of exit at the end of the script.
-   *
-   * @todo:
-   * To speed up this process, specially for system that already running CAS system,
-   * we going to do a checksum, compare the new md5 with "existing" md5 if any.
-   *
    */
-  public function migrateManagedContent()
+  private function migrateManagedContent()
   {
+    // @todo: Compare the new md5 with "existing" md5 if any.
     ob_flush();
     if ($this->_env != 'production') {
       return;
     }
 
-    $stmt = 'select op.token as pid, dr.systemVersion as version, 
+    $stmt = "select op.token as pid, dr.systemVersion as version, 
         dr.objectState as state, ds.path as path from datastreamPaths ds
       left join objectPaths op on op.tokenDbID = ds.tokenDbID
       left join doRegistry dr on dr.doPID = op.token
-      where ds.path like \'/espace/data/fedora_datastreams/2016/08%\'
-      order by op.token ASC, dr.systemVersion ASC';
+      where ds.path like '/espace/data/fedora_datastreams/2016/08%'
+      order by op.token ASC, dr.systemVersion ASC";
 
     $ds = [];
     try {
@@ -312,7 +276,7 @@ class MigrateFromFedoraToDatabase
    * We could runs this function before the outage.
    * eSpace has around 165K records, so here we are, running it in phases.
    */
-  public function migratePIDs()
+  private function migratePIDs()
   {
     $stmt = "SELECT COUNT(rek_pid) FROM " . APP_TABLE_PREFIX . "record_search_key
                  ORDER BY rek_pid DESC ";
@@ -331,7 +295,7 @@ class MigrateFromFedoraToDatabase
       if ($i == 0) {
         $start = $i;
       }
-      $this->_reindexPids($start, $limit);
+      $this->reindexPids($start, $limit);
       $start += $limit;
     }
 
@@ -369,7 +333,7 @@ class MigrateFromFedoraToDatabase
    * Run Reindex workflow on an array of pids
    * @return boolean
    */
-  protected function _reindexPids($start, $limit)
+  private function reindexPids($start, $limit)
   {
     $wft_id = 277;  // hack: Reindex workflow trigger ID
     $pid = "";
@@ -409,7 +373,7 @@ class MigrateFromFedoraToDatabase
   /**
    * Recalculate security.
    */
-  public function recalculateSecurity()
+  private function recalculateSecurity()
   {
     // Get all PIDs without parents. Recalculate permissions. This will filter down to child pids and child datastreams
     $stmt = "SELECT rek_pid FROM " . APP_TABLE_PREFIX . "record_search_key
@@ -435,7 +399,7 @@ class MigrateFromFedoraToDatabase
    *
    * @return boolean
    */
-  public function setMaximumPID()
+  private function setMaximumPID()
   {
     // Get the maximum PID number from Fedora
     $nextPID = '';
@@ -469,24 +433,7 @@ class MigrateFromFedoraToDatabase
     return true;
   }
 
-  /**
-   * Custom date sorter for Fedora dates, used by PHP's usort()
-   *
-   * <p>
-   * Note: This function uses strtotime() directly on the dates, which appears to work but which may be flawed - I'm not
-   * familiar with Fedora's date format or whether it's custom or a standard format.
-   * </p>
-   */
-  protected function fedoraDateSorter($a, $b)
-  {
-    $unixTimestamp1 = strtotime($a);
-    $unixTimestamp2 = strtotime($b);
-
-    if ($unixTimestamp1 == $unixTimestamp2) return 0;
-    return ($unixTimestamp1 < $unixTimestamp2) ? -1 : 1;
-  }
-
-  protected function toggleAwsStatus($useAws)
+  private function toggleAwsStatus($useAws)
   {
     $db = DB_API::get();
 
@@ -514,7 +461,7 @@ class MigrateFromFedoraToDatabase
     }
   }
 
-  protected function getDsNameFromPath($pid, $path)
+  private function getDsNameFromPath($pid, $path)
   {
     $pidMatch = str_replace(':', '_', $pid);
     preg_match("/\\/$pidMatch\\+([^\\+]*)\\+/", $path, $matches);
@@ -525,7 +472,7 @@ class MigrateFromFedoraToDatabase
     return $matches[1];
   }
 
-  protected function inheritsPermissions($acml)
+  private function inheritsPermissions($acml)
   {
     if ($acml == false) {
       //if no acml then default is inherit
@@ -541,7 +488,7 @@ class MigrateFromFedoraToDatabase
     return $inherit;
   }
 
-  protected function addDatastreamSecurity($acml, $did)
+  private function addDatastreamSecurity($acml, $did)
   {
     // loop through the ACML docs found for the current pid or in the ancestry
     $xpath = new DOMXPath($acml);

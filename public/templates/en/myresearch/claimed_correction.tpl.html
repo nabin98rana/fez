@@ -184,16 +184,6 @@ $(document).ready(function(){
 
 <table id="research-q-index-details">
     <tr>
-        <td><img src="{$rel_url}images/tiered_journal_list_16.png" title="UQ Tiered Journal List" alt="UQ Tiered Journal List" /> UQ Tiered Journal List</td>
-        <td>
-            {if $qindex_meta.rj.rj_tier_rank == ''}
-                This publication is not identified as being in the 2015 UQ Tiered Journal list.
-            {else}
-                <b>UQ Tier {$qindex_meta.rj.rj_tier_rank}</b> &nbsp; ({$qindex_meta.rj.rj_tier_title})
-            {/if}
-        </td>
-    </tr>
-    <tr>
         <td><img src="{$rel_url}images/journal_listed_b_16.png" title="ERA 2015 Journal Listed" alt="ERA 2015 Journal Listed" /> ERA 2015 Journal Listed</td>
         <td>
             {if $qindex_meta.rj.rj_2015_title == ''}

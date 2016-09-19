@@ -1397,7 +1397,7 @@ class RecordGeneral
     for ($i = 0; $i < $authors_count; $i++) {
       $authors[$i]['match'] = FALSE;
       $percent = 0;
-      if ($aut_details['aut_org_username']) {
+      if ($aut_details['aut_org_username'] || $aut_details['aut_student_username']) {
         if ($known) {
           // Last name match first, if we have $authors[$i]['name'] in the format LName, F
           $name_parts = explode(',', $authors[$i]['name']);

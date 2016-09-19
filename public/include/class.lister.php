@@ -883,7 +883,7 @@ class Lister
       $tpl->assign("aut_orcid_id", $authorDetails['aut_orcid_id']);
       $tpl->assign("aut_publons_id", $authorDetails['aut_publons_id']);
       $tpl->assign("aut_google_scholar_id", $authorDetails['aut_google_scholar_id']);
-      $tpl->assign("aut_org_username", $authorDetails['aut_org_username']);
+      $tpl->assign("username", $username); // default to logged in user
 
       $tpl->assign("list_type", "mypubs_list");
 

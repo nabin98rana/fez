@@ -42,6 +42,7 @@ class author_era_affiliations
    		$log = FezLog::get();
    		$db = DB_API::get();
 
+      // todo(xxcgreen): review if this needs aut_org_student_id
         $stmt = "SELECT * FROM __era_ro_uq_asc_req ".
                "LEFT JOIN ". APP_TABLE_PREFIX ."author ".
                "ON aut_org_staff_id = staff_id ".
