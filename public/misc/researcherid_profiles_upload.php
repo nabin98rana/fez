@@ -108,9 +108,10 @@ function getRidByUsername($username) {
 			 FROM
 				" . APP_TABLE_PREFIX . "author
 			 WHERE
-				aut_org_username=?";
+				aut_org_username=?
+                OR aut_student_username=?";
 	try {
-		$res = $db->fetchOne($stmt, array($username));
+		$res = $db->fetchOne($stmt, array($username, $username));
 	}
 	catch(Exception $ex) {
 		$log->err($ex);
@@ -128,9 +129,10 @@ function getRidTempPwdByUsername($username) {
 			 FROM
 				" . APP_TABLE_PREFIX . "author
 			 WHERE
-				aut_org_username=?";
+				aut_org_username=?
+                OR aut_student_username=?";
 	try {
-		$res = $db->fetchOne($stmt, array($username));
+		$res = $db->fetchOne($stmt, array($username, $username));
 	}
 	catch(Exception $ex) {
 		$log->err($ex);
@@ -148,9 +150,10 @@ function getAutIdByUsername($username) {
 			 FROM
 				" . APP_TABLE_PREFIX . "author
 			 WHERE
-				aut_org_username=?";
+                aut_org_username=?
+                OR aut_student_username=?";
 	try {
-		$res = $db->fetchOne($stmt, array($username));
+		$res = $db->fetchOne($stmt, array($username, $username));
 	}
 	catch(Exception $ex) {
 		$log->err($ex);

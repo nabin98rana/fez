@@ -86,6 +86,7 @@ if ((php_sapi_name()==="cli") || (User::isUserSuperAdministrator($isUser))) {
              if (in_array('60031004', $sri_fields['_author_affiliation_ids'][$i]) || in_array(60087457, $sri_fields['_author_affiliation_ids'][$i])) {
                  echo " - The University of Queensland\n";
                  $details = Author::getDetails($pidAuthors[$i]['rek_author_id']);
+                 // todo(xxcgreen): review if this needs aut_org_student_id
                  if (!empty($pidAuthors[$i]['rek_author_id']) && !empty($details['aut_org_staff_id'])) {
                      $staff_id[$count] = $details['aut_org_staff_id'];
                      $af_era_comment[$count] = 'Marked in Scopus as affiliated with UQ';
@@ -98,6 +99,7 @@ if ((php_sapi_name()==="cli") || (User::isUserSuperAdministrator($isUser))) {
              } else {
                  echo " - No record of affiliation\n";
                  $details = Author::getDetails($pidAuthors[$i]['rek_author_id']);
+                 // todo(xxcgreen): review if this needs aut_org_student_id
                  if (!empty($pidAuthors[$i]['rek_author_id']) && !empty($details['aut_org_staff_id'])) {
                      $staff_id[$count] = $details['aut_org_staff_id'];
                      $af_era_comment[$count] = '';

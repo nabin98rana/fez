@@ -16,7 +16,6 @@
 // | goes missing in action.                                              |
 // +----------------------------------------------------------------------+
 
-
 ////////////////////////////////////////////////////////////////////////////
 // Production config variables
 ////////////////////////////////////////////////////////////////////////////
@@ -80,6 +79,7 @@ class LDAP2FEZ {
                OR T001F120_ACTUAL_JOB_CODE = 'UQPTNR'
                OR T001F120_ACTUAL_JOB_CODE = 'VISIT'
                )
+            AND KERBEROS IS NOT NULL
             ORDER BY T000f145_SURNAME_FOR_LETTERS, T000F025_PREFERRED_NAME
             )
         ";
@@ -310,3 +310,4 @@ select T000F005_WAMI_KEY, T000F145_SURNAME_FOR_LETTERS, T000F020_GIVEN_NAMES, T0
 union
 select T000F005_WAMI_KEY, T000F145_SURNAME_FOR_LETTERS, T000F020_GIVEN_NAMES, T000F025_PREFERRED_NAME, T000F030_SALUTATION, T000F160_EMAIL_ADDRESS, T001F070_ACTUAL_ORG_UNIT_NO, T001F120_ACTUAL_JOB_CODE, T900F015_SHORT_DESCRIPTION from staff_casual;
 */
+

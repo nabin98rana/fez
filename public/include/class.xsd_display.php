@@ -535,7 +535,7 @@ class XSD_Display
 	 * @access  public
 	 * @return  array The list
 	 */
-	function getAssocListDocTypes()
+	static function getAssocListDocTypes()
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
