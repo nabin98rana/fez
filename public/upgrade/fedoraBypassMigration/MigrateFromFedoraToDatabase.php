@@ -249,8 +249,7 @@ class MigrateFromFedoraToDatabase
       }
 
       $this->toggleAwsStatus(true);
-      $location = 'https://s3-ap-southeast-2.amazonaws.com/uql-fez-production-san/migration/' .
-        str_replace('/espace/data/fedora_datastreams/', '', $path);
+      $location = 'migration/' . str_replace('/espace/data/fedora_datastreams/', '', $path);
 
       if ($cloneExif) {
         Exiftool::cloneExif($pid, $dsName, $pid, $dsName, $exif);
@@ -258,7 +257,7 @@ class MigrateFromFedoraToDatabase
 
       Fedora_API::callAddDatastream(
         $pid, $dsName, $location, '', $state,
-        $exif['exif_mime_type'], 'M', false, "", false
+        $exif['exif_mime_type'], 'M', false, "", false, 'uql-fez-production-san'
       );
 
       $did = AuthNoFedoraDatastreams::getDid($pid, $dsName);
