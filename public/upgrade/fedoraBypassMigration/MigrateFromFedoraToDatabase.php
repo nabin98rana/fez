@@ -43,24 +43,19 @@
  * @author Elvi Shu <e.shu at library.uq.edu.au>
  * @license http://www.gnu.org/licenses/gpl.html GPL License
  * @copyright (c) 2012 The University of Queensland
- *
- * @example ./migrate.php Example class usage
  */
 include_once(APP_INC_PATH . "class.upgrade.php");
 include_once(APP_INC_PATH . 'class.bgp_index_object.php');
 include_once(APP_INC_PATH . 'class.reindex.php');
 
-
 class MigrateFromFedoraToDatabase
 {
-
   protected $_log = null;
   protected $_db = null;
+  protected $_env = null;
   protected $_shadowTableSuffix = "__shadow";
   protected $_upgradeHelper = null;
-
   protected $_config = null;
-
 
   public function __construct($config = array())
   {
@@ -68,12 +63,12 @@ class MigrateFromFedoraToDatabase
     $this->_log = FezLog::get();
     $this->_db = DB_API::get();
     $this->_upgradeHelper = new upgrade();
-
-    $this->_parseConfig($config);
   }
 
   public function runMigration()
   {
+    $this->_env = strtolower($_SERVER['APPLICATION_ENV']);
+
     // Message/warning about the checklist required before running the migration script.
     $this->preMigration();
 
@@ -83,45 +78,12 @@ class MigrateFromFedoraToDatabase
     // Content migration
     $this->stepTwoMigration();
 
-    // Security recalculation
-    $this->stepThreeMigration();
-
     // De-dupe auth rules
-    $this->stepFourMigration();
+    $this->stepThreeMigration();
 
     // Post Migration message
     $this->postMigration();
   }
-
-  /**
-   * Parse class configuration param.
-   * @param array $config
-   * @return boolean
-   */
-  protected function _parseConfig($config = array())
-  {
-    if (!is_array($config)) {
-      // Get lost
-      return false;
-    }
-
-    foreach ($config as $cfg) {
-      $cfg = explode("=", $cfg);
-      if (!array_key_exists(0, $cfg) || !array_key_exists(1, $cfg)) {
-        continue;
-      }
-
-      $key = $cfg[0];
-      $value = $cfg[1];
-
-      switch ($key) {
-        case 'autoMapXSDFields':
-          $this->_config->$key = (bool)$value;
-          break;
-      }
-    }
-  }
-
 
   /**
    * This step is to inform/warn/scare web administrator on what they are about to do.
@@ -141,14 +103,6 @@ class MigrateFromFedoraToDatabase
             <li> ... </li>
         </ul>
      ";*/
-
-    // Executes mapXSDFields methods, when specified.
-    // This is considering that the sk on mapping methods match your system.
-    // This method is created to support UQ eSpace Fez.
-    if (property_exists($this->_config, 'autoMapXSDFields') && $this->_config->autoMapXSDFields === true) {
-      $this->mapXSDFieldToSearchKey();
-      $this->addSearchKeys();
-    }
   }
 
   /*
@@ -187,19 +141,8 @@ class MigrateFromFedoraToDatabase
    */
   public function stepOneMigration()
   {
-
-    // Create shadow tables for search keys
-    $this->createSearchKeyShadowTables();
-
-    // Create file attachment and auth quick rules tables
-    $this->createAdditionalTables();
-
-    // Upgrade table schema for all datastream permissions and pid non inherited permissions
-    $this->updateForDatastreamPermission();
-
     // Sets the maximum PID on PID index table.
     $this->setMaximumPID();
-
   }
 
 
@@ -218,24 +161,10 @@ class MigrateFromFedoraToDatabase
     $this->migrateManagedContent();
   }
 
-
-  /**
-   * Third round of migration, at this stage we should have the records copied/migrated.
-   * This stage we are doing touching up on the records, such as:
-   * - Security recalculation
-   * - ....
-   */
-  public function stepThreeMigration()
-  {
-    // Security for PIDs
-    $db = $this->_db;
-    include_once("./migrate_setup_pid_permissions.php");
-  }
-
   /**
    * Fourth round of migration, de-dupe the auth group rules
    */
-  public function stepFourMigration()
+  public function stepThreeMigration()
   {
     $stmt = "SELECT argr_arg_id, argr_ar_id FROM " . APP_TABLE_PREFIX . "auth_rule_group_rules";
 
@@ -295,172 +224,6 @@ class MigrateFromFedoraToDatabase
   }
 
   /**
-   * This method automatically map XSD fields that we can manually find.
-   * Some manual mapping will be required depending on the XSD field on your Fez application.
-   */
-  public function mapXSDFieldToSearchKey()
-  {
-
-    $this->_mapSubjectField();
-
-    // @todo: need to find out what search key should we map the Q Index code field.
-//        $this->_mapQIndexCode();
-  }
-
-
-  protected function _mapQIndexCode()
-  {
-    // Q-index code, Q-index status, Institutional status, collection year and year available dropdowns are not being saved.
-    /*
-    SELECT xdis_title, fez_xsd_display_matchfields.*
-    FROM fez_xsd_display_matchfields
-    LEFT JOIN fez_xsd_display ON xsdmf_xdis_id = xdis_id
-    WHERE xsdmf_html_input = 'contvocab_selector' AND xsdmf_sek_id IS NULL;
-    */
-
-    // Q-index code = HERDC Code ?
-    // Institutional Status
-
-    /*
-    -- Query to find Subject Controlled Vocab  XSD fields that do not have search keys --
-    SELECT xdis_title, fez_xsd_display_matchfields.*
-    FROM fez_xsd_display_matchfields
-    LEFT JOIN fez_xsd_display ON xsdmf_xdis_id = xdis_id
-    WHERE xsdmf_title LIKE "%subject%"
-    AND xsdmf_html_input = 'contvocab_selector';
-    */
-
-    $stmt = " UPDATE " . APP_TABLE_PREFIX . "xsd_display_matchfields
-                    SET xsdmf_sek_id = (SELECT sek_id FROM " . APP_TABLE_PREFIX . "search_key WHERE sek_title = 'Subject')
-                    WHERE xsdmf_title LIKE '%subject%'
-                    AND xsdmf_html_input = 'contvocab_selector';";
-
-    try {
-      $this->_db->exec($stmt);
-    } catch (Exception $ex) {
-      echo "\n<br />Failed to map XSD field. Here is why: " . $stmt . " \n<br />" . $ex . ".\n";
-      return false;
-    }
-    return true;
-  }
-
-
-  protected function _mapSubjectField()
-  {
-    // Check if Subject XSD fields have been mapped
-    $stmt = "SELECT COUNT(xsdmf_id) as howmany
-                 FROM " . APP_TABLE_PREFIX . "xsd_display_matchfields
-                 LEFT JOIN " . APP_TABLE_PREFIX . "xsd_display ON xsdmf_xdis_id = xdis_id
-                 WHERE xsdmf_title LIKE '%subject%'
-                    AND xsdmf_html_input = 'contvocab_selector'
-                    AND (xsdmf_sek_id IS NULL OR xsdmf_sek_id = '');";
-
-    $unmappedFields = $this->_db->fetchRow($stmt);
-
-
-    // Run update query for unmapped Subject fields
-    if (array_key_exists('howmany', $unmappedFields) && $unmappedFields['howmany'] > 0) {
-
-      $stmt = "UPDATE " . APP_TABLE_PREFIX . "xsd_display_matchfields
-                     SET xsdmf_sek_id = (SELECT sek_id FROM " . APP_TABLE_PREFIX . "search_key WHERE sek_title = 'Subject')
-                     WHERE xsdmf_title LIKE '%subject%'
-                        AND xsdmf_html_input = 'contvocab_selector'
-                        AND (xsdmf_sek_id IS NULL OR xsdmf_sek_id = '');";
-
-      try {
-        $this->_db->exec($stmt);
-        // echo chr(10) . "\n<br /> Successfully mapped subject " . print_r($unmappedFields, 1);
-      } catch (Exception $ex) {
-        echo "\n<br />Failed to map XSD field. Here is why: " . $stmt . " <br />" . $ex . ".\n";
-        return false;
-      }
-    }
-    return true;
-  }
-
-
-  /**
-   * Adds search key columns / tables, which data have not been recorded in database.
-   * This method is specific for eSpace.
-   * Manual process may required to fit your Fez application.
-   */
-  public function addSearchKeys()
-  {
-    $this->_addSearchKeysCopyright();
-  }
-
-
-  /**
-   * Add search key for 'copyright' field on core search key table.
-   * We don't need to add it on shadow table,
-   *    as _createOneShadow() method takes care of sk table duplication.
-   *
-   * @return boolean
-   */
-  protected function _addSearchKeysCopyright()
-  {
-    // Add Search Key table
-    $stmtAddSearchKey = "INSERT INTO " . APP_TABLE_PREFIX . "search_key
-                (`sek_id`, `sek_namespace`, `sek_incr_id`, `sek_title`, `sek_alt_title`, `sek_desc`, `sek_adv_visible`,
-                 `sek_simple_used`, `sek_myfez_visible`, `sek_order`, `sek_html_input`, `sek_fez_variable`,
-                 `sek_smarty_variable`, `sek_cvo_id`, `sek_lookup_function`, `sek_data_type`, `sek_relationship`,
-                 `sek_meta_header`, `sek_cardinality`, `sek_suggest_function`, `sek_faceting`, `sek_derived_function`,
-                 `sek_lookup_id_function`, `sek_bulkchange`)
-                VALUES
-                ('core_111', 'core', 111, 'Copyright', '', '', 0, 0, 0, 999, 'checkbox', 'none', '', NULL, '', 'int', 0,
-                '', 0, '', 0, '', '', 0);";
-
-    $stmtAddRecordSearchKeyColumn = "ALTER TABLE " . APP_TABLE_PREFIX . "record_search_key
-                    ADD rek_copyright INT(11) NULL,
-                    ADD rek_copyright_xsdmf_id INT(11) NULL;";
-
-    $this->_db->beginTransaction();
-    try {
-      $this->_db->exec($stmtAddSearchKey);
-      $this->_db->exec($stmtAddRecordSearchKeyColumn);
-      $this->_db->commit();
-
-      // echo "<br /> Search key 'copyright' added to search_key table & the main record_search_key table.";
-      return true;
-    } catch (Exception $ex) {
-      $this->_db->rollBack();
-      echo "\n<br /> Failed to add search key 'copyright'. Error: " . $ex;
-    }
-    return false;
-  }
-
-
-  /**
-   * Returns an array of unmapped XSD fields.
-   * @return array | boolean
-   */
-  protected function _getUnmappedXSDFields()
-  {
-    $excludeInput = array('static', 'xsd_ref');
-    $excludeDisplay = array('FEZACML for Datastreams', 'FezACML for Communities',
-      'FezACML for Collections', 'FezACML for Records',
-      'DesignRQF2006MD Display', 'MARCXML test record');
-
-    $stmt = "SELECT xdis_title, fez_xsd_display_matchfields.*
-                    FROM " . APP_TABLE_PREFIX . "xsd_display_matchfields
-                    LEFT JOIN fez_xsd_display ON xsdmf_xdis_id = xdis_id
-
-                    WHERE xsdmf_enabled = 1 AND xsdmf_invisible = 0
-                    AND xsdmf_html_input NOT IN (" . explode(", ", $excludeInput) . ")
-                    AND xsdmf_sek_id IS NULL
-                    AND xdis_title NOT IN (" . explode(", ", $excludeDisplay) . ");
-                    ";
-    try {
-      $unmappedFields = $this->_db->fetchAll($stmt);
-      return $unmappedFields;
-    } catch (Exception $ex) {
-      echo "\n<br />Failed to grab unmapped fields because of: " . $stmt . " <br />" . $ex . ".\n";
-    }
-    return false;
-  }
-
-
-  /**
    * Run Fedora managed content migration script & security for the attached files.
    * @todo: update misc/migrate_fedora_managedcontent_to_fezCAS.php to return, instead of exit at the end of the script.
    *
@@ -471,10 +234,77 @@ class MigrateFromFedoraToDatabase
    */
   public function migrateManagedContent()
   {
-    // echo chr(10) . "\n<br /> Start migrating Fedora ManagedContent to Fez CAS system....";
-    // echo chr(10) . "\n<br /> This may take a while depending on the size of datastreams";
     ob_flush();
-    include("./migrate_fedora_managedcontent_to_s3.php");
+    if ($this->_env != 'production') {
+      return;
+    }
+
+    $stmt = 'select op.token as pid, dr.systemVersion as version, 
+        dr.objectState as state, ds.path as path from datastreamPaths ds
+      left join objectPaths op on op.tokenDbID = ds.tokenDbID
+      left join doRegistry dr on dr.doPID = op.token
+      where ds.path like \'/espace/data/fedora_datastreams/2016/08%\'
+      order by op.token ASC, dr.systemVersion ASC';
+
+    $ds = [];
+    try {
+      $ds = $this->_db->fetchAll($stmt);
+    } catch (Exception $ex) {
+      echo "Failed to retrieve exif data. Error: " . $ex;
+    }
+
+    $totalDs = count($ds);
+    $counter = 0;
+
+    foreach ($ds as $dataStream) {
+      $counter++;
+      $pid = $dataStream['pid'];
+
+      echo "\nDoing PID $counter/$totalDs ($pid)\n";
+      Zend_Registry::set('version', Date_API::getCurrentDateGMT());
+
+      $path = $dataStream['path'];
+      $state = $dataStream['state'];
+      $dsName = $this->getDsNameFromPath($pid, $path);
+      $acml = Record::getACML($pid, $dsName);
+
+      $cloneExif = true;
+      if(
+        strpos($dsName, 'presmd_') === 0
+      ) {
+        $exif = ['exif_mime_type' => 'application/xml'];
+        $cloneExif = false;
+      } else {
+        $exif = Exiftool::getDetails($pid, $dsName);
+        if (! $exif) {
+          $cloneExif = false;
+          $exif['exif_mime_type'] = 'binary/octet-stream';
+        }
+      }
+
+      $this->toggleAwsStatus(true);
+      $location = 'https://s3-ap-southeast-2.amazonaws.com/uql-fez-production-san/migration/' .
+        str_replace('/espace/data/fedora_datastreams/', '', $path);
+
+      if ($cloneExif) {
+        Exiftool::cloneExif($pid, $dsName, $pid, $dsName, $exif);
+      }
+
+      Fedora_API::callAddDatastream(
+        $pid, $dsName, $location, '', $state,
+        $exif['exif_mime_type'], 'M', false, "", false
+      );
+
+      $did = AuthNoFedoraDatastreams::getDid($pid, $dsName);
+      if ($this->inheritsPermissions($acml)) {
+        AuthNoFedoraDatastreams::setInherited($did);
+      }
+      if ($acml) {
+        $this->addDatastreamSecurity($acml, $did);
+      }
+      AuthNoFedoraDatastreams::recalculatePermissions($did);
+      $this->toggleAwsStatus(false);
+    }
   }
 
   /**
@@ -576,15 +406,28 @@ class MigrateFromFedoraToDatabase
     return true;
   }
 
-
   /**
    * Recalculate security.
    */
   public function recalculateSecurity()
   {
-    include("../../misc/migrate_security_recalculate.php");
+    // Get all PIDs without parents. Recalculate permissions. This will filter down to child pids and child datastreams
+    $stmt = "SELECT rek_pid FROM " . APP_TABLE_PREFIX . "record_search_key
+      LEFT JOIN fez_record_search_key_ismemberof
+      ON rek_ismemberof_pid = rek_pid
+      WHERE rek_ismemberof IS NULL";
+    $res = [];
+    try {
+      $res = $this->_db->fetchAll($stmt);
+    } catch (Exception $ex) {
+      $this->_log->err($ex);
+      echo "Failed to retrieve pid data. Error: " . $ex;
+    }
+    foreach ($res as $pid) {
+      AuthNoFedora::recalculatePermissions($pid);
+      echo 'Done: '.$pid.'<br />';
+    }
   }
-
 
   /**
    * Sets the maximum PID on PID index table.
@@ -608,21 +451,6 @@ class MigrateFromFedoraToDatabase
 
     // Make sure we have the pid index table
     $tableName = APP_TABLE_PREFIX . "pid_index";
-    if (!$this->_isTableExists($tableName)) {
-
-      // echo "Creating pid_index table ... ";
-
-      $stmt = "CREATE TABLE " . $tableName . "
-                       (pid_number int(10) unsigned NOT NULL,
-                        PRIMARY KEY (pid_number)
-                       );";
-      try {
-        $this->_db->exec($stmt);
-      } catch (Exception $ex) {
-        // echo "\n<br />Table ". $tableName ." creation failed. Here is why: ". $stmt . " <br />" . $ex .".\n";
-        return false;
-      }
-    }
 
     // truncating table
     // echo "truncating to pid_index table ... ";
@@ -637,382 +465,8 @@ class MigrateFromFedoraToDatabase
     $this->_db->exec($stmt);
     // echo "ok!\n";
     ob_flush();
-  }
-
-
-  /**
-   * Upgrade table schema for all datastream permissions and pid non inherited permissions
-   */
-  public function updateForDatastreamPermission()
-  {
-    $file = APP_PATH . "/upgrade/sql_scripts/upgrade2012021700.sql";
-    try {
-      $this->_upgradeHelper->parse_mysql_dump($file);
-      // echo chr(10) . "<br />Successfully created permissions table";
-    } catch (Exception $e) {
-      echo "\n<br> Failed updating datastream tables. file = " . $file . " Ex: " . $e;
-      return false;
-    }
-    return true;
-  }
-
-
-  /**
-   * Create tables and update db schema to store Digital Object & attached files.
-   */
-  public function createAdditionalTables()
-  {
-    // Add auth quick rules table.
-    $file = APP_PATH . "/upgrade/sql_scripts/upgrade2012081000.sql";
-    try {
-      $this->_upgradeHelper->parse_mysql_dump($file);
-      // echo chr(10) . "\n<br />Successfully added auth quick rules table";
-    } catch (Exception $e) {
-      echo "\n<br /> Failed updating auth quick rules tables. file = " . $file . " Ex: " . $e->getMessage();
-      return false;
-    }
-    ob_flush();
-    return true;
-  }
-
-  /**
-   * This script is based on rm_fedora.php. 1.1 - 1.4, 1.6 - 1.7
-   * Creates shadow tables for core search key tables and each non-core search key tables.
-   * Remove any unique constraints from the shadow table.
-   *
-   * @return boolean
-   */
-  public function createSearchKeyShadowTables()
-  {
-    // 1.1 Create core search key shadow table
-    // echo "\n<br />1.1 Creating core search key shadow table ... ";
-
-    $originalTable = APP_TABLE_PREFIX . "record_search_key";
-
-    // Create the table
-    if (!$this->_createOneShadowTable($originalTable)) {
-      return false;
-    }
-    // Remove any unique keys copied from the search key table from the shadow table
-    $this->_removeUniqueConstraintsCore();
-
-    // Add a joint primary key
-    $this->_addJointPrimaryKeyCore();
-
-    // echo "<br /> End of 1.1. Now we have shadow for core search key shadow table ".$originalTable;
-
-
-    // 1.2 Create non-core search key shadow tables
-    // echo "<br />1.2 Creating non-core search key shadow tables ... \n";
-    ob_flush();
-    $searchKeys = Search_Key::getList();
-    foreach ($searchKeys as $sk) {
-
-      // We only create search key table with multiple relationship
-      if ($sk['sek_relationship'] != '1') {
-        continue;
-      }
-
-      // echo "\n<br /> Shadowing " . $sk['sek_title_db'] . " table ... ";
-      ob_flush();
-      $originalTable = APP_TABLE_PREFIX . "record_search_key_" . $sk['sek_title_db'];
-      $shadowTable = APP_TABLE_PREFIX . "record_search_key_" . $sk['sek_title_db'] . $this->_shadowTableSuffix;
-
-      // Create the table
-      if (!$this->_createOneShadowTable($originalTable, $sk['sek_title_db'])) {
-        return false;
-      }
-
-      // Remove any unique keys copied from the search key table from the shadow table
-      $this->_removeUniqueConstraintsNonCore($shadowTable, $sk['sek_title_db']);
-
-      // Add joint primary key
-      if ($sk['sek_cardinality'] == 1) {
-        $this->_addJointPrimaryKeyMultipleNonCore($shadowTable, $sk['sek_title_db']);
-      } else {
-        $this->_addJointPrimaryKeyNonCore($shadowTable, $sk['sek_title_db']);
-      }
-
-      // echo "\n<br /> End of Shadowing " . $sk['sek_title_db'] . " table.. with a SuCCeSS!";
-    }
-
-    // echo "\n<br /> End of 1.2. Now we have shadow tables for non-core search keys.";
-    ob_flush();
-  }
-
-
-  /**
-   * Creates search key shadow table with matching schema with the original sk table.
-   * Adds timestamp column on the shadow table record versioning.
-   * @todo: Update to use CREATE TABLE IF NOT EXISTS instead.
-   *
-   * @param string $originalTable Name of the original search key table.
-   * @return boolean True when shadow table successfully created
-   */
-  protected function _createOneShadowTable($originalTable, $sekTitleDb = "")
-  {
-    if (empty($originalTable) || is_null($originalTable)) {
-      return false;
-    }
-
-    $shadowTable = $originalTable . $this->_shadowTableSuffix;
-
-    // Creates table duplicate from original sk table
-    if ($this->_isTableExists($shadowTable)) {
-
-      $stmt = "DROP TABLE IF EXISTS " . $shadowTable;
-
-      try {
-        $this->_db->exec($stmt);
-      } catch (Exception $ex) {
-        echo "<br />Table " . $shadowTable . " dropping failed. Here is why: " . $stmt . " <br />" . $ex . ".\n";
-        return false;
-      }
-
-      // echo "<br />Table ". $shadowTable ." has been Dropped.\n";
-    }
-
-    $stmt = "CREATE TABLE " . $shadowTable . " LIKE " . $originalTable;
-
-    try {
-      $this->_db->exec($stmt);
-    } catch (Exception $ex) {
-      echo "<br />Table " . $shadowTable . " creation failed. Here is why: " . $stmt . " <br />" . $ex . ".\n";
-      return false;
-    }
-
-    // Loop until the table exists from the create above
-    $count = 0;
-    while (! $this->_isTableExists($shadowTable)) {
-      $count++;
-      sleep(1);
-      if ($count > 20) {
-        // Bail
-        echo "<br />Table " . $shadowTable . " creation failed.\n";
-        return false;
-      }
-    }
-
-    // echo "<br />Table ". $shadowTable ." has been created.\n";
-
-
-    // Add stamp column to new shadow table
-    // echo "<br />Adding stamp column to the new shadow table ... ";
-
-    $tableDescribe = $this->_db->describeTable($shadowTable);
-    $columnName = "rek_" . (!empty($sekTitleDb) ? $sekTitleDb . "_" : "") . "stamp";
-
-    if (!array_key_exists("rek_stamp", $tableDescribe)) {
-
-      $stmt = "ALTER TABLE " . $shadowTable . " ADD COLUMN " . $columnName . " DATETIME;";
-
-      try {
-        $this->_db->exec($stmt);
-      } catch (Exception $ex) {
-        echo "<br />Alter table failed. Because of: " . $stmt . " <br />" . $ex;
-        return false;
-      }
-
-      // echo "<br />Table ". $shadowTable ." has been altered.\n";
-
-    } else {
-      // echo "<br />We have the stamp! Move on...";
-    }
-
-//        }else {
-//            // echo "<br />Table ". $shadowTable ." already exists somewhere in the universe, let's move on...\n";
-//        }
-    ob_flush();
-    return true;
-  }
-
-  protected function _removeUniqueConstraintsCore()
-  {
-    // Core search key shadow table
-    // echo chr(10) . "<br />" . "Removing unique constraint from fez_record_search_key__shadow ... ";
-
-    $tableName = APP_TABLE_PREFIX . "record_search_key" . $this->_shadowTableSuffix;
-
-    $stmt = "SHOW INDEX FROM " . $tableName . " WHERE Non_unique = 0 AND Key_name != 'PRIMARY'";
-    $uniqueIndex = $this->_db->fetchRow($stmt);
-
-    if (is_array($uniqueIndex) && sizeof($uniqueIndex) > 0) {
-      $stmt = "DROP INDEX unique_constraint ON " . $tableName . ";";
-      try {
-        $this->_db->exec($stmt);
-      } catch (Exception $ex) {
-        //echo "<br /> No unique constraint to remove. " . $stmt ;
-      }
-      // echo "ok!\n";
-    }
-
-    // We are removing primary key on shadow because PID is serving as primary key on the core search key table.
-    // echo "* Removing primary key constraint from fez_record_search_key__shadow ... ";
-    $stmt = "ALTER TABLE " . $tableName . " DROP PRIMARY KEY;";
-    try {
-      $this->_db->exec($stmt);
-    } catch (Exception $ex) {
-      //echo "<br />No constraint to remove " .$stmt . " - Exception=" . $ex;
-      //return false;
-    }
-    // echo "ok!\n\n";
-  }
-
-  // 1.6 Remove unique constraints from non-core shadow tables
-  protected function _removeUniqueConstraintsNonCore($tableName, $sekTitleDb)
-  {
-    // echo " Removing autoincrement to $tableName";
-    $stmt = "ALTER TABLE " . $tableName . " MODIFY rek_" . $sekTitleDb . "_id INT NOT NULL;";
-    try {
-      $this->_db->exec($stmt);
-    } catch (Exception $ex) {
-      // May fail if PRIMARY key does not exist (MySQL version > 5.1)
-      echo "<br />NOTICE: No primary key to drop on ". $tableName;
-    }
-
-    $stmt = "ALTER TABLE " . $tableName . " DROP PRIMARY KEY;";
-    try {
-      $this->_db->exec($stmt);
-    } catch (Exception $ex) {
-      // echo "<br />No constraint to remove " .$stmt . " - Exception=" . $ex;
-      // return false;
-    }
-
-    $stmt = "SHOW INDEX FROM " . $tableName . " WHERE Non_unique = 0 AND Key_name != 'PRIMARY'";
-    $indexes = $this->_db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
-    foreach ($indexes as $idx) {
-      $stmt = "DROP INDEX " . $idx['Key_name'] . " ON " . $tableName . ";";
-      try {
-        $this->_db->exec($stmt);
-      } catch (Exception $ex) {
-        //echo "<br /> No unique constraint to remove. " . $stmt ;
-      }
-      // echo "ok!\n";
-    }
 
     return true;
-  }
-
-  // 1.8 Add joint primary keys to shadow tables
-  protected function _addJointPrimaryKeyCore()
-  {
-    $tableName = APP_TABLE_PREFIX . "record_search_key" . $this->_shadowTableSuffix;
-
-    $stmt = "ALTER TABLE " . $tableName . " ADD PRIMARY KEY (rek_pid, rek_stamp);";
-    try {
-      $this->_db->exec($stmt);
-    } catch (Exception $ex) {
-      echo "<br />Could not add joint primary key to " . $tableName . " because: " . $ex;
-      return false;
-    }
-    // echo "\n";
-  }
-
-  protected function _addJointPrimaryKeyNonCore($tableName, $sekTitleDb)
-  {
-    $stmt = "ALTER TABLE " . $tableName . " ADD PRIMARY KEY (rek_" . $sekTitleDb . "_pid, rek_" . $sekTitleDb . "_stamp);";
-    try {
-      $this->_db->exec($stmt);
-    } catch (Exception $ex) {
-      echo "<br />Could not add joint primary key to " . $tableName . " because: " . $ex;
-      return false;
-    }
-    // echo "\n";
-  }
-
-
-  protected function _addJointPrimaryKeyMultipleNonCore($tableName, $sekTitleDB)
-  {
-
-    // echo " Adding joint primary key to ". $tableName;
-    $stmt = "ALTER TABLE " . $tableName . " ADD PRIMARY KEY (rek_" . $sekTitleDB . "_pid, rek_" . $sekTitleDB . "_order, rek_" . $sekTitleDB . "_stamp);";
-    try {
-      $this->_db->exec($stmt);
-    } catch (Exception $ex) {
-      echo "<br />Could not add joint primary key to " . $tableName . " because: " . $ex;
-      return false;
-    }
-    // echo "\n";
-  }
-
-  /**
-   * Check if table already exists on currently connected database.
-   *
-   * @param string $tableName Name of the table, dooh...
-   * @return boolean By default return FALSE. Return TRUE only when table exists.
-   */
-  protected function _isTableExists($tableName)
-  {
-    try {
-      $exists = $this->_db->describeTable($tableName);
-      if (!empty($exists)) {
-        return true;
-      }
-    } catch (Exception $e) {
-      // nothing to see here, return false on next line
-    }
-    return false;
-  }
-
-
-  protected function generateDSTimestamps($pid, $datastreams)
-  {
-    $createdDates = array();
-
-    // Retrieve all versions of all datastreams
-    foreach ($datastreams as $datastream) {
-      //probably only need to check the dates of the FezMD datastream. This should reduce calls to Fedora and improve performance - CK added 17/7/2009.
-      //Re-added mods since they also need checking
-      if ($datastream['ID'] == 'FezMD') {
-        $parms = array('pid' => $pid, 'dsID' => $datastream['ID']);
-
-        $datastreamVersions = Fedora_API::openSoapCall('getDatastreamHistory', $parms);
-
-        // Extract created dates from datastream versions
-        foreach ($datastreamVersions as $key => $var) {
-
-          // If a datastream contains multiple versions, Fedora bundles them in an array, however doesn't
-          // do if a datastream only has a single version.
-
-          // If the datastream is an array, retrieve value keyed under createDate
-          if (is_array($var) && array_key_exists('createDate', $var)) {
-            $createdDates[] = $var['createDate'];
-          } // If the datastream isn't an array, retrieve the createDate value
-          else if ($key === 'createDate') {
-            $createdDates[] = $var;
-          }
-        }
-      }
-    }
-
-    // Remove duplicate datestamps from array
-    $createdDates = array_unique($createdDates);
-
-    // Sort datestamps using the custom fedoraDateSorter function
-    usort($createdDates, "fedoraDateSorter");
-
-    // Iterate through amalgamated list of datestamps, removing those that are deemed to have been created
-    // too closely-together to have been a result of a user edit.
-    //
-    // Once a 'phantom' version has been found, iterate through the list again until all datestamps are
-    // suitably far apart.
-    /*do {
-      $phantomVersionFound = false;
-      for ($i = 1; $i < sizeof($createdDates); $i++) {
-
-        // If the time between the current datestamp and the previous datestamp is too low, remove the previous
-        // entry and scan the list from the start
-        if (strtotime($createdDates[$i]) - strtotime($createdDates[$i - 1]) < APP_VERSION_TIME_INTERVAL) {
-          array_splice($createdDates, $i - 1, 1);
-          $phantomVersionFound = true;
-          break;
-        }
-
-        if ($phantomVersionFound) break;
-      }
-    } while ($phantomVersionFound);*/
-
-    return $createdDates;
   }
 
   /**
@@ -1031,7 +485,6 @@ class MigrateFromFedoraToDatabase
     if ($unixTimestamp1 == $unixTimestamp2) return 0;
     return ($unixTimestamp1 < $unixTimestamp2) ? -1 : 1;
   }
-
 
   protected function toggleAwsStatus($useAws)
   {
@@ -1058,6 +511,68 @@ class MigrateFromFedoraToDatabase
       $db->query("UPDATE " . APP_TABLE_PREFIX . "config " .
         " SET config_value = 'OFF' " .
         " WHERE config_name='app_fedora_bypass'");
+    }
+  }
+
+  protected function getDsNameFromPath($pid, $path)
+  {
+    $pidMatch = str_replace(':', '_', $pid);
+    preg_match("/\\/$pidMatch\\+([^\\+]*)\\+/", $path, $matches);
+
+    if (count($matches) !== 2) {
+      return false;
+    }
+    return $matches[1];
+  }
+
+  protected function inheritsPermissions($acml)
+  {
+    if ($acml == false) {
+      //if no acml then default is inherit
+      $inherit = true;
+    } else {
+      $xpath = new DOMXPath($acml);
+      $inheritSearch = $xpath->query('/FezACML[inherit_security="on"]');
+      $inherit = false;
+      if ($inheritSearch->length > 0) {
+        $inherit = true;
+      }
+    }
+    return $inherit;
+  }
+
+  protected function addDatastreamSecurity($acml, $did)
+  {
+    // loop through the ACML docs found for the current pid or in the ancestry
+    $xpath = new DOMXPath($acml);
+    $roleNodes = $xpath->query('/FezACML/rule/role');
+
+    foreach ($roleNodes as $roleNode) {
+      $role = $roleNode->getAttribute('name');
+      // Use XPath to get the sub groups that have values
+      $groupNodes = $xpath->query('./*[string-length(normalize-space()) > 0]', $roleNode);
+
+      /* todo
+       * Empty rules override non-empty rules. Example:
+       * If a pid belongs to 2 collections, 1 collection has lister restricted to fez users
+       * and 1 collection has no restriction for lister, we want no restrictions for lister
+       * for this pid.
+       */
+
+      foreach ($groupNodes as $groupNode) {
+        $group_type = $groupNode->nodeName;
+        $group_values = explode(',', $groupNode->nodeValue);
+        foreach ($group_values as $group_value) {
+
+          //off is the same as lack of, so should be the same
+          if ($group_value != "off") {
+            $group_value = trim($group_value, ' ');
+
+            $arId = AuthRules::getOrCreateRule("!rule!role!" . $group_type, $group_value);
+            AuthNoFedoraDatastreams::addSecurityPermissions($did, $role, $arId);
+          }
+        }
+      }
     }
   }
 }

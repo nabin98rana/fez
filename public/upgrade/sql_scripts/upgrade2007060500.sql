@@ -13,7 +13,7 @@ CREATE TABLE %TABLE_PREFIX%search_key (
   sek_smarty_variable varchar(64) default NULL,
   sek_cvo_id int(11) unsigned default NULL,
   PRIMARY KEY  (sek_id)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 insert  into %TABLE_PREFIX%search_key(sek_id,sek_title,sek_alt_title,sek_adv_visible,sek_simple_used,sek_myfez_visible,sek_order,sek_html_input,sek_fez_variable,sek_smarty_variable,sek_cvo_id) values (2,'Title',NULL,1,1,1,0,'text','none','',450005);
 insert  into %TABLE_PREFIX%search_key(sek_id,sek_title,sek_alt_title,sek_adv_visible,sek_simple_used,sek_myfez_visible,sek_order,sek_html_input,sek_fez_variable,sek_smarty_variable,sek_cvo_id) values (3,'Author',NULL,1,1,NULL,1,'text','','',1);
