@@ -63,8 +63,6 @@ class MigrateFromFedoraToDatabase
     $this->_log = FezLog::get();
     $this->_db = DB_API::get();
     $this->_upgradeHelper = new upgrade();
-
-    $this->_parseConfig($config);
   }
 
   public function runMigration()
@@ -88,34 +86,6 @@ class MigrateFromFedoraToDatabase
   }
 
   /**
-   * Parse class configuration param.
-   * @param array $config
-   * @return boolean
-   */
-  protected function _parseConfig($config = array())
-  {
-    if (!is_array($config)) {
-      return false;
-    }
-
-    foreach ($config as $cfg) {
-      $cfg = explode("=", $cfg);
-      if (!array_key_exists(0, $cfg) || !array_key_exists(1, $cfg)) {
-        continue;
-      }
-
-      $key = $cfg[0];
-      $value = $cfg[1];
-
-      switch ($key) {
-        case 'autoMapXSDFields':
-          $this->_config->$key = (bool)$value;
-          break;
-      }
-    }
-  }
-
-  /**
    * This step is to inform/warn/scare web administrator on what they are about to do.
    */
   public function preMigration()
@@ -133,14 +103,6 @@ class MigrateFromFedoraToDatabase
             <li> ... </li>
         </ul>
      ";*/
-
-    // Executes mapXSDFields methods, when specified.
-    // This is considering that the sk on mapping methods match your system.
-    // This method is created to support UQ eSpace Fez.
-    if (property_exists($this->_config, 'autoMapXSDFields') && $this->_config->autoMapXSDFields === true) {
-      $this->mapXSDFieldToSearchKey();
-      $this->addSearchKeys();
-    }
   }
 
   /*
@@ -259,166 +221,6 @@ class MigrateFromFedoraToDatabase
   {
     // On libtools run the util/s3_sync_pidimages.sh script
     echo "\n On libtools run the util/s3_sync_pidimages.sh script";
-  }
-
-  /**
-   * This method automatically map XSD fields that we can manually find.
-   * Some manual mapping will be required depending on the XSD field on your Fez application.
-   */
-  public function mapXSDFieldToSearchKey()
-  {
-
-    $this->_mapSubjectField();
-
-    // @todo: need to find out what search key should we map the Q Index code field.
-    // $this->_mapQIndexCode();
-  }
-
-  protected function _mapQIndexCode()
-  {
-    // Q-index code, Q-index status, Institutional status, collection year and year available dropdowns are not being saved.
-    /*
-    SELECT xdis_title, fez_xsd_display_matchfields.*
-    FROM fez_xsd_display_matchfields
-    LEFT JOIN fez_xsd_display ON xsdmf_xdis_id = xdis_id
-    WHERE xsdmf_html_input = 'contvocab_selector' AND xsdmf_sek_id IS NULL;
-    */
-
-    // Q-index code = HERDC Code ?
-    // Institutional Status
-
-    /*
-    -- Query to find Subject Controlled Vocab  XSD fields that do not have search keys --
-    SELECT xdis_title, fez_xsd_display_matchfields.*
-    FROM fez_xsd_display_matchfields
-    LEFT JOIN fez_xsd_display ON xsdmf_xdis_id = xdis_id
-    WHERE xsdmf_title LIKE "%subject%"
-    AND xsdmf_html_input = 'contvocab_selector';
-    */
-
-    $stmt = " UPDATE " . APP_TABLE_PREFIX . "xsd_display_matchfields
-                    SET xsdmf_sek_id = (SELECT sek_id FROM " . APP_TABLE_PREFIX . "search_key WHERE sek_title = 'Subject')
-                    WHERE xsdmf_title LIKE '%subject%'
-                    AND xsdmf_html_input = 'contvocab_selector';";
-
-    try {
-      $this->_db->exec($stmt);
-    } catch (Exception $ex) {
-      echo "\n<br />Failed to map XSD field. Here is why: " . $stmt . " \n<br />" . $ex . ".\n";
-      return false;
-    }
-    return true;
-  }
-
-  protected function _mapSubjectField()
-  {
-    // Check if Subject XSD fields have been mapped
-    $stmt = "SELECT COUNT(xsdmf_id) as howmany
-                 FROM " . APP_TABLE_PREFIX . "xsd_display_matchfields
-                 LEFT JOIN " . APP_TABLE_PREFIX . "xsd_display ON xsdmf_xdis_id = xdis_id
-                 WHERE xsdmf_title LIKE '%subject%'
-                    AND xsdmf_html_input = 'contvocab_selector'
-                    AND (xsdmf_sek_id IS NULL OR xsdmf_sek_id = '');";
-
-    $unmappedFields = $this->_db->fetchRow($stmt);
-
-
-    // Run update query for unmapped Subject fields
-    if (array_key_exists('howmany', $unmappedFields) && $unmappedFields['howmany'] > 0) {
-
-      $stmt = "UPDATE " . APP_TABLE_PREFIX . "xsd_display_matchfields
-                     SET xsdmf_sek_id = (SELECT sek_id FROM " . APP_TABLE_PREFIX . "search_key WHERE sek_title = 'Subject')
-                     WHERE xsdmf_title LIKE '%subject%'
-                        AND xsdmf_html_input = 'contvocab_selector'
-                        AND (xsdmf_sek_id IS NULL OR xsdmf_sek_id = '');";
-
-      try {
-        $this->_db->exec($stmt);
-        // echo chr(10) . "\n<br /> Successfully mapped subject " . print_r($unmappedFields, 1);
-      } catch (Exception $ex) {
-        echo "\n<br />Failed to map XSD field. Here is why: " . $stmt . " <br />" . $ex . ".\n";
-        return false;
-      }
-    }
-    return true;
-  }
-
-  /**
-   * Adds search key columns / tables, which data have not been recorded in database.
-   * This method is specific for eSpace.
-   * Manual process may required to fit your Fez application.
-   */
-  public function addSearchKeys()
-  {
-    $this->_addSearchKeysCopyright();
-  }
-
-  /**
-   * Add search key for 'copyright' field on core search key table.
-   * We don't need to add it on shadow table,
-   *    as _createOneShadow() method takes care of sk table duplication.
-   *
-   * @return boolean
-   */
-  protected function _addSearchKeysCopyright()
-  {
-    // Add Search Key table
-    $stmtAddSearchKey = "INSERT INTO " . APP_TABLE_PREFIX . "search_key
-                (`sek_id`, `sek_namespace`, `sek_incr_id`, `sek_title`, `sek_alt_title`, `sek_desc`, `sek_adv_visible`,
-                 `sek_simple_used`, `sek_myfez_visible`, `sek_order`, `sek_html_input`, `sek_fez_variable`,
-                 `sek_smarty_variable`, `sek_cvo_id`, `sek_lookup_function`, `sek_data_type`, `sek_relationship`,
-                 `sek_meta_header`, `sek_cardinality`, `sek_suggest_function`, `sek_faceting`, `sek_derived_function`,
-                 `sek_lookup_id_function`, `sek_bulkchange`)
-                VALUES
-                ('core_111', 'core', 111, 'Copyright', '', '', 0, 0, 0, 999, 'checkbox', 'none', '', NULL, '', 'int', 0,
-                '', 0, '', 0, '', '', 0);";
-
-    $stmtAddRecordSearchKeyColumn = "ALTER TABLE " . APP_TABLE_PREFIX . "record_search_key
-                    ADD rek_copyright INT(11) NULL,
-                    ADD rek_copyright_xsdmf_id INT(11) NULL;";
-
-    $this->_db->beginTransaction();
-    try {
-      $this->_db->exec($stmtAddSearchKey);
-      $this->_db->exec($stmtAddRecordSearchKeyColumn);
-      $this->_db->commit();
-
-      // echo "<br /> Search key 'copyright' added to search_key table & the main record_search_key table.";
-      return true;
-    } catch (Exception $ex) {
-      $this->_db->rollBack();
-      echo "\n<br /> Failed to add search key 'copyright'. Error: " . $ex;
-    }
-    return false;
-  }
-
-  /**
-   * Returns an array of unmapped XSD fields.
-   * @return array | boolean
-   */
-  protected function _getUnmappedXSDFields()
-  {
-    $excludeInput = array('static', 'xsd_ref');
-    $excludeDisplay = array('FEZACML for Datastreams', 'FezACML for Communities',
-      'FezACML for Collections', 'FezACML for Records',
-      'DesignRQF2006MD Display', 'MARCXML test record');
-
-    $stmt = "SELECT xdis_title, fez_xsd_display_matchfields.*
-                    FROM " . APP_TABLE_PREFIX . "xsd_display_matchfields
-                    LEFT JOIN fez_xsd_display ON xsdmf_xdis_id = xdis_id
-
-                    WHERE xsdmf_enabled = 1 AND xsdmf_invisible = 0
-                    AND xsdmf_html_input NOT IN (" . explode(", ", $excludeInput) . ")
-                    AND xsdmf_sek_id IS NULL
-                    AND xdis_title NOT IN (" . explode(", ", $excludeDisplay) . ");
-                    ";
-    try {
-      $unmappedFields = $this->_db->fetchAll($stmt);
-      return $unmappedFields;
-    } catch (Exception $ex) {
-      echo "\n<br />Failed to grab unmapped fields because of: " . $stmt . " <br />" . $ex . ".\n";
-    }
-    return false;
   }
 
   /**
