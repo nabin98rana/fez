@@ -156,9 +156,7 @@ class Publons
         $db = DB_API::get();
 
         $stmt = "SELECT aut_orcid_id FROM fez_author
-            INNER JOIN fez_publons_reviews ON psr_aut_id = aut_id
-            WHERE aut_id = " . $db->quote($author_id) . "
-            LIMIT 1;";
+            WHERE aut_id = " . $db->quote($author_id) . " AND aut_publons_id = 1";
 
         try {
             $res = $db->fetchOne($stmt);
