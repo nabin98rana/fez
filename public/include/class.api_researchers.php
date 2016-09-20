@@ -383,7 +383,7 @@ aut_people_australia_id, aut_description, aut_orcid_id, aut_google_scholar_id, a
         $results[] = array_merge(array('value' => $res['aut_orcid_id'], status => !empty($res['aut_orcid_id']) ? 1 : null), $idDetails[1]);
         $results[] = array_merge(array('value' => $res['aut_researcher_id'], status => !empty($res['aut_researcher_id']) ? 1 : null), $idDetails[2]);
         $results[] = array_merge(array('value' => $res['aut_scopus_id'], status => !empty($res['aut_scopus_id']) ? 1 : null), $idDetails[3]);
-        $results[] = array_merge(array('value' => $res['aut_orcid_id'], status => !empty($res['aut_orcid_id']) ? 1 : null), $idDetails[4]);
+        $results[] = array_merge(array('value' => $res['aut_orcid_id'], status => !empty($res['aut_publons_id']) ? 1 : null), $idDetails[4]);
         return $results;
     }
 
