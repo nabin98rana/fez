@@ -58,7 +58,6 @@ class MigrateFromFedoraToDatabase
   {
     $this->_log = FezLog::get();
     $this->_db = DB_API::get();
-    $this->_fedoraDb = DB_API::get('fedora_db');
   }
 
   public function runMigration()
@@ -86,6 +85,24 @@ class MigrateFromFedoraToDatabase
    */
   private function preMigration()
   {
+    if (! Zend_Registry::isRegistered('fedora_db')) {
+      try {
+        $fdb = Zend_Db::factory(FEDORA_DB_TYPE, [
+          'host'     => FEDORA_DB_HOST,
+          'username' => FEDORA_DB_USERNAME,
+          'password' => FEDORA_DB_PASSWD,
+          'dbname'   => FEDORA_DB_DATABASE_NAME,
+          'port'     => FEDORA_DB_PORT,
+          'profiler' => ['enabled' => false],
+        ]);
+        $fdb->getConnection();
+        Zend_Registry::set('fedora_db', $fdb);
+      } catch (Exception $ex) {
+        echo "Unable to connect to the Fedora DB.\n";
+        return;
+      }
+    }
+    $this->_fedoraDb = DB_API::get('fedora_db');
     $this->toggleAwsStatus(false);
   }
 
