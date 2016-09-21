@@ -300,9 +300,10 @@ class AWS
    * @param string $src
    * @param string $newSrc
    * @param bool|string $srcBucket
+   * @param bool|string $mimeType
    * @return AWS\Result|boolean An AWS\Result object, or false if the copy failed
    */
-  public function copyFile($src, $newSrc, $srcBucket = false)
+  public function copyFile($src, $newSrc, $srcBucket = false, $mimeType = false)
   {
     // Create an Amazon S3 client using the shared configuration data.
     $client = $this->sdk->createS3();
@@ -318,6 +319,9 @@ class AWS
         'Key'        => $newKey,
         'CopySource' => "{$srcBucket}/{$key}",
       ];
+      if ($mimeType) {
+        $object['ContentType'] = $mimeType;
+      }
       $res = $client->copyObject($object);
       return $res;
     } catch (\Aws\S3\Exception\S3Exception $e) {
