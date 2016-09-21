@@ -1,4 +1,4 @@
-CREATE TABLE fez_record_search_key__shadow (
+CREATE TABLE IF NOT EXISTS %TABLE_PREFIX%record_search_key__shadow (
   rek_pid varchar(64) NOT NULL COMMENT 'PID',
   rek_title_xsdmf_id int(11) DEFAULT NULL,
   rek_title varchar(1000) DEFAULT NULL COMMENT 'Title',
