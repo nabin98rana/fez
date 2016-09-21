@@ -68,7 +68,7 @@ class BackgroundProcess_Db_Load extends BackgroundProcess
     if (! system("AWS_ACCESS_KEY_ID=" .
       AWS_KEY. " AWS_SECRET_ACCESS_KEY=" .
       AWS_SECRET .
-      " bash -c \"aws s3 cp s3://uql-fez-${environment}/fez${environment}.tar.gz ${path}/fez${environment}.tar.gz\"")
+      " bash -c \"aws s3 cp s3://uql-fez-${environment}-cache/fez${environment}.tar.gz ${path}/fez${environment}.tar.gz\"")
     ) {
       $log->err('DB load failed: Unable to copy Fez DB from S3');
       exit;
