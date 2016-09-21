@@ -358,7 +358,7 @@ class Fedora_API implements FedoraApiInterface {
         unlink($dsLocation);
       }
     } else {
-      $obj = $aws->copyFile($dsLocation, $dataPath."/".$dsID, $srcBucket);
+      $obj = $aws->copyFile($dsLocation, $dataPath."/".$dsID, $srcBucket, $mimetype);
     }
     if (! $obj) {
       return false;
