@@ -13,8 +13,8 @@ if [ "${APP_ENVIRONMENT}" == "staging" ]; then
   aws s3 cp s3://uql/ecs/default/services/fezstaging/config.inc.php ${BASE_DIR}/public/config.inc.php
   aws s3 cp s3://uql/fez/fez_staging_cloudfront_private_key.pem ${BASE_DIR}/data/
   aws s3 cp ${BASE_DIR}/.docker/staging/fez.cron s3://uql/ecs/default/services/crond/cron.d/fezstaging
-  aws s3 cp s3://uql-fez-staging/GeoIP.dat.gz /usr/share/GeoIP/GeoIP.dat.gz && /bin/gunzip -f /usr/share/GeoIP/GeoIP.dat.gz
-  aws s3 cp s3://uql-fez-staging/GeoLiteCity.dat.gz /usr/share/GeoIP/GeoLiteCity.dat.gz && /bin/gunzip -f /usr/share/GeoIP/GeoLiteCity.dat.gz
+  aws s3 cp s3://uql-fez-staging-cache/GeoIP.dat.gz /usr/share/GeoIP/GeoIP.dat.gz && /bin/gunzip -f /usr/share/GeoIP/GeoIP.dat.gz
+  aws s3 cp s3://uql-fez-staging-cache/GeoLiteCity.dat.gz /usr/share/GeoIP/GeoLiteCity.dat.gz && /bin/gunzip -f /usr/share/GeoIP/GeoLiteCity.dat.gz
   # Note this nginx ip restriction does NOT stop being getting through via cloudfront. CF is geoblocked to AUS and robots.txt will stop crawlers.
   cp ${BASE_DIR}/.docker/staging/fez-staging-allow.conf /etc/nginx/rules/fez-staging-allow.conf
   cp ${BASE_DIR}/.docker/staging/robots.txt ${BASE_DIR}/public/

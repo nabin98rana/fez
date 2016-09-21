@@ -10,8 +10,8 @@
 ## Fez staging tasks ##
 
 # Update the GeoIP and GeoLiteCity data files in S3 every month on the 3rd at 3:33am
-33  3   3 * *   root    /usr/bin/wget -nd -q -O /tmp/GeoIP.dat.gz http://www.maxmind.com/download/geoip/database/GeoIP.dat.gz && aws s3 cp /tmp/GeoIP.dat.gz s3://uql-fez-staging/GeoIP.dat.gz > /dev/null 2>&1
-33  3   3 * *   root    /usr/bin/wget -nd -q -O /tmp/GeoLiteCity.dat.gz http://www.maxmind.com/download/geoip/database/GeoLiteCity.dat.gz && aws s3 cp /tmp/GeoIP.dat.gz s3://uql-fez-staging/GeoLiteCity.dat.gz > /dev/null 2>&1
+33  3   3 * *   root    /usr/bin/wget -nd -q -O /tmp/GeoIP.dat.gz http://www.maxmind.com/download/geoip/database/GeoIP.dat.gz && aws s3 cp /tmp/GeoIP.dat.gz s3://uql-fez-staging-cache/GeoIP.dat.gz > /dev/null 2>&1
+33  3   3 * *   root    /usr/bin/wget -nd -q -O /tmp/GeoLiteCity.dat.gz http://www.maxmind.com/download/geoip/database/GeoLiteCity.dat.gz && aws s3 cp /tmp/GeoIP.dat.gz s3://uql-fez-staging-cache/GeoLiteCity.dat.gz > /dev/null 2>&1
 
 # Run the integrity fixing scripts each morning
 15  8   * * *   root    /usr/bin/wget -O - "http://fez-staging.library.uq.edu.au/api/cron_register_bgp.php?file=bgp_run_integrity_checks&class=BackgroundProcess_Run_Integrity_Checks&input[runType]=both&token=WEBCRON_TOKEN" > /dev/null 2>&1
