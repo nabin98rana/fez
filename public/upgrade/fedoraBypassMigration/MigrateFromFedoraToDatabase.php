@@ -227,6 +227,10 @@ class MigrateFromFedoraToDatabase
       $state = $dataStream['state'];
       echo "Getting ACML from Fedora..\n";
       $dsName = $this->getDsNameFromPath($pid, $path);
+      if (! $dsName) {
+        continue;
+      }
+
       $acml = Record::getACML($pid, $dsName);
       echo "Got ACML from Fedora..\n";
 
@@ -246,6 +250,7 @@ class MigrateFromFedoraToDatabase
 
       $this->toggleAwsStatus(true);
       $location = 'migration/' . str_replace('/espace/data/fedora_datastreams/', '', $path);
+      $location = str_replace('+', '%2B', $location);
 
       if ($cloneExif) {
         Exiftool::cloneExif($pid, $dsName, $pid, $dsName, $exif);
