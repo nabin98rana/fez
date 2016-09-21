@@ -127,7 +127,7 @@ class Fez_Record_SearchkeyShadow
     try {
       $res = $db->exec($stmt);
     } catch (Exception $ex) {
-      $log->err($ex);
+      $log->err($ex. ": ".$stmt);
       return array();
     }
     return $res;
@@ -151,7 +151,7 @@ class Fez_Record_SearchkeyShadow
     try {
       $res = $db->exec($stmt);
     } catch (Exception $ex) {
-      $log->err($ex);
+      $log->err($ex. ": ".$stmt);
       return array();
     }
     return $res;

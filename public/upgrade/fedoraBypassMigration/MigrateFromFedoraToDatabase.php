@@ -45,6 +45,7 @@
 
 include_once(APP_INC_PATH . 'class.bgp_index_object.php');
 include_once(APP_INC_PATH . 'class.reindex.php');
+include_once(APP_INC_PATH . 'class.record_object.php');
 
 class MigrateFromFedoraToDatabase
 {
@@ -347,6 +348,19 @@ class MigrateFromFedoraToDatabase
       return false;
     }
 
+    foreach ($pids as $pid) {
+      $record = new RecordObject($pid);
+      $record->getDisplay();
+      $details = $record->getDetails();
+      $sekData = Fez_Record_Searchkey::buildSearchKeyDataByXSDMFID($details);
+      $recordSearchKey = new Fez_Record_Searchkey();
+      // set the (fourth) param true to only insert the shadow values
+      $result = $recordSearchKey->insertRecord($sekData, false, array(), true);
+      if (!$result) {
+        echo "PID $pid failed to update search keys and shadow tables - aborting migration";
+        return false;
+      }
+    }
 
     if (sizeof($pids) > 0) {
       //Workflow::start($wft_id, $pid, $xdis_id, $href, $dsID, $pids);
