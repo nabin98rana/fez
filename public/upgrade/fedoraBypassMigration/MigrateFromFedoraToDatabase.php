@@ -86,6 +86,7 @@ class MigrateFromFedoraToDatabase
    */
   private function preMigration()
   {
+    $this->toggleAwsStatus(false);
   }
 
   /**
@@ -94,31 +95,7 @@ class MigrateFromFedoraToDatabase
    */
   private function postMigration()
   {
-    $db = DB_API::get();
-
-    $db->query("UPDATE " . APP_TABLE_PREFIX . "config " .
-      " SET config_value = 'true' " .
-      " WHERE config_name='aws_enabled'");
-    $db->query("UPDATE " . APP_TABLE_PREFIX . "config " .
-      " SET config_value = 'true' " .
-      " WHERE config_name='aws_s3_enabled'");
-    $db->query("UPDATE " . APP_TABLE_PREFIX . "config " .
-      " SET config_value = 'ON' " .
-      " WHERE config_name='app_fedora_bypass'");
-    $db->query("UPDATE " . APP_TABLE_PREFIX . "config " .
-      " SET config_value = 'ON' " .
-      " WHERE config_name='app_xsdmf_index_switch'");
-    $db->query("UPDATE " . APP_TABLE_PREFIX . "config " .
-      " SET config_value = '' " .
-      " WHERE config_name='app_fedora_username'");
-    $db->query("UPDATE " . APP_TABLE_PREFIX . "config " .
-      " SET config_value = '' " .
-      " WHERE config_name='app_fedora_pwd'");
-
-    if ($this->_env == 'production') {
-      echo "\n*  On libtools run the util/s3_sync_pidimages.sh script\n";
-    }
-
+    $this->toggleAwsStatus(true);
     echo "Congratulations! Your Fez system is now ready to function without Fedora.\n";
   }
 
@@ -426,7 +403,6 @@ class MigrateFromFedoraToDatabase
     $this->_db->exec($stmt);
     // echo "ok!\n";
 
-
     // Insert the maximum PID
     // echo "Fetching next PID from Fedora, and writing to pid_index table ... ";
     $stmt = "INSERT INTO " . $tableName . " (pid_number) VALUES ('" . ($nextPIDNumber - 1) . "');";
@@ -451,6 +427,15 @@ class MigrateFromFedoraToDatabase
       $db->query("UPDATE " . APP_TABLE_PREFIX . "config " .
         " SET config_value = 'ON' " .
         " WHERE config_name='app_fedora_bypass'");
+      $db->query("UPDATE " . APP_TABLE_PREFIX . "config " .
+        " SET config_value = 'ON' " .
+        " WHERE config_name='app_xsdmf_index_switch'");
+      /*$db->query("UPDATE " . APP_TABLE_PREFIX . "config " .
+        " SET config_value = '' " .
+        " WHERE config_name='app_fedora_username'");
+      $db->query("UPDATE " . APP_TABLE_PREFIX . "config " .
+        " SET config_value = '' " .
+        " WHERE config_name='app_fedora_pwd'");*/
 
     } else {
       $db->query("UPDATE " . APP_TABLE_PREFIX . "config " .
@@ -462,6 +447,9 @@ class MigrateFromFedoraToDatabase
       $db->query("UPDATE " . APP_TABLE_PREFIX . "config " .
         " SET config_value = 'OFF' " .
         " WHERE config_name='app_fedora_bypass'");
+      $db->query("UPDATE " . APP_TABLE_PREFIX . "config " .
+        " SET config_value = 'OFF' " .
+        " WHERE config_name='app_xsdmf_index_switch'");
     }
   }
 

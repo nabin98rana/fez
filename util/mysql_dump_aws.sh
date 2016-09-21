@@ -91,7 +91,7 @@ cp ${APP_ENV}.fez.config.sql export/fez_config.sql
 tar -zcvf fez${APP_ENV}.tar.gz export
 rm -Rf export
 
-bucket="uql-fez-${APP_ENV}"
+bucket="uql-fez-${APP_ENV}-cache"
 file="fez${APP_ENV}.tar.gz"
 resource="/${bucket}/${file}"
 contentType="application/x-compressed-tar"
