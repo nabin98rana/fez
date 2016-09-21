@@ -226,16 +226,13 @@ class MigrateFromFedoraToDatabase
       Zend_Registry::set('version', Date_API::getCurrentDateGMT());
 
       $acml = Record::getACML($pid, $dsName);
-      $cloneExif = true;
       if(
         strpos($dsName, 'presmd_') === 0
       ) {
         $exif = ['exif_mime_type' => 'application/xml'];
-        $cloneExif = false;
       } else {
         $exif = Exiftool::getDetails($pid, $dsName);
         if (! $exif) {
-          $cloneExif = false;
           $exif['exif_mime_type'] = 'binary/octet-stream';
         }
       }
@@ -243,10 +240,6 @@ class MigrateFromFedoraToDatabase
       $this->toggleAwsStatus(true);
       $location = 'migration/' . str_replace('/espace/data/fedora_datastreams/', '', $path);
       $location = str_replace('+', '%2B', $location);
-
-      if ($cloneExif) {
-        Exiftool::cloneExif($pid, $dsName, $pid, $dsName, $exif);
-      }
 
       echo "Adding datastream for {$dsName}..\n";
       Fedora_API::callAddDatastream(
