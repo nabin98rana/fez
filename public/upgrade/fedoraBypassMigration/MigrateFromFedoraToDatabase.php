@@ -199,16 +199,13 @@ class MigrateFromFedoraToDatabase
       return;
     }
 
-    $stmt = "select op.token as pid, dr.systemVersion as version, 
-        dr.objectState as state, ds.path as path from datastreamPaths ds
-      left join objectPaths op on op.tokenDbID = ds.tokenDbID
-      left join doRegistry dr on dr.doPID = op.token
-      where ds.path like '/espace/data/fedora_datastreams/2016/08%'
-      order by op.token ASC, dr.systemVersion ASC";
+    $stmt = "select token, path from datastreamPaths   
+      where path like '/espace/data/fedora_datastreams/2016/08%'
+      order by path DESC";
 
     $ds = [];
     try {
-      $ds = $this->_fedoraDb->fetchAll($stmt);
+      $ds = $this->_fedoraDb->fetchAll($stmt, [], Zend_Db::FETCH_ASSOC);
     } catch (Exception $ex) {
       echo "Failed to retrieve exif data. Error: " . $ex;
     }
@@ -218,22 +215,17 @@ class MigrateFromFedoraToDatabase
 
     foreach ($ds as $dataStream) {
       $counter++;
-      $pid = $dataStream['pid'];
+
+      $path = $dataStream['path'];
+      $tokenParts = $this->getDsNameAndPidFromToken($dataStream['token']);
+      $pid = $tokenParts['pid'];
+      $dsName = $tokenParts['dsName'];
+      $state = 'A';
 
       echo "\nDoing PID $counter/$totalDs ($pid)\n";
       Zend_Registry::set('version', Date_API::getCurrentDateGMT());
 
-      $path = $dataStream['path'];
-      $state = $dataStream['state'];
-      echo "Getting ACML from Fedora..\n";
-      $dsName = $this->getDsNameFromPath($pid, $path);
-      if (! $dsName) {
-        continue;
-      }
-
       $acml = Record::getACML($pid, $dsName);
-      echo "Got ACML from Fedora..\n";
-
       $cloneExif = true;
       if(
         strpos($dsName, 'presmd_') === 0
@@ -475,15 +467,13 @@ class MigrateFromFedoraToDatabase
     }
   }
 
-  private function getDsNameFromPath($pid, $path)
+  private function getDsNameAndPidFromToken($token)
   {
-    $pidMatch = str_replace(':', '_', $pid);
-    preg_match("/\\/$pidMatch\\+([^\\+]*)\\+/", $path, $matches);
-
-    if (count($matches) !== 2) {
-      return false;
-    }
-    return $matches[1];
+    $parts = explode('+', $token);
+    return [
+      'pid' => $parts[0],
+      'dsName' => $parts[1]
+    ];
   }
 
   private function inheritsPermissions($acml)
