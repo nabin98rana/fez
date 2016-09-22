@@ -20,6 +20,7 @@ fezdevelopmentrunner:
     - fezdb
     - selenium
     - solr
+    - elasticsearch
   volumes:
     - ../../:/var/app/current
   volumes_from:
@@ -78,6 +79,7 @@ fpm:
     - fezdb
     - fedora
     - solr
+    - elasticsearch
   volumes:
     - ../../:/var/app/current
     - ./backend/nginx/etc/nginx/conf.d:/etc/nginx/conf.d
@@ -138,3 +140,14 @@ solr:
 
 solrdata:
   build: ./solr/data/
+
+elasticsearch:
+  environment:
+    - ES_CLUSTER_NAME=uqlfezsearch
+    - ES_NODE_MASTER=true
+    - ES_NODE_DATA=true
+  image: uqlibrary/docker-elasticsearch:1.7.1
+  ports:
+    - "9200:9200"
+  volumes:
+    - ./data/elasticsearch:/data
