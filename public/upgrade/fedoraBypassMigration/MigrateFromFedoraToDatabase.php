@@ -45,6 +45,7 @@
 
 include_once(APP_INC_PATH . 'class.bgp_index_object.php');
 include_once(APP_INC_PATH . 'class.reindex.php');
+include_once(APP_INC_PATH . 'class.record_object.php');
 
 class MigrateFromFedoraToDatabase
 {
@@ -266,29 +267,31 @@ class MigrateFromFedoraToDatabase
    */
   private function migratePIDs()
   {
-    $stmt = "SELECT COUNT(rek_pid) FROM " . APP_TABLE_PREFIX . "record_search_key
-                 ORDER BY rek_pid DESC ";
+//    $stmt = "SELECT COUNT(rek_pid) FROM " . APP_TABLE_PREFIX . "record_search_key";
+//
+//    try {
+//      $totalPids = $this->_db->fetchOne($stmt);
+//    } catch (Exception $e) {
+//      echo chr(10) . "\n<br /> Failed to retrieve total pids. Query: " . $stmt;
+//      return false;
+//    }
 
-    try {
-      $totalPids = $this->_db->fetchCol($stmt);
-    } catch (Exception $e) {
-      echo chr(10) . "\n<br /> Failed to retrieve total pids. Query: " . $stmt;
-      return false;
-    }
 
-    $limit = 1;  // how many pids per process
-    $loop = 2;  // how many times we want to loop
-    $start = 0;
-    for ($i = 0; $start < $totalPids && $i < $loop; $i++) {
-      if ($i == 0) {
-        $start = $i;
-      }
-      $this->reindexPids($start, $limit);
-      $start += $limit;
-    }
+    $this->reindexPids();
+
+//    $limit = 2;  // how many pids per process
+//
+//    $start = 0;
+//    for ($i = 0; $start < $totalPids;  $i++) {
+//      if ($i == 0) {
+//        $start = $i;
+//      }
+//      $this->reindexPids($start, $limit);
+//      $start += $limit;
+//    }
 
     // echo chr(10) . "\n<br /> Ok, we have done the reindex for ". ($loop * $limit) . "PIDs";
-    ob_flush();
+//    ob_flush();
     return true;
 
     // Attempt to bring in all the versions of a PID
@@ -321,7 +324,7 @@ class MigrateFromFedoraToDatabase
    * Run Reindex workflow on an array of pids
    * @return boolean
    */
-  private function reindexPids($start, $limit)
+  private function reindexPids()
   {
     $wft_id = 277;  // hack: Reindex workflow trigger ID
     $pid = "";
@@ -337,8 +340,7 @@ class MigrateFromFedoraToDatabase
 
     $stmt = "SELECT rek_pid
                  FROM " . APP_TABLE_PREFIX . "record_search_key
-                 ORDER BY rek_pid DESC
-                 LIMIT " . $start . ", " . $limit . ";";
+                 ORDER BY rek_pid DESC";
 
     try {
       $pids = $this->_db->fetchCol($stmt);
@@ -347,6 +349,19 @@ class MigrateFromFedoraToDatabase
       return false;
     }
 
+    foreach ($pids as $pid) {
+      $record = new RecordObject($pid);
+      $record->getDisplay();
+      $details = $record->getDetails();
+      $sekData = Fez_Record_Searchkey::buildSearchKeyDataByXSDMFID($details);
+      $recordSearchKey = new Fez_Record_Searchkey($pid);
+      // set the (fourth) param true to only insert the shadow values
+      $result = $recordSearchKey->insertRecord($sekData, false, array(), true);
+      if (!$result) {
+        echo "PID $pid failed to update search keys and shadow tables - aborting migration";
+        return false;
+      }
+    }
 
     if (sizeof($pids) > 0) {
       //Workflow::start($wft_id, $pid, $xdis_id, $href, $dsID, $pids);

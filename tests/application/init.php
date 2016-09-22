@@ -45,6 +45,8 @@ InitSystem::runDatabaseTasks($tasks);
 Class InitSystem
 {
 
+  const seedPath = './../../.docker/development/backend/db/seed/';
+
   /**
    * This method creates the database (if necessary), and sets up all tables & start-up data.
    * @param String $tasks
@@ -85,6 +87,12 @@ Class InitSystem
         break;
       case 'seed':
         InitSystem::runSeed($conn);
+        break;
+      case 'setupaws':
+        InitSystem::runSetupAWS($conn);
+        break;
+      case 'migrate':
+        InitSystem::runMigrate($conn);
         break;
       default:
         break;
@@ -167,7 +175,7 @@ Class InitSystem
    */
   public static function runSeed($conn)
   {
-    $path = './../../.docker/development/backend/db/seed/';
+    $path = InitSystem::seedPath;
 //  parseMySQLdump($conn, $path . "installdb.sql");
     InitSystem::parseMySQLdump($conn, $path . "citation.sql");
     InitSystem::parseMySQLdump($conn, $path . "cvs.sql");
@@ -196,6 +204,11 @@ Class InitSystem
     ) {
       return;
     }
+  }
+
+
+  public static function runSetupAWS($conn) {
+
 
     // Dev bucket requires a prefix as it's shared amongst multiple developers
     if (
@@ -205,7 +218,7 @@ Class InitSystem
       return;
     }
 
-    InitSystem::parseMySQLdump($conn, $path . "aws.sql");
+    InitSystem::parseMySQLdump($conn, InitSystem::seedPath . "aws.sql");
 
     include_once './../../public/config.inc.php';
     $aws = AWS::get();
@@ -240,15 +253,25 @@ Class InitSystem
           " SET config_value = '' " .
           " WHERE config_name='app_fedora_pwd'");
 
-      InitSystem::parseMySQLdump($conn, $path . "nofedora.sql");
+      InitSystem::parseMySQLdump($conn, InitSystem::seedPath . "nofedora.sql");
 
     } catch (Exception $ex) {
       return;
     }
+  }
+
+
+  /**
+   * @param PDO $conn
+   */
+  public static function runMigrate($conn)
+  {
+    include_once './../../public/config.inc.php';
 
     include_once(APP_INC_PATH . "/../upgrade/fedoraBypassMigration/MigrateFromFedoraToDatabase.php");
     $migrate = new MigrateFromFedoraToDatabase();
     $migrate->runMigration();
   }
+
 
 }
