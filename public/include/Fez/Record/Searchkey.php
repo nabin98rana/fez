@@ -138,16 +138,16 @@ class Fez_Record_Searchkey
    *                                 )
    * @return boolean
    */
-  public function insertRecord($sekData = array(), $historyMsg = false, $citationData = array())
+  public function insertRecord($sekData = array(), $historyMsg = false, $citationData = array(), $onlyShadow=false)
   {
     // Set PID
     $this->_setPid();
 
     // Save 1-to-1 search key
-    $oneToOne = $this->_insertOneToOneRecord($sekData[0]);
+    $oneToOne = $this->_insertOneToOneRecord($sekData[0], $onlyShadow);
 
     // Save 1-to-many search key
-    $oneToMany = $this->_insertOneToManyRecord($sekData[1]);
+    $oneToMany = $this->_insertOneToManyRecord($sekData[1], $onlyShadow);
 
     // Returns false when both updates failed.
     if (!$oneToOne && !$oneToMany['oneSuccess']) {
@@ -490,25 +490,26 @@ class Fez_Record_Searchkey
    * Once db->commit() is successful for the above queries, continue with next search key.
    *
    * @param array $data An array of 1-to-1 search key name & value pairs
+   * @param boolean $onlyShadow if true will only update the shadow tables, not the main
    * @return boolean True when all queries has been successfully executed.
    */
-  protected function _insertOneToOneRecord($data = array())
+  protected function _insertOneToOneRecord($data = array(), $onlyShadow = false)
   {
 
     if (!is_array($data) || sizeof($data) <= 0) {
       return false;
     }
+    if (!$onlyShadow) {
+      // Insert new record to main table
+      $stmtInsertNew = $this->_buildOneToOneInsertQuery($data);
 
-    // Insert new record to main table
-    $stmtInsertNew = $this->_buildOneToOneInsertQuery($data);
-
-    try {
-      $this->_db->exec($stmtInsertNew);
-    } catch (Exception $ex) {
-      $this->_log->err($ex);
-      return false;
+      try {
+        $this->_db->exec($stmtInsertNew);
+      } catch (Exception $ex) {
+        $this->_log->err($ex);
+        return false;
+      }
     }
-
     // Copy to Shadow
     if (!$this->_shadow->copyRecordSearchKeyToShadow()) {
       return false;
@@ -528,9 +529,10 @@ class Fez_Record_Searchkey
    * Once db->commit() is successful for the above queries, continue with next search key.
    *
    * @param array $data An array of 1-to-many search key values
+   * @param boolean $onlyShadow if true will only update the shadow tables, not the main
    * @return boolean True when all queries has been successfully executed.
    */
-  protected function _insertOneToManyRecord($data = array())
+  protected function _insertOneToManyRecord($data = array(), $onlyShadow = false)
   {
     $result = array('oneSuccess' => false);
 
@@ -545,15 +547,16 @@ class Fez_Record_Searchkey
       if (!$this->_verifyOneToManyData($value, $sekTitle)) {
         continue;
       }
-
-      // Insert new record to main sek table
-      $stmtInsertNew = $this->_buildOneToManyInsertQuery($sekTitle, $value);
-      try {
-        $this->_db->exec($stmtInsertNew);
-      } catch (Exception $ex) {
-        $this->_log->err($ex);
-        // Ignore the rest of processing if Insert query failed.
-        continue;
+      if (!$onlyShadow) {
+        // Insert new record to main sek table
+        $stmtInsertNew = $this->_buildOneToManyInsertQuery($sekTitle, $value);
+        try {
+          $this->_db->exec($stmtInsertNew);
+        } catch (Exception $ex) {
+          $this->_log->err($ex);
+          // Ignore the rest of processing if Insert query failed.
+          continue;
+        }
       }
 
       //$hasDelta = $this->_shadow->hasDelta($sekTitle);
