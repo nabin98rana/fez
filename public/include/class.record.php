@@ -1424,6 +1424,11 @@ class Record
               }
               $stmt .= ") VALUES ";
 
+              if ($searchKeyDetails['sek_html_input'] == 'checkbox') {
+                if ($sek_value['xsdmf_value'] != 'on') {
+                  $sek_value['xsdmf_value'] = 'off';
+                }
+              }
               if (is_array($sek_value['xsdmf_value'])) {
 
                 $cardinalityVal = 1;
@@ -1442,6 +1447,7 @@ class Record
                 unset($stmtVars);
 
               } else {
+
                 if ($sek_value['xsdmf_value'] == 'on' || $sek_value['xsdmf_value'] == 'off') {
                   if ($searchKeyDetails['sek_data_type'] == 'int') {
                     if ($sek_value['xsdmf_value'] == 'on') {
