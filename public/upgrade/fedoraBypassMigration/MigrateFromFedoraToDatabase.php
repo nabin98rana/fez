@@ -134,6 +134,9 @@ class MigrateFromFedoraToDatabase
    */
   private function stepTwoMigration()
   {
+    // Convert the XML quick templates
+    $this->convertQuickTemplates();
+
     // Migrate all records from Fedora
     $this->migratePIDs();
 
@@ -529,6 +532,70 @@ class MigrateFromFedoraToDatabase
 
             $arId = AuthRules::getOrCreateRule("!rule!role!" . $group_type, $group_value);
             AuthNoFedoraDatastreams::addSecurityPermissions($did, $role, $arId);
+          }
+        }
+      }
+    }
+  }
+
+  /**
+   * Converts the XML quick templates
+   */
+  private function convertQuickTemplates()
+  {
+    $roles = Auth::getAssocRoleIDs();
+    $authRoles = array_flip($roles);
+    $templates = FezACML::getQuickTemplateAssocList();
+
+    foreach ($templates as $qatId => $qatTitle) {
+      $acmlXml = FezACML::getQuickTemplateValue($qatId);
+      $acmlDoc = new DomDocument();
+      $acmlDoc->loadXML($acmlXml);
+      $xpath = new DOMXPath($acmlDoc);
+      $roleNodes = $xpath->query('/FezACML/rule/role');
+
+      foreach ($roleNodes as $roleNode) {
+        $roleName = $roleNode->getAttribute('name');
+        $groupNodes = $xpath->query('./*[string-length(normalize-space()) > 0]', $roleNode);
+
+        foreach ($groupNodes as $groupNode) {
+          $groupRule = $groupNode->nodeName;
+          $groupValues = explode(',', $groupNode->nodeValue);
+          $groups = [];
+          foreach ($groupValues as $groupValue) {
+            if ($groupValue != "off") {
+              $groupValue = trim($groupValue, ' ');
+              $groups[] = [
+                'rule' => '!rule!role!' . $groupRule,
+                'value' => $groupValue,
+              ];
+            }
+          }
+
+          $argId = AuthRules::getOrCreateRuleGroup($groups);
+          $aroId = $authRoles[$roleName];
+          $authQuickRule = [
+            ':qac_aro_id' => $aroId,
+            ':qac_arg_id' => $argId
+          ];
+
+          $qacId = '';
+          $stmt = "SELECT qac_id FROM " . APP_TABLE_PREFIX . "auth_quick_rules WHERE "
+            . "qac_aro_id = :qac_aro_id AND qac_arg_id = :qac_arg_id";
+          try {
+            $qacId = $this->_db->fetchOne($stmt, $authQuickRule);
+          } catch (Exception $ex) {
+          }
+
+          if (!$qacId && $qacId != -1) {
+            $stmt = "INSERT INTO " . APP_TABLE_PREFIX . "auth_quick_rules "
+              . "(qac_aro_id, qac_arg_id) VALUES "
+              . "(:qac_aro_id, :qac_arg_id)";
+            try {
+              $this->_db->query($stmt, $authQuickRule);
+            } catch (Exception $ex) {
+              echo "Error creating quick rule: " . $ex->getMessage() . "\n\n";
+            }
           }
         }
       }

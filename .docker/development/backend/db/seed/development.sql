@@ -187,9 +187,9 @@ VALUES
 
 REPLACE INTO fez_auth_quick_template (qat_id, qat_title, qat_value)
 VALUES
-	(1, 'Masqueraders only', '<FezACML>\r\n  <rule>\r\n    <role name=\"Viewer\">\r\n      <in_AD>off</in_AD>\r\n      <in_Fez>off</in_Fez>\r\n      <eduPersonScopedAffiliation>masqueraders@example.com</eduPersonScopedAffiliation>\r\n      <Fez_Group>1</Fez_Group>\r\n    </role>\r\n  </rule>\r\n  <inherit_security>off</inherit_security>\r\n</FezACML>\r\n  '),
-	(2, 'Thesis officers only', '<FezACML>\r\n  <rule>\r\n    <role name=\"Viewer\">\r\n      <in_AD>off</in_AD>\r\n      <in_Fez>off</in_Fez>\r\n      <eduPersonScopedAffiliation>thesisofficers@example.com</eduPersonScopedAffiliation>\r\n      <Fez_Group>2</Fez_Group>\r\n    </role>\r\n  </rule>\r\n  <inherit_security>off</inherit_security>\r\n</FezACML>\r\n  '),
-	(3, 'UPOs only', '<FezACML>\r\n  <rule>\r\n    <role name=\"Viewer\">\r\n      <in_AD>off</in_AD>\r\n      <in_Fez>off</in_Fez>\r\n      <eduPersonScopedAffiliation>upos@example.com</eduPersonScopedAffiliation>\r\n      <Fez_Group>3</Fez_Group>\r\n    </role>\r\n  </rule>\r\n  <inherit_security>off</inherit_security>\r\n</FezACML>\r\n  ');
+	(1, 'Masqueraders only', '<FezACML>\r\n  <rule>\r\n    <role name=\"Viewer\">\r\n      <in_AD>off</in_AD>\r\n      <in_Fez>off</in_Fez>\r\n      <Fez_Group>1</Fez_Group>\r\n    </role>\r\n  </rule>\r\n  <inherit_security>off</inherit_security>\r\n</FezACML>\r\n  '),
+	(2, 'Thesis officers only', '<FezACML>\r\n  <rule>\r\n    <role name=\"Viewer\">\r\n      <in_AD>off</in_AD>\r\n      <in_Fez>off</in_Fez>\r\n      <Fez_Group>2</Fez_Group>\r\n    </role>\r\n  </rule>\r\n  <inherit_security>off</inherit_security>\r\n</FezACML>\r\n  '),
+	(3, 'UPOs only', '<FezACML>\r\n  <rule>\r\n    <role name=\"Viewer\">\r\n      <in_AD>off</in_AD>\r\n      <in_Fez>off</in_Fez>\r\n      <Fez_Group>3</Fez_Group>\r\n    </role>\r\n  </rule>\r\n  <inherit_security>off</inherit_security>\r\n</FezACML>\r\n  ');
 
 REPLACE INTO fez_author (aut_id, aut_org_username, aut_org_staff_id, aut_org_student_id, aut_display_name, aut_fname, aut_mname, aut_lname, aut_title, aut_position, aut_homepage_link, aut_created_date, aut_update_date, aut_external_id, aut_ref_num, aut_email, aut_mypub_url, aut_researcher_id, aut_scopus_id, aut_rid_password, aut_description, aut_people_australia_id, aut_orcid_id, aut_google_scholar_id, aut_rid_last_updated, aut_publons_id)
 VALUES
