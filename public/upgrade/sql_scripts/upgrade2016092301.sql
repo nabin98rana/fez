@@ -129,18 +129,57 @@ CREATE TABLE IF NOT EXISTS %TABLE_PREFIX%record_search_key_contributor_role__sha
      KEY rek_contributor_role_pid (rek_contributor_role_pid)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+REPLACE INTO %TABLE_PREFIX%search_key (sek_id,sek_namespace,sek_incr_id,
+sek_title,sek_alt_title,sek_desc,sek_adv_visible,sek_simple_used,
+sek_myfez_visible,sek_order,sek_html_input,sek_fez_variable,
+sek_smarty_variable,sek_cvo_id,sek_lookup_function,sek_data_type,
+sek_relationship,sek_meta_header,sek_cardinality,sek_suggest_function,sek_faceting, sek_derived_function, sek_bulkchange, sek_lookup_id_function)
+	VALUES ('core_118','core','118','Software Required','','0','0','0','0','0',
+	'text','none','',450779,'','varchar','1','','1','','0','','0','');
+
+REPLACE INTO %TABLE_PREFIX%search_key (sek_id,sek_namespace,sek_incr_id,sek_title,sek_alt_title,sek_desc,sek_adv_visible,sek_simple_used,sek_myfez_visible,sek_order,sek_html_input,sek_fez_variable,sek_smarty_variable,sek_cvo_id,sek_lookup_function,sek_data_type,sek_relationship,sek_meta_header,sek_cardinality,sek_suggest_function,sek_faceting, sek_derived_function, sek_bulkchange, sek_lookup_id_function)
+	VALUES ('core_116','core','116','Funding Body','','0','0','0','0','0','text','none','',450779,'','varchar','1','','1','','0','','0','');
+
+
+DROP TABLE IF EXISTS %TABLE_PREFIX%record_search_key_software_required;
 DROP TABLE IF EXISTS %TABLE_PREFIX%record_search_key_software_required__shadow;
+DROP TABLE IF EXISTS %TABLE_PREFIX%record_search_key_funding_body;
 DROP TABLE IF EXISTS %TABLE_PREFIX%record_search_key_funding_body__shadow;
+
+CREATE TABLE IF NOT EXISTS %TABLE_PREFIX%record_search_key_funding_body (
+     rek_funding_body_id int(11) NOT NULL auto_increment,
+     rek_funding_body_pid varchar(64) NOT NULL,
+     rek_funding_body_xsdmf_id int(11) NOT NULL,
+      rek_funding_body_order int(11) default 1,
+      rek_funding_body varchar(255) default NULL,
+     PRIMARY KEY (rek_funding_body_id),
+     KEY rek_funding_body (rek_funding_body),
+     KEY rek_funding_body_pid (rek_funding_body_pid),
+     UNIQUE KEY unique_constraint_pid_order (rek_funding_body_pid, rek_funding_body_order)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE IF NOT EXISTS %TABLE_PREFIX%record_search_key_funding_body__shadow (
      rek_funding_body_id int(11) NOT NULL,
      rek_funding_body_stamp datetime,
       rek_funding_body_pid varchar(64) NOT NULL,
      rek_funding_body_xsdmf_id int(11) NOT NULL,
+      rek_funding_body_order int(11) default 1,
       rek_funding_body varchar(255) default NULL,
-      PRIMARY KEY (rek_funding_body_pid,rek_funding_body_stamp),
+      PRIMARY KEY (rek_funding_body_pid,rek_funding_body_stamp,rek_funding_body_order),
       KEY rek_funding_body (rek_funding_body),
      KEY rek_funding_body_pid (rek_funding_body_pid)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+CREATE TABLE IF NOT EXISTS %TABLE_PREFIX%record_search_key_software_required (
+     rek_software_required_id int(11) NOT NULL auto_increment,
+     rek_software_required_pid varchar(64) NOT NULL,
+     rek_software_required_xsdmf_id int(11) NOT NULL,
+      rek_software_required_order int(11) default 1,
+      rek_software_required varchar(255) default NULL,
+     PRIMARY KEY (rek_software_required_id),
+     KEY rek_software_required (rek_software_required),
+     KEY rek_software_required_pid (rek_software_required_pid),
+     UNIQUE KEY unique_constraint_pid_order (rek_software_required_pid, rek_software_required_order)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE IF NOT EXISTS %TABLE_PREFIX%record_search_key_software_required__shadow (
@@ -148,8 +187,9 @@ CREATE TABLE IF NOT EXISTS %TABLE_PREFIX%record_search_key_software_required__sh
      rek_software_required_stamp datetime,
       rek_software_required_pid varchar(64) NOT NULL,
      rek_software_required_xsdmf_id int(11) NOT NULL,
+      rek_software_required_order int(11) default 1,
       rek_software_required varchar(255) default NULL,
-      PRIMARY KEY (rek_software_required_pid,rek_software_required_stamp),
+      PRIMARY KEY (rek_software_required_pid,rek_software_required_stamp,rek_software_required_order),
       KEY rek_software_required (rek_software_required),
      KEY rek_software_required_pid (rek_software_required_pid)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
