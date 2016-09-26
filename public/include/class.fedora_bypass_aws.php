@@ -469,7 +469,7 @@ class Fedora_API implements FedoraApiInterface {
 
     $createdDT = NULL; // Force NULL until S3 versions are supported
 
-		$dsArray = $aws->getObject($dataPath."/".$dsID);
+		$dsArray = $aws->headObject($dataPath."/".$dsID);
 		$dsData = array();
 
 		$dsData['ID'] = $dsID;

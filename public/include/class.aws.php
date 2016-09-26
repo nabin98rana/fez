@@ -438,9 +438,10 @@ class AWS
   /**
    * @param string $key - the full path to the file eg data/UQ_3/hai.jpg
    * @param string $versionId (optional) - the version to return. If empty will return latest.
-   * @return array $result - the object
+   * @return AWS\Result $result - the object
    */
   public function getObject($key, $versionId = NULL) {
+    $result = null;
     try {
       $client = $this->sdk->createS3();
       $key = $this->createPath($key, '');
@@ -452,6 +453,31 @@ class AWS
         $args['VersionId'] = $versionId;
       }
       $result = $client->getObject($args);
+
+    } catch (\Aws\S3\Exception\S3Exception $e) {
+      $this->log->err($e->getMessage());
+    }
+    return $result;
+  }
+
+  /**
+   * @param string $key - the full path to the file eg data/UQ_3/hai.jpg
+   * @param string $versionId (optional) - the version to return. If empty will return latest.
+   * @return AWS\Result $result - the object
+   */
+  public function headObject($key, $versionId = NULL) {
+    $result = null;
+    try {
+      $client = $this->sdk->createS3();
+      $key = $this->createPath($key, '');
+      $args = array(
+        'Bucket' => $this->s3Bucket,
+        'Key' => $key,
+      );
+      if (!is_null($versionId)) {
+        $args['VersionId'] = $versionId;
+      }
+      $result = $client->headObject($args);
 
     } catch (\Aws\S3\Exception\S3Exception $e) {
       $this->log->err($e->getMessage());
