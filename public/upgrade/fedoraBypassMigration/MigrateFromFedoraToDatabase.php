@@ -270,57 +270,10 @@ class MigrateFromFedoraToDatabase
    */
   private function migratePIDs()
   {
-//    $stmt = "SELECT COUNT(rek_pid) FROM " . APP_TABLE_PREFIX . "record_search_key";
-//
-//    try {
-//      $totalPids = $this->_db->fetchOne($stmt);
-//    } catch (Exception $e) {
-//      echo chr(10) . "\n<br /> Failed to retrieve total pids. Query: " . $stmt;
-//      return false;
-//    }
-
-
-    $this->reindexPids();
-
-//    $limit = 2;  // how many pids per process
-//
-//    $start = 0;
-//    for ($i = 0; $start < $totalPids;  $i++) {
-//      if ($i == 0) {
-//        $start = $i;
-//      }
-//      $this->reindexPids($start, $limit);
-//      $start += $limit;
-//    }
-
-    // echo chr(10) . "\n<br /> Ok, we have done the reindex for ". ($loop * $limit) . "PIDs";
-//    ob_flush();
-    return true;
-
-    // Attempt to bring in all the versions of a PID
-    /*$stmt = "SELECT rek_pid FROM " . APP_TABLE_PREFIX . "record_search_key
-                 ORDER BY rek_pid DESC ";
-    try {
-      $pids = $this->_db->fetchCol($stmt);
-    } catch (Exception $e) {
-      echo chr(10) . "\n<br /> Failed to retrieve pids. Query: " . $stmt;
-      return false;
+    if ($this->reindexPids()) {
+      return $this->migratePidVersions();
     }
-    foreach ($pids as $pid) {
-      $datastreams = Fedora_API::callGetDatastreams($pid, null, 'A');
-      $createdDates = $this->generateDSTimestamps($pid, $datastreams);
-      array_pop($createdDates);
-      $createdDates[] = null;
-
-      foreach ($createdDates as $createDT) {
-        $this->toggleAwsStatus(true);
-        $command = APP_PHP_EXEC . " \"" . APP_PATH . "upgrade/fedoraBypassMigration/migrate_pid_versions.php\" \"" .
-          $pid . "\" \"" . $createDT . "\"";
-        exec($command, $output);
-        print_r($output);
-        $this->toggleAwsStatus(false);
-      }
-    }*/
+    return false;
   }
 
   /**
@@ -334,12 +287,6 @@ class MigrateFromFedoraToDatabase
     $xdis_id = "";
     $href = "";
     $dsID = "";
-
-    // Test PID for reindex
-    /*
-    $pids    = array("UQ:87692");
-    Workflow::start($wft_id, $pid, $xdis_id, $href, $dsID, $pids);
-    */
 
     $stmt = "SELECT rek_pid
                  FROM " . APP_TABLE_PREFIX . "record_search_key
@@ -374,6 +321,39 @@ class MigrateFromFedoraToDatabase
     }
     ob_flush();
     return true;
+  }
+
+  /**
+   * Migrate the previous versions into the shadow tables
+   * @return bool
+   */
+  private function migratePidVersions()
+  {
+    return true;
+    // Attempt to bring in all the versions of a PID
+    /*$stmt = "SELECT rek_pid FROM " . APP_TABLE_PREFIX . "record_search_key
+                 ORDER BY rek_pid DESC ";
+    try {
+      $pids = $this->_db->fetchCol($stmt);
+    } catch (Exception $e) {
+      echo chr(10) . "\n<br /> Failed to retrieve pids. Query: " . $stmt;
+      return false;
+    }
+    foreach ($pids as $pid) {
+      $datastreams = Fedora_API::callGetDatastreams($pid, null, 'A');
+      $createdDates = $this->generateDSTimestamps($pid, $datastreams);
+      array_pop($createdDates);
+      $createdDates[] = null;
+
+      foreach ($createdDates as $createDT) {
+        $this->toggleAwsStatus(true);
+        $command = APP_PHP_EXEC . " \"" . APP_PATH . "upgrade/fedoraBypassMigration/migrate_pid_versions.php\" \"" .
+          $pid . "\" \"" . $createDT . "\"";
+        exec($command, $output);
+        print_r($output);
+        $this->toggleAwsStatus(false);
+      }
+    }*/
   }
 
   /**

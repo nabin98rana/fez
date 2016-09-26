@@ -14,7 +14,7 @@ NET_IP=`ifconfig ${NET_IF} | grep -Eo 'inet (addr:)?([0-9]*\.){3}[0-9]*' | grep 
 export XDEBUG_REMOTE_HOST=${NET_IP}
 
 function waitForServices() {
-    MAX_LOOPS="20"
+    MAX_LOOPS="60"
     i=0
     MYSQL_HEALTH_CMD="docker exec development_fezdb_1 mysqladmin ping -hlocalhost -ufez -pfez"
     HEALTH_MSG=$(${MYSQL_HEALTH_CMD} 2>&1)
