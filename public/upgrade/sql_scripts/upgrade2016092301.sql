@@ -193,3 +193,17 @@ CREATE TABLE IF NOT EXISTS %TABLE_PREFIX%record_search_key_software_required__sh
       KEY rek_software_required (rek_software_required),
      KEY rek_software_required_pid (rek_software_required_pid)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+DROP TABLE IF EXISTS %TABLE_PREFIX%record_search_key_grant_id;
+
+CREATE TABLE %TABLE_PREFIX%record_search_key_grant_id (
+     rek_grant_id_id int(11) NOT NULL auto_increment,
+     rek_grant_id_pid varchar(64) NOT NULL,
+     rek_grant_id_xsdmf_id int(11) NOT NULL,
+      rek_grant_id_order int(11) default 1,
+      rek_grant_id varchar(255) default NULL,
+     PRIMARY KEY (rek_grant_id_id),
+     KEY rek_grant_id (rek_grant_id),
+     KEY rek_grant_id_pid (rek_grant_id_pid),
+     UNIQUE KEY unique_constraint_pid_order (rek_grant_id_pid, rek_grant_id_order)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
