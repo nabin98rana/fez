@@ -1,26 +1,3 @@
-INSERT IGNORE INTO %TABLE_PREFIX%search_key(sek_id,sek_namespace,sek_incr_id,sek_title,sek_alt_title,sek_desc,sek_adv_visible,sek_simple_used,sek_my%TABLE_PREFIX%visible,sek_order,sek_html_input,sek_%TABLE_PREFIX%variable,sek_smarty_variable,sek_cvo_id,sek_lookup_function,sek_data_type,sek_relationship,sek_meta_header,sek_cardinality,sek_suggest_function,sek_comment_function,sek_faceting,sek_derived_function,sek_lookup_id_function,sek_bulkchange) values ('core_144','core',144,'Copyright Agreement','','',0,0,0,0,'checkbox','none','',NULL,'','int',1,'',0,'',NULL,0,'','',0);
-
-CREATE TABLE IF NOT EXISTS %TABLE_PREFIX%record_search_key_copyright_agreement (
-     rek_copyright_agreement_id int(11) NOT NULL auto_increment,
-     rek_copyright_agreement_pid varchar(64) NOT NULL,
-     rek_copyright_agreement_xsdmf_id int(11) NOT NULL,
-      rek_copyright_agreement varchar(255) default NULL,
-     PRIMARY KEY (rek_copyright_agreement_id),
-     KEY rek_copyright_agreement (rek_copyright_agreement),
-     KEY rek_copyright_agreement_pid (rek_copyright_agreement_pid)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
-CREATE TABLE IF NOT EXISTS %TABLE_PREFIX%record_search_key_copyright_agreement__shadow (
-     rek_copyright_agreement_id int(11) NOT NULL,
-     rek_copyright_agreement_stamp datetime,
-      rek_copyright_agreement_pid varchar(64) NOT NULL,
-     rek_copyright_agreement_xsdmf_id int(11) NOT NULL,
-      rek_copyright_agreement varchar(255) default NULL,
-      PRIMARY KEY (rek_copyright_agreement_pid,rek_copyright_agreement_stamp),
-      KEY rek_copyright_agreement (rek_copyright_agreement),
-     KEY rek_copyright_agreement_pid (rek_copyright_agreement_pid)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
 CREATE TABLE IF NOT EXISTS %TABLE_PREFIX%record_search_key_contact_details_physical__shadow (
      rek_contact_details_physical_id int(11) NOT NULL,
      rek_contact_details_physical_stamp datetime,
