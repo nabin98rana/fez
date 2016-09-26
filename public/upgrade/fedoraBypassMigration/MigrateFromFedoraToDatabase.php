@@ -547,6 +547,11 @@ class MigrateFromFedoraToDatabase
     $authRoles = array_flip($roles);
     $templates = FezACML::getQuickTemplateAssocList();
 
+    AuthRules::getOrCreateRuleGroup([[
+      'rule' => 'public_list',
+      'value' => 1,
+    ]]);
+
     foreach ($templates as $qatId => $qatTitle) {
       $acmlXml = FezACML::getQuickTemplateValue($qatId);
       $acmlDoc = new DomDocument();
@@ -571,7 +576,9 @@ class MigrateFromFedoraToDatabase
               ];
             }
           }
-
+          if (count($groups) === 0) {
+            continue;
+          }
           $argId = AuthRules::getOrCreateRuleGroup($groups);
           $aroId = $authRoles[$roleName];
           $authQuickRule = [
