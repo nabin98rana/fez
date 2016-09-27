@@ -134,6 +134,9 @@ class MigrateFromFedoraToDatabase
    */
   private function stepTwoMigration()
   {
+    // Convert the XML quick templates
+    $this->convertQuickTemplates();
+
     // Migrate all records from Fedora
     $this->migratePIDs();
 
@@ -199,9 +202,10 @@ class MigrateFromFedoraToDatabase
     if ($this->_env != 'production') {
       return;
     }
-
+    
     $stmt = "select token, path from datastreamPaths   
       where path like '/espace/data/fedora_datastreams/2016/08%'
+        and token like 'UQ:398578+%'
       order by path DESC";
 
     $ds = [];
@@ -267,57 +271,10 @@ class MigrateFromFedoraToDatabase
    */
   private function migratePIDs()
   {
-//    $stmt = "SELECT COUNT(rek_pid) FROM " . APP_TABLE_PREFIX . "record_search_key";
-//
-//    try {
-//      $totalPids = $this->_db->fetchOne($stmt);
-//    } catch (Exception $e) {
-//      echo chr(10) . "\n<br /> Failed to retrieve total pids. Query: " . $stmt;
-//      return false;
-//    }
-
-
-    $this->reindexPids();
-
-//    $limit = 2;  // how many pids per process
-//
-//    $start = 0;
-//    for ($i = 0; $start < $totalPids;  $i++) {
-//      if ($i == 0) {
-//        $start = $i;
-//      }
-//      $this->reindexPids($start, $limit);
-//      $start += $limit;
-//    }
-
-    // echo chr(10) . "\n<br /> Ok, we have done the reindex for ". ($loop * $limit) . "PIDs";
-//    ob_flush();
-    return true;
-
-    // Attempt to bring in all the versions of a PID
-    /*$stmt = "SELECT rek_pid FROM " . APP_TABLE_PREFIX . "record_search_key
-                 ORDER BY rek_pid DESC ";
-    try {
-      $pids = $this->_db->fetchCol($stmt);
-    } catch (Exception $e) {
-      echo chr(10) . "\n<br /> Failed to retrieve pids. Query: " . $stmt;
-      return false;
+    if ($this->reindexPids()) {
+      return $this->migratePidVersions();
     }
-    foreach ($pids as $pid) {
-      $datastreams = Fedora_API::callGetDatastreams($pid, null, 'A');
-      $createdDates = $this->generateDSTimestamps($pid, $datastreams);
-      array_pop($createdDates);
-      $createdDates[] = null;
-
-      foreach ($createdDates as $createDT) {
-        $this->toggleAwsStatus(true);
-        $command = APP_PHP_EXEC . " \"" . APP_PATH . "upgrade/fedoraBypassMigration/migrate_pid_versions.php\" \"" .
-          $pid . "\" \"" . $createDT . "\"";
-        exec($command, $output);
-        print_r($output);
-        $this->toggleAwsStatus(false);
-      }
-    }*/
+    return false;
   }
 
   /**
@@ -331,12 +288,6 @@ class MigrateFromFedoraToDatabase
     $xdis_id = "";
     $href = "";
     $dsID = "";
-
-    // Test PID for reindex
-    /*
-    $pids    = array("UQ:87692");
-    Workflow::start($wft_id, $pid, $xdis_id, $href, $dsID, $pids);
-    */
 
     $stmt = "SELECT rek_pid
                  FROM " . APP_TABLE_PREFIX . "record_search_key
@@ -371,6 +322,39 @@ class MigrateFromFedoraToDatabase
     }
     ob_flush();
     return true;
+  }
+
+  /**
+   * Migrate the previous versions into the shadow tables
+   * @return bool
+   */
+  private function migratePidVersions()
+  {
+    return true;
+    // Attempt to bring in all the versions of a PID
+    /*$stmt = "SELECT rek_pid FROM " . APP_TABLE_PREFIX . "record_search_key
+                 ORDER BY rek_pid DESC ";
+    try {
+      $pids = $this->_db->fetchCol($stmt);
+    } catch (Exception $e) {
+      echo chr(10) . "\n<br /> Failed to retrieve pids. Query: " . $stmt;
+      return false;
+    }
+    foreach ($pids as $pid) {
+      $datastreams = Fedora_API::callGetDatastreams($pid, null, 'A');
+      $createdDates = $this->generateDSTimestamps($pid, $datastreams);
+      array_pop($createdDates);
+      $createdDates[] = null;
+
+      foreach ($createdDates as $createDT) {
+        $this->toggleAwsStatus(true);
+        $command = APP_PHP_EXEC . " \"" . APP_PATH . "upgrade/fedoraBypassMigration/migrate_pid_versions.php\" \"" .
+          $pid . "\" \"" . $createDT . "\"";
+        exec($command, $output);
+        print_r($output);
+        $this->toggleAwsStatus(false);
+      }
+    }*/
   }
 
   /**
@@ -529,6 +513,77 @@ class MigrateFromFedoraToDatabase
 
             $arId = AuthRules::getOrCreateRule("!rule!role!" . $group_type, $group_value);
             AuthNoFedoraDatastreams::addSecurityPermissions($did, $role, $arId);
+          }
+        }
+      }
+    }
+  }
+
+  /**
+   * Converts the XML quick templates
+   */
+  private function convertQuickTemplates()
+  {
+    $roles = Auth::getAssocRoleIDs();
+    $authRoles = array_flip($roles);
+    $templates = FezACML::getQuickTemplateAssocList();
+
+    AuthRules::getOrCreateRuleGroup([[
+      'rule' => 'public_list',
+      'value' => 1,
+    ]]);
+
+    foreach ($templates as $qatId => $qatTitle) {
+      $acmlXml = FezACML::getQuickTemplateValue($qatId);
+      $acmlDoc = new DomDocument();
+      $acmlDoc->loadXML($acmlXml);
+      $xpath = new DOMXPath($acmlDoc);
+      $roleNodes = $xpath->query('/FezACML/rule/role');
+
+      foreach ($roleNodes as $roleNode) {
+        $roleName = $roleNode->getAttribute('name');
+        $groupNodes = $xpath->query('./*[string-length(normalize-space()) > 0]', $roleNode);
+
+        foreach ($groupNodes as $groupNode) {
+          $groupRule = $groupNode->nodeName;
+          $groupValues = explode(',', $groupNode->nodeValue);
+          $groups = [];
+          foreach ($groupValues as $groupValue) {
+            if ($groupValue != "off") {
+              $groupValue = trim($groupValue, ' ');
+              $groups[] = [
+                'rule' => '!rule!role!' . $groupRule,
+                'value' => $groupValue,
+              ];
+            }
+          }
+          if (count($groups) === 0) {
+            continue;
+          }
+          $argId = AuthRules::getOrCreateRuleGroup($groups);
+          $aroId = $authRoles[$roleName];
+          $authQuickRule = [
+            ':qac_aro_id' => $aroId,
+            ':qac_arg_id' => $argId
+          ];
+
+          $qacId = '';
+          $stmt = "SELECT qac_id FROM " . APP_TABLE_PREFIX . "auth_quick_rules WHERE "
+            . "qac_aro_id = :qac_aro_id AND qac_arg_id = :qac_arg_id";
+          try {
+            $qacId = $this->_db->fetchOne($stmt, $authQuickRule);
+          } catch (Exception $ex) {
+          }
+
+          if (!$qacId && $qacId != -1) {
+            $stmt = "INSERT INTO " . APP_TABLE_PREFIX . "auth_quick_rules "
+              . "(qac_aro_id, qac_arg_id) VALUES "
+              . "(:qac_aro_id, :qac_arg_id)";
+            try {
+              $this->_db->query($stmt, $authQuickRule);
+            } catch (Exception $ex) {
+              echo "Error creating quick rule: " . $ex->getMessage() . "\n\n";
+            }
           }
         }
       }
