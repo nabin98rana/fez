@@ -48,7 +48,7 @@ CREATE TABLE IF NOT EXISTS %TABLE_PREFIX%record_search_key__shadow (
   rek_wok_doc_type varchar(255) DEFAULT NULL,
   rek_security_inherited tinyint(4) DEFAULT NULL,
   rek_copyright_xsdmf_id int(11) DEFAULT NULL,
-  rek_copyright int(11) DEFAULT NULL,
+  rek_copyright varchar(255) DEFAULT NULL,
   rek_altmetric_score int(11) DEFAULT NULL,
   rek_altmetric_score_xsdmf_id int(11) DEFAULT NULL,
   rek_altmetric_id int(11) DEFAULT NULL,

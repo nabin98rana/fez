@@ -60,6 +60,13 @@ if [[ "${UPGRADE_RES}" == "" ]]; then
 fi
 
 docker exec testing_feztestrunner_1 sh -c 'export AWS_ACCESS_KEY_ID='"'${AWS_ACCESS_KEY_ID}'"' && export AWS_SECRET_ACCESS_KEY='"'${AWS_SECRET_ACCESS_KEY}'"' && export FEZ_S3_CACHE_BUCKET='"'${FEZ_S3_CACHE_BUCKET}'"' && export FEZ_S3_BUCKET='"'${FEZ_S3_BUCKET}'"' && export FEZ_S3_SRC_PREFIX='"'${FEZ_S3_SRC_PREFIX}'"' && cd '"'${CONTAINER_BASE_DIR}/tests/application'"' && php init.php seed'
+
+# Setup AWS
+docker exec testing_feztestrunner_1 sh -c 'export AWS_ACCESS_KEY_ID='"'${AWS_ACCESS_KEY_ID}'"' && export AWS_SECRET_ACCESS_KEY='"'${AWS_SECRET_ACCESS_KEY}'"' && export FEZ_S3_CACHE_BUCKET='"'${FEZ_S3_CACHE_BUCKET}'"' && export FEZ_S3_BUCKET='"'${FEZ_S3_BUCKET}'"' && export FEZ_S3_SRC_PREFIX='"'${FEZ_S3_SRC_PREFIX}'"' && export AWS_CLOUDFRONT_KEY_PAIR_ID='"'${AWS_CLOUDFRONT_KEY_PAIR_ID}'"' && export AWS_CLOUDFRONT_PRIVATE_KEY_FILE='"'${AWS_CLOUDFRONT_PRIVATE_KEY_FILE}'"' && export AWS_CLOUDFRONT_FILE_SERVE_URL='"'${AWS_CLOUDFRONT_FILE_SERVE_URL}'"' && cd '"'${CONTAINER_BASE_DIR}/tests/application'"' && php init.php setupaws'
+
+# Run a Fedora Bypass migration if prefix is set
+docker exec testing_feztestrunner_1 sh -c 'export AWS_ACCESS_KEY_ID='"'${AWS_ACCESS_KEY_ID}'"' && export AWS_SECRET_ACCESS_KEY='"'${AWS_SECRET_ACCESS_KEY}'"' && export FEZ_S3_CACHE_BUCKET='"'${FEZ_S3_CACHE_BUCKET}'"' && export FEZ_S3_BUCKET='"'${FEZ_S3_BUCKET}'"' && export FEZ_S3_SRC_PREFIX='"'${FEZ_S3_SRC_PREFIX}'"' && export AWS_CLOUDFRONT_KEY_PAIR_ID='"'${AWS_CLOUDFRONT_KEY_PAIR_ID}'"' && export AWS_CLOUDFRONT_PRIVATE_KEY_FILE='"'${AWS_CLOUDFRONT_PRIVATE_KEY_FILE}'"' && export AWS_CLOUDFRONT_FILE_SERVE_URL='"'${AWS_CLOUDFRONT_FILE_SERVE_URL}'"' && cd '"'${CONTAINER_BASE_DIR}/tests/application'"' && php init.php migrate'
+
 docker exec testing_feztestrunner_1 sh -c ''"'${CONTAINER_BASE_DIR}/tests/application/run-tests.sh'"' '"'${1}'"''
 docker-compose stop
 docker-compose rm -f -v

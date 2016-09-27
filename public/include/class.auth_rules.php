@@ -132,7 +132,9 @@ class AuthRules
       try {
         if (is_numeric(strpos(APP_SQL_DBTYPE, "mysql"))) {
           $values = Misc::array_flatten($values, '', TRUE);
-          $db->query($stmt, $values);
+          if ($values) {
+            $db->query($stmt, $values);
+          }
         } else {
           foreach ($values as $value) {
             $db->query($stmt, $value);

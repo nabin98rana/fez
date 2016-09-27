@@ -363,9 +363,19 @@ class Fedora_API implements FedoraApiInterface {
     if (! $obj) {
       return false;
     }
-    return Datastream::addDatastreamInfo($pid, $dsID, $mimetype, $obj, $dsState);
-	}
 
+    $dsArray = $aws->headObject($dataPath."/".$dsID);
+    if (! $dsArray) {
+      return false;
+    }
+    $object = [
+      'url' => $obj['ObjectURL'],
+      'size' => $dsArray['ContentLength'],
+      'version' => $dsArray['VersionId'],
+      'checksum' => str_replace('"', '', $dsArray['ETag'])
+    ];
+    return Datastream::addDatastreamInfo($pid, $dsID, $mimetype, $object, $dsState);
+	}
 
 	/**
 	 *This function creates an array of all the datastreams for a specific object.
@@ -463,29 +473,23 @@ class Fedora_API implements FedoraApiInterface {
 	 */
 	public static function callGetDatastream($pid, $dsID, $createdDT = NULL)
 	{
-		$aws = AWS::get();
-
-		$dataPath = Fedora_API::getDataPath($pid);
-
     $createdDT = NULL; // Force NULL until S3 versions are supported
+    $dataPath = Fedora_API::getDataPath($pid);
+    $dsArray = Datastream::getFullDatastreamInfo($pid, $dsID);
 
-		$dsArray = $aws->getObject($dataPath."/".$dsID);
 		$dsData = array();
-
 		$dsData['ID'] = $dsID;
-		$dsData['versionID'] = $dsArray['VersionId'];
+		$dsData['versionID'] = $dsArray['dsi_version'];
 		$dsData['label'] = ''; //TODO: convert to use PUT'd metadata for label
 		$dsData['controlGroup'] = "M";
-    // getting mimetype from exiftool table data instead of aws metadata because aws would require a headobject api call per object = too many calls = probably slow
-    $exifData = Exiftool::getDetails($pid, $dsID);
-		$dsData['MIMEType'] = $exifData['exif_mime_type'];
-		$dsData['createDate'] = (string)$dsArray['LastModified']; //TODO: convert to saved meta
+    $dsData['MIMEType'] = $dsArray['dsi_mime_type'];
+		$dsData['createDate'] = NULL; //(string)$dsArray['LastModified']; //TODO: convert to saved meta
 		$dsData['location'] = $dataPath."/".$dsID;
 		$dsData['formatURI'] = NULL; //TODO Check if this is needed and if so fill with a real value.
 		$dsData['checksumType'] = 'MD5';
-		$dsData['checksum'] = str_replace('"', '', $dsArray['ETag']);
+		$dsData['checksum'] = $dsArray['dsi_checksum'];
 		$dsData['versionable'] = FALSE; //TODO Check if this is needed and if so fill with a real value.
-		$dsData['size'] = $dsArray['ContentLength'];
+		$dsData['size'] = $dsArray['size'];
 		$dsData['state'] = 'A';
 
 		return $dsData;
