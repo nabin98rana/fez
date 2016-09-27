@@ -35,8 +35,7 @@ class FulltextIndex_ElasticSearch extends FulltextIndex
     } else {
       $this->esHosts = APP_ES_HOST;
     }
-    $this->esPort = APP_ES_PORT;
-    $this->esPath = APP_ES_PATH;
+    $this->esIndex = APP_ES_INDEX_NAME;
 
     $this->esClient = ClientBuilder::create()->setHosts($this->esHosts)->build();
   }
@@ -56,7 +55,7 @@ class FulltextIndex_ElasticSearch extends FulltextIndex
     // call parent cleanup
     parent::removeByPid($pid);
 
-    $log->debug(array("removeByPid($pid) -> call apache solr with deleteById($pid)"));
+    $log->debug(array("removeByPid($pid) -> call ES with deleteById($pid)"));
     $params = [
         'index' => 'my_index',
         'type' => 'my_type',

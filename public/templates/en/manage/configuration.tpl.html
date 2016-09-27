@@ -142,6 +142,7 @@ function restoreDefaultColours(el)
 			</td>
 			<td style="width: 200px; vertical-align: top;">
         <a href="#" onclick="javascript:showSubPage('sinet');">Sinet RHD Student Import Settings</a><br />
+				<a href="#" onclick="javascript:showSubPage('elasticsearch');">ElasticSearch Settings</a><br />
 		</td>
 	  </tr>
 	</table>
@@ -722,7 +723,7 @@ function restoreDefaultColours(el)
       <th>My Research: exclusion collections</th>
       <td>
         <input type="text" name="app_my_research_exclude_collections" value="{$config_settings.app_my_research_exclude_collections}" size="100" />
-        <br />List of comma separated pids. The My Research panels results will exclude any pids in these collections from the Solr search.
+        <br />List of comma separated pids. The My Research panels results will exclude any pids in these collections from the Solr/ES search.
       {include file="error_icon.tpl.html" field="app_my_research_exclude_collections"}
       </td>
       </tr>
@@ -1018,7 +1019,7 @@ function restoreDefaultColours(el)
 			</td>
 		  </tr>
 		  <tr>
-		    <th>Use Index for getting data rather than querying xml datastreams (Solr, or Mysql if Solr search is off)- (experimental)</th>
+		    <th>Use Index for getting data rather than querying xml datastreams (Solr/ES, or Mysql if Solr/ES search is off)- (experimental)</th>
 			<td>
 			  <select name="app_xsdmf_index_switch">
 			    <option value="ON"{if $config_settings.app_xsdmf_index_switch == "ON"} selected="selected"{/if}>On</option>
@@ -1920,7 +1921,83 @@ function restoreDefaultColours(el)
 		</table>
 		</div>
 
-
+			<div id="elasticsearch" style="display: none;">
+				<table width="100%" class="admin-edit">
+					<thead>
+					<tr>
+						<th colspan="2">
+							<h2>ElasticSearch Settings</h2>
+						</th>
+					</tr>
+					</thead>
+					<tbody>
+					<tr>
+						<th>Use ElasticSearch for Search (if enabled, will override Solr if Solr is also enabled)</th>
+						<td>
+							<input type="radio" name="app_es_switch" value="ON" {if $config_settings.app_es_switch == "ON"}checked="checked"{/if}/> Enabled &nbsp;
+							<input type="radio" name="app_es_switch" value="OFF" {if $config_settings.app_es_switch == "OFF"}checked="checked"{/if}/> Disabled
+						</td>
+					</tr>
+					<tr>
+						<th>ElasticSearch Indexer</th>
+						<td>
+							<input type="radio" name="app_es_indexer" value="ON" {if $config_settings.app_es_indexer == "ON"}checked="checked"{/if}/> On &nbsp;
+							<input type="radio" name="app_es_indexer" value="OFF" {if $config_settings.app_es_indexer == "OFF"}checked="checked"{/if}/> Off
+						</td>
+					</tr>
+					<tr>
+						<th>ElasticSearch Host</th>
+						<td>
+							<input type="text" name="app_es_host" value="{$config_settings.app_es_host}" size="50" />
+							{include file="error_icon.tpl.html" field="app_es_host"}
+						</td>
+					</tr>
+					<tr>
+						<th>ElasticSearch Slave Replicant Host (not required)</th>
+						<td>
+							<input type="text" name="app_es_slave_host" value="{$config_settings.app_es_slave_host}" size="50" />
+							{include file="error_icon.tpl.html" field="app_es_slave_host"}
+						</td>
+					</tr>
+					<tr>
+						<th>ElasticSearch Send Public/Non-logged in Reads to Slave replicant (requires above slave host value set)</th>
+						<td>
+							<input type="radio" name="app_es_slave_read" value="ON" {if $config_settings.app_es_slave_read == "ON"}checked="checked"{/if}/> On &nbsp;
+							<input type="radio" name="app_es_slave_read" value="OFF" {if $config_settings.app_es_slave_read == "OFF"}checked="checked"{/if}/> Off
+						</td>
+					</tr>
+					<tr>
+						<th>ElasticSearch Index Name</th>
+						<td>
+							<input type="text" name="app_es_index_name" value="{$config_settings.app_es_index_name}" size="50" />
+							{include file="error_icon.tpl.html" field="app_es_index_name"}
+						</td>
+					</tr>
+					<tr>
+						<th>Index datastreams?</th>
+						<td>
+							<input type="radio" name="app_es_index_datastreams" value="ON" {if $config_settings.app_es_index_datastreams == "ON"}checked="checked"{/if}/> On &nbsp;
+							<input type="radio" name="app_es_index_datastreams" value="OFF" {if $config_settings.app_es_index_datastreams == "OFF"}checked="checked"{/if}/> Off
+						</td>
+					</tr>
+					<tr>
+					<tr>
+						<th>Facet limit (default is 5)</th>
+						<td>
+							<input type="text" name="app_es_facet_limit" value="{$config_settings.app_es_facet_limit}" size="4" />
+							{include file="error_icon.tpl.html" field="app_es_facet_limit"}
+						</td>
+					</tr>
+					<tr>
+						<th>Facet minimum count (default is 2)</th>
+						<td>
+							<input type="text" name="app_es_facet_mincount" value="{$config_settings.app_es_facet_mincount}" size="4" />
+							{include file="error_icon.tpl.html" field="app_es_facet_mincount"}
+						</td>
+					</tr>
+					</tbody>
+				</table>
+			</div>
 
 		<div id="origami" style="display: none;">
 		<table width="100%" class="admin-edit">
