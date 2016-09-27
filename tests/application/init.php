@@ -253,8 +253,6 @@ Class InitSystem
           " SET config_value = '' " .
           " WHERE config_name='app_fedora_pwd'");
 
-      InitSystem::parseMySQLdump($conn, InitSystem::seedPath . "nofedora.sql");
-
     } catch (Exception $ex) {
       return;
     }
