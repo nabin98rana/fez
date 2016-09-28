@@ -271,11 +271,9 @@ class MigrateFromFedoraToDatabase
    */
   private function migratePIDs()
   {
-    $this->toggleAwsStatus(true);
     if ($this->reindexPids()) {
       return $this->migratePidVersions();
     }
-    $this->toggleAwsStatus(false);
     return false;
   }
 
@@ -285,6 +283,7 @@ class MigrateFromFedoraToDatabase
    */
   private function reindexPids()
   {
+    $this->toggleAwsStatus(true);
     $wft_id = 277;  // hack: Reindex workflow trigger ID
     $pid = "";
     $xdis_id = "";
@@ -299,6 +298,7 @@ class MigrateFromFedoraToDatabase
       $pids = $this->_db->fetchCol($stmt);
     } catch (Exception $e) {
       echo chr(10) . "<br /> Failed to retrieve pids. Query: " . $stmt;
+      $this->toggleAwsStatus(false);
       return false;
     }
 
@@ -312,6 +312,7 @@ class MigrateFromFedoraToDatabase
       $result = $recordSearchKey->insertRecord($sekData, false, array(), true);
       if (!$result) {
         echo "PID $pid failed to update search keys and shadow tables - aborting migration";
+        $this->toggleAwsStatus(false);
         return false;
       }
     }
@@ -323,6 +324,7 @@ class MigrateFromFedoraToDatabase
       //     See the progress at http://" . APP_HOSTNAME . "/my_processes.php";
     }
     ob_flush();
+    $this->toggleAwsStatus(false);
     return true;
   }
 
