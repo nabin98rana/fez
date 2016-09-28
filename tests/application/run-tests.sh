@@ -9,7 +9,7 @@ export BEHAT_PARAMS='{"extensions" : {"Behat\\MinkExtension" : {"selenium2" : { 
 
 BEHAT_TAGS="@jet&&~@cloned&&${1}"
 # Smoke tests on staging
-if [ "${CI_BRANCH}" = "staging" ]; then
+if [[ "${CI_BRANCH}" = "staging" || "${CI_BRANCH}" = "production" ]]; then
   BEHAT_TAGS="@smoke&&${BEHAT_TAGS}"
 fi
 ../behat/vendor/behat/behat/bin/behat --tags "${BEHAT_TAGS}" --format pretty --colors --stop-on-failure
