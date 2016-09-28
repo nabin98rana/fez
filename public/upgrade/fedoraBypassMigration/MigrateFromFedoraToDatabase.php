@@ -138,7 +138,7 @@ class MigrateFromFedoraToDatabase
     $this->convertQuickTemplates();
 
     // Migrate all records from Fedora
-    $this->migratePIDs();
+    //$this->migratePIDs();
 
     // Datastream (attached files) migration
     $this->migrateManagedContent();

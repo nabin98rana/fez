@@ -94,7 +94,7 @@ class BackgroundProcess_Db_Load extends BackgroundProcess
       $tbl = basename($txt, '.txt');
 
       $sql = "LOAD DATA LOCAL INFILE '${path}/" . basename($txt) . "' INTO TABLE ${tbl}" .
-        " FIELDS TERMINATED BY ',' ENCLOSED BY '\"' LINES TERMINATED BY '\\r\\n'";
+        " FIELDS TERMINATED BY ',' ENCLOSED BY '\"' LINES TERMINATED BY '\\n'";
       $stmt = $con->prepare($sql);
 
       $stmt->execute();
