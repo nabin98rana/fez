@@ -57,8 +57,7 @@ class FulltextIndex_ElasticSearch extends FulltextIndex
 
     $log->debug(array("removeByPid($pid) -> call ES with deleteById($pid)"));
     $params = [
-        'index' => 'my_index',
-        'type' => 'my_type',
+        'index' => $this->esIndex,
         'id' => $pid
     ];
     $this->esClient->delete($params);
@@ -87,7 +86,7 @@ class FulltextIndex_ElasticSearch extends FulltextIndex
     if ($response) {
       $mapping = file_get_contents(__DIR__ ."../.docker/development/elasticsearch/elasticsearch_schema.json");
       $mapping = json_decode($mapping, true);
-      return $this->esClient->indices('fez')->putMapping($mapping);
+      return $this->esClient->indices($this->esIndex)->putMapping($mapping);
     } else {
       return false;
     }

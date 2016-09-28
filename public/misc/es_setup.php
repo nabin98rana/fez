@@ -3,7 +3,7 @@
 // +----------------------------------------------------------------------+
 // | Fez - Digital Repository System                                      |
 // +----------------------------------------------------------------------+
-// | Copyright (c) 2005, 2006, 2007 The University of Queensland,         |
+// | Copyright (c) 2016 The University of Queensland,                     |
 // | Australian Partnership for Sustainable Repositories,                 |
 // | eScholarship Project                                                 |
 // |                                                                      |
@@ -27,7 +27,7 @@
 // | 59 Temple Place - Suite 330                                          |
 // | Boston, MA 02111-1307, USA.                                          |
 // +----------------------------------------------------------------------+
-// | Authors: Rhys Palmer <r.palmer@library.uq.edu.au>                    |
+// | Authors: Christiaan Kortekaas <ck@uq.edu.au>                         |
 // +----------------------------------------------------------------------+
 //
 
@@ -36,18 +36,10 @@
  */
 
 include_once(dirname(dirname(__FILE__)).DIRECTORY_SEPARATOR."config.inc.php");
-include_once(APP_INC_PATH . "Apache/Solr/Service.php");
+include_once(APP_INC_PATH . "class.fulltext_index_elasticsearch.php");
 
-if( $argc != 2 ) {
-    echo "Incorrect arguments\n";
-    exit();
+
+if (php_sapi_name()==="cli")  {
+  $index = new FulltextIndex_ElasticSearch();
+  $index->setupIndex();
 }
-
-$pid = $argv[1];
-$solr = new Apache_Solr_Service(APP_SOLR_HOST, APP_SOLR_PORT, APP_SOLR_PATH);
-
-$return = $solr->deleteById($pid);
-$solr->commit();
-$solr->triggerUpdate();
-// Display result
-print_r($return);

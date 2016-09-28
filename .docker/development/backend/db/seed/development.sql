@@ -91,6 +91,30 @@ SET config_value = 'ON'
 WHERE config_name = 'app_solr_index_datastreams';
 
 UPDATE fez_config
+SET config_value = 'elasticsearch'
+WHERE config_name = 'app_es_host';
+
+UPDATE fez_config
+SET config_value = 'ON'
+WHERE config_name = 'app_es_index_datastreams';
+
+UPDATE fez_config
+SET config_value = 'fez'
+WHERE config_name = 'app_es_index_name';
+
+UPDATE fez_config
+SET config_value = 'ON'
+WHERE config_name = 'app_es_switch';
+
+UPDATE fez_config
+SET config_value = 'ON'
+WHERE config_name = 'app_es_indexer';
+
+UPDATE fez_config
+SET config_value = 'ON'
+WHERE config_name = 'app_es_index_datastreams';
+
+UPDATE fez_config
 SET config_value = '/var/cache/file/'
 WHERE config_name = 'app_filecache_dir';
 
