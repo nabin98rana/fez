@@ -472,17 +472,26 @@ class MigrateFromFedoraToDatabase
     ];
   }
 
+  /**
+   * @param DOMDocument $acml
+   * @return bool
+   */
   private function inheritsPermissions($acml)
   {
+    echo "Checking if datastream inherits permissions..\n";
     if ($acml == false) {
       //if no acml then default is inherit
       $inherit = true;
     } else {
+      echo $acml->saveXML();
       $xpath = new DOMXPath($acml);
       $inheritSearch = $xpath->query('/FezACML[inherit_security="on"]');
       $inherit = false;
       if ($inheritSearch->length > 0) {
+        echo "..is inherited\n";
         $inherit = true;
+      } else {
+        echo "..not inherited\n";
       }
     }
     return $inherit;
