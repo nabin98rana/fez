@@ -271,9 +271,11 @@ class MigrateFromFedoraToDatabase
    */
   private function migratePIDs()
   {
+    $this->toggleAwsStatus(true);
     if ($this->reindexPids()) {
       return $this->migratePidVersions();
     }
+    $this->toggleAwsStatus(false);
     return false;
   }
 
