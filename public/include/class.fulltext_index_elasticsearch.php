@@ -33,7 +33,7 @@ class FulltextIndex_ElasticSearch extends FulltextIndex
     if (defined('APP_ES_SLAVE_HOST') && defined('APP_ES_SLAVE_READ') && (APP_ES_SLAVE_READ == "ON") && ($readOnly == true) && $isAdministrator != true) {
       $this->esHosts = array(APP_ES_SLAVE_HOST);
     } else {
-      $this->esHosts = APP_ES_HOST;
+      $this->esHosts = array(APP_ES_HOST);
     }
     $this->esIndex = APP_ES_INDEX_NAME;
 
@@ -71,25 +71,20 @@ class FulltextIndex_ElasticSearch extends FulltextIndex
    */
   //TODO: try it
   public function setupIndex() {
-    $params = [
-        'index' => 'fez',
-        'body' => [
-            'settings' => [
-                'number_of_shards' => 1,
-                'number_of_replicas' => 0
-            ]
-        ]
-    ];
 
+    // Uncomment if you need to delete the existing index first.
+    //    $params = ['index' => $this->esIndex];
+    //    $dresponse = $this->esClient->indices($this->esIndex)->delete($params);
+
+    $file = __DIR__ ."/../../.docker/development/elasticsearch/elasticsearch_schema.json";
+    $mapping = file_get_contents($file);
+    $mapping = json_decode($mapping, true);
+    $params = [
+        'index' => $this->esIndex,
+        'body' => $mapping
+    ];
     // Create the index with mappings and settings now
-    $response = $this->esClient->indices()->create($params);
-    if ($response) {
-      $mapping = file_get_contents(__DIR__ ."../.docker/development/elasticsearch/elasticsearch_schema.json");
-      $mapping = json_decode($mapping, true);
-      return $this->esClient->indices($this->esIndex)->putMapping($mapping);
-    } else {
-      return false;
-    }
+    return $response = $this->esClient->indices()->create($params);
   }
 
   //TODO: implement
