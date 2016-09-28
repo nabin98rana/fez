@@ -205,7 +205,7 @@ class MigrateFromFedoraToDatabase
     
     $stmt = "select token, path from datastreamPaths   
       where path like '/espace/data/fedora_datastreams/2016/08%'
-        and token like 'UQ:398578+%'
+        and token like 'UQ:399648+%'
       order by path DESC";
 
     $ds = [];
