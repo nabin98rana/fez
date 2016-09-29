@@ -509,6 +509,7 @@ class MigrateFromFedoraToDatabase
 
     foreach ($roleNodes as $roleNode) {
       $role = $roleNode->getAttribute('name');
+      $roleId = Auth::getRoleIDByTitle($role);
       // Use XPath to get the sub groups that have values
       $groupNodes = $xpath->query('./*[string-length(normalize-space()) > 0]', $roleNode);
 
@@ -529,7 +530,7 @@ class MigrateFromFedoraToDatabase
             $group_value = trim($group_value, ' ');
 
             $arId = AuthRules::getOrCreateRule("!rule!role!" . $group_type, $group_value);
-            AuthNoFedoraDatastreams::addSecurityPermissions($did, $role, $arId);
+            AuthNoFedoraDatastreams::addSecurityPermissions($did, $roleId, $arId);
           }
         }
       }
