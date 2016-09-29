@@ -230,7 +230,12 @@ class MigrateFromFedoraToDatabase
       echo "\nDoing PID $counter/$totalDs ($pid)\n";
       Zend_Registry::set('version', Date_API::getCurrentDateGMT());
 
-      $acml = Record::getACML($pid, $dsName);
+      $acml = $this->getFezACML($pid, 'FezACML_' . $dsName . '.xml');
+      if ($acml) {
+        echo $acml->saveXML() . "\n";
+      } else {
+        echo "No FezACML found for record\n";
+      }
       if(
         strpos($dsName, 'presmd_') === 0
       ) {
@@ -483,7 +488,6 @@ class MigrateFromFedoraToDatabase
       //if no acml then default is inherit
       $inherit = true;
     } else {
-      echo $acml->saveXML();
       $xpath = new DOMXPath($acml);
       $inheritSearch = $xpath->query('/FezACML[inherit_security="on"]');
       $inherit = false;
@@ -601,5 +605,35 @@ class MigrateFromFedoraToDatabase
         }
       }
     }
+  }
+
+  private function getFezACML($pid, $dsID, $current_tries = 0)
+  {
+    $url = APP_FEDORA_GET_URL . "/" . $pid . "/" . $dsID;
+    list($xmlACML, $info) = Misc::processURL($url);
+    if ($xmlACML == '' || $xmlACML == FALSE) {
+      $current_tries++;
+      if ($current_tries < 5) {
+        sleep(5); // sleep for a bit so the object can get unlocked before trying again
+        return $this->getFezACML($pid, $dsID, $current_tries);
+      }
+      else {
+        return FALSE;
+      }
+    }
+    $config = array(
+      'indent' => TRUE,
+      'input-xml' => TRUE,
+      'output-xml' => TRUE,
+      'wrap' => 0
+    );
+    $tidy = new tidy;
+    $tidy->parseString($xmlACML, $config, 'utf8');
+    $tidy->cleanRepair();
+    $xmlACML = $tidy;
+    $xmlDoc = new DomDocument();
+    $xmlDoc->preserveWhiteSpace = FALSE;
+    $xmlDoc->loadXML($xmlACML);
+    return $xmlDoc;
   }
 }
