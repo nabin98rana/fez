@@ -50,6 +50,7 @@ include_once(APP_INC_PATH . "class.bgp_fulltext_index.php");
 include_once(APP_INC_PATH . "class.fulltext_queue.php");
 include_once(APP_INC_PATH . "class.fulltext_tools.php");
 include_once(APP_INC_PATH . "class.fulltext_index_solr.php");
+include_once(APP_INC_PATH . "class.fulltext_index_elasticsearch.php");
 include_once(APP_INC_PATH . "class.fulltext_index_solr_csv.php");
 include_once(APP_INC_PATH . "class.citation.php");
 include_once(APP_INC_PATH . "Apache/Solr/Service.php");
@@ -84,7 +85,20 @@ abstract class FulltextIndex {
 	// how often the index optimizer is called
 	const COMMIT_COUNT = APP_SOLR_COMMIT_LIMIT; // Now gets this variablee from a config var set in the admin gui
 
-	/**
+
+  public static function get($readOnly = false)
+  {
+    if (APP_ES_SWITCH == "ON") {
+      return new FulltextIndex_ElasticSearch($readOnly);
+    } elseif (APP_SOLR_SWITCH == "ON") {
+      return new FulltextIndex_Solr_CSV($readOnly);
+    } else {
+      throw new Exception("No fulltext search index configured.");
+      return false;
+    }
+  }
+
+    /**
 	 * Links this instance to a corresponding background process.
 	 *
 	 * @param BackgroundProcess_Fulltext_Index $bgp
@@ -409,6 +423,7 @@ abstract class FulltextIndex {
 
 		foreach ($searchKeys as $sekDetails) {
 			$title = $sekDetails["sek_title"];
+      $index_title = $sekDetails["sek_title_db"];
 			if ($title == 'File Attachment Content') {
 				continue;
 			}
@@ -435,13 +450,13 @@ abstract class FulltextIndex {
 				$isMultiValued = false;
 				if ($sekDetails["sek_relationship"] == 1) {
 					$isMultiValued = true;
-					$fieldTypes[$title.FulltextIndex::FIELD_MOD_MULTI] = true;
+					$fieldTypes[$index_title.FulltextIndex::FIELD_MOD_MULTI] = true;
 				}
 
 				// search-engine specific mapping of field name
-				$title = $this->getFieldName($title, $fieldType, $isMultiValued);
-				$docfields[$title] = $fieldValue;
-				$fieldTypes[$title] = $fieldType;
+        $index_title = $this->getFieldName($index_title, $fieldType, $isMultiValued);
+				$docfields[$index_title] = $fieldValue;
+				$fieldTypes[$index_title] = $fieldType;
 				unset($fieldValue);
 				unset($fieldType);
 			}
@@ -450,16 +465,16 @@ abstract class FulltextIndex {
 		unset($searchKeys);
 
 		// add fulltext for each datastream (fulltext is supposed to be in the special cache)
-		$title = $this->getFieldName(self::FIELD_NAME_FULLTEXT, self::FIELD_TYPE_TEXT, true);
-		$docfields[$title] = array();
-		$fieldTypes[$title] = self::FIELD_TYPE_TEXT;
-		$fieldTypes[$title.FulltextIndex::FIELD_MOD_MULTI] = true;
+    $index_title = $this->getFieldName(self::FIELD_NAME_FULLTEXT, self::FIELD_TYPE_TEXT, true);
+		$docfields[$index_title] = array();
+		$fieldTypes[$index_title] = self::FIELD_TYPE_TEXT;
+		$fieldTypes[$index_title.FulltextIndex::FIELD_MOD_MULTI] = true;
 
 		foreach ($dslist as $dsitem) {
 			$dsid = $dsitem['ID'];
 			$ftResult = $this->getCachedContent($pid, $dsid);
 			if (!empty($ftResult) && !empty($ftResult['content'])) {
-				$docfields[$title][$dsid] = $ftResult['content'];
+				$docfields[$index_title][$dsid] = $ftResult['content'];
 			}
 			unset($ftResult);
 		}
@@ -469,7 +484,7 @@ abstract class FulltextIndex {
 		// maybe this needs more abstraction for new search engines
 		// _authindex solr: tokenized, indexed and stored _t
 		//
-		$auth_title = $this->getFieldName(FulltextIndex::FIELD_NAME_AUTH, FulltextIndex::FIELD_TYPE_TEXT, false);
+		$auth_title = $this->getFieldName(FulltextIndex::FIELD_NAME_AUTHLISTER, FulltextIndex::FIELD_TYPE_TEXT, false);
 		$docfields[$auth_title] = $this->getListerRuleGroups($pid);
 		$fieldTypes[$auth_title] = FulltextIndex::FIELD_TYPE_TEXT;
 

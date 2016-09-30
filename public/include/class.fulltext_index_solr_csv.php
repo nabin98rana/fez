@@ -14,12 +14,12 @@ include_once(APP_INC_PATH . "class.fulltext_queue.php");
 include_once(APP_INC_PATH . "class.custom_view.php");
 include_once(APP_INC_PATH . "Apache/Solr/Service.php");
 
-class FulltextIndex_Solr_CSV extends FulltextIndex
+class FulltextIndex_Solr_CSV extends FulltextIndex_Solr
 {
   private $solrHost;
   private $solrPort;
   private $solrPath;
-  private $solr;
+  public $solr;
   const FIELD_TYPE_INT = 0;
   const FIELD_TYPE_DATE = 1;
   const FIELD_TYPE_VARCHAR = 2;

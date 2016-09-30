@@ -4,7 +4,7 @@
     "number_of_replicas": 0
   },
   "mappings" : {
-    "type" : {
+    "fez_record" : {
       "properties" : {
         "_version_" : { "type" : "long", "store" : "yes", "index" : "analyzed" },
         "id" : { "type" : "string", "store" : "yes", "index" : "not_analyzed" },
