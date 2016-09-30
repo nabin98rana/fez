@@ -114,6 +114,9 @@ class MigrateFromFedoraToDatabase
   private function postMigration()
   {
     $this->toggleAwsStatus(true);
+
+    //$this->reindexPids();
+
     echo "Congratulations! Your Fez system is now ready to function without Fedora.\n";
   }
 
@@ -137,8 +140,10 @@ class MigrateFromFedoraToDatabase
     // Convert the XML quick templates
     $this->convertQuickTemplates();
 
-    // Migrate all records from Fedora
-    $this->migratePIDs();
+    // Update shadow key stamp with rek_updated_date in core SK table
+    $this->updateShadowTableStamps();
+
+    // @todo: update rek_security_inherited from FezACML for the pid
 
     // Datastream (attached files) migration
     $this->migrateManagedContent();
@@ -197,7 +202,6 @@ class MigrateFromFedoraToDatabase
    */
   private function migrateManagedContent()
   {
-    // @todo: Compare the new md5 with "existing" md5 if any.
     ob_flush();
     if ($this->_env != 'production') {
       return;
@@ -205,7 +209,7 @@ class MigrateFromFedoraToDatabase
     
     $stmt = "select token, path from datastreamPaths   
       where path like '/espace/data/fedora_datastreams/2016/08%'
-        and token like 'UQ:398578+%'
+        and token like 'UQ:399648+%'
       order by path DESC";
 
     $ds = [];
@@ -230,7 +234,12 @@ class MigrateFromFedoraToDatabase
       echo "\nDoing PID $counter/$totalDs ($pid)\n";
       Zend_Registry::set('version', Date_API::getCurrentDateGMT());
 
-      $acml = Record::getACML($pid, $dsName);
+      $acml = $this->getFezACML($pid, 'FezACML_' . $dsName . '.xml');
+      if ($acml) {
+        echo $acml->saveXML() . "\n";
+      } else {
+        echo "No FezACML found for record\n";
+      }
       if(
         strpos($dsName, 'presmd_') === 0
       ) {
@@ -265,19 +274,6 @@ class MigrateFromFedoraToDatabase
   }
 
   /**
-   * Call bulk 'reindex' workflow on all PIDS.
-   * We could runs this function before the outage.
-   * eSpace has around 165K records, so here we are, running it in phases.
-   */
-  private function migratePIDs()
-  {
-    if ($this->reindexPids()) {
-      return $this->migratePidVersions();
-    }
-    return false;
-  }
-
-  /**
    * Run Reindex workflow on an array of pids
    * @return boolean
    */
@@ -300,25 +296,8 @@ class MigrateFromFedoraToDatabase
       return false;
     }
 
-    foreach ($pids as $pid) {
-      $record = new RecordObject($pid);
-      $record->getDisplay();
-      $details = $record->getDetails();
-      $sekData = Fez_Record_Searchkey::buildSearchKeyDataByXSDMFID($details);
-      $recordSearchKey = new Fez_Record_Searchkey($pid);
-      // set the (fourth) param true to only insert the shadow values
-      $result = $recordSearchKey->insertRecord($sekData, false, array(), true);
-      if (!$result) {
-        echo "PID $pid failed to update search keys and shadow tables - aborting migration";
-        return false;
-      }
-    }
-
     if (sizeof($pids) > 0) {
-      //Workflow::start($wft_id, $pid, $xdis_id, $href, $dsID, $pids);
-
-      // echo chr(10) . "\n<br /> BGP of Reindexing the PIDS has been triggered.
-      //     See the progress at http://" . APP_HOSTNAME . "/my_processes.php";
+      Workflow::start($wft_id, $pid, $xdis_id, $href, $dsID, $pids);
     }
     ob_flush();
     return true;
@@ -355,6 +334,44 @@ class MigrateFromFedoraToDatabase
         $this->toggleAwsStatus(false);
       }
     }*/
+  }
+
+  /**
+   * Update shadow key stamp with rek_updated_date in core SK table
+   */
+  private function updateShadowTableStamps()
+  {
+    $searchKeys = Search_Key::getList();
+    $stmt = "SELECT rek_pid, rek_updated_date FROM " . APP_TABLE_PREFIX . "record_search_key";
+    try {
+      $records = $this->_db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
+    } catch (Exception $ex) {
+      $this->_log->err($ex);
+      echo "Failed to retrieve pids. Error: " . $ex;
+      return false;
+    }
+
+    $table = APP_TABLE_PREFIX . "record_search_key";
+    foreach ($searchKeys as $searchKey) {
+      if ($searchKey['sek_relationship'] === 1) {
+        $stmt = 'UPDATE ' . $table . "_" . $searchKey['sek_title_db'] . "__shadow" .
+          ' SET rek_' . $searchKey['sek_title_db'] . '_stamp = :stamp' .
+          ' WHERE rek_' . $searchKey['sek_title_db'] . '_pid = :pid';
+        foreach ($records as $rek) {
+          $data = [
+            ':pid' => $rek['rek_pid'],
+            ':stamp' => $rek['rek_updated_date'],
+          ];
+          try {
+            $this->_db->query($stmt, $data);
+          } catch (Exception $ex) {
+            $this->_log->err($ex);
+            echo "Failed to update stamp for pid=" . $rek['rek_pid'];
+          }
+        }
+      }
+    }
+    return true;
   }
 
   /**
@@ -468,8 +485,13 @@ class MigrateFromFedoraToDatabase
     ];
   }
 
+  /**
+   * @param DOMDocument $acml
+   * @return bool
+   */
   private function inheritsPermissions($acml)
   {
+    echo "Checking if datastream inherits permissions..\n";
     if ($acml == false) {
       //if no acml then default is inherit
       $inherit = true;
@@ -478,7 +500,10 @@ class MigrateFromFedoraToDatabase
       $inheritSearch = $xpath->query('/FezACML[inherit_security="on"]');
       $inherit = false;
       if ($inheritSearch->length > 0) {
+        echo "..is inherited\n";
         $inherit = true;
+      } else {
+        echo "..not inherited\n";
       }
     }
     return $inherit;
@@ -492,6 +517,7 @@ class MigrateFromFedoraToDatabase
 
     foreach ($roleNodes as $roleNode) {
       $role = $roleNode->getAttribute('name');
+      $roleId = Auth::getRoleIDByTitle($role);
       // Use XPath to get the sub groups that have values
       $groupNodes = $xpath->query('./*[string-length(normalize-space()) > 0]', $roleNode);
 
@@ -512,7 +538,7 @@ class MigrateFromFedoraToDatabase
             $group_value = trim($group_value, ' ');
 
             $arId = AuthRules::getOrCreateRule("!rule!role!" . $group_type, $group_value);
-            AuthNoFedoraDatastreams::addSecurityPermissions($did, $role, $arId);
+            AuthNoFedoraDatastreams::addSecurityPermissions($did, $roleId, $arId);
           }
         }
       }
@@ -588,5 +614,35 @@ class MigrateFromFedoraToDatabase
         }
       }
     }
+  }
+
+  private function getFezACML($pid, $dsID, $current_tries = 0)
+  {
+    $url = APP_FEDORA_GET_URL . "/" . $pid . "/" . $dsID;
+    list($xmlACML, $info) = Misc::processURL($url);
+    if ($xmlACML == '' || $xmlACML == FALSE) {
+      $current_tries++;
+      if ($current_tries < 5) {
+        sleep(5); // sleep for a bit so the object can get unlocked before trying again
+        return $this->getFezACML($pid, $dsID, $current_tries);
+      }
+      else {
+        return FALSE;
+      }
+    }
+    $config = array(
+      'indent' => TRUE,
+      'input-xml' => TRUE,
+      'output-xml' => TRUE,
+      'wrap' => 0
+    );
+    $tidy = new tidy;
+    $tidy->parseString($xmlACML, $config, 'utf8');
+    $tidy->cleanRepair();
+    $xmlACML = $tidy;
+    $xmlDoc = new DomDocument();
+    $xmlDoc->preserveWhiteSpace = FALSE;
+    $xmlDoc->loadXML($xmlACML);
+    return $xmlDoc;
   }
 }

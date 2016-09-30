@@ -44,7 +44,6 @@ InitSystem::runDatabaseTasks($tasks);
 
 Class InitSystem
 {
-
   const seedPath = './../../.docker/development/backend/db/seed/';
 
   /**
@@ -54,7 +53,6 @@ Class InitSystem
    */
   public static function runDatabaseTasks($tasks)
   {
-
     $host = 'fezdb';
     $database = 'fez';
     $user = 'fez';
@@ -92,7 +90,7 @@ Class InitSystem
         InitSystem::runSetupAWS($conn);
         break;
       case 'migrate':
-        InitSystem::runMigrate($conn);
+        InitSystem::runMigrate();
         break;
       default:
         break;
@@ -176,7 +174,6 @@ Class InitSystem
   public static function runSeed($conn)
   {
     $path = InitSystem::seedPath;
-//  parseMySQLdump($conn, $path . "installdb.sql");
     InitSystem::parseMySQLdump($conn, $path . "citation.sql");
     InitSystem::parseMySQLdump($conn, $path . "cvs.sql");
     InitSystem::parseMySQLdump($conn, $path . "development.sql");
@@ -187,34 +184,10 @@ Class InitSystem
       InitSystem::parseMySQLdump($conn, $path . "jetsetup.sql");
       InitSystem::parseMySQLdump($conn, $path . "disablesolr.sql");
     }
-
-    // Finished unless AWS environment is configured
-    if (
-    !(
-        array_key_exists('AWS_ACCESS_KEY_ID', $_SERVER) &&
-        array_key_exists('AWS_SECRET_ACCESS_KEY', $_SERVER) &&
-        array_key_exists('FEZ_S3_BUCKET', $_SERVER) &&
-        array_key_exists('FEZ_S3_CACHE_BUCKET', $_SERVER) &&
-        array_key_exists('FEZ_S3_SRC_PREFIX', $_SERVER) &&
-        (
-            strpos($_SERVER['FEZ_S3_BUCKET'], 'uql-fez-dev') === 0 ||
-            strpos($_SERVER['FEZ_S3_BUCKET'], 'uql-fez-testing') === 0
-        )
-    )
-    ) {
-      return;
-    }
   }
 
-
   public static function runSetupAWS($conn) {
-
-
-    // Dev bucket requires a prefix as it's shared amongst multiple developers
-    if (
-        $_SERVER['FEZ_S3_BUCKET'] === 'uql-fez-dev' &&
-        empty($_SERVER['FEZ_S3_SRC_PREFIX'])
-    ) {
+    if (! InitSystem::isConfiguredToUseAWS()) {
       return;
     }
 
@@ -258,12 +231,11 @@ Class InitSystem
     }
   }
 
-
-  /**
-   * @param PDO $conn
-   */
-  public static function runMigrate($conn)
+  public static function runMigrate()
   {
+    if (! InitSystem::isConfiguredToUseAWS()) {
+      return;
+    }
     include_once './../../public/config.inc.php';
 
     include_once(APP_INC_PATH . "/../upgrade/fedoraBypassMigration/MigrateFromFedoraToDatabase.php");
@@ -271,5 +243,32 @@ Class InitSystem
     $migrate->runMigration();
   }
 
+  private function isConfiguredToUseAWS()
+  {
+    if (
+    !(
+      array_key_exists('AWS_ACCESS_KEY_ID', $_SERVER) &&
+      array_key_exists('AWS_SECRET_ACCESS_KEY', $_SERVER) &&
+      array_key_exists('FEZ_S3_BUCKET', $_SERVER) &&
+      array_key_exists('FEZ_S3_CACHE_BUCKET', $_SERVER) &&
+      array_key_exists('FEZ_S3_SRC_PREFIX', $_SERVER) &&
+      (
+        strpos($_SERVER['FEZ_S3_BUCKET'], 'uql-fez-dev') === 0 ||
+        strpos($_SERVER['FEZ_S3_BUCKET'], 'uql-fez-testing') === 0
+      )
+    )
+    ) {
+      return false;
+    }
 
+    // Dev/testing bucket requires a prefix as it's shared amongst multiple developers/test processes
+    if (
+      ($_SERVER['FEZ_S3_BUCKET'] === 'uql-fez-dev' || $_SERVER['FEZ_S3_BUCKET'] === 'uql-fez-testing') &&
+      empty($_SERVER['FEZ_S3_SRC_PREFIX'])
+    ) {
+      return false;
+    }
+
+    return true;
+  }
 }

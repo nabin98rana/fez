@@ -7,23 +7,9 @@ cd ${BASE_DIR}
 rm -f /etc/php.d/15-xdebug.ini
 export BEHAT_PARAMS='{"extensions" : {"Behat\\MinkExtension" : {"selenium2" : { "wd_host" : "http://selenium:4444/wd/hub"}}}}'
 
-#phpunit --no-configuration --log-junit "${WORKSPACE}/phpunit_results/phpunit_results.xml" --include-path ".:${WORKSPACE}/public/" ${WORKSPACE}/tests/application/Unit/ResearcherIdTests.php
-
-#${BASE_DIR}/../behat/bin/behat --retry-scenario 3 --ansi --tags '~@broken' --format=pretty,html,junit --out=,../../build/tests/formattedresults.html,../../build/tests/
-
-#../behat/vendor/behat/behat/bin/behat --tags '@jet&&~@cloned' --ansi --format=pretty,html,junit --out=,logs/formattedresults.html,logs/
-
-# Run full tests on master or feature branches, but only smoke on staging/production
-if [ "${CI_BRANCH}" = "staging" ] || [ "${CI_BRANCH}" = "production" ]; then
-  ../behat/vendor/behat/behat/bin/behat --tags "@smoke&&@jet&&~@cloned&&${1}" --format pretty --colors --stop-on-failure
-#  ../behat/vendor/behat/behat/bin/behat --tags "@smoke&&@jet&&~@cloned" --format pretty --colors --stop-on-failure
-else
-  ../behat/vendor/behat/behat/bin/behat --tags "@jet&&~@cloned&&${1}" --format pretty --colors --stop-on-failure
-#  ../behat/vendor/behat/behat/bin/behat --tags "@jet&&~@cloned" --format pretty --colors --stop-on-failure
+BEHAT_TAGS="@jet&&~@cloned&&${1}"
+# Smoke tests on staging
+if [[ "${CI_BRANCH}" = "staging" || "${CI_BRANCH}" = "production" ]]; then
+  BEHAT_TAGS="@smoke&&${BEHAT_TAGS}"
 fi
-
-#Use the below example of how to run tests in the development environment - eg create test data
-#../behat/vendor/behat/behat/bin/behat --tags '@jet&&~@cloned' --format pretty --colors features/02-CreateTestData.feature
-#../behat/vendor/behat/behat/bin/behat --tags '@jet&&~@cloned' --format pretty --colors features/ThesisUpload.feature
-
-#../behat/vendor/behat/behat/bin/behat --retry-scenario 3 --ansi --tags '@jet' --format=pretty,html,junit --out=,../../build/tests/formattedresults.html,../../build/tests/
+../behat/vendor/behat/behat/bin/behat --tags "${BEHAT_TAGS}" --format pretty --colors --stop-on-failure
