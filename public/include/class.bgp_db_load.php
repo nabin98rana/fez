@@ -79,7 +79,7 @@ class BackgroundProcess_Db_Load extends BackgroundProcess
     $files = glob($path . "/*.sql");
     foreach ($files as $sql) {
       $tbl = basename($sql, '.sql');
-      $db->query('DROP TABLE ' . $tbl);
+      $db->query('DROP TABLE IF EXISTS ' . $tbl);
       $sql = file_get_contents($sql);
       $db->query($sql);
     }
