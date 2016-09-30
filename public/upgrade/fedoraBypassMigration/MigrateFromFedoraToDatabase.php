@@ -114,6 +114,9 @@ class MigrateFromFedoraToDatabase
   private function postMigration()
   {
     $this->toggleAwsStatus(true);
+
+    //$this->reindexPids();
+
     echo "Congratulations! Your Fez system is now ready to function without Fedora.\n";
   }
 
@@ -137,8 +140,10 @@ class MigrateFromFedoraToDatabase
     // Convert the XML quick templates
     $this->convertQuickTemplates();
 
-    // Migrate all records from Fedora
-    //$this->migratePIDs();
+    // Update shadow key stamp with rek_updated_date in core SK table
+    $this->updateShadowTableStamps();
+
+    // @todo: update rek_security_inherited from FezACML for the pid
 
     // Datastream (attached files) migration
     $this->migrateManagedContent();
@@ -197,7 +202,6 @@ class MigrateFromFedoraToDatabase
    */
   private function migrateManagedContent()
   {
-    // @todo: Compare the new md5 with "existing" md5 if any.
     ob_flush();
     if ($this->_env != 'production') {
       return;
@@ -270,25 +274,11 @@ class MigrateFromFedoraToDatabase
   }
 
   /**
-   * Call bulk 'reindex' workflow on all PIDS.
-   * We could runs this function before the outage.
-   * eSpace has around 165K records, so here we are, running it in phases.
-   */
-  private function migratePIDs()
-  {
-    if ($this->reindexPids()) {
-      return $this->migratePidVersions();
-    }
-    return false;
-  }
-
-  /**
    * Run Reindex workflow on an array of pids
    * @return boolean
    */
   private function reindexPids()
   {
-    $this->toggleAwsStatus(true);
     $wft_id = 277;  // hack: Reindex workflow trigger ID
     $pid = "";
     $xdis_id = "";
@@ -303,33 +293,13 @@ class MigrateFromFedoraToDatabase
       $pids = $this->_db->fetchCol($stmt);
     } catch (Exception $e) {
       echo chr(10) . "<br /> Failed to retrieve pids. Query: " . $stmt;
-      $this->toggleAwsStatus(false);
       return false;
     }
 
-    foreach ($pids as $pid) {
-      $record = new RecordObject($pid);
-      $record->getDisplay();
-      $details = $record->getDetails();
-      $sekData = Fez_Record_Searchkey::buildSearchKeyDataByXSDMFID($details);
-      $recordSearchKey = new Fez_Record_Searchkey($pid);
-      // set the (fourth) param true to only insert the shadow values
-      $result = $recordSearchKey->insertRecord($sekData, false, array(), true);
-      if (!$result) {
-        echo "PID $pid failed to update search keys and shadow tables - aborting migration";
-        $this->toggleAwsStatus(false);
-        return false;
-      }
-    }
-
     if (sizeof($pids) > 0) {
-      //Workflow::start($wft_id, $pid, $xdis_id, $href, $dsID, $pids);
-
-      // echo chr(10) . "\n<br /> BGP of Reindexing the PIDS has been triggered.
-      //     See the progress at http://" . APP_HOSTNAME . "/my_processes.php";
+      Workflow::start($wft_id, $pid, $xdis_id, $href, $dsID, $pids);
     }
     ob_flush();
-    $this->toggleAwsStatus(false);
     return true;
   }
 
@@ -364,6 +334,44 @@ class MigrateFromFedoraToDatabase
         $this->toggleAwsStatus(false);
       }
     }*/
+  }
+
+  /**
+   * Update shadow key stamp with rek_updated_date in core SK table
+   */
+  private function updateShadowTableStamps()
+  {
+    $searchKeys = Search_Key::getList();
+    $stmt = "SELECT rek_pid, rek_updated_date FROM " . APP_TABLE_PREFIX . "record_search_key";
+    try {
+      $records = $this->_db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
+    } catch (Exception $ex) {
+      $this->_log->err($ex);
+      echo "Failed to retrieve pids. Error: " . $ex;
+      return false;
+    }
+
+    $table = APP_TABLE_PREFIX . "record_search_key";
+    foreach ($searchKeys as $searchKey) {
+      if ($searchKey['sek_relationship'] === 1) {
+        $stmt = 'UPDATE ' . $table . "_" . $searchKey['sek_title_db'] . "__shadow" .
+          ' SET rek_' . $searchKey['sek_title_db'] . '_stamp = :stamp' .
+          ' WHERE rek_' . $searchKey['sek_title_db'] . '_pid = :pid';
+        foreach ($records as $rek) {
+          $data = [
+            ':pid' => $rek['rek_pid'],
+            ':stamp' => $rek['rek_updated_date'],
+          ];
+          try {
+            $this->_db->query($stmt, $data);
+          } catch (Exception $ex) {
+            $this->_log->err($ex);
+            echo "Failed to update stamp for pid=" . $rek['rek_pid'];
+          }
+        }
+      }
+    }
+    return true;
   }
 
   /**
