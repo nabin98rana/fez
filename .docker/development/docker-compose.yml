@@ -146,8 +146,11 @@ elasticsearch:
     - ES_CLUSTER_NAME=uqlfezsearch
     - ES_NODE_MASTER=true
     - ES_NODE_DATA=true
-  image: uqlibrary/docker-elasticsearch:1.7.1
+  image: elasticsearch:2.3.5
   ports:
     - "9200:9200"
-  volumes:
-    - ./data/elasticsearch:/data
+  volumes_from:
+    - elasticsearchdata
+
+elasticsearchdata:
+  build: ./elasticsearch/data/
