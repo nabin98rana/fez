@@ -143,7 +143,8 @@ class MigrateFromFedoraToDatabase
     // Update shadow key stamp with rek_updated_date in core SK table
     $this->updateShadowTableStamps();
 
-    // @todo: update rek_security_inherited from FezACML for the pid
+    // Update rek_security_inherited from FezACML for the pids
+    $this->addPidSecurity();
 
     // Datastream (attached files) migration
     $this->migrateManagedContent();
@@ -507,6 +508,28 @@ class MigrateFromFedoraToDatabase
       }
     }
     return $inherit;
+  }
+
+  private function addPidSecurity()
+  {
+    $stmt = "SELECT rek_pid FROM " . APP_TABLE_PREFIX . "record_search_key";
+    try {
+      $pids = $this->_db->fetchAll($stmt);
+    } catch (Exception $ex) {
+      $this->_log->err($ex);
+      echo "Failed to retrieve pids. Error: " . $ex;
+      return false;
+    }
+    foreach ($pids as $pid) {
+      $acml = $this->getFezACML($pid, 'FezACML');
+      if ($this->inheritsPermissions($acml)) {
+        AuthNoFedora::setInherited($pid, 1);
+      }
+      else {
+        AuthNoFedora::setInherited($pid, 0);
+      }
+    }
+    return true;
   }
 
   private function addDatastreamSecurity($acml, $did)
