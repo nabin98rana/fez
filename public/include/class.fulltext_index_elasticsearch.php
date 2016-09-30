@@ -118,43 +118,21 @@ class FulltextIndex_ElasticSearch extends FulltextIndex
     $log = FezLog::get();
 
     try {
-//      $doc = new Apache_Solr_Document();
-
-      // set solr id to object pid of
-      //$doc->id = $pid;
       $doc = [
         'id' => $pid,
-
-
+        'type' => $this->esType
       ];
       $doc['body'] = $fields;
-
-//      foreach ($fields as $key => $value) {
-//        if (is_array($value) && $fieldTypes) {
-//          foreach ($value as $v) {
-//            // too much utf8_encode for fields already encoded...
-//            if ($v != "") {
-//              $doc->setMultiValue($key, $v); // TODO: utf8_encode needed??
-//            }
-//          }
-//        } else {
-//          if (!empty($value)) {
-//            $doc->$key = $value;
-//          }
-//        }
-//      }
 
       $this->docs[] = $doc;
       $this->docsAdded++;
 
-//      if ($this->docsAdded % 250 == 0) {
-//        $this->solr->addDocuments($this->docs);
-//        $this->solr->commit();
-//
-//        unset($this->docs);
-//        $log->debug(array("======= FulltextIndex::updateFulltextIndex committed mem_usage=" . memory_get_usage() . " ======="));
-//      }
+      if ($this->docsAdded % 250 == 0) {
+        $this->forceCommit();
+        unset($this->docs);
+        $log->debug(array("======= FulltextIndex::updateFulltextIndex committed mem_usage=" . memory_get_usage() . " ======="));
 
+      }
     } catch (Exception $e) {
 
       // catches communication errors etc.
@@ -175,9 +153,6 @@ class FulltextIndex_ElasticSearch extends FulltextIndex
     if (!empty($this->docs)) {
 
       try {
-
-//        $this->solr->addDocuments($this->docs);
-//        $this->solr->commit();
         $params = ['body' => []];
         foreach($this->docs as $doc) {
           $params['body'][] = [
@@ -191,7 +166,6 @@ class FulltextIndex_ElasticSearch extends FulltextIndex
         }
 
         $this->esClient->bulk($params);
-
 
         unset($this->docs);
         $log->debug(array("======= FulltextIndex::updateFulltextIndex committed mem_usage=" . memory_get_usage() . " ======="));
