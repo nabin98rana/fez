@@ -104,7 +104,7 @@ class MigrateFromFedoraToDatabase
       }
     }
     $this->_fedoraDb = DB_API::get('fedora_db');
-    $this->toggleAwsStatus(false);
+    $this->toggleAwsStatus(true);
   }
 
   /**
@@ -113,10 +113,7 @@ class MigrateFromFedoraToDatabase
    */
   private function postMigration()
   {
-    $this->toggleAwsStatus(true);
-
     //$this->reindexPids();
-
     echo "Congratulations! Your Fez system is now ready to function without Fedora.\n";
   }
 
@@ -127,6 +124,7 @@ class MigrateFromFedoraToDatabase
   {
     // Sets the maximum PID on PID index table.
     $this->setMaximumPID();
+
   }
 
   /**
@@ -252,7 +250,6 @@ class MigrateFromFedoraToDatabase
         }
       }
 
-      $this->toggleAwsStatus(true);
       $location = 'migration/' . str_replace('/espace/data/fedora_datastreams/', '', $path);
       $location = str_replace('+', '%2B', $location);
 
@@ -270,7 +267,6 @@ class MigrateFromFedoraToDatabase
         $this->addDatastreamSecurity($acml, $did);
       }
       AuthNoFedoraDatastreams::recalculatePermissions($did);
-      $this->toggleAwsStatus(false);
     }
   }
 
@@ -407,13 +403,10 @@ class MigrateFromFedoraToDatabase
   private function setMaximumPID()
   {
     // Get the maximum PID number from Fedora
-    $nextPID = '';
-    while (empty($nextPID)) {
-      $nextPID = Fedora_API::getNextPID(false);
-      // Fedora may still be initialising
-      if (empty($nextPID)) {
-        sleep(10);
-      }
+    $nextPID = $this->getNextPID();
+
+    if ($nextPID === FALSE) {
+      return false;
     }
     $nextPIDParts = explode(":", $nextPID);
     $nextPIDNumber = (int)$nextPIDParts[1];
@@ -667,5 +660,30 @@ class MigrateFromFedoraToDatabase
     $xmlDoc->preserveWhiteSpace = FALSE;
     $xmlDoc->loadXML($xmlACML);
     return $xmlDoc;
+  }
+
+  private function getNextPID($current_tries = 0) {
+    $pid = FALSE;
+    $url = APP_SIMPLE_FEDORA_APIM_DOMAIN . "/objects/nextPID?format=xml";
+    list($xml, $info) = Misc::processURL($url);
+    if ($xml == '' || $xml == FALSE) {
+      $current_tries++;
+      if ($current_tries < 5) {
+        sleep(5); // sleep for a bit so the object can get unlocked before trying again
+        return $this->getNextPID($current_tries);
+      }
+      else {
+        return FALSE;
+      }
+    }
+    $xmlDoc = new DomDocument();
+    $xmlDoc->preserveWhiteSpace = FALSE;
+    $xmlDoc->loadXML($xml);
+    $result = $xmlDoc->getElementsByTagName("pid");
+    foreach ($result as $item) {
+      $pid = $item->nodeValue;
+      break;
+    }
+    return $pid;
   }
 }
