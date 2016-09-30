@@ -664,7 +664,7 @@ class MigrateFromFedoraToDatabase
 
   private function getNextPID($current_tries = 0) {
     $pid = FALSE;
-    $url = APP_SIMPLE_FEDORA_APIM_DOMAIN . "/objects/nextPID?format=xml";
+    $url = APP_FEDORA_GET_URL . "/objects/nextPID?format=xml";
     list($xml, $info) = Misc::processURL($url);
     if ($xml == '' || $xml == FALSE) {
       $current_tries++;
