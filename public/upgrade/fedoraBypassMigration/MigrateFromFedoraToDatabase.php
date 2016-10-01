@@ -76,7 +76,7 @@ class MigrateFromFedoraToDatabase
     echo "..done!\n";
 
     // Content migration
-    echo "Step 2: Content migration..";
+    echo "Step 2: Content migration:\n";
     $this->stepTwoMigration();
     echo "..done!\n";
 
@@ -148,7 +148,7 @@ class MigrateFromFedoraToDatabase
 
     // Update shadow key stamp with rek_updated_date in core SK table
     // Update rek_security_inherited from FezACML for the pids
-    echo " - Updating shadow tables and pid security..";
+    echo " - Updating shadow tables and pid security..\n";
     $this->updateShadowTableStampsAndAddPidSecurity();
     echo "..done!\n";
 
@@ -443,20 +443,19 @@ class MigrateFromFedoraToDatabase
    */
   private function inheritsPermissions($acml)
   {
-    echo "Checking if datastream inherits permissions..\n";
-    if ($acml == false) {
-      //if no acml then default is inherit
-      $inherit = true;
-    } else {
+    echo "Checking if inherits permissions..";
+    $inherit = true;
+    if ($acml instanceof DOMDocument) {
       $xpath = new DOMXPath($acml);
-      $inheritSearch = $xpath->query('/FezACML[inherit_security="on"]');
-      $inherit = false;
+      $inheritSearch = $xpath->query('/FezACML[inherit_security="off"]');
       if ($inheritSearch->length > 0) {
-        echo "..is inherited\n";
-        $inherit = true;
-      } else {
-        echo "..not inherited\n";
+        $inherit = false;
       }
+    }
+    if ($inherit) {
+      echo "is inherited\n";
+    } else {
+      echo "not inherited\n";
     }
     return $inherit;
   }
@@ -568,19 +567,12 @@ class MigrateFromFedoraToDatabase
     }
   }
 
-  private function getFezACML($pid, $dsID, $current_tries = 0)
+  private function getFezACML($pid, $dsID)
   {
-    $url = APP_FEDORA_GET_URL . "/" . $pid . "/" . $dsID;
-    list($xmlACML, $info) = Misc::processURL($url);
-    if ($xmlACML == '' || $xmlACML == FALSE) {
-      $current_tries++;
-      if ($current_tries < 5) {
-        sleep(5); // sleep for a bit so the object can get unlocked before trying again
-        return $this->getFezACML($pid, $dsID, $current_tries);
-      }
-      else {
-        return FALSE;
-      }
+    echo "Getting FezACML for $pid/$dsID\n";
+    list($xmlACML, $info) = Misc::processURL(APP_FEDORA_GET_URL . "/" . $pid . "/" . $dsID, false, null, null, null, 10);
+    if (! $xmlACML) {
+      return FALSE;
     }
     $config = array(
       'indent' => TRUE,
@@ -588,10 +580,9 @@ class MigrateFromFedoraToDatabase
       'output-xml' => TRUE,
       'wrap' => 0
     );
-
-    /*$this->_tidy->parseString($xmlACML, $config, 'utf8');
+    $this->_tidy->parseString($xmlACML, $config, 'utf8');
     $this->_tidy->cleanRepair();
-    $xmlACML = $this->_tidy;*/
+    $xmlACML = $this->_tidy;
     $xmlDoc = new DomDocument();
     $xmlDoc->preserveWhiteSpace = FALSE;
     $xmlDoc->loadXML($xmlACML);
