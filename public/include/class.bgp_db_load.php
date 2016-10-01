@@ -109,6 +109,7 @@ class BackgroundProcess_Db_Load extends BackgroundProcess
       // Run migration from Fedora -> S3
       $bgp = new BackgroundProcess_Migrate_Fedora();
       $bgp->register(serialize([]), User::getUserIDByUsername('webcron'));
+      sleep(60);
     }
   }
 }
