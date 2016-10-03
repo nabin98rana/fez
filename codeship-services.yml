@@ -31,7 +31,7 @@ fpmtestrunner:
     - cache
 
 selenium:
-  image: selenium/standalone-chrome:2.49.1
+  image: selenium/standalone-chrome:2.53.1
   environment:
     - JAVA_OPTS=-Dselenium.LOGGER.level=WARNING
   links:
