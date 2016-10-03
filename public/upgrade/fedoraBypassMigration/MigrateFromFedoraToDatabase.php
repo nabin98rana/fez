@@ -570,7 +570,11 @@ class MigrateFromFedoraToDatabase
   private function getFezACML($pid, $dsID)
   {
     echo "Getting FezACML for $pid/$dsID\n";
-    list($xmlACML, $info) = Misc::processURL(APP_FEDORA_GET_URL . "/" . $pid . "/" . $dsID, false, null, null, null, 10);
+    $result = Misc::processURL(APP_FEDORA_GET_URL . "/" . $pid . "/" . $dsID, false, null, null, null, 10, true);
+    if ($result['success'] === 0) {
+      return FALSE;
+    }
+    $xmlACML = $result['response'];
     if (! $xmlACML) {
       return FALSE;
     }
