@@ -440,7 +440,7 @@ class DuplicatesReport {
 		if (APP_SOLR_SWITCH == "ON" ) { //Solr - the preferable option if available
 			//Query solr with an OR query on title for a similar fix
 			// Solr search params
-			$index = new FulltextIndex_Solr();
+			$index = FulltextIndex::get();
 			$params = array();
 			$start = 0;
 			$page_rows = 15;

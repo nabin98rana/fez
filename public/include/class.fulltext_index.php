@@ -683,7 +683,7 @@ abstract class FulltextIndex {
           } else {
             $isMulti = false;
           }
-          $wf = FulltextIndex_Solr::getFieldName($value['wf'], self::FIELD_TYPE_TEXT, $isMulti);
+          $wf = FulltextIndex::getFieldName($value['wf'], self::FIELD_TYPE_TEXT, $isMulti);
           $query .= $wf . ":(";
         } else {
           $query .= '(';

@@ -2422,7 +2422,7 @@ class Record
 
     $searchKey_join = self::buildSearchKeyFilterSolr($options, $sort_by, $operator, $doExactMatch);
     $filter_join = self::buildSearchKeyFilterSolr($filter, "", $operator, $doExactMatch);
-    $index = new FulltextIndex_Solr(true);
+    $index = FulltextIndex::get(true);
 
     $res = $index->searchAdvancedQuery(
         $searchKey_join, $filter_join, $approved_roles, $start, $page_rows, $use_faceting,

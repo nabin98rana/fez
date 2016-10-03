@@ -638,7 +638,7 @@ class FulltextQueue
             $size = 0;
             foreach($res as $elementKey => $elementValue) {
                 if (array_key_exists('rek_pid', $elementValue)) {
-                  $size += strlen(serialize(FulltextIndex_Solr_CSV::getCachedContent("'".$elementValue['rek_pid']."'")));
+                  $size += strlen(serialize(FulltextIndex::getCachedContent("'".$elementValue['rek_pid']."'")));
                 }
                 if (($size/1000000 > APP_SOLR_CSV_MAX_SIZE) && ($elementKey > 0)){
                     unset($res[$elementKey]);

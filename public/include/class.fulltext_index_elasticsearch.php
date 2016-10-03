@@ -99,6 +99,134 @@ class FulltextIndex_ElasticSearch extends FulltextIndex
   //TODO: implement
   public function searchAdvancedQuery($searchKey_join, $filter_join, $approved_roles, $start, $page_rows, $use_faceting = false, $use_highlighting = false, $facet_limit = APP_SOLR_FACET_LIMIT, $facet_mincount = APP_SOLR_FACET_MINCOUNT) {
     $log = FezLog::get();
+
+
+
+    try {
+      $query = $this->prepareAdvancedQuery($searchKey_join, $filter_join, $approved_roles);
+      // Solr search params
+      $params = array();
+      $facets = array();
+//      $use_highlighting = false;
+      if ($use_highlighting) {
+        // hit highlighting
+        $params['hl'] = 'true';
+        $params['hl.fl'] = 'content'; //'content_mt,alternative_title_mt,author_mt,keywords_mt';
+        $params['hl.requireFieldMatch'] = 'false';
+        $params['hl.snippets'] = 1;
+        $params['hl.fragmenter'] = 'gap';
+        $params['hl.fragsize'] = 100;
+        $params['hl.mergeContiguous'] = "true";
+        $params['hl.useFastVectorHighlighter'] = "true";
+//        $params['hl.useFastVectorHighlighter'] = "false";
+      }
+      $lookupFacetsToUse = array();
+      if ($use_faceting) {
+        $sekIDs = Search_Key::getFacetList();
+
+        if (count($sekIDs) > 0) {
+
+          $params['facet'] = 'true';
+          $params['facet.limit'] = $facet_limit;
+          $params['facet.mincount'] = $facet_mincount;
+
+          foreach ($sekIDs as $sek) {
+            $sek_title_db = $sek['sek_title_db'];
+            if ($sek['sek_data_type'] == "date") {
+              $facetsToUse[] = $sek_title_db . "_year_t";
+            } else {
+              $solr_suffix = Record::getSolrSuffix($sek, 0, 1);
+              // filter tag exclude the zeros from author ids
+              if ($sek['sek_title'] == 'Author ID') {
+                $params['f.'.$sek['sek_title_solr'].'.facet.limit'] = '6';
+                $params['f.'.$sek['sek_title_solr'].'_lookup_exact'.'.facet.limit'] = '6';
+              }
+              $facetsToUse[] = $sek_title_db . $solr_suffix;
+
+
+              // Also add the lookup if it exists, and join them afterwards,
+              // so lookups don't have to be done, but id links still work
+              if (!empty($sek['sek_lookup_function'])) {
+                $facetsToUse[] = $sek['sek_title_solr'] . '_lookup_exact';
+                // keep a reference of the added facet lookups for retrieval later
+                $lookupFacetsToUse[$sek_title_db . $solr_suffix] = $sek['sek_title_solr'] . '_lookup_exact';
+              }
+            }
+          }
+
+          $params['facet.field'] = $facetsToUse;
+
+//          $params['fq{!tag=zero_author_id_exact}'] = "author_id_mi_lookup_exact:'0'";
+//          $params['facet.query'] = '('.$query['query'] . " AND (!author_id_mi_lookup_exact:'0' AND !author_id_mi:0))";
+        }
+      }
+
+      // filtering
+      $params['fq'] = $query['filter'];
+      $queryString = $query['query'];
+      $solr_titles = Search_Key::getSolrTitles();
+      $params['fl'] = implode(",", $solr_titles) . ',sherpa_colour_t,ain_detail_t,rj_tier_rank_t,rj_tier_title_t,rj_2015_rank_t,rj_2015_title_t,rc_2015_rank_t,rc_2015_title_t,rj_2010_rank_t,rj_2010_title_t,rj_2012_rank_t,rj_2012_title_t,rc_2010_rank_t,rc_2010_title_t,herdc_code_description_t,score,citation_t';
+
+      // sorting
+      if (empty($searchKey_join[SK_SORT_ORDER])) {
+        $params['sort'] = "";
+      } else {
+        $params['sort'] = $searchKey_join[SK_SORT_ORDER];
+      }
+
+      $log->debug(array("Solr filter query: " . $params['fq']));
+      $log->debug(array("Solr query string: " . $queryString));
+      $log->debug(array("Solr sort by: " . $params['sort']));
+
+      $solrParams = $params;
+
+//      $response = $this->solr->search($queryString, $start, $page_rows, $params);
+//      $total_rows = $response->response->numFound;
+
+    $params = [
+        'index' => $this->esIndex,
+        'type' => $this->esType,
+        'body' => [
+            'query' => [
+                'filtered' => [
+                    'filter' => [
+                        'querystring' => [ 'query' => $solrParams['fq'] ]
+                    ],
+                    'query' => [
+                        'querystring' => [ 'query' => $queryString ]
+                    ]
+                ]
+            ],
+            'sort' => [
+                $solrParams['sort']
+            ]
+        ]
+    ];
+    $testJson = json_encode($params);
+
+    $results = $this->esClient->search($params);
+    } catch (Exception $e) {
+
+      //
+      // catches any Solr service exceptions (malformed syntax etc.)
+      //
+
+      // TODO add fine grained control, user message error handling
+      $log->err($e);
+
+      // report nothing found on error
+      $docs = array();
+      $total_rows = 0;
+
+    }
+    $snips = array();
+    return array(
+        'total_rows' => $total_rows,
+        'facets' => $facets,
+        'docs' => $docs,
+        'snips' => $snips
+    );
+
   }
 
   //TODO: implement

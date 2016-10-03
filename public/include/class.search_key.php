@@ -1071,7 +1071,7 @@ class Search_Key
 
     for ($i = 0; $i < count($res); $i++) {
       $res[$i]['sek_title_db'] = Search_Key::makeSQLTableName($res[$i]['sek_title']);
-      $res[$i]['sek_title_solr'] = FulltextIndex_Solr::getFieldName($res[$i]['sek_title_db'], FulltextIndex::mapType($res[$i]['sek_data_type']), $res[$i]['sek_cardinality']);
+      $res[$i]['sek_title_solr'] = FulltextIndex::getFieldName($res[$i]['sek_title_db'], FulltextIndex::mapType($res[$i]['sek_data_type']), $res[$i]['sek_cardinality']);
       $return[$res[$i]['sek_title_db']] = $res[$i]['sek_title_solr'];
       if (!empty($res[$i]['sek_lookup_function'])) {
         $return[$res[$i]['sek_title_db'].'_lookup'] = $res[$i]['sek_title_solr'].'_lookup';
@@ -1415,7 +1415,7 @@ class Search_Key
         $return = array();
         for ($i = 0; $i < count($res); $i++) {
             $res[$i]['sek_title_db'] = Search_Key::makeSQLTableName($res[$i]['sek_title']);
-            $res[$i]['sek_title_solr'] = FulltextIndex_Solr::getFieldName($res[$i]['sek_title_db'], FulltextIndex::mapType($res[$i]['sek_data_type']), $res[$i]['sek_cardinality']);
+            $res[$i]['sek_title_solr'] = FulltextIndex::getFieldName($res[$i]['sek_title_db'], FulltextIndex::mapType($res[$i]['sek_data_type']), $res[$i]['sek_cardinality']);
             $return[$res[$i]['sek_title_db']] = $res[$i]['sek_title_solr'];
             if ($lookups && !empty($res[$i]['sek_lookup_function'])) {
                 $return[$res[$i]['sek_title_db'] . '_lookup'] = $res[$i]['sek_title_solr'] . '_lookup';
