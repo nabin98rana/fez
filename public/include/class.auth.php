@@ -2777,7 +2777,7 @@ class AuthNoFedora
 
 
   //set inherit permissions
-  public static function setInherited($pid, $inherited = 1)
+  public static function setInherited($pid, $inherited = 1, $recalcPermissions = true)
   {
     $log = FezLog::get();
     $db = DB_API::get();
@@ -2792,8 +2792,9 @@ class AuthNoFedora
       $log->err($ex);
       return array();
     }
-
-    AuthNoFedora::recalculatePermissions($pid);
+    if ($recalcPermissions) {
+      AuthNoFedora::recalculatePermissions($pid);
+    }
     return $res;
   }
 
