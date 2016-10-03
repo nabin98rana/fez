@@ -362,10 +362,10 @@ class MigrateFromFedoraToDatabase
     foreach ($records as $rek) {
       $acml = $this->getFezACML($rek['rek_pid'], 'FezACML');
       if ($this->inheritsPermissions($acml)) {
-        AuthNoFedora::setInherited($rek['rek_pid'], 1);
+        AuthNoFedora::setInherited($rek['rek_pid'], 1, false);
       }
       else {
-        AuthNoFedora::setInherited($rek['rek_pid'], 0);
+        AuthNoFedora::setInherited($rek['rek_pid'], 0, false);
       }
     }
 
