@@ -4,7 +4,7 @@ fedoradata:
 fpmtestrunner:
   build:
     dockerfile_path: "Dockerfile.runner"
-  #encrypted_env_file: ./.codeship/dockerenv.encrypted
+  encrypted_env_file: "deployment.env.encrypted"
   environment:
     APP_ENVIRONMENT: "testing"
     XDEBUG_CONFIG: "idekey=fez"
@@ -12,6 +12,14 @@ fpmtestrunner:
     JAVA_HOME: "/usr/lib/jvm/jre"
     JHOVE_HOME: "/usr/local/jhove"
     JET_RUN: "true"
+    AWS_ACCESS_KEY_ID: "${AWS_ACCESS_KEY_ID}"
+    AWS_SECRET_ACCESS_KEY: "${AWS_SECRET_ACCESS_KEY}"
+    AWS_CLOUDFRONT_KEY_PAIR_ID: "${AWS_CLOUDFRONT_KEY_PAIR_ID}"
+    AWS_CLOUDFRONT_PRIVATE_KEY_FILE: "${AWS_CLOUDFRONT_PRIVATE_KEY_FILE}"
+    AWS_CLOUDFRONT_FILE_SERVE_URL: "${AWS_CLOUDFRONT_FILE_SERVE_URL}"
+    FEZ_S3_BUCKET: "${FEZ_S3_BUCKET}"
+    FEZ_S3_CACHE_BUCKET: "${FEZ_S3_CACHE_BUCKET}"
+    FEZ_S3_SRC_PREFIX: "${FEZ_S3_SRC_PREFIX}"
   links:
     - fez
     - fezdb
@@ -23,12 +31,9 @@ fpmtestrunner:
     - cache
 
 selenium:
-  #image: selenium/standalone-chrome-debug:2.49.1 #swap for local debugging
-  image: selenium/standalone-chrome:2.49.1
+  image: selenium/standalone-chrome:2.53.1
   environment:
     - JAVA_OPTS=-Dselenium.LOGGER.level=WARNING
-#  ports:
-#    - "5902:5900"
   links:
     - fez
     - fedora
@@ -52,13 +57,21 @@ fpm:
   build:
     dockerfile_path: "Dockerfile"
     path: ./.docker/development/backend/fpm/
-  #encrypted_env_file: ./.codeship/dockerenv.encrypted
+  encrypted_env_file: "deployment.env.encrypted"
   environment:
     APP_ENVIRONMENT: "testing"
     XDEBUG_CONFIG: "idekey=fez"
     PHP_IDE_CONFIG: "serverName=dev-fez.library.uq.edu.au"
     JAVA_HOME: "/usr/lib/jvm/jre"
     JHOVE_HOME: "/usr/local/jhove"
+    AWS_ACCESS_KEY_ID: "${AWS_ACCESS_KEY_ID}"
+    AWS_SECRET_ACCESS_KEY: "${AWS_SECRET_ACCESS_KEY}"
+    AWS_CLOUDFRONT_KEY_PAIR_ID: "${AWS_CLOUDFRONT_KEY_PAIR_ID}"
+    AWS_CLOUDFRONT_PRIVATE_KEY_FILE: "${AWS_CLOUDFRONT_PRIVATE_KEY_FILE}"
+    AWS_CLOUDFRONT_FILE_SERVE_URL: "${AWS_CLOUDFRONT_FILE_SERVE_URL}"
+    FEZ_S3_BUCKET: "${FEZ_S3_BUCKET}"
+    FEZ_S3_CACHE_BUCKET: "${FEZ_S3_CACHE_BUCKET}"
+    FEZ_S3_SRC_PREFIX: "${FEZ_S3_SRC_PREFIX}"
   links:
     - fezdb
     - fedora
@@ -93,8 +106,6 @@ fedora:
     FEDORA_WEBAPP_HOME: "/opt/fedora/tomcat/webapps/fedora"
   links:
     - fezdb
-#  ports:
-#    - "10083:10081"
   volumes_from:
     - fedoradata
     - cache

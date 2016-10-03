@@ -10,23 +10,23 @@
 ## Fez tasks ##
 
 # Update the GeoIP and GeoLiteCity data files in S3 every month on the 3rd at 3:33am
-33  3   3 * *   root    /usr/bin/wget -nd -q -O /tmp/GeoIP.dat.gz http://www.maxmind.com/download/geoip/database/GeoIP.dat.gz && aws s3 cp /tmp/GeoIP.dat.gz s3://uql-fez-production-cache/GeoIP.dat.gz > /dev/null 2>&1
-33  3   3 * *   root    /usr/bin/wget -nd -q -O /tmp/GeoLiteCity.dat.gz http://www.maxmind.com/download/geoip/database/GeoLiteCity.dat.gz && aws s3 cp /tmp/GeoIP.dat.gz s3://uql-fez-production-cache/GeoLiteCity.dat.gz > /dev/null 2>&1
+#33  3   3 * *   root    /usr/bin/wget -nd -q -O /tmp/GeoIP.dat.gz http://www.maxmind.com/download/geoip/database/GeoIP.dat.gz && aws s3 cp /tmp/GeoIP.dat.gz s3://uql-fez-production-cache/GeoIP.dat.gz > /dev/null 2>&1
+#33  3   3 * *   root    /usr/bin/wget -nd -q -O /tmp/GeoLiteCity.dat.gz http://www.maxmind.com/download/geoip/database/GeoLiteCity.dat.gz && aws s3 cp /tmp/GeoIP.dat.gz s3://uql-fez-production-cache/GeoLiteCity.dat.gz > /dev/null 2>&1
 
 # Run the integrity fixing scripts each morning
-15  8   * * *   root    /usr/bin/wget -O - "http://fez-production.library.uq.edu.au/api/cron_register_bgp.php?file=bgp_run_integrity_checks&class=BackgroundProcess_Run_Integrity_Checks&input[runType]=both&token=WEBCRON_TOKEN" > /dev/null 2>&1
-45  8   * * *   root    /usr/bin/wget -O - "http://fez-production.library.uq.edu.au/api/cron_register_bgp.php?file=bgp_run_integrity_checks&class=BackgroundProcess_Run_Integrity_Checks&input[runType]=fix&token=WEBCRON_TOKEN" > /dev/null 2>&1
+#15  8   * * *   root    /usr/bin/wget -O - "http://fez-production.library.uq.edu.au/api/cron_register_bgp.php?file=bgp_run_integrity_checks&class=BackgroundProcess_Run_Integrity_Checks&input[runType]=both&token=WEBCRON_TOKEN" > /dev/null 2>&1
+#45  8   * * *   root    /usr/bin/wget -O - "http://fez-production.library.uq.edu.au/api/cron_register_bgp.php?file=bgp_run_integrity_checks&class=BackgroundProcess_Run_Integrity_Checks&input[runType]=fix&token=WEBCRON_TOKEN" > /dev/null 2>&1
 
 # Refresh Solr with any pids changed in the last 5 months (only needed in staging for espace nightly rebuilds)
-00 7 * * *  root    /usr/bin/wget -O - "http://fez-production.library.uq.edu.au/api/cron_register_bgp.php?file=bgp_reindex_recent_pids_into_solr&class=BackgroundProcess_Reindex_Recent_Pids_Into_Solr&token=WEBCRON_TOKEN" > /dev/null 2>&1
+#00 7 * * *  root    /usr/bin/wget -O - "http://fez-production.library.uq.edu.au/api/cron_register_bgp.php?file=bgp_reindex_recent_pids_into_solr&class=BackgroundProcess_Reindex_Recent_Pids_Into_Solr&token=WEBCRON_TOKEN" > /dev/null 2>&1
 
 # Update statistics summary tables each day
-30 13   * * *   root    /usr/bin/wget -O - "http://fez-production.library.uq.edu.au/api/cron_register_bgp.php?file=bgp_update_statistics_summary_tables&class=BackgroundProcess_Update_Statistics_Summary_Tables&token=WEBCRON_TOKEN" > /dev/null 2>&1
+#30 13   * * *   root    /usr/bin/wget -O - "http://fez-production.library.uq.edu.au/api/cron_register_bgp.php?file=bgp_update_statistics_summary_tables&class=BackgroundProcess_Update_Statistics_Summary_Tables&token=WEBCRON_TOKEN" > /dev/null 2>&1
 
 # Cache table rebuild
-30 13          * * *   root    /usr/bin/wget -O - "http://fez-production.library.uq.edu.au/api/cron_register_bgp.php?file=bgp_cache_rebuild&class=BackgroundProcess_Cache_Rebuild&token=WEBCRON_TOKEN" > /dev/null 2>&1
-00 1-6,18-23   * * *   root    /usr/bin/wget -O - "http://fez-production.library.uq.edu.au/api/cron_register_bgp.php?file=bgp_cache_rebuild&class=BackgroundProcess_Cache_Rebuild&input[runRebuild][]=CloudTags&input[runRebuild][]=RecentDownloads&input[recentDownloadsLimit]=5&token=WEBCRON_TOKEN" > /dev/null 2>&1
-00         *   * * *   root    /usr/bin/wget -O - "http://fez-production.library.uq.edu.au/api/cron_register_bgp.php?file=bgp_cache_rebuild&class=BackgroundProcess_Cache_Rebuild&input[runRebuild][]=RecentItems&input[recentItemsLimit]=5&token=WEBCRON_TOKEN" > /dev/null 2>&1
+#30 13          * * *   root    /usr/bin/wget -O - "http://fez-production.library.uq.edu.au/api/cron_register_bgp.php?file=bgp_cache_rebuild&class=BackgroundProcess_Cache_Rebuild&token=WEBCRON_TOKEN" > /dev/null 2>&1
+#00 1-6,18-23   * * *   root    /usr/bin/wget -O - "http://fez-production.library.uq.edu.au/api/cron_register_bgp.php?file=bgp_cache_rebuild&class=BackgroundProcess_Cache_Rebuild&input[runRebuild][]=CloudTags&input[runRebuild][]=RecentDownloads&input[recentDownloadsLimit]=5&token=WEBCRON_TOKEN" > /dev/null 2>&1
+#00         *   * * *   root    /usr/bin/wget -O - "http://fez-production.library.uq.edu.au/api/cron_register_bgp.php?file=bgp_cache_rebuild&class=BackgroundProcess_Cache_Rebuild&input[runRebuild][]=RecentItems&input[recentItemsLimit]=5&token=WEBCRON_TOKEN" > /dev/null 2>&1
 
 # TR Web Services Premium Wok Queue processor
 #0 1     * * *   root    /usr/bin/wget -O - "http://fez-production.library.uq.edu.au/api/cron_register_bgp.php?file=bgp_process_wok_queue&class=BackgroundProcess_Process_Wok_Queue&token=WEBCRON_TOKEN" > /dev/null 2>&1

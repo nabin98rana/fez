@@ -3,6 +3,14 @@
 echo Starting test run..
 CONTAINER_BASE_DIR=/var/app/current
 
+# Run Fedora bypass in production branch only
+if [[ ${CI_BRANCH} != "production" ]]; then
+  FEZ_S3_BUCKET=
+  FEZ_S3_SRC_PREFIX=
+else
+  FEZ_S3_SRC_PREFIX=${CI_BRANCH}
+fi
+
 i=0
 MAX_LOOPS=100
 MYSQL_HEALTH_CMD="mysqladmin ping -hfezdb -ufez -pfez"
@@ -37,6 +45,8 @@ fi
 
 echo Seeding SQL data..
 php init.php seed
+php init.php setupaws
+php init.php migrate
 
 echo Running tests.. $1
 ./run-tests.sh $1

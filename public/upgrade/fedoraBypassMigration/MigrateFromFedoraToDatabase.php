@@ -54,11 +54,13 @@ class MigrateFromFedoraToDatabase
   protected $_fedoraDb = null;
   protected $_env = null;
   protected $_shadowTableSuffix = "__shadow";
+  protected $_tidy;
 
   public function __construct()
   {
     $this->_log = FezLog::get();
     $this->_db = DB_API::get();
+    $this->_tidy = new tidy;
   }
 
   public function runMigration()
@@ -69,13 +71,19 @@ class MigrateFromFedoraToDatabase
     $this->preMigration();
 
     // Updating the structure of Fedora-less
+    echo "Step 1: Updating the structure of Fedora-less..";
     $this->stepOneMigration();
+    echo "..done!\n";
 
     // Content migration
+    echo "Step 2: Content migration:\n";
     $this->stepTwoMigration();
+    echo "..done!\n";
 
     // De-dupe auth rules
+    echo "Step 3: De-dupe auth rules..";
     $this->stepThreeMigration();
+    echo "..done!\n";
 
     // Post Migration message
     $this->postMigration();
@@ -104,7 +112,6 @@ class MigrateFromFedoraToDatabase
       }
     }
     $this->_fedoraDb = DB_API::get('fedora_db');
-    $this->toggleAwsStatus(false);
   }
 
   /**
@@ -113,7 +120,7 @@ class MigrateFromFedoraToDatabase
    */
   private function postMigration()
   {
-    $this->toggleAwsStatus(true);
+    //$this->reindexPids();
     echo "Congratulations! Your Fez system is now ready to function without Fedora.\n";
   }
 
@@ -123,7 +130,7 @@ class MigrateFromFedoraToDatabase
   private function stepOneMigration()
   {
     // Sets the maximum PID on PID index table.
-    $this->setMaximumPID();
+    //$this->setMaximumPID();
   }
 
   /**
@@ -135,13 +142,20 @@ class MigrateFromFedoraToDatabase
   private function stepTwoMigration()
   {
     // Convert the XML quick templates
+    echo " - Converting quick templates..";
     $this->convertQuickTemplates();
+    echo "..done!\n";
 
-    // Migrate all records from Fedora
-    $this->migratePIDs();
+    // Update shadow key stamp with rek_updated_date in core SK table
+    // Update rek_security_inherited from FezACML for the pids
+    echo " - Updating shadow tables and pid security..\n";
+    $this->updateShadowTableStampsAndAddPidSecurity();
+    echo "..done!\n";
 
     // Datastream (attached files) migration
+    echo " - Migrating managed content..";
     $this->migrateManagedContent();
+    echo "..done!\n";
   }
 
   /**
@@ -197,7 +211,6 @@ class MigrateFromFedoraToDatabase
    */
   private function migrateManagedContent()
   {
-    // @todo: Compare the new md5 with "existing" md5 if any.
     ob_flush();
     if ($this->_env != 'production') {
       return;
@@ -205,7 +218,7 @@ class MigrateFromFedoraToDatabase
     
     $stmt = "select token, path from datastreamPaths   
       where path like '/espace/data/fedora_datastreams/2016/08%'
-        and token like 'UQ:398578+%'
+        and token like 'UQ:399648+%'
       order by path DESC";
 
     $ds = [];
@@ -230,7 +243,12 @@ class MigrateFromFedoraToDatabase
       echo "\nDoing PID $counter/$totalDs ($pid)\n";
       Zend_Registry::set('version', Date_API::getCurrentDateGMT());
 
-      $acml = Record::getACML($pid, $dsName);
+      $acml = $this->getFezACML($pid, 'FezACML_' . $dsName . '.xml');
+      if ($acml) {
+        echo $acml->saveXML() . "\n";
+      } else {
+        echo "No FezACML found for record\n";
+      }
       if(
         strpos($dsName, 'presmd_') === 0
       ) {
@@ -242,7 +260,6 @@ class MigrateFromFedoraToDatabase
         }
       }
 
-      $this->toggleAwsStatus(true);
       $location = 'migration/' . str_replace('/espace/data/fedora_datastreams/', '', $path);
       $location = str_replace('+', '%2B', $location);
 
@@ -260,21 +277,7 @@ class MigrateFromFedoraToDatabase
         $this->addDatastreamSecurity($acml, $did);
       }
       AuthNoFedoraDatastreams::recalculatePermissions($did);
-      $this->toggleAwsStatus(false);
     }
-  }
-
-  /**
-   * Call bulk 'reindex' workflow on all PIDS.
-   * We could runs this function before the outage.
-   * eSpace has around 165K records, so here we are, running it in phases.
-   */
-  private function migratePIDs()
-  {
-    if ($this->reindexPids()) {
-      return $this->migratePidVersions();
-    }
-    return false;
   }
 
   /**
@@ -300,25 +303,8 @@ class MigrateFromFedoraToDatabase
       return false;
     }
 
-    foreach ($pids as $pid) {
-      $record = new RecordObject($pid);
-      $record->getDisplay();
-      $details = $record->getDetails();
-      $sekData = Fez_Record_Searchkey::buildSearchKeyDataByXSDMFID($details);
-      $recordSearchKey = new Fez_Record_Searchkey($pid);
-      // set the (fourth) param true to only insert the shadow values
-      $result = $recordSearchKey->insertRecord($sekData, false, array(), true);
-      if (!$result) {
-        echo "PID $pid failed to update search keys and shadow tables - aborting migration";
-        return false;
-      }
-    }
-
     if (sizeof($pids) > 0) {
-      //Workflow::start($wft_id, $pid, $xdis_id, $href, $dsID, $pids);
-
-      // echo chr(10) . "\n<br /> BGP of Reindexing the PIDS has been triggered.
-      //     See the progress at http://" . APP_HOSTNAME . "/my_processes.php";
+      Workflow::start($wft_id, $pid, $xdis_id, $href, $dsID, $pids);
     }
     ob_flush();
     return true;
@@ -358,26 +344,52 @@ class MigrateFromFedoraToDatabase
   }
 
   /**
-   * Recalculate security.
+   * Update shadow key stamp with rek_updated_date in core SK table
+   * Update rek_security_inherited from FezACML for the pids
    */
-  private function recalculateSecurity()
+  private function updateShadowTableStampsAndAddPidSecurity()
   {
-    // Get all PIDs without parents. Recalculate permissions. This will filter down to child pids and child datastreams
-    $stmt = "SELECT rek_pid FROM " . APP_TABLE_PREFIX . "record_search_key
-      LEFT JOIN fez_record_search_key_ismemberof
-      ON rek_ismemberof_pid = rek_pid
-      WHERE rek_ismemberof IS NULL";
-    $res = [];
+    $searchKeys = Search_Key::getList();
+    $stmt = "SELECT rek_pid, rek_updated_date FROM " . APP_TABLE_PREFIX . "record_search_key";
     try {
-      $res = $this->_db->fetchAll($stmt);
+      $records = $this->_db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
     } catch (Exception $ex) {
       $this->_log->err($ex);
-      echo "Failed to retrieve pid data. Error: " . $ex;
+      echo "Failed to retrieve pids. Error: " . $ex;
+      return false;
     }
-    foreach ($res as $pid) {
-      AuthNoFedora::recalculatePermissions($pid);
-      echo 'Done: '.$pid.'<br />';
+
+    foreach ($records as $rek) {
+      $acml = $this->getFezACML($rek['rek_pid'], 'FezACML');
+      if ($this->inheritsPermissions($acml)) {
+        AuthNoFedora::setInherited($rek['rek_pid'], 1);
+      }
+      else {
+        AuthNoFedora::setInherited($rek['rek_pid'], 0);
+      }
     }
+
+    $table = APP_TABLE_PREFIX . "record_search_key";
+    foreach ($searchKeys as $searchKey) {
+      if ($searchKey['sek_relationship'] === 1) {
+        $stmt = 'UPDATE ' . $table . "_" . $searchKey['sek_title_db'] . "__shadow" .
+          ' SET rek_' . $searchKey['sek_title_db'] . '_stamp = :stamp' .
+          ' WHERE rek_' . $searchKey['sek_title_db'] . '_pid = :pid';
+        foreach ($records as $rek) {
+          $data = [
+            ':pid' => $rek['rek_pid'],
+            ':stamp' => $rek['rek_updated_date'],
+          ];
+          try {
+            $this->_db->query($stmt, $data);
+          } catch (Exception $ex) {
+            $this->_log->err($ex);
+            echo "Failed to update stamp for pid=" . $rek['rek_pid'];
+          }
+        }
+      }
+    }
+    return true;
   }
 
   /**
@@ -389,13 +401,10 @@ class MigrateFromFedoraToDatabase
   private function setMaximumPID()
   {
     // Get the maximum PID number from Fedora
-    $nextPID = '';
-    while (empty($nextPID)) {
-      $nextPID = Fedora_API::getNextPID(false);
-      // Fedora may still be initialising
-      if (empty($nextPID)) {
-        sleep(10);
-      }
+    $nextPID = $this->getNextPID();
+
+    if ($nextPID === FALSE) {
+      return false;
     }
     $nextPIDParts = explode(":", $nextPID);
     $nextPIDNumber = (int)$nextPIDParts[1];
@@ -419,46 +428,6 @@ class MigrateFromFedoraToDatabase
     return true;
   }
 
-  private function toggleAwsStatus($useAws)
-  {
-    $db = DB_API::get();
-
-    if ($useAws) {
-      $db->query("UPDATE " . APP_TABLE_PREFIX . "config " .
-        " SET config_value = 'true' " .
-        " WHERE config_name='aws_enabled'");
-      $db->query("UPDATE " . APP_TABLE_PREFIX . "config " .
-        " SET config_value = 'true' " .
-        " WHERE config_name='aws_s3_enabled'");
-      $db->query("UPDATE " . APP_TABLE_PREFIX . "config " .
-        " SET config_value = 'ON' " .
-        " WHERE config_name='app_fedora_bypass'");
-      $db->query("UPDATE " . APP_TABLE_PREFIX . "config " .
-        " SET config_value = 'ON' " .
-        " WHERE config_name='app_xsdmf_index_switch'");
-      /*$db->query("UPDATE " . APP_TABLE_PREFIX . "config " .
-        " SET config_value = '' " .
-        " WHERE config_name='app_fedora_username'");
-      $db->query("UPDATE " . APP_TABLE_PREFIX . "config " .
-        " SET config_value = '' " .
-        " WHERE config_name='app_fedora_pwd'");*/
-
-    } else {
-      $db->query("UPDATE " . APP_TABLE_PREFIX . "config " .
-        " SET config_value = 'false' " .
-        " WHERE config_name='aws_enabled'");
-      $db->query("UPDATE " . APP_TABLE_PREFIX . "config " .
-        " SET config_value = 'false' " .
-        " WHERE config_name='aws_s3_enabled'");
-      $db->query("UPDATE " . APP_TABLE_PREFIX . "config " .
-        " SET config_value = 'OFF' " .
-        " WHERE config_name='app_fedora_bypass'");
-      $db->query("UPDATE " . APP_TABLE_PREFIX . "config " .
-        " SET config_value = 'OFF' " .
-        " WHERE config_name='app_xsdmf_index_switch'");
-    }
-  }
-
   private function getDsNameAndPidFromToken($token)
   {
     $parts = explode('+', $token);
@@ -468,18 +437,25 @@ class MigrateFromFedoraToDatabase
     ];
   }
 
+  /**
+   * @param DOMDocument $acml
+   * @return bool
+   */
   private function inheritsPermissions($acml)
   {
-    if ($acml == false) {
-      //if no acml then default is inherit
-      $inherit = true;
-    } else {
+    echo "Checking if inherits permissions..";
+    $inherit = true;
+    if ($acml instanceof DOMDocument) {
       $xpath = new DOMXPath($acml);
-      $inheritSearch = $xpath->query('/FezACML[inherit_security="on"]');
-      $inherit = false;
+      $inheritSearch = $xpath->query('/FezACML[inherit_security="off"]');
       if ($inheritSearch->length > 0) {
-        $inherit = true;
+        $inherit = false;
       }
+    }
+    if ($inherit) {
+      echo "is inherited\n";
+    } else {
+      echo "not inherited\n";
     }
     return $inherit;
   }
@@ -492,6 +468,7 @@ class MigrateFromFedoraToDatabase
 
     foreach ($roleNodes as $roleNode) {
       $role = $roleNode->getAttribute('name');
+      $roleId = Auth::getRoleIDByTitle($role);
       // Use XPath to get the sub groups that have values
       $groupNodes = $xpath->query('./*[string-length(normalize-space()) > 0]', $roleNode);
 
@@ -512,7 +489,7 @@ class MigrateFromFedoraToDatabase
             $group_value = trim($group_value, ' ');
 
             $arId = AuthRules::getOrCreateRule("!rule!role!" . $group_type, $group_value);
-            AuthNoFedoraDatastreams::addSecurityPermissions($did, $role, $arId);
+            AuthNoFedoraDatastreams::addSecurityPermissions($did, $roleId, $arId);
           }
         }
       }
@@ -588,5 +565,56 @@ class MigrateFromFedoraToDatabase
         }
       }
     }
+  }
+
+  private function getFezACML($pid, $dsID)
+  {
+    echo "Getting FezACML for $pid/$dsID\n";
+    $result = Misc::processURL(APP_FEDORA_GET_URL . "/" . $pid . "/" . $dsID, false, null, null, null, 10, true);
+    if ($result['success'] === 0) {
+      return FALSE;
+    }
+    $xmlACML = $result['response'];
+    if (! $xmlACML) {
+      return FALSE;
+    }
+    $config = array(
+      'indent' => TRUE,
+      'input-xml' => TRUE,
+      'output-xml' => TRUE,
+      'wrap' => 0
+    );
+    $this->_tidy->parseString($xmlACML, $config, 'utf8');
+    $this->_tidy->cleanRepair();
+    $xmlACML = $this->_tidy;
+    $xmlDoc = new DomDocument();
+    $xmlDoc->preserveWhiteSpace = FALSE;
+    $xmlDoc->loadXML($xmlACML);
+    return $xmlDoc;
+  }
+
+  private function getNextPID($current_tries = 0) {
+    $pid = FALSE;
+    $url = APP_FEDORA_GET_URL . "/objects/nextPID?format=xml";
+    list($xml, $info) = Misc::processURL($url);
+    if ($xml == '' || $xml == FALSE) {
+      $current_tries++;
+      if ($current_tries < 5) {
+        sleep(5); // sleep for a bit so the object can get unlocked before trying again
+        return $this->getNextPID($current_tries);
+      }
+      else {
+        return FALSE;
+      }
+    }
+    $xmlDoc = new DomDocument();
+    $xmlDoc->preserveWhiteSpace = FALSE;
+    $xmlDoc->loadXML($xml);
+    $result = $xmlDoc->getElementsByTagName("pid");
+    foreach ($result as $item) {
+      $pid = $item->nodeValue;
+      break;
+    }
+    return $pid;
   }
 }

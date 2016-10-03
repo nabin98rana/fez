@@ -52,7 +52,7 @@ mysqldump \
     --tab=${MYSQL_DUMP_DIR}/export \
     --fields-terminated-by ',' \
     --fields-enclosed-by '"' \
-    --lines-terminated-by '\r\n' \
+    --lines-terminated-by '\n' \
     ${MYSQL_DB_FEZ} \
     --single-transaction \
     --order-by-primary \
@@ -74,6 +74,7 @@ mysqldump \
 ${MYSQL_CMD} -e 'start slave'
 
 rm -f export/__*
+rm -f export/*__shadow.txt
 rm -f export/fez_background_process.txt
 rm -f export/fez_config.sql
 rm -f export/fez_config.txt
@@ -87,6 +88,16 @@ rm -f export/fez_scopus_citations.txt
 rm -f export/fez_scopus_citations_cache.txt
 
 cp ${APP_ENV}.fez.config.sql export/fez_config.sql
+
+now=$( date +'%F %T' )
+for f in export/fez_record_search_key*.txt
+do
+  s=".txt"
+  r="__shadow.txt"
+  shadow=${f/${s}/${r}}
+  cp ${f} ${shadow}
+  sed -i -- "s/$/,\"${now}\"/" ${shadow}
+done
 
 tar -zcvf fez${APP_ENV}.tar.gz export
 rm -Rf export
