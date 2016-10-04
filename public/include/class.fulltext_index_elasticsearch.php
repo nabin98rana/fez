@@ -189,19 +189,27 @@ class FulltextIndex_ElasticSearch extends FulltextIndex
         'body' => [
             'query' => [
                 'filtered' => [
-                    'filter' => [
-                        'querystring' => [ 'query' => $solrParams['fq'] ]
-                    ],
                     'query' => [
-                        'querystring' => [ 'query' => $queryString ]
+                        'query_string' => [
+                            'query' => $queryString
+                        ]
+                    ],
+                    'filter' => [
+                      'query_string' => [
+                        'query' => $solrParams['fq']
+
+                        ]
                     ]
                 ]
-            ],
-            'sort' => [
-                $solrParams['sort']
             ]
         ]
     ];
+
+//      ,
+//      'sort' => [
+//          $solrParams['sort']
+//      ]
+
     $testJson = json_encode($params);
 
     $results = $this->esClient->search($params);
@@ -246,11 +254,10 @@ class FulltextIndex_ElasticSearch extends FulltextIndex
     $log = FezLog::get();
 
     try {
-      $doc = [
-        'id' => $pid,
-        'type' => $this->esType
-      ];
-      $doc['body'] = $fields;
+      $fields['id'] = $pid;
+      $fields['type'] = $this->esType;
+
+      $doc = $fields;
 
       $this->docs[] = $doc;
       $this->docsAdded++;
