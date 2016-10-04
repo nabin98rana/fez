@@ -10,7 +10,7 @@ function getFezACML() {
 
   $stmt = "SELECT rek_pid
                  FROM " . APP_TABLE_PREFIX . "record_search_key
-                 ORDER BY rek_pid DESC";
+                 WHERE rek_security_inherited IS NULL";
   $pids = [];
   try {
     $pids = $db->fetchCol($stmt);
