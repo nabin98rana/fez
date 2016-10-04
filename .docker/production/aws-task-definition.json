@@ -5,8 +5,7 @@
       "name": "nginx",
       "image": "uqlibrary/docker-nginx-fez:4",
       "cpu": 256,
-      "memory": 6144,
-      "memoryReservation": 512,
+      "memory": 512,
       "portMappings": [
         {
           "hostPort": 8007,
@@ -28,7 +27,8 @@
       "name": "fpm",
       "image": "uql-registry.library.uq.edu.au/production/fez:<COMMIT_HASH>",
       "cpu": 256,
-      "memory": 1024,
+      "memory": 6144,
+      "memoryReservation": 512,
       "environment": [
         {
           "name": "APP_ENVIRONMENT",
