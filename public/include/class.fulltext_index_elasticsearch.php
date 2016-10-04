@@ -72,13 +72,14 @@ class FulltextIndex_ElasticSearch extends FulltextIndex
    * @return boolean
    */
   //TODO: try it
-  public function setupIndex() {
+  public function setupIndex()
+  {
 
     // Uncomment if you need to delete the existing index first.
     //    $params = ['index' => $this->esIndex];
     //    $dresponse = $this->esClient->indices($this->esIndex)->delete($params);
 
-    $file = __DIR__ ."/../../.docker/development/elasticsearch/elasticsearch_schema.json";
+    $file = __DIR__ . "/../../.docker/development/elasticsearch/elasticsearch_schema.json";
     $mapping = file_get_contents($file);
     $mapping = json_decode($mapping, true);
     $params = [
@@ -97,9 +98,9 @@ class FulltextIndex_ElasticSearch extends FulltextIndex
   }
 
   //TODO: implement
-  public function searchAdvancedQuery($searchKey_join, $filter_join, $approved_roles, $start, $page_rows, $use_faceting = false, $use_highlighting = false, $facet_limit = APP_SOLR_FACET_LIMIT, $facet_mincount = APP_SOLR_FACET_MINCOUNT) {
+  public function searchAdvancedQuery($searchKey_join, $filter_join, $approved_roles, $start, $page_rows, $use_faceting = false, $use_highlighting = false, $facet_limit = APP_SOLR_FACET_LIMIT, $facet_mincount = APP_SOLR_FACET_MINCOUNT)
+  {
     $log = FezLog::get();
-
 
 
     try {
@@ -138,8 +139,8 @@ class FulltextIndex_ElasticSearch extends FulltextIndex
               $solr_suffix = Record::getSolrSuffix($sek, 0, 1);
               // filter tag exclude the zeros from author ids
               if ($sek['sek_title'] == 'Author ID') {
-                $params['f.'.$sek['sek_title_solr'].'.facet.limit'] = '6';
-                $params['f.'.$sek['sek_title_solr'].'_lookup_exact'.'.facet.limit'] = '6';
+                $params['f.' . $sek['sek_title_solr'] . '.facet.limit'] = '6';
+                $params['f.' . $sek['sek_title_solr'] . '_lookup_exact' . '.facet.limit'] = '6';
               }
               $facetsToUse[] = $sek_title_db . $solr_suffix;
 
@@ -167,52 +168,42 @@ class FulltextIndex_ElasticSearch extends FulltextIndex
       $solr_titles = Search_Key::getSolrTitles();
       $params['fl'] = implode(",", $solr_titles) . ',sherpa_colour_t,ain_detail_t,rj_tier_rank_t,rj_tier_title_t,rj_2015_rank_t,rj_2015_title_t,rc_2015_rank_t,rc_2015_title_t,rj_2010_rank_t,rj_2010_title_t,rj_2012_rank_t,rj_2012_title_t,rc_2010_rank_t,rc_2010_title_t,herdc_code_description_t,score,citation_t';
 
-      // sorting
-      if (empty($searchKey_join[SK_SORT_ORDER])) {
-        $params['sort'] = "";
-      } else {
-        $params['sort'] = $searchKey_join[SK_SORT_ORDER];
-      }
 
       $log->debug(array("Solr filter query: " . $params['fq']));
       $log->debug(array("Solr query string: " . $queryString));
-      $log->debug(array("Solr sort by: " . $params['sort']));
+//      $log->debug(array("Solr sort by: " . $params['sort']));
 
       $solrParams = $params;
 
-//      $response = $this->solr->search($queryString, $start, $page_rows, $params);
-//      $total_rows = $response->response->numFound;
+      $params = [
+          'index' => $this->esIndex,
+          'type' => $this->esType,
+          'body' => [
+              'query' => [
+                  'filtered' => [
+                      'query' => [
+                          'query_string' => [
+                              'query' => $queryString
+                          ]
+                      ],
+                      'filter' => [
+                          'query_string' => [
+                              'query' => $solrParams['fq']
 
-    $params = [
-        'index' => $this->esIndex,
-        'type' => $this->esType,
-        'body' => [
-            'query' => [
-                'filtered' => [
-                    'query' => [
-                        'query_string' => [
-                            'query' => $queryString
-                        ]
-                    ],
-                    'filter' => [
-                      'query_string' => [
-                        'query' => $solrParams['fq']
+                          ]
+                      ]
+                  ]
+              ]
+          ]
+      ];
 
-                        ]
-                    ]
-                ]
-            ]
-        ]
-    ];
+      // sorting
+      if (!empty($searchKey_join[SK_SORT_ORDER])) {
+        $params['body']['query']['sort'] = $searchKey_join[SK_SORT_ORDER];
+      }
+      $testJson = json_encode($params);
 
-//      ,
-//      'sort' => [
-//          $solrParams['sort']
-//      ]
-
-    $testJson = json_encode($params);
-
-    $results = $this->esClient->search($params);
+      $results = $this->esClient->search($params);
     } catch (Exception $e) {
 
       //
@@ -228,17 +219,81 @@ class FulltextIndex_ElasticSearch extends FulltextIndex
 
     }
     $snips = array();
+    $total_rows = $results['hits']['total'];
+
+    if ($total_rows > 0) {
+      $i = 0;
+      $sekdet = Search_Key::getList(false);
+      $cache_db_names = array();
+      foreach ($results['hits']['hits'] as $doc) {
+
+        foreach ($doc['_source'] as $solrID => $field) {
+          if (($sek_id = Search_Key::getDBnamefromSolrID($solrID))) {
+            if (array_key_exists($sek_id, $cache_db_names)) {
+              $sek_rel = $cache_db_names[$sek_id];
+            } else {
+              $sek_rel = Search_Key::getCardinalityByDBName($sek_id);
+              $cache_db_names[$sek_id] = $sek_rel;
+            }
+            if ($sek_rel == '1' && !is_array($field)) {
+              if (!array_key_exists($sek_id, $docs[$i])) {
+                $docs[$i][$sek_id] = array();
+              }
+              $docs[$i][$sek_id][] = $field;
+            } else {
+              $docs[$i][$sek_id] = $field;
+            }
+            // check for herdc code desc
+          } elseif (in_array($solrID, array('sherpa_colour_t', 'ain_detail_t', 'rj_tier_rank_t', 'rj_tier_title_t', 'rj_2015_rank_t', 'rj_2015_title_t', 'rj_2010_rank_t', 'rj_2010_title_t', 'rj_2012_rank_t', 'rj_2012_title_t', 'rc_2015_rank_t', 'rc_2015_title_t', 'rc_2010_rank_t', 'rc_2010_title_t', 'herdc_code_description_t'))) {
+
+            $sek_id = substr($solrID, 0, -2);
+            if (is_array($field)) {
+              if (!array_key_exists($sek_id, $docs[$i])) {
+                $docs[$i][$sek_id] = array();
+              }
+              $docs[$i][$sek_id] = $field;
+            } else {
+              $docs[$i][$sek_id] = $field;
+            }
+            // check for lookups and other values and add them too
+          } elseif (is_numeric(strpos($solrID, '_lookup'))) {
+
+            $sek_id = str_replace('_mi_lookup', '_lookup', $solrID);
+            $sek_id = str_replace('_i_lookup', '_lookup', $solrID);
+            $sek_id = "rek_" . $sek_id;
+            if (is_array($field)) {
+              if (!array_key_exists($sek_id, $docs[$i])) {
+                $docs[$i][$sek_id] = array();
+              }
+              $docs[$i][$sek_id] = $field;
+            } else {
+              $docs[$i][$sek_id] = $field;
+            }
+
+          }
+
+        }
+
+        // resolve result
+        $docs[$i]['Relevance'] = $doc['_score'];
+        $docs[$i]['rek_views'] = $doc['_source']['views'];
+        $i++;
+      }
+    }
+
+
     return array(
         'total_rows' => $total_rows,
-        'facets' => $facets,
+        'facets' => array(),
         'docs' => $docs,
-        'snips' => $snips
+        'snips' => array()
     );
 
   }
 
   //TODO: implement
-  public function suggestQuery($query, $approved_roles, $start, $page_rows) {
+  public function suggestQuery($query, $approved_roles, $start, $page_rows)
+  {
 
   }
 
@@ -289,13 +344,13 @@ class FulltextIndex_ElasticSearch extends FulltextIndex
 
       try {
         $params = ['body' => []];
-        foreach($this->docs as $doc) {
+        foreach ($this->docs as $doc) {
           $params['body'][] = [
-            'index' => [
-              '_index' => $this->esIndex,
-              '_type' => $this->esType,
-              '_id' => $doc['id']
-            ]
+              'index' => [
+                  '_index' => $this->esIndex,
+                  '_type' => $this->esType,
+                  '_id' => $doc['id']
+              ]
           ];
           $params['body'][] = $doc;
         }
