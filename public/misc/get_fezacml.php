@@ -6,12 +6,14 @@ if (php_sapi_name()==="cli") {
 }
 
 function getFezACML() {
+  $db = DB_API::get();
+
   $stmt = "SELECT rek_pid
                  FROM " . APP_TABLE_PREFIX . "record_search_key
                  ORDER BY rek_pid DESC";
   $pids = [];
   try {
-    $pids = $this->_db->fetchCol($stmt);
+    $pids = $db->fetchCol($stmt);
   } catch (Exception $e) {
   }
   $count = count($pids);
