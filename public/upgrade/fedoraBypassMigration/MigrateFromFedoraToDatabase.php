@@ -54,11 +54,13 @@ class MigrateFromFedoraToDatabase
   protected $_fedoraDb = null;
   protected $_env = null;
   protected $_shadowTableSuffix = "__shadow";
+  protected $_tidy;
 
   public function __construct()
   {
     $this->_log = FezLog::get();
     $this->_db = DB_API::get();
+    $this->_tidy = new tidy;
   }
 
   public function runMigration()
@@ -69,13 +71,24 @@ class MigrateFromFedoraToDatabase
     $this->preMigration();
 
     // Updating the structure of Fedora-less
+    echo "Step 1: Updating the structure of Fedora-less..";
     $this->stepOneMigration();
+    echo "..done!\n";
 
     // Content migration
+    echo "Step 2: Content migration:\n";
     $this->stepTwoMigration();
+    echo "..done!\n";
 
     // De-dupe auth rules
+    echo "Step 3: De-dupe auth rules..";
     $this->stepThreeMigration();
+    echo "..done!\n";
+
+    // Recalculate security
+    echo "Step 4: recalculating security..";
+    $this->stepFourMigration();
+    echo "..done!\n";
 
     // Post Migration message
     $this->postMigration();
@@ -104,7 +117,6 @@ class MigrateFromFedoraToDatabase
       }
     }
     $this->_fedoraDb = DB_API::get('fedora_db');
-    $this->toggleAwsStatus(true);
   }
 
   /**
@@ -124,7 +136,6 @@ class MigrateFromFedoraToDatabase
   {
     // Sets the maximum PID on PID index table.
     $this->setMaximumPID();
-
   }
 
   /**
@@ -136,16 +147,20 @@ class MigrateFromFedoraToDatabase
   private function stepTwoMigration()
   {
     // Convert the XML quick templates
+    echo " - Converting quick templates..";
     $this->convertQuickTemplates();
+    echo "..done!\n";
 
     // Update shadow key stamp with rek_updated_date in core SK table
-    $this->updateShadowTableStamps();
-
     // Update rek_security_inherited from FezACML for the pids
-    $this->addPidSecurity();
+    echo " - Updating shadow tables and pid security..\n";
+    $this->updateShadowTableStampsAndAddPidSecurity();
+    echo "..done!\n";
 
     // Datastream (attached files) migration
+    echo " - Migrating managed content..";
     $this->migrateManagedContent();
+    echo "..done!\n";
   }
 
   /**
@@ -194,6 +209,14 @@ class MigrateFromFedoraToDatabase
       echo "\n<br /> Failed to de-dupe auth group tables. Error: " . $ex->getMessage();
       return false;
     }
+  }
+
+  /**
+   * Fourth round of migration, recalculate PID security.
+   */
+  private function stepFourMigration()
+  {
+    $this->recalculatePidSecurity();
   }
 
   /**
@@ -266,7 +289,8 @@ class MigrateFromFedoraToDatabase
       if ($acml) {
         $this->addDatastreamSecurity($acml, $did);
       }
-      AuthNoFedoraDatastreams::recalculatePermissions($did);
+      // Disabled - all security will be recalculated in the fourth step
+      // AuthNoFedoraDatastreams::recalculatePermissions($did);
     }
   }
 
@@ -335,8 +359,9 @@ class MigrateFromFedoraToDatabase
 
   /**
    * Update shadow key stamp with rek_updated_date in core SK table
+   * Update rek_security_inherited from FezACML for the pids
    */
-  private function updateShadowTableStamps()
+  private function updateShadowTableStampsAndAddPidSecurity()
   {
     $searchKeys = Search_Key::getList();
     $stmt = "SELECT rek_pid, rek_updated_date FROM " . APP_TABLE_PREFIX . "record_search_key";
@@ -346,6 +371,16 @@ class MigrateFromFedoraToDatabase
       $this->_log->err($ex);
       echo "Failed to retrieve pids. Error: " . $ex;
       return false;
+    }
+
+    foreach ($records as $rek) {
+      $acml = $this->getFezACML($rek['rek_pid'], 'FezACML');
+      if ($this->inheritsPermissions($acml)) {
+        AuthNoFedora::setInherited($rek['rek_pid'], 1, false);
+      }
+      else {
+        AuthNoFedora::setInherited($rek['rek_pid'], 0, false);
+      }
     }
 
     $table = APP_TABLE_PREFIX . "record_search_key";
@@ -369,29 +404,6 @@ class MigrateFromFedoraToDatabase
       }
     }
     return true;
-  }
-
-  /**
-   * Recalculate security.
-   */
-  private function recalculateSecurity()
-  {
-    // Get all PIDs without parents. Recalculate permissions. This will filter down to child pids and child datastreams
-    $stmt = "SELECT rek_pid FROM " . APP_TABLE_PREFIX . "record_search_key
-      LEFT JOIN fez_record_search_key_ismemberof
-      ON rek_ismemberof_pid = rek_pid
-      WHERE rek_ismemberof IS NULL";
-    $res = [];
-    try {
-      $res = $this->_db->fetchAll($stmt);
-    } catch (Exception $ex) {
-      $this->_log->err($ex);
-      echo "Failed to retrieve pid data. Error: " . $ex;
-    }
-    foreach ($res as $pid) {
-      AuthNoFedora::recalculatePermissions($pid);
-      echo 'Done: '.$pid.'<br />';
-    }
   }
 
   /**
@@ -430,46 +442,6 @@ class MigrateFromFedoraToDatabase
     return true;
   }
 
-  private function toggleAwsStatus($useAws)
-  {
-    $db = DB_API::get();
-
-    if ($useAws) {
-      $db->query("UPDATE " . APP_TABLE_PREFIX . "config " .
-        " SET config_value = 'true' " .
-        " WHERE config_name='aws_enabled'");
-      $db->query("UPDATE " . APP_TABLE_PREFIX . "config " .
-        " SET config_value = 'true' " .
-        " WHERE config_name='aws_s3_enabled'");
-      $db->query("UPDATE " . APP_TABLE_PREFIX . "config " .
-        " SET config_value = 'ON' " .
-        " WHERE config_name='app_fedora_bypass'");
-      $db->query("UPDATE " . APP_TABLE_PREFIX . "config " .
-        " SET config_value = 'ON' " .
-        " WHERE config_name='app_xsdmf_index_switch'");
-      /*$db->query("UPDATE " . APP_TABLE_PREFIX . "config " .
-        " SET config_value = '' " .
-        " WHERE config_name='app_fedora_username'");
-      $db->query("UPDATE " . APP_TABLE_PREFIX . "config " .
-        " SET config_value = '' " .
-        " WHERE config_name='app_fedora_pwd'");*/
-
-    } else {
-      $db->query("UPDATE " . APP_TABLE_PREFIX . "config " .
-        " SET config_value = 'false' " .
-        " WHERE config_name='aws_enabled'");
-      $db->query("UPDATE " . APP_TABLE_PREFIX . "config " .
-        " SET config_value = 'false' " .
-        " WHERE config_name='aws_s3_enabled'");
-      $db->query("UPDATE " . APP_TABLE_PREFIX . "config " .
-        " SET config_value = 'OFF' " .
-        " WHERE config_name='app_fedora_bypass'");
-      $db->query("UPDATE " . APP_TABLE_PREFIX . "config " .
-        " SET config_value = 'OFF' " .
-        " WHERE config_name='app_xsdmf_index_switch'");
-    }
-  }
-
   private function getDsNameAndPidFromToken($token)
   {
     $parts = explode('+', $token);
@@ -485,46 +457,47 @@ class MigrateFromFedoraToDatabase
    */
   private function inheritsPermissions($acml)
   {
-    echo "Checking if datastream inherits permissions..\n";
-    if ($acml == false) {
-      //if no acml then default is inherit
-      $inherit = true;
-    } else {
+    echo "Checking if inherits permissions..";
+    $inherit = true;
+    if ($acml instanceof DOMDocument) {
       $xpath = new DOMXPath($acml);
-      $inheritSearch = $xpath->query('/FezACML[inherit_security="on"]');
-      $inherit = false;
+      $inheritSearch = $xpath->query('/FezACML[inherit_security="off"]');
       if ($inheritSearch->length > 0) {
-        echo "..is inherited\n";
-        $inherit = true;
-      } else {
-        echo "..not inherited\n";
+        $inherit = false;
       }
+    }
+    if ($inherit) {
+      echo "is inherited\n";
+    } else {
+      echo "not inherited\n";
     }
     return $inherit;
   }
 
-  private function addPidSecurity()
-  {
-    $stmt = "SELECT rek_pid FROM " . APP_TABLE_PREFIX . "record_search_key";
-    try {
-      $pids = $this->_db->fetchAll($stmt);
-    } catch (Exception $ex) {
-      $this->_log->err($ex);
-      echo "Failed to retrieve pids. Error: " . $ex;
-      return false;
-    }
-    foreach ($pids as $pid) {
-      $acml = $this->getFezACML($pid, 'FezACML');
-      if ($this->inheritsPermissions($acml)) {
-        AuthNoFedora::setInherited($pid, 1);
-      }
-      else {
-        AuthNoFedora::setInherited($pid, 0);
-      }
-    }
-    return true;
-  }
+  private function recalculatePidSecurity() {
+    echo "Recalculating PID security\n";
+    // Get all PIDs without parents and recalculate permissions.
+    // This will filter down to child pids and child datastreams
+    $stmt = "SELECT rek_pid FROM " . APP_TABLE_PREFIX . "record_search_key
+      LEFT JOIN fez_record_search_key_ismemberof
+      ON rek_ismemberof_pid = rek_pid
+      WHERE rek_ismemberof IS NULL";
 
+    $res = [];
+    try {
+      $res = $this->_db->fetchAll($stmt);
+    } catch (Exception $ex) {
+      echo "Failed to retrieve pids\n";
+    }
+
+    $i = 0;
+    $count = count($res);
+    foreach ($res as $pid) {
+      $i++;
+      AuthNoFedora::recalculatePermissions($pid);
+      echo "Done $i/$count\n";
+    }
+  }
   private function addDatastreamSecurity($acml, $did)
   {
     // loop through the ACML docs found for the current pid or in the ancestry
@@ -554,7 +527,7 @@ class MigrateFromFedoraToDatabase
             $group_value = trim($group_value, ' ');
 
             $arId = AuthRules::getOrCreateRule("!rule!role!" . $group_type, $group_value);
-            AuthNoFedoraDatastreams::addSecurityPermissions($did, $roleId, $arId);
+            AuthNoFedoraDatastreams::addSecurityPermissions($did, $roleId, $arId, false);
           }
         }
       }
@@ -632,19 +605,16 @@ class MigrateFromFedoraToDatabase
     }
   }
 
-  private function getFezACML($pid, $dsID, $current_tries = 0)
+  private function getFezACML($pid, $dsID)
   {
-    $url = APP_FEDORA_GET_URL . "/" . $pid . "/" . $dsID;
-    list($xmlACML, $info) = Misc::processURL($url);
-    if ($xmlACML == '' || $xmlACML == FALSE) {
-      $current_tries++;
-      if ($current_tries < 5) {
-        sleep(5); // sleep for a bit so the object can get unlocked before trying again
-        return $this->getFezACML($pid, $dsID, $current_tries);
-      }
-      else {
-        return FALSE;
-      }
+    echo "Getting FezACML for $pid/$dsID\n";
+    $result = Misc::processURL(APP_FEDORA_GET_URL . "/" . $pid . "/" . $dsID, false, null, null, null, 10, true);
+    if ($result['success'] === 0) {
+      return FALSE;
+    }
+    $xmlACML = $result['response'];
+    if (! $xmlACML) {
+      return FALSE;
     }
     $config = array(
       'indent' => TRUE,
@@ -652,37 +622,44 @@ class MigrateFromFedoraToDatabase
       'output-xml' => TRUE,
       'wrap' => 0
     );
-    $tidy = new tidy;
-    $tidy->parseString($xmlACML, $config, 'utf8');
-    $tidy->cleanRepair();
-    $xmlACML = $tidy;
+    $this->_tidy->parseString($xmlACML, $config, 'utf8');
+    $this->_tidy->cleanRepair();
+    $xmlACML = $this->_tidy;
     $xmlDoc = new DomDocument();
     $xmlDoc->preserveWhiteSpace = FALSE;
     $xmlDoc->loadXML($xmlACML);
     return $xmlDoc;
   }
 
-  private function getNextPID($current_tries = 0) {
+  private function getNextPID() {
     $pid = FALSE;
-    $url = APP_FEDORA_GET_URL . "/objects/nextPID?format=xml";
-    list($xml, $info) = Misc::processURL($url);
-    if ($xml == '' || $xml == FALSE) {
-      $current_tries++;
-      if ($current_tries < 5) {
-        sleep(5); // sleep for a bit so the object can get unlocked before trying again
-        return $this->getNextPID($current_tries);
-      }
-      else {
+    $getString = APP_SIMPLE_FEDORA_APIM_DOMAIN . "/objects/nextPID?format=xml";
+    $ch = curl_init($getString);
+    curl_setopt($ch, CURLOPT_POST, 1);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+    if (APP_HTTPS_CURL_CHECK_CERT == "OFF" && APP_FEDORA_APIA_PROTOCOL_TYPE == 'https://') {
+      curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
+      curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
+    }
+    curl_setopt($ch, CURLOPT_USERPWD, APP_FEDORA_USERNAME . ":" . APP_FEDORA_PWD);
+    curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
+    curl_setopt($ch, CURLOPT_POSTFIELDS, array('format' => "xml"));
+    $results = curl_exec($ch);
+    if ($results) {
+      curl_close($ch);
+      $xml = $results;
+      $dom = @DomDocument::loadXML($xml);
+      if (!$dom) {
         return FALSE;
       }
+      $result = $dom->getElementsByTagName("pid");
+      foreach ($result as $item) {
+        $pid = $item->nodeValue;
+        break;
+      }
     }
-    $xmlDoc = new DomDocument();
-    $xmlDoc->preserveWhiteSpace = FALSE;
-    $xmlDoc->loadXML($xml);
-    $result = $xmlDoc->getElementsByTagName("pid");
-    foreach ($result as $item) {
-      $pid = $item->nodeValue;
-      break;
+    else {
+      curl_close($ch);
     }
     return $pid;
   }

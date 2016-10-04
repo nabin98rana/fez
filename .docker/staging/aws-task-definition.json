@@ -4,7 +4,7 @@
     {
       "name": "nginx",
       "image": "uqlibrary/docker-nginx-fez:4",
-      "cpu": 256,
+      "cpu": 100,
       "memory": 512,
       "portMappings": [
         {
@@ -26,7 +26,7 @@
     {
       "name": "fpm",
       "image": "uql-registry.library.uq.edu.au/staging/fez:<COMMIT_HASH>",
-      "cpu": 128,
+      "cpu": 200,
       "memory": 2048,
       "environment": [
         {
