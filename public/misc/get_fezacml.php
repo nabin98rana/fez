@@ -21,6 +21,6 @@ function getFezACML() {
   foreach ($pids as $pid) {
     $i++;
     echo "Updating $i/$count\n";
-    Record::getACML($pid, "", null, true);
+    Record::getACML($pid);
   }
 }
