@@ -17,8 +17,8 @@
         {
           "template__i" : {
             "match" : "*_i",
-            "match_mapping_type" : "string",
-            "mapping" : { "type" : "string", "store" : "yes", "index" : "not_analyzed" }
+            "match_mapping_type" : "integer",
+            "mapping" : { "type" : "integer", "store" : "yes", "index" : "not_analyzed" }
           }
         },
         {
@@ -38,8 +38,8 @@
         {
           "template__mi" : {
             "match" : "*_mi",
-            "match_mapping_type" : "string",
-            "mapping" : { "type" : "string", "store" : "yes", "index" : "not_analyzed" }
+            "match_mapping_type" : "integer",
+            "mapping" : { "type" : "integer", "store" : "yes", "index" : "not_analyzed" }
           }
         },
         {
@@ -92,8 +92,8 @@
           }
         },
         {
-          "template__ms" : {
-            "match" : "*_ms",
+          "template__mt_s" : {
+            "match" : "*_mt_s",
             "match_mapping_type" : "string",
             "mapping" : { "type" : "string", "store" : "no", "index" : "not_analyzed" }
           }

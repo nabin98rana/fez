@@ -453,9 +453,16 @@ abstract class FulltextIndex {
 					$fieldTypes[$index_title.FulltextIndex::FIELD_MOD_MULTI] = true;
 				}
 
-				// search-engine specific mapping of field name
+        // search-engine specific mapping of field name
         $index_title = $this->getFieldName($index_title, $fieldType, $isMultiValued);
-				$docfields[$index_title] = $fieldValue;
+
+        //Add sort fields
+        if ($fieldType == FulltextIndex::FIELD_TYPE_TEXT) {
+          $docfields[$index_title."_s"] = $fieldValue;
+        }
+
+        $docfields[$index_title] = $fieldValue;
+
 				$fieldTypes[$index_title] = $fieldType;
 				unset($fieldValue);
 				unset($fieldType);
