@@ -121,7 +121,7 @@ class FulltextIndex_ElasticSearch extends FulltextIndex
         $params['hl.useFastVectorHighlighter'] = "true";
 //        $params['hl.useFastVectorHighlighter'] = "false";
       }
-      $lookupFacetsToUse = array();
+
       if ($use_faceting) {
         $sekIDs = Search_Key::getFacetList();
 
@@ -153,6 +153,7 @@ class FulltextIndex_ElasticSearch extends FulltextIndex
                 $lookupFacetsToUse[$sek_title_db . $solr_suffix] = $sek['sek_title_solr'] . '_lookup_exact';
               }
             }
+
           }
 
           $params['facet.field'] = $facetsToUse;
@@ -161,7 +162,9 @@ class FulltextIndex_ElasticSearch extends FulltextIndex
 //          $params['facet.query'] = '('.$query['query'] . " AND (!author_id_mi_lookup_exact:'0' AND !author_id_mi:0))";
         }
       }
-
+      foreach ($facetsToUse as $facet) {
+        $params["facets"][$facet] = ["terms" => ["field" => $facet, "size" => $facet_limit, "min_doc_count" => $facet_mincount]];
+      }
       // filtering
       $params['fq'] = $query['filter'];
       $queryString = $query['query'];
@@ -179,6 +182,7 @@ class FulltextIndex_ElasticSearch extends FulltextIndex
           'index' => $this->esIndex,
           'type' => $this->esType,
           'body' => [
+              'aggregations' => $params['facets'],
               'fields' => $fields,
               'query' => [
                   'filtered' => [
