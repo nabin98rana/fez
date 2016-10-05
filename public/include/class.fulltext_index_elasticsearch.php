@@ -179,6 +179,7 @@ class FulltextIndex_ElasticSearch extends FulltextIndex
           'index' => $this->esIndex,
           'type' => $this->esType,
           'body' => [
+              'fields' => implode($params['fl'], ","),
               'query' => [
                   'filtered' => [
                       'query' => [
