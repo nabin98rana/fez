@@ -1,7 +1,28 @@
 {
   "settings" : {
     "number_of_shards": 1,
-    "number_of_replicas": 0
+    "number_of_replicas": 0,
+    "analysis": {
+      "analyzer": {
+        "alphaOnlySort": {
+          "type": "custom",
+          "tokenizer": "keyword",
+          "filter": [
+            "lowercase", "trim"
+          ],
+          "char_filter": [
+            "alphaOnlyFilter"
+          ]
+        }
+      },
+      "char_filter": {
+        "alphaOnlyFilter": {
+          "type": "pattern_replace",
+          "pattern": "([^a-z0-9])",
+          "replacement": ""
+        }
+      }
+    }
   },
   "mappings" : {
     "fez_record" : {
@@ -25,7 +46,7 @@
           "template__i_lookup" : {
             "match" : "*_i_lookup",
             "match_mapping_type" : "string",
-            "mapping" : { "type" : "string", "store" : "yes", "index" : "analyzed" }
+            "mapping" : { "type" : "string", "store" : "yes", "index" : "analyzed", "analyzer" : "standard" }
           }
         },
         {
@@ -46,7 +67,7 @@
           "template__mi_lookup" : {
             "match" : "*_mi_lookup",
             "match_mapping_type" : "string",
-            "mapping" : { "type" : "string", "store" : "yes", "index" : "analyzed" }
+            "mapping" : { "type" : "string", "store" : "yes", "index" : "analyzed", "analyzer" : "standard" }
           }
         },
         {
@@ -60,42 +81,42 @@
           "template__mi_cv_desc_lookup" : {
             "match" : "*_mi_cv_desc_lookup",
             "match_mapping_type" : "string",
-            "mapping" : { "type" : "string", "store" : "yes", "index" : "analyzed" }
+            "mapping" : { "type" : "string", "store" : "yes", "index" : "analyzed", "analyzer" : "standard" }
           }
         },
         {
           "template__mi_cv_id_lookup" : {
             "match" : "*_mi_cv_id_lookup",
             "match_mapping_type" : "string",
-            "mapping" : { "type" : "string", "store" : "yes", "index" : "analyzed" }
+            "mapping" : { "type" : "string", "store" : "yes", "index" : "analyzed", "analyzer" : "standard" }
           }
         },
         {
           "template__i_cv_desc_lookup" : {
             "match" : "*_i_cv_desc_lookup",
             "match_mapping_type" : "string",
-            "mapping" : { "type" : "string", "store" : "yes", "index" : "analyzed" }
+            "mapping" : { "type" : "string", "store" : "yes", "index" : "analyzed", "analyzer" : "standard" }
           }
         },
         {
           "template__i_cv_id_lookup" : {
             "match" : "*_i_cv_id_lookup",
             "match_mapping_type" : "string",
-            "mapping" : { "type" : "string", "store" : "yes", "index" : "analyzed" }
+            "mapping" : { "type" : "string", "store" : "yes", "index" : "analyzed", "analyzer" : "standard" }
           }
         },
         {
           "template__s" : {
             "match" : "*_s",
             "match_mapping_type" : "string",
-            "mapping" : { "type" : "string", "store" : "no", "index" : "not_analyzed" }
+            "mapping" : { "type" : "string", "store" : "no", "index" : "analyzed", "analyzer" : "alphaOnlySort" }
           }
         },
         {
           "template__mt_s" : {
             "match" : "*_mt_s",
             "match_mapping_type" : "string",
-            "mapping" : { "type" : "string", "store" : "no", "index" : "not_analyzed" }
+            "mapping" : { "type" : "string", "store" : "no", "index" : "analyzed", "analyzer" : "alphaOnlySort" }
           }
         },
         {
@@ -116,14 +137,14 @@
           "template__t" : {
             "match" : "*_t",
             "match_mapping_type" : "string",
-            "mapping" : { "type" : "string", "store" : "yes", "index" : "analyzed" }
+            "mapping" : { "type" : "string", "store" : "yes", "index" : "analyzed", "analyzer" : "standard" }
           }
         },
         {
           "template__t_lookup" : {
             "match" : "*_t_lookup",
             "match_mapping_type" : "string",
-            "mapping" : { "type" : "string", "store" : "yes", "index" : "analyzed" }
+            "mapping" : { "type" : "string", "store" : "yes", "index" : "analyzed", "analyzer" : "standard" }
           }
         },
         {
@@ -137,7 +158,7 @@
           "template__t_s" : {
             "match" : "*_t_s",
             "match_mapping_type" : "string",
-            "mapping" : { "type" : "string", "store" : "no", "index" : "not_analyzed" }
+            "mapping" : { "type" : "string", "store" : "no", "index" : "analyzed", "analyzer" : "alphaOnlySort" }
           }
         },
         {
@@ -158,14 +179,14 @@
           "template__mt" : {
             "match" : "*_mt",
             "match_mapping_type" : "string",
-            "mapping" : { "type" : "string", "store" : "yes", "index" : "analyzed" }
+            "mapping" : { "type" : "string", "store" : "yes", "index" : "analyzed", "analyzer" : "standard" }
           }
         },
         {
           "template__mt_lookup" : {
             "match" : "*_mt_lookup",
             "match_mapping_type" : "string",
-            "mapping" : { "type" : "string", "store" : "yes", "index" : "analyzed" }
+            "mapping" : { "type" : "string", "store" : "yes", "index" : "analyzed", "analyzer" : "standard" }
           }
         },
         {
@@ -186,7 +207,7 @@
           "template__mtl" : {
             "match" : "*_mtl",
             "match_mapping_type" : "string",
-            "mapping" : { "type" : "string", "store" : "no", "index" : "analyzed" }
+            "mapping" : { "type" : "string", "store" : "no", "index" : "analyzed", "analyzer" : "standard" }
           }
         },
         {
@@ -221,14 +242,14 @@
           "template__dt" : {
             "match" : "*_dt",
             "match_mapping_type" : "date",
-            "mapping" : { "type" : "date", "store" : "yes", "index" : "analyzed" }
+            "mapping" : { "type" : "date", "store" : "yes", "index" : "analyzed", "analyzer" : "standard" }
           }
         },
         {
           "template__mdt" : {
             "match" : "*_mdt",
             "match_mapping_type" : "date",
-            "mapping" : { "type" : "date", "store" : "yes", "index" : "analyzed" }
+            "mapping" : { "type" : "date", "store" : "yes", "index" : "analyzed", "analyzer" : "standard" }
           }
         },
         {
