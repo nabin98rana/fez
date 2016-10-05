@@ -4,7 +4,7 @@ echo Starting test run..
 CONTAINER_BASE_DIR=/var/app/current
 
 # Run Fedora bypass in production branch only
-if [[ ${CI_BRANCH} != "production" ]]; then
+if [[ ${CI_BRANCH} != "" && ${CI_BRANCH} == "master" ]]; then
   FEZ_S3_BUCKET=
   FEZ_S3_SRC_PREFIX=
 else

@@ -1800,7 +1800,7 @@ class Record
    * @param   string $pid The persistent identifier of the object
    * @param   string $dsID (optional) The datastream ID
    * @param   string $createdDT (optional) Fedora timestamp of version to retrieve
-   * @return  domdocument $xmldoc A Dom Document of the XML or false if not found
+   * @return  bool|domdocument $xmldoc A Dom Document of the XML or false if not found
    *
    *
    * @uses
@@ -1872,6 +1872,9 @@ class Record
           $acml_cache['pid'][$pid] = $xmldoc;
         }
       }
+      if ($ds_pattern === false) {
+        Record::updateSekInherited($pid, $xmldoc);
+      }
       return $xmldoc;
     } else {
       if ($GLOBALS['app_cache']) {
@@ -1882,10 +1885,40 @@ class Record
         if ($dsID != "") {
           $acml_cache['ds'][$dsID][$pid] = false;
         } else {
+          if ($ds_pattern === false) {
+            Record::updateSekInherited($pid);
+          }
           $acml_cache['pid'][$pid] = false;
         }
         return false;
       }
+    }
+  }
+
+  /**
+   * @param string $pid
+   * @param bool|DOMDocument $xmlDoc
+   */
+  function updateSekInherited($pid, $xmlDoc = false)
+  {
+    $db = DB_API::get();
+
+    $inherited = 1;
+    if ($xmlDoc instanceof DOMDocument) {
+      $xpath = new DOMXPath($xmlDoc);
+      $inheritSearch = $xpath->query('/FezACML[inherit_security="off"]');
+      if ($inheritSearch->length > 0) {
+        $inherited = 0;
+      }
+    }
+    // Populate rek_security_inherited
+    $stmt = "UPDATE " . APP_TABLE_PREFIX . "record_search_key
+                SET rek_security_inherited = " . $db->quote($inherited) . "
+                WHERE rek_pid = " . $db->quote($pid);
+
+    try {
+      $db->exec($stmt);
+    } catch (Exception $ex) {
     }
   }
 

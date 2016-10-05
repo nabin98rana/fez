@@ -85,6 +85,11 @@ class MigrateFromFedoraToDatabase
     $this->stepThreeMigration();
     echo "..done!\n";
 
+    // Recalculate security
+    echo "Step 4: recalculating security..";
+    $this->stepFourMigration();
+    echo "..done!\n";
+
     // Post Migration message
     $this->postMigration();
   }
@@ -130,7 +135,7 @@ class MigrateFromFedoraToDatabase
   private function stepOneMigration()
   {
     // Sets the maximum PID on PID index table.
-    //$this->setMaximumPID();
+    $this->setMaximumPID();
   }
 
   /**
@@ -207,6 +212,14 @@ class MigrateFromFedoraToDatabase
   }
 
   /**
+   * Fourth round of migration, recalculate PID security.
+   */
+  private function stepFourMigration()
+  {
+    $this->recalculatePidSecurity();
+  }
+
+  /**
    * Run Fedora managed content migration script & security for the attached files.
    */
   private function migrateManagedContent()
@@ -276,7 +289,8 @@ class MigrateFromFedoraToDatabase
       if ($acml) {
         $this->addDatastreamSecurity($acml, $did);
       }
-      AuthNoFedoraDatastreams::recalculatePermissions($did);
+      // Disabled - all security will be recalculated in the fourth step
+      // AuthNoFedoraDatastreams::recalculatePermissions($did);
     }
   }
 
@@ -350,7 +364,8 @@ class MigrateFromFedoraToDatabase
   private function updateShadowTableStampsAndAddPidSecurity()
   {
     $searchKeys = Search_Key::getList();
-    $stmt = "SELECT rek_pid, rek_updated_date FROM " . APP_TABLE_PREFIX . "record_search_key";
+    $stmt = "SELECT rek_pid, rek_updated_date, rek_security_inherited FROM " .
+      APP_TABLE_PREFIX . "record_search_key";
     try {
       $records = $this->_db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
     } catch (Exception $ex) {
@@ -360,12 +375,16 @@ class MigrateFromFedoraToDatabase
     }
 
     foreach ($records as $rek) {
+      if ($rek['rek_security_inherited'] === 0 || $rek['rek_security_inherited'] === 1) {
+        // Already updated
+        continue;
+      }
       $acml = $this->getFezACML($rek['rek_pid'], 'FezACML');
       if ($this->inheritsPermissions($acml)) {
-        AuthNoFedora::setInherited($rek['rek_pid'], 1);
+        AuthNoFedora::setInherited($rek['rek_pid'], 1, false);
       }
       else {
-        AuthNoFedora::setInherited($rek['rek_pid'], 0);
+        AuthNoFedora::setInherited($rek['rek_pid'], 0, false);
       }
     }
 
@@ -460,6 +479,30 @@ class MigrateFromFedoraToDatabase
     return $inherit;
   }
 
+  private function recalculatePidSecurity() {
+    echo "Recalculating PID security\n";
+    // Get all PIDs without parents and recalculate permissions.
+    // This will filter down to child pids and child datastreams
+    $stmt = "SELECT rek_pid FROM " . APP_TABLE_PREFIX . "record_search_key
+      LEFT JOIN fez_record_search_key_ismemberof
+      ON rek_ismemberof_pid = rek_pid
+      WHERE rek_ismemberof IS NULL";
+
+    $res = [];
+    try {
+      $res = $this->_db->fetchAll($stmt);
+    } catch (Exception $ex) {
+      echo "Failed to retrieve pids\n";
+    }
+
+    $i = 0;
+    $count = count($res);
+    foreach ($res as $pid) {
+      $i++;
+      AuthNoFedora::recalculatePermissions($pid);
+      echo "Done $i/$count\n";
+    }
+  }
   private function addDatastreamSecurity($acml, $did)
   {
     // loop through the ACML docs found for the current pid or in the ancestry
@@ -489,7 +532,7 @@ class MigrateFromFedoraToDatabase
             $group_value = trim($group_value, ' ');
 
             $arId = AuthRules::getOrCreateRule("!rule!role!" . $group_type, $group_value);
-            AuthNoFedoraDatastreams::addSecurityPermissions($did, $roleId, $arId);
+            AuthNoFedoraDatastreams::addSecurityPermissions($did, $roleId, $arId, false);
           }
         }
       }
@@ -593,27 +636,35 @@ class MigrateFromFedoraToDatabase
     return $xmlDoc;
   }
 
-  private function getNextPID($current_tries = 0) {
+  private function getNextPID() {
     $pid = FALSE;
-    $url = APP_FEDORA_GET_URL . "/objects/nextPID?format=xml";
-    list($xml, $info) = Misc::processURL($url);
-    if ($xml == '' || $xml == FALSE) {
-      $current_tries++;
-      if ($current_tries < 5) {
-        sleep(5); // sleep for a bit so the object can get unlocked before trying again
-        return $this->getNextPID($current_tries);
-      }
-      else {
+    $getString = APP_SIMPLE_FEDORA_APIM_DOMAIN . "/objects/nextPID?format=xml";
+    $ch = curl_init($getString);
+    curl_setopt($ch, CURLOPT_POST, 1);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+    if (APP_HTTPS_CURL_CHECK_CERT == "OFF" && APP_FEDORA_APIA_PROTOCOL_TYPE == 'https://') {
+      curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
+      curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
+    }
+    curl_setopt($ch, CURLOPT_USERPWD, APP_FEDORA_USERNAME . ":" . APP_FEDORA_PWD);
+    curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
+    curl_setopt($ch, CURLOPT_POSTFIELDS, array('format' => "xml"));
+    $results = curl_exec($ch);
+    if ($results) {
+      curl_close($ch);
+      $xml = $results;
+      $dom = @DomDocument::loadXML($xml);
+      if (!$dom) {
         return FALSE;
       }
+      $result = $dom->getElementsByTagName("pid");
+      foreach ($result as $item) {
+        $pid = $item->nodeValue;
+        break;
+      }
     }
-    $xmlDoc = new DomDocument();
-    $xmlDoc->preserveWhiteSpace = FALSE;
-    $xmlDoc->loadXML($xml);
-    $result = $xmlDoc->getElementsByTagName("pid");
-    foreach ($result as $item) {
-      $pid = $item->nodeValue;
-      break;
+    else {
+      curl_close($ch);
     }
     return $pid;
   }

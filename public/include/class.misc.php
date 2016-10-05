@@ -336,7 +336,7 @@ public static function multi_implode($glue, $pieces)
         // Set failed status condition
         if (empty($result['response']) || $result['curl_error'] || $errorHttpCode == 1 ){
             $result['success'] = 0;
-            $log->err('There is an error occurred on process URL . The response is: ' . print_r($result,1));
+            //$log->err('There is an error occurred on process URL . The response is: ' . print_r($result,1));
         }
 
         // Close cURL session
@@ -351,7 +351,7 @@ public static function multi_implode($glue, $pieces)
           curl_close($ch);
         } else {
           $info = array();
-          $log->err(array(curl_error($ch)." ".$url,__FILE__,__LINE__));
+          //$log->err(array(curl_error($ch)." ".$url,__FILE__,__LINE__));
           curl_close($ch);
         }
         return array($data,$info);
