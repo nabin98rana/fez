@@ -364,7 +364,8 @@ class MigrateFromFedoraToDatabase
   private function updateShadowTableStampsAndAddPidSecurity()
   {
     $searchKeys = Search_Key::getList();
-    $stmt = "SELECT rek_pid, rek_updated_date FROM " . APP_TABLE_PREFIX . "record_search_key";
+    $stmt = "SELECT rek_pid, rek_updated_date, rek_security_inherited FROM " .
+      APP_TABLE_PREFIX . "record_search_key";
     try {
       $records = $this->_db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
     } catch (Exception $ex) {
@@ -374,6 +375,10 @@ class MigrateFromFedoraToDatabase
     }
 
     foreach ($records as $rek) {
+      if ($rek['rek_security_inherited'] === 0 || $rek['rek_security_inherited'] === 1) {
+        // Already updated
+        continue;
+      }
       $acml = $this->getFezACML($rek['rek_pid'], 'FezACML');
       if ($this->inheritsPermissions($acml)) {
         AuthNoFedora::setInherited($rek['rek_pid'], 1, false);
