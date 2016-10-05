@@ -4979,7 +4979,7 @@ function getSearchKeyIndexValueShadow($pid, $searchKeyTitle, $getLookup=true, $s
                 $searchKey_join["sk_where_$operatorToUse"][] = $sqlColumnName.$suffix.":\"".Record::escapeSolr($searchValue)."\"";
                 $searchKey_join[SK_SEARCH_TXT] .= $sekdet['sek_title'].":\"".htmlspecialchars(trim($searchValue))."\", ";
             } else {
-              $searchKey_join["sk_where_$operatorToUse"][] = $sqlColumnName.$suffix.":".Record::escapeSolr($searchValue)."";
+              $searchKey_join["sk_where_$operatorToUse"][] = $sqlColumnName.$suffix.":\"".Record::escapeSolr($searchValue)."\"";
               $searchKey_join[SK_SEARCH_TXT] .= $sekdet['sek_title'].":\"".htmlspecialchars(trim($searchValue))."\", ";
             }
           }
