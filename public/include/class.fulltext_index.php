@@ -414,7 +414,7 @@ abstract class FulltextIndex {
 		 */
 		$citationKey = array(
             'sek_title'         =>  'citation',
-            'sek_title_db'      =>  'rek_citation',
+            'sek_title_db'      =>  'citation',
             'sek_data_type'     =>  'text',
             'sek_relationship'  =>  0,
 		);

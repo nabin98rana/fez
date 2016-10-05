@@ -166,20 +166,20 @@ class FulltextIndex_ElasticSearch extends FulltextIndex
       $params['fq'] = $query['filter'];
       $queryString = $query['query'];
       $solr_titles = Search_Key::getSolrTitles();
-      $params['fl'] = implode(",", $solr_titles) . ',sherpa_colour_t,ain_detail_t,rj_tier_rank_t,rj_tier_title_t,rj_2015_rank_t,rj_2015_title_t,rc_2015_rank_t,rc_2015_title_t,rj_2010_rank_t,rj_2010_title_t,rj_2012_rank_t,rj_2012_title_t,rc_2010_rank_t,rc_2010_title_t,herdc_code_description_t,score,citation_t';
+      $params['fl'] = implode(",", $solr_titles) . ',sherpa_colour_t,ain_detail_t,rj_tier_rank_t,rj_tier_title_t,rj_2015_rank_t,rj_2015_title_t,rc_2015_rank_t,rc_2015_title_t,rj_2010_rank_t,rj_2010_title_t,rj_2012_rank_t,rj_2012_title_t,rc_2010_rank_t,rc_2010_title_t,herdc_code_description_t,_score,citation_t';
 
 
       $log->debug(array("Solr filter query: " . $params['fq']));
       $log->debug(array("Solr query string: " . $queryString));
 //      $log->debug(array("Solr sort by: " . $params['sort']));
-
+      $fields = explode(",", $params['fl']);
       $solrParams = $params;
 
       $params = [
           'index' => $this->esIndex,
           'type' => $this->esType,
           'body' => [
-              'fields' => implode($params['fl'], ","),
+              'fields' => $fields,
               'query' => [
                   'filtered' => [
                       'query' => [
@@ -232,7 +232,7 @@ class FulltextIndex_ElasticSearch extends FulltextIndex
       $cache_db_names = array();
       foreach ($results['hits']['hits'] as $doc) {
 
-        foreach ($doc['_source'] as $solrID => $field) {
+        foreach ($doc['fields'] as $solrID => $field) {
           if (($sek_id = Search_Key::getDBnamefromSolrID($solrID))) {
             if (array_key_exists($sek_id, $cache_db_names)) {
               $sek_rel = $cache_db_names[$sek_id];
@@ -246,7 +246,7 @@ class FulltextIndex_ElasticSearch extends FulltextIndex
               }
               $docs[$i][$sek_id][] = $field;
             } else {
-              $docs[$i][$sek_id] = $field;
+              $docs[$i][$sek_id] = $field[0];
             }
             // check for herdc code desc
           } elseif (in_array($solrID, array('sherpa_colour_t', 'ain_detail_t', 'rj_tier_rank_t', 'rj_tier_title_t', 'rj_2015_rank_t', 'rj_2015_title_t', 'rj_2010_rank_t', 'rj_2010_title_t', 'rj_2012_rank_t', 'rj_2012_title_t', 'rc_2015_rank_t', 'rc_2015_title_t', 'rc_2010_rank_t', 'rc_2010_title_t', 'herdc_code_description_t'))) {
