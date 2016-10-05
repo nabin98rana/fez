@@ -10,7 +10,6 @@ if [[ ${CI_BRANCH} != "" && ${CI_BRANCH} == "master" ]]; then
 else
   FEZ_S3_SRC_PREFIX=${CI_BRANCH}
 fi
-exit
 
 i=0
 MAX_LOOPS=100
