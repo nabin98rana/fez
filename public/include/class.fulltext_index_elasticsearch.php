@@ -199,9 +199,11 @@ class FulltextIndex_ElasticSearch extends FulltextIndex
       ];
 
       // sorting
+      $searchKey_join[SK_SORT_ORDER] = trim($searchKey_join[SK_SORT_ORDER]);
       if (!empty($searchKey_join[SK_SORT_ORDER])) {
         $sortOrder = explode(" ", $searchKey_join[SK_SORT_ORDER]);
         $sortOrder[0] = str_replace("_ms", "_mt_s", $sortOrder[0]);
+        $sortOrder[0] = str_replace("score", "_score", $sortOrder[0]);
         $params['body']['sort'] = [$sortOrder[0] => ["order" => $sortOrder[1]]];
       }
       $testJson = json_encode($params);
