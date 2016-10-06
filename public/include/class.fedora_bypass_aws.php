@@ -387,16 +387,11 @@ class Fedora_API implements FedoraApiInterface {
 	 */
 	public static function callGetDatastreams($pid, $createdDT = NULL, $dsState = 'A')
 	{
-		$aws = AWS::get();
-		$dataPath = Fedora_API::getDataPath($pid);
+    $dsArray = Datastream::getFullDatastreamInfo($pid);
 		$dataStreams = [];
-		$dsIDListArray = $aws->listObjects($dataPath);
 
-		foreach ($dsIDListArray as $object) {
-      $baseKey = basename($object['Key']);
-      if ($baseKey != basename($dataPath)) {
-        $dataStreams[] = Fedora_API::callGetDatastream($pid, $baseKey, $createdDT);
-      }
+		foreach ($dsArray as $object) {
+      $dataStreams[] = Fedora_API::callGetDatastream($pid, $object['dsi_dsid'], $createdDT);
 		}
 
 		//Add on the links 'R' based datastreams
