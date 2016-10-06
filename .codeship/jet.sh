@@ -5,13 +5,13 @@ CONTAINER_BASE_DIR=/var/app/current
 
 # If running in Codeship, don't run in bypass mode on master branch
 if [[ "${CI_BRANCH}" != "" ]]; then
-  echo "${CI_BRANCH}:${CI_BUILD_NUMBER}"
   if [[ "${CI_BRANCH}" == "master" ]]; then
     FEZ_S3_BUCKET=
     FEZ_S3_SRC_PREFIX=
   else
-    FEZ_S3_SRC_PREFIX=${CI_BUILD_NUMBER}
+    FEZ_S3_SRC_PREFIX=$( date +%s | sha256sum | base64 | head -c 32 ; echo )
   fi
+  echo "${CI_BRANCH}:${FEZ_S3_SRC_PREFIX}"
 fi
 
 i=0
