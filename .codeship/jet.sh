@@ -9,7 +9,7 @@ if [[ "${CI_BRANCH}" != "" ]]; then
     FEZ_S3_BUCKET=
     FEZ_S3_SRC_PREFIX=
   else
-    FEZ_S3_SRC_PREFIX=$( date +%s | sha256sum | base64 | head -c 32 ; echo )
+    FEZ_S3_SRC_PREFIX=${CI_BUILD_ID}
   fi
   echo "${CI_BRANCH}:${FEZ_S3_SRC_PREFIX}"
 fi
