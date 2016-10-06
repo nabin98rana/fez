@@ -4,13 +4,14 @@ echo Starting test run..
 CONTAINER_BASE_DIR=/var/app/current
 
 # If running in Codeship, don't run in bypass mode on master branch
-if [[ ${CI_BRANCH} != "" ]]; then
-  if [[ ${CI_BRANCH} == "master" ]]; then
+if [[ "${CI_BRANCH}" != "" ]]; then
+  if [[ "${CI_BRANCH}" == "master" ]]; then
     FEZ_S3_BUCKET=
     FEZ_S3_SRC_PREFIX=
   else
-    FEZ_S3_SRC_PREFIX=${CI_BUILD_NUMBER}
+    FEZ_S3_SRC_PREFIX=${CI_BUILD_ID}
   fi
+  echo "${CI_BRANCH}:${FEZ_S3_SRC_PREFIX}"
 fi
 
 i=0
