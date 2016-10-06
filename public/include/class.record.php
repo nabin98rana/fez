@@ -1765,11 +1765,12 @@ class Record
    */
   public static function setIndexMatchingFields($pid)
   {
-    $log = FezLog::get();
     $record = new RecordObject($pid);
     $record->setIndexMatchingFields();
 
-    AuthIndex::setIndexAuth($pid); //set the security index
+    if (APP_FEDORA_BYPASS != 'ON') {
+      AuthIndex::setIndexAuth($pid); //set the security index
+    }
   }
 
   function setIndexMatchingFieldsRecurse($pid, $bgp=null, $fteindex = true)

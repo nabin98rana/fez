@@ -249,19 +249,23 @@ class Datastream
    * @param string $dsID The ID of the datastream
    * @return array $dsIDListArray The list of datastreams in an array.
    */
-  public static function getFullDatastreamInfo($pid, $dsID)
+  public static function getFullDatastreamInfo($pid, $dsID = '')
   {
     $log = FezLog::get();
     $db = DB_API::get();
 
     $res = [];
-
+    $data = [':dsi_pid' => $pid];
     $sql = "SELECT * FROM "
-      . APP_TABLE_PREFIX . "datastream_info WHERE dsi_pid = :dsi_pid AND dsi_dsid = :dsi_dsid";
+      . APP_TABLE_PREFIX . "datastream_info WHERE dsi_pid = :dsi_pid";
 
+    if ($dsID !== '') {
+      $data['dsi_dsid'] = $dsID;
+      $sql .= " AND dsi_dsid = :dsi_dsid";
+    }
     try
     {
-      $stmt = $db->query($sql, [':dsi_pid' => $pid, 'dsi_dsid' => $dsID]);
+      $stmt = $db->query($sql, $data);
       $res = $stmt->fetchAll();
     }
     catch(Exception $e) {
