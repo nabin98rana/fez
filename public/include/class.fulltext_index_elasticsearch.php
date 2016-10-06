@@ -229,6 +229,7 @@ class FulltextIndex_ElasticSearch extends FulltextIndex
     }
     $snips = array();
     $total_rows = $results['hits']['total'];
+    $facets = $this->extractFacets($results['aggregations']);
 
     if ($total_rows > 0) {
       $i = 0;
@@ -293,7 +294,7 @@ class FulltextIndex_ElasticSearch extends FulltextIndex
 
     return array(
         'total_rows' => $total_rows,
-        'facets' => array(),
+        'facets' => $facets,
         'docs' => $docs,
         'snips' => array()
     );
@@ -312,7 +313,6 @@ class FulltextIndex_ElasticSearch extends FulltextIndex
    * @param string $pid
    * @param array $fields
    */
-  //TODO: implement
   protected function updateFulltextIndex($pid, $fields, $fieldTypes)
   {
     $log = FezLog::get();
@@ -343,6 +343,115 @@ class FulltextIndex_ElasticSearch extends FulltextIndex
     }
 
 
+  }
+
+  /**
+   * Extract the facets from a search response into the array format required by Fez
+   *
+   * @param array $aggs
+   * @return array
+   */
+  private function extractFacets($aggs) {
+    if (is_array($aggs)) {
+
+
+      foreach ($aggs as $agg) {
+
+        if ($facetType == 'facet_fields') {
+
+          /*
+           * We have to loop through every search key because
+           * we can create a solr id from a fez search key but
+           * not the other way around.
+           */
+          foreach ($sekdet as $sval) {
+
+
+            if ($sval['sek_data_type'] == "date") {
+              $solr_name = $sval['sek_title_db'] . "_year_t";
+            } else {
+              $solr_suffix = Record::getSolrSuffix($sval, 0, 1);
+              $solr_name = $sval['sek_title_db'] . $solr_suffix;
+            }
+
+
+            if (isset($facetData->$solr_name)) {
+
+              /*
+               * Convert (if possible) values into text representation
+               * Depositor id=1 becomes 'Administrator'
+               */
+              $tmpArr = array();
+              $facetIndex = 0;
+
+              $allDifferent = true;
+              $previousNum = 0;
+              foreach ($facetData->$solr_name as $valueCheck => $numInFacetCheck) {
+                if ($numInFacetCheck == $previousNum) {
+                  $allDifferent = false;
+                }
+                $previousNum = $numInFacetCheck;
+              }
+
+              foreach ($facetData->$solr_name as $value => $numInFacet) {
+                $valueFound = '';
+                // don't add the lookup values, just the ids
+                if (!is_numeric(strpos($solr_name, '_lookup'))) {
+
+                  $id = $value;
+                  if (!empty($sval['sek_lookup_function'])) {
+//                        $solr_name_cut = preg_replace('/(.*)({_t_s|_mt|_t|_t_s|_dt|_ms|_s|_t_ws|_t_ft|_f|_mws|_ft|_mft|_mtl|_l|_mi|_i|_b|_mdt|_mt_exact}$)/', '$1', $solr_name);
+                    // Try and get the lookup names from inside the facet returned values themselves
+
+                    $value_lookup = '';
+                    if ($allDifferent == true && array_key_exists($solr_name, $lookupFacetsToUse)) {
+                      $facetIndex2 = 0;
+                      foreach ($facetData->$lookupFacetsToUse[$solr_name] as $value2 => $numInFacet2) {
+                        if ($facetIndex == $facetIndex2) {
+                          $value_lookup = $value2;
+                        }
+                        $facetIndex2++;
+                      }
+                    }
+
+                    // if couldn't find it in the solr array, get it manually. Don't lookup 0 value author id things.
+                    if ($allDifferent != true && $value_lookup == '' && $value != '0') {
+                      eval("\$valueFound = " . $sval["sek_lookup_function"] . "('" . $value . "');");
+                    } else {
+                      $valueFound = $value_lookup;
+                    }
+                  } else {
+                    $valueFound = $value;
+                  }
+
+                  $tmpArr[$id] = array(
+                      'value' => $valueFound,
+                      'num' => $numInFacet,
+                  );
+                }
+                $facetIndex++;
+
+              }
+
+              if (count($tmpArr) > 0) {
+                $facets[$sval['sek_id']] = array(
+                    'sek_title' => $sval['sek_title'],
+                    'sek_alt_title' => $sval['sek_alt_title'],
+                    'values' => $tmpArr,
+                );
+                unset($tmpArr);
+              }
+
+
+            }
+          }
+
+        } elseif ($facetType == 'facet_dates') {
+          // Nothing for now
+        }
+      }
+
+    }
   }
 
   protected function forceCommit()
