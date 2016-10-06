@@ -272,6 +272,9 @@ class Datastream
       $log->err($e->getMessage());
     }
 
+    if ($dsID !== '' && $res) {
+      $res = $res[0];
+    }
     return $res;
   }
 

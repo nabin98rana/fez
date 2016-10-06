@@ -396,7 +396,6 @@ switch ($cat) {
       if (!empty($group)) {
         $arId = AuthRules::getOrCreateRule("!rule!role!" . $groupsType, $group);
         AuthNoFedoraDatastreams::addSecurityPermissions($did, $role, $arId);
-        AuthNoFedoraDatastreams::recalculatePermissions($did);
       }
     }
     else {
