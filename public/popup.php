@@ -371,7 +371,6 @@ switch ($cat) {
       }
       else {
         AuthNoFedoraDatastreams::deleteInherited($did);
-        AuthNoFedoraDatastreams::recalculatePermissions($did);
       }
       if ($_REQUEST['copyright']) {
         AuthNoFedoraDatastreams::setCopyright($did);
@@ -391,7 +390,6 @@ switch ($cat) {
           $toDeleteinfo = explode(",", $toDelete);
           AuthNoFedoraDatastreams::deleteSecurityPermissions($did, $toDeleteinfo[0], $toDeleteinfo[1]);
         }
-        AuthNoFedoraDatastreams::recalculatePermissions($did);
       }
       if (!empty($group)) {
         $arId = AuthRules::getOrCreateRule("!rule!role!" . $groupsType, $group);

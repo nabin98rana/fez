@@ -40,10 +40,10 @@ class AuthNoFedoraDatastreams
     $db = DB_API::get();
 
     if ($inherited == '0') {
-      $stmt = "INSERT INTO " . APP_TABLE_PREFIX . "auth_datastream_index2_not_inherited (authdii_did, authdii_role, authdii_arg_id)
+      $stmt = "REPLACE INTO " . APP_TABLE_PREFIX . "auth_datastream_index2_not_inherited (authdii_did, authdii_role, authdii_arg_id)
                     VALUES (" . $db->quote($did) . "," . $db->quote($role) . "," . $db->quote($arg_id) . ")";
     } else {
-      $stmt = "INSERT INTO " . APP_TABLE_PREFIX . "auth_datastream_index2 (authdi_did, authdi_role, authdi_arg_id)
+      $stmt = "REPLACE INTO " . APP_TABLE_PREFIX . "auth_datastream_index2 (authdi_did, authdi_role, authdi_arg_id)
                     VALUES (" . $db->quote($did) . "," . $db->quote($role) . "," . $db->quote($arg_id) . ")";
     }
 
@@ -236,7 +236,7 @@ class AuthNoFedoraDatastreams
     return $res;
   }
 
-  function deleteInherited($did)
+  public static function deleteInherited($did)
   {
     $log = FezLog::get();
     $db = DB_API::get();
@@ -252,11 +252,12 @@ class AuthNoFedoraDatastreams
       return array();
     }
 
+    AuthNoFedoraDatastreams::recalculatePermissions($did);
     return $res;
   }
 
 
-  function setCopyright($did)
+  public static function setCopyright($did)
   {
     $log = FezLog::get();
     $db = DB_API::get();
@@ -276,7 +277,7 @@ class AuthNoFedoraDatastreams
     return $res;
   }
 
-  function deleteCopyright($did)
+  public static function deleteCopyright($did)
   {
     $log = FezLog::get();
     $db = DB_API::get();
@@ -296,7 +297,7 @@ class AuthNoFedoraDatastreams
     return $res;
   }
 
-  function setWatermark($did)
+  public static function setWatermark($did)
   {
     $log = FezLog::get();
     $db = DB_API::get();
@@ -316,7 +317,7 @@ class AuthNoFedoraDatastreams
     return $res;
   }
 
-  function deleteWatermark($did)
+  public static function deleteWatermark($did)
   {
     $log = FezLog::get();
     $db = DB_API::get();
@@ -539,7 +540,6 @@ class AuthNoFedoraDatastreams
       $arg_id = AuthRules::getOrCreateRuleGroupArIds($newGroup);
       AuthNoFedoraDatastreams::addRoleSecurityPermissions($did, $role, $arg_id, '1');
     }
-
   }
 
   function deletePermissions($did, $inherited = '1', $role = null)
@@ -573,7 +573,7 @@ class AuthNoFedoraDatastreams
     }
   }
 
-  function addSecurityPermissions($did, $role, $ar_id, $recalculate = true)
+  public static function addSecurityPermissions($did, $role, $ar_id, $recalculate = true)
   {
     $log = FezLog::get();
     $db = DB_API::get();
@@ -595,7 +595,7 @@ class AuthNoFedoraDatastreams
     }
   }
 
-  function deleteSecurityPermissions($did, $role, $ar_id)
+  public static function deleteSecurityPermissions($did, $role, $ar_id)
   {
     $log = FezLog::get();
     $db = DB_API::get();
