@@ -27,7 +27,7 @@
       "name": "fpm",
       "image": "uql-registry.library.uq.edu.au/production/fez:<COMMIT_HASH>",
       "cpu": 128,
-      "memory": 2048,
+      "memory": 4096,
       "environment": [
         {
           "name": "APP_ENVIRONMENT",

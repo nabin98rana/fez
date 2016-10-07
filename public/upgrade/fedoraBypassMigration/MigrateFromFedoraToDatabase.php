@@ -399,13 +399,13 @@ class MigrateFromFedoraToDatabase
       return false;
     }
 
-    $count = count($records);
+    $count = count($searchKeys);
     $i = 0;
     $table = APP_TABLE_PREFIX . "record_search_key";
     foreach ($searchKeys as $searchKey) {
       $i++;
-      echo " - Updating $table . \"_\" . ${searchKey['sek_title_db']} . \"__shadow\" $i/$count\n";
-      if ($searchKey['sek_relationship'] === 1) {
+      echo " - Updating ${table}_${searchKey['sek_title_db']}__shadow $i/$count\n";
+      if ($searchKey['sek_relationship'] == 1) {
         $stmt = 'UPDATE ' . $table . "_" . $searchKey['sek_title_db'] . "__shadow" .
           ' SET rek_' . $searchKey['sek_title_db'] . '_stamp = :stamp' .
           ' WHERE rek_' . $searchKey['sek_title_db'] . '_pid = :pid';
