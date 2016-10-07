@@ -389,36 +389,48 @@ class MigrateFromFedoraToDatabase
     }
 
     $searchKeys = Search_Key::getList();
-    $stmt = "SELECT rek_pid, rek_updated_date, rek_security_inherited FROM " .
+    $stmt = "SELECT rek_pid, rek_updated_date FROM " .
       APP_TABLE_PREFIX . "record_search_key";
     try {
       $records = $this->_db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
     } catch (Exception $ex) {
-      $this->_log->err($ex);
       echo "Failed to retrieve pids. Error: " . $ex;
       return false;
     }
+
+    $recordDates = [];
+    foreach ($records as $rek) {
+      $recordDates[$rek['rek_pid']] = $rek['rek_updated_date'];
+    }
+    unset($records);
 
     $count = count($searchKeys);
     $i = 0;
     $table = APP_TABLE_PREFIX . "record_search_key";
     foreach ($searchKeys as $searchKey) {
       $i++;
-      echo " - Updating ${table}_${searchKey['sek_title_db']}__shadow $i/$count\n";
+      $shadowTable = "${table}_${searchKey['sek_title_db']}__shadow";
+      echo " - Updating $shadowTable $i/$count\n";
+
       if ($searchKey['sek_relationship'] == 1) {
-        $stmt = 'UPDATE ' . $table . "_" . $searchKey['sek_title_db'] . "__shadow" .
+        $stmt = "SELECT DISTINCT rek_${searchKey['sek_title_db']}_pid FROM $shadowTable";
+        $pids = [];
+        try {
+          $pids = $this->_db->fetchCol($stmt);
+        } catch (Exception $ex) {}
+
+        $stmt = 'UPDATE ' . $shadowTable .
           ' SET rek_' . $searchKey['sek_title_db'] . '_stamp = :stamp' .
           ' WHERE rek_' . $searchKey['sek_title_db'] . '_pid = :pid';
-        foreach ($records as $rek) {
-          $data = [
-            ':pid' => $rek['rek_pid'],
-            ':stamp' => $rek['rek_updated_date'],
-          ];
-          try {
-            $this->_db->query($stmt, $data);
-          } catch (Exception $ex) {
-            $this->_log->err($ex);
-            echo "Failed to update stamp for pid=" . $rek['rek_pid'];
+        foreach ($pids as $pid) {
+          if (array_key_exists($pid, $recordDates)) {
+            $data = [
+              ':pid' => $pid,
+              ':stamp' => $recordDates[$pid],
+            ];
+            try {
+              $this->_db->query($stmt, $data);
+            } catch (Exception $ex) {}
           }
         }
       }
