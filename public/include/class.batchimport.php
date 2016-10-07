@@ -335,10 +335,8 @@ class BatchImport
     if (is_file($temp_store) && !$is_temp_file) {
       unlink($temp_store);
     }
-    if (APP_FEDORA_BYPASS != 'ON') {
-      Record::setIndexMatchingFields($pid);
-    }
-
+    Record::setIndexMatchingFields($pid);
+    
     if (is_numeric($qat_id) && $qat_id != "-1" && $qat_id != -1) {
       if (APP_FEDORA_BYPASS == 'ON') {
         FezACML::updateDatastreamQuickRule($pid, $qat_id, $did);

@@ -2777,7 +2777,7 @@ class AuthNoFedora
 
 
   //set inherit permissions
-  public static function setInherited($pid, $inherited = 1, $recalcPermissions = true)
+  public static function setInherited($pid, $inherited = 1)
   {
     $log = FezLog::get();
     $db = DB_API::get();
@@ -2792,9 +2792,7 @@ class AuthNoFedora
       $log->err($ex);
       return array();
     }
-    if ($recalcPermissions) {
-      AuthNoFedora::recalculatePermissions($pid);
-    }
+
     return $res;
   }
 
@@ -2814,7 +2812,6 @@ class AuthNoFedora
       return array();
     }
 
-    AuthNoFedora::recalculatePermissions($pid);
     return $res;
   }
 
@@ -3056,8 +3053,8 @@ class AuthNoFedora
     $arg_id = AuthRules::getOrCreateRuleGroupArIds($newGroup);
     AuthNoFedora::addRoleSecurityPermissions($pid, $role, $arg_id, '0');
 
-    //Added non inherited permissions now need to recalculate global permissions
-//        AuthNoFedora::recalculatePermissions($pid);
+    // Added non inherited permissions now need to recalculate global permissions
+    // AuthNoFedora::recalculatePermissions($pid);
   }
 
   public function deleteSecurityPermissions($pid, $role, $ar_id)
@@ -3080,7 +3077,7 @@ class AuthNoFedora
       AuthNoFedora::addRoleSecurityPermissions($pid, $role, $arg_id, '0');
     }
     //Added non inherited permissions now need to recalculate global permissions
-//        AuthNoFedora::recalculatePermissions($pid);
+    // AuthNoFedora::recalculatePermissions($pid);
   }
 
   public static function getAuthorisationGroups($pid, $dsID = '', $skipUserPerms = false)

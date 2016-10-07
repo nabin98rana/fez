@@ -399,6 +399,7 @@ class RecordObject extends RecordGeneral
 
       if ($newPid) {
         AuthNoFedora::setInherited($this->pid); //This also calls recalculate permissions after setting inherit to true
+        AuthNoFedora::recalculatePermissions($this->pid);
       }
 
     } else {
