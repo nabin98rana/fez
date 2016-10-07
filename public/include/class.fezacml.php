@@ -144,7 +144,20 @@ class FezACML
     $log = FezLog::get();
     $db = DB_API::get();
 
-    if (! self::datastreamQuickRuleExists($pid, $rule)) {
+    if ($rule == 0) {
+      $data = [
+        ':pid' => $pid
+      ];
+      $stmt = "DELETE FROM " . APP_TABLE_PREFIX . "auth_quick_rules_pid "
+        . "WHERE qrp_pid=:pid";
+      try {
+        $db->query($stmt, $data);
+
+      } catch (Exception $ex) {
+        $log->err($ex);
+      }
+    }
+    else if (! self::datastreamQuickRuleExists($pid, $rule)) {
       $data = [
         ':pid' => $pid,
         ':qac_id' => $rule

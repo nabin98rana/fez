@@ -350,7 +350,7 @@ class Fedora_API implements FedoraApiInterface {
 		$dataPath = Fedora_API::getDataPath($pid);
 
     if (stripos($dsLocation, APP_TEMP_DIR) === 0) {
-      $obj = $aws->postFile($dataPath, [$dsLocation]);
+      $obj = $aws->postFile($dataPath, [$dsLocation], false, $mimetype);
       if ($obj) {
         $obj = $obj[0];
       }
@@ -387,16 +387,11 @@ class Fedora_API implements FedoraApiInterface {
 	 */
 	public static function callGetDatastreams($pid, $createdDT = NULL, $dsState = 'A')
 	{
-		$aws = AWS::get();
-		$dataPath = Fedora_API::getDataPath($pid);
+    $dsArray = Datastream::getFullDatastreamInfo($pid);
 		$dataStreams = [];
-		$dsIDListArray = $aws->listObjects($dataPath);
 
-		foreach ($dsIDListArray as $object) {
-      $baseKey = basename($object['Key']);
-      if ($baseKey != basename($dataPath)) {
-        $dataStreams[] = Fedora_API::callGetDatastream($pid, $baseKey, $createdDT);
-      }
+		foreach ($dsArray as $object) {
+      $dataStreams[] = Fedora_API::callGetDatastream($pid, $object['dsi_dsid'], $createdDT);
 		}
 
 		//Add on the links 'R' based datastreams
@@ -482,7 +477,7 @@ class Fedora_API implements FedoraApiInterface {
 		$dsData['versionID'] = $dsArray['dsi_version'];
 		$dsData['label'] = ''; //TODO: convert to use PUT'd metadata for label
 		$dsData['controlGroup'] = "M";
-    $dsData['MIMEType'] = $dsArray['dsi_mime_type'];
+    $dsData['MIMEType'] = $dsArray['dsi_mimetype'];
 		$dsData['createDate'] = NULL; //(string)$dsArray['LastModified']; //TODO: convert to saved meta
 		$dsData['location'] = $dataPath."/".$dsID;
 		$dsData['formatURI'] = NULL; //TODO Check if this is needed and if so fill with a real value.

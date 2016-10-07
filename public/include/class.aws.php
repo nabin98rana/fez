@@ -244,7 +244,7 @@ class AWS
    * @param bool $deleteAfter if true it will unlink each file in $files after each successful upload
    * @return array|boolean An array of AWS\Result objects, or false if the post failed
    */
-  public function postFile($src, $files, $deleteAfter = false)
+  public function postFile($src, $files, $deleteAfter = false, $mimeType = false)
   {
     // Create an Amazon S3 client using the shared configuration data.
     $client = $this->sdk->createS3();
@@ -265,22 +265,17 @@ class AWS
         return false;
       }
       $baseFile = basename($file);
-      $mimeType = Misc::mime_content_type($file);
+      if (! $mimeType) {
+        $mimeType = Misc::mime_content_type($file);
+      }
       $key = $this->createPath($src, $baseFile);
-      $meta = [
-          'key'  => $baseFile,
-          'type' => $mimeType,
-          'name' => $baseFile,
-          'size' => $fileSize,
-      ];
       try {
         $res = $client->putObject([
             'Bucket' => $this->s3Bucket,
             'Key' => $key,
             'SourceFile' => $file,
             'ContentType' => $mimeType,
-            'ServerSideEncryption' => 'AES256',
-            'Metadata' => $meta
+            'ServerSideEncryption' => 'AES256'
         ]);
         $results[] = $res;
       } catch (\Aws\S3\Exception\S3Exception $e) {
