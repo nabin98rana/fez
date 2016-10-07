@@ -163,7 +163,7 @@ class FulltextIndex_ElasticSearch extends FulltextIndex
         }
       }
       foreach ($facetsToUse as $facet) {
-        $params["facets"][$facet] = ["terms" => ["field" => $facet, "size" => $facet_limit, "min_doc_count" => $facet_mincount]];
+        $params["facets"][$facet] = ["terms" => ["field" => $facet, "size" => (int)$facet_limit, "min_doc_count" => (int)$facet_mincount]];
       }
       // filtering
       $params['fq'] = $query['filter'];
@@ -229,7 +229,7 @@ class FulltextIndex_ElasticSearch extends FulltextIndex
     }
     $snips = array();
     $total_rows = $results['hits']['total'];
-    $facets = $this->extractFacets($results['aggregations']);
+    //$facets = $this->extractFacets($results['aggregations']);
 
     if ($total_rows > 0) {
       $i = 0;
@@ -294,7 +294,7 @@ class FulltextIndex_ElasticSearch extends FulltextIndex
 
     return array(
         'total_rows' => $total_rows,
-        'facets' => $facets,
+        'facets' => array(),
         'docs' => $docs,
         'snips' => array()
     );
