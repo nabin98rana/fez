@@ -232,7 +232,6 @@ class AuthNoFedoraDatastreams
       return array();
     }
 
-    AuthNoFedoraDatastreams::recalculatePermissions($did);
     return $res;
   }
 
@@ -252,7 +251,6 @@ class AuthNoFedoraDatastreams
       return array();
     }
 
-    AuthNoFedoraDatastreams::recalculatePermissions($did);
     return $res;
   }
 
@@ -273,7 +271,6 @@ class AuthNoFedoraDatastreams
       return array();
     }
 
-    AuthNoFedoraDatastreams::recalculatePermissions($did);
     return $res;
   }
 
@@ -293,7 +290,6 @@ class AuthNoFedoraDatastreams
       return array();
     }
 
-    AuthNoFedoraDatastreams::recalculatePermissions($did);
     return $res;
   }
 
@@ -313,7 +309,6 @@ class AuthNoFedoraDatastreams
       return array();
     }
 
-    AuthNoFedoraDatastreams::recalculatePermissions($did);
     return $res;
   }
 
@@ -333,7 +328,6 @@ class AuthNoFedoraDatastreams
       return array();
     }
 
-    AuthNoFedoraDatastreams::recalculatePermissions($did);
     return $res;
   }
 
@@ -517,7 +511,7 @@ class AuthNoFedoraDatastreams
       AuthNoFedoraDatastreams::deletePermissions($did, '1');
       AuthNoFedoraDatastreams::deletePermissions($did, '0');
       foreach ($datastreamPolicyPermissions as $permissions) {
-        AuthNoFedoraDatastreams::addSecurityPermissions($did, $permissions['qac_aro_id'], $permissions['argr_ar_id'], false);
+        AuthNoFedoraDatastreams::addSecurityPermissions($did, $permissions['qac_aro_id'], $permissions['argr_ar_id']);
       }
 
     }
@@ -573,7 +567,7 @@ class AuthNoFedoraDatastreams
     }
   }
 
-  public static function addSecurityPermissions($did, $role, $ar_id, $recalculate = true)
+  public static function addSecurityPermissions($did, $role, $ar_id)
   {
     $log = FezLog::get();
     $db = DB_API::get();
@@ -588,11 +582,6 @@ class AuthNoFedoraDatastreams
     AuthNoFedoraDatastreams::deletePermissions($did, '0', $role);
     $arg_id = AuthRules::getOrCreateRuleGroupArIds($newGroup);
     AuthNoFedoraDatastreams::addRoleSecurityPermissions($did, $role, $arg_id, '0');
-
-    //Added non inherited permissions now need to recalculate global permissions unless it's a datastream policy
-    if ($recalculate) {
-      AuthNoFedoraDatastreams::recalculatePermissions($did);
-    }
   }
 
   public static function deleteSecurityPermissions($did, $role, $ar_id)
@@ -614,8 +603,6 @@ class AuthNoFedoraDatastreams
     if ($arg_id) {
       AuthNoFedoraDatastreams::addRoleSecurityPermissions($did, $role, $arg_id, '0');
     }
-    //Added non inherited permissions now need to recalculate global permissions
-    AuthNoFedoraDatastreams::recalculatePermissions($did);
   }
 
   public static function getAllSecurityPermissionsDescriptions($did)

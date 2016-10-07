@@ -408,7 +408,6 @@ class Fez_Record_Searchkey
     foreach ($perms as $perm) {
       AuthNoFedora::addRoleSecurityPermissions($new_pid, $perm['authii_role'], $perm['argr_arg_id'], '0');
     }
-    AuthNoFedora::recalculatePermissions($new_pid);
 
     if (!empty($clone_attached_datastreams)) {
       $datastreams = Fedora_API::callGetDatastreams($pid);
@@ -427,9 +426,6 @@ class Fez_Record_Searchkey
             foreach ($perms as $perm) {
               AuthNoFedoraDatastreams::addRoleSecurityPermissions($new_did, $perm['authdii_role'], $perm['argr_arg_id'], '0');
             }
-
-            AuthNoFedoraDatastreams::recalculatePermissions($new_did);
-
             Exiftool::cloneExif($pid, $ds_value['ID'], $new_pid, $ds_value['ID']);
 
           } else if ($ds_value['controlGroup'] == 'R') {
@@ -442,6 +438,7 @@ class Fez_Record_Searchkey
         }
       }
     }
+    AuthNoFedora::recalculatePermissions($new_pid);
     return $new_pid;
   }
 
