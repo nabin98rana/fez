@@ -79,7 +79,9 @@ class BackgroundProcess_Db_Load extends BackgroundProcess
     $files = glob($path . "/*.sql");
     foreach ($files as $sql) {
       $tbl = basename($sql, '.sql');
-      $db->query('DROP TABLE IF EXISTS ' . $tbl);
+      if (strpos($tbl, 'scd_') !== 0) {
+        $db->query('DROP TABLE IF EXISTS ' . $tbl);
+      }
       if ($tbl !== 'fez_config') {
         $sql = file_get_contents($sql);
         $db->query($sql);
