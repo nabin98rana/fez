@@ -363,6 +363,31 @@ class MigrateFromFedoraToDatabase
    */
   private function updateShadowTableStampsAndAddPidSecurity()
   {
+
+    $stmt = "SELECT rek_pid, rek_updated_date, rek_security_inherited FROM " .
+      APP_TABLE_PREFIX . "record_search_key WHERE rek_security_inherited IS NULL";
+    try {
+      $records = $this->_db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
+    } catch (Exception $ex) {
+      $this->_log->err($ex);
+      echo "Failed to retrieve pids. Error: " . $ex;
+      return false;
+    }
+
+    $count = count($records);
+    $i = 0;
+    foreach ($records as $rek) {
+      $i++;
+      echo " - Updating rek_security_inherited $i/$count\n";
+      $acml = $this->getFezACML($rek['rek_pid'], 'FezACML');
+      if ($this->inheritsPermissions($acml)) {
+        AuthNoFedora::setInherited($rek['rek_pid'], 1, false);
+      }
+      else {
+        AuthNoFedora::setInherited($rek['rek_pid'], 0, false);
+      }
+    }
+
     $searchKeys = Search_Key::getList();
     $stmt = "SELECT rek_pid, rek_updated_date, rek_security_inherited FROM " .
       APP_TABLE_PREFIX . "record_search_key";
@@ -374,22 +399,12 @@ class MigrateFromFedoraToDatabase
       return false;
     }
 
-    foreach ($records as $rek) {
-      if ($rek['rek_security_inherited'] === 0 || $rek['rek_security_inherited'] === 1) {
-        // Already updated
-        continue;
-      }
-      $acml = $this->getFezACML($rek['rek_pid'], 'FezACML');
-      if ($this->inheritsPermissions($acml)) {
-        AuthNoFedora::setInherited($rek['rek_pid'], 1, false);
-      }
-      else {
-        AuthNoFedora::setInherited($rek['rek_pid'], 0, false);
-      }
-    }
-
+    $count = count($records);
+    $i = 0;
     $table = APP_TABLE_PREFIX . "record_search_key";
     foreach ($searchKeys as $searchKey) {
+      $i++;
+      echo " - Updating $table . \"_\" . ${searchKey['sek_title_db']} . \"__shadow\" $i/$count\n";
       if ($searchKey['sek_relationship'] === 1) {
         $stmt = 'UPDATE ' . $table . "_" . $searchKey['sek_title_db'] . "__shadow" .
           ' SET rek_' . $searchKey['sek_title_db'] . '_stamp = :stamp' .
