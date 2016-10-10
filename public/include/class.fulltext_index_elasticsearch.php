@@ -229,7 +229,7 @@ class FulltextIndex_ElasticSearch extends FulltextIndex
     }
     $snips = array();
     $total_rows = $results['hits']['total'];
-    //$facets = $this->extractFacets($results['aggregations']);
+    $facets = $this->extractFacets($results['aggregations']);
 
     if ($total_rows > 0) {
       $i = 0;
@@ -355,9 +355,9 @@ class FulltextIndex_ElasticSearch extends FulltextIndex
     if (is_array($aggs)) {
 
 
-      foreach ($aggs as $agg) {
+//      foreach ($aggs as $agg) {
 
-        if ($facetType == 'facet_fields') {
+
 
           /*
            * We have to loop through every search key because
@@ -375,7 +375,7 @@ class FulltextIndex_ElasticSearch extends FulltextIndex
             }
 
 
-            if (isset($facetData->$solr_name)) {
+            if (isset($aggs[$solr_name])) {
 
               /*
                * Convert (if possible) values into text representation
@@ -386,19 +386,21 @@ class FulltextIndex_ElasticSearch extends FulltextIndex
 
               $allDifferent = true;
               $previousNum = 0;
-              foreach ($facetData->$solr_name as $valueCheck => $numInFacetCheck) {
-                if ($numInFacetCheck == $previousNum) {
+              foreach ($aggs[$solr_name]['buckets'] as $bucket) {
+                // $valueCheck => $numInFacetCheck
+                if ($bucket['doc_count'] == $previousNum) {
                   $allDifferent = false;
                 }
-                $previousNum = $numInFacetCheck;
+                $previousNum = $bucket['doc_count'];
               }
 
-              foreach ($facetData->$solr_name as $value => $numInFacet) {
+              foreach ($aggs[$solr_name]['buckets'] as $bucket) {
+                //$value => $numInFacet
                 $valueFound = '';
                 // don't add the lookup values, just the ids
                 if (!is_numeric(strpos($solr_name, '_lookup'))) {
 
-                  $id = $value;
+                  $id = $bucket['key'];
                   if (!empty($sval['sek_lookup_function'])) {
 //                        $solr_name_cut = preg_replace('/(.*)({_t_s|_mt|_t|_t_s|_dt|_ms|_s|_t_ws|_t_ft|_f|_mws|_ft|_mft|_mtl|_l|_mi|_i|_b|_mdt|_mt_exact}$)/', '$1', $solr_name);
                     // Try and get the lookup names from inside the facet returned values themselves
