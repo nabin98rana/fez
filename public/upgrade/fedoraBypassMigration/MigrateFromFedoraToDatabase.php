@@ -228,7 +228,7 @@ class MigrateFromFedoraToDatabase
     if ($this->_env != 'production') {
       return;
     }
-    
+
     $stmt = "select token, path from datastreamPaths   
       where path like '/espace/data/fedora_datastreams/2016/08%'
         and token like 'UQ:399648+%'
@@ -513,7 +513,7 @@ class MigrateFromFedoraToDatabase
     $stmt = "SELECT rek_pid FROM " . APP_TABLE_PREFIX . "record_search_key
       LEFT JOIN fez_record_search_key_ismemberof
       ON rek_ismemberof_pid = rek_pid
-      WHERE rek_ismemberof IS NULL";
+      WHERE rek_ismemberof IS NULL and rek_object_type != 3";
 
     $res = [];
     try {
@@ -526,7 +526,7 @@ class MigrateFromFedoraToDatabase
     $count = count($res);
     foreach ($res as $pid) {
       $i++;
-      AuthNoFedora::recalculatePermissions($pid);
+      AuthNoFedora::recalculatePermissions($pid, false, false);
       echo "Done $i/$count\n";
     }
   }
