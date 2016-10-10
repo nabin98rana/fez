@@ -154,7 +154,7 @@ class MigrateFromFedoraToDatabase
     // Update shadow key stamp with rek_updated_date in core SK table
     // Update rek_security_inherited from FezACML for the pids
     echo " - Updating shadow tables and pid security..\n";
-    $this->updateShadowTableStampsAndAddPidSecurity();
+//    $this->updateShadowTableStampsAndAddPidSecurity();
     echo "..done!\n";
 
     // Datastream (attached files) migration
