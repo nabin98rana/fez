@@ -44,6 +44,7 @@ InitSystem::runDatabaseTasks($tasks);
 
 Class InitSystem
 {
+  const seedPath = './../../.docker/development/backend/db/seed/';
 
   /**
    * This method creates the database (if necessary), and sets up all tables & start-up data.
@@ -52,7 +53,6 @@ Class InitSystem
    */
   public static function runDatabaseTasks($tasks)
   {
-
     $host = 'fezdb';
     $database = 'fez';
     $user = 'fez';
@@ -85,6 +85,12 @@ Class InitSystem
         break;
       case 'seed':
         InitSystem::runSeed($conn);
+        break;
+      case 'setupaws':
+        InitSystem::runSetupAWS($conn);
+        break;
+      case 'migrate':
+        InitSystem::runMigrate();
         break;
       default:
         break;
@@ -167,8 +173,7 @@ Class InitSystem
    */
   public static function runSeed($conn)
   {
-    $path = './../../.docker/development/backend/db/seed/';
-//  parseMySQLdump($conn, $path . "installdb.sql");
+    $path = InitSystem::seedPath;
     InitSystem::parseMySQLdump($conn, $path . "citation.sql");
     InitSystem::parseMySQLdump($conn, $path . "cvs.sql");
     InitSystem::parseMySQLdump($conn, $path . "development.sql");
@@ -179,33 +184,14 @@ Class InitSystem
       InitSystem::parseMySQLdump($conn, $path . "jetsetup.sql");
       InitSystem::parseMySQLdump($conn, $path . "disablesolr.sql");
     }
+  }
 
-    // Finished unless AWS environment is configured
-    if (
-    !(
-        array_key_exists('AWS_ACCESS_KEY_ID', $_SERVER) &&
-        array_key_exists('AWS_SECRET_ACCESS_KEY', $_SERVER) &&
-        array_key_exists('FEZ_S3_BUCKET', $_SERVER) &&
-        array_key_exists('FEZ_S3_CACHE_BUCKET', $_SERVER) &&
-        array_key_exists('FEZ_S3_SRC_PREFIX', $_SERVER) &&
-        (
-            strpos($_SERVER['FEZ_S3_BUCKET'], 'uql-fez-dev') === 0 ||
-            strpos($_SERVER['FEZ_S3_BUCKET'], 'uql-fez-testing') === 0
-        )
-    )
-    ) {
+  public static function runSetupAWS($conn) {
+    if (! InitSystem::isConfiguredToUseAWS()) {
       return;
     }
 
-    // Dev bucket requires a prefix as it's shared amongst multiple developers
-    if (
-        $_SERVER['FEZ_S3_BUCKET'] === 'uql-fez-dev' &&
-        empty($_SERVER['FEZ_S3_SRC_PREFIX'])
-    ) {
-      return;
-    }
-
-    InitSystem::parseMySQLdump($conn, $path . "aws.sql");
+    InitSystem::parseMySQLdump($conn, InitSystem::seedPath . "aws.sql");
 
     include_once './../../public/config.inc.php';
     $aws = AWS::get();
@@ -221,9 +207,6 @@ Class InitSystem
       $aws->deleteMatchingObjects($p);
       $aws->putObject($p . '/', array('StorageClass' => 'REDUCED_REDUNDANCY'));
     }
-
-    include_once(APP_INC_PATH . "/../upgrade/fedoraBypassMigration/MigrateFromFedoraToDatabase.php");
-    $migrate = new MigrateFromFedoraToDatabase();
 
     $db = DB_API::get();
     try {
@@ -243,13 +226,49 @@ Class InitSystem
           " SET config_value = '' " .
           " WHERE config_name='app_fedora_pwd'");
 
-      InitSystem::parseMySQLdump($conn, $path . "nofedora.sql");
-
     } catch (Exception $ex) {
       return;
     }
-    $migrate = new MigrateFromFedoraToDatabase(false);
+  }
+
+  public static function runMigrate()
+  {
+    if (! InitSystem::isConfiguredToUseAWS()) {
+      return;
+    }
+    include_once './../../public/config.inc.php';
+
+    include_once(APP_INC_PATH . "/../upgrade/fedoraBypassMigration/MigrateFromFedoraToDatabase.php");
+    $migrate = new MigrateFromFedoraToDatabase();
     $migrate->runMigration();
   }
 
+  private function isConfiguredToUseAWS()
+  {
+    if (
+    !(
+      array_key_exists('AWS_ACCESS_KEY_ID', $_SERVER) &&
+      array_key_exists('AWS_SECRET_ACCESS_KEY', $_SERVER) &&
+      array_key_exists('FEZ_S3_BUCKET', $_SERVER) &&
+      array_key_exists('FEZ_S3_CACHE_BUCKET', $_SERVER) &&
+      array_key_exists('FEZ_S3_SRC_PREFIX', $_SERVER) &&
+      (
+        strpos($_SERVER['FEZ_S3_BUCKET'], 'uql-fez-dev') === 0 ||
+        strpos($_SERVER['FEZ_S3_BUCKET'], 'uql-fez-testing') === 0
+      )
+    )
+    ) {
+      return false;
+    }
+
+    // Dev/testing bucket requires a prefix as it's shared amongst multiple developers/test processes
+    if (
+      ($_SERVER['FEZ_S3_BUCKET'] === 'uql-fez-dev' || $_SERVER['FEZ_S3_BUCKET'] === 'uql-fez-testing') &&
+      empty($_SERVER['FEZ_S3_SRC_PREFIX'])
+    ) {
+      return false;
+    }
+
+    return true;
+  }
 }

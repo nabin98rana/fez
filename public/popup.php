@@ -362,7 +362,7 @@ switch ($cat) {
     $pid = $wfstatus->pid;
     //$dsID = $wfstatus->dsID;
 
-    if ($datastream_policy) {
+    if (array_key_exists('datastream_policy', $_REQUEST)) {
       FezACML::updateDatastreamQuickRule($pid, $datastream_policy);
     }
     if ($did != "") {
@@ -371,7 +371,6 @@ switch ($cat) {
       }
       else {
         AuthNoFedoraDatastreams::deleteInherited($did);
-        AuthNoFedoraDatastreams::recalculatePermissions($did);
       }
       if ($_REQUEST['copyright']) {
         AuthNoFedoraDatastreams::setCopyright($did);
@@ -391,12 +390,10 @@ switch ($cat) {
           $toDeleteinfo = explode(",", $toDelete);
           AuthNoFedoraDatastreams::deleteSecurityPermissions($did, $toDeleteinfo[0], $toDeleteinfo[1]);
         }
-        AuthNoFedoraDatastreams::recalculatePermissions($did);
       }
       if (!empty($group)) {
         $arId = AuthRules::getOrCreateRule("!rule!role!" . $groupsType, $group);
         AuthNoFedoraDatastreams::addSecurityPermissions($did, $role, $arId);
-        AuthNoFedoraDatastreams::recalculatePermissions($did);
       }
     }
     else {
@@ -416,9 +413,9 @@ switch ($cat) {
       if (!empty($group)) {
         $arId = AuthRules::getOrCreateRule("!rule!role!" . $groupsType, $group);
         AuthNoFedora::addSecurityPermissions($pid, $role, $arId);
-        AuthNoFedoraDatastreams::recalculatePermissions($did);
       }
     }
+    AuthNoFedora::recalculatePermissions($pid);
     $tpl->assign("update_form_result", $res);
     $wfstatus->checkStateChange(TRUE);
     break;

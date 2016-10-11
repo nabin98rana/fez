@@ -6,7 +6,7 @@ CREATE TABLE %TABLE_PREFIX%fulltext_cache (
 	ftc_dsid varchar(64) NOT NULL default '',
 	PRIMARY KEY  (ftc_id),
 	UNIQUE KEY ftc_key USING BTREE (ftc_pid,ftc_dsid)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE %TABLE_PREFIX%fulltext_locks (
 	ftl_name varchar(8) NOT NULL,
@@ -22,5 +22,5 @@ CREATE TABLE  %TABLE_PREFIX%fulltext_queue (
 	PRIMARY KEY  (ftq_key)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-insert ignore into %TABLE_PREFIX%config (config_name, config_module, config_value) 
+insert ignore into %TABLE_PREFIX%config (config_name, config_module, config_value)
 values ('app_solr_switch','core','OFF'),('app_solr_host','core',''),('app_solr_port','core',''),('app_solr_path','core','');

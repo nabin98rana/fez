@@ -1272,7 +1272,7 @@ class Record
 //    $diff = Misc::array_diff_assoc_recursive($sekData, $existingData[0]);
     if (is_array($sekData[0])) {
         foreach ($sekData[0] as $sek_column => $sek_value) {
-            //Check that the column value has changed before using it
+          //Check that the column value has changed before using it
             if ((!is_array($existingData) || !isset($existingData[0]['rek_'.$sek_column]) || $existingData[0]['rek_'.$sek_column] != $sek_value['xsdmf_value']) &&
               !($sek_value['xsdmf_value'] == '' && $existingData[0]['rek_'.$sek_column] == null) ) {
               $stmt[] = "rek_{$sek_column}, rek_{$sek_column}_xsdmf_id";
@@ -1291,6 +1291,8 @@ class Record
                   } else {
                     $xsdmf_value = 0;
                   }
+                } else {
+                  $xsdmf_value = $db->quote(trim($sek_value['xsdmf_value']));
                 }
               } else {
                 $sek_value['xsdmf_value'] = (is_array($sek_value['xsdmf_value']) && array_key_exists('Year', $sek_value['xsdmf_value']))
@@ -1394,6 +1396,11 @@ class Record
                 //Error_Handler::logError($sek_value['xsdmf_value']);
               }
             }
+            //check boxes are special, if there is no value it should save as off
+            if ($searchKeyDetails['sek_html_input'] == 'checkbox') {
+              $notEmpty = 1;
+            }
+
 
             if ($notEmpty) { // only write values to tables if the value is not empty
 
@@ -1424,6 +1431,7 @@ class Record
               }
               $stmt .= ") VALUES ";
 
+
               if (is_array($sek_value['xsdmf_value'])) {
 
                 $cardinalityVal = 1;
@@ -1442,6 +1450,12 @@ class Record
                 unset($stmtVars);
 
               } else {
+                if ($searchKeyDetails['sek_html_input'] == 'checkbox') {
+                  if ($sek_value['xsdmf_value'] != 'on') {
+                    $sek_value['xsdmf_value'] = 'off';
+                  }
+                }
+
                 if ($sek_value['xsdmf_value'] == 'on' || $sek_value['xsdmf_value'] == 'off') {
                   if ($searchKeyDetails['sek_data_type'] == 'int') {
                     if ($sek_value['xsdmf_value'] == 'on') {
@@ -1751,11 +1765,12 @@ class Record
    */
   public static function setIndexMatchingFields($pid)
   {
-    $log = FezLog::get();
     $record = new RecordObject($pid);
     $record->setIndexMatchingFields();
 
-    AuthIndex::setIndexAuth($pid); //set the security index
+    if (APP_FEDORA_BYPASS != 'ON') {
+      AuthIndex::setIndexAuth($pid); //set the security index
+    }
   }
 
   function setIndexMatchingFieldsRecurse($pid, $bgp=null, $fteindex = true)
@@ -1786,7 +1801,7 @@ class Record
    * @param   string $pid The persistent identifier of the object
    * @param   string $dsID (optional) The datastream ID
    * @param   string $createdDT (optional) Fedora timestamp of version to retrieve
-   * @return  domdocument $xmldoc A Dom Document of the XML or false if not found
+   * @return  bool|domdocument $xmldoc A Dom Document of the XML or false if not found
    *
    *
    * @uses
@@ -1858,6 +1873,9 @@ class Record
           $acml_cache['pid'][$pid] = $xmldoc;
         }
       }
+      if ($ds_pattern === false) {
+        Record::updateSekInherited($pid, $xmldoc);
+      }
       return $xmldoc;
     } else {
       if ($GLOBALS['app_cache']) {
@@ -1868,10 +1886,40 @@ class Record
         if ($dsID != "") {
           $acml_cache['ds'][$dsID][$pid] = false;
         } else {
+          if ($ds_pattern === false) {
+            Record::updateSekInherited($pid);
+          }
           $acml_cache['pid'][$pid] = false;
         }
         return false;
       }
+    }
+  }
+
+  /**
+   * @param string $pid
+   * @param bool|DOMDocument $xmlDoc
+   */
+  function updateSekInherited($pid, $xmlDoc = false)
+  {
+    $db = DB_API::get();
+
+    $inherited = 1;
+    if ($xmlDoc instanceof DOMDocument) {
+      $xpath = new DOMXPath($xmlDoc);
+      $inheritSearch = $xpath->query('/FezACML[inherit_security="off"]');
+      if ($inheritSearch->length > 0) {
+        $inherited = 0;
+      }
+    }
+    // Populate rek_security_inherited
+    $stmt = "UPDATE " . APP_TABLE_PREFIX . "record_search_key
+                SET rek_security_inherited = " . $db->quote($inherited) . "
+                WHERE rek_pid = " . $db->quote($pid);
+
+    try {
+      $db->exec($stmt);
+    } catch (Exception $ex) {
     }
   }
 

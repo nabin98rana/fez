@@ -72,9 +72,6 @@ if ($isAdministrator || $isUPO) {
         if (array_key_exists('rj_tier_rank', $rjinfo) && $rjinfo['rj_tier_rank'] == '') {
           $rjinfo['rj_2010_rank'] = "N/R";
         }
-        if (array_key_exists('rj_tier_title', $rjinfo)) {
-          $rjl_spyglass .= "(UQ Tiered Journal List: ".$rjinfo['rj_tier_title'].", ranked UQ Tier ".$rjinfo['rj_tier_rank'].")</br>";
-        }
 
         if (array_key_exists('rj_2010_rank', $rjinfo) && $rjinfo['rj_2010_rank'] == '') {
             $rjinfo['rj_2010_rank'] = "N/R";

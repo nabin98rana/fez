@@ -575,7 +575,7 @@ class RecordGeneral
       // Update record search key
       $recordSearchKey = new Fez_Record_Searchkey($this->pid);
       $recordSearchKey->updateRecordIsMemberOf($value, $removeCurrent);
-      return;
+      return 1;
     }
 
     $newXML = "";
@@ -1397,7 +1397,7 @@ class RecordGeneral
     for ($i = 0; $i < $authors_count; $i++) {
       $authors[$i]['match'] = FALSE;
       $percent = 0;
-      if ($aut_details['aut_org_username']) {
+      if ($aut_details['aut_org_username'] || $aut_details['aut_student_username']) {
         if ($known) {
           // Last name match first, if we have $authors[$i]['name'] in the format LName, F
           $name_parts = explode(',', $authors[$i]['name']);
@@ -2490,8 +2490,10 @@ class RecordGeneral
       }
     }
 
-    Record::removeIndexRecord($pid, false); // clean out the SQL index, but do not remove from Solr,
-                                                // the solr entry will get updated in updateSearchKeys
+    if (APP_FEDORA_BYPASS != 'ON') {
+      Record::removeIndexRecord($pid, FALSE); // clean out the SQL index, but do not remove from Solr,
+      // the solr entry will get updated in updateSearchKeys
+    }
 
     Record::updateSearchKeys($pid, $searchKeyData);
     if (APP_FEDORA_BYPASS == 'ON') {

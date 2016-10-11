@@ -2793,7 +2793,6 @@ class AuthNoFedora
       return array();
     }
 
-    AuthNoFedora::recalculatePermissions($pid);
     return $res;
   }
 
@@ -2813,7 +2812,6 @@ class AuthNoFedora
       return array();
     }
 
-    AuthNoFedora::recalculatePermissions($pid);
     return $res;
   }
 
@@ -2922,8 +2920,22 @@ class AuthNoFedora
   }
 
   //This assumes parent or non inherited data might be changed
-  public static function recalculatePermissions($pid)
+  public static function recalculatePermissions($pid, $sendToQueue = true, $poisonCache = true)
   {
+    // Ensure we don't repeat the same pid as this is unnecessary
+    if (!Zend_Registry::isRegistered('alreadyRegistered')) {
+      Zend_Registry::set('alreadyRegistered', array($pid));
+    } else {
+      $alreadyRegistered = Zend_Registry::get('alreadyRegistered');
+      if (in_array($pid, $alreadyRegistered)) {
+        //already done this pid, so skip it
+        return;
+      } else {
+        array_push($alreadyRegistered, $pid);
+        Zend_Registry::set('alreadyRegistered', $alreadyRegistered);
+      }
+    }
+
     $pidParentPermissions = AuthNoFedora::getParentsACML($pid);
     $pidNonInheritedPermissions = AuthNoFedora::getNonInheritedSecurityPermissions($pid);
     $pidCalculatedPermissions = array_merge($pidParentPermissions, $pidNonInheritedPermissions);
@@ -2939,6 +2951,9 @@ class AuthNoFedora
 
     $listerId = Auth::getRoleIDByTitle('Lister');
     $viewerId = Auth::getRoleIDByTitle('Viewer');
+
+    $listerDone = false;
+    $viewerDone = false;
 
     AuthNoFedora::deletePermissions($pid);
     if (is_array($newGroups)) {
@@ -2969,7 +2984,7 @@ class AuthNoFedora
     $record = new RecordObject($pid);
     $childPids = $record->getChildrenPids();
     foreach ($childPids as $child) {
-      AuthNoFedora::recalculatePermissions($child);
+      AuthNoFedora::recalculatePermissions($child, $sendToQueue, $poisonCache);
     }
 
     //datastream children
@@ -2982,13 +2997,13 @@ class AuthNoFedora
 
       }
     }
-    if (APP_FILECACHE == "ON") {
+    if (APP_FILECACHE == "ON" && $poisonCache) {
       $cache = new fileCache($pid, 'pid=' . $pid);
       $cache->poisonCache();
 
     }
     //assume solr need updating for new lister permissions
-    if (APP_SOLR_INDEXER == "ON") {
+    if (APP_SOLR_INDEXER == "ON" && $sendToQueue) {
       FulltextQueue::singleton()->add($pid);
       FulltextQueue::singleton()->commit();
     }
@@ -3055,8 +3070,8 @@ class AuthNoFedora
     $arg_id = AuthRules::getOrCreateRuleGroupArIds($newGroup);
     AuthNoFedora::addRoleSecurityPermissions($pid, $role, $arg_id, '0');
 
-    //Added non inherited permissions now need to recalculate global permissions
-//        AuthNoFedora::recalculatePermissions($pid);
+    // Added non inherited permissions now need to recalculate global permissions
+    // AuthNoFedora::recalculatePermissions($pid);
   }
 
   public function deleteSecurityPermissions($pid, $role, $ar_id)
@@ -3073,13 +3088,13 @@ class AuthNoFedora
       }
     }
 
-    AuthNoFedora::deletePermissions($pid, 0, $role);
+    AuthNoFedora::deletePermissions($pid, '0', $role);
     $arg_id = AuthRules::getOrCreateRuleGroupArIds($newGroup);
     if ($arg_id) {
       AuthNoFedora::addRoleSecurityPermissions($pid, $role, $arg_id, '0');
     }
     //Added non inherited permissions now need to recalculate global permissions
-//        AuthNoFedora::recalculatePermissions($pid);
+    // AuthNoFedora::recalculatePermissions($pid);
   }
 
   public static function getAuthorisationGroups($pid, $dsID = '', $skipUserPerms = false)

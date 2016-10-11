@@ -34,6 +34,14 @@ include_once('../config.inc.php');
 include_once(APP_INC_PATH . "class.db_api.php");
 include_once(APP_INC_PATH . "class.api_researchers.php");
 
+function jsonResponse($responseData, $responseCode=null) {
+  if (!is_null($responseCode)) {
+    http_response_code($responseCode);
+  }
+  echo json_encode($responseData);
+  exit(0);
+}
+
 $callback = $_GET['callback'];
 $callback = !empty($callback) ? preg_replace('/[^a-z0-9\.$_]/si', '', $callback) : false;
 header('Access-Control-Allow-Origin: *');
@@ -42,6 +50,7 @@ header('Content-Type: ' . ($callback ? 'application/javascript' : 'application/j
 $author_username  = trim($_GET['author_username']);
 $id  = trim($_GET['id']);
 $id_type  = trim($_GET['id_type']);
+$accounts  = array_key_exists('accounts', $_GET) ? $_GET['accounts'] === 1 : false;
 $list = trim($_GET['list']);
 
 //ORCID grant info
@@ -68,8 +77,36 @@ if ($securityToken != APP_API_IDS_TOKEN) {
     exit();
 }
 
-if (!empty($list)) {
+if ($accounts) {
+  $isStudent = preg_match('/^s\d+$/', $username);
+
+  switch ($_SERVER['REQUEST_METHOD']) {
+    case 'POST':
+      $result = ApiResearchers::linkUqAccounts($author_username, $value);
+      break;
+    case 'DELETE':
+      $result = ApiResearchers::removeUqAccountLinks($author_username);
+      break;
+    default:
+      $username = ApiResearchers::getLinkedUQAccount($author_username);
+      if ($username) {
+          jsonResponse([
+              ($isStudent ? 'staff_username' : 'student_username') => $username
+          ]);
+      } else {
+          jsonReponse([
+            "status" => "Fail",
+            "msg" => "No additional accounts found"
+          ], 404);
+      }
+  }
+} else if (!empty($list)) {
     $result = ApiResearchers::listId($author_username);
+
+    // don't allow this to be cached, should be real time
+    header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
+    header("Cache-Control: post-check=0, pre-check=0", false);
+    header("Pragma: no-cache");
 
     if ($result) {
       if (!empty($id_type)){

@@ -68,7 +68,7 @@ class BackgroundProcess_Db_Load extends BackgroundProcess
     if (! system("AWS_ACCESS_KEY_ID=" .
       AWS_KEY. " AWS_SECRET_ACCESS_KEY=" .
       AWS_SECRET .
-      " bash -c \"aws s3 cp s3://uql-fez-${environment}/fez${environment}.tar.gz ${path}/fez${environment}.tar.gz\"")
+      " bash -c \"aws s3 cp s3://uql-fez-${environment}-cache/fez${environment}.tar.gz ${path}/fez${environment}.tar.gz\"")
     ) {
       $log->err('DB load failed: Unable to copy Fez DB from S3');
       exit;
@@ -78,8 +78,14 @@ class BackgroundProcess_Db_Load extends BackgroundProcess
 
     $files = glob($path . "/*.sql");
     foreach ($files as $sql) {
-      $sql = file_get_contents($sql);
-      $db->query($sql);
+      $tbl = basename($sql, '.sql');
+      if (strpos($tbl, 'scd_') !== 0) {
+        $db->query('DROP TABLE IF EXISTS ' . $tbl);
+      }
+      if ($tbl !== 'fez_config') {
+        $sql = file_get_contents($sql);
+        $db->query($sql);
+      }
     }
 
     $files = glob($path . "/*.txt");
@@ -94,11 +100,14 @@ class BackgroundProcess_Db_Load extends BackgroundProcess
       $tbl = basename($txt, '.txt');
 
       $sql = "LOAD DATA LOCAL INFILE '${path}/" . basename($txt) . "' INTO TABLE ${tbl}" .
-        " FIELDS TERMINATED BY ',' ENCLOSED BY '\"' LINES TERMINATED BY '\\r\\n'";
+        " FIELDS TERMINATED BY ',' ENCLOSED BY '\"' LINES TERMINATED BY '\\n'";
       $stmt = $con->prepare($sql);
 
       $stmt->execute();
     }
+
+    $sql = file_get_contents($path . '/fez_config.sql');
+    $db->query($sql);
 
     $stmt = $con->prepare('DELETE FROM fez_user WHERE usr_username LIKE \'%\_test\'');
     $stmt->execute();
@@ -107,6 +116,7 @@ class BackgroundProcess_Db_Load extends BackgroundProcess
       // Run migration from Fedora -> S3
       $bgp = new BackgroundProcess_Migrate_Fedora();
       $bgp->register(serialize([]), User::getUserIDByUsername('webcron'));
+      sleep(60);
     }
   }
 }

@@ -229,7 +229,15 @@ class Fedora_API implements FedoraApiInterface {
 	 */
 	public static function callPurgeObject($pid)
 	{
+    $datastreams = Fedora_API::callGetDatastreams($pid);
+    foreach ($datastreams as $ds) {
+      if ($ds['controlGroup'] != 'R') {
+        Fedora_API::callPurgeDatastream($pid, $ds['ID']);
+      }
+    }
+    Links::purgeLinks($pid);
 
+    return true;
 	}
 
 	/**
@@ -270,7 +278,7 @@ class Fedora_API implements FedoraApiInterface {
 		if ($dsExists !== true) {
 			$dsID = Fedora_API::callAddDatastream($pid, $dsIDName, $file_full, $dsLabel, "A", $mimetype, $controlGroup, $versionable, '');
 		} else {
-      $dsID = Fedora_API::getDid($pid, $dsIDName);
+      $dsID = Datastream::getDid($pid, $dsIDName);
     }
 
 		if (is_file($file_full)) {
@@ -329,9 +337,10 @@ class Fedora_API implements FedoraApiInterface {
 	 * @param bool|string $versionable Whether to version control this datastream or not
 	 * @param string $xmlContent If it an X based xml content file then it uses a var rather than a file location
 	 * @param bool $unlinkLocalFile
+   * @param bool|string $srcBucket
 	 * @return integer
 	 */
-	public static function callAddDatastream($pid, $dsID, $dsLocation, $dsLabel, $dsState, $mimetype, $controlGroup = 'M', $versionable = FALSE, $xmlContent = "", $unlinkLocalFile = false)
+	public static function callAddDatastream($pid, $dsID, $dsLocation, $dsLabel, $dsState, $mimetype, $controlGroup = 'M', $versionable = FALSE, $xmlContent = "", $unlinkLocalFile = false, $srcBucket = false)
 	{
 		if (is_numeric(strpos($dsID, chr(92)))) {
 			$dsID = substr($dsID, strrpos($dsID, chr(92))+1);
@@ -341,7 +350,7 @@ class Fedora_API implements FedoraApiInterface {
 		$dataPath = Fedora_API::getDataPath($pid);
 
     if (stripos($dsLocation, APP_TEMP_DIR) === 0) {
-      $obj = $aws->postFile($dataPath, [$dsLocation]);
+      $obj = $aws->postFile($dataPath, [$dsLocation], false, $mimetype);
       if ($obj) {
         $obj = $obj[0];
       }
@@ -349,14 +358,24 @@ class Fedora_API implements FedoraApiInterface {
         unlink($dsLocation);
       }
     } else {
-      $obj = $aws->copyFile($dsLocation, $dataPath."/".$dsID);
+      $obj = $aws->copyFile($dsLocation, $dataPath."/".$dsID, $srcBucket, $mimetype);
     }
     if (! $obj) {
       return false;
     }
-    return Datastream::addDatastreamInfo($pid, $dsID, $mimetype, $obj, $dsState);
-	}
 
+    $dsArray = $aws->headObject($dataPath."/".$dsID);
+    if (! $dsArray) {
+      return false;
+    }
+    $object = [
+      'url' => $obj['ObjectURL'],
+      'size' => $dsArray['ContentLength'],
+      'version' => $dsArray['VersionId'],
+      'checksum' => str_replace('"', '', $dsArray['ETag'])
+    ];
+    return Datastream::addDatastreamInfo($pid, $dsID, $mimetype, $object, $dsState);
+	}
 
 	/**
 	 *This function creates an array of all the datastreams for a specific object.
@@ -368,16 +387,11 @@ class Fedora_API implements FedoraApiInterface {
 	 */
 	public static function callGetDatastreams($pid, $createdDT = NULL, $dsState = 'A')
 	{
-		$aws = AWS::get();
-		$dataPath = Fedora_API::getDataPath($pid);
+    $dsArray = Datastream::getFullDatastreamInfo($pid);
 		$dataStreams = [];
-		$dsIDListArray = $aws->listObjects($dataPath);
 
-		foreach ($dsIDListArray as $object) {
-      $baseKey = basename($object['Key']);
-      if ($baseKey != basename($dataPath)) {
-        $dataStreams[] = Fedora_API::callGetDatastream($pid, $baseKey, $createdDT);
-      }
+		foreach ($dsArray as $object) {
+      $dataStreams[] = Fedora_API::callGetDatastream($pid, $object['dsi_dsid'], $createdDT);
 		}
 
 		//Add on the links 'R' based datastreams
@@ -454,29 +468,23 @@ class Fedora_API implements FedoraApiInterface {
 	 */
 	public static function callGetDatastream($pid, $dsID, $createdDT = NULL)
 	{
-		$aws = AWS::get();
-
-		$dataPath = Fedora_API::getDataPath($pid);
-
     $createdDT = NULL; // Force NULL until S3 versions are supported
+    $dataPath = Fedora_API::getDataPath($pid);
+    $dsArray = Datastream::getFullDatastreamInfo($pid, $dsID);
 
-		$dsArray = $aws->getObject($dataPath."/".$dsID);
 		$dsData = array();
-
 		$dsData['ID'] = $dsID;
-		$dsData['versionID'] = $dsArray['VersionId'];
+		$dsData['versionID'] = $dsArray['dsi_version'];
 		$dsData['label'] = ''; //TODO: convert to use PUT'd metadata for label
 		$dsData['controlGroup'] = "M";
-    // getting mimetype from exiftool table data instead of aws metadata because aws would require a headobject api call per object = too many calls = probably slow
-    $exifData = Exiftool::getDetails($pid, $dsID);
-		$dsData['MIMEType'] = $exifData['exif_mime_type'];
-		$dsData['createDate'] = (string)$dsArray['LastModified']; //TODO: convert to saved meta
+    $dsData['MIMEType'] = $dsArray['dsi_mimetype'];
+		$dsData['createDate'] = NULL; //(string)$dsArray['LastModified']; //TODO: convert to saved meta
 		$dsData['location'] = $dataPath."/".$dsID;
 		$dsData['formatURI'] = NULL; //TODO Check if this is needed and if so fill with a real value.
 		$dsData['checksumType'] = 'MD5';
-		$dsData['checksum'] = str_replace('"', '', $dsArray['ETag']);
+		$dsData['checksum'] = $dsArray['dsi_checksum'];
 		$dsData['versionable'] = FALSE; //TODO Check if this is needed and if so fill with a real value.
-		$dsData['size'] = $dsArray['ContentLength'];
+		$dsData['size'] = $dsArray['size'];
 		$dsData['state'] = 'A';
 
 		return $dsData;

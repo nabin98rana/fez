@@ -44,7 +44,8 @@ $sleep = 1;
 
 $log = FezLog::get();
 $db = DB_API::get();
-  
+
+// todo(xxcgreen): does this need aut_org_student_id
 $stmt = "
         SELECT rek_pid FROM 
           fez_record_search_key r1 INNER JOIN
@@ -105,7 +106,8 @@ function publicationsUpload($list, $id)
     $tpl->assign("list", $list['list']);
     $tpl->assign("app_admin_email", APP_ADMIN_EMAIL);
     $tpl->assign("org_name", APP_ORG_NAME);
-    $tpl->assign("aut_org_username", Author::getOrgUsername($id));
+    $usernames = Author::getOrgUsernames($id);
+    $tpl->assign("aut_org_username", $usernames->aut_org_username ?: $usernames->aut_student_username);
     $request_data = $tpl->getTemplateContents();
     
     $xml_request_data = new DOMDocument();

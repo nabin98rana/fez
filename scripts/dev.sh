@@ -14,7 +14,7 @@ NET_IP=`ifconfig ${NET_IF} | grep -Eo 'inet (addr:)?([0-9]*\.){3}[0-9]*' | grep 
 export XDEBUG_REMOTE_HOST=${NET_IP}
 
 function waitForServices() {
-    MAX_LOOPS="20"
+    MAX_LOOPS="60"
     i=0
     MYSQL_HEALTH_CMD="docker exec development_fezdb_1 mysqladmin ping -hlocalhost -ufez -pfez"
     HEALTH_MSG=$(${MYSQL_HEALTH_CMD} 2>&1)
@@ -50,7 +50,13 @@ if [ "${UPGRADE_RES}" == "" ]; then
   exit 1
 fi
 
-docker exec development_fezdevelopmentrunner_1 sh -c 'export AWS_ACCESS_KEY_ID='"'${AWS_ACCESS_KEY_ID}'"' && export AWS_SECRET_ACCESS_KEY='"'${AWS_SECRET_ACCESS_KEY}'"' && export FEZ_S3_BUCKET='"'${FEZ_S3_BUCKET}'"' && export FEZ_S3_SRC_PREFIX='"'${FEZ_S3_SRC_PREFIX}'"' && export AWS_CLOUDFRONT_KEY_PAIR_ID='"'${AWS_CLOUDFRONT_KEY_PAIR_ID}'"' && export AWS_CLOUDFRONT_PRIVATE_KEY_FILE='"'${AWS_CLOUDFRONT_PRIVATE_KEY_FILE}'"' && export AWS_CLOUDFRONT_FILE_SERVE_URL='"'${AWS_CLOUDFRONT_FILE_SERVE_URL}'"' && cd '"'${CONTAINER_BASE_DIR}/tests/application'"' && php init.php seed'
+docker exec development_fezdevelopmentrunner_1 sh -c 'export AWS_ACCESS_KEY_ID='"'${AWS_ACCESS_KEY_ID}'"' && export AWS_SECRET_ACCESS_KEY='"'${AWS_SECRET_ACCESS_KEY}'"' && export FEZ_S3_CACHE_BUCKET='"'${FEZ_S3_CACHE_BUCKET}'"' && export FEZ_S3_BUCKET='"'${FEZ_S3_BUCKET}'"' && export FEZ_S3_SRC_PREFIX='"'${FEZ_S3_SRC_PREFIX}'"' && export AWS_CLOUDFRONT_KEY_PAIR_ID='"'${AWS_CLOUDFRONT_KEY_PAIR_ID}'"' && export AWS_CLOUDFRONT_PRIVATE_KEY_FILE='"'${AWS_CLOUDFRONT_PRIVATE_KEY_FILE}'"' && export AWS_CLOUDFRONT_FILE_SERVE_URL='"'${AWS_CLOUDFRONT_FILE_SERVE_URL}'"' && cd '"'${CONTAINER_BASE_DIR}/tests/application'"' && php init.php seed'
+
+# Setup AWS
+docker exec development_fezdevelopmentrunner_1 sh -c 'export AWS_ACCESS_KEY_ID='"'${AWS_ACCESS_KEY_ID}'"' && export AWS_SECRET_ACCESS_KEY='"'${AWS_SECRET_ACCESS_KEY}'"' && export FEZ_S3_CACHE_BUCKET='"'${FEZ_S3_CACHE_BUCKET}'"' && export FEZ_S3_BUCKET='"'${FEZ_S3_BUCKET}'"' && export FEZ_S3_SRC_PREFIX='"'${FEZ_S3_SRC_PREFIX}'"' && export AWS_CLOUDFRONT_KEY_PAIR_ID='"'${AWS_CLOUDFRONT_KEY_PAIR_ID}'"' && export AWS_CLOUDFRONT_PRIVATE_KEY_FILE='"'${AWS_CLOUDFRONT_PRIVATE_KEY_FILE}'"' && export AWS_CLOUDFRONT_FILE_SERVE_URL='"'${AWS_CLOUDFRONT_FILE_SERVE_URL}'"' && cd '"'${CONTAINER_BASE_DIR}/tests/application'"' && php init.php setupaws'
+
+# Run a Fedora Bypass migration if prefix is set
+docker exec development_fezdevelopmentrunner_1 sh -c 'export AWS_ACCESS_KEY_ID='"'${AWS_ACCESS_KEY_ID}'"' && export AWS_SECRET_ACCESS_KEY='"'${AWS_SECRET_ACCESS_KEY}'"' && export FEZ_S3_CACHE_BUCKET='"'${FEZ_S3_CACHE_BUCKET}'"' && export FEZ_S3_BUCKET='"'${FEZ_S3_BUCKET}'"' && export FEZ_S3_SRC_PREFIX='"'${FEZ_S3_SRC_PREFIX}'"' && export AWS_CLOUDFRONT_KEY_PAIR_ID='"'${AWS_CLOUDFRONT_KEY_PAIR_ID}'"' && export AWS_CLOUDFRONT_PRIVATE_KEY_FILE='"'${AWS_CLOUDFRONT_PRIVATE_KEY_FILE}'"' && export AWS_CLOUDFRONT_FILE_SERVE_URL='"'${AWS_CLOUDFRONT_FILE_SERVE_URL}'"' && cd '"'${CONTAINER_BASE_DIR}/tests/application'"' && php init.php migrate'
 
 # Optionally seed dev by running tests tagged with @seed
 # docker exec development_fezdevelopmentrunner_1 sh -c 'cd '"'${CONTAINER_BASE_DIR}/tests/application'"' && ./seed-development.sh'

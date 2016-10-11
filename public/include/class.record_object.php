@@ -276,6 +276,19 @@ class RecordObject extends RecordGeneral
       $xsdmf_id = XSD_HTML_Match::getXSDMF_IDBySekIDXDIS_ID(Search_Key::getID('Object Type'), $xdis_str);
       $xsd_display_fields[0]['object_type'] = array('xsdmf_id' => $xsdmf_id[0], 'xsdmf_value' => $xdis_details['xdis_object_type']);
 
+      // empty checkboxes don't get posted, so you need to manually set the value to save 'off' or it will never save or change from 'on' values
+      foreach ($xsdmf_list as $xsdmf_key => $xsdmf_val) {
+        if ($xsdmf_val['xsdmf_html_input'] == 'checkbox') {
+          if (!empty($xsdmf_val['xsdmf_sek_id'])) {
+            $sek_details = Search_Key::getBasicDetails($xsdmf_val['xsdmf_sek_id']);
+            if (array_key_exists('xdis_id', $_POST) && array_key_exists('xsd_display_fields', $_POST)
+                && !array_key_exists($xsdmf_val['xsdmf_id'], $_POST['xsd_display_fields'])) {
+              $xsd_display_fields[$sek_details['sek_relationship']][$sek_details['sek_title_db']] = array('xsdmf_id' => $xsdmf_val['xsdmf_id'], 'xsdmf_value' => 'off');
+            }
+          }
+        }
+      }
+
       $this->xdis_id = $_POST['xdis_id'];
 
       if (empty($this->pid)) {
@@ -386,6 +399,7 @@ class RecordObject extends RecordGeneral
 
       if ($newPid) {
         AuthNoFedora::setInherited($this->pid); //This also calls recalculate permissions after setting inherit to true
+        AuthNoFedora::recalculatePermissions($this->pid);
       }
 
     } else {
@@ -539,6 +553,8 @@ class RecordObject extends RecordGeneral
           && !Misc::hasPrefix($dsIDName, 'stream_')
           && !Misc::hasPrefix($dsIDName, 'thumbnail_')
       ) {
+        $new_dsID = Foxml::makeNCName($dsIDName);
+
         // first extract the image and save temporary copy
         if (APP_FEDORA_BYPASS == 'ON') {
           $tmpPth = APP_TEMP_DIR . $dsIDName;
@@ -553,7 +569,6 @@ class RecordObject extends RecordGeneral
           $handle = fopen(APP_TEMP_DIR . $dsIDName, "w");
           Misc::processURL($urldata, false, $handle);
           fclose($handle);
-          $new_dsID = Foxml::makeNCName($dsIDName);
           if ($new_dsID != $dsIDName) {
             // delete and re-ingest - need to do this because sometimes the object made it
             // into the repository even though it's dsID is illegal.

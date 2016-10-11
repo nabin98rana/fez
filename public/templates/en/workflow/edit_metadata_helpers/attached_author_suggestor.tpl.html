@@ -4,26 +4,34 @@
        <td>
            <span class="default"><b>{$attached_xsdmf.xsdmf_title}:</b></span>
             {assign var="attached_field_id" value="xsd_display_fields_"|cat:$attached_xsdmf_id|cat:"_"|cat:$loop_num}
-            <select class="default" id="{$attached_field_id}" name="{$attached_field_id}">	
+            <select class="default" id="{$attached_field_id}" name="{$attached_field_id}">
                <option value="0">(none)</option>
-				{assign var="author_details" value=$attached_xsdmf_id|cat:"_author_details"}
+        {assign var="author_details" value=$attached_xsdmf_id|cat:"_author_details"}
                {if ($details[$author_details][$loop_num] != "" && $details[$author_details][$loop_num] != 0)}
-            	   {if is_array($details[$author_details])}
-            		 {if $details[$author_details][$loop_num].aut_id != ""}
-            		   {assign var="author_id" value=$details[$author_details][$loop_num]}
-            		   <option value="{$author_id.aut_id}" selected>{$author_id.aut_display_name} ({$author_id.aut_id}) ({$author_id.aut_org_username})</option>
-            		  {/if}
-            	   {/if}
-            	{/if}
+                 {if is_array($details[$author_details])}
+                 {if $details[$author_details][$loop_num].aut_id != ""}
+                   {assign var="author_id" value=$details[$author_details][$loop_num]}
+                     <option value="{$author_id.aut_id}" selected>{$author_id.aut_display_name} ({$author_id.aut_id})
+                       {if $author_id.aut_org_username && $author_id.aut_student_username}
+                         ({$author_id.aut_org_username},{$author_id.aut_student_username})
+                       {elseif $author_id.aut_student_username}
+                         ({$author_id.aut_student_username})
+                       {else}
+                         ({$author_id.aut_org_username})
+                       {/if}
+                     </option>
+                  {/if}
+                 {/if}
+              {/if}
             </select>
-    	</td>
-    	<td>
+      </td>
+      <td>
             <!-- Google suggest style selection -->
             {* IE HACK: We want the suggest dropdown to be on top of any other auto-suggest controls which appear below it *}
             {* smarty.section.i.index is used incase this suggest control is used by more than 1 element ie. Author and Editor *}
-			<div id="authorsuggest" style="width:25em;height:2em;position:relative;z-index:{math equation="2000 - x - y" y=$loop_num x=$smarty.section.i.index};">
-			  <div id="{$attached_field_id}_container" style="position:absolute;top:1.6em;"></div>
-            	<input id="{$attached_field_id}_lookup" type="text">
+      <div id="authorsuggest" style="width:25em;height:2em;position:relative;z-index:{math equation="2000 - x - y" y=$loop_num x=$smarty.section.i.index};">
+        <div id="{$attached_field_id}_container" style="position:absolute;top:1.6em;"></div>
+              <input id="{$attached_field_id}_lookup" type="text">
             </div>
         </td>
     </tr>
@@ -35,8 +43,8 @@ attachYuiAuthorSuggest({/literal}{$attached_xsdmf_id}, {$xsd_display_fields[i].x
 {/literal}
 
 {if $attached_xsdmf.xsdmf_attached_xsdmf_id != ""}
-	{assign var="attached_xsdmf_id" value=$attached_xsdmf.xsdmf_attached_xsdmf_id}
-	{section name='aas' loop=$xsd_display_fields}{if $xsd_display_fields[aas].xsdmf_id == $attached_xsdmf_id}{assign var="attached_xsdmf" value=$xsd_display_fields[aas]}{/if}{/section}
-	{assign var="attached_field_name" value="xsd_display_fields_"|cat:$attached_xsdmf_id|cat:"_"|cat:$loop_num}						
-	{include file='workflow/edit_metadata_helpers/attached_'|cat:$attached_xsdmf.xsdmf_html_input|cat:'.tpl.html'}
+  {assign var="attached_xsdmf_id" value=$attached_xsdmf.xsdmf_attached_xsdmf_id}
+  {section name='aas' loop=$xsd_display_fields}{if $xsd_display_fields[aas].xsdmf_id == $attached_xsdmf_id}{assign var="attached_xsdmf" value=$xsd_display_fields[aas]}{/if}{/section}
+  {assign var="attached_field_name" value="xsd_display_fields_"|cat:$attached_xsdmf_id|cat:"_"|cat:$loop_num}
+  {include file='workflow/edit_metadata_helpers/attached_'|cat:$attached_xsdmf.xsdmf_html_input|cat:'.tpl.html'}
 {/if}

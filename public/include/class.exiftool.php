@@ -202,9 +202,11 @@ class Exiftool
 		}
 	}
 
-	public static function cloneExif($pid, $dsID, $newPid, $newDsID)
+	public static function cloneExif($pid, $dsID, $newPid, $newDsID, $exif = false)
   {
-    $exif = Exiftool::getDetails($pid, $dsID);
+    if (! $exif) {
+      $exif = Exiftool::getDetails($pid, $dsID);
+    }
     $exif['exif_pid'] = $newPid;
     $exif['exif_dsid'] = $newDsID;
     $newExif = [];

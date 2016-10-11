@@ -445,9 +445,9 @@ class WokQueue extends Queue
                 $autDetails = Author::getDetails($author_id);
                 $publishedDate = Record::getSearchKeyIndexValue($pid, "Date", true);
                 $publishedDate = strftime("%Y", strtotime($publishedDate));
-                $subject = "ResearcherID Completed HERDC author change :: ".$pid." :: ".$publishedDate." :: ".$autDetails['aut_org_username'];
+                $subject = "ResearcherID Completed HERDC author change :: ".$pid." :: ".$publishedDate." :: ". ($autDetails['aut_org_username'] ?: $autDetails['aut_student_username']);
                 $body = "Automatically assigned this pid ".$pid." to followup flag - followup because it is in the HERDC PRE-AUDIT COLLECTION ".APP_HERDC_TRIAL_COLLECTION." for successful author match for RID download of author ".
-                    $autDetails['aut_display_name']." with username ".$autDetails['aut_org_username'];
+                    $autDetails['aut_display_name']." with username ".($autDetails['aut_org_username'] ?: $autDetails['aut_student_username']);
                 $userEmail = "";
                 Eventum::lodgeJob($subject, $body, APP_EMAIL_SYSTEM_FROM_ADDRESS);
               }

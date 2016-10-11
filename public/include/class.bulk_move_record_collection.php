@@ -131,6 +131,8 @@ class Bulk_Move_Record_Collection {
 	function splitCollection($collection_pid, $chunk_size)
 	{
 		$col_record = new RecordObject($collection_pid);
+    $col_record->getDisplay();
+
 		$pids = $col_record->getChildrenPids();
 		$col_title = $col_record->getTitle();
 		$remaining_pids = $pids;

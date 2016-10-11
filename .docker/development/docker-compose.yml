@@ -4,6 +4,7 @@ fezdevelopmentrunner:
     - APP_ENVIRONMENT=development
     - JAVA_HOME=/usr/lib/jvm/jre
     - JHOVE_HOME=/usr/local/jhove
+    - PHP_IDE_CONFIG=serverName=dev-fez.library.uq.edu.au
     - AWS_ACCESS_KEY_ID
     - AWS_SECRET_ACCESS_KEY
     - AWS_CLOUDFRONT_KEY_PAIR_ID
@@ -27,7 +28,7 @@ fezdevelopmentrunner:
     - logs
 
 selenium:
-  image: selenium/standalone-chrome-debug:2.49.1
+  image: selenium/standalone-chrome-debug:2.53.1
   environment:
     - JAVA_OPTS=-Dselenium.LOGGER.level=WARNING
   links:

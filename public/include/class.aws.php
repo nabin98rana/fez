@@ -244,7 +244,7 @@ class AWS
    * @param bool $deleteAfter if true it will unlink each file in $files after each successful upload
    * @return array|boolean An array of AWS\Result objects, or false if the post failed
    */
-  public function postFile($src, $files, $deleteAfter = false)
+  public function postFile($src, $files, $deleteAfter = false, $mimeType = false)
   {
     // Create an Amazon S3 client using the shared configuration data.
     $client = $this->sdk->createS3();
@@ -265,22 +265,17 @@ class AWS
         return false;
       }
       $baseFile = basename($file);
-      $mimeType = Misc::mime_content_type($file);
+      if (! $mimeType) {
+        $mimeType = Misc::mime_content_type($file);
+      }
       $key = $this->createPath($src, $baseFile);
-      $meta = [
-          'key'  => $baseFile,
-          'type' => $mimeType,
-          'name' => $baseFile,
-          'size' => $fileSize,
-      ];
       try {
         $res = $client->putObject([
             'Bucket' => $this->s3Bucket,
             'Key' => $key,
             'SourceFile' => $file,
             'ContentType' => $mimeType,
-            'ServerSideEncryption' => 'AES256',
-            'Metadata' => $meta
+            'ServerSideEncryption' => 'AES256'
         ]);
         $results[] = $res;
       } catch (\Aws\S3\Exception\S3Exception $e) {
@@ -299,21 +294,30 @@ class AWS
    * Copies a file from the S3 source $src to another S3 src $newSrc
    * @param string $src
    * @param string $newSrc
+   * @param bool|string $srcBucket
+   * @param bool|string $mimeType
    * @return AWS\Result|boolean An AWS\Result object, or false if the copy failed
    */
-  public function copyFile($src, $newSrc)
+  public function copyFile($src, $newSrc, $srcBucket = false, $mimeType = false)
   {
     // Create an Amazon S3 client using the shared configuration data.
     $client = $this->sdk->createS3();
 
     $key = $this->createPath($src, '');
     $newKey = $this->createPath($newSrc, '');
+    if (! $srcBucket) {
+      $srcBucket = $this->s3Bucket;
+    }
     try {
-      $res = $client->copyObject(array(
+      $object = [
         'Bucket'     => $this->s3Bucket,
         'Key'        => $newKey,
-        'CopySource' => "{$this->s3Bucket}/{$key}",
-      ));
+        'CopySource' => "{$srcBucket}/{$key}",
+      ];
+      if ($mimeType) {
+        $object['ContentType'] = $mimeType;
+      }
+      $res = $client->copyObject($object);
       return $res;
     } catch (\Aws\S3\Exception\S3Exception $e) {
       $this->log->err($e->getMessage());
@@ -347,13 +351,6 @@ class AWS
       return false;
     }
 
-    $meta = [
-        'key'  => $fileName,
-        'type' => $mimeType,
-        'name' => $fileName,
-        'size' => $fileSize,
-    ];
-
     try {
       $key = $this->createPath($src, $fileName);
       $res = $client->putObject([
@@ -361,8 +358,7 @@ class AWS
           'Key' => $key,
           'Body' => $content,
           'ContentType' => $mimeType,
-          'ServerSideEncryption' => 'AES256',
-          'Metadata' => $meta
+          'ServerSideEncryption' => 'AES256'
       ]);
       return $res;
 
@@ -437,9 +433,10 @@ class AWS
   /**
    * @param string $key - the full path to the file eg data/UQ_3/hai.jpg
    * @param string $versionId (optional) - the version to return. If empty will return latest.
-   * @return array $result - the object
+   * @return AWS\Result $result - the object
    */
   public function getObject($key, $versionId = NULL) {
+    $result = null;
     try {
       $client = $this->sdk->createS3();
       $key = $this->createPath($key, '');
@@ -451,6 +448,31 @@ class AWS
         $args['VersionId'] = $versionId;
       }
       $result = $client->getObject($args);
+
+    } catch (\Aws\S3\Exception\S3Exception $e) {
+      $this->log->err($e->getMessage());
+    }
+    return $result;
+  }
+
+  /**
+   * @param string $key - the full path to the file eg data/UQ_3/hai.jpg
+   * @param string $versionId (optional) - the version to return. If empty will return latest.
+   * @return AWS\Result $result - the object
+   */
+  public function headObject($key, $versionId = NULL) {
+    $result = null;
+    try {
+      $client = $this->sdk->createS3();
+      $key = $this->createPath($key, '');
+      $args = array(
+        'Bucket' => $this->s3Bucket,
+        'Key' => $key,
+      );
+      if (!is_null($versionId)) {
+        $args['VersionId'] = $versionId;
+      }
+      $result = $client->headObject($args);
 
     } catch (\Aws\S3\Exception\S3Exception $e) {
       $this->log->err($e->getMessage());
@@ -471,6 +493,7 @@ class AWS
 
     $options['Bucket'] = $this->s3Bucket;
     $options['Key'] = $key;
+    $options['ServerSideEncryption'] = "AES256";
 
     try {
       $client->putObject($options);

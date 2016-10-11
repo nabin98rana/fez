@@ -1700,10 +1700,21 @@ class Search_Key
              */
             $column_prefix = 'rek_' . $sek_title_db;
 
+
             $table_name = APP_TABLE_PREFIX . 'record_search_key_' . $sek_title_db;
             if ($shadow) {
-                $table_name .= "__shadow";
-                $shadow_extra = "     `{$column_prefix}_stamp` datetime,\n ";
+              $table_name .= "__shadow";
+              $shadow_extra = "     `{$column_prefix}_stamp` datetime,\n ";
+              if ($cardinality == 1) {
+                $primary_key = "      PRIMARY KEY (`{$column_prefix}_pid`,`{$column_prefix}_stamp`,`{$column_prefix}_order`), \n ";
+              } else {
+                $primary_key = "      PRIMARY KEY (`{$column_prefix}_pid`,`{$column_prefix}_stamp`), \n ";
+              }
+              //no auto inc for the shadow table
+              $id_col = "     `{$column_prefix}_id` int(11) NOT NULL, \n";
+            } else {
+              $id_col = "     `{$column_prefix}_id` int(11) NOT NULL auto_increment, \n";
+              $primary_key = "     PRIMARY KEY (`{$column_prefix}_id`), \n";
             }
 
             if ($cardinality == 1) {
@@ -1712,13 +1723,13 @@ class Search_Key
 
 
             $sql = "CREATE TABLE `$table_name` ( \n" .
-                   "     `{$column_prefix}_id` int(11) NOT NULL auto_increment, \n" .
+                   $id_col .
                    $shadow_extra .
-                   "     `{$column_prefix}_pid` varchar(64) default NULL, \n" .
-                   "     `{$column_prefix}_xsdmf_id` int(11) default NULL,\n " .
+                   "     `{$column_prefix}_pid` varchar(64) NOT NULL, \n" .
+                   "     `{$column_prefix}_xsdmf_id` int(11) NOT NULL,\n " .
                    $cardinality_extra .
                    "     `$column_prefix` $column_type default NULL, \n" .
-                   "     PRIMARY KEY (`{$column_prefix}_id`), \n" .
+                   $primary_key.
                    "     $key_type `$column_prefix` (`$column_prefix`), \n" .
                    "     KEY `{$column_prefix}_pid` (`{$column_prefix}_pid`)";
             $sql.= ($shadow || !$cardinality) ? "\n" : ",\n     UNIQUE KEY `unique_constraint_pid_order` (`{$column_prefix}_pid`, `{$column_prefix}_order`) \n";

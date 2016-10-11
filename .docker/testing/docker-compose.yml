@@ -8,6 +8,9 @@ feztestrunner:
     - JHOVE_HOME=/usr/local/jhove
     - AWS_ACCESS_KEY_ID
     - AWS_SECRET_ACCESS_KEY
+    - AWS_CLOUDFRONT_KEY_PAIR_ID
+    - AWS_CLOUDFRONT_PRIVATE_KEY_FILE
+    - AWS_CLOUDFRONT_FILE_SERVE_URL
     - FEZ_S3_BUCKET
     - FEZ_S3_CACHE_BUCKET
     - FEZ_S3_SRC_PREFIX
@@ -26,7 +29,7 @@ feztestrunner:
     - logs
 
 selenium:
-  image: selenium/standalone-chrome-debug:2.49.1
+  image: selenium/standalone-chrome-debug:2.53.1
   environment:
     - JAVA_OPTS=-Dselenium.LOGGER.level=WARNING
   links:
@@ -65,6 +68,9 @@ fpm:
     - JHOVE_HOME=/usr/local/jhove
     - AWS_ACCESS_KEY_ID
     - AWS_SECRET_ACCESS_KEY
+    - AWS_CLOUDFRONT_KEY_PAIR_ID
+    - AWS_CLOUDFRONT_PRIVATE_KEY_FILE
+    - AWS_CLOUDFRONT_FILE_SERVE_URL
     - FEZ_S3_BUCKET
     - FEZ_S3_CACHE_BUCKET
     - FEZ_S3_SRC_PREFIX

@@ -9,7 +9,7 @@
             function validateForm(f)
             {
                 var returnValue = true;
-                if (isWhitespace(f.fname.value)) {b
+                if (isWhitespace(f.fname.value)) {
                     alert('Please enter the first name of this author.');
                     selectField(f, 'fname');
                     returnValue = false;
@@ -121,7 +121,7 @@
                 var confirm_register = confirm("You are about to register this author in ResearcherID.\n\n"+
                         "For authors with an existing ResearcherID profile, please ensure that:\n\n"+
                         "  -  The ResearcherID profile has their primary affiliation as this institution.\n"+
-                        "  -  The employeeID in ResearcherID is '{/literal}{$info.aut_org_username}{literal}'.\n\n"+
+                        "  -  The employeeID in ResearcherID is their Student or Organisation Staff username'.\n\n"+
                         "For authors who do not have an existing ResearcherID profile, a new profile will be created.");
 
                 if(! confirm_register) {
@@ -349,6 +349,15 @@
             </tr>
             <tr>
                 <td style="width: 120px" class="default cell-colour">
+                    <b>Student Username: </b>
+                </td>
+                <td style="background: {$light_color}; width: 80%">
+                    <input type="text" name="student_username" size="40" class="default" value="{$info.aut_student_username}" />
+                    {include file="error_icon.tpl.html" field="student_username"}
+                </td>
+            </tr>
+            <tr>
+                <td style="width: 120px" class="default cell-colour">
                     <b>Position: </b>
                 </td>
                 <td style="background: {$light_color}; width: 80%">
@@ -383,10 +392,10 @@
                     <td style="background: {$light_color}; width: 80%">
                         <div id="register_rid_container" style="font-size: 0.8em;">
                             {if $info.aut_researcher_id == ''}
-                                {if $info.aut_org_staff_id == '' && $info.aut_org_username == ''}
+                                {if $info.aut_org_staff_id == '' && $info.aut_org_username == '' && $info.aut_org_student_id == '' && $info.aut_student_username == ''}
                                     <input type="text" name="researcher_id" size="11" class="default" value="" />
-                                    &nbsp;Registration Process in Researcher ID requires an Organisation Staff Username or
-                                    an Organisation Staff ID.
+                                    &nbsp;Registration Process in Researcher ID requires an Organisation Staff/Student Username or
+                                    an Organisation Staff/Student ID.
                                 {else}
                                     <table style="width: 740px" cellspacing="0" cellpadding="0">
                                         <tr>
@@ -528,7 +537,7 @@
             </tr>
             <tr>
                 <td class="default">
-                    <b>{if $search_filter != ""}<span class="disabled">{/if}Search Authors (by Org Staff ID){if $search_filter != ""}</span>{/if}</b>
+                    <b>{if $search_filter != ""}<span class="disabled">{/if}Search Authors (by Org Staff/Student ID){if $search_filter != ""}</span>{/if}</b>
                 </td>
                 <td style="white-space: nowrap; background: {$light_color}; width: 80%">
                     <input type="text" name="staff_id" size="40" class="default" value="{$staff_id}" />
@@ -563,7 +572,9 @@
                             <td class="default cell-colour">&nbsp;<b>Last Name</b></td>
                             <td class="default cell-colour">&nbsp;<b>Position</b></td>
                             <td class="default cell-colour">&nbsp;<b>Org Staff ID</b></td>
+                            <td class="default cell-colour"> <b>Org Student ID</b></td>
                             <td class="default cell-colour">&nbsp;<b>Org Username</b></td>
+                            <td class="default cell-colour"> <b>Student Username</b></td>
                             <td class="default cell-colour">&nbsp;<b>MyPubs URL</b></td>
                             <td class="default cell-colour">&nbsp;<b>Ref Num</b></td>
                             <td class="default cell-colour">&nbsp;<b>Homepage Link</b></td>
@@ -585,7 +596,9 @@
                                 <td style="background: {$row_color}" class="default">&nbsp;{$list[i].aut_lname}</td>
                                 <td style="background: {$row_color}" class="default">&nbsp;{$list[i].aut_position}</td>
                                 <td style="background: {$row_color}" class="default">&nbsp;{$list[i].aut_org_staff_id}</td>
+                                <td style="background: {$row_color}" class="default">&nbsp;{$list[i].aut_org_student_id}</td>
                                 <td style="background: {$row_color}" class="default">&nbsp;{$list[i].aut_org_username}</td>
+                                <td style="background: {$row_color}" class="default">&nbsp;{$list[i].aut_student_username}</td>
                                 <td style="background: {$row_color}" class="default">&nbsp;{$list[i].aut_mypub_url}</td>
                                 <td style="background: {$row_color}" class="default">&nbsp;{$list[i].aut_ref_num}</td>
                                 <td style="background: {$row_color}" class="default">&nbsp;{$list[i].aut_homepage_link}</td>

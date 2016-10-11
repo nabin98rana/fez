@@ -2,6 +2,18 @@
 
 echo Starting test run..
 CONTAINER_BASE_DIR=/var/app/current
+# If running in Codeship, don't run in bypass mode on master branch
+if [[ "${CI_BRANCH}" != "" ]]; then
+  if [[ "${CI_BRANCH}" == "master" ]]; then
+    FEZ_S3_BUCKET=
+    FEZ_S3_SRC_PREFIX=
+  else
+    FEZ_S3_SRC_PREFIX=${CI_BUILD_ID}
+  fi
+  echo "${CI_BRANCH}:${FEZ_S3_SRC_PREFIX}"
+else
+  FEZ_S3_SRC_PREFIX=${CI_TIMESTAMP}
+fi
 
 i=0
 MAX_LOOPS=100
@@ -37,6 +49,8 @@ fi
 
 echo Seeding SQL data..
 php init.php seed
+php init.php setupaws
+php init.php migrate
 
 echo Running tests.. $1
 ./run-tests.sh $1

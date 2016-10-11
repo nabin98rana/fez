@@ -120,7 +120,7 @@ class Datastream
    * @param string $dsName The name of the datastream
    * @param string $mimetype The mimetype of the datastream
    * @param string $state The datastream state
-   * @param AWS\Result $object The object in S3
+   * @param array $object The object in S3
    * @return integer The datastream ID
    */
   public static function addDatastreamInfo($pid, $dsName, $mimetype, $object, $state)
@@ -132,8 +132,11 @@ class Datastream
       ':dsi_dsid' => $dsName,
       ':dsi_pid' => $pid,
       ':dsi_mimetype' => $mimetype,
-      ':dsi_url' => $object['ObjectURL'],
+      ':dsi_url' => $object['url'],
       ':dsi_state' => $state,
+      ':dsi_size' => $object['size'],
+      ':dsi_version' => $object['version'],
+      ':dsi_checksum' => $object['checksum'],
     ];
 
     $did = self::getDid($pid, $dsName);
@@ -142,13 +145,16 @@ class Datastream
       $stmt = "UPDATE " . APP_TABLE_PREFIX . "datastream_info SET
                   dsi_mimetype = :dsi_mimetype,
                   dsi_url = :dsi_url,
-                  dsi_state = :dsi_state                    
+                  dsi_state = :dsi_state,   
+                  dsi_size = :dsi_size,  
+                  dsi_version = :dsi_version,
+                  dsi_checksum = :dsi_checksum
                   WHERE dsi_pid = :dsi_pid AND dsi_dsid = :dsi_dsid";
     } else {
       $data[':dsi_security_inherited'] = 0;
       $stmt = "INSERT INTO " . APP_TABLE_PREFIX . "datastream_info "
-        . "(dsi_dsid, dsi_pid, dsi_mimetype, dsi_url, dsi_security_inherited, dsi_state) VALUES "
-        . "(:dsi_dsid, :dsi_pid, :dsi_mimetype, :dsi_url, :dsi_security_inherited, :dsi_state)";
+        . "(dsi_dsid, dsi_pid, dsi_mimetype, dsi_url, dsi_security_inherited, dsi_state, dsi_size, dsi_version, dsi_checksum) VALUES "
+        . "(:dsi_dsid, :dsi_pid, :dsi_mimetype, :dsi_url, :dsi_security_inherited, :dsi_state, :dsi_size, :dsi_version, :dsi_checksum)";
     }
     try {
       $db->query($stmt, $data);
@@ -159,10 +165,23 @@ class Datastream
       $log->err($ex);
     }
 
+    if (!Zend_Registry::isRegistered('version')) {
+      Zend_Registry::set('version', Date_API::getCurrentDateGMT());
+    }
+    $date = Zend_Registry::get('version');
+    $stmt = "INSERT INTO " . APP_TABLE_PREFIX . "datastream_info__shadow
+               SELECT *, " . $db->quote($date) . " FROM " . APP_TABLE_PREFIX . "datastream_info
+                        WHERE dsi_id = " . $db->quote($did);
+    try {
+      $db->query($stmt);
+    } catch (Exception $ex) {
+      $log->err($ex);
+    }
+
     return $did;
   }
 
-  private static function getDid($pid, $dsName)
+  public static function getDid($pid, $dsName)
   {
     $log = FezLog::get();
     $db = DB_API::get();
@@ -221,6 +240,42 @@ class Datastream
     } else {
       return array();
     }
+  }
+
+  /**
+   * This function creates an array of all the datastreams for a specific object
+   *
+   * @param string $pid The persistent identifier of the object
+   * @param string $dsID The ID of the datastream
+   * @return array $dsIDListArray The list of datastreams in an array.
+   */
+  public static function getFullDatastreamInfo($pid, $dsID = '')
+  {
+    $log = FezLog::get();
+    $db = DB_API::get();
+
+    $res = [];
+    $data = [':dsi_pid' => $pid];
+    $sql = "SELECT * FROM "
+      . APP_TABLE_PREFIX . "datastream_info WHERE dsi_pid = :dsi_pid";
+
+    if ($dsID !== '') {
+      $data['dsi_dsid'] = $dsID;
+      $sql .= " AND dsi_dsid = :dsi_dsid";
+    }
+    try
+    {
+      $stmt = $db->query($sql, $data);
+      $res = $stmt->fetchAll();
+    }
+    catch(Exception $e) {
+      $log->err($e->getMessage());
+    }
+
+    if ($dsID !== '' && $res) {
+      $res = $res[0];
+    }
+    return $res;
   }
 
   /**

@@ -1266,9 +1266,12 @@ YAHOO.widget.AutoComplete.prototype._populateList = function(sQuery, aResults, o
             // Save database row username
             if( oResultItemi[1].username != '' ) {
                 oItemi._username = oResultItemi[1].username;
-			} else {
-				oItemi._username = '';
-			}
+
+            } else if( oResultItemi[1].student_username != '' ) {
+                oItemi._username = oResultItemi[1].student_username;
+			      } else {
+				        oItemi._username = '';
+			      }
 
         }
 
