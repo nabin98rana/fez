@@ -19,4 +19,4 @@ fi
 
 APP_ENV=$1
 
-aws s3 sync /espace_san/pidimages s3://uql-fez-${APP_ENV}-cache/pidimages --profile fez${APP_ENV}
+/usr/bin/aws s3 sync /espace_san/pidimages s3://uql-fez-${APP_ENV}-cache/pidimages --profile fez${APP_ENV}

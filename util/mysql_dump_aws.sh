@@ -89,15 +89,40 @@ rm -f export/fez_scopus_citations_cache.txt
 
 cp ${APP_ENV}.fez.config.sql export/fez_config.sql
 
-now=$( date +'%F %T' )
-for f in export/fez_record_search_key*.txt
-do
-  s=".txt"
-  r="__shadow.txt"
-  shadow=${f/${s}/${r}}
-  cp ${f} ${shadow}
-  sed -i -- "s/$/,\"${now}\"/" ${shadow}
-done
+if [[ "${APP_ENV}" == "production" ]]; then
+    now=$( date +'%F %T' )
+    for f in export/fez_record_search_key*.txt
+    do
+      s=".txt"
+      r="__shadow.txt"
+      shadow=${f/${s}/${r}}
+      cp ${f} ${shadow}
+      sed -i -- "s/$/,\"${now}\"/" ${shadow}
+    done
+
+    declare -A PIDS
+    regex1='^"([^"]*)",'
+    regex2=',"([0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9] [0-9][0-9]:[0-9][0-9]:[0-9][0-9])",(.*),"([0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9] [0-9][0-9]:[0-9][0-9]:[0-9][0-9])",(.*),"([0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9] [0-9][0-9]:[0-9][0-9]:[0-9][0-9])",'
+
+    while read line; do
+      if [[ "$line" =~ $regex1 ]]; then
+        pid="${BASH_REMATCH[1]}"
+      fi
+      if [[ "$line" =~ $regex2 ]]; then
+        stamp="${BASH_REMATCH[5]}"
+      fi
+      PIDS[$pid]=$stamp
+    done < <(cat export/fez_record_search_key.txt)
+
+    for f in export/fez_record_search_key*__shadow.txt
+    do
+      for pid in "${!PIDS[@]}"
+      do
+        stamp=${PIDS[$pid]}
+        sed -i -- 's/^"\(.*\)","'"${pid}"'",\(.*\),"'"${now}"'"$/"\1","'"${pid}"'",\2,"'"${stamp}"'"/g' ${f}
+      done
+    done
+fi
 
 tar -zcvf fez${APP_ENV}.tar.gz export
 rm -Rf export
