@@ -151,12 +151,6 @@ class MigrateFromFedoraToDatabase
     $this->convertQuickTemplates();
     echo "..done!\n";
 
-    // Update shadow key stamp with rek_updated_date in core SK table
-    // Update rek_security_inherited from FezACML for the pids
-    echo " - Updating shadow tables and pid security..\n";
-//    $this->updateShadowTableStampsAndAddPidSecurity();
-    echo "..done!\n";
-
     // Datastream (attached files) migration
     echo " - Migrating managed content..";
     $this->migrateManagedContent();
@@ -289,8 +283,6 @@ class MigrateFromFedoraToDatabase
       if ($acml) {
         $this->addDatastreamSecurity($acml, $did);
       }
-      // Disabled - all security will be recalculated in the fourth step
-      // AuthNoFedoraDatastreams::recalculatePermissions($did);
     }
   }
 
@@ -361,78 +353,31 @@ class MigrateFromFedoraToDatabase
    * Update shadow key stamp with rek_updated_date in core SK table
    * Update rek_security_inherited from FezACML for the pids
    */
-  private function updateShadowTableStampsAndAddPidSecurity()
+  public function addPidsSecurity()
   {
-
-    $stmt = "SELECT rek_pid, rek_updated_date, rek_security_inherited FROM " .
-      APP_TABLE_PREFIX . "record_search_key WHERE rek_security_inherited IS NULL";
+    $stmt = "SELECT rek_pid FROM " . APP_TABLE_PREFIX . "record_search_key";
     try {
-      $records = $this->_db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
+      $pids = $this->_db->fetchCol($stmt);
     } catch (Exception $ex) {
       $this->_log->err($ex);
       echo "Failed to retrieve pids. Error: " . $ex;
       return false;
     }
 
-    $count = count($records);
+    $count = count($pids);
     $i = 0;
-    foreach ($records as $rek) {
+    foreach ($pids as $pid) {
       $i++;
-      echo " - Updating rek_security_inherited $i/$count\n";
-      $acml = $this->getFezACML($rek['rek_pid'], 'FezACML');
+      echo " - Updating security for $pid ($i/$count)\n";
+      $acml = $this->getFezACML($pid, 'FezACML');
       if ($this->inheritsPermissions($acml)) {
-        AuthNoFedora::setInherited($rek['rek_pid'], 1, false);
+        AuthNoFedora::setInherited($pid, 1);
       }
       else {
-        AuthNoFedora::setInherited($rek['rek_pid'], 0, false);
+        AuthNoFedora::setInherited($pid, 0);
       }
-    }
-
-    $searchKeys = Search_Key::getList();
-    $stmt = "SELECT rek_pid, rek_updated_date FROM " .
-      APP_TABLE_PREFIX . "record_search_key";
-    try {
-      $records = $this->_db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
-    } catch (Exception $ex) {
-      echo "Failed to retrieve pids. Error: " . $ex;
-      return false;
-    }
-
-    $recordDates = [];
-    foreach ($records as $rek) {
-      $recordDates[$rek['rek_pid']] = $rek['rek_updated_date'];
-    }
-    unset($records);
-
-    $count = count($searchKeys);
-    $i = 0;
-    $table = APP_TABLE_PREFIX . "record_search_key";
-    foreach ($searchKeys as $searchKey) {
-      $i++;
-      $shadowTable = "${table}_${searchKey['sek_title_db']}__shadow";
-      echo " - Updating $shadowTable $i/$count\n";
-
-      if ($searchKey['sek_relationship'] == 1) {
-        $stmt = "SELECT DISTINCT rek_${searchKey['sek_title_db']}_pid FROM $shadowTable";
-        $pids = [];
-        try {
-          $pids = $this->_db->fetchCol($stmt);
-        } catch (Exception $ex) {}
-
-        $stmt = 'UPDATE ' . $shadowTable .
-          ' SET rek_' . $searchKey['sek_title_db'] . '_stamp = :stamp' .
-          ' WHERE rek_' . $searchKey['sek_title_db'] . '_pid = :pid';
-        foreach ($pids as $pid) {
-          if (array_key_exists($pid, $recordDates)) {
-            $data = [
-              ':pid' => $pid,
-              ':stamp' => $recordDates[$pid],
-            ];
-            try {
-              $this->_db->query($stmt, $data);
-            } catch (Exception $ex) {}
-          }
-        }
+      if ($acml) {
+        $this->addPidSecurity($acml, $pid);
       }
     }
     return true;
@@ -530,6 +475,43 @@ class MigrateFromFedoraToDatabase
       echo "Done $i/$count\n";
     }
   }
+
+  private function addPidSecurity($acml, $pid)
+  {
+    // loop through the ACML docs found for the current pid or in the ancestry
+    $xpath = new DOMXPath($acml);
+    $roleNodes = $xpath->query('/FezACML/rule/role');
+
+    foreach ($roleNodes as $roleNode) {
+      $role = $roleNode->getAttribute('name');
+      $roleId = Auth::getRoleIDByTitle($role);
+      // Use XPath to get the sub groups that have values
+      $groupNodes = $xpath->query('./*[string-length(normalize-space()) > 0]', $roleNode);
+
+      /* todo
+       * Empty rules override non-empty rules. Example:
+       * If a pid belongs to 2 collections, 1 collection has lister restricted to fez users
+       * and 1 collection has no restriction for lister, we want no restrictions for lister
+       * for this pid.
+       */
+
+      foreach ($groupNodes as $groupNode) {
+        $group_type = $groupNode->nodeName;
+        $group_values = explode(',', $groupNode->nodeValue);
+        foreach ($group_values as $group_value) {
+
+          //off is the same as lack of, so should be the same
+          if ($group_value != "off") {
+            $group_value = trim($group_value, ' ');
+
+            $arId = AuthRules::getOrCreateRule("!rule!role!" . $group_type, $group_value);
+            AuthNoFedora::addSecurityPermissions($pid, $roleId, $arId);
+          }
+        }
+      }
+    }
+  }
+
   private function addDatastreamSecurity($acml, $did)
   {
     // loop through the ACML docs found for the current pid or in the ancestry
@@ -695,4 +677,36 @@ class MigrateFromFedoraToDatabase
     }
     return $pid;
   }
+
+  public function fixRekUpdatedDate() {
+    $stmt = "SELECT rek_pid
+                 FROM " . APP_TABLE_PREFIX . "record_search_key";
+    $pids = [];
+    try {
+      $pids = $this->_db->fetchCol($stmt);
+    } catch (Exception $e) {
+    }
+
+    $count = count($pids);
+    $i = 0;
+    foreach ($pids as $pid) {
+      $i++;
+      echo "Updating $i/$count\n";
+      try {
+        $stmt = "UPDATE " . APP_TABLE_PREFIX . "record_search_key SET
+                 rek_updated_date=(
+                   SELECT pre_date FROM " . APP_TABLE_PREFIX . "premis_event
+                   WHERE pre_pid=" . $this->_db->quote($pid)  . " ORDER BY pre_date DESC LIMIT 0,1
+                 )
+                 WHERE rek_pid=" . $this->_db->quote($pid)  . "
+                   AND rek_pid IN (SELECT pre_pid FROM " . APP_TABLE_PREFIX . "premis_event 
+                   WHERE pre_pid=" . $this->_db->quote($pid)  . ")";
+        $this->_db->exec($stmt);
+      } catch (Exception $e) {
+        echo $e->getMessage() . "\n";
+        exit;
+      }
+    }
+  }
+
 }
