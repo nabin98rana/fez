@@ -367,7 +367,7 @@ class FulltextIndex_ElasticSearch extends FulltextIndex
           $solr_suffix = Record::getSolrSuffix($sval, 0, 1);
           $solr_name = $sval['sek_title_db'] . $solr_suffix;
         }
-        if (isset($aggs[$solr_name])) {
+        if (isset($aggs[$solr_name]) && in_array($solr_name, $facetsToUse)) {
 
           /*
            * Convert (if possible) values into text representation

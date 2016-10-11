@@ -456,9 +456,17 @@ abstract class FulltextIndex {
         // search-engine specific mapping of field name
         $index_title = $this->getFieldName($index_title, $fieldType, $isMultiValued);
 
-        //Add sort fields
-        if ($fieldType == FulltextIndex::FIELD_TYPE_TEXT) {
-          $docfields[$index_title."_s"] = $fieldValue;
+        if (APP_ES_SWITCH == "ON") {
+          //Add sort fields
+          if ($fieldType == FulltextIndex::FIELD_TYPE_TEXT) {
+            $docfields[$index_title . "_s"] = $fieldValue;
+          }
+          //Add facet fields
+          if ($fieldType == FulltextIndex::FIELD_TYPE_TEXT) {
+            $ftName = str_replace("_mt", "_mft", $index_title);
+            $ftName = str_replace("_t", "_ft", $ftName);
+            $docfields[$ftName] = $fieldValue;
+          }
         }
 
         $docfields[$index_title] = $fieldValue;
