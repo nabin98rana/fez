@@ -20,5 +20,5 @@ fi
 APP_ENV=$1
 
 for i in {01..31}; do
-  aws s3 sync 2016/08${i} s3://uql-fez-${APP_ENV}-san/migration/2016/08${i} --sse AES256
+  /usr/bin/aws s3 sync 2016/08${i} s3://uql-fez-${APP_ENV}-san/migration/2016/08${i} --sse AES256
 done
