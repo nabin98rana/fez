@@ -86,7 +86,7 @@ class MigrateFromFedoraToDatabase
     echo "..done!\n";
 
     // Recalculate security
-    echo "Step 4: recalculating security..";
+    echo "Step 4: Recalculating security..\n";
     $this->stepFourMigration();
     echo "..done!\n";
 
@@ -112,7 +112,7 @@ class MigrateFromFedoraToDatabase
         $fdb->getConnection();
         Zend_Registry::set('fedora_db', $fdb);
       } catch (Exception $ex) {
-        echo "Unable to connect to the Fedora DB.\n";
+        echo " - Unable to connect to the Fedora DB.\n";
         return;
       }
     }
@@ -200,7 +200,7 @@ class MigrateFromFedoraToDatabase
 
     } catch (Exception $ex) {
       $this->_db->rollBack();
-      echo "\n<br /> Failed to de-dupe auth group tables. Error: " . $ex->getMessage();
+      echo " - Failed to de-dupe auth group tables. Error: " . $ex->getMessage();
       return false;
     }
   }
@@ -225,14 +225,13 @@ class MigrateFromFedoraToDatabase
 
     $stmt = "select token, path from datastreamPaths   
       where path like '/espace/data/fedora_datastreams/2016/08%'
-        and token like 'UQ:399648+%'
       order by path DESC";
 
     $ds = [];
     try {
       $ds = $this->_fedoraDb->fetchAll($stmt, [], Zend_Db::FETCH_ASSOC);
     } catch (Exception $ex) {
-      echo "Failed to retrieve exif data. Error: " . $ex;
+      echo " - Failed to retrieve exif data. Error: " . $ex;
     }
 
     $totalDs = count($ds);
@@ -247,14 +246,14 @@ class MigrateFromFedoraToDatabase
       $dsName = $tokenParts['dsName'];
       $state = 'A';
 
-      echo "\nDoing PID $counter/$totalDs ($pid)\n";
+      echo "\n - Doing PID $counter/$totalDs ($pid)\n";
       Zend_Registry::set('version', Date_API::getCurrentDateGMT());
 
       $acml = $this->getFezACML($pid, 'FezACML_' . $dsName . '.xml');
       if ($acml) {
         echo $acml->saveXML() . "\n";
       } else {
-        echo "No FezACML found for record\n";
+        echo " - No FezACML found for record\n";
       }
       if(
         strpos($dsName, 'presmd_') === 0
@@ -305,7 +304,7 @@ class MigrateFromFedoraToDatabase
     try {
       $pids = $this->_db->fetchCol($stmt);
     } catch (Exception $e) {
-      echo chr(10) . "<br /> Failed to retrieve pids. Query: " . $stmt;
+      echo " - Failed to retrieve pids. Query: " . $stmt;
       return false;
     }
 
@@ -360,7 +359,7 @@ class MigrateFromFedoraToDatabase
       $pids = $this->_db->fetchCol($stmt);
     } catch (Exception $ex) {
       $this->_log->err($ex);
-      echo "Failed to retrieve pids. Error: " . $ex;
+      echo " - Failed to retrieve pids. Error: " . $ex;
       return false;
     }
 
@@ -434,7 +433,7 @@ class MigrateFromFedoraToDatabase
    */
   private function inheritsPermissions($acml)
   {
-    echo "Checking if inherits permissions..";
+    echo " - Checking if inherits permissions..";
     $inherit = true;
     if ($acml instanceof DOMDocument) {
       $xpath = new DOMXPath($acml);
@@ -452,7 +451,6 @@ class MigrateFromFedoraToDatabase
   }
 
   private function recalculatePidSecurity() {
-    echo "Recalculating PID security\n";
     // Get all PIDs without parents and recalculate permissions.
     // This will filter down to child pids and child datastreams
     $stmt = "SELECT rek_pid FROM " . APP_TABLE_PREFIX . "record_search_key
@@ -464,7 +462,7 @@ class MigrateFromFedoraToDatabase
     try {
       $res = $this->_db->fetchAll($stmt);
     } catch (Exception $ex) {
-      echo "Failed to retrieve pids\n";
+      echo " - Failed to retrieve pids\n";
     }
 
     $i = 0;
@@ -472,7 +470,7 @@ class MigrateFromFedoraToDatabase
     foreach ($res as $pid) {
       $i++;
       AuthNoFedora::recalculatePermissions($pid, false, false);
-      echo "Done $i/$count\n";
+      echo " - Done $i/$count\n";
     }
   }
 
@@ -611,7 +609,7 @@ class MigrateFromFedoraToDatabase
             try {
               $this->_db->query($stmt, $authQuickRule);
             } catch (Exception $ex) {
-              echo "Error creating quick rule: " . $ex->getMessage() . "\n\n";
+              echo " - Error creating quick rule: " . $ex->getMessage() . "\n\n";
             }
           }
         }
@@ -621,7 +619,7 @@ class MigrateFromFedoraToDatabase
 
   private function getFezACML($pid, $dsID)
   {
-    echo "Getting FezACML for $pid/$dsID\n";
+    echo " - Getting FezACML for $pid/$dsID\n";
     $result = Misc::processURL(APP_FEDORA_GET_URL . "/" . $pid . "/" . $dsID, false, null, null, null, 10, true);
     if ($result['success'] === 0) {
       return FALSE;
@@ -691,7 +689,7 @@ class MigrateFromFedoraToDatabase
     $i = 0;
     foreach ($pids as $pid) {
       $i++;
-      echo "Updating $i/$count\n";
+      echo " - Updating $i/$count\n";
       try {
         $stmt = "UPDATE " . APP_TABLE_PREFIX . "record_search_key SET
                  rek_updated_date=(
@@ -708,5 +706,4 @@ class MigrateFromFedoraToDatabase
       }
     }
   }
-
 }
