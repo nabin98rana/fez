@@ -109,10 +109,13 @@ class BackgroundProcess_Db_Load extends BackgroundProcess
     $sql = file_get_contents($path . '/fez_config.sql');
     $db->query($sql);
 
-    $stmt = $con->prepare('DELETE FROM fez_user WHERE usr_username LIKE \'%\_test\'');
+    $stmt = $con->prepare("DELETE FROM fez_user WHERE usr_username LIKE '%_test'");
     $stmt->execute();
 
     if ($environment === 'production') {
+      $stmt = $con->prepare("DELETE FROM fez_datastream_info");
+      $stmt->execute();
+
       // Run migration from Fedora -> S3
       $bgp = new BackgroundProcess_Migrate_Fedora();
       $bgp->register(serialize([]), User::getUserIDByUsername('webcron'));
