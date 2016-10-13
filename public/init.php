@@ -408,5 +408,6 @@ if(
   && stripos($_SERVER['REQUEST_URI'], '/api/' !== 0)
   && php_sapi_name() != "cli"
 ) {
+  include_once(APP_INC_PATH . "class.auth.php");
   Auth::basicAuth();
 }
