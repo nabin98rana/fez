@@ -2605,7 +2605,7 @@ class Auth
     return;
   }
 
-  public static function basicAuth($loginSuccessfulUrl)
+  public static function basicAuth($loginSuccessfulUrl = '')
   {
     if (((($_SERVER["SERVER_PORT"] != 443) && (APP_HTTPS == "ON"))) && APP_REDIRECT_CHECK != 'OFF') { //should be ssl when using basic auth
       header('Location: ' . 'https://' . APP_HOSTNAME . rtrim(APP_RELATIVE_URL, '/') . $_SERVER['REQUEST_URI']);
@@ -2626,8 +2626,10 @@ class Auth
           $pw = $_SERVER['PHP_AUTH_PW'];
           if (Auth::isCorrectPassword($username, $pw)) {
             Auth::LoginAuthenticatedUser($username, $pw, false);
-            header ("Location: https://".APP_HOSTNAME.APP_RELATIVE_URL.$loginSuccessfulUrl);
-            exit;
+            if (! empty($loginSuccessfulUrl)) {
+              header("Location: https://" . APP_HOSTNAME . APP_RELATIVE_URL . $loginSuccessfulUrl);
+              exit;
+            }
           } else {
             header('WWW-Authenticate: Basic realm="'.APP_HOSTNAME.'"');
             header('HTTP/1.0 401 Unauthorized');
