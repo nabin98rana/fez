@@ -2607,7 +2607,23 @@ class Auth
 
   public static function basicAuth($loginSuccessfulUrl = '')
   {
-    if (((($_SERVER["SERVER_PORT"] != 443) && (APP_HTTPS == "ON"))) && APP_REDIRECT_CHECK != 'OFF') { //should be ssl when using basic auth
+    $env = strtolower($_SERVER['APPLICATION_ENV']);
+    $sslRedirect = false;
+
+    if (APP_FEDORA_BYPASS == "ON") {
+      if (
+        ($env == 'production' || $env == 'staging')
+        && array_key_exists('HTTP_CLOUDFRONT_FORWARDED_PROTO', $_SERVER)
+        && $_SERVER["HTTP_CLOUDFRONT_FORWARDED_PROTO"] != "https"
+      ) {
+        $sslRedirect = true;
+      }
+    }
+    else if (((($_SERVER["SERVER_PORT"] != 443) && (APP_HTTPS == "ON"))) && APP_REDIRECT_CHECK != 'OFF') {
+      $sslRedirect = true;
+    }
+
+    if ($sslRedirect) { //should be ssl when using basic auth
       header('Location: ' . 'https://' . APP_HOSTNAME . rtrim(APP_RELATIVE_URL, '/') . $_SERVER['REQUEST_URI']);
       exit;
     }
