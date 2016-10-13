@@ -401,6 +401,7 @@ if (APP_API) {
 
 // Protect bypass staging/production with basic auth.
 // Excludes /api/ which uses a token based auth, and CLI scripts
+// @todo(post-migration): Remove $env = production
 $env = strtolower($_SERVER['APPLICATION_ENV']);
 if(
   APP_FEDORA_BYPASS == "ON"
