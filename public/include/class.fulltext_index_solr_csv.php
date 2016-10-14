@@ -546,7 +546,7 @@ class FulltextIndex_Solr_CSV extends FulltextIndex_Solr
 
   }
 
-  protected function updateFulltextIndex($pid, $fields, $fieldTypes)
+  protected function updateFulltextIndex($pid, $fields)
   {
 
   }

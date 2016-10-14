@@ -288,7 +288,9 @@ abstract class FulltextIndex {
 				if ($ftq_op == FulltextQueue::ACTION_DELETE) {
 					$this->removeByPid($ftq_pid);
 				} else {
-					$this->indexRecord($ftq_pid);
+//				  $sekData = try to get sek data frmo cache else from buidl it manually
+          $sekData = array();
+					$this->indexRecord($ftq_pid, $sekData);
 				}
 
 				$this->countDocs++;
@@ -375,83 +377,90 @@ abstract class FulltextIndex {
 		return $value;
 	}
 
+  /**
+   * Caches the pid into
+   * will recurse into collection or communities.
+   *
+   * @param string $pid
+   * @param array $sekData
+   */
+  public function cacheRecord($pid, $sekData = array())
+  {
+    //if no data is passed, go and get it yourself for caching
+    if (count($sekData) == 0) {
+      $options = array();
+      $filter = array();
+      $filter["searchKey" . Search_Key::getID("Pid")] = str_replace(":", "\\:", $pid);
+      $current_row = 0;
+      $max = 1;
+      $order_by = "Title";
 
-	/**
-	 * Inserts or updates records in the fulltext index. This function
-	 * will recurse into collection or communities.
-	 *
-	 * @param unknown_type $pid
-	 * @param unknown_type $regen
-	 * @param unknown_type $topcall
-	 */
-	public function indexRecord($pid, $regen=false, $topcall=true)
-	{
-		$this->regen = $regen;
+      $sekData = Record::getListing($options, array(9, 10), $current_row, $max, $order_by, false, false, $filter, 'AND', false, false, false, APP_SOLR_FACET_LIMIT, APP_SOLR_FACET_MINCOUNT, false, $createdDT, true);
 
-		if ($this->bgp) {
-			$this->bgp->setHeartbeat();
-			$this->bgp->setProgress(++$this->pid_count);
-		}
+    }
+    if (!is_array($sekData['list'][0])) {
+      return;
+    }
 
-		$record = new RecordObject($pid);
-		$dslist = $record->getDatastreams();
 
-		foreach ($dslist as $dsitem) {
-			$this->indexDS($record, $dsitem);
-		}
+    $record = new RecordObject($pid);
+    $dslist = $record->getDatastreams();
 
-		//
-		// get record metadata from Fez search index
-		//
+    foreach ($dslist as $dsitem) {
+      $this->indexDS($record, $dsitem);
+    }
 
-		// use all search keys (large list), because e.g. status is not in advanced search
-		$searchKeys = Search_Key::getList(false);
-		$docfields = array();
-		$fieldTypes = array();
+    // get the list of search keys because its easier to find and add solr dynamic field mapping that reverse lookup
+    // the sekDetails later (less sql calls)
 
-		/*
-		 * Custom search key (not a registered search key)
-		 */
-		$citationKey = array(
-            'sek_title'         =>  'citation',
-            'sek_title_db'      =>  'citation',
-            'sek_data_type'     =>  'text',
-            'sek_relationship'  =>  0,
-		);
+    $searchKeys = Search_Key::getList(false);
 
-		$searchKeys[] = $citationKey;
+    /*
+    * Custom search key (not a registered search key)
+    */
+    $citationKey = array(
+        'sek_title' => 'citation',
+        'sek_title_db' => 'citation',
+        'sek_data_type' => 'text',
+        'sek_relationship' => 0,
+    );
+    $docfields = array();
+    $searchKeys[] = $citationKey;
 
-		foreach ($searchKeys as $sekDetails) {
-			$title = $sekDetails["sek_title"];
+    foreach ($searchKeys as $sekDetails) {
+      $title = $sekDetails["sek_title"];
       $index_title = $sekDetails["sek_title_db"];
-			if ($title == 'File Attachment Content') {
-				continue;
-			}
+      if ($title == 'File Attachment Content') {
+        continue;
+      }
 
-			// TODO: lookups are disabled for the moment
-			// they are a problem because data type does not match,
-			// e.g. "Display Type" (integer, core 1:1) -> lookup returns string
-			// but for full-text searching subjects this would be nice to have
-			$fieldValue = Record::getSearchKeyIndexValue($pid, $title, false, $sekDetails);
 
-			// We want solr to cache all citations
-			if($fieldValue == "" && $title == 'citation') {
-				$fieldValue = Citation::updateCitationCache($pid);
-			}
+      if (!array_key_exists('rek_' . $index_title, $sekData['list'][0])
+        || $sekData['list'][0]['rek_' . $index_title] == null
+        || (is_array($sekData['list'][0]['rek_' . $index_title]) && count($sekData['list'][0]['rek_' . $index_title]) == 0) ) {
+        continue;
+      }
 
-			// consolidate field types
-			$fieldType = $this->mapType($sekDetails['sek_data_type']);
+      //add lookups? - dont seem to come in yet - although we should get them now which is great from getlisting
+      $fieldValue = $sekData['list'][0]['rek_' . $index_title];
 
-			// search-engine specific mapping of field content (date!)
-			$fieldValue = $this->mapFieldValue($title, $fieldType, $fieldValue);
+      // We want solr to cache all citations
+      if ($fieldValue == "" && $title == 'citation') {
+        $fieldValue = Citation::updateCitationCache($pid);
+      }
 
-			if( $fieldValue != "" ) {
-				// mark multi-valued search keys
-				$isMultiValued = false;
-				if ($sekDetails["sek_relationship"] == 1) {
-					$isMultiValued = true;
-					$fieldTypes[$index_title.FulltextIndex::FIELD_MOD_MULTI] = true;
-				}
+      // consolidate field types
+      $fieldType = $this->mapType($sekDetails['sek_data_type']);
+
+      // search-engine specific mapping of field content (date!)
+      $fieldValue = $this->mapFieldValue($title, $fieldType, $fieldValue);
+
+      if ($fieldValue != "") {
+        // mark multi-valued search keys
+        $isMultiValued = false;
+        if ($sekDetails["sek_relationship"] == 1) {
+          $isMultiValued = true;
+        }
 
         // search-engine specific mapping of field name
         $index_title = $this->getFieldName($index_title, $fieldType, $isMultiValued);
@@ -471,51 +480,62 @@ abstract class FulltextIndex {
 
         $docfields[$index_title] = $fieldValue;
 
-				$fieldTypes[$index_title] = $fieldType;
-				unset($fieldValue);
-				unset($fieldType);
-			}
-		}
+        unset($fieldValue);
+        unset($fieldType);
+      }
+    }
 
-		unset($searchKeys);
-
-		// add fulltext for each datastream (fulltext is supposed to be in the special cache)
+    // add fulltext for each datastream (fulltext is supposed to be in the special cache)
     $index_title = $this->getFieldName(self::FIELD_NAME_FULLTEXT, self::FIELD_TYPE_TEXT, true);
-		$docfields[$index_title] = array();
-		$fieldTypes[$index_title] = self::FIELD_TYPE_TEXT;
-		$fieldTypes[$index_title.FulltextIndex::FIELD_MOD_MULTI] = true;
+    $docfields[$index_title] = array();
 
-		foreach ($dslist as $dsitem) {
-			$dsid = $dsitem['ID'];
-			$ftResult = $this->getCachedContent($pid, $dsid);
-			if (!empty($ftResult) && !empty($ftResult['content'])) {
-				$docfields[$index_title][$dsid] = $ftResult['content'];
-			}
-			unset($ftResult);
-		}
+    foreach ($dslist as $dsitem) {
+      $dsid = $dsitem['ID'];
+      $ftResult = $this->getCachedContent($pid, $dsid);
+      if (!empty($ftResult) && !empty($ftResult['content'])) {
+        $docfields[$index_title][$dsid] = $ftResult['content'];
+      }
+      unset($ftResult);
+    }
 
-		//
-		// add lister security index to document - kind of special
-		// maybe this needs more abstraction for new search engines
-		// _authindex solr: tokenized, indexed and stored _t
-		//
-		$auth_title = $this->getFieldName(FulltextIndex::FIELD_NAME_AUTHLISTER, FulltextIndex::FIELD_TYPE_TEXT, false);
-		$docfields[$auth_title] = $this->getListerRuleGroups($pid);
-		$fieldTypes[$auth_title] = FulltextIndex::FIELD_TYPE_TEXT;
+    //
+    // add lister security index to document - kind of special
+    // maybe this needs more abstraction for new search engines
+    // _authindex solr: tokenized, indexed and stored _t
+    //
+    $auth_title = $this->getFieldName(FulltextIndex::FIELD_NAME_AUTHLISTER, FulltextIndex::FIELD_TYPE_TEXT, false);
+    $docfields[$auth_title] = $this->getListerRuleGroups($pid);
 
-		//
-		// now we have everything in $docfields >> do update
-		//
-		$this->updateFulltextIndex($pid, $docfields, $fieldTypes);
+    //now save it to the cache.
+    $content = json_encode($docfields);
+    FulltextIndex::updateFulltextCache($pid, "", $content, 0);
+    return $content;
+  }
+
+
+	/**
+	 * Inserts or updates records in the fulltext index. This function
+	 * will recurse into collection or communities.
+	 *
+	 * @param string $pid
+	 */
+	public function indexRecord($pid)
+	{
 
 		if ($this->bgp) {
-			$this->bgp->setStatus("Finished Solr fulltext indexing for ".$record->getFieldValueBySearchKey("Title")." ($pid)");
+			$this->bgp->setHeartbeat();
+			$this->bgp->setProgress(++$this->pid_count);
 		}
 
-		unset($record);
-		unset($dslist);
-		unset($docfields);
-		unset($fieldTypes);
+    $cache = $this->getCachedContent(array($pid), true);
+    if ($cache['content'] == '') {
+      $this->cacheRecord($pid);
+    }
+    $this->updateFulltextIndex($pid, json_decode($cache['content']));
+
+		if ($this->bgp) {
+			$this->bgp->setStatus("Finished Solr fulltext indexing for ($pid)");
+		}
 	}
 
 
@@ -594,10 +614,10 @@ abstract class FulltextIndex {
 	 * Updates the fulltext index with a new or existing document. This function
 	 * has to be implemented by child classes.
 	 *
-	 * @param unknown_type $pid
-	 * @param unknown_type $fields
+	 * @param string $pid
+	 * @param array $fields
 	 */
-	protected abstract function updateFulltextIndex($pid, $fields, $fieldTypes);
+	protected abstract function updateFulltextIndex($pid, $fields);
 
 
 	/**
@@ -1070,8 +1090,11 @@ abstract class FulltextIndex {
 	/**
 	 * Updates the fulltext cache. Inserts new and replaces existing entries.
 	 *
-	 * @param unknown_type $pid
-	 * @param unknown_type $dsID
+	 * @param string $pid
+	 * @param string $dsID
+   * @param string $fulltext
+   * @param integer $is_text_usable
+   * @return boolean
 	 */
 	protected function updateFulltextCache($pid, $dsID, &$fulltext, $is_text_usable = 1)
 	{
@@ -1313,7 +1336,7 @@ abstract class FulltextIndex {
    * @param string $dsID
    * @return plaintext of datastream, null on error
    */
-  public function getCachedContent($pids)
+  public function getCachedContent($pids, $noDatastream = false)
   {
     $log = FezLog::get();
     if (defined("APP_SQL_CACHE_DBHOST")) {
@@ -1327,7 +1350,11 @@ abstract class FulltextIndex {
     //$stmt = "SELECT ftc_pid as pid, REPLACE(REPLACE(REPLACE(ftc_content, '\"','\"\"'), '\n', ' '), '\t', ' ') as content, ftc_dsid as dsid ".
     $stmt = "SELECT ftc_pid as pid, ftc_content as content, ftc_dsid as dsid " .
         'FROM ' . APP_TABLE_PREFIX . FulltextIndex::FULLTEXT_TABLE_NAME .
-        ' WHERE ftc_pid IN (' . $pids . ') AND ftc_is_text_usable = TRUE';
+        ' WHERE ftc_pid IN (' . $pids . ') AND ftc_is_text_usable = 1';
+
+    if ($noDatastream) {
+      $stmt .= " AND ftc_dsid = ''";
+    }
 
     try {
       $res = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);

@@ -44,7 +44,7 @@ class FulltextIndex_Solr extends FulltextIndex
    * @param string $pid
    * @param array $fields
    */
-  protected function updateFulltextIndex($pid, $fields, $fieldTypes)
+  protected function updateFulltextIndex($pid, $fields)
   {
     $log = FezLog::get();
 
@@ -55,7 +55,7 @@ class FulltextIndex_Solr extends FulltextIndex
       $doc->id = $pid;
 
       foreach ($fields as $key => $value) {
-        if (is_array($value) && $fieldTypes) {
+        if (is_array($value)) {
           foreach ($value as $v) {
             // too much utf8_encode for fields already encoded...
             if ($v != "") {

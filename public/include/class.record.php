@@ -1583,6 +1583,7 @@ class Record
     //
     if (APP_SOLR_INDEXER == "ON") {
       $log->debug("Record::updateSearchKeys() ADDING ".$pid." TO QUEUE");
+//      FulltextQueue::singleton()->add($pid, Fulltextndex::prepAlreadygottendata($thedata));
       FulltextQueue::singleton()->add($pid);
       FulltextQueue::singleton()->commit();
     }

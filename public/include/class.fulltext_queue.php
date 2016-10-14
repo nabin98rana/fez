@@ -381,11 +381,12 @@ class FulltextQueue
 	 * might be an overkill, but who knows if the queue will be used for
 	 * other operations at a later time (e.g. multiple indexer processes...)
 	 *
+   * @param integer $count - How many to pop
 	 * @return row (pid, action) of front pid
 	 * @return null, if queue is empty or if there is an error
 	 *
 	 */
-	public function pop()
+	public function pop($count = 1)
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
@@ -396,7 +397,7 @@ class FulltextQueue
 		// fetch first row
 		$stmt  = "SELECT * FROM ".APP_TABLE_PREFIX."fulltext_queue ";
 		$stmt .= "ORDER BY ftq_key ASC "; //maybe this needs to be commented out like RP did because of hte below? doubt it surely.. CK
-		$stmt = $db->limit($stmt, 1, 0);
+		$stmt = $db->limit($stmt, $count, 0);
 
 		try {
 			$res = $db->fetchRow($stmt, array(), Zend_Db::FETCH_ASSOC);
@@ -443,6 +444,65 @@ class FulltextQueue
 		}
 		return $res;
 	}
+
+	public function popChunkCache() {
+    $log = FezLog::get();
+    $db = DB_API::get();
+
+    $stmt  = "SELECT ftq_pid, ftc_content
+              FROM ".APP_TABLE_PREFIX."fulltext_queue
+              LEFT JOIN ".APP_TABLE_PREFIX."fulltext_cache ON ftq_pid = ftc_pid AND ftc_dsid = ''
+		          WHERE ftq_op = '".FulltextQueue::ACTION_INSERT."'
+		          ORDER BY ftq_key DESC
+		          LIMIT ".APP_SOLR_COMMIT_LIMIT;
+    try {
+      $res = $db->fetchAll($stmt);
+    }
+    catch(Exception $ex) {
+      $log->err($ex);
+      return false;
+    }
+
+    if (count($res) == 0) {
+      FulltextQueue::cleanDeletedPids();
+      $log->debug("FulltextQueue::pop() Queue is empty.");
+      return false;
+    }
+
+    // delete chunk from queue
+    $stmt =  "DELETE FROM ".APP_TABLE_PREFIX."fulltext_queue ";
+    $stmt .= "WHERE ftq_pid IN (".Misc::arrayToSQLBindStr($res).") AND ftq_op = '".FulltextQueue::ACTION_INSERT."'";
+
+    try {
+      $db->query($stmt, $res);
+    }
+    catch(Exception $ex) {
+      $log->err($ex);
+    }
+
+    return $res;
+  }
+
+
+  /**
+   * Sometimes the queue gets deleted pids in it as inserts so we'll delete them out
+   */
+  public static function cleanDeletedPids() {
+    $log = FezLog::get();
+    $db = DB_API::get();
+
+    $stmt = "DELETE ".APP_TABLE_PREFIX."fulltext_queue
+                        FROM ".APP_TABLE_PREFIX."fulltext_queue
+                        LEFT JOIN ".APP_TABLE_PREFIX."record_search_key ON rek_pid = ftq_pid
+                        WHERE ftq_op = '".FulltextQueue::ACTION_INSERT."'
+                        AND rek_pid IS NULL";
+    try {
+      $db->query($stmt);
+    }
+    catch(Exception $ex) {
+      $log->err($ex);
+    }
+  }
 
 	public function popChunk($singleColumns)
 	{
@@ -505,21 +565,7 @@ class FulltextQueue
 		}
 
 		if (count($res) == 0) {
-            //Sometimes the queue gets deleted pids in it as inserts so we'll delete them out
-            if (APP_SOLR_COMMIT_LIMIT > 0) {
-                $stmt = "DELETE ".APP_TABLE_PREFIX."fulltext_queue
-                        FROM ".APP_TABLE_PREFIX."fulltext_queue
-                        LEFT JOIN ".APP_TABLE_PREFIX."record_search_key ON rek_pid = ftq_pid
-                        WHERE ftq_op = '".FulltextQueue::ACTION_INSERT."'
-                        AND rek_pid IS NULL";
-                try {
-                    $db->query($stmt);
-                }
-                catch(Exception $ex) {
-                    $log->err($ex);
-                }
-            }
-
+      FulltextQueue::cleanDeletedPids();
 			$log->debug("FulltextQueue::pop() Queue is empty.");
 			return false;
 		}

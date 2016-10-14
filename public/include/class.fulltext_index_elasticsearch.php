@@ -65,6 +65,23 @@ class FulltextIndex_ElasticSearch extends FulltextIndex
     $this->esClient->delete($params);
   }
 
+  /**
+   * Delete an array of pids from the index
+   * @param array $pids
+   */
+  protected function bulkDelete($pids) {
+    foreach ($pids as $pid) {
+      $params['body'][] = array(
+          'delete' => array(
+              '_index' => $this->esIndex,
+              '_type' => $this->esType,
+              '_id' => $pid
+          )
+      );
+      $this->esClient->bulk($params);
+    }
+  }
+
 
   /**
    * Create an ES index based on the schema mapping json
@@ -210,7 +227,7 @@ class FulltextIndex_ElasticSearch extends FulltextIndex
         $sortOrder[0] = str_replace("score", "_score", $sortOrder[0]);
         $params['body']['sort'] = [$sortOrder[0] => ["order" => $sortOrder[1]]];
       }
-      $testJson = json_encode($params);
+//      $testJson = json_encode($params);
 
       $results = $this->esClient->search($params);
     } catch (Exception $e) {
@@ -313,7 +330,7 @@ class FulltextIndex_ElasticSearch extends FulltextIndex
    * @param string $pid
    * @param array $fields
    */
-  protected function updateFulltextIndex($pid, $fields, $fieldTypes)
+  protected function updateFulltextIndex($pid, $fields)
   {
     $log = FezLog::get();
 
@@ -470,5 +487,89 @@ class FulltextIndex_ElasticSearch extends FulltextIndex
     }
   }
 
+
+  /**
+   * Processes the queue. Retrieves an item using the pop() function
+   * of the queue and calls the index or remove methods.
+   *
+   */
+  public function processQueue()
+  {
+    $log = FezLog::get();
+    $db = DB_API::get();
+
+    $countDocs = 0;
+    /*
+     * Custom search key (not a registered search key)
+     */
+    $citationKey = array(
+        'sek_title' => 'citation',
+        'sek_title_db' => 'citation',
+        'sek_data_type' => 'text',
+        'sek_relationship' => 0,
+        'sek_simple_used' => 1,
+    );
+    $searchKeys[] = $citationKey;
+    $roles = array(
+        'Lister',
+        'Creator',
+        'Editor',
+    );
+
+    $queue = FulltextQueue::singleton();
+    $this->totalDocs = $queue->size();
+
+    if ($this->bgp) {
+      $this->bgpDetails = $this->bgp->getDetails();
+    }
+
+    // Loop through queue and index a number of records set in APP_SOLR_COMMIT_LIMIT config var at a time into solr
+    while (($chunk = $queue->popChunkCache()) != false) {
+
+      $pids_arr = array();
+      // first cache anything not already cached
+      foreach ($chunk as $row) {
+
+        if (empty($row['ftq_pid']))
+          continue;
+
+        $pids_arr[] = $row['ftq_pid'];
+
+        if ($row['ftc_content'] == '') {
+          $row['ftc_content'] = $this->cacheRecord($row['ftq_pid']);
+        }
+        $decodedContent = str_replace('""', '"', $row['ftc_content']);
+        $decodedContent = json_decode($decodedContent, true);
+        $this->updateFulltextIndex($row['ftq_pid'], $decodedContent);
+      }
+
+      $countDocs += count($chunk);
+      if ($countDocs > $this->totalDocs) {
+        $countDocs = $this->totalDocs;
+      }
+
+      if ($this->bgp) {
+        $this->bgp->setStatus("Finished Solr fulltext indexing for (" . $countDocs . "/" . $this->totalDocs . " Added)");
+        $this->bgp->setProgress($countDocs);
+
+        foreach ($pids_arr as $finishedPid) {
+          $this->bgp->markPidAsFinished($finishedPid);
+        }
+      }
+    }
+
+    if ($this->bgp) {
+      $this->bgp->setStatus("Processing any PIDS to delete from solr");
+    }
+    $deletePids = $queue->popDeleteChunk();
+
+    if ($deletePids) {
+      if ($this->bgp) {
+        $this->bgp->setStatus("Deleting " . count($deletePids) . " from Solr Index");
+      }
+      $this->bulkDelete($deletePids);
+    }
+    return $countDocs;
+  }
 
 }
