@@ -529,19 +529,11 @@ class FulltextIndex_ElasticSearch extends FulltextIndex
       $pids_arr = array();
       // first cache anything not already cached
       foreach ($chunk as $row) {
-
         if (empty($row['ftq_pid']))
           continue;
-
         $pids_arr[] = $row['ftq_pid'];
-
-        if ($row['ftc_content'] == '') {
-          $row['ftc_content'] = $this->cacheRecord($row['ftq_pid']);
-        }
-        $decodedContent = str_replace('""', '"', $row['ftc_content']);
-        $decodedContent = json_decode($decodedContent, true);
-        $this->updateFulltextIndex($row['ftq_pid'], $decodedContent);
       }
+      $this->indexRecords($pids_arr);
 
       $countDocs += count($chunk);
       if ($countDocs > $this->totalDocs) {
