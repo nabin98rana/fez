@@ -410,5 +410,5 @@ if(
   && php_sapi_name() != "cli"
 ) {
   include_once(APP_INC_PATH . "class.auth.php");
-  Auth::basicAuth();
+  Auth::basicAuth('', true);
 }
