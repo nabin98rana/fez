@@ -468,13 +468,16 @@ class FulltextQueue
       $log->debug("FulltextQueue::pop() Queue is empty.");
       return false;
     }
-
+    $pids = array();
+    foreach ($res as $row) {
+      array_push($pids, $row['ftq_pid']);
+    }
     // delete chunk from queue
     $stmt =  "DELETE FROM ".APP_TABLE_PREFIX."fulltext_queue ";
     $stmt .= "WHERE ftq_pid IN (".Misc::arrayToSQLBindStr($res).") AND ftq_op = '".FulltextQueue::ACTION_INSERT."'";
 
     try {
-      $db->query($stmt, $res);
+      $db->query($stmt, $pids);
     }
     catch(Exception $ex) {
       $log->err($ex);
