@@ -2605,7 +2605,7 @@ class Auth
     return;
   }
 
-  public static function basicAuth($loginSuccessfulUrl = '')
+  public static function basicAuth($loginSuccessfulUrl = '', $skipSaveSession = false)
   {
     $env = strtolower($_SERVER['APPLICATION_ENV']);
     $sslRedirect = false;
@@ -2641,7 +2641,9 @@ class Auth
           $username = $_SERVER['PHP_AUTH_USER'];
           $pw = $_SERVER['PHP_AUTH_PW'];
           if (Auth::isCorrectPassword($username, $pw)) {
-            Auth::LoginAuthenticatedUser($username, $pw, false);
+            if (! $skipSaveSession) {
+              Auth::LoginAuthenticatedUser($username, $pw, FALSE);
+            }
             if (! empty($loginSuccessfulUrl)) {
               header("Location: https://" . APP_HOSTNAME . APP_RELATIVE_URL . $loginSuccessfulUrl);
               exit;
