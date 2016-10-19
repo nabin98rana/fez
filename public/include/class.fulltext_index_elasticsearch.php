@@ -201,6 +201,8 @@ class FulltextIndex_ElasticSearch extends FulltextIndex
           'body' => [
               'aggregations' => $params['facets'],
               'fields' => $fields,
+              'from' => $start,
+              'size' => $page_rows,
               'query' => [
                   'filtered' => [
                       'query' => [
