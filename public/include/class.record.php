@@ -2474,7 +2474,8 @@ class Record
     if (count($res) > 0) {
       if ($getSimple == false || empty($getSimple)) {
         // temporarily jus set everything to citation cache true to test out getting lookups, reseasrc and notes from solr now
-        $citationCache = true;
+        // CK - 19/10/16 - stop doing this because we are now using this function for ES indexing
+//        $citationCache = true;
         if ($citationCache == false) {
           if (is_numeric($usr_id)) {
             //This can be significently made faster by Record::getExtendedPidInfo($res, array('Display Type', 'HERDC Status', 'HERDC code', 'Institutional Status', 'Follow up Flags', 'Follow up Flags IMU'));

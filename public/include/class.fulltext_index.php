@@ -487,6 +487,11 @@ abstract class FulltextIndex {
 
           $docfields[$index_title] = $fieldValue;
 
+          //Add any lookups
+          if (!empty($sekDetails['sek_lookup_function'])) {
+            $docfields[$index_title . "_lookup"] = $sekRow["rek_".$sekDetails['sek_title_db']. "_lookup"];
+            $docfields[$index_title . "_lookup_exact"] = $sekRow["rek_".$sekDetails['sek_title_db']. "_lookup"];
+          }
           unset($fieldValue);
           unset($fieldType);
         }
