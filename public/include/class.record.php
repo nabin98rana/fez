@@ -1839,10 +1839,12 @@ class Record
       if (isset($acml_cache['ds'][$dsID][$pid])) {
         return $acml_cache['ds'][$dsID][$pid];
       } else {
-        $dsIDCore = preg_replace("/(web_|preview_|thumbnail_|stream_)/", "", $dsID);
-        $dsIDCore = substr($dsIDCore, 0, strrpos($dsIDCore, "."));
-        $ds_pattern = '/^FezACML_'.$dsIDCore.'\.(.*)xml$/';
-        $ds_search = 'FezACML_'.$dsID.'.xml';
+        if (APP_FEDORA_BYPASS != "ON") {
+          $dsIDCore = preg_replace("/(web_|preview_|thumbnail_|stream_)/", "", $dsID);
+          $dsIDCore = substr($dsIDCore, 0, strrpos($dsIDCore, "."));
+          $ds_pattern = '/^FezACML_' . $dsIDCore . '\.(.*)xml$/';
+          $ds_search = 'FezACML_' . $dsID . '.xml';
+        }
       }
     } else {
       if (isset($acml_cache['pid'][$pid])) {
