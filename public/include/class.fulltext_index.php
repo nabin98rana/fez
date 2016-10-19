@@ -402,9 +402,9 @@ abstract class FulltextIndex {
       $sekData = Record::getListing($options, array(9, 10), $current_row, $max, $order_by, false, false, $filter, 'AND', false, false, false, APP_SOLR_FACET_LIMIT, APP_SOLR_FACET_MINCOUNT, false, $createdDT, true);
 
     }
-//    if (!is_array($sekData['list'][0])) {
-//      return;
-//    }
+    if (!is_array($sekData['list'])) {
+      return;
+    }
 
     foreach ($pids as $pid) {
       $record = new RecordObject($pid);

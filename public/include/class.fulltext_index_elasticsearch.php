@@ -308,10 +308,9 @@ class FulltextIndex_ElasticSearch extends FulltextIndex
       }
     }
 
-
     return array(
         'total_rows' => $total_rows,
-        'facets' => array(),
+        'facets' => $facets,
         'docs' => $docs,
         'snips' => array()
     );
@@ -370,6 +369,7 @@ class FulltextIndex_ElasticSearch extends FulltextIndex
    */
   private function extractFacets($aggs, $facetsToUse, $lookupFacetsToUse)
   {
+    $facets = array();
     if (is_array($aggs)) {
       /*
        * We have to loop through every search key because
@@ -384,7 +384,7 @@ class FulltextIndex_ElasticSearch extends FulltextIndex
           $solr_suffix = Record::getSolrSuffix($sval, 0, 1);
           $solr_name = $sval['sek_title_db'] . $solr_suffix;
         }
-        if (isset($aggs[$solr_name]) && in_array($solr_name, $facetsToUse)) {
+        if (array_key_exists($solr_name, $aggs) && in_array($solr_name, $facetsToUse)) {
 
           /*
            * Convert (if possible) values into text representation
@@ -453,6 +453,7 @@ class FulltextIndex_ElasticSearch extends FulltextIndex
         }
       }
     }
+    return $facets;
   }
 
   protected function forceCommit()
