@@ -402,9 +402,9 @@ abstract class FulltextIndex {
       $sekData = Record::getListing($options, array(9, 10), $current_row, $max, $order_by, false, false, $filter, 'AND', false, false, false, APP_SOLR_FACET_LIMIT, APP_SOLR_FACET_MINCOUNT, false, $createdDT, true);
 
     }
-    if (!is_array($sekData['list'][0])) {
-      return;
-    }
+//    if (!is_array($sekData['list'][0])) {
+//      return;
+//    }
 
     foreach ($pids as $pid) {
       $record = new RecordObject($pid);
@@ -432,7 +432,8 @@ abstract class FulltextIndex {
     $docfields = array();
     $searchKeys[] = $citationKey;
 
-    foreach ($pids as $pid) {
+    foreach ($sekData['list'] as $sekKey => $sekRow) {
+      $pid = $sekRow['rek_pid'];
       foreach ($searchKeys as $sekDetails) {
         $title = $sekDetails["sek_title"];
         $index_title = $sekDetails["sek_title_db"];
@@ -441,14 +442,14 @@ abstract class FulltextIndex {
         }
 
 
-        if (!array_key_exists('rek_' . $index_title, $sekData['list'][0])
-            || $sekData['list'][0]['rek_' . $index_title] == null
-            || (is_array($sekData['list'][0]['rek_' . $index_title]) && count($sekData['list'][0]['rek_' . $index_title]) == 0) ) {
+        if (!array_key_exists('rek_' . $index_title, $sekRow)
+            || $sekRow['rek_' . $index_title] == null
+            || (is_array($sekRow['rek_' . $index_title]) && count($sekRow['rek_' . $index_title]) == 0) ) {
           continue;
         }
 
         //add lookups? - dont seem to come in yet - although we should get them now which is great from getlisting
-        $fieldValue = $sekData['list'][0]['rek_' . $index_title];
+        $fieldValue = $sekRow['rek_' . $index_title];
 
         // We want solr to cache all citations
         if ($fieldValue == "" && $title == 'citation') {
@@ -497,11 +498,13 @@ abstract class FulltextIndex {
 
       foreach ($dslist as $dsitem) {
         $dsid = $dsitem['ID'];
-        $ftResult = $this->getCachedContent($pid, $dsid);
-        if (!empty($ftResult) && !empty($ftResult['content'])) {
-          $docfields[$index_title][$dsid] = $ftResult['content'];
+        if ($dsitem['controlGroup'] == 'M') {
+          $ftResult = $this->getCachedContent($pid, $dsid);
+          if (!empty($ftResult) && !empty($ftResult['content'])) {
+            $docfields[$index_title][$dsid] = $ftResult['content'];
+          }
+          unset($ftResult);
         }
-        unset($ftResult);
       }
 
       //
@@ -516,6 +519,7 @@ abstract class FulltextIndex {
       $content = json_encode($docfields);
       FulltextIndex::updateFulltextCache($pid, "", $content, 0);
       $returnContent[$pid] = $docfields;
+      unset($docfields);
     }
     return $returnContent;
   }
@@ -1404,7 +1408,7 @@ abstract class FulltextIndex {
     try {
       $res = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
     } catch (Exception $ex) {
-      $log->err($ex);
+      $log->err($ex.' FULL SQL: '.$stmt);
       $res = null;
     }
 
@@ -1469,12 +1473,7 @@ abstract class FulltextIndex {
 
     //This assumes this function is run without anyone logged in. IE background process
     foreach ($res as $key => $value) {
-
       $res[$key] = json_decode(str_replace('""', '"', $value));
-      $userPIDAuthGroups = Auth::getAuthorisationGroups($key);
-      if (!in_array('Lister', $userPIDAuthGroups)) {
-        unset($res[$key]);
-      }
     }
 
     return $res;
