@@ -33,14 +33,9 @@
 //
 //
 include_once("config.inc.php");
-//include_once(APP_INC_PATH . "class.db_api.php");
 include_once(APP_INC_PATH . "class.auth.php");
 include_once(APP_INC_PATH . "class.misc.php");
 
-if (((($_SERVER["SERVER_PORT"] != 443) && (APP_HTTPS == "ON"))) && APP_REDIRECT_CHECK != 'OFF') { //should be ssl when using basic auth
-	header ("Location: https://".APP_HOSTNAME.APP_RELATIVE_URL."basiceserv.php"."?".$_SERVER['QUERY_STRING']);
-	exit;
-}
 $pid = $_GET['pid'];
 if (!Auth::isValidSession($session)) { // if user not already logged in
   $acceptable_roles = array("Viewer", "Community_Admin", "Editor", "Creator", "Annotator");
@@ -54,27 +49,5 @@ if (!Auth::isValidSession($session)) { // if user not already logged in
     exit;
   }
 }
-if (!isset($_SERVER['PHP_AUTH_USER'])) {
-    header('WWW-Authenticate: Basic realm="'.APP_HOSTNAME.'"');
-    header('HTTP/1.0 401 Unauthorized');
-    echo 'You must login to access this service';
-    exit;
-} else {
-	// Check for basic authentication (over ssl) to bypass authorisation and login the user coming directly to eserv.php (and bypass usual login)
-	if (!Auth::isValidSession($session)) { // if user not already logged in
-		//print_r($_SERVER); exit;
-		if (isset($_SERVER['PHP_AUTH_USER'])) { // check to see if there is some basic auth login..
-			$username = $_SERVER['PHP_AUTH_USER'];
-			$pw = $_SERVER['PHP_AUTH_PW'];
-			if (Auth::isCorrectPassword($username, $pw)) {
-				Auth::LoginAuthenticatedUser($username, $pw, false);
-				header ("Location: https://".APP_HOSTNAME.APP_RELATIVE_URL."view/".$_GET['pid']."/".$_GET['dsid']);
-				exit;
-			} else {
-				header('WWW-Authenticate: Basic realm="'.APP_HOSTNAME.'"');
-				header('HTTP/1.0 401 Unauthorized');
-				exit;
-			}
-		}
-	}
-}
+
+Auth::basicAuth("https://".APP_HOSTNAME.APP_RELATIVE_URL."view/".$_GET['pid']."/".$_GET['dsid']);

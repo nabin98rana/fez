@@ -212,7 +212,7 @@ VALUES
 REPLACE INTO fez_auth_quick_template (qat_id, qat_title, qat_value, qat_inherit)
 VALUES
 	(1, 'Masqueraders only', '<FezACML>\r\n  <rule>\r\n    <role name=\"Viewer\">\r\n      <in_AD>off</in_AD>\r\n      <in_Fez>off</in_Fez>\r\n      <Fez_Group>1</Fez_Group>\r\n    </role>\r\n  </rule>\r\n  <inherit_security>off</inherit_security>\r\n</FezACML>\r\n  ', 0),
-	(2, 'Thesis officers only', '<FezACML>\r\n  <rule>\r\n    <role name=\"Viewer\">\r\n      <in_AD>off</in_AD>\r\n      <in_Fez>off</in_Fez>\r\n      <Fez_Group>2</Fez_Group>\r\n    </role>\r\n  </rule>\r\n  <inherit_security>off</inherit_security>\r\n</FezACML>\r\n  ', 0),
+	(2, 'Thesis officers only', '<FezACML>\r\n  <rule>\r\n    <role name=\"Viewer\">\r\n      <in_AD>off</in_AD>\r\n      <in_Fez>off</in_Fez>\r\n      <Fez_Group>2</Fez_Group>\r\n    </role>\r\n  </rule>\r\n <rule>\r\n    <role name=\"Lister\">\r\n      <in_AD>off</in_AD>\r\n      <in_Fez>off</in_Fez>\r\n      <Fez_Group>2</Fez_Group>\r\n    </role>\r\n  </rule>\r\n  <inherit_security>off</inherit_security>\r\n</FezACML>\r\n  ', 0),
 	(3, 'UPOs only', '<FezACML>\r\n  <rule>\r\n    <role name=\"Viewer\">\r\n      <in_AD>off</in_AD>\r\n      <in_Fez>off</in_Fez>\r\n      <Fez_Group>3</Fez_Group>\r\n    </role>\r\n  </rule>\r\n  <inherit_security>off</inherit_security>\r\n</FezACML>\r\n  ', 0),
 	(4, 'UPOs only with inheritance on', '<FezACML>\r\n  <rule>\r\n    <role name=\"Viewer\">\r\n      <in_AD>off</in_AD>\r\n      <in_Fez>off</in_Fez>\r\n      <Fez_Group>3</Fez_Group>\r\n    </role>\r\n  </rule>\r\n  <inherit_security>on</inherit_security>\r\n</FezACML>\r\n  ', 1);
 

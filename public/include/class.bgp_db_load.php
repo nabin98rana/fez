@@ -52,6 +52,7 @@ class BackgroundProcess_Db_Load extends BackgroundProcess
   function loadDb() {
     $log = FezLog::get();
 
+    // @todo(post-migration): Remove production env
     $environment = $_SERVER['APP_ENVIRONMENT'];
     if (! ($environment === 'production' || $environment === 'staging')) {
       $log->err('DB load failed: Unknown environment - ' . $environment);
@@ -109,14 +110,7 @@ class BackgroundProcess_Db_Load extends BackgroundProcess
     $sql = file_get_contents($path . '/fez_config.sql');
     $db->query($sql);
 
-    $stmt = $con->prepare('DELETE FROM fez_user WHERE usr_username LIKE \'%\_test\'');
+    $stmt = $con->prepare("DELETE FROM fez_user WHERE usr_username LIKE '%_test'");
     $stmt->execute();
-
-    if ($environment === 'production') {
-      // Run migration from Fedora -> S3
-      $bgp = new BackgroundProcess_Migrate_Fedora();
-      $bgp->register(serialize([]), User::getUserIDByUsername('webcron'));
-      sleep(60);
-    }
   }
 }

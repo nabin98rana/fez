@@ -2604,6 +2604,59 @@ class Auth
 
     return;
   }
+
+  public static function basicAuth($loginSuccessfulUrl = '', $skipSaveSession = false)
+  {
+    $env = strtolower($_SERVER['APPLICATION_ENV']);
+    $sslRedirect = false;
+
+    if (APP_FEDORA_BYPASS == "ON") {
+      if (
+        ($env == 'production' || $env == 'staging')
+        && array_key_exists('HTTP_CLOUDFRONT_FORWARDED_PROTO', $_SERVER)
+        && $_SERVER["HTTP_CLOUDFRONT_FORWARDED_PROTO"] != "https"
+      ) {
+        $sslRedirect = true;
+      }
+    }
+    else if (((($_SERVER["SERVER_PORT"] != 443) && (APP_HTTPS == "ON"))) && APP_REDIRECT_CHECK != 'OFF') {
+      $sslRedirect = true;
+    }
+
+    if ($sslRedirect) { //should be ssl when using basic auth
+      header('Location: ' . 'https://' . APP_HOSTNAME . rtrim(APP_RELATIVE_URL, '/') . $_SERVER['REQUEST_URI']);
+      exit;
+    }
+
+    if (!isset($_SERVER['PHP_AUTH_USER'])) {
+      header('WWW-Authenticate: Basic realm="'.APP_HOSTNAME.'"');
+      header('HTTP/1.0 401 Unauthorized');
+      echo 'You must login to access this service';
+      exit;
+    } else {
+      // Check for basic authentication (over ssl) to bypass authorisation and login the user coming directly to eserv.php (and bypass usual login)
+      if (!Auth::isValidSession($session)) { // if user not already logged in
+        //print_r($_SERVER); exit;
+        if (isset($_SERVER['PHP_AUTH_USER'])) { // check to see if there is some basic auth login..
+          $username = $_SERVER['PHP_AUTH_USER'];
+          $pw = $_SERVER['PHP_AUTH_PW'];
+          if (Auth::isCorrectPassword($username, $pw)) {
+            if (! $skipSaveSession) {
+              Auth::LoginAuthenticatedUser($username, $pw, FALSE);
+            }
+            if (! empty($loginSuccessfulUrl)) {
+              header("Location: https://" . APP_HOSTNAME . APP_RELATIVE_URL . $loginSuccessfulUrl);
+              exit;
+            }
+          } else {
+            header('WWW-Authenticate: Basic realm="'.APP_HOSTNAME.'"');
+            header('HTTP/1.0 401 Unauthorized');
+            exit;
+          }
+        }
+      }
+    }
+  }
 }
 
 class AuthNoFedora
