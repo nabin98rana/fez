@@ -78,32 +78,6 @@ class FezACML
   }
 
   /**
-   * Method used to get the list of all quick rules.
-   *
-   * @param int $qat_id the template ID
-   * @return  array The array of quick rule IDs given a template ID
-   */
-  public static function getQuickRulesForTemplate($qat_id)
-  {
-    $log = FezLog::get();
-    $db = DB_API::get();
-
-    $stmt = "SELECT
-                    qac_id
-                 FROM
-                    " . APP_TABLE_PREFIX . "auth_quick_rules
-                 WHERE qac_qat_id = " . $db->quote($qat_id, 'INTEGER');
-    try {
-      $res = $db->fetchCol($stmt);
-    } catch (Exception $ex) {
-      $log->err($ex);
-      return '';
-    }
-
-    return $res;
-  }
-
-  /**
    * Method used to get the quick template ID from the title.
    *
    * @return  int The ID of the quick auth template
@@ -128,24 +102,6 @@ class FezACML
     }
   }
 
-  public static function getDatastreamQuickRule($pid)
-  {
-    $log = FezLog::get();
-    $db = DB_API::get();
-
-    $stmt = "SELECT DISTINCT r.qac_qat_id FROM " . APP_TABLE_PREFIX . "auth_quick_rules r
-                LEFT JOIN " . APP_TABLE_PREFIX . "auth_quick_rules_pid p on p.qrp_qac_id = r.qac_id
-                WHERE p.qrp_pid = " . $db->quote($pid);
-    try {
-      $res = $db->fetchOne($stmt);
-    } catch (Exception $ex) {
-      $log->err($ex);
-      return '';
-    }
-
-    return $res;
-  }
-
   public static function datastreamQuickRuleExists($pid, $rule)
   {
     $log = FezLog::get();
@@ -166,65 +122,9 @@ class FezACML
     return false;
   }
 
-  public static function updateDatastreamQuickRule($pid, $rule, $did = null)
-  {
-    $log = FezLog::get();
-    $db = DB_API::get();
-
-    try {
-      $db->beginTransaction();
-
-      $db->query(
-        "DELETE FROM " . APP_TABLE_PREFIX . "auth_quick_rules_pid "
-        . "WHERE qrp_pid=:pid",
-        [':pid' => $pid]
-      );
-
-      if ($rule != 0) {
-        $qac_ids = self::getQuickRulesForTemplate($rule);
-        foreach ($qac_ids as $qac_id) {
-          $db->query(
-            $stmt = "INSERT INTO " . APP_TABLE_PREFIX . "auth_quick_rules_pid "
-              . "(qrp_pid, qrp_qac_id) VALUES "
-              . "(:pid, :qac_id)",
-            [ ':pid' => $pid,
-              ':qac_id' => $qac_id
-            ]);
-        }
-      }
-      $db->commit();
-
-    } catch (Exception $ex) {
-      $db->rollBack();
-      $log->err($ex);
-    }
-
-    if (empty($did)) {
-      $datastreams = Fedora_API::callListDatastreamsLite($pid);
-      foreach ($datastreams as $ds) {
-        AuthNoFedoraDatastreams::recalculatePermissions($ds['dsid']);
-      }
-    } else {
-      AuthNoFedoraDatastreams::recalculatePermissions($did);
-    }
-  }
-
   public static function getUsersByRolePidAssoc($pid, $role)
   {
     $return = array();
-
-    if (APP_FEDORA_BYPASS == "ON") {
-      $roleId = AuthNoFedora::getRoleToRoleId($role);
-      $permissions = AuthNoFedora::getNonInheritedSecurityPermissions($pid, $roleId);
-      foreach ($permissions as $permission) {
-        $values = AuthNoFedora::getAuthRuleValue($permission['argr_ar_id']);
-        if ($values['ar_rule'] == '!rule!role!Fez_User') {
-          $return[$values['ar_value']] = User::getDisplayNameByID($values['ar_value']);
-        }
-      }
-      return $return;
-    }
-
     $acmlBase = Record::getACML($pid);
     if ($acmlBase == "") {
       return $return;
@@ -244,88 +144,61 @@ class FezACML
 
   public static function updateUsersByRolePid($pid, $fezacml_user_list, $role, $remove_only_list = array())
   {
-    if (APP_FEDORA_BYPASS == "ON") {
-      $roleId = AuthNoFedora::getRoleToRoleId($role);
-      $permissions = AuthNoFedora::getNonInheritedSecurityPermissions($pid, $roleId);
+    $xmlString = Fedora_API::callGetDatastreamContents($pid, 'FezACML', true);
 
-      //remove from current permissions users
-      foreach ($permissions as $permission) {
-        $values = AuthNoFedora::getAuthRuleValue($permission['argr_ar_id']);
-        if ($values['ar_rule'] == '!rule!role!Fez_User') {
-          if ((!in_array($values['ar_value'], $fezacml_user_list) && in_array($values['ar_value'], $remove_only_list))
-            || ((!in_array($values['ar_value'], $fezacml_user_list)) && empty($remove_only_list))
-          ) {
-            AuthNoFedora::deleteSecurityPermissions($pid, $roleId, $permission['argr_ar_id']);
-          }
-        }
-      }
-
-      foreach ($fezacml_user_list as $user) {
-        $arId = AuthRules::getOrCreateRule('!rule!role!Fez_User', $user);
-        $permisison['authii_role'] = $roleId;
-        $permisison['argr_ar_id'] = $arId;
-        if (!in_array($permisison, $permissions)) {
-          AuthNoFedora::addSecurityPermissions($pid, $roleId, $arId);
-        }
-      }
-      return 1;
-
-    } else {
-      $xmlString = Fedora_API::callGetDatastreamContents($pid, 'FezACML', true);
-
-      if (empty($xmlString) || !is_string($xmlString)) {
-        //	            return -3;
-        //create new fezacml template with inherit on
-        $xmlString = '<FezACML xmlns:xsi="http://www.w3.org/2001/XMLSchema">
-                  <rule>
-                    <role name="' . $role . '" />
-                  </rule>
-                  <inherit_security>on</inherit_security>
-                </FezACML>';
-      }
-
-      $doc = DOMDocument::loadXML($xmlString);
-      $xpath = new DOMXPath($doc);
-
-
-      $fieldNodeList = $xpath->query('/FezACML/rule/role[@name="' . $role . '"]/Fez_User');
-
-
-      if ($fieldNodeList->length == 0) {
-        $parentNodeList = $xpath->query('/FezACML/rule/role[@name="' . $role . '"]');
-        if ($parentNodeList->length == 0) {
-          return -1;
-        }
-        $parentNode = $parentNodeList->item(0);
-      } else {
-        foreach ($fieldNodeList as $fieldNode) { // first delete all the Fez_Users
-          $parentNode = $fieldNode->parentNode;
-          if (count($remove_only_list) == 0) {
-            $parentNode->removeChild($fieldNode);
-          } elseif (in_array($fieldNode->nodeValue, $remove_only_list) || $fieldNode->nodeValue == "") { // if a list of remove only ids is set, only remove ones in this list (eg to send a list of ids in a fez group)
-            $parentNode->removeChild($fieldNode);
-          }
-        }
-      }
-      if (is_array($fezacml_user_list)) {
-        foreach ($fezacml_user_list as $fez_user) {
-          $newNode = $doc->createElement('Fez_User', $fez_user);
-          $parentNode->appendChild($newNode);
-        }
-      }
-      $newXML = $doc->SaveXML();
-      $FezACML = "FezACML";
-      if (Fedora_API::datastreamExists($pid, $FezACML)) {
-        Fedora_API::callModifyDatastreamByValue($pid, $FezACML, "A", "FezACML",
-          $newXML, "text/xml", "inherit");
-      } else {
-        Fedora_API::getUploadLocation($pid, $FezACML, $newXML, "FezACML",
-          "text/xml", "X", null, "true");
-      }
-      Record::setIndexMatchingFields($pid);
-      return 1;
+    if (empty($xmlString) || !is_string($xmlString)) {
+      //	            return -3;
+      //create new fezacml template with inherit on
+      $xmlString = '<FezACML xmlns:xsi="http://www.w3.org/2001/XMLSchema">
+                <rule>
+                  <role name="' . $role . '" />
+                </rule>
+                <inherit_security>on</inherit_security>
+              </FezACML>';
     }
+
+    $doc = DOMDocument::loadXML($xmlString);
+    $xpath = new DOMXPath($doc);
+
+
+    $fieldNodeList = $xpath->query('/FezACML/rule/role[@name="' . $role . '"]/Fez_User');
+
+
+    if ($fieldNodeList->length == 0) {
+      $parentNodeList = $xpath->query('/FezACML/rule/role[@name="' . $role . '"]');
+      if ($parentNodeList->length == 0) {
+        return -1;
+      }
+      $parentNode = $parentNodeList->item(0);
+    } else {
+      foreach ($fieldNodeList as $fieldNode) { // first delete all the Fez_Users
+        $parentNode = $fieldNode->parentNode;
+        if (count($remove_only_list) == 0) {
+          $parentNode->removeChild($fieldNode);
+        } elseif (in_array($fieldNode->nodeValue, $remove_only_list) || $fieldNode->nodeValue == "") { // if a list of remove only ids is set, only remove ones in this list (eg to send a list of ids in a fez group)
+          $parentNode->removeChild($fieldNode);
+        }
+      }
+    }
+    if (is_array($fezacml_user_list)) {
+      foreach ($fezacml_user_list as $fez_user) {
+        $newNode = $doc->createElement('Fez_User', $fez_user);
+        $parentNode->appendChild($newNode);
+      }
+    }
+    $newXML = $doc->SaveXML();
+    $FezACML = "FezACML";
+    if (Fedora_API::datastreamExists($pid, $FezACML)) {
+      Fedora_API::callModifyDatastreamByValue($pid, $FezACML, "A", "FezACML",
+        $newXML, "text/xml", "inherit");
+    } else {
+      Fedora_API::getUploadLocation($pid, $FezACML, $newXML, "FezACML",
+        "text/xml", "X", null, "true");
+    }
+    Record::setIndexMatchingFields($pid);
+    return 1;
   }
+
 
   public static function getQuickTemplateValue($qat_id)
   {

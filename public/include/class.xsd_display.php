@@ -1239,8 +1239,8 @@ class XSD_DisplayObject
 				// need the full get datastreams to get the controlGroup etc
 				$datastreams = Fedora_API::callGetDatastreams($pid);
 				if (empty($datastreams)) {
-					$log->err(array("The PID ".$pid." doesn't appear to be in the fedora repository - perhaps it was not ingested correctly.  " .
-		                        "Please let the Fez admin know so that the Fez index can be repaired.",__FILE__,__LINE__));
+					//$log->err(array("The PID ".$pid." doesn't appear to be in the fedora repository - perhaps it was not ingested correctly.  " .
+		      //                  "Please let the Fez admin know so that the Fez index can be repaired.",__FILE__,__LINE__));
 					return;
 				}
 

@@ -1003,16 +1003,11 @@ public static function multi_implode($glue, $pieces)
             }
           }
           // now try and find a FezACML metadata datastream of this datastream
-          if(APP_FEDORA_BYPASS == 'ON') {
-            $ds['fezacml_roles'] = Auth::getAuthorisationGroups($pid, $ds['ID']);
-
-          } else {
-            $fezacml = FezACML::getFezACMLDSName($ds['ID']);
-            $ds['fezacml'] = 0;
-            foreach ($original_dsList as $o_key => $o_ds) {
-              if ($fezacml == $o_ds['ID']) {  // found the fezacml datastream so save it against the record
-                $ds['fezacml_roles'] = Auth::getAuthorisationGroups($pid, $ds['ID']);
-              }
+          $fezacml = FezACML::getFezACMLDSName($ds['ID']);
+          $ds['fezacml'] = 0;
+          foreach ($original_dsList as $o_key => $o_ds) {
+            if ($fezacml == $o_ds['ID']) {  // found the fezacml datastream so save it against the record
+              $ds['fezacml_roles'] = Auth::getAuthorisationGroups($pid, $ds['ID']);
             }
           }
           //roles for previewing images

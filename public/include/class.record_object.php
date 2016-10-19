@@ -396,12 +396,6 @@ class RecordObject extends RecordGeneral
           Fedora_API::deleteDatastream($this->pid, $removeFile);
         }
       }
-
-      if ($newPid) {
-        AuthNoFedora::setInherited($this->pid); //This also calls recalculate permissions after setting inherit to true
-        AuthNoFedora::recalculatePermissions($this->pid);
-      }
-
     } else {
       // If pid is null then we need to ingest the object as well
       // otherwise we are updating an existing object

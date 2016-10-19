@@ -948,6 +948,7 @@ class Record
    */
   function editDatastreamSecurity($pid, $dsID)
   {
+    $log = FezLog::get();
     //        $record = new RecordObject($pid);
     $xdis_id = XSD_Display::getID('FezACML for Datastreams');
     $display = new XSD_DisplayObject($xdis_id);
@@ -1768,9 +1769,7 @@ class Record
     $record = new RecordObject($pid);
     $record->setIndexMatchingFields();
 
-    if (APP_FEDORA_BYPASS != 'ON') {
-      AuthIndex::setIndexAuth($pid); //set the security index
-    }
+    AuthIndex::setIndexAuth($pid); //set the security index
   }
 
   function setIndexMatchingFieldsRecurse($pid, $bgp=null, $fteindex = true)
