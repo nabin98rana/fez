@@ -386,7 +386,7 @@ class Fedora_API implements FedoraApiInterface {
       'version' => $dsArray['VersionId'],
       'checksum' => str_replace('"', '', $dsArray['ETag'])
     ];
-    return Datastream::addDatastreamInfo($pid, $dsID, $mimetype, $object, $dsState);
+    return Datastream::addDatastreamInfo($pid, $dsID, $mimetype, $object, $dsState, $dsLabel);
 	}
 
 	/**
@@ -487,7 +487,7 @@ class Fedora_API implements FedoraApiInterface {
 		$dsData = array();
 		$dsData['ID'] = $dsID;
 		$dsData['versionID'] = $dsArray['dsi_version'];
-		$dsData['label'] = ''; //TODO: convert to use PUT'd metadata for label
+		$dsData['label'] = $dsArray['dsi_label'];
 		$dsData['controlGroup'] = "M";
     $dsData['MIMEType'] = $dsArray['dsi_mimetype'];
 		$dsData['createDate'] = NULL; //(string)$dsArray['LastModified']; //TODO: convert to saved meta

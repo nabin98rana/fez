@@ -143,7 +143,7 @@ switch ($cat) {
       $thumbnail = "thumbnail_" . str_replace(" ", "_", substr($dsID, 0, strrpos($dsID, "."))) . ".jpg";
       $web = "web_" . str_replace(" ", "_", substr($dsID, 0, strrpos($dsID, "."))) . ".jpg";
       $preview = "preview_" . str_replace(" ", "_", substr($dsID, 0, strrpos($dsID, "."))) . ".jpg";
-      $FezACML_DS = "FezACML_" . str_replace(" ", "_", $dsID) . ".xml";
+      $FezACML_DS = FezACML::getFezACMLDSName($dsID);
       $PresMD_DS = "presmd_" . str_replace(" ", "_", substr($dsID, 0, strrpos($dsID, "."))) . ".xml";
       if (Fedora_API::datastreamExists($pid, $stream)) {
         Fedora_API::callPurgeDatastream($pid, $stream);
@@ -193,7 +193,7 @@ switch ($cat) {
         $thumbnail = "thumbnail_" . str_replace(" ", "_", substr($dsID, 0, strrpos($dsID, "."))) . ".jpg";
         $web = "web_" . str_replace(" ", "_", substr($dsID, 0, strrpos($dsID, "."))) . ".jpg";
         $preview = "preview_" . str_replace(" ", "_", substr($dsID, 0, strrpos($dsID, "."))) . ".jpg";
-        $FezACML_DS = "FezACML_" . str_replace(" ", "_", $dsID) . ".xml";
+        $FezACML_DS = FezACML::getFezACMLDSName($dsID);
         $PresMD_DS = "presmd_" . str_replace(" ", "_", substr($dsID, 0, strrpos($dsID, "."))) . ".xml";
         if (Fedora_API::datastreamExists($pid, $stream)) {
           Fedora_API::deleteDatastream($pid, $stream);
@@ -248,7 +248,16 @@ switch ($cat) {
     $dsID = $wfstatus->dsID;
 
     if ($dsID != "") {
-      $res = Record::editDatastreamSecurity($pid, $dsID);
+      FezACML::editDatastreamSecurity($pid, $dsID);
+      $res = 1;
+      /*
+       * This pid has been updated, we want to delete any
+       * cached files as well as cached files for custom views
+       */
+      if (APP_FILECACHE == "ON") {
+        $cache = new fileCache($pid, 'pid='.$pid);
+        $cache->poisonCache();
+      }
     }
     else {
       $res = Record::update($pid, array(""), array("FezACML"));
@@ -349,11 +358,6 @@ switch ($cat) {
     $wfstatus->checkStateChange(TRUE);
     break;
   }
-
-    if (APP_FILECACHE == "ON") {
-      $cache = new fileCache($pid, 'pid=' . $pid);
-      $cache->poisonCache();
-    }
 }
 
 $tpl->assign("current_user_prefs", Prefs::get($usr_id));

@@ -41,6 +41,80 @@ class FezACML
 {
 
   /**
+   * Method used to edit the security (FezACML) details of a PID.
+   *
+   * @param   string $pid The persistent identifier of the record
+   * @param   string $xdis_title The FezACML XSD title
+   */
+  public static function editPidSecurity($pid, $xdis_title)
+  {
+    FezACML::editSecurity($pid, $xdis_title);
+  }
+
+  /**
+   * Method used to edit the security (FezACML) details of a specific Datastream.
+   *
+   * @param   string $pid The persistent identifier of the record
+   * @param   string $dsID The datastream ID of the datastream
+   */
+  public static function editDatastreamSecurity($pid, $dsID)
+  {
+    FezACML::editSecurity($pid, 'FezACML for Datastreams', $dsID);
+  }
+
+  /**
+   * Method used to edit the security (FezACML) details of a PID or a datastream.
+   *
+   * @param   string $pid The persistent identifier of the record
+   * @param   string $xdis_title The FezACML XSD title
+   * @param   string $dsID (Optional) The datastream ID of the datastream
+   */
+  private static function editSecurity($pid, $xdis_title, $dsID = '')
+  {
+    $xdis_id = XSD_Display::getID($xdis_title);
+    $display = new XSD_DisplayObject($xdis_id);
+    list($array_ptr, $xsd_element_prefix, $xsd_top_element_name, $xml_schema) = $display->getXsdAsReferencedArray();
+    $indexArray = array();
+    $header = "<" . $xsd_element_prefix . $xsd_top_element_name . " ";
+    $header .= Misc::getSchemaSubAttributes($array_ptr, $xsd_top_element_name, $xdis_id, $pid);
+    $header .= ">\n";
+    $xmlObj = Foxml::array_to_xml_instance(
+      $array_ptr, $xmlObj, $xsd_element_prefix, "", "", "", $xdis_id, $pid, $xdis_id, "",
+      $indexArray, '', '', '', '', '', ''
+    );
+    $xmlObj .= "</" . $xsd_element_prefix . $xsd_top_element_name . ">\n";
+    $xmlObj = $header . $xmlObj;
+
+    $config = [
+      'indent' => TRUE,
+      'input-xml' => TRUE,
+      'output-xml' => TRUE,
+      'wrap' => 0
+    ];
+    $tidy = new tidy;
+    $tidy->parseString($xmlObj, $config, 'utf8');
+    $tidy->cleanRepair();
+    $xmlObj = $tidy;
+
+    $FezACML_dsID = FezACML::getFezACMLPidName($pid);
+    $logMessage = "FezACML security for PID - " . $pid;
+    if (! empty($dsID)) {
+      $FezACML_dsID = FezACML::getFezACMLDSName($dsID);
+      $logMessage = "FezACML security for datastream - " . $dsID;
+    }
+    if (Fedora_API::datastreamExists($pid, $FezACML_dsID)) {
+      Fedora_API::callModifyDatastreamByValue(
+        $pid, $FezACML_dsID, "A", $logMessage, $xmlObj, "text/xml", "inherit"
+      );
+    }
+    else {
+      Fedora_API::getUploadLocation(
+        $pid, $FezACML_dsID, $xmlObj, $logMessage, "text/xml", "X", NULL, "true"
+      );
+    }
+  }
+
+  /**
    * Generate a minimal fezACML template that sets security to be
    * inherited from parent.
    *
@@ -229,5 +303,15 @@ class FezACML
   {
     $FezACML_dsID = "FezACML_" . str_replace(" ", "_", $dsID) . ".xml";
     return $FezACML_dsID;
+  }
+
+  public static function getFezACMLPidName($pid)
+  {
+    return "FezACML_" . str_replace(":", "_", $pid) . ".xml";
+  }
+
+  public static function getXdisTitlePrefix()
+  {
+    return 'FezACML for ';
   }
 }

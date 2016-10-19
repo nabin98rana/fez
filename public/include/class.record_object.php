@@ -336,7 +336,12 @@ class RecordObject extends RecordGeneral
 
             $new_dsID = Foxml::makeNCName($fileInfo->getFilename());
 
-            Fedora_API::getUploadLocationByLocalRef($this->pid, $new_dsID, $resourceDataLocation, $new_dsID, $mimeDataType,"M",null,true);
+            $label = "";
+            if (@$_POST['description'][$i]) {
+              $label = $_POST['description'][$i];
+            }
+
+            Fedora_API::getUploadLocationByLocalRef($this->pid, $new_dsID, $resourceDataLocation, $label, $mimeDataType,"M",null,true);
             array_push($fileNames, $new_dsID);
             $tmpFile = APP_TEMP_DIR . $new_dsID;
             rename($resourceDataLocation, $tmpFile);
@@ -348,7 +353,6 @@ class RecordObject extends RecordGeneral
       // Check for all the existing files in case there are thumbs/presmds etc not indexed
       $datastreams = Fedora_API::callGetDatastreams($this->pid);
       foreach ($datastreams as $ds_value) {
-        // get the matchfields for the FezACML of the datastream if any exists
         if (isset($ds_value['controlGroup']) && $ds_value['controlGroup'] == 'M') {
           if (!is_array($xsd_display_fields[1]['file_attachment_name'])) {
             $xsd_display_fields[1]['file_attachment_name'] = array();
@@ -358,6 +362,15 @@ class RecordObject extends RecordGeneral
             $xsd_display_fields[1]['file_attachment_name']['xsdmf_id'] = XSD_HTML_Match::getXSDMF_IDBySekIDXDIS_ID(Search_Key::getID('File Attachment Name'), $xdis_str);
           }
           array_push($xsd_display_fields[1]['file_attachment_name']['xsdmf_value'], $ds_value['ID']);
+
+          if (!is_array($xsd_display_fields[1]['file_description'])) {
+            $xsd_display_fields[1]['file_description'] = array();
+            if (!is_array($xsd_display_fields[1]['file_description']['xsdmf_value'])) {
+              $xsd_display_fields[1]['file_description']['xsdmf_value'] = array();
+            }
+            $xsd_display_fields[1]['file_description']['xsdmf_id'] = XSD_HTML_Match::getXSDMF_IDBySekIDXDIS_ID(Search_Key::getID('File Attachment Name'), $xdis_str);
+          }
+          array_push($xsd_display_fields[1]['file_description']['xsdmf_value'], $ds_value['label']);
         }
       }
 
@@ -388,14 +401,23 @@ class RecordObject extends RecordGeneral
       }
       $xdis_titles = XSD_Display::getTitles($xdis_str);
       $xdis_title = '';
+      $xdis_title_prefix = FezACML::getXdisTitlePrefix();
       foreach ($xdis_titles as $id => $title) {
-        if (stripos($title, 'FezACML for ') === 0) {
+        if (stripos($title, $xdis_title_prefix) === 0) {
           $xdis_title = $title;
           break;
         }
       }
       if (! empty($xdis_title)) {
-        Record::editPidSecurity($this->pid, $xdis_title);
+        FezACML::editPidSecurity($this->pid, $xdis_title);
+        /*
+         * This pid has been updated, we want to delete any
+         * cached files as well as cached files for custom views
+         */
+        if (APP_FILECACHE == "ON") {
+          $cache = new fileCache($this->pid, 'pid='.$this->pid);
+          $cache->poisonCache();
+        }
       }
 
     } else {

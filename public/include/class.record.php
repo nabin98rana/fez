@@ -939,101 +939,6 @@ class Record
   }
 
   /**
-   * Method used to edit the security (FezACML) details of a specific Datastream.
-   *
-   * @access  public
-   * @param   string $pid The persistent identifier of the record
-   * @param   string $dsID The datastream ID of the datastream
-   * @return  integer 1 if the update worked, -1 otherwise
-   */
-  function editDatastreamSecurity($pid, $dsID)
-  {
-    $log = FezLog::get();
-    //        $record = new RecordObject($pid);
-    $xdis_id = XSD_Display::getID('FezACML for Datastreams');
-    $display = new XSD_DisplayObject($xdis_id);
-    list($array_ptr,$xsd_element_prefix, $xsd_top_element_name, $xml_schema) = $display->getXsdAsReferencedArray();
-    $indexArray = array();
-    $header = "<".$xsd_element_prefix.$xsd_top_element_name." ";
-    $header .= Misc::getSchemaSubAttributes($array_ptr, $xsd_top_element_name, $xdis_id, $pid);
-    $header .= ">\n";
-    $xmlObj = Foxml::array_to_xml_instance(
-        $array_ptr, $xmlObj, $xsd_element_prefix, "", "", "", $xdis_id, $pid, $xdis_id, "",
-        $indexArray, '', '', '', '', '', ''
-    );
-    $xmlObj .= "</".$xsd_element_prefix.$xsd_top_element_name.">\n";
-    $xmlObj = $header . $xmlObj;
-    $FezACML_dsID = FezACML::getFezACMLDSName($dsID);
-    if (Fedora_API::datastreamExists($pid, $FezACML_dsID)) {
-      Fedora_API::callModifyDatastreamByValue(
-          $pid, $FezACML_dsID, "A", "FezACML security for datastream - ".$dsID,
-          $xmlObj, "text/xml", "inherit"
-      );
-    } else {
-      Fedora_API::getUploadLocation(
-          $pid, $FezACML_dsID, $xmlObj, "FezACML security for datastream - ".$dsID,
-          "text/xml", "X", null, "true"
-      );
-    }
-    /*
-     * This pid has been updated, we want to delete any
-     * cached files as well as cached files for custom views
-     */
-
-    if (APP_FILECACHE == "ON") {
-      $cache = new fileCache($pid, 'pid='.$pid);
-      $cache->poisonCache();
-    }
-  }
-
-  /**
-   * Method used to edit the security (FezACML) details of a PID.
-   *
-   * @access  public
-   * @param   string $pid The persistent identifier of the record
-   * @param   string $xdis_title The FezACML XSD title
-   * @return  integer 1 if the update worked, -1 otherwise
-   */
-  function editPidSecurity($pid, $xdis_title)
-  {
-    $log = FezLog::get();
-    $xdis_id = XSD_Display::getID($xdis_title);
-    $display = new XSD_DisplayObject($xdis_id);
-    list($array_ptr,$xsd_element_prefix, $xsd_top_element_name, $xml_schema) = $display->getXsdAsReferencedArray();
-    $indexArray = array();
-    $header = "<".$xsd_element_prefix.$xsd_top_element_name." ";
-    $header .= Misc::getSchemaSubAttributes($array_ptr, $xsd_top_element_name, $xdis_id, $pid);
-    $header .= ">\n";
-    $xmlObj = Foxml::array_to_xml_instance(
-      $array_ptr, $xmlObj, $xsd_element_prefix, "", "", "", $xdis_id, $pid, $xdis_id, "",
-      $indexArray, '', '', '', '', '', ''
-    );
-    $xmlObj .= "</".$xsd_element_prefix.$xsd_top_element_name.">\n";
-    $xmlObj = $header . $xmlObj;
-    $FezACML_dsID = 'FezACML.xml';
-    if (Fedora_API::datastreamExists($pid, $FezACML_dsID)) {
-      Fedora_API::callModifyDatastreamByValue(
-        $pid, $FezACML_dsID, "A", "FezACML security for PID - ".$pid,
-        $xmlObj, "text/xml", "inherit"
-      );
-    } else {
-      Fedora_API::getUploadLocation(
-        $pid, $FezACML_dsID, $xmlObj, "FezACML security for PID - ".$pid,
-        "text/xml", "X", null, "true"
-      );
-    }
-    /*
-     * This pid has been updated, we want to delete any
-     * cached files as well as cached files for custom views
-     */
-
-    if (APP_FILECACHE == "ON") {
-      $cache = new fileCache($pid, 'pid='.$pid);
-      $cache->poisonCache();
-    }
-  }
-
-  /**
    * Method used to update the Admin details (FezMD) of a specific Record.
    *
    * @access  public
@@ -1886,16 +1791,19 @@ class Record
       if (isset($acml_cache['ds'][$dsID][$pid])) {
         return $acml_cache['ds'][$dsID][$pid];
       } else {
+        $ds_search = FezACML::getFezACMLDSName($dsID);
         if (APP_FEDORA_BYPASS != "ON") {
           $dsIDCore = preg_replace("/(web_|preview_|thumbnail_|stream_)/", "", $dsID);
           $dsIDCore = substr($dsIDCore, 0, strrpos($dsIDCore, "."));
           $ds_pattern = '/^FezACML_' . $dsIDCore . '\.(.*)xml$/';
-          $ds_search = 'FezACML_' . $dsID . '.xml';
         }
       }
     } else {
       if (isset($acml_cache['pid'][$pid])) {
         return $acml_cache['pid'][$pid];
+      }
+      if (APP_FEDORA_BYPASS != "ON") {
+        $ds_search = FezACML::getFezACMLPidName($pid);
       }
     }
     $dsExists = Fedora_API::datastreamExists($pid, $ds_search, true, $ds_pattern);
@@ -5820,7 +5728,7 @@ function getSearchKeyIndexValueShadow($pid, $searchKeyTitle, $getLookup=true, $s
         Fedora_API::callPurgeDatastream($pid, $presmd_check);
       }
       Fedora_API::getUploadLocationByLocalRef(
-          $pid, $presmd_id, $presmd_check, $presmd_check,
+          $pid, $presmd_id, $presmd_check, "PresMD for datastream - " . $dsIDName,
           "text/xml", "M"
       );
       if (is_file(APP_TEMP_DIR.basename($presmd_check))) {
@@ -6181,6 +6089,10 @@ function getSearchKeyIndexValueShadow($pid, $searchKeyTitle, $getLookup=true, $s
    **/
   public static function updateDatastreamLabel($pid, $dsID, $newLabel)
   {
+    if (APP_FEDORA_BYPASS == 'ON') {
+      Datastream::setLabel($pid, $dsID, $newLabel);
+      return;
+    }
     $currentDetails = Fedora_API::callGetDatastream($pid, $dsID);
     Fedora_API::callModifyDatastreamByReference(
         $pid, $dsID, $newLabel, $currentDetails['location'],

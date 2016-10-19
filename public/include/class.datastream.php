@@ -103,15 +103,10 @@ class Datastream
 
   static function setfezACML($pid, $dsID, $fezACMLTemplateNum)
   {
-    if (APP_FEDORA_BYPASS == 'ON') {
-      $did = self::getDid($pid, $dsID);
-      return FezACML::updateDatastreamQuickRule($pid, $fezACMLTemplateNum, $did);
-    }
     $xmlObj = FezACML::getQuickTemplateValue($fezACMLTemplateNum);
     if ($xmlObj != false) {
       return self::setfezACMLXml($pid, $dsID, $xmlObj);
     }
-
   }
 
   /**
@@ -119,11 +114,12 @@ class Datastream
    * @param string $pid The persistent identifier of the object to be purged
    * @param string $dsName The name of the datastream
    * @param string $mimetype The mimetype of the datastream
-   * @param string $state The datastream state
    * @param array $object The object in S3
+   * @param string $state The datastream state
+   * @param string $label The datastream label
    * @return integer The datastream ID
    */
-  public static function addDatastreamInfo($pid, $dsName, $mimetype, $object, $state)
+  public static function addDatastreamInfo($pid, $dsName, $mimetype, $object, $state, $dsLabel)
   {
     $log = FezLog::get();
     $db = DB_API::get();
@@ -137,6 +133,7 @@ class Datastream
       ':dsi_size' => $object['size'],
       ':dsi_version' => $object['version'],
       ':dsi_checksum' => $object['checksum'],
+      ':dsi_label' => $dsLabel,
     ];
 
     $did = self::getDid($pid, $dsName);
@@ -148,13 +145,14 @@ class Datastream
                   dsi_state = :dsi_state,   
                   dsi_size = :dsi_size,  
                   dsi_version = :dsi_version,
-                  dsi_checksum = :dsi_checksum
+                  dsi_checksum = :dsi_checksum,
+                  dsi_label = :dsi_label
                   WHERE dsi_pid = :dsi_pid AND dsi_dsid = :dsi_dsid";
     } else {
       $data[':dsi_security_inherited'] = 0;
       $stmt = "INSERT INTO " . APP_TABLE_PREFIX . "datastream_info "
-        . "(dsi_dsid, dsi_pid, dsi_mimetype, dsi_url, dsi_security_inherited, dsi_state, dsi_size, dsi_version, dsi_checksum) VALUES "
-        . "(:dsi_dsid, :dsi_pid, :dsi_mimetype, :dsi_url, :dsi_security_inherited, :dsi_state, :dsi_size, :dsi_version, :dsi_checksum)";
+        . "(dsi_dsid, dsi_pid, dsi_mimetype, dsi_url, dsi_security_inherited, dsi_state, dsi_size, dsi_version, dsi_checksum, dsi_label) VALUES "
+        . "(:dsi_dsid, :dsi_pid, :dsi_mimetype, :dsi_url, :dsi_security_inherited, :dsi_state, :dsi_size, :dsi_version, :dsi_checksum, :dsi_label)";
     }
     try {
       $db->query($stmt, $data);
@@ -466,6 +464,24 @@ class Datastream
     $stmt = "
 			UPDATE " . APP_TABLE_PREFIX . "datastream_info SET dsi_dsid = " . $db->quote($dsIdNew) . "
             WHERE dsi_pid = " . $db->quote($pid) . " AND dsi_dsid = " . $db->quote($dsIdOld);
+
+    try {
+      $res = $db->exec($stmt);
+    } catch (Exception $ex) {
+      $log->err($ex);
+      return false;
+    }
+    return $res;
+  }
+
+  public static function setLabel($pid, $dsId, $label)
+  {
+    $log = FezLog::get();
+    $db = DB_API::get();
+
+    $stmt = "
+			UPDATE " . APP_TABLE_PREFIX . "datastream_info SET dsi_label = " . $db->quote($label) . "
+            WHERE dsi_pid = " . $db->quote($pid) . " AND dsi_dsid = " . $db->quote($dsId);
 
     try {
       $res = $db->exec($stmt);
