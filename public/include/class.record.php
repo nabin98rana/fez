@@ -1275,7 +1275,7 @@ class Record
           $stmtIns .= ", " . $db->quote($now);
         }
         $stmtIns .= ")";
-            $db->beginTransaction();
+        $db->beginTransaction();
         if (is_numeric(strpos(APP_SQL_DBTYPE, "mysql"))) {
           $stmt = $stmtIns ." ON DUPLICATE KEY UPDATE " . implode(",", $valuesUpd);
         } else {
@@ -1291,10 +1291,10 @@ class Record
         $stmt = Encoding::toUTF8($stmt);
         try {
           $db->exec($stmt);
-                $db->commit();
+          $db->commit();
         }
         catch(Exception $ex) {
-                $db->rollBack();
+          $db->rollBack();
           $log->err($ex." stmt: ".$stmt);
           $ret = false;
         }

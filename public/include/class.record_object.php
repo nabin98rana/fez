@@ -352,25 +352,36 @@ class RecordObject extends RecordGeneral
       }
       // Check for all the existing files in case there are thumbs/presmds etc not indexed
       $datastreams = Fedora_API::callGetDatastreams($this->pid);
-      foreach ($datastreams as $ds_value) {
-        if (isset($ds_value['controlGroup']) && $ds_value['controlGroup'] == 'M') {
-          if (!is_array($xsd_display_fields[1]['file_attachment_name'])) {
-            $xsd_display_fields[1]['file_attachment_name'] = array();
-            if (!is_array($xsd_display_fields[1]['file_attachment_name']['xsdmf_value'])) {
-              $xsd_display_fields[1]['file_attachment_name']['xsdmf_value'] = array();
-            }
-            $xsd_display_fields[1]['file_attachment_name']['xsdmf_id'] = XSD_HTML_Match::getXSDMF_IDBySekIDXDIS_ID(Search_Key::getID('File Attachment Name'), $xdis_str);
-          }
-          array_push($xsd_display_fields[1]['file_attachment_name']['xsdmf_value'], $ds_value['ID']);
 
-          if (!is_array($xsd_display_fields[1]['file_description'])) {
-            $xsd_display_fields[1]['file_description'] = array();
-            if (!is_array($xsd_display_fields[1]['file_description']['xsdmf_value'])) {
-              $xsd_display_fields[1]['file_description']['xsdmf_value'] = array();
+      $fileAttachXsdmfId = XSD_HTML_Match::getXSDMF_IDBySekIDXDIS_ID(Search_Key::getID('File Attachment Name'), $xdis_str);
+      if (is_array($fileAttachXsdmfId) && !empty($fileAttachXsdmfId[0])) {
+        foreach ($datastreams as $ds_value) {
+          if (isset($ds_value['controlGroup']) && $ds_value['controlGroup'] == 'M') {
+            if (!is_array($xsd_display_fields[1]['file_attachment_name'])) {
+              $xsd_display_fields[1]['file_attachment_name'] = array();
+              if (!is_array($xsd_display_fields[1]['file_attachment_name']['xsdmf_value'])) {
+                $xsd_display_fields[1]['file_attachment_name']['xsdmf_value'] = array();
+              }
+              $xsd_display_fields[1]['file_attachment_name']['xsdmf_id'] = $fileAttachXsdmfId;
             }
-            $xsd_display_fields[1]['file_description']['xsdmf_id'] = XSD_HTML_Match::getXSDMF_IDBySekIDXDIS_ID(Search_Key::getID('File Attachment Name'), $xdis_str);
+            array_push($xsd_display_fields[1]['file_attachment_name']['xsdmf_value'], $ds_value['ID']);
           }
-          array_push($xsd_display_fields[1]['file_description']['xsdmf_value'], $ds_value['label']);
+        }
+      }
+
+      $fileDescXsdmfId = XSD_HTML_Match::getXSDMF_IDBySekIDXDIS_ID(Search_Key::getID('File Description'), $xdis_str);
+      if (is_array($fileDescXsdmfId) && !empty($fileDescXsdmfId[0])) {
+        foreach ($datastreams as $ds_value) {
+          if (isset($ds_value['controlGroup']) && $ds_value['controlGroup'] == 'M') {
+            if (!is_array($xsd_display_fields[1]['file_description'])) {
+              $xsd_display_fields[1]['file_description'] = array();
+              if (!is_array($xsd_display_fields[1]['file_description']['xsdmf_value'])) {
+                $xsd_display_fields[1]['file_description']['xsdmf_value'] = array();
+              }
+              $xsd_display_fields[1]['file_description']['xsdmf_id'] = $fileDescXsdmfId;
+            }
+            array_push($xsd_display_fields[1]['file_description']['xsdmf_value'], $ds_value['label']);
+          }
         }
       }
 
