@@ -662,7 +662,7 @@ class Fedora_API implements FedoraApiInterface {
 	public static function callModifyDatastreamByValue($pid, $dsID, $state, $label, $dsContent, $mimetype = 'text/xml', $versionable = 'inherit')
 	{
 		$log = FezLog::get();
-		$tempFile = APP_TEMP_DIR . str_replace(":", "_", $pid) . "_" . $dsID . ".xml";
+		$tempFile = APP_TEMP_DIR . $dsID;
 		$fp = fopen($tempFile, "w");
 		if (fwrite($fp, $dsContent) === FALSE) {
 			$err = "Cannot write to file ($tempFile)";

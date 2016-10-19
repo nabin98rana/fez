@@ -232,9 +232,10 @@ class MigrateFromFedoraToDatabase
       echo "\n\n\n - Doing PID $counter/$totalDs ($pid)\n";
       Zend_Registry::set('version', Date_API::getCurrentDateGMT());
 
-      $acml = $this->getFezACML($pid, 'FezACML_' . $dsName . '.xml');
+      $FezACML_dsID = FezACML::getFezACMLDSName($dsName);
+      $acml = $this->getFezACML($pid, $FezACML_dsID);
       if ($acml) {
-        Fedora_API::callModifyDatastreamByValue($pid, 'FezACML_' . $dsName, "A", "FezACML",
+        Fedora_API::callModifyDatastreamByValue($pid, $FezACML_dsID, "A", "FezACML",
           $acml->saveXML(), "text/xml", "inherit");
       }
 
@@ -312,7 +313,7 @@ class MigrateFromFedoraToDatabase
       echo " - Updating security for $pid ($i/$count)\n";
       $acml = $this->getFezACML($pid, 'FezACML');
       if ($acml) {
-        $location = APP_TEMP_DIR . 'FezACML-' . $pid . '.xml';
+        $location = APP_TEMP_DIR . 'FezACML.xml';
         file_put_contents($location, $acml);
         Fedora_API::callAddDatastream($pid, 'FezACML', $location, '', 'A', 'text/xml');
         unlink($location);

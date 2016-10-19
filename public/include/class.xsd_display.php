@@ -726,6 +726,34 @@ class XSD_Display
 		return $res;
 	}
 
+  /**
+   * Method used to get the XSD Display titles of a list of XSD Display IDs
+   *
+   * @access  public
+   * @param   string $xdis_ids A string of comma-delimited XSD IDs to search by.
+   * @return  array $res An array of titles
+   */
+  public static function getTitles($xdis_ids)
+  {
+    $log = FezLog::get();
+    $db = DB_API::get();
+
+    $stmt = "SELECT
+                   xdis_id, xdis_title
+                 FROM
+                    " . APP_TABLE_PREFIX . "xsd_display
+                 WHERE
+                    xdis_id in (".$xdis_ids.")";
+    try {
+      $res = $db->fetchPairs($stmt, $xdis_ids);
+    }
+    catch(Exception $ex) {
+      $log->err($ex);
+      return '';
+    }
+    return $res;
+  }
+
 
 	/**
 	 * Method used to get the XSD Display title when given a

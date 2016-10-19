@@ -233,8 +233,6 @@ class RecordObject extends RecordGeneral
         unset($xdisDisplayFields[$last][$lastKey]);
       }
 
-
-
       $xsd_display_fields = RecordGeneral::setDisplayFields($xdisDisplayFields);
 
       $xdis_list = XSD_Relationship::getListByXDIS($_POST['xdis_id']);
@@ -341,16 +339,10 @@ class RecordObject extends RecordGeneral
             Fedora_API::getUploadLocationByLocalRef($this->pid, $new_dsID, $resourceDataLocation, $new_dsID, $mimeDataType,"M",null,true);
             array_push($fileNames, $new_dsID);
             $tmpFile = APP_TEMP_DIR . $new_dsID;
-//                      copy($path.$hash['rawHash'], $tmpFile);
             rename($resourceDataLocation, $tmpFile);
 
             Record::generatePresmd($this->pid, $new_dsID);
           }
-          // replace this with a get datastreams loop, file_attachment_name regen
-//          if (count($fileNames) > 0) {
-//            $xsdmf_id = XSD_HTML_Match::getXSDMF_IDBySekIDXDIS_ID(Search_Key::getID('File Attachment Name'), $xdis_str);
-//            $xsd_display_fields[1]['file_attachment_name'] = array('xsdmf_id' => $xsdmf_id[0], 'xsdmf_value' => $fileNames);
-//          }
         }
       }
       // Check for all the existing files in case there are thumbs/presmds etc not indexed
@@ -369,8 +361,6 @@ class RecordObject extends RecordGeneral
         }
       }
 
-
-//            Record::removeIndexRecord($this->pid, false);
       Record::updateSearchKeys($this->pid, $xsd_display_fields, false, $now); //into the non-shadow tables
       Record::updateSearchKeys($this->pid, $xsd_display_fields, true, $now); //into the shadow tables
 
@@ -396,6 +386,18 @@ class RecordObject extends RecordGeneral
           Fedora_API::deleteDatastream($this->pid, $removeFile);
         }
       }
+      $xdis_titles = XSD_Display::getTitles($xdis_str);
+      $xdis_title = '';
+      foreach ($xdis_titles as $id => $title) {
+        if (stripos($title, 'FezACML for ') === 0) {
+          $xdis_title = $title;
+          break;
+        }
+      }
+      if (! empty($xdis_title)) {
+        Record::editPidSecurity($this->pid, $xdis_title);
+      }
+
     } else {
       // If pid is null then we need to ingest the object as well
       // otherwise we are updating an existing object
