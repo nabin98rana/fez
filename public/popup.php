@@ -91,7 +91,7 @@ if (APP_API) {
         $record = new RecordObject($pid);
         $record->getDisplay();
         if ($dsID != "") {
-          $FezACML_xdis_id = XSD_Display::getID('FezACML for Datastreams');
+          $FezACML_xdis_id = XSD_Display::getID(FezACML::getXdisTitlePrefix() . 'Datastreams');
           $xsd_display_fields = $record->display->getMatchFieldsList(array(), array("FezACML for Datastreams"));  // Specify FezACML as the only display needed for security
           $details = $record->getDetails($dsID, $FezACML_xdis_id);
           $record->clearDetails();

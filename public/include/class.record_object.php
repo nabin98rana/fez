@@ -410,15 +410,7 @@ class RecordObject extends RecordGeneral
           Fedora_API::deleteDatastream($this->pid, $removeFile);
         }
       }
-      $xdis_titles = XSD_Display::getTitles($xdis_str);
-      $xdis_title = '';
-      $xdis_title_prefix = FezACML::getXdisTitlePrefix();
-      foreach ($xdis_titles as $id => $title) {
-        if (stripos($title, $xdis_title_prefix) === 0) {
-          $xdis_title = $title;
-          break;
-        }
-      }
+      $xdis_title = XSD_Display::getMatchingFezACMLTitle($xdis_str);
       if (! empty($xdis_title)) {
         FezACML::editPidSecurity($this->pid, $xdis_title);
         /*

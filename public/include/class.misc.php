@@ -856,7 +856,7 @@ public static function multi_implode($glue, $pieces)
           $ds['fezacml'] = $fezacml;
           // now see if its allowed to show etc
           $record = new Record($pid);
-          $FezACML_xdis_id = XSD_Display::getID('FezACML for Datastreams');
+          $FezACML_xdis_id = XSD_Display::getID(FezACML::getXdisTitlePrefix() . 'Datastreams');
           $FezACML_display = new XSD_DisplayObject($FezACML_xdis_id);
           //echo $pid;
           $FezACML_display->getXSDMF_Values($key);

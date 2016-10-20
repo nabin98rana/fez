@@ -79,7 +79,6 @@ $record = new RecordObject($pid);
 $record->getDisplay();
 
 $xdis_id = $record->getXmlDisplayId();
-
 $xdis_title = XSD_Display::getTitle($xdis_id);
 $tpl->assign("xdis_title", $xdis_title);
 $tpl->assign("extra_title", "Edit Security for ".$pid_title." (".$xdis_title.")");
@@ -126,17 +125,21 @@ if (!is_numeric($xdis_id)) { // if still can't find the xdisplay id then ask for
     Auth::redirect(APP_RELATIVE_URL . "select_xdis.php?return=update_form&pid=".$pid.$extra_redirect, false);
 }
 
+$xdis_list = XSD_Relationship::getListByXDIS($xdis_id);
+array_push($xdis_list, array("0" => $_POST['xdis_id']));
+$xdis_str = Misc::sql_array_to_string($xdis_list);
 
 $jtaskData = "";
 $maxG = 0;
 if ($dsID != "") {
-    $FezACML_xdis_id = XSD_Display::getID('FezACML for Datastreams');
+    $FezACML_xdis_id = XSD_Display::getID(FezACML::getXdisTitlePrefix() . 'Datastreams');
     $xsd_display_fields = $record->display->getMatchFieldsList(array(), array("FezACML for Datastreams"));  // Specify FezACML as the only display needed for security
     $details = $record->getDetails($dsID, $FezACML_xdis_id);
     $record->clearDetails();
 } else {
     $xsd_display_fields = $record->display->getMatchFieldsList(array(), array("FezACML"));  // Specify FezACML as the only display needed for security
-    $FezACML_xdis_id = XSD_Display::getID('FezACML');
+    $xdis_title = XSD_Display::getMatchingFezACMLTitle($xdis_str);
+    $FezACML_xdis_id = XSD_Display::getID($xdis_title);
     $details = $record->getDetails("", $FezACML_xdis_id);
 }
 
@@ -242,18 +245,19 @@ foreach ($xsd_display_fields  as $dis_field) {
 $FezACML_exists = 0;
 $datastreams = Fedora_API::callListDatastreamsLite($pid);
 if ($dsID == "") {
-    foreach ($datastreams as $security_check) {
-        if ($security_check['dsid'] == 'FezACML') {
-            $FezACML_exists = 1;
-        }
+  $FezACML_DS_name = FezACML::getFezACMLPidName($pid);
+  foreach ($datastreams as $security_check) {
+    if ($security_check['dsid'] == $FezACML_DS_name) {
+      $FezACML_exists = 1;
     }
+  }
 } else {
-    foreach ($datastreams as $security_check) {
-        $FezACML_DS_name = FezACML::getFezACMLDSName($dsID);
-        if (strtolower($security_check['dsid']) == strtolower($FezACML_DS_name)) {
-            $FezACML_exists = 1;
-        }
+  foreach ($datastreams as $security_check) {
+    $FezACML_DS_name = FezACML::getFezACMLDSName($dsID);
+    if (strtolower($security_check['dsid']) == strtolower($FezACML_DS_name)) {
+      $FezACML_exists = 1;
     }
+  }
 }
 
 $tpl->assign("FezACML_exists", $FezACML_exists);
@@ -283,7 +287,6 @@ $tpl->assign("local_eserv_url", APP_RELATIVE_URL."/".$pid."/");
 $tpl->assign('triggers', count(WorkflowTrigger::getList($pid)));
 $tpl->assign("ds_get_path", APP_FEDORA_GET_URL."/".$pid."/");
 $tpl->assign("isEditor", 1);
-
 $tpl->assign("details", $details);
 
 } else {

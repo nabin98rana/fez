@@ -714,8 +714,8 @@ class XSD_HTML_Match
         $exclude_str = implode("', '", $exclude_list);
         $specify_str = implode("', '", $specify_list);
 
-        if (in_array("FezACML for Datastreams", $specify_list)) {
-            $FezACML_xdis_id = XSD_Display::getID('FezACML for Datastreams');
+        if (in_array(FezACML::getXdisTitlePrefix() . "Datastreams", $specify_list)) {
+            $FezACML_xdis_id = XSD_Display::getID(FezACML::getXdisTitlePrefix() . 'Datastreams');
             $specify_str = "FezACML";
             $xsdrelall = array();
             array_push($xsdrelall, $FezACML_xdis_id);

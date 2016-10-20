@@ -59,7 +59,7 @@ class FezACML
    */
   public static function editDatastreamSecurity($pid, $dsID)
   {
-    FezACML::editSecurity($pid, 'FezACML for Datastreams', $dsID);
+    FezACML::editSecurity($pid, FezACML::getXdisTitlePrefix() . 'Datastreams', $dsID);
   }
 
   /**
@@ -299,7 +299,11 @@ class FezACML
 
   public static function getFezACMLPidName($pid)
   {
-    return "FezACML_" . str_replace(":", "_", $pid) . ".xml";
+    $FezACML_DS_name = "FezACML";
+    if (APP_FEDORA_BYPASS == 'ON') {
+      $FezACML_DS_name = "FezACML_" . str_replace(":", "_", $pid) . ".xml";
+    }
+    return $FezACML_DS_name;
   }
 
   public static function getXdisTitlePrefix()

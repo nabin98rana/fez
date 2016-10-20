@@ -1786,7 +1786,6 @@ class Record
   {
     static $acml_cache;
     $ds_pattern = false;
-    $ds_search = 'FezACML';
     if ($dsID != "") {
       if (isset($acml_cache['ds'][$dsID][$pid])) {
         return $acml_cache['ds'][$dsID][$pid];
@@ -1802,9 +1801,7 @@ class Record
       if (isset($acml_cache['pid'][$pid])) {
         return $acml_cache['pid'][$pid];
       }
-      if (APP_FEDORA_BYPASS != "ON") {
-        $ds_search = FezACML::getFezACMLPidName($pid);
-      }
+      $ds_search = FezACML::getFezACMLPidName($pid);
     }
     $dsExists = Fedora_API::datastreamExists($pid, $ds_search, true, $ds_pattern);
     if ($dsExists !== false) {
