@@ -3056,7 +3056,7 @@ class AuthNoFedora
 
     }
     //assume solr need updating for new lister permissions
-    if (APP_SOLR_INDEXER == "ON" && $sendToQueue) {
+    if ((APP_SOLR_INDEXER == "ON" || APP_ES_INDEXER == "ON") && $sendToQueue) {
       FulltextQueue::singleton()->add($pid);
       FulltextQueue::singleton()->commit();
     }

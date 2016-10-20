@@ -1111,7 +1111,7 @@ abstract class FulltextIndex {
 	 * @param string $pid
 	 * @param string $dsID
 	 */
-	protected function deleteFulltextCache($pid, $dsID='', $deleteAll = false)
+	public function deleteFulltextCache($pid, $dsID='', $deleteAll = false)
 	{
 		$log = FezLog::get();
     if (defined("APP_SQL_CACHE_DBHOST")) {

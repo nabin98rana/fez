@@ -93,15 +93,21 @@ class FulltextQueue
 	 * with remove, the last one called is used.
 	 *
 	 * @param String $pid pid of the object in the fez index
+	 * @param boolean $clearCache Clean out the cache for regeneration in efficient bulk later
 	 */
-	public function add($pid)
+	public function add($pid, $clearCache = true)
 	{
 		$log = FezLog::get();
 
 		//if not in queue and record exists
 		if (!array_key_exists($pid, $this->pids) && (Record::getIfRecordExists($pid))) {
 			$this->pids[$pid] = FulltextQueue::ACTION_INSERT;
-			$log->debug("FulltextQueue::add($pid)");
+      //clear the cache in prep for indexing in the queue later
+      if ($clearCache === true) {
+        $index = FulltextIndex::get(true);
+        $index->deleteFulltextCache($pid);
+      }
+      $log->debug("FulltextQueue::add($pid)");
 		}
 	}
 
@@ -683,7 +689,7 @@ class FulltextQueue
 
         //We will test if the amount of cached content is to large for solr to handle if so we will remove content
         //But we will always do at least one else the queue will get stuck
-        if (APP_SOLR_INDEX_DATASTREAMS == 'ON') {
+        if ((APP_SOLR_INDEX_DATASTREAMS == 'ON' || APP_ES_INDEX_DATASTREAMS == 'ON') ) {
             $size = 0;
             foreach($res as $elementKey => $elementValue) {
                 if (array_key_exists('rek_pid', $elementValue)) {

@@ -1149,7 +1149,7 @@ class Record
     //
     // KJ: remove from fulltext index
     //
-    if ( APP_SOLR_INDEXER == "ON" && $remove_solr == true) {
+    if ((APP_SOLR_INDEXER == "ON" || APP_ES_INDEXER == "ON") && $remove_solr == true) {
       $log->debug("Record::removeIndexRecord() REMOVING ".$pid." FROM QUEUE");
       FulltextQueue::singleton()->remove($pid);
       FulltextQueue::singleton()->commit();
@@ -1581,9 +1581,8 @@ class Record
     //
     // KJ: update fulltext index
     //
-    if (APP_SOLR_INDEXER == "ON") {
+    if (APP_SOLR_INDEXER == "ON" || APP_ES_INDEXER == "ON") {
       $log->debug("Record::updateSearchKeys() ADDING ".$pid." TO QUEUE");
-//      FulltextQueue::singleton()->add($pid, Fulltextndex::prepAlreadygottendata($thedata));
       FulltextQueue::singleton()->add($pid);
       FulltextQueue::singleton()->commit();
     }
@@ -3364,7 +3363,7 @@ class Record
       return false;
     }
 
-    if ( APP_SOLR_INDEXER == "ON" ) {
+    if ( APP_SOLR_INDEXER == "ON" || APP_ES_INDEXER == "ON" ) {
       FulltextQueue::singleton()->add($pid);
     }
     if (APP_FILECACHE == "ON") {
@@ -3505,7 +3504,7 @@ class Record
     // Record in history
     Record::insertThomsonCitationCount($isi_loc, $count);
 
-    if ( APP_SOLR_INDEXER == "ON" ) {
+    if ( APP_SOLR_INDEXER == "ON" || APP_ES_INDEXER == "ON" ) {
       FulltextQueue::singleton()->add($pid);
     }
     if (APP_FILECACHE == "ON") {
@@ -3781,7 +3780,7 @@ class Record
     // Record in history
     Record::insertScopusCitationCount($eid, $count);
 
-    if ( APP_SOLR_INDEXER == "ON" ) {
+    if ( APP_SOLR_INDEXER == "ON" || APP_ES_INDEXER == "ON" ) {
       FulltextQueue::singleton()->add($pid);
     }
     if (APP_FILECACHE == "ON") {

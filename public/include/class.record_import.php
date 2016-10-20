@@ -969,7 +969,7 @@ abstract class RecordImport
         }
 
         //assume solr need updating for new lister permissions
-        if (APP_SOLR_INDEXER == "ON") {
+        if (APP_SOLR_INDEXER == "ON" || APP_ES_INDEXER == "ON") {
             FulltextQueue::singleton()->add($recordSearchKey->getPid());
             FulltextQueue::singleton()->commit();
         }

@@ -629,7 +629,7 @@ class Reindex
 
       foreach ($fezList as $detail) {
 
-        FulltextQueue::singleton()->add($detail['rek_pid']);
+        FulltextQueue::singleton()->add($detail['rek_pid'], false);
         BackgroundProcessPids::insertPid($this->bgp->bgp_id, $detail['rek_pid']);
         $this->bgp->setProgress(intval(100 * $reindex_record_counter / $record_count));
         $this->bgp->setStatus("Adding to Solr Queue:  '" . $detail['rek_pid'] . "' " . $detail['rek_title'] . " (" . $reindex_record_counter . "/" . $record_count . ")");
@@ -714,7 +714,7 @@ class Reindex
           //
           // KJ: update fulltext index
           //
-          if (APP_SOLR_INDEXER == "ON") {
+          if (APP_SOLR_INDEXER == "ON" || APP_ES_INDEXER == "ON") {
             FulltextQueue::singleton()->add($pid);
             FulltextQueue::singleton()->commit();
           }

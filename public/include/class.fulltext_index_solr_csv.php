@@ -161,7 +161,7 @@ class FulltextIndex_Solr_CSV extends FulltextIndex_Solr
       $this->preBuildCitations($pids);
 
       // Cache any datastreams that have text files
-      if (APP_SOLR_INDEX_DATASTREAMS == 'ON') {
+      if ((APP_SOLR_INDEX_DATASTREAMS == 'ON' || APP_ES_INDEX_DATASTREAMS == 'ON') ) {
         $this->preCacheDatastreams($pids);
       }
 
@@ -388,7 +388,7 @@ class FulltextIndex_Solr_CSV extends FulltextIndex_Solr
        * Add datastream text to CSV array
        */
       $content = '';
-      if (APP_SOLR_INDEX_DATASTREAMS == 'ON') {
+      if ((APP_SOLR_INDEX_DATASTREAMS == 'ON' || APP_ES_INDEX_DATASTREAMS == 'ON') ) {
         $content = $this->getCachedContent($pids);
 
       }

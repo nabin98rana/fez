@@ -60,7 +60,7 @@ class BackgroundProcess_Update_Citation_Counts extends BackgroundProcess
     if ($runType == 'scopus-empty') {
       $this->updateScopusEmptyOnly();
     }
-    
+
     $this->setState(BGP_FINISHED);
   }
 
@@ -105,7 +105,7 @@ class BackgroundProcess_Update_Citation_Counts extends BackgroundProcess
             }
           }
         }
-        if (APP_SOLR_INDEXER == "ON") {
+        if (APP_SOLR_INDEXER == "ON" || APP_ES_INDEXER == "ON") {
           FulltextQueue::singleton()->commit();
         }
         sleep(WOK_SECONDS_BETWEEN_CALLS); // to work within TR minimum throttling requirements
@@ -165,7 +165,7 @@ class BackgroundProcess_Update_Citation_Counts extends BackgroundProcess
 
             Record::updateScopusCitationCount($pid, $count, $eid);
           }
-          if (APP_SOLR_INDEXER == "ON") {
+          if (APP_SOLR_INDEXER == "ON" || APP_ES_INDEXER == "ON") {
             FulltextQueue::singleton()->commit();
           }
         }
@@ -220,7 +220,7 @@ class BackgroundProcess_Update_Citation_Counts extends BackgroundProcess
           }
           Record::updateScopusCitationCount($pid, $count, $eid);
         }
-        if ( APP_SOLR_INDEXER == "ON" ) {
+        if ( APP_SOLR_INDEXER == "ON" || APP_ES_INDEXER == "ON" ) {
           FulltextQueue::singleton()->commit();
         }
         sleep($sleep); // Wait before using the service again

@@ -38,7 +38,7 @@ include_once(APP_INC_PATH . "class.record.php");
 include_once(APP_INC_PATH . "class.fulltext_queue.php");
 
 $max = 100; 		// Max number of primary key IDs to send with each ESTI Search Service request call
-$sleep = 1; 	// Number of seconds to wait for between successive ESTI Search Service calls 
+$sleep = 1; 	// Number of seconds to wait for between successive ESTI Search Service calls
 
 $filter = array();
 $filter["searchKey".Search_Key::getID("Status")] = 2; // enforce published records only
@@ -53,7 +53,7 @@ for($i=0; $i<((int)$listing['info']['total_pages']+1); $i++) {
 	// Skip first loop - we have called getListing once already
 	if($i>0)
 		$listing = Record::getListing(array(), array(9,10), $listing['info']['next_page'], $max, 'Created Date', false, false, $filter);
-	
+
 	$uts = array();
 	if (is_array($listing['list'])) {
 	 	for($j=0; $j<count($listing['list']); $j++) {
@@ -76,9 +76,9 @@ for($i=0; $i<((int)$listing['info']['total_pages']+1); $i++) {
             }
 		  }
 		}
-    if ( APP_SOLR_INDEXER == "ON" ) {
+    if ( APP_SOLR_INDEXER == "ON" || APP_ES_INDEXER == "ON" ) {
       FulltextQueue::singleton()->commit();
     }
-    sleep(WOK_SECONDS_BETWEEN_CALLS); // to work within TR minimum throttling requirements 
+    sleep(WOK_SECONDS_BETWEEN_CALLS); // to work within TR minimum throttling requirements
 	}
 }

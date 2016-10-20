@@ -1005,7 +1005,7 @@ class RecordGeneral
           $this->pid, "RELS-EXT", "A", "Relationships to other objects", $newXML, "text/xml", "inherit"
       );
       Record::setIndexMatchingFields($this->pid);
-      if (APP_SOLR_INDEXER == "ON") {
+      if (APP_SOLR_INDEXER == "ON" || APP_ES_INDEXER == "ON") {
         FulltextQueue::singleton()->add($this->pid);
         FulltextQueue::singleton()->commit();
       }
@@ -1065,7 +1065,7 @@ class RecordGeneral
       $historyDetail = "Isi_loc was stripped in preparation of Links AMR Service data import";
       History::addHistory($this->pid, null, "", "", true, $historyDetail);
       Record::setIndexMatchingFields($this->pid);
-      /*if( APP_SOLR_INDEXER == "ON" ) {
+      /*if( APP_SOLR_INDEXER == "ON" || APP_ES_INDEXER == "ON" ) {
        FulltextQueue::singleton()->add($this->pid);
        FulltextQueue::singleton()->commit();
        }*/
@@ -1117,7 +1117,7 @@ class RecordGeneral
       $historyDetail = "Scopus ID (EID) was stripped";
       History::addHistory($this->pid, null, "", "", true, $historyDetail);
       Record::setIndexMatchingFields($this->pid);
-      /*if( APP_SOLR_INDEXER == "ON" ) {
+      /*if( APP_SOLR_INDEXER == "ON" || APP_ES_INDEXER == "ON" ) {
        FulltextQueue::singleton()->add($this->pid);
        FulltextQueue::singleton()->commit();
        }*/

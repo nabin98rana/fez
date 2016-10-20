@@ -115,7 +115,7 @@ class FulltextIndex_ElasticSearch extends FulltextIndex
   }
 
   //TODO: implement
-  public function searchAdvancedQuery($searchKey_join, $filter_join, $approved_roles, $start, $page_rows, $use_faceting = false, $use_highlighting = false, $facet_limit = APP_SOLR_FACET_LIMIT, $facet_mincount = APP_SOLR_FACET_MINCOUNT)
+  public function searchAdvancedQuery($searchKey_join, $filter_join, $approved_roles, $start, $page_rows, $use_faceting = false, $use_highlighting = false, $facet_limit = APP_ES_FACET_LIMIT, $facet_mincount = APP_ES_FACET_MINCOUNT)
   {
     $log = FezLog::get();
 

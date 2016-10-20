@@ -80,7 +80,7 @@ class IntegrityCheck
       if (APP_FEDORA_BYPASS != "ON") {
         $this->doFedoraFezIntegrityChecks();
       }
-      if (APP_SOLR_INDEXER == "ON") {
+      if (APP_SOLR_INDEXER == "ON" || APP_ES_INDEXER == "ON") {
         $this->doFezSolrIntegrityChecks();
         $this->doSolrCitationChecks();
       }
@@ -91,7 +91,7 @@ class IntegrityCheck
       if (APP_FEDORA_BYPASS != "ON") {
         $this->doFedoraFezDelete();
       }
-      if (APP_SOLR_INDEXER == "ON") {
+      if (APP_SOLR_INDEXER == "ON" || APP_ES_INDEXER == "ON") {
         $this->doFezSolrDeletes();
         $this->addSolrCitations();
         $this->addSolrUnspawned();

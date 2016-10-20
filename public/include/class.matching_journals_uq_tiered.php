@@ -798,7 +798,7 @@ class UQTJL
                 die('There was a problem with the query ' . $stmt);
             }
 
-            if (APP_SOLR_INDEXER == "ON") {
+            if (APP_SOLR_INDEXER == "ON" || APP_ES_INDEXER == "ON") {
                 FulltextQueue::singleton()->add($match['pid']);
             }
         }
