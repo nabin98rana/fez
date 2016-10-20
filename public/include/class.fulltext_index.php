@@ -723,7 +723,10 @@ abstract class FulltextIndex {
 			}
 
 		}
-
+		//clean out most things
+    $plaintext = preg_replace("/[^a-zA-Z0-9 ,.'-]/", "", $plaintext);
+    //trim it to 31000 chars max
+    $plaintext = mb_strimwidth($plaintext, 0, 31000, "...");
 		// insert or replace current entry
 		$this->updateFulltextCache($pid, $dsID, $plaintext, $isTextUsable);
 	}
@@ -1418,7 +1421,6 @@ abstract class FulltextIndex {
 
     $ret = array();
     foreach ($res as $row) {
-
       if (!empty($ret[$row['pid']])) {
         $ret[$row['pid']] .= "\t" . $row['content'];
       } else {
