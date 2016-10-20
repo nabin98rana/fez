@@ -235,7 +235,8 @@ class MigrateFromFedoraToDatabase
       $FezACML_dsID = FezACML::getFezACMLDSName($dsName);
       $acml = $this->getFezACML($pid, $FezACML_dsID);
       if ($acml) {
-        Fedora_API::callModifyDatastreamByValue($pid, $FezACML_dsID, "A", "FezACML",
+        Fedora_API::callModifyDatastreamByValue($pid, $FezACML_dsID, "A",
+          "FezACML security for datastream - " . $dsName,
           $acml->saveXML(), "text/xml", "inherit");
       }
 
@@ -315,7 +316,8 @@ class MigrateFromFedoraToDatabase
       if ($acml) {
         $location = APP_TEMP_DIR . FezACML::getFezACMLPidName($pid);
         file_put_contents($location, $acml);
-        Fedora_API::callAddDatastream($pid, 'FezACML', $location, '', 'A', 'text/xml');
+        Fedora_API::callAddDatastream($pid, 'FezACML', $location,
+          'FezACML security for PID - ' . $pid, 'A', 'text/xml');
         unlink($location);
       }
     }

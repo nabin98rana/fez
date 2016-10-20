@@ -102,16 +102,8 @@ class FezACML
       $FezACML_dsID = FezACML::getFezACMLDSName($dsID);
       $logMessage = "FezACML security for datastream - " . $dsID;
     }
-    if (Fedora_API::datastreamExists($pid, $FezACML_dsID)) {
-      Fedora_API::callModifyDatastreamByValue(
-        $pid, $FezACML_dsID, "A", $logMessage, $xmlObj, "text/xml", "inherit"
-      );
-    }
-    else {
-      Fedora_API::getUploadLocation(
-        $pid, $FezACML_dsID, $xmlObj, $logMessage, "text/xml", "X", NULL, "true"
-      );
-    }
+    Fedora_API::callModifyDatastreamByValue($pid, $FezACML_dsID, "A",
+      $logMessage, $xmlObj, "text/xml", "inherit");
   }
 
   /**
