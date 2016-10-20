@@ -125,19 +125,7 @@ class FulltextIndex_ElasticSearch extends FulltextIndex
       // Solr search params
       $params = array();
       $facets = array();
-//      $use_highlighting = false;
-      if ($use_highlighting) {
-        // hit highlighting
-        $params['hl'] = 'true';
-        $params['hl.fl'] = 'content'; //'content_mt,alternative_title_mt,author_mt,keywords_mt';
-        $params['hl.requireFieldMatch'] = 'false';
-        $params['hl.snippets'] = 1;
-        $params['hl.fragmenter'] = 'gap';
-        $params['hl.fragsize'] = 100;
-        $params['hl.mergeContiguous'] = "true";
-        $params['hl.useFastVectorHighlighter'] = "true";
-//        $params['hl.useFastVectorHighlighter'] = "false";
-      }
+
 
       if ($use_faceting) {
         $sekIDs = Search_Key::getFacetList();
@@ -229,6 +217,29 @@ class FulltextIndex_ElasticSearch extends FulltextIndex
         $sortOrder[0] = str_replace("score", "_score", $sortOrder[0]);
         $params['body']['sort'] = [$sortOrder[0] => ["order" => $sortOrder[1]]];
       }
+
+      if ($use_highlighting) {
+        // hit highlighting
+        $params['body']['highlight']['fields']['content_mt'] = [
+          'fragment_size' => 100,
+          'number_of_fragments' => 1,
+          'highlight_query' => [
+              'bool' => [
+                  'should' => [
+                      'match_phrase' => [
+                          'content_mt' => [
+                              'query' => $queryString,
+                              'phrase_slop' => 1,
+                              'boost' => 10.0
+                          ]
+                      ]
+                  ]
+              ]
+          ]
+        ];
+        $params['body']['highlight']['require_field_match'] = false;
+      }
+
 //      $testJson = json_encode($params);
 
       $results = $this->esClient->search($params);
@@ -249,6 +260,17 @@ class FulltextIndex_ElasticSearch extends FulltextIndex
     $snips = array();
     $total_rows = $results['hits']['total'];
     $facets = $this->extractFacets($results['aggregations'], $facetsToUse, $lookupFacetsToUse);
+
+    // Solr hit highlighting
+    foreach ($results['hits']['hits'] as $hit) {
+      $pid = $hit['_id'];
+      if (array_key_exists('highlight', $hit)) {
+        foreach ($hit['highlight']['content_mt'] as $part) {
+          $part = trim(str_ireplace(chr(12), ' | ', $part));
+          $snips[$pid] .= $part;
+        }
+      }
+    }
 
     if ($total_rows > 0) {
       $i = 0;
@@ -314,7 +336,7 @@ class FulltextIndex_ElasticSearch extends FulltextIndex
         'total_rows' => $total_rows,
         'facets' => $facets,
         'docs' => $docs,
-        'snips' => array()
+        'snips' => $snips
     );
 
   }
