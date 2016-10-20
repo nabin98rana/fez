@@ -390,11 +390,12 @@ class FulltextIndex_Solr_CSV extends FulltextIndex_Solr
       $content = '';
       if (APP_SOLR_INDEX_DATASTREAMS == 'ON') {
         $content = $this->getCachedContent($pids);
-        $content = preg_replace('/[^(\x20-\x7F)]*/', '', $content);
+
       }
       foreach ($csv as $rek_pid => $rek_line) {
 
         if (!empty($content[$rek_pid])) {
+          $content[$rek_pid] = preg_replace('/[^(\x20-\x7F)]*/', '', $content[$rek_pid]);
           $csv[$rek_pid] .= ',"' .  mb_strimwidth($content[$rek_pid], 0, 31000, "...") . '"';
         } else {
           $csv[$rek_pid] .= ',""';

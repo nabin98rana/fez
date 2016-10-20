@@ -411,7 +411,9 @@ abstract class FulltextIndex {
       $dslist = $record->getDatastreams();
 
       foreach ($dslist as $dsitem) {
-        $this->indexDS($record, $dsitem);
+        if ($dsitem['controlGroup'] == 'M') {
+          $this->indexDS($record, $dsitem);
+        }
       }
     }
 
@@ -501,16 +503,12 @@ abstract class FulltextIndex {
       $index_title = $this->getFieldName(self::FIELD_NAME_FULLTEXT, self::FIELD_TYPE_TEXT, true);
       $docfields[$index_title] = array();
 
-      foreach ($dslist as $dsitem) {
-        $dsid = $dsitem['ID'];
-        if ($dsitem['controlGroup'] == 'M') {
-          $ftResult = $this->getCachedContent($pid, $dsid);
-          if (!empty($ftResult) && !empty($ftResult['content'])) {
-            $docfields[$index_title][$dsid] = $ftResult['content'];
-          }
-          unset($ftResult);
-        }
+
+      $ftResult = $this->getCachedContent($pid, false);
+      if (!empty($ftResult) && !empty($ftResult[$pid])) {
+        $docfields[$index_title] = $ftResult[$pid];
       }
+      unset($ftResult);
 
       //
       // add lister security index to document - kind of special
@@ -544,11 +542,11 @@ abstract class FulltextIndex {
 			$this->bgp->setProgress(++$this->pid_count);
 		}
 
-    $cache = $this->getCachedContent(array($pid), true);
-    if ($cache['content'] == '') {
-      $this->cacheRecords(array($pid));
+    $cache = $this->getMultipleCachedContent(array($pid), true);
+    if ($cache[$pid] == '') {
+      $cache[$pid] = $this->cacheRecords(array($pid));
     }
-    $this->updateFulltextIndex($pid, json_decode($cache['content']));
+    $this->updateFulltextIndex($pid, json_decode($cache[$pid]));
 
 		if ($this->bgp) {
 			$this->bgp->setStatus("Finished Solr fulltext indexing for ($pid)");
@@ -743,7 +741,7 @@ abstract class FulltextIndex {
 		$log = FezLog::get();
 
 		$log->debug(array("removeByPid($pid)"));
-		$this->deleteFulltextCache($pid);
+		$this->deleteFulltextCache($pid, '', true);
 
 	}
 
@@ -1113,7 +1111,7 @@ abstract class FulltextIndex {
 	 * @param string $pid
 	 * @param string $dsID
 	 */
-	protected function deleteFulltextCache($pid, $dsID='')
+	protected function deleteFulltextCache($pid, $dsID='', $deleteAll = false)
 	{
 		$log = FezLog::get();
     if (defined("APP_SQL_CACHE_DBHOST")) {
@@ -1127,7 +1125,7 @@ abstract class FulltextIndex {
 				"WHERE ".
 	        	"ftc_pid=".$db->quote($pid);
 
-		if ($dsID > '') {
+		if ($deleteAll !== true) {
 			$stmt .= " AND".
 	        		 " ftc_dsid=".$db->quote($dsID);
 		}
@@ -1201,13 +1199,6 @@ abstract class FulltextIndex {
    * @param string $multiple
    * @return string name of field in search engine
    */
-//  public function getFieldName($fezName, $datatype=FulltextIndex::FIELD_TYPE_TEXT,
-//                               $multiple=false)
-//  {
-//
-//    return strtolower(preg_replace('/\s/', '_', $fezName));
-//  }
-
   public function getFieldName($fezName, $datatype = FulltextIndex::FIELD_TYPE_TEXT,
                                $multiple = false)
   {
@@ -1402,7 +1393,7 @@ abstract class FulltextIndex {
     //$stmt = "SELECT ftc_pid as pid, REPLACE(REPLACE(REPLACE(ftc_content, '\"','\"\"'), '\n', ' '), '\t', ' ') as content, ftc_dsid as dsid ".
     $stmt = "SELECT ftc_pid as pid, ftc_content as content, ftc_dsid as dsid " .
         'FROM ' . APP_TABLE_PREFIX . FulltextIndex::FULLTEXT_TABLE_NAME .
-        ' WHERE ftc_pid IN (' . $pids . ')';
+        ' WHERE ftc_pid IN ('.Misc::arrayToSQLBindStr($pids).")";
 
     if ($noDatastream) {
       $stmt .= " AND ftc_dsid = ''";
@@ -1411,7 +1402,7 @@ abstract class FulltextIndex {
     }
 
     try {
-      $res = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
+      $res = $db->fetchAll($stmt, $pids, Zend_Db::FETCH_ASSOC);
     } catch (Exception $ex) {
       $log->err($ex.' FULL SQL: '.$stmt);
       $res = null;

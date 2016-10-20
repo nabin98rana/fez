@@ -564,6 +564,7 @@ class FulltextIndex_ElasticSearch extends FulltextIndex
       }
       $this->bulkDelete($deletePids);
     }
+    $this->forceCommit();
     return $countDocs;
   }
 
