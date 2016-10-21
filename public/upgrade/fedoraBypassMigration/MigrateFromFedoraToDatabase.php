@@ -65,6 +65,7 @@ class MigrateFromFedoraToDatabase
 
   public function runMigration()
   {
+    define('APP_MIGRATION_RUN', true);
     $this->_env = strtolower($_SERVER['APP_ENVIRONMENT']);
 
     // Message/warning about backing up before running the migration script.
@@ -223,9 +224,7 @@ class MigrateFromFedoraToDatabase
       return;
     }
 
-    $stmt = "select token, path from datastreamPaths   
-      where path like '/espace/data/fedora_datastreams/2016/08%'
-      order by path DESC";
+    $stmt = "select token, path from datastreamPaths order by path DESC";
 
     $ds = [];
     try {
@@ -246,7 +245,7 @@ class MigrateFromFedoraToDatabase
       $dsName = $tokenParts['dsName'];
       $state = 'A';
 
-      echo "\n - Doing PID $counter/$totalDs ($pid)\n";
+      echo "\n\n\n - Doing PID $counter/$totalDs ($pid)\n";
       Zend_Registry::set('version', Date_API::getCurrentDateGMT());
 
       $acml = $this->getFezACML($pid, 'FezACML_' . $dsName . '.xml');
