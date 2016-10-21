@@ -78,6 +78,32 @@ class FezACML
   }
 
   /**
+   * Method used to get the list of all quick rules.
+   *
+   * @param int $qat_id the template ID
+   * @return  array The array of quick rule IDs given a template ID
+   */
+  public static function getQuickRulesForTemplate($qat_id)
+  {
+    $log = FezLog::get();
+    $db = DB_API::get();
+
+    $stmt = "SELECT
+                    qac_id
+                 FROM
+                    " . APP_TABLE_PREFIX . "auth_quick_rules
+                 WHERE qac_qat_id = " . $db->quote($qat_id, 'INTEGER');
+    try {
+      $res = $db->fetchCol($stmt);
+    } catch (Exception $ex) {
+      $log->err($ex);
+      return '';
+    }
+
+    return $res;
+  }
+
+  /**
    * Method used to get the quick template ID from the title.
    *
    * @return  int The ID of the quick auth template
@@ -107,8 +133,9 @@ class FezACML
     $log = FezLog::get();
     $db = DB_API::get();
 
-    $stmt = "SELECT qrp_qac_id FROM " . APP_TABLE_PREFIX . "auth_quick_rules_pid WHERE qrp_pid = " . $db->quote($pid);
-
+    $stmt = "SELECT DISTINCT r.qac_qat_id FROM " . APP_TABLE_PREFIX . "auth_quick_rules r
+                LEFT JOIN " . APP_TABLE_PREFIX . "auth_quick_rules_pid p on p.qrp_qac_id = r.qac_id
+                WHERE p.qrp_pid = " . $db->quote($pid);
     try {
       $res = $db->fetchOne($stmt);
     } catch (Exception $ex) {
@@ -144,33 +171,32 @@ class FezACML
     $log = FezLog::get();
     $db = DB_API::get();
 
-    if ($rule == 0) {
-      $data = [
-        ':pid' => $pid
-      ];
-      $stmt = "DELETE FROM " . APP_TABLE_PREFIX . "auth_quick_rules_pid "
-        . "WHERE qrp_pid=:pid";
-      try {
-        $db->query($stmt, $data);
+    try {
+      $db->beginTransaction();
 
-      } catch (Exception $ex) {
-        $log->err($ex);
-      }
-    }
-    else if (! self::datastreamQuickRuleExists($pid, $rule)) {
-      $data = [
-        ':pid' => $pid,
-        ':qac_id' => $rule
-      ];
-      $stmt = "INSERT INTO " . APP_TABLE_PREFIX . "auth_quick_rules_pid "
-        . "(qrp_pid, qrp_qac_id) VALUES "
-        . "(:pid, :qac_id)";
-      try {
-        $db->query($stmt, $data);
+      $db->query(
+        "DELETE FROM " . APP_TABLE_PREFIX . "auth_quick_rules_pid "
+        . "WHERE qrp_pid=:pid",
+        [':pid' => $pid]
+      );
 
-      } catch (Exception $ex) {
-        $log->err($ex);
+      if ($rule != 0) {
+        $qac_ids = self::getQuickRulesForTemplate($rule);
+        foreach ($qac_ids as $qac_id) {
+          $db->query(
+            $stmt = "INSERT INTO " . APP_TABLE_PREFIX . "auth_quick_rules_pid "
+              . "(qrp_pid, qrp_qac_id) VALUES "
+              . "(:pid, :qac_id)",
+            [ ':pid' => $pid,
+              ':qac_id' => $qac_id
+            ]);
+        }
       }
+      $db->commit();
+
+    } catch (Exception $ex) {
+      $db->rollBack();
+      $log->err($ex);
     }
 
     if (empty($did)) {
