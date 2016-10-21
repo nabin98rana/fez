@@ -641,9 +641,17 @@ abstract class FulltextIndex {
 		// TODO: have to find a solution for very large files...
 		$filename = APP_TEMP_DIR."fulltext_".rand()."_".$dsitem['ID'];
 
-		$filehandle = fopen($filename, "w");
-		$rec->getDatastreamContents($dsitem['ID'], $filehandle);
-		fclose($filehandle);
+
+    if (defined('AWS_ENABLED') && AWS_ENABLED == 'true') {
+      $aws = AWS::get();
+      $dataPath = Fedora_API::getDataPath($pid);
+      $aws->saveFileContent($dataPath, $dsitem['ID'], $filename);
+    } else {
+      $filehandle = fopen($filename, "w");
+      $rec->getDatastreamContents($dsitem['ID'], $filehandle);
+      fclose($filehandle);
+    }
+
 
 		$textfilename = Fulltext_Tools::convertFile($dsitem['MIMEType'], $filename);
 		unlink($filename);
@@ -724,7 +732,7 @@ abstract class FulltextIndex {
 
 		}
 		//clean out most things
-    $plaintext = preg_replace("/[^a-zA-Z0-9 ,.'-]/", "", $plaintext);
+    $plaintext = preg_replace("/[^a-zA-Z0-9 ,.-]/", "", $plaintext);
     //trim it to 31000 chars max
     $plaintext = mb_strimwidth($plaintext, 0, 31000, "...");
 		// insert or replace current entry

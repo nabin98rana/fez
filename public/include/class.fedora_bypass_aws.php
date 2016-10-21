@@ -313,7 +313,7 @@ class Fedora_API implements FedoraApiInterface {
 	 * @param string @pid
 	 * @return string
 	 */
-	private static function getDataPath($pid) {
+	public static function getDataPath($pid) {
 		return "data/".str_replace(":", "_", $pid);
 	}
 

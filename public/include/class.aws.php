@@ -675,6 +675,35 @@ class AWS
   }
 
   /**
+   * @param string $src
+   * @param string $id
+   * @param string $filePath
+   * @param array $params
+   * @return boolean Success/Failure
+   */
+  public function saveFileContent($src, $id, $filePath, $params = [])
+  {
+    try {
+      $client = $this->sdk->createS3();
+      $key = $this->createPath($src, $id);
+      $args = array(
+          'Bucket' => $this->s3Bucket,
+          'Key' => $key,
+          'SaveAs' => $filePath
+      );
+      if (count($params) > 0) {
+        $args = array_merge($args, $params);
+      }
+      $result = $client->getObject($args);
+    } catch (\Aws\S3\Exception\S3Exception $e) {
+      $this->log->err($e->getMessage());
+      return false;
+    }
+    return true;
+  }
+
+
+  /**
    * @param string $prefix
    * @return array
    */
