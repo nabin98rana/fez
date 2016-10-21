@@ -224,9 +224,7 @@ class MigrateFromFedoraToDatabase
       return;
     }
 
-    $stmt = "select token, path from datastreamPaths   
-      where path not like '/espace/data/fedora_datastreams/2016/%'
-      order by path DESC";
+    $stmt = "select token, path from datastreamPaths order by path DESC";
 
     $ds = [];
     try {
