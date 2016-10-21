@@ -472,6 +472,10 @@ class RecordObject extends RecordGeneral
       Record::insertXML($pid, compact('datastreamTitles', 'exclude_list', 'specify_list', 'xmlObj', 'indexArray', 'existingDatastreams', 'xdis_id'), $ingestObject);
       $this->clearDetails();  // force the details to be refreshed from fedora.
     }
+
+    if (APP_FEDORA_BYPASS == 'ON') {
+      AuthIndex::setIndexAuth($this->pid);
+    }
     return $this->pid;
   }
 
