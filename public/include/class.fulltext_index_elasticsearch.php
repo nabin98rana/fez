@@ -246,7 +246,7 @@ class FulltextIndex_ElasticSearch extends FulltextIndex
         $params['body']['highlight']['require_field_match'] = false;
       }
 
-      $testJson = json_encode($params);
+//      $testJson = json_encode($params);
 
       $results = $this->esClient->search($params);
     } catch (Exception $e) {
