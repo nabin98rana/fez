@@ -174,7 +174,17 @@ class FulltextIndex_ElasticSearch extends FulltextIndex
       // filtering
       $params['fq'] = $query['filter'];
       $queryString = $query['query'];
-      $solr_titles = Search_Key::getSolrTitles();
+      //split integer out because those fields go into docvalue_fields not stored_fields in ES, see https://www.elastic.co/guide/en/elasticsearch/reference/master/doc-values.html
+      $integerFields = Search_Key::getSolrTitles(true, true, 'intOnly');
+      $solr_titles = Search_Key::getSolrTitles(true, true, 'notInt');
+      $docValueFields = array();
+      foreach ($integerFields as $value) {
+        if (is_numeric(strpos($value, "_lookup"))) {
+          array_push($solr_titles, $value);
+        } else {
+          array_push($docValueFields, $value);
+        }
+      }
       $params['fl'] = implode(",", $solr_titles) . ',sherpa_colour_t,ain_detail_t,rj_tier_rank_t,rj_tier_title_t,rj_2015_rank_t,rj_2015_title_t,rc_2015_rank_t,rc_2015_title_t,rj_2010_rank_t,rj_2010_title_t,rj_2012_rank_t,rj_2012_title_t,rc_2010_rank_t,rc_2010_title_t,herdc_code_description_t,_score,citation_t';
 
 
@@ -188,6 +198,7 @@ class FulltextIndex_ElasticSearch extends FulltextIndex
           'index' => $this->esIndex,
           'type' => $this->esType,
           'body' => [
+              'docvalue_fields' => $docValueFields,
               'stored_fields' => $fields,
               'from' => $start,
               'size' => $page_rows,
@@ -246,7 +257,7 @@ class FulltextIndex_ElasticSearch extends FulltextIndex
         $params['body']['highlight']['require_field_match'] = false;
       }
 
-//      $testJson = json_encode($params);
+      $testJson = json_encode($params);
 
       $results = $this->esClient->search($params);
     } catch (Exception $e) {

@@ -372,7 +372,17 @@ abstract class FulltextIndex {
 		if ($datatype == FulltextIndex::FIELD_TYPE_DATE) {
 			// update date format
 			$value = Date_API::getFedoraFormattedDateUTC($value);
-		}
+		} elseif ($datatype == FulltextIndex::FIELD_TYPE_INT) {
+		  if (is_array($value)) {
+		    $newValue = array();
+        foreach ($value as $val) {
+          array_push($newValue, (int)$val);
+        }
+        $value = $newValue;
+      } else {
+        $value = (int)$value;
+      }
+    }
 
 		return $value;
 	}

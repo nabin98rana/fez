@@ -1395,7 +1395,7 @@ class Search_Key
         return $res;
     }
 
-    function getSolrTitles($assoc = true, $lookups = true)
+    function getSolrTitles($assoc = true, $lookups = true, $integerSplit = '')
     {
         $log = FezLog::get();
         $db = DB_API::get();
@@ -1404,6 +1404,13 @@ class Search_Key
                     *
                  FROM
                     " . APP_TABLE_PREFIX . "search_key as s1 ";
+
+        if ($integerSplit == 'intOnly') {
+          $stmt .= " WHERE sek_data_type = 'int'";
+        } elseif ($integerSplit == 'notInt') {
+          $stmt .= " WHERE sek_data_type != 'int'";
+        }
+
         try {
             $res = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
         }
