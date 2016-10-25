@@ -146,7 +146,7 @@ elasticsearch:
     - ES_CLUSTER_NAME=uqlfezsearch
     - ES_NODE_MASTER=true
     - ES_NODE_DATA=true
-  image: elasticsearch:2.3.5
+  image: elasticsearch:5.0
   ports:
     - "9200:9200"
   volumes_from:
