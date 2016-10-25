@@ -79,11 +79,11 @@ SET config_value = '/solr/'
 WHERE config_name = 'app_solr_path';
 
 UPDATE fez_config
-SET config_value = 'ON'
+SET config_value = 'OFF'
 WHERE config_name = 'app_solr_switch';
 
 UPDATE fez_config
-SET config_value = 'ON'
+SET config_value = 'OFF'
 WHERE config_name = 'app_solr_indexer';
 
 UPDATE fez_config

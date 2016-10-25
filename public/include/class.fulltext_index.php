@@ -546,7 +546,7 @@ abstract class FulltextIndex {
     if ($cache[$pid] == '') {
       $cache[$pid] = $this->cacheRecords(array($pid));
     }
-    $this->updateFulltextIndex($pid, json_decode($cache[$pid]));
+    $this->updateFulltextIndex($pid, $cache[$pid]);
 
 		if ($this->bgp) {
 			$this->bgp->setStatus("Finished Solr fulltext indexing for ($pid)");
@@ -1479,7 +1479,12 @@ abstract class FulltextIndex {
 
     //This assumes this function is run without anyone logged in. IE background process
     foreach ($res as $key => $value) {
-      $res[$key] = json_decode(str_replace('""', '"', $value));
+      if ($noDatastream) {
+        $res[$key] = (array)json_decode(str_replace('""', '"', $value['content']));
+      } else {
+        $res[$key] = $value['content'];
+      }
+
     }
 
     return $res;

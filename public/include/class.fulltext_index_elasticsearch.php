@@ -167,8 +167,9 @@ class FulltextIndex_ElasticSearch extends FulltextIndex
 //          $params['facet.query'] = '('.$query['query'] . " AND (!author_id_mi_lookup_exact:'0' AND !author_id_mi:0))";
         }
       }
+      $facets = array();
       foreach ($facetsToUse as $facet) {
-        $params["facets"][$facet] = ["terms" => ["field" => $facet, "size" => (int)$facet_limit, "min_doc_count" => (int)$facet_mincount]];
+        $facets["facets"][$facet] = ["terms" => ["field" => $facet, "size" => (int)$facet_limit, "min_doc_count" => (int)$facet_mincount]];
       }
       // filtering
       $params['fq'] = $query['filter'];
@@ -187,19 +188,20 @@ class FulltextIndex_ElasticSearch extends FulltextIndex
           'index' => $this->esIndex,
           'type' => $this->esType,
           'body' => [
-              'aggregations' => $params['facets'],
-              'fields' => $fields,
+              'stored_fields' => $fields,
               'from' => $start,
               'size' => $page_rows,
               'query' => [
-                  'filtered' => [
-                      'query' => [
+                  'bool' => [
+                      'must' => [
                           'query_string' => [
+                              'default_operator' => 'AND',
                               'query' => $queryString
                           ]
                       ],
                       'filter' => [
                           'query_string' => [
+                              'default_operator' => 'AND',
                               'query' => $solrParams['fq']
 
                           ]
@@ -209,6 +211,10 @@ class FulltextIndex_ElasticSearch extends FulltextIndex
           ]
       ];
 
+      // aggs
+      if (is_array($facets['facets']) && count($facets['facets']) > 0) {
+        $params['body']['aggregations'] = $facets['facets'];
+      }
       // sorting
       $searchKey_join[SK_SORT_ORDER] = trim($searchKey_join[SK_SORT_ORDER]);
       if (!empty($searchKey_join[SK_SORT_ORDER])) {
@@ -240,7 +246,7 @@ class FulltextIndex_ElasticSearch extends FulltextIndex
         $params['body']['highlight']['require_field_match'] = false;
       }
 
-//      $testJson = json_encode($params);
+      $testJson = json_encode($params);
 
       $results = $this->esClient->search($params);
     } catch (Exception $e) {

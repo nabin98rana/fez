@@ -4999,7 +4999,7 @@ function getSearchKeyIndexValueShadow($pid, $searchKeyTitle, $getLookup=true, $s
               } else {
                 // surround the exact match with quotes specifically (quotes need to go outside escapeSolr
                 // call as we don't want them escaped)
-                if ($doExactMatch && strtolower($sekdet['sek_title']) == 'author') {
+                if ($doExactMatch || strtolower($sekdet['sek_title']) == 'author') {
                   $searchKey_join["sk_where_$operatorToUse"][] = $sqlColumnName.$suffix.":(\"".
                       Record::escapeSolr($searchValue)."\") ";
                 } else {
