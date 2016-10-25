@@ -25,12 +25,13 @@ Version Matrix
 
 | Elasticsearch Version | Elasticsearch-PHP Branch |
 | --------------------- | ------------------------ |
-| >= 2.0                | 1.0 or 2.                |
+| >= 5.0                | dev-master               |
+| >= 2.0, < 5.0         | 1.0 or 2.0               |
 | >= 1.0, < 2.0         | 1.0 or 2.0               |
 | <= 0.90.x             | 0.4                      |
 
- - If you are using Elasticsearch 2.0+, prefer using the Elasticsearch-PHP 2.0 branch.  The 1.0 branch is compatible however.
- - If you are using Elasticsearch 1.0+, you must install the `1.0` or `2.0` Elasticsearch-PHP branch.
+ - If you are using Elasticsearch 5.0+ (master, alpha, beta), use Elasticsearch-PHP dev-master.  A 5.x branch will be cut when Elasticsearch 5.0 GA is released
+ - If you are using Elasticsearch 1.x or 2.x, prefer using the Elasticsearch-PHP 2.0 branch.  The 1.0 branch is compatible however.
  - If you are using a version older than 1.0, you must install the `0.4` Elasticsearch-PHP branch. Since ES 0.90.x and below is now EOL, the corresponding `0.4` branch will not receive any more development or bugfixes.  Please upgrade.
  - You should never use Elasticsearch-PHP Master branch, as it tracks Elasticearch master and may contain incomplete features or breaks in backwards compat.  Only use ES-PHP master if you are developing against ES master for some reason.
 
@@ -70,9 +71,9 @@ The recommended method to install _Elasticsearch-PHP_ is through [Composer](http
 
     ```php
         <?php
-        
+
         use Elasticsearch\ClientBuilder;
-        
+
         require 'vendor/autoload.php';
 
         $client = ClientBuilder::create()->build();
@@ -89,8 +90,12 @@ eventually stop being supported.
 
 | PHP Version | Elasticsearch-PHP Branch |
 | ----------- | ------------------------ |
+| >= 5.6.0    | Dev-Master *             |
 | >= 5.4.0    | 2.0                      |
 | >= 5.3.9    | 0.4, 1.0                 |
+
+* Dev-Master only officially supports 5.6.0+, but currently runs fine on versions down to 5.4.0.  This is not, however,
+guaranteed to stay true in the future if 5.6+ features are required.
 
 Quickstart
 ----
@@ -163,6 +168,19 @@ Array
         )
 
 )
+```
+
+If you want to retrieve the `_source` field directly, there is the `getSource` method:
+
+```php
+$params = [
+    'index' => 'my_index',
+    'type' => 'my_type',
+    'id' => 'my_id'
+];
+
+$source = $client->getSource($params);
+doSomething($source);
 ```
 
 ### Search for a document
@@ -330,7 +348,7 @@ If no explicit choice is made, assumption is that redistribution obeys rules of 
 All contributions to the library are to be so that they can be licensed under both licenses.
 
 Apache v2.0 License:
->Copyright 2013-2014 Elasticsearch
+>Copyright 2013-2016 Elasticsearch
 >
 >Licensed under the Apache License, Version 2.0 (the "License");
 >you may not use this file except in compliance with the License.
@@ -345,7 +363,7 @@ Apache v2.0 License:
 >limitations under the License.
 
 LGPL v2.1 Notice:
->Copyright (C) 2013-2014 Elasticsearch
+>Copyright (C) 2013-2016 Elasticsearch
 >
 >This library is free software; you can redistribute it and/or
 >modify it under the terms of the GNU Lesser General Public

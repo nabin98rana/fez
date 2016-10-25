@@ -1,24 +1,23 @@
 <?php
 
-namespace Elasticsearch\Endpoints\Snapshot;
+namespace Elasticsearch\Endpoints\Snapshot\Repository;
 
-use Elasticsearch\Common\Exceptions;
 use Elasticsearch\Endpoints\AbstractEndpoint;
+use Elasticsearch\Common\Exceptions;
 
 /**
- * Class VerifyRepository
+ * Class Verify
  *
  * @category Elasticsearch
- * @package Elasticsearch\Endpoints\Snapshot *
- * @author   Zachary Tong <zachary.tong@elasticsearch.com>
+ * @package  Elasticsearch\Endpoints\Snapshot\Repository
+ * @author   Zachary Tong <zach@elastic.co>
  * @license  http://www.apache.org/licenses/LICENSE-2.0 Apache2
- * @link     http://elasticsearch.org
+ * @link     http://elastic.co
  */
-class VerifyRepository extends AbstractEndpoint
+class Verify extends AbstractEndpoint
 {
-    // A repository name
+    // A comma-separated list of repository names
     private $repository;
-
 
     /**
      * @param $repository
@@ -36,42 +35,39 @@ class VerifyRepository extends AbstractEndpoint
         return $this;
     }
 
-
     /**
      * @throws \Elasticsearch\Common\Exceptions\RuntimeException
      * @return string
      */
-    protected function getURI()
+    public function getURI()
     {
+        $repository = $this->repository;
         if (isset($this->repository) !== true) {
             throw new Exceptions\RuntimeException(
-                'repository is required for VerifyRepository'
+                'repository is required for Verify'
             );
         }
-        $repository = $this->repository;
-        $uri = "/_snapshot/$repository/_verify";
+
+        $uri   = "/_snapshot/$repository/_verify";
 
         return $uri;
     }
 
-
     /**
      * @return string[]
      */
-    protected function getParamWhitelist()
+    public function getParamWhitelist()
     {
-        return [
+        return array(
             'master_timeout',
-            'timeout',
             'local',
-        ];
+        );
     }
-
 
     /**
      * @return string
      */
-    protected function getMethod()
+    public function getMethod()
     {
         return 'POST';
     }

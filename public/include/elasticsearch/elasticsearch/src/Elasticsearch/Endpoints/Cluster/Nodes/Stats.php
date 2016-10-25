@@ -1,23 +1,22 @@
 <?php
 
-namespace Elasticsearch\Endpoints\Nodes;
+namespace Elasticsearch\Endpoints\Cluster\Nodes;
 
 /**
  * Class Stats
  *
  * @category Elasticsearch
  * @package  Elasticsearch\Endpoints\Cluster\Nodes
- * @author   Zachary Tong <zachary.tong@elasticsearch.com>
+ * @author   Zachary Tong <zach@elastic.co>
  * @license  http://www.apache.org/licenses/LICENSE-2.0 Apache2
- * @link     http://elasticsearch.org
+ * @link     http://elastic.co
  */
 class Stats extends AbstractNodesEndpoint
 {
     // Limit the information returned to the specified metrics
     private $metric;
 
-    // Limit the information returned for `indices` metric to the specific index metrics. Isn&#039;t used if `indices`
-    // (or `all`) metric isn&#039;t specified.
+    // Limit the information returned for `indices` metric to the specific index metrics. Isn&#039;t used if `indices` (or `all`) metric isn&#039;t specified.
     private $indexMetric;
 
     /**
@@ -63,12 +62,12 @@ class Stats extends AbstractNodesEndpoint
     /**
      * @return string
      */
-    protected function getURI()
+    public function getURI()
     {
         $metric = $this->metric;
         $index_metric = $this->indexMetric;
         $node_id = $this->nodeID;
-        $uri = "/_nodes/stats";
+        $uri   = "/_nodes/stats";
 
         if (isset($node_id) === true && isset($metric) === true && isset($index_metric) === true) {
             $uri = "/_nodes/$node_id/stats/$metric/$index_metric";
@@ -88,9 +87,9 @@ class Stats extends AbstractNodesEndpoint
     /**
      * @return string[]
      */
-    protected function getParamWhitelist()
+    public function getParamWhitelist()
     {
-        return [
+        return array(
             'completion_fields',
             'fielddata_fields',
             'fields',
@@ -98,14 +97,13 @@ class Stats extends AbstractNodesEndpoint
             'human',
             'level',
             'types',
-            'timeout',
-        ];
+        );
     }
 
     /**
      * @return string
      */
-    protected function getMethod()
+    public function getMethod()
     {
         return 'GET';
     }

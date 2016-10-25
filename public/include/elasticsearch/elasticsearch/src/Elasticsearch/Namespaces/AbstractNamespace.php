@@ -2,6 +2,7 @@
 
 namespace Elasticsearch\Namespaces;
 
+use Elasticsearch\Endpoints\AbstractEndpoint;
 use Elasticsearch\Transport;
 
 /**
@@ -9,13 +10,13 @@ use Elasticsearch\Transport;
  *
  * @category Elasticsearch
  * @package  Elasticsearch\Namespaces
- * @author   Zachary Tong <zachary.tong@elasticsearch.com>
+ * @author   Zachary Tong <zach@elastic.co>
  * @license  http://www.apache.org/licenses/LICENSE-2.0 Apache2
- * @link     http://elasticsearch.org
+ * @link     http://elastic.co
  */
 abstract class AbstractNamespace
 {
-    /** @var \Elasticsearch\Transport */
+    /** @var \Elasticsearch\Transport  */
     protected $transport;
 
     /** @var  callback */
@@ -42,7 +43,7 @@ abstract class AbstractNamespace
     public function extractArgument(&$params, $arg)
     {
         if (is_object($params) === true) {
-            $params = (array)$params;
+            $params = (array) $params;
         }
 
         if (isset($params[$arg]) === true) {
@@ -53,5 +54,24 @@ abstract class AbstractNamespace
         } else {
             return null;
         }
+    }
+
+    /**
+     * @param $endpoint AbstractEndpoint
+     *
+     * @throws \Exception
+     * @return array
+     */
+    protected function performRequest(AbstractEndpoint $endpoint)
+    {
+        $response = $this->transport->performRequest(
+            $endpoint->getMethod(),
+            $endpoint->getURI(),
+            $endpoint->getParams(),
+            $endpoint->getBody(),
+            $endpoint->getOptions()
+        );
+
+        return $this->transport->resultOrFuture($response, $endpoint->getOptions());
     }
 }
