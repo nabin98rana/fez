@@ -1438,7 +1438,7 @@ class Search_Key
         }
 
         //Variables added not dynamically. Assume all end in _t. Don't have normal search tables.
-        if ($lookups) {
+        if ($lookups && $integerSplit != 'intOnly') {
             $extraSolrVariables = array('sherpa_colour_t', 'ain_detail_t', 'rj_tier_rank_t', 'rj_tier_title_t', 'rj_2015_rank_t', 'rj_2015_title_t', 'rj_2010_rank_t', 'rj_2010_title_t', 'rj_2012_rank_t', 'rj_2012_title_t', 'rc_2015_rank_t', 'rc_2015_title_t', 'rc_2010_rank_t', 'rc_2010_title_t', 'herdc_code_description_t');
             foreach ($extraSolrVariables as $solrVariable) {
                 $return[substr($solrVariable, 0, -2)] = $solrVariable;
