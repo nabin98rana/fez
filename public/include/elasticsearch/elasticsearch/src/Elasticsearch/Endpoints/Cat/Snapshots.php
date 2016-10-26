@@ -2,6 +2,7 @@
 
 namespace Elasticsearch\Endpoints\Cat;
 
+use Elasticsearch\Common\Exceptions\RuntimeException;
 use Elasticsearch\Endpoints\AbstractEndpoint;
 
 /**
@@ -38,14 +39,12 @@ class Snapshots extends AbstractEndpoint
      */
     public function getURI()
     {
-        if (isset($this->repository) !== true) {
-            throw new Exceptions\RuntimeException(
-                'repository is required for Cat Snapshots '
-            );
-        }
         $repository = $this->repository;
-        $uri   = "/_cat/snapshots/$repository/";
-        return $uri;
+        if (isset($this->repository) === true) {
+            return "/_cat/snapshots/$repository/";
+        }
+
+        return "/_cat/snapshots/";
     }
 
     /**
@@ -59,6 +58,7 @@ class Snapshots extends AbstractEndpoint
             'h',
             'help',
             'v',
+            's'
         );
     }
 

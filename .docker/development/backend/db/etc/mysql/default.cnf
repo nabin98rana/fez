@@ -1,6 +1,10 @@
 [mysqld]
 # Default MySQL config
 
+max-allowed-packet = 1000M
+
+innodb_buffer_pool_size = 2000M
+
 innodb_file_per_table
 init-connect='SET NAMES utf8'
 ft_min_word_len = 2

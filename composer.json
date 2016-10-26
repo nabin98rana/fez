@@ -3,7 +3,7 @@
   "description": "Fez Institutional Repository software",
   "require": {
     "aws/aws-sdk-php": "3.16.0",
-    "elasticsearch/elasticsearch": "dev-master"
+    "elasticsearch/elasticsearch": "5.0.0"
   },
   "config": {
     "vendor-dir": "public/include"

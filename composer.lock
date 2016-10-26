@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "e33fb861897e5ab47038918f247673b0",
+    "content-hash": "a305c7991ae9f2ca3696efcc1a99ec83",
     "packages": [
         {
             "name": "aws/aws-sdk-php",
@@ -88,21 +88,21 @@
         },
         {
             "name": "elasticsearch/elasticsearch",
-            "version": "dev-master",
+            "version": "v5.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/elastic/elasticsearch-php.git",
-                "reference": "9d376ba37f81607e11347199fae24a8de42b17cb"
+                "reference": "30be1c0367c865eec5ca0a9c09ce293869da7665"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/elastic/elasticsearch-php/zipball/9d376ba37f81607e11347199fae24a8de42b17cb",
-                "reference": "9d376ba37f81607e11347199fae24a8de42b17cb",
+                "url": "https://api.github.com/repos/elastic/elasticsearch-php/zipball/30be1c0367c865eec5ca0a9c09ce293869da7665",
+                "reference": "30be1c0367c865eec5ca0a9c09ce293869da7665",
                 "shasum": ""
             },
             "require": {
                 "guzzlehttp/ringphp": "~1.0",
-                "php": "^5.6|^7.0",
+                "php": "^5.6.6|^7.0",
                 "psr/log": "~1.0"
             },
             "require-dev": {
@@ -139,7 +139,7 @@
                 "elasticsearch",
                 "search"
             ],
-            "time": "2016-10-17 19:43:44"
+            "time": "2016-10-26T14:35:32+00:00"
         },
         {
             "name": "guzzlehttp/guzzle",
@@ -613,9 +613,7 @@
     "packages-dev": [],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": {
-        "elasticsearch/elasticsearch": 20
-    },
+    "stability-flags": [],
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": [],

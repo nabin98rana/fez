@@ -1,33 +1,29 @@
 <?php
 
-namespace Elasticsearch\Endpoints\Cat;
+namespace Elasticsearch\Endpoints\Tasks;
 
+use Elasticsearch\Common\Exceptions;
 use Elasticsearch\Endpoints\AbstractEndpoint;
 
 /**
- * Class Shards
+ * Class TasksLists
  *
  * @category Elasticsearch
- * @package  Elasticsearch\Endpoints\Cat
+ * @package  Elasticsearch\Endpoints\Tasks
  * @author   Zachary Tong <zach@elastic.co>
  * @license  http://www.apache.org/licenses/LICENSE-2.0 Apache2
  * @link     http://elastic.co
  */
-class Shards extends AbstractEndpoint
+class TasksList extends AbstractEndpoint
 {
+
     /**
+     * @throws \Elasticsearch\Common\Exceptions\RuntimeException
      * @return string
      */
     public function getURI()
     {
-        $index = $this->index;
-        $uri   = "/_cat/shards";
-
-        if (isset($index) === true) {
-            $uri = "/_cat/shards/$index";
-        }
-
-        return $uri;
+        return "/_tasks";
     }
 
     /**
@@ -36,13 +32,14 @@ class Shards extends AbstractEndpoint
     public function getParamWhitelist()
     {
         return array(
-            'bytes',
-            'local',
-            'master_timeout',
-            'h',
-            'help',
-            'v',
-            's'
+            'node_id',
+            'actions',
+            'detailed',
+            'parent_node',
+            'parent_task',
+            'wait_for_completion',
+            'group_by',
+            'task_id'
         );
     }
 

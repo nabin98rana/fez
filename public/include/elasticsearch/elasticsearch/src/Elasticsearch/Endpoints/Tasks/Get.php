@@ -41,7 +41,7 @@ class Get extends AbstractEndpoint
      */
     public function getURI()
     {
-        if (isset($this->id) === true) {
+        if (isset($this->taskId) === true) {
             return "/_tasks/{$this->taskId}";
         }
 
@@ -54,14 +54,7 @@ class Get extends AbstractEndpoint
     public function getParamWhitelist()
     {
         return array(
-            'node_id',
-            'actions',
-            'detailed',
-            'parent_node',
-            'parent_task',
-            'wait_for_completion',
-            'group_by',
-            'task_id'
+            'wait_for_completion'
         );
     }
 

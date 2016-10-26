@@ -474,10 +474,27 @@ class FulltextQueue
       $log->debug("FulltextQueue::pop() Queue is empty.");
       return false;
     }
+
+    //We will test if the amount of cached content is to large for solr to handle if so we will remove content
+    //But we will always do at least one else the queue will get stuck
+    if ((APP_SOLR_INDEX_DATASTREAMS == 'ON' || APP_ES_INDEX_DATASTREAMS == 'ON') ) {
+      $size = 0;
+      foreach($res as $elementKey => $elementValue) {
+        if (array_key_exists('rek_pid', $elementValue)) {
+          $size += strlen(serialize(FulltextIndex::getCachedContent("'".$elementValue['ftq_pid']."'")));
+        }
+        if (($size/1000000 > APP_SOLR_CSV_MAX_SIZE) && ($elementKey > 0)){
+          unset($res[$elementKey]);
+          //unset($keys[$elementKey]);
+        }
+      }
+    }
+
     $pids = array();
     foreach ($res as $row) {
       array_push($pids, $row['ftq_pid']);
     }
+
     // delete chunk from queue
     $stmt =  "DELETE FROM ".APP_TABLE_PREFIX."fulltext_queue ";
     $stmt .= "WHERE ftq_pid IN (".Misc::arrayToSQLBindStr($res).") AND ftq_op = '".FulltextQueue::ACTION_INSERT."'";

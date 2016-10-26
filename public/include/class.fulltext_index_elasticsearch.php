@@ -519,7 +519,8 @@ class FulltextIndex_ElasticSearch extends FulltextIndex
         $this->esClient->bulk($params);
 
         unset($this->docs);
-        $log->debug(array("======= FulltextIndex::updateFulltextIndex committed mem_usage=" . memory_get_usage() . " ======="));
+//        $log->debug(array("======= FulltextIndex::updateFulltextIndex committed mem_usage=" . memory_get_usage() . " ======="));
+        echo "======= FulltextIndex::updateFulltextIndex committed mem_usage=" . memory_get_usage() . " =======";
 
       } catch (Exception $e) {
 
