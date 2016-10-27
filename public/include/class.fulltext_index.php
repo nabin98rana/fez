@@ -568,10 +568,12 @@ abstract class FulltextIndex {
    * Inserts or updates records in the fulltext index for multiple pids at once for performance
    *
    * @param array $pids
+   * @param object $queue - the current fulltext queue object
    */
-  public function indexRecords($pids)
-  {
 
+  public function indexRecords($pids, $queue = null)
+  {
+    $cachedResults = array();
     if ($this->bgp) {
       $this->bgp->setHeartbeat();
       $this->bgp->setProgress($this->pid_count + count($pids));
@@ -584,14 +586,34 @@ abstract class FulltextIndex {
         array_push($pidsNoCache, $pid);
       } else {
         $this->updateFulltextIndex($pid, $cache[$pid]);
+        //lower the rams
+        unset($cache[$pid]);
       }
     }
+    // free the big rams
+    unset($cache);
     if (count($pidsNoCache) > 0) {
       $cachedResults = $this->cacheRecords($pidsNoCache);
     }
+
+    $addedToQueue = false;
     foreach ($cachedResults as $cachePid => $cacheContent) {
-      $this->updateFulltextIndex($cachePid, $cacheContent);
+      $queue->memorySize += strlen(serialize($cacheContent));
+      if (($queue->memorySize / 1000000 < APP_SOLR_CSV_MAX_SIZE)) {
+        $this->updateFulltextIndex($cachePid, $cacheContent);
+      } else {
+        //put it back on the queue because it didnt fit this time
+        FulltextQueue::singleton()->add($cachePid);
+        $addedToQueue = true;
+      }
+      //free more rams
+      unset($cachedResults[$cachePid]);
     }
+    if ($addedToQueue == true) {
+      FulltextQueue::singleton()->commit();
+    }
+
+    unset($cachedResults);
     if ($this->bgp) {
       $this->bgp->setStatus("Finished Solr fulltext indexing for ".count($pids)." pids");
     }

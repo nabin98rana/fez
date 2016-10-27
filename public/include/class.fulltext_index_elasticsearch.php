@@ -383,7 +383,7 @@ class FulltextIndex_ElasticSearch extends FulltextIndex
       $this->docs[] = $doc;
       $this->docsAdded++;
 
-      if ($this->docsAdded % 250 == 0) {
+      if ($this->docsAdded % APP_SOLR_COMMIT_LIMIT == 0) {
         $this->forceCommit();
         unset($this->docs);
         $log->debug(array("======= FulltextIndex::updateFulltextIndex committed mem_usage=" . memory_get_usage() . " ======="));
@@ -519,8 +519,9 @@ class FulltextIndex_ElasticSearch extends FulltextIndex
         $this->esClient->bulk($params);
 
         unset($this->docs);
-//        $log->debug(array("======= FulltextIndex::updateFulltextIndex committed mem_usage=" . memory_get_usage() . " ======="));
-        echo "======= FulltextIndex::updateFulltextIndex committed mem_usage=" . memory_get_usage() . " =======";
+        $memoryUsage = Misc::bytesToSize(memory_get_usage());
+        $log->debug(array("======= FulltextIndex::updateFulltextIndex committed mem_usage=" . $memoryUsage . " ======="));
+//        echo "======= FulltextIndex::updateFulltextIndex committed mem_usage=" . $memoryUsage . " =======\n";
 
       } catch (Exception $e) {
 
@@ -576,7 +577,7 @@ class FulltextIndex_ElasticSearch extends FulltextIndex
           continue;
         $pids_arr[] = $row['ftq_pid'];
       }
-      $this->indexRecords($pids_arr);
+      $this->indexRecords($pids_arr, $queue);
 
       $countDocs += count($chunk);
       if ($countDocs > $this->totalDocs) {

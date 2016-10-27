@@ -44,6 +44,9 @@ class FulltextQueue
 	const ACTION_INSERT = 'I';
 	const ACTION_DELETE = 'D';
 
+	// the current size of the queue in bytes - checked to prevent going larger than limits causing fatal errors
+  var $memorySize = 0;
+
 	// in-memory array
 	private $pids;
 
@@ -475,15 +478,15 @@ class FulltextQueue
       return false;
     }
 
-    //We will test if the amount of cached content is to large for solr to handle if so we will remove content
+    //We will test if the amount of cached content is to large for the search index to handle if so we will remove content
     //But we will always do at least one else the queue will get stuck
     if ((APP_SOLR_INDEX_DATASTREAMS == 'ON' || APP_ES_INDEX_DATASTREAMS == 'ON') ) {
-      $size = 0;
+      $this->memorySize = 0;
       foreach($res as $elementKey => $elementValue) {
         if (array_key_exists('rek_pid', $elementValue)) {
-          $size += strlen(serialize(FulltextIndex::getCachedContent("'".$elementValue['ftq_pid']."'")));
+          $this->memorySize += strlen(serialize(FulltextIndex::getCachedContent("'".$elementValue['ftq_pid']."'")));
         }
-        if (($size/1000000 > APP_SOLR_CSV_MAX_SIZE) && ($elementKey > 0)){
+        if (($this->memorySize/1000000 > APP_SOLR_CSV_MAX_SIZE) && ($elementKey > 0)){
           unset($res[$elementKey]);
           //unset($keys[$elementKey]);
         }
