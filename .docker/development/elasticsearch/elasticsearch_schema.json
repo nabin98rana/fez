@@ -178,6 +178,7 @@
         {
           "template__mt" : {
             "match" : "*_mt",
+            "term_vector" : "with_positions_offsets",
             "match_mapping_type" : "string",
             "mapping" : { "type" : "string", "fielddata" : true, "store" : true, "index" : "analyzed", "analyzer" : "standard" }
           }

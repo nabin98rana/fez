@@ -274,6 +274,11 @@ class FulltextIndex_ElasticSearch extends FulltextIndex
       $total_rows = 0;
 
     }
+
+    array_push($log->solr_query_time, $results['took']);
+    array_push($log->solr_query_string, '');
+
+
     $snips = array();
     $total_rows = $results['hits']['total'];
     $facets = $this->extractFacets($results['aggregations'], $facetsToUse, $lookupFacetsToUse);
