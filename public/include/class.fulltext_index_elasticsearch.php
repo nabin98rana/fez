@@ -246,7 +246,7 @@ class FulltextIndex_ElasticSearch extends FulltextIndex
                       'match_phrase' => [
                           'content_mt' => [
                               'query' => $queryString,
-                              'phrase_slop' => 1,
+                              'slop' => 1,
                               'boost' => 10.0
                           ]
                       ]
