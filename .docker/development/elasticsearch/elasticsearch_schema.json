@@ -28,7 +28,7 @@
     "fez_record" : {
       "properties" : {
         "_version_" : { "type" : "long", "store" : true, "index" : true },
-        "id" : { "type" : "text", "store" : true, "index" : false },
+        "id" : { "type" : "text", "store" : true, "index" : true },
         "word" : { "type" : "text", "store" : true, "index" : false },
         "text" : { "type" : "text", "store" : false, "index" : true },
         "timestamp" : { "type" : "date", "store" : true, "index" : true },
@@ -39,7 +39,7 @@
           "template__i" : {
             "match" : "*_i",
             "match_mapping_type" : "long",
-            "mapping" : { "type" : "integer", "store" : true, "index" : false }
+            "mapping" : { "type" : "integer", "store" : true, "index" : true }
           }
         },
         {
