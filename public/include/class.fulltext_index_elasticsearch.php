@@ -238,6 +238,7 @@ class FulltextIndex_ElasticSearch extends FulltextIndex
       if ($use_highlighting) {
         // hit highlighting
         $params['body']['highlight']['fields']['content_mt'] = [
+          'type' => 'fvh',
           'fragment_size' => 100,
           'number_of_fragments' => 1,
           'highlight_query' => [
@@ -255,6 +256,7 @@ class FulltextIndex_ElasticSearch extends FulltextIndex
           ]
         ];
         $params['body']['highlight']['require_field_match'] = false;
+
       }
 
       $testJson = json_encode($params);
