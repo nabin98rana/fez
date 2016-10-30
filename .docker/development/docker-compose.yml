@@ -154,3 +154,10 @@ elasticsearch:
 
 elasticsearchdata:
   build: ./elasticsearch/data/
+
+kibana:
+  image: kibana:5.0
+  ports:
+    - "5601:5601"
+  links:
+    - elasticsearch

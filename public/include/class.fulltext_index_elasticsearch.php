@@ -521,7 +521,7 @@ class FulltextIndex_ElasticSearch extends FulltextIndex
           $params['body'][] = $doc;
         }
 
-        $this->esClient->bulk($params);
+        $result = $this->esClient->bulk($params);
 
         unset($this->docs);
         $memoryUsage = Misc::bytesToSize(memory_get_usage());
