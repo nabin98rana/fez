@@ -293,14 +293,17 @@ class FezACML
 
   public static function getFezACMLDSName($dsID)
   {
-    $FezACML_dsID = "FezACML_" . str_replace(" ", "_", $dsID) . ".xml";
+    $FezACML_dsID = $dsID;
+    if (strpos($dsID, "FezACML_") !== 0) {
+      $FezACML_dsID = "FezACML_" . str_replace(" ", "_", $dsID) . ".xml";
+    }
     return $FezACML_dsID;
   }
 
   public static function getFezACMLPidName($pid)
   {
     $FezACML_DS_name = "FezACML";
-    if (APP_FEDORA_BYPASS == 'ON') {
+    if (APP_FEDORA_BYPASS == 'ON' && strpos($pid, "FezACML_") !== 0) {
       $FezACML_DS_name = "FezACML_" . str_replace(":", "_", $pid) . ".xml";
     }
     return $FezACML_DS_name;
