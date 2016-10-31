@@ -141,6 +141,7 @@ if ($dsID != "") {
     $xdis_title = XSD_Display::getMatchingFezACMLTitle($xdis_str);
     $FezACML_xdis_id = XSD_Display::getID($xdis_title);
     $details = $record->getDetails("", $FezACML_xdis_id);
+    $record->clearDetails();
 }
 
 $sta_id = $record->getPublishedStatus();
@@ -246,17 +247,13 @@ $FezACML_exists = 0;
 $datastreams = Fedora_API::callListDatastreamsLite($pid);
 if ($dsID == "") {
   $FezACML_DS_name = FezACML::getFezACMLPidName($pid);
-  foreach ($datastreams as $security_check) {
-    if ($security_check['dsid'] == $FezACML_DS_name) {
-      $FezACML_exists = 1;
-    }
-  }
 } else {
-  foreach ($datastreams as $security_check) {
-    $FezACML_DS_name = FezACML::getFezACMLDSName($dsID);
-    if (strtolower($security_check['dsid']) == strtolower($FezACML_DS_name)) {
-      $FezACML_exists = 1;
-    }
+  $FezACML_DS_name = FezACML::getFezACMLDSName($dsID);
+}
+$FezACML_DS_name = strtolower($FezACML_DS_name);
+foreach ($datastreams as $security_check) {
+  if (strtolower($security_check['dsid']) == $FezACML_DS_name) {
+    $FezACML_exists = 1;
   }
 }
 
