@@ -137,9 +137,8 @@ if ($dsID != "") {
     $details = $record->getDetails($dsID, $FezACML_xdis_id);
     $record->clearDetails();
 } else {
+    $FezACML_xdis_id = XSD_Display::getID("FezACML");
     $xsd_display_fields = $record->display->getMatchFieldsList(array(), array("FezACML"));  // Specify FezACML as the only display needed for security
-    $xdis_title = XSD_Display::getMatchingFezACMLTitle($xdis_str);
-    $FezACML_xdis_id = XSD_Display::getID($xdis_title);
     $details = $record->getDetails("", $FezACML_xdis_id);
     $record->clearDetails();
 }
