@@ -411,7 +411,7 @@ class RecordObject extends RecordGeneral
         }
       }
       $xdis_title = XSD_Display::getMatchingFezACMLTitle($xdis_str);
-      if (! empty($xdis_title)) {
+      if (! empty($xdis_title) && !in_array('FezACML', $exclude_list)) {
         FezACML::editPidSecurity($this->pid, $xdis_title);
         /*
          * This pid has been updated, we want to delete any
