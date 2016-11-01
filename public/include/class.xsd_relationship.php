@@ -200,6 +200,13 @@ class XSD_Relationship
                    xsd_id = xdis_xsd_id AND xsdmf_xdis_id = ".$db->quote($xdis_id, 'INTEGER')." and xsdrel_xsdmf_id = xsdmf_id and xsdrel_xdis_id = xdis_id and xsdmf_html_input != 'xsdmf_id_ref'";
 
         if ($exclude_xdis_str != '') {
+          $exclude_list = explode(',', $exclude_xdis_str);
+          if (APP_FEDORA_BYPASS == 'ON' && in_array("FezACML", $exclude_list)) {
+            $xdis_list = XSD_Relationship::getListByXDIS($xdis_id);
+            $xdis_str = Misc::sql_array_to_string($xdis_list);
+            $xdis_title = XSD_Display::getMatchingFezACMLTitle($xdis_str);
+            $exclude_xdis_str = ',' . $xdis_title;
+          }
         	$stmt .= " AND xsd_title not in (".$db->quote($exclude_xdis_str).")";
         }
         if ($specify_xdis_str != '') {
