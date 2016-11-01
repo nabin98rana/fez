@@ -205,9 +205,12 @@ class XSD_Relationship
             $xdis_list = XSD_Relationship::getListByXDIS($xdis_id);
             $xdis_str = Misc::sql_array_to_string($xdis_list);
             $xdis_title = XSD_Display::getMatchingFezACMLTitle($xdis_str);
-            $exclude_xdis_str = ',' . $xdis_title;
+            $exclude_list[] = $xdis_title;
+            $exclude_xdis_str = Misc::array_to_sql_string($exclude_list);
+            $stmt .= " AND xsd_title not in (" . $exclude_xdis_str . ")";
+          } else {
+            $stmt .= " AND xsd_title not in (" . $db->quote($exclude_xdis_str) . ")";
           }
-        	$stmt .= " AND xsd_title not in (".$db->quote($exclude_xdis_str).")";
         }
         if ($specify_xdis_str != '') {
           $specify_list = explode(',', $specify_xdis_str);
@@ -215,9 +218,12 @@ class XSD_Relationship
               $xdis_list = XSD_Relationship::getListByXDIS($xdis_id);
               $xdis_str = Misc::sql_array_to_string($xdis_list);
               $xdis_title = XSD_Display::getMatchingFezACMLTitle($xdis_str);
-              $specify_xdis_str = ',' . $xdis_title;
+              $specify_list[] = $xdis_title;
+              $specify_xdis_str = Misc::array_to_sql_string($specify_list);
+              $stmt .= " AND xsd_title in (" . $specify_xdis_str . ")";
+          } else {
+            $stmt .= " AND xsd_title in (" . $db->quote($specify_xdis_str) . ")";
           }
-        	$stmt .= " AND xsd_title in (".$db->quote($specify_xdis_str).")";
         }
 
 		$stmt .= " ORDER BY xsdrel_order ASC";
