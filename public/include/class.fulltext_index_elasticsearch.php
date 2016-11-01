@@ -234,11 +234,20 @@ class FulltextIndex_ElasticSearch extends FulltextIndex
         $sortOrder[0] = str_replace("score", "_score", $sortOrder[0]);
         $params['body']['sort'] = [$sortOrder[0] => ["order" => $sortOrder[1]]];
       }
-      $queryString = str_replace("\\", '', $queryString);
-      preg_match("/\"(.*?)\"/", $queryString, $matches);
-      $queryString = $matches[0];
+      $queryString = str_replace("   (", "", $queryString);
+      $queryString = trim(str_replace(" AND status_i:(2))", "", $queryString));
+      if ($queryString != "") {
+        // find a phrase to limit by
+        $queryString = str_replace("\\", '', $queryString);
+        preg_match("/\"(.*?)\"/", $queryString, $matches);
+        if (count($matches) > 0) {
+          $queryString = $matches[0];
+        }
+      } else {
+        $use_highlighting = false;
+      }
 
-      if ($use_highlighting) {
+      if ($use_highlighting && $queryString != "") {
         // hit highlighting
         $params['body']['highlight']['fields']['content_mt'] = [
           'type' => 'fvh',
@@ -263,6 +272,7 @@ class FulltextIndex_ElasticSearch extends FulltextIndex
       }
 
       $testJson = json_encode($params);
+//      echo $testJson; exit;
 
       $results = $this->esClient->search($params);
     } catch (Exception $e) {

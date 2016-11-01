@@ -767,6 +767,7 @@ abstract class FulltextIndex {
     $plaintext = preg_replace("/[^a-zA-Z0-9 ,.-]/", "", $plaintext);
     //trim it to 31000 chars max
     $plaintext = mb_strimwidth($plaintext, 0, 31000, "...");
+
 		// insert or replace current entry
 		$this->updateFulltextCache($pid, $dsID, $plaintext, $isTextUsable);
 	}
@@ -1514,9 +1515,8 @@ abstract class FulltextIndex {
       if ($noDatastream) {
         $res[$key] = (array)json_decode(str_replace('""', '"', $value['content']));
       } else {
-        $res[$key] = $value['content'];
+        $res[$key] = mb_strimwidth($value['content'], 0, 31000, "...");
       }
-
     }
 
     return $res;
