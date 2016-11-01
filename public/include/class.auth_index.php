@@ -100,7 +100,8 @@ class AuthIndex
 					&& !Misc::hasPrefix($dsIDName, 'web_')
 					&& !Misc::hasPrefix($dsIDName, 'thumbnail_')
 					&& !Misc::hasPrefix($dsIDName, 'stream_')
-					&& !Misc::hasPrefix($dsIDName, 'presmd_'))) {
+					&& !Misc::hasPrefix($dsIDName, 'presmd_')
+          && $dsIDName != FezACML::getFezACMLPidName($pid))) {
 				Record::checkQuickAuthFezACML($pid, $dsIDName);
 			}
 		}

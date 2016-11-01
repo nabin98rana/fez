@@ -714,8 +714,17 @@ class XSD_HTML_Match
         $exclude_str = implode("', '", $exclude_list);
         $specify_str = implode("', '", $specify_list);
 
-        if (in_array("FezACML for Datastreams", $specify_list)) {
-            $FezACML_xdis_id = XSD_Display::getID('FezACML for Datastreams');
+        if (in_array(FezACML::getXdisTitlePrefix() . "Datastreams", $specify_list)) {
+            $FezACML_xdis_id = XSD_Display::getID(FezACML::getXdisTitlePrefix() . 'Datastreams');
+            $specify_str = "FezACML";
+            $xsdrelall = array();
+            array_push($xsdrelall, $FezACML_xdis_id);
+        }
+        else if (APP_FEDORA_BYPASS == 'ON' && in_array("FezACML", $specify_list)) {
+            $xdis_list = XSD_Relationship::getListByXDIS($xdis_id);
+            $xdis_str = Misc::sql_array_to_string($xdis_list);
+            $xdis_title = XSD_Display::getMatchingFezACMLTitle($xdis_str);
+            $FezACML_xdis_id = XSD_Display::getID($xdis_title);
             $specify_str = "FezACML";
             $xsdrelall = array();
             array_push($xsdrelall, $FezACML_xdis_id);
