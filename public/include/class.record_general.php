@@ -2074,10 +2074,9 @@ class RecordGeneral
             $isFezACML = true;
           }
           if (APP_FEDORA_BYPASS == 'ON' && $isFezACML) {
-            $FezACML_dsID = FezACML::getFezACMLPidName($this->pid);
-            $this->details = $this->display->getXSDMF_Values_PIDDatastream($this->pid, $FezACML_dsID, $xdis_id, $this->createdDT);
+            $this->details = $this->display->getXSDMF_Values($this->pid, $this->createdDT, true, $getLookup);
           } else {
-            $this->details = $this->display->getXSDMF_Values($this->pid, $this->createdDT, FALSE, $getLookup);
+            $this->details = $this->display->getXSDMF_Values($this->pid, $this->createdDT, false, $getLookup);
           }
         }
       } else {

@@ -242,6 +242,10 @@ class XSD_HTML_Match
                 $dsID = 'DC';
             }
 
+            if ($dsID == 'FezACML') {
+              $dsID = FezACML::getFezACMLPidName($pid);
+            }
+
             if (Fedora_API::datastreamExists($pid, $dsID)) {
                 $xsdmf_details = XSD_HTML_Match::getList($xdis_id);
 //          $xsdmf_details = XSD_HTML_Match::getBasicListByDisplay($xdis_id);

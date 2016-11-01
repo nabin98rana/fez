@@ -138,8 +138,7 @@ if ($dsID != "") {
     $record->clearDetails();
 } else {
     $xsd_display_fields = $record->display->getMatchFieldsList(array(), array("FezACML"));  // Specify FezACML as the only display needed for security
-    $xdis_title = XSD_Display::getMatchingFezACMLTitle($xdis_str);
-    $FezACML_xdis_id = XSD_Display::getID($xdis_title);
+    $FezACML_xdis_id = XSD_Display::getID("FezACML");
     $details = $record->getDetails("", $FezACML_xdis_id);
     $record->clearDetails();
 }
@@ -284,6 +283,8 @@ $tpl->assign("local_eserv_url", APP_RELATIVE_URL."/".$pid."/");
 $tpl->assign('triggers', count(WorkflowTrigger::getList($pid)));
 $tpl->assign("ds_get_path", APP_FEDORA_GET_URL."/".$pid."/");
 $tpl->assign("isEditor", 1);
+//echo "here";
+//print_r($details);
 $tpl->assign("details", $details);
 
 } else {
