@@ -408,6 +408,9 @@ class Fez_Record_Searchkey
 
           if ($ds_value['controlGroup'] == 'M') {
 
+            if ($ds_value['ID'] == FezACML::getFezACMLPidName($pid)) {
+              $ds_value['ID'] = FezACML::getFezACMLPidName($new_pid);
+            }
             Fedora_API::callAddDatastream(
               $new_pid, $ds_value['ID'], $ds_value['location'], $ds_value['label'],
               $ds_value['state'], $ds_value['MIMEType'], $ds_value['controlGroup'], $ds_value['versionable']
