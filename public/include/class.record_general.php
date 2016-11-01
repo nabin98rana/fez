@@ -17,6 +17,9 @@ class RecordGeneral
   var $approver_roles;
   var $checked_auth = false;
   var $auth_groups;
+  /**
+   * @var XSD_DisplayObject
+   */
   var $display;
   var $details;
   var $record_parents;
