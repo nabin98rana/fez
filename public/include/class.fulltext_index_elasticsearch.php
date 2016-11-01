@@ -234,6 +234,9 @@ class FulltextIndex_ElasticSearch extends FulltextIndex
         $sortOrder[0] = str_replace("score", "_score", $sortOrder[0]);
         $params['body']['sort'] = [$sortOrder[0] => ["order" => $sortOrder[1]]];
       }
+      $queryString = str_replace("\\", '', $queryString);
+      preg_match("/\"(.*?)\"/", $queryString, $matches);
+      $queryString = $matches[0];
 
       if ($use_highlighting) {
         // hit highlighting
