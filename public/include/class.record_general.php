@@ -2070,17 +2070,13 @@ class RecordGeneral
         if ($dsID != "") {
           $this->details = $this->display->getXSDMF_Values_Datastream($this->pid, $dsID, $this->createdDT);
         } else {
-          $isFezACML = false;
+          $skipIndex = false;
           $xdis_title = XSD_Display::getTitle($xdis_id);
           $xdis_title_prefix = FezACML::getXdisTitlePrefix();
-          if (stripos($xdis_title, $xdis_title_prefix) === 0) {
-            $isFezACML = true;
+          if (APP_FEDORA_BYPASS == 'ON' && stripos($xdis_title, $xdis_title_prefix) === 0) {
+            $skipIndex = true;
           }
-          if (APP_FEDORA_BYPASS == 'ON' && $isFezACML) {
-            $this->details = $this->display->getXSDMF_Values($this->pid, $this->createdDT, true, $getLookup);
-          } else {
-            $this->details = $this->display->getXSDMF_Values($this->pid, $this->createdDT, false, $getLookup);
-          }
+          $this->details = $this->display->getXSDMF_Values($this->pid, $this->createdDT, $skipIndex, $getLookup);
         }
       } else {
         $log->err(

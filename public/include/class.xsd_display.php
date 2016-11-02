@@ -1364,28 +1364,6 @@ class XSD_DisplayObject
 		}
 	}
 
-  // To get the values for a specific xml datastream only (eg for when there are many FezACML for datastream values set so they don't get confused)
-  function getXSDMF_Values_PIDDatastream($pid, $dsID, $xdis_id, $createdDT=null)
-  {
-    $log = FezLog::get();
-
-    if (!isset($this->xsdmf_array[$pid])) {
-      $this->xsdmf_array[$pid] = array();
-      $this->xsdmf_current = &$this->xsdmf_array[$pid];
-      $this->getXSD_HTML_Match();
-    }
-
-    if (Fedora_API::datastreamExists($pid, $dsID)) {
-      $FezACML_DS = Fedora_API::callGetDatastreamDissemination($pid, $dsID, $createdDT);
-      if (isset($FezACML_DS['stream'])) {
-        $this->processXSDMFDatastream($FezACML_DS['stream'], $xdis_id);
-      }
-      return $this->xsdmf_array[$pid];
-    } else {
-      return array();
-    }
-  }
-
 	// To get the values for a specific xml datastream only (eg for when there are many FezACML for datastream values set so they don't get confused)
 	function getXSDMF_Values_Datastream($pid, $dsID, $createdDT=null)
 	{
