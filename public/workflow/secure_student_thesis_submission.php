@@ -49,20 +49,16 @@ if (empty($id)) {
   return;
 }
 
-if (APP_FEDORA_BYPASS == 'ON') {
-	FezACML::updateDatastreamQuickRule($this->pid, $id);
-
-} else {
-	$xmlObj = FezACML::getQuickTemplateValue($id);
-	if ($xmlObj != false) {
-		$FezACML_dsID = "FezACML";
-		if (Fedora_API::datastreamExists($this->pid, $FezACML_dsID)) {
-			Fedora_API::callModifyDatastreamByValue($this->pid, $FezACML_dsID, "A", "FezACML",
-				$xmlObj, "text/xml", "inherit");
-		} else {
-			Fedora_API::getUploadLocation($this->pid, $FezACML_dsID, $xmlObj, "FezACML",
-				"text/xml", "X", null, "true");
-		}
-	}
+$xmlObj = FezACML::getQuickTemplateValue($id);
+if ($xmlObj != false) {
+  $FezACML_dsID = FezACML::getFezACMLPidName($this->pid);
+  $logMessage = "FezACML security for PID - " . $this->pid;
+  if (Fedora_API::datastreamExists($this->pid, $FezACML_dsID) || APP_FEDORA_BYPASS == "ON") {
+    Fedora_API::callModifyDatastreamByValue($this->pid, $FezACML_dsID, "A", $logMessage,
+      $xmlObj, "text/xml", "inherit");
+  } else {
+    Fedora_API::getUploadLocation($this->pid, $FezACML_dsID, $xmlObj, $logMessage,
+      "text/xml", "X", null, "true");
+  }
 }
 

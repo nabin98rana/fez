@@ -726,6 +726,48 @@ class XSD_Display
 		return $res;
 	}
 
+  /**
+   * Method used to get the XSD Display titles of a list of XSD Display IDs
+   *
+   * @access  public
+   * @param   string $xdis_ids A string of comma-delimited XSD IDs to search by.
+   * @return  array $res An array of titles
+   */
+  public static function getTitles($xdis_ids)
+  {
+    $log = FezLog::get();
+    $db = DB_API::get();
+
+    $stmt = "SELECT
+                   xdis_id, xdis_title
+                 FROM
+                    " . APP_TABLE_PREFIX . "xsd_display
+                 WHERE
+                    xdis_id in (".$xdis_ids.")";
+    try {
+      $res = $db->fetchPairs($stmt, $xdis_ids);
+    }
+    catch(Exception $ex) {
+      $log->err($ex);
+      return '';
+    }
+    return $res;
+  }
+
+  public static function getMatchingFezACMLTitle($xdis_str)
+  {
+    $xdis_titles = XSD_Display::getTitles($xdis_str);
+    $xdis_title = '';
+    $xdis_title_prefix = FezACML::getXdisTitlePrefix();
+    foreach ($xdis_titles as $id => $title) {
+      if (stripos($title, $xdis_title_prefix) === 0) {
+        $xdis_title = $title;
+        break;
+      }
+    }
+    return $xdis_title;
+  }
+
 
 	/**
 	 * Method used to get the XSD Display title when given a
@@ -1144,17 +1186,15 @@ class XSD_DisplayObject
 	 */
 	function getXSDMF_Values($pid, $createdDT=null, $skipIndex = false, $getLookup = false)
 	{
-
 		$log = FezLog::get();
 		$this->getXSD_HTML_Match();
 
-        if((APP_FEDORA_BYPASS == 'ON' && $createdDT != null) || (APP_FEDORA_BYPASS == 'ON' && Record::isDeleted($pid)))
-        {
-            $rec = new Fez_Record_SearchkeyShadow($pid);
-            $versionDate = $createdDT ? $createdDT : 'now' ;
-            return $rec->returnRecordVersion($versionDate);
-        }
-		//print_r($this->specify_list); echo count($this->specify_list); if ($skipIndex != true) { echo "hai"; }
+    if((APP_FEDORA_BYPASS == 'ON' && $createdDT != null) || (APP_FEDORA_BYPASS == 'ON' && Record::isDeleted($pid)))
+    {
+      $rec = new Fez_Record_SearchkeyShadow($pid);
+      $versionDate = $createdDT ? $createdDT : 'now' ;
+      return $rec->returnRecordVersion($versionDate);
+    }
 
 		if (APP_FEDORA_BYPASS == "ON" && $skipIndex != true && count($this->specify_list) == 0) { //echo "MAAA";
 			// AN Attempt at seeing what performance would be like by getting all details from the index rather than from fedora, now commented out for future experimentation
@@ -1162,11 +1202,9 @@ class XSD_DisplayObject
 			$options = array();
 			$filter = array();
 			$filter["searchKey".Search_Key::getID("Pid")] = str_replace(":", "\\:", $pid);
-			//$filter["searchKey0"] = "UQ\:81784";
 			$current_row = 0;
 			$max = 1;
 			$order_by = "Title";
-			//$return = Record::getListing($options, array(9,10), $current_row, $max, $order_by, false, false, $filter);
 			$return = Record::getListing($options, array(9,10), $current_row, $max, $order_by, false, false, $filter, 'AND', false, false, false, APP_SOLR_FACET_LIMIT, APP_SOLR_FACET_MINCOUNT, false, $createdDT, true);
 		}
 		if (APP_FEDORA_BYPASS == "ON" && count($return['list']) > 0 && $skipIndex != true && count($this->specify_list) == 0) {
@@ -1202,8 +1240,9 @@ class XSD_DisplayObject
           }
 				}
 			}
-			//Add a lookup for all the files in S3/bypass dir
-			// need the full get datastreams to get the Managed Content 'M' - binary datastream from S3/ds resource
+			// Add a lookup for all the files in S3/bypass dir
+			// need the full get datastreams to get the Managed Content 'M'
+      // - binary datastream from S3/ds resource
 			$datastreams = Fedora_API::callGetDatastreams($pid);
 			foreach ($datastreams as $ds_value) {
 				// get the matchfields for the FezACML of the datastream if any exists
@@ -1220,7 +1259,6 @@ class XSD_DisplayObject
 			$this->xsdmf_array[$pid] = $return_pid;
 			return ($return_pid);
 		} else {
-
 			if (APP_XPATH_SWITCH == "ON") {
 				if (isset($this->xsdmf_array[$pid])) {
 					return;
@@ -1239,8 +1277,8 @@ class XSD_DisplayObject
 				// need the full get datastreams to get the controlGroup etc
 				$datastreams = Fedora_API::callGetDatastreams($pid);
 				if (empty($datastreams)) {
-					$log->err(array("The PID ".$pid." doesn't appear to be in the fedora repository - perhaps it was not ingested correctly.  " .
-		                        "Please let the Fez admin know so that the Fez index can be repaired.",__FILE__,__LINE__));
+					//$log->err(array("The PID ".$pid." doesn't appear to be in the fedora repository - perhaps it was not ingested correctly.  " .
+		      //                  "Please let the Fez admin know so that the Fez index can be repaired.",__FILE__,__LINE__));
 					return;
 				}
 
@@ -1253,7 +1291,7 @@ class XSD_DisplayObject
 						}
 						array_push($this->xsdmf_current[$xsdmf_id], $ds_value['ID']);
 
-						$FezACML_xdis_id = XSD_Display::getID('FezACML for Datastreams');
+						$FezACML_xdis_id = XSD_Display::getID(FezACML::getXdisTitlePrefix() . 'Datastreams');
 						$FezACML_DS_name = FezACML::getFezACMLDSName($ds_value['ID']);
 						if (Fedora_API::datastreamExistsInArray($datastreams, $FezACML_DS_name)) {
 							$FezACML_DS = Fedora_API::callGetDatastreamDissemination($pid, $FezACML_DS_name, $createdDT);
@@ -1324,15 +1362,12 @@ class XSD_DisplayObject
 			return $this->xsdmf_array[$pid];
 
 		}
-		exit;
-
 	}
 
 	// To get the values for a specific xml datastream only (eg for when there are many FezACML for datastream values set so they don't get confused)
 	function getXSDMF_Values_Datastream($pid, $dsID, $createdDT=null)
 	{
 		$log = FezLog::get();
-
 
 		if (!isset($this->xsdmf_array[$pid])) {
 			$this->xsdmf_array[$pid] = array();
@@ -1342,7 +1377,7 @@ class XSD_DisplayObject
 
 		$FezACML_DS_name = FezACML::getFezACMLDSName($dsID);
 		if (Fedora_API::datastreamExists($pid, $FezACML_DS_name)) {
-			$FezACML_xdis_id = XSD_Display::getID('FezACML for Datastreams');
+			$FezACML_xdis_id = XSD_Display::getID(FezACML::getXdisTitlePrefix() . 'Datastreams');
 			$FezACML_DS = Fedora_API::callGetDatastreamDissemination($pid, $FezACML_DS_name, $createdDT);
 			if (isset($FezACML_DS['stream'])) {
 				$this->processXSDMFDatastream($FezACML_DS['stream'], $FezACML_xdis_id);
@@ -1411,7 +1446,7 @@ class XSD_DisplayObject
 				}
 				array_push($this->xsdmf_current[$xsdmf_id], $ds_value['ID']);
 
-				$FezACML_xdis_id = XSD_Display::getID('FezACML for Datastreams');
+				$FezACML_xdis_id = XSD_Display::getID(FezACML::getXdisTitlePrefix() . 'Datastreams');
 				$FezACML_DS_name = FezACML::getFezACMLDSName($ds_value['ID']);
 				if (Fedora_API::datastreamExistsInArray($datastreams, $FezACML_DS_name)) {
 					$FezACML_DS = Fedora_API::callGetDatastreamDissemination($pid, $FezACML_DS_name, $createdDT);

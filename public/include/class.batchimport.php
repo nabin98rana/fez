@@ -326,7 +326,7 @@ class BatchImport
       $versionable = "false";
     }
 
-    $did = Fedora_API::getUploadLocationByLocalRef(
+    Fedora_API::getUploadLocationByLocalRef(
       $pid, $ncName, $temp_store, "", $mimetype, $controlgroup, null, $versionable
     );
     Record::generatePresmd($pid, $ncName);
@@ -338,22 +338,19 @@ class BatchImport
     Record::setIndexMatchingFields($pid);
     
     if (is_numeric($qat_id) && $qat_id != "-1" && $qat_id != -1) {
-      if (APP_FEDORA_BYPASS == 'ON') {
-        FezACML::updateDatastreamQuickRule($pid, $qat_id, $did);
 
-      } else {
-        $xmlObj = FezACML::getQuickTemplateValue($qat_id);
-        if ($xmlObj != FALSE) {
-          $FezACML_dsID = FezACML::getFezACMLDSName($ncName);
-          if (Fedora_API::datastreamExists($pid, $FezACML_dsID)) {
-            Fedora_API::callModifyDatastreamByValue($pid, $FezACML_dsID, "A", "FezACML security for datastream - " . $ncName,
-              $xmlObj, "text/xml", "true");
-          } else {
-            Fedora_API::getUploadLocation($pid, $FezACML_dsID, $xmlObj, "FezACML security for datastream - " . $ncName,
-              "text/xml", "X", NULL, "true");
-          }
+      $xmlObj = FezACML::getQuickTemplateValue($qat_id);
+      if ($xmlObj != FALSE) {
+        $FezACML_dsID = FezACML::getFezACMLDSName($ncName);
+        if (Fedora_API::datastreamExists($pid, $FezACML_dsID)) {
+          Fedora_API::callModifyDatastreamByValue($pid, $FezACML_dsID, "A", "FezACML security for datastream - " . $ncName,
+            $xmlObj, "text/xml", "true");
+        } else {
+          Fedora_API::getUploadLocation($pid, $FezACML_dsID, $xmlObj, "FezACML security for datastream - " . $ncName,
+            "text/xml", "X", NULL, "true");
         }
       }
+
     }
   }
 

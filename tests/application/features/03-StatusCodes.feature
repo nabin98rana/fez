@@ -1,5 +1,4 @@
-# features/statuscodes.feature
-# Needs to be run using goutte
+# features/03-StatusCodes.feature
 @smoke @jet @datadependant
 Feature: Check statuscodes are correctly working. Not found should return 404 response with help(ie menu) on where to go
 

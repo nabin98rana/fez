@@ -53,27 +53,23 @@ if (empty($id)) {
 	return;
 }
 
-if (APP_FEDORA_BYPASS == 'ON') {
-	FezACML::updateDatastreamQuickRule($this->pid, $id);
+$xmlObj = FezACML::getQuickTemplateValue($id);
+if ($xmlObj != false) {
+  // check existing datastreams for any attachments
+  $ds = Fedora_API::callGetDatastreams($this->pid);
+  foreach ($ds as $dstream) {
+    // file attachment datastreams will have controlGroup=M and will not begin with 'presmd_'
+    if (($dstream['controlGroup'] == 'M') && (substr($dstream['ID'], 0, 7) != 'presmd_')) {
+      $FezACML_dsID = FezACML::getFezACMLDSName($dstream['ID']);
+      if (Fedora_API::datastreamExists($this->pid, $FezACML_dsID)) {   //modify an existing datastream
+        Fedora_API::callModifyDatastreamByValue($this->pid, $FezACML_dsID, "A", "FezACML",
+          $xmlObj, "text/xml", "inherit");
 
-} else {
-	$xmlObj = FezACML::getQuickTemplateValue($id);
-	if ($xmlObj != false) {
-		// check existing datastreams for any attachments
-		$ds = Fedora_API::callGetDatastreams($this->pid);
-		foreach ($ds as $dstream) {
-			// file attachment datastreams will have controlGroup=M and will not begin with 'presmd_'
-			if (($dstream['controlGroup'] == 'M') && (substr($dstream['ID'], 0, 7) != 'presmd_')) {
-				$FezACML_dsID = "FezACML_" . $dstream['ID'] . ".xml";
-				if (Fedora_API::datastreamExists($this->pid, $FezACML_dsID)) {   //modify an existing datastream
-					Fedora_API::callModifyDatastreamByValue($this->pid, $FezACML_dsID, "A", "FezACML",
-						$xmlObj, "text/xml", "inherit");
-
-				} else {     //add a new datastream
-					Fedora_API::getUploadLocation($this->pid, $FezACML_dsID, $xmlObj, "FezACML",
-						"text/xml", "X",null,"true");
-				}
-			}
-		}
-	}
+      } else {     //add a new datastream
+        Fedora_API::getUploadLocation($this->pid, $FezACML_dsID, $xmlObj, "FezACML",
+          "text/xml", "X",null,"true");
+      }
+    }
+  }
 }
+
