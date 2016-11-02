@@ -1,0 +1,2 @@
+ALTER TABLE %TABLE_PREFIX%datastream_info ADD COLUMN dsi_label VARCHAR(255) DEFAULT NULL AFTER dsi_open_access;
+ALTER TABLE %TABLE_PREFIX%datastream_info__shadow ADD COLUMN dsi_label VARCHAR(255) DEFAULT NULL AFTER dsi_open_access;

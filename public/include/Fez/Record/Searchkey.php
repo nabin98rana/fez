@@ -400,15 +400,6 @@ class Fez_Record_Searchkey
 
     $new_pid = $recordSearchKey->_pid;
 
-
-    // Copy over the security
-    $perms = AuthNoFedora::getNonInheritedSecurityPermissions($pid);
-
-
-    foreach ($perms as $perm) {
-      AuthNoFedora::addRoleSecurityPermissions($new_pid, $perm['authii_role'], $perm['argr_arg_id'], '0');
-    }
-
     if (!empty($clone_attached_datastreams)) {
       $datastreams = Fedora_API::callGetDatastreams($pid);
 
@@ -417,19 +408,18 @@ class Fez_Record_Searchkey
 
           if ($ds_value['controlGroup'] == 'M') {
 
-            $new_did = Fedora_API::callAddDatastream(
+            if ($ds_value['ID'] == FezACML::getFezACMLPidName($pid)) {
+              $ds_value['ID'] = FezACML::getFezACMLPidName($new_pid);
+            }
+            Fedora_API::callAddDatastream(
               $new_pid, $ds_value['ID'], $ds_value['location'], $ds_value['label'],
               $ds_value['state'], $ds_value['MIMEType'], $ds_value['controlGroup'], $ds_value['versionable']
             );
 
-            $perms = AuthNoFedoraDatastreams::getNonInheritedSecurityPermissions($ds_value['id']);
-            foreach ($perms as $perm) {
-              AuthNoFedoraDatastreams::addRoleSecurityPermissions($new_did, $perm['authdii_role'], $perm['argr_arg_id'], '0');
-            }
             Exiftool::cloneExif($pid, $ds_value['ID'], $new_pid, $ds_value['ID']);
 
           } else if ($ds_value['controlGroup'] == 'R') {
-            $new_did = Fedora_API::callAddDatastream(
+            Fedora_API::callAddDatastream(
               $new_pid, $ds_value['ID'], $ds_value['location'], $ds_value['label'],
               $ds_value['state'], $ds_value['MIMEType'], $ds_value['controlGroup'], $ds_value['versionable']
             );
@@ -438,7 +428,6 @@ class Fez_Record_Searchkey
         }
       }
     }
-    AuthNoFedora::recalculatePermissions($new_pid);
     return $new_pid;
   }
 

@@ -17,6 +17,9 @@ class RecordGeneral
   var $approver_roles;
   var $checked_auth = false;
   var $auth_groups;
+  /**
+   * @var XSD_DisplayObject
+   */
   var $display;
   var $details;
   var $record_parents;
@@ -2067,7 +2070,13 @@ class RecordGeneral
         if ($dsID != "") {
           $this->details = $this->display->getXSDMF_Values_Datastream($this->pid, $dsID, $this->createdDT);
         } else {
-          $this->details = $this->display->getXSDMF_Values($this->pid, $this->createdDT, false, $getLookup);
+          $skipIndex = false;
+          $xdis_title = XSD_Display::getTitle($xdis_id);
+          $xdis_title_prefix = FezACML::getXdisTitlePrefix();
+          if (APP_FEDORA_BYPASS == 'ON' && stripos($xdis_title, $xdis_title_prefix) === 0) {
+            $skipIndex = true;
+          }
+          $this->details = $this->display->getXSDMF_Values($this->pid, $this->createdDT, $skipIndex, $getLookup);
         }
       } else {
         $log->err(

@@ -386,7 +386,7 @@ class Fedora_API implements FedoraApiInterface {
       'version' => $dsArray['VersionId'],
       'checksum' => str_replace('"', '', $dsArray['ETag'])
     ];
-    return Datastream::addDatastreamInfo($pid, $dsID, $mimetype, $object, $dsState);
+    return Datastream::addDatastreamInfo($pid, $dsID, $mimetype, $object, $dsState, $dsLabel);
 	}
 
 	/**
@@ -487,7 +487,7 @@ class Fedora_API implements FedoraApiInterface {
 		$dsData = array();
 		$dsData['ID'] = $dsID;
 		$dsData['versionID'] = $dsArray['dsi_version'];
-		$dsData['label'] = ''; //TODO: convert to use PUT'd metadata for label
+		$dsData['label'] = $dsArray['dsi_label'];
 		$dsData['controlGroup'] = "M";
     $dsData['MIMEType'] = $dsArray['dsi_mimetype'];
 		$dsData['createDate'] = NULL; //(string)$dsArray['LastModified']; //TODO: convert to saved meta
@@ -662,7 +662,7 @@ class Fedora_API implements FedoraApiInterface {
 	public static function callModifyDatastreamByValue($pid, $dsID, $state, $label, $dsContent, $mimetype = 'text/xml', $versionable = 'inherit')
 	{
 		$log = FezLog::get();
-		$tempFile = APP_TEMP_DIR . str_replace(":", "_", $pid) . "_" . $dsID . ".xml";
+		$tempFile = APP_TEMP_DIR . $dsID;
 		$fp = fopen($tempFile, "w");
 		if (fwrite($fp, $dsContent) === FALSE) {
 			$err = "Cannot write to file ($tempFile)";

@@ -763,15 +763,15 @@ class FeatureContext extends MinkContext
    */
   public function iChooseTheGroupForTheRole($group, $role)
   {
-    if (APP_FEDORA_BYPASS == 'ON') {
+    /*if (APP_FEDORA_BYPASS == 'ON') {
       $this->selectOption('role', $role);
       $this->selectOption('groups_type', 'Fez_Group');
       $this->selectOption('internal_group_list', $group);
       $this->pressButton('Add');
-    } else {
+    } else {*/
       $this->selectOption($role . ' Fez Group helper', $group);
       $this->pressButton($role . ' Fez Group copy left');
-    }
+    //}
   }
 
   /**
