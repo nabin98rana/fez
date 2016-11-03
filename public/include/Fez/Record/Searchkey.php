@@ -460,7 +460,7 @@ class Fez_Record_Searchkey
       return true;
     } catch (Exception $ex) {
       $this->_db->rollBack();
-      $this->_log->err($ex);
+      $this->_log->err($ex . "stmtBackupToShadow: " . $stmtBackupToShadow . " | stmtDeleteOld: ".$stmtDeleteOld);
     }
     return false;
   }
