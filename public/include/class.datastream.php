@@ -149,7 +149,7 @@ class Datastream
                   dsi_version = :dsi_version,
                   dsi_checksum = :dsi_checksum,
                   dsi_label = :dsi_label,
-                  dsi_cached = :dsi_cached,
+                  dsi_cached = :dsi_cached
                   WHERE dsi_pid = :dsi_pid AND dsi_dsid = :dsi_dsid";
     } else {
       $data[':dsi_security_inherited'] = 0;
@@ -322,7 +322,6 @@ class Datastream
    *
    * @param string $pid The persistent identifier of the object to be purged
    * @param string $dsID The name of the datastream
-   * @return bool
    */
   public static function purgeDatastreamInfo($pid, $dsID)
   {
@@ -344,14 +343,14 @@ class Datastream
   /**
    * Set the security on the datastream to inherit from parent.
    */
-  static function setfezACMLInherit($pid, $dsID)
+  public static function setfezACMLInherit($pid, $dsID)
   {
     $xml = FezACML::makeQuickTemplateInherit();
     return self::setfezACMLXml($pid, $dsID, $xml);
   }
 
   //Removes permissions on datastream which makes it open access if the pid is accessible.
-  static function removeFezACMLDatastream($pid, $dsID)
+  public static function removeFezACMLDatastream($pid, $dsID)
   {
     $FezACML_dsID = FezACML::getFezACMLDSName($dsID);
     return Fedora_API::callPurgeDatastream($pid, $FezACML_dsID);
