@@ -349,10 +349,19 @@ class Fedora_API implements FedoraApiInterface {
 		$aws = AWS::get();
 		$dataPath = Fedora_API::getDataPath($pid);
 
+    $fezACMLXML = '';
+    $isFezACML = false;
+    if (stripos($dsID, 'FezACML_') === 0) {
+      $isFezACML = true;
+    }
+
     if (stripos($dsLocation, APP_TEMP_DIR) === 0) {
       $obj = $aws->postFile($dataPath, [$dsLocation], false, $mimetype);
       if ($obj) {
         $obj = $obj[0];
+      }
+      if ($isFezACML) {
+        $fezACMLXML = file_get_contents($dsLocation);
       }
       if ($unlinkLocalFile) {
         unlink($dsLocation);
@@ -371,6 +380,9 @@ class Fedora_API implements FedoraApiInterface {
       if ($copy) {
         $obj = $aws->copyFile($dsLocation, $dataPath . "/" . $dsID, $srcBucket, $mimetype);
       }
+      if ($isFezACML) {
+        $fezACMLXML = $aws->getFileContent($dataPath, $dsID);
+      }
     }
     if (! $obj) {
       return false;
@@ -386,7 +398,7 @@ class Fedora_API implements FedoraApiInterface {
       'version' => $dsArray['VersionId'],
       'checksum' => str_replace('"', '', $dsArray['ETag'])
     ];
-    return Datastream::addDatastreamInfo($pid, $dsID, $mimetype, $object, $dsState, $dsLabel);
+    return Datastream::addDatastreamInfo($pid, $dsID, $mimetype, $object, $dsState, $dsLabel, $fezACMLXML);
 	}
 
 	/**
@@ -575,7 +587,13 @@ class Fedora_API implements FedoraApiInterface {
 		if ($asofDateTime != "") {
 			$args = array("VersionId" => $asofDateTime);
 		}
-		$return['stream'] = $aws->getFileContent($dataPath, $dsID, $args);
+
+		// If the datastream request is FezACML, use the DB cache
+		if (stripos($dsID, 'FezACML_') === 0) {
+      $return['stream'] = Datastream::getDatastreamCachedFezACML($pid, $dsID);
+    } else {
+      $return['stream'] = $aws->getFileContent($dataPath, $dsID, $args);
+    }
 
 		return $return;
 	}
