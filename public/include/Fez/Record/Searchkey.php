@@ -442,16 +442,12 @@ class Fez_Record_Searchkey
     $stmtDeleteOld = "DELETE FROM " . $table .
       " WHERE rek_" . $sekTitleDb . "_pid = " . $this->_db->quote($this->_pid, 'STRING');
 
-    // Begin DB transaction explicitly. We want to be able to rollback if any of these queries failed.
-    $this->_db->beginTransaction();
     try {
-      $this->_db->exec($stmtDeleteOld);
-      $this->_db->commit();
+      $this->_db->query($stmtDeleteOld);
       FulltextQueue::singleton()->add($this->_pid);
       FulltextQueue::singleton()->commit();
       return true;
     } catch (Exception $ex) {
-      $this->_db->rollBack();
       $this->_log->err($ex . " stmtDeleteOld: ".$stmtDeleteOld);
     }
     return false;

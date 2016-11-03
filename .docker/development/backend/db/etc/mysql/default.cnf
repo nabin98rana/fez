@@ -3,7 +3,8 @@
 
 max-allowed-packet = 1000M
 
-innodb_buffer_pool_size = 2000M
+# Uncomment if required in dev
+# innodb_buffer_pool_size = 2000M
 
 innodb_file_per_table
 init-connect='SET NAMES utf8'
