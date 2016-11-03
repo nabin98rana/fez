@@ -29,7 +29,7 @@ fezdevelopmentrunner:
     - logs
 
 selenium:
-  image: selenium/standalone-chrome-debug:3.0.1-aluminum
+  image: selenium/standalone-chrome-debug:2.53.1-beryllium
   environment:
     - JAVA_OPTS=-Dselenium.LOGGER.level=WARNING
   links:
