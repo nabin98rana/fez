@@ -136,17 +136,15 @@ class FulltextQueue
 
 	public static function getProcessInfo($pid='')
 	{
-		$log = FezLog::get();
 		// If we are using AWS, check if any tasks are still running
-		if (defined('AWS_ENABLED') && AWS_ENABLED == 'true' && (!isset($_SERVER['APPLICATION_ENV']) || $_SERVER['APPLICATION_ENV'] != 'development')) {
+    $useAws = false;
+    if (defined('AWS_ENABLED') && AWS_ENABLED == 'true') {
+      $useAws = true;
+    }
+    $env = strtolower($_SERVER['APPLICATION_ENV']);
+    if ($useAws && ($env == 'staging' || $env == 'production')) {
 			$aws = AWS::get();
-			if (!isset($_SERVER['APPLICATION_ENV']) || $_SERVER['APPLICATION_ENV'] === '') {
-				$launchTask = 'staging';
-			} else {
-				$launchTask = $_SERVER['APPLICATION_ENV'];
-			}
-			$family = 'fez' . $launchTask;
-
+			$family = 'fez' . $env;
 			if (empty($pid)) {
 				return 'load_new_task';
 			} else {
