@@ -437,13 +437,6 @@ class Fez_Record_Searchkey
     $sekDetails = Search_Key::getDetailsByTitle($sekTitle);
     $sekTitleDb = $sekDetails['sek_title_db'];
     $table = APP_TABLE_PREFIX . "record_search_key_" . $sekTitleDb;
-    $tableShadow = $table . "__shadow";
-
-    // Query to backup old record: copy the data from sk main table to shadow table
-    $stmtBackupToShadow = "INSERT INTO " . $tableShadow .
-      "  SELECT *, " . $this->_db->quote($this->_version, 'DATE') .
-      "  FROM " . $table .
-      "  WHERE rek_" . $sekTitleDb . "_pid = " . $this->_db->quote($this->_pid, 'STRING');
 
     // Query to remove old record on main table.
     $stmtDeleteOld = "DELETE FROM " . $table .
@@ -452,7 +445,6 @@ class Fez_Record_Searchkey
     // Begin DB transaction explicitly. We want to be able to rollback if any of these queries failed.
     $this->_db->beginTransaction();
     try {
-      $this->_db->exec($stmtBackupToShadow);
       $this->_db->exec($stmtDeleteOld);
       $this->_db->commit();
       FulltextQueue::singleton()->add($this->_pid);
@@ -460,7 +452,7 @@ class Fez_Record_Searchkey
       return true;
     } catch (Exception $ex) {
       $this->_db->rollBack();
-      $this->_log->err($ex . "stmtBackupToShadow: " . $stmtBackupToShadow . " | stmtDeleteOld: ".$stmtDeleteOld);
+      $this->_log->err($ex . " stmtDeleteOld: ".$stmtDeleteOld);
     }
     return false;
   }
