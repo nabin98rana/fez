@@ -50,13 +50,18 @@ Auth::checkAuthentication(APP_SESSION, $_SERVER['PHP_SELF']."?".$_SERVER['QUERY_
 $tpl = new Template_API();
 $tpl->assign("yui_autosuggest", '1');
 $tpl->setTemplate("my_fez.tpl.html");
-$options = Pager::saveSearchParams();
-// for the my fez unpublished items page need to set the default to any non-published items 
-if (!array_key_exists("searchKeycore_9", $options)) {
-	$options["searchKeycore_9"] = "-4"; 
+$filter = Pager::saveSearchParams();
+$options = array();
+// for the my fez unpublished items page need to set the default to any non-published items
+if (!array_key_exists("searchKeycore_9", $filter)) {
+	$filter["searchKeycore_9"] = "-4";
 	$options["noOrder"] = 0;
 }
-
+$preCutFilter = $filter;
+if (array_key_exists("searchKeycore_0", $filter)) {
+  $options["searchKeycore_0"] = $options["searchKeycore_0"];
+  unset($filter["searchKeycore_0"]);
+}
 // set up the $sort_by var if necessary (makes rest of page work for sorting)
 if (isset($_REQUEST['sort_by'])) {
 	$sort_by = $_REQUEST['sort_by'];
@@ -86,34 +91,34 @@ $skey_status = Search_Key::getID("Status");
 $skey_display_type = Search_Key::getID("Display Type");
 
 foreach ($search_keys as $skey => $svalue) {
-	
+
 	if ($svalue["sek_id"] == $skey_ismemberof) {
 		$search_keys[$skey]["field_options"] = $collection_assoc_list;
 	}
-	
+
 	if ($svalue["sek_id"] == $skey_display_type) {
 		$search_keys[$skey]["field_options"] = $display_types_assoc_list;
 	}
-	
+
 	if ($svalue["sek_smarty_variable"] == 'User::getAssocList()') {
 		$search_keys[$skey]["field_options"] = array(
-    		  "-1" => "un-assigned", 
-    		  "-2" => "myself", 
+    		  "-1" => "un-assigned",
+    		  "-2" => "myself",
     		  "-3" => "myself and un-assigned"
 		  ) + $search_keys[$skey]["field_options"];
 	}
-    
+
 	if ($svalue["sek_html_input"] == 'combo' && $svalue["sek_smarty_variable"] != 'Status::getUnpublishedAssocList()') {
-		$search_keys[$skey]["field_options"] = array("" => "any") + $search_keys[$skey]["field_options"];		
-	}	
-	
+		$search_keys[$skey]["field_options"] = array("" => "any") + $search_keys[$skey]["field_options"];
+	}
+
 	if ($svalue["sek_id"]  == $skey_status) {
 		$search_keys[$skey]["field_options"] = array(
 		      "-4" => "any Unpublished"
 		  ) + $search_keys[$skey]["field_options"]; //get all status's
-		
-		if (!array_key_exists($options["searchKeycore_9"], $search_keys[$skey]["field_options"])) {
-			$options["searchKeycore_9"] = "-4";
+
+		if (!array_key_exists($filter["searchKeycore_9"], $search_keys[$skey]["field_options"])) {
+			$filter["searchKeycore_9"] = "-4";
 		}
 	}
 }
@@ -144,10 +149,10 @@ $urlData = array(
 $urlnoOrder = Misc::query_string_encode($urlData);
 
 $bulk_workflows = WorkflowTrigger::getAssocListByTrigger("-1", 7); //get the bulk change workflows
-$bulk_search_workflows = WorkflowTrigger::getAssocListByTrigger("-1", WorkflowTrigger::getTriggerId('Bulk Change Search')); 
+$bulk_search_workflows = WorkflowTrigger::getAssocListByTrigger("-1", WorkflowTrigger::getTriggerId('Bulk Change Search'));
 
- 
-// if search button was just pressed and all fields search 
+
+// if search button was just pressed and all fields search
 // has something in it then sort by relevance enforced
 $search_button = Misc::GETorPOST('search_button');
 if ($search_button == 'Search' && trim($options["searchKey0"]) != "") {
@@ -157,19 +162,20 @@ if ($search_button == 'Search' && trim($options["searchKey0"]) != "") {
 if (array_key_exists('searchKey0', $options) && $options["searchKey0"] != "" && ($_REQUEST["sort_by"] == "" || $options["sort_by"] == "searchKey0")) {
 	$options["sort_order"] = 1;
 } elseif (!array_key_exists('sort_order', $options) || !is_numeric($options["sort_order"])) {
-	$options["sort_order"] = 0;	
+	$options["sort_order"] = 0;
 }
 
 //Need to get all results if sorting on attachment size since sorts needs to be done post solr returned values
 if ($sortOnAttachmentFlag) {
-    $temp = Record::getListing($options, array("Editor", "Approver"), $pager_row, $rows, $sort_by);
+    $temp = Record::getListing($options, array("Editor", "Approver"), $pager_row, $rows, $sort_by, false, false, $filter);
     $info = $temp['info'];
     $rowsAttach = $rows;
     $rows = 10000;
     $pagerRowAttach = $pager_row;
     $pager_row = 0;
 }
-$assigned_items = Record::getListing($options, array("Editor", "Approver"), $pager_row, $rows, $sort_by);
+
+$assigned_items = Record::getListing($options, array("Editor", "Approver"), $pager_row, $rows, $sort_by, false, false, $filter);
 Record::getParentsByPids($assigned_items['list']);
 $username = Auth::getUsername();
 if (APP_MY_RESEARCH_MODULE == "ON" && MyResearch::getHRorgUnit($username) != "") {
@@ -201,7 +207,7 @@ $tpl->assign("page_url",                $_SERVER['PHP_SELF'].'?'.$urlnoOrder);
 $tpl->assign('myFezView',               "MAI");
 $tpl->assign('extra_title',             "Assigned Unpublished Items");
 $tpl->assign('search_keys',             $search_keys);
-$tpl->assign("options",                 $options);
+$tpl->assign("options",                 $preCutFilter);
 $tpl->assign("status_list",             Status::getAssocList());
 $tpl->assign('my_assigned_items_list',  $assigned_items['list']);
 $tpl->assign('items_info',              $assigned_items['info']);

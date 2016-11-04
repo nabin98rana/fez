@@ -5072,11 +5072,11 @@ function getSearchKeyIndexValueShadow($pid, $searchKeyTitle, $getLookup=true, $s
    * @param string $username The username of the search is performed on
    * @return array $res2 The index details of records associated with the user
    */
-  function getCreated($options, $current_page=0,$page_rows="ALL",$sort_by='', $sort_order=0)
+  function getCreated($options, $current_page=0,$page_rows="ALL",$sort_by='', $sort_order=0, $filter)
   {
     $usr_id = Auth::getUserID();
-    $options["searchKey".Search_Key::getID("Depositor")] = $usr_id;
-    return Record::getListing($options, array("Lister"), $current_page, $page_rows, $sort_by);
+    $filter["searchKey".Search_Key::getID("Depositor")] = $usr_id;
+    return Record::getListing($options, array("Lister"), $current_page, $page_rows, $sort_by, false, false, $filter);
   }
 
 
