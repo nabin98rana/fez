@@ -51,7 +51,6 @@ class MigrateFromFedoraToDatabase
 {
   protected $_log = null;
   protected $_db = null;
-  protected $_fedoraDb = null;
   protected $_env = null;
   protected $_shadowTableSuffix = "__shadow";
   protected $_tidy;
@@ -95,24 +94,6 @@ class MigrateFromFedoraToDatabase
    */
   private function preMigration()
   {
-    if (! Zend_Registry::isRegistered('fedora_db')) {
-      try {
-        $fdb = Zend_Db::factory(FEDORA_DB_TYPE, [
-          'host'     => FEDORA_DB_HOST,
-          'username' => FEDORA_DB_USERNAME,
-          'password' => FEDORA_DB_PASSWD,
-          'dbname'   => FEDORA_DB_DATABASE_NAME,
-          'port'     => FEDORA_DB_PORT,
-          'profiler' => ['enabled' => false],
-        ]);
-        $fdb->getConnection();
-        Zend_Registry::set('fedora_db', $fdb);
-      } catch (Exception $ex) {
-        echo " - Unable to connect to the Fedora DB.\n";
-        return;
-      }
-    }
-    $this->_fedoraDb = DB_API::get('fedora_db');
   }
 
   /**
@@ -121,7 +102,6 @@ class MigrateFromFedoraToDatabase
    */
   private function postMigration()
   {
-    //$this->reindexPids();
     echo "Congratulations! Your Fez system is now ready to function without Fedora.\n";
   }
 
@@ -143,7 +123,7 @@ class MigrateFromFedoraToDatabase
   private function stepTwoMigration()
   {
     // PID security
-    $this->addPidsSecurity();
+    //$this->addPidsSecurity();
 
     // Datastream (attached files) migration
     echo " - Migrating managed content..";
@@ -204,6 +184,22 @@ class MigrateFromFedoraToDatabase
    */
   private function migrateManagedContent()
   {
+    $fedoraDb = null;
+    try {
+      $fedoraDb = Zend_Db::factory(FEDORA_DB_TYPE, [
+        'host'     => FEDORA_DB_HOST,
+        'username' => FEDORA_DB_USERNAME,
+        'password' => FEDORA_DB_PASSWD,
+        'dbname'   => FEDORA_DB_DATABASE_NAME,
+        'port'     => FEDORA_DB_PORT,
+        'profiler' => ['enabled' => false],
+      ]);
+      $fedoraDb->getConnection();
+    } catch (Exception $ex) {
+      echo " - Unable to connect to the Fedora DB.\n";
+      return;
+    }
+
     ob_flush();
     if ($this->_env != 'production') {
       return;
@@ -213,7 +209,7 @@ class MigrateFromFedoraToDatabase
 
     $ds = [];
     try {
-      $ds = $this->_fedoraDb->fetchAll($stmt, [], Zend_Db::FETCH_ASSOC);
+      $ds = $fedoraDb->fetchAll($stmt, [], Zend_Db::FETCH_ASSOC);
     } catch (Exception $ex) {
       echo " - Failed to retrieve exif data. Error: " . $ex;
     }
@@ -261,36 +257,8 @@ class MigrateFromFedoraToDatabase
         $exif['exif_mime_type'], 'M', false, "", false, 'uql-fez-production-san'
       );
     }
-  }
 
-  /**
-   * Run Reindex workflow on an array of pids
-   * @return boolean
-   */
-  private function reindexPids()
-  {
-    $wft_id = 277;  // hack: Reindex workflow trigger ID
-    $pid = "";
-    $xdis_id = "";
-    $href = "";
-    $dsID = "";
-
-    $stmt = "SELECT rek_pid
-                 FROM " . APP_TABLE_PREFIX . "record_search_key
-                 ORDER BY rek_pid DESC";
-
-    try {
-      $pids = $this->_db->fetchCol($stmt);
-    } catch (Exception $e) {
-      echo " - Failed to retrieve pids. Query: " . $stmt;
-      return false;
-    }
-
-    if (sizeof($pids) > 0) {
-      Workflow::start($wft_id, $pid, $xdis_id, $href, $dsID, $pids);
-    }
-    ob_flush();
-    return true;
+    $fedoraDb->closeConnection();
   }
 
   /**
