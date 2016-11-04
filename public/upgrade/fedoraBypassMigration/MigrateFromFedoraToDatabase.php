@@ -227,35 +227,31 @@ class MigrateFromFedoraToDatabase
       $dsName = $tokenParts['dsName'];
       $state = 'A';
 
-      echo "\n\n\n - Doing PID $counter/$totalDs ($pid)\n";
+      echo "\n - Doing PID $counter/$totalDs ($pid)\n";
       Zend_Registry::set('version', Date_API::getCurrentDateGMT());
 
       $FezACML_dsID = FezACML::getFezACMLDSName($dsName);
-      $acml = $this->getFezACML($pid, $FezACML_dsID);
+      $acml = false;
+      if(
+        ! (Misc::hasPrefix($dsName, 'preview_')
+        || Misc::hasPrefix($dsName, 'web_')
+        || Misc::hasPrefix($dsName, 'thumbnail_')
+        || Misc::hasPrefix($dsName, 'stream_')
+        || Misc::hasPrefix($dsName, 'presmd_'))
+      ) {
+        $acml = $this->getFezACML($pid, 'FezACML_' . $dsName . '.xml');
+      }
       if ($acml) {
         Fedora_API::callModifyDatastreamByValue($pid, $FezACML_dsID, "A",
           "FezACML security for datastream - " . $dsName,
           $acml->saveXML(), "text/xml", "inherit");
       }
-
-      if(
-        strpos($dsName, 'presmd_') === 0
-      ) {
-        $exif = ['exif_mime_type' => 'application/xml'];
-      } else {
-        $exif = Exiftool::getDetails($pid, $dsName);
-        if (! $exif) {
-          $exif['exif_mime_type'] = $this->quickMimeContentType($dsName);
-        }
-      }
-
+      $mimeType = $this->quickMimeContentType($dsName);
       $location = 'migration/' . str_replace('/espace/data/fedora_datastreams/', '', $path);
       $location = str_replace('+', '%2B', $location);
-
-      echo "Adding datastream for {$dsName}..\n";
       Fedora_API::callAddDatastream(
         $pid, $dsName, $location, '', $state,
-        $exif['exif_mime_type'], 'M', false, "", false, 'uql-fez-production-san'
+        $mimeType, 'M', false, "", false, 'uql-fez-production-san'
       );
     }
   }
@@ -340,7 +336,6 @@ class MigrateFromFedoraToDatabase
 
   private function getFezACML($pid, $dsID)
   {
-    echo " - Getting FezACML for $pid/$dsID\n";
     $result = Misc::processURL(APP_FEDORA_GET_URL . "/" . $pid . "/" . $dsID, false, null, null, null, 10, true);
     if ($result['success'] === 0) {
       return FALSE;
