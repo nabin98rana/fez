@@ -210,8 +210,9 @@ class MigrateFromFedoraToDatabase
     $ds = [];
     try {
       $ds = $fedoraDb->fetchAll($stmt, [], Zend_Db::FETCH_ASSOC);
+      $fedoraDb->closeConnection();
     } catch (Exception $ex) {
-      echo " - Failed to retrieve exif data. Error: " . $ex;
+      echo " - Failed to get datastreams from Fedora. Error: " . $ex;
     }
 
     $totalDs = count($ds);
@@ -257,8 +258,6 @@ class MigrateFromFedoraToDatabase
         $exif['exif_mime_type'], 'M', false, "", false, 'uql-fez-production-san'
       );
     }
-
-    $fedoraDb->closeConnection();
   }
 
   /**
