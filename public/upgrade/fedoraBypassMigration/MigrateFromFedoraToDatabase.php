@@ -86,11 +86,6 @@ class MigrateFromFedoraToDatabase
     $this->stepThreeMigration();
     echo "..done!\n";
 
-    // Recalculate security
-    echo "Step 4: Recalculating security..\n";
-    $this->stepFourMigration();
-    echo "..done!\n";
-
     // Post Migration message
     $this->postMigration();
   }
@@ -147,11 +142,6 @@ class MigrateFromFedoraToDatabase
    */
   private function stepTwoMigration()
   {
-    // Convert the XML quick templates
-    echo " - Converting quick templates..";
-    $this->convertQuickTemplates();
-    echo "..done!\n";
-
     // Datastream (attached files) migration
     echo " - Migrating managed content..";
     $this->migrateManagedContent();
@@ -207,14 +197,6 @@ class MigrateFromFedoraToDatabase
   }
 
   /**
-   * Fourth round of migration, recalculate PID security.
-   */
-  private function stepFourMigration()
-  {
-    $this->recalculatePidSecurity();
-  }
-
-  /**
    * Run Fedora managed content migration script & security for the attached files.
    */
   private function migrateManagedContent()
@@ -248,12 +230,14 @@ class MigrateFromFedoraToDatabase
       echo "\n\n\n - Doing PID $counter/$totalDs ($pid)\n";
       Zend_Registry::set('version', Date_API::getCurrentDateGMT());
 
-      $acml = $this->getFezACML($pid, 'FezACML_' . $dsName . '.xml');
+      $FezACML_dsID = FezACML::getFezACMLDSName($dsName);
+      $acml = $this->getFezACML($pid, $FezACML_dsID);
       if ($acml) {
-        echo $acml->saveXML() . "\n";
-      } else {
-        echo " - No FezACML found for record\n";
+        Fedora_API::callModifyDatastreamByValue($pid, $FezACML_dsID, "A",
+          "FezACML security for datastream - " . $dsName,
+          $acml->saveXML(), "text/xml", "inherit");
       }
+
       if(
         strpos($dsName, 'presmd_') === 0
       ) {
@@ -261,7 +245,7 @@ class MigrateFromFedoraToDatabase
       } else {
         $exif = Exiftool::getDetails($pid, $dsName);
         if (! $exif) {
-          $exif['exif_mime_type'] = 'binary/octet-stream';
+          $exif['exif_mime_type'] = quick_mime_content_type($dsName);
         }
       }
 
@@ -273,14 +257,6 @@ class MigrateFromFedoraToDatabase
         $pid, $dsName, $location, '', $state,
         $exif['exif_mime_type'], 'M', false, "", false, 'uql-fez-production-san'
       );
-
-      $did = AuthNoFedoraDatastreams::getDid($pid, $dsName);
-      if ($this->inheritsPermissions($acml)) {
-        AuthNoFedoraDatastreams::setInherited($did);
-      }
-      if ($acml) {
-        $this->addDatastreamSecurity($acml, $did);
-      }
     }
   }
 
@@ -315,39 +291,6 @@ class MigrateFromFedoraToDatabase
   }
 
   /**
-   * Migrate the previous versions into the shadow tables
-   * @return bool
-   */
-  private function migratePidVersions()
-  {
-    return true;
-    // Attempt to bring in all the versions of a PID
-    /*$stmt = "SELECT rek_pid FROM " . APP_TABLE_PREFIX . "record_search_key
-                 ORDER BY rek_pid DESC ";
-    try {
-      $pids = $this->_db->fetchCol($stmt);
-    } catch (Exception $e) {
-      echo chr(10) . "\n<br /> Failed to retrieve pids. Query: " . $stmt;
-      return false;
-    }
-    foreach ($pids as $pid) {
-      $datastreams = Fedora_API::callGetDatastreams($pid, null, 'A');
-      $createdDates = $this->generateDSTimestamps($pid, $datastreams);
-      array_pop($createdDates);
-      $createdDates[] = null;
-
-      foreach ($createdDates as $createDT) {
-        $this->toggleAwsStatus(true);
-        $command = APP_PHP_EXEC . " \"" . APP_PATH . "upgrade/fedoraBypassMigration/migrate_pid_versions.php\" \"" .
-          $pid . "\" \"" . $createDT . "\"";
-        exec($command, $output);
-        print_r($output);
-        $this->toggleAwsStatus(false);
-      }
-    }*/
-  }
-
-  /**
    * Update shadow key stamp with rek_updated_date in core SK table
    * Update rek_security_inherited from FezACML for the pids
    */
@@ -368,14 +311,12 @@ class MigrateFromFedoraToDatabase
       $i++;
       echo " - Updating security for $pid ($i/$count)\n";
       $acml = $this->getFezACML($pid, 'FezACML');
-      if ($this->inheritsPermissions($acml)) {
-        AuthNoFedora::setInherited($pid, 1);
-      }
-      else {
-        AuthNoFedora::setInherited($pid, 0);
-      }
       if ($acml) {
-        $this->addPidSecurity($acml, $pid);
+        $location = APP_TEMP_DIR . FezACML::getFezACMLPidName($pid);
+        file_put_contents($location, $acml);
+        Fedora_API::callAddDatastream($pid, 'FezACML', $location,
+          'FezACML security for PID - ' . $pid, 'A', 'text/xml');
+        unlink($location);
       }
     }
     return true;
@@ -424,196 +365,6 @@ class MigrateFromFedoraToDatabase
       'pid' => $parts[0],
       'dsName' => $parts[1]
     ];
-  }
-
-  /**
-   * @param DOMDocument $acml
-   * @return bool
-   */
-  private function inheritsPermissions($acml)
-  {
-    echo " - Checking if inherits permissions..";
-    $inherit = true;
-    if ($acml instanceof DOMDocument) {
-      $xpath = new DOMXPath($acml);
-      $inheritSearch = $xpath->query('/FezACML[inherit_security="off"]');
-      if ($inheritSearch->length > 0) {
-        $inherit = false;
-      }
-    }
-    if ($inherit) {
-      echo "is inherited\n";
-    } else {
-      echo "not inherited\n";
-    }
-    return $inherit;
-  }
-
-  private function recalculatePidSecurity() {
-    // Get all PIDs without parents and recalculate permissions.
-    // This will filter down to child pids and child datastreams
-    $stmt = "SELECT rek_pid FROM " . APP_TABLE_PREFIX . "record_search_key
-      LEFT JOIN fez_record_search_key_ismemberof
-      ON rek_ismemberof_pid = rek_pid
-      WHERE rek_ismemberof IS NULL and rek_object_type != 3";
-
-    $res = [];
-    try {
-      $res = $this->_db->fetchAll($stmt);
-    } catch (Exception $ex) {
-      echo " - Failed to retrieve pids\n";
-    }
-
-    $i = 0;
-    $count = count($res);
-    foreach ($res as $pid) {
-      $i++;
-      AuthNoFedora::recalculatePermissions($pid, false, false);
-      echo " - Done $i/$count\n";
-    }
-  }
-
-  private function addPidSecurity($acml, $pid)
-  {
-    // loop through the ACML docs found for the current pid or in the ancestry
-    $xpath = new DOMXPath($acml);
-    $roleNodes = $xpath->query('/FezACML/rule/role');
-
-    foreach ($roleNodes as $roleNode) {
-      $role = $roleNode->getAttribute('name');
-      $roleId = Auth::getRoleIDByTitle($role);
-      // Use XPath to get the sub groups that have values
-      $groupNodes = $xpath->query('./*[string-length(normalize-space()) > 0]', $roleNode);
-
-      /* todo
-       * Empty rules override non-empty rules. Example:
-       * If a pid belongs to 2 collections, 1 collection has lister restricted to fez users
-       * and 1 collection has no restriction for lister, we want no restrictions for lister
-       * for this pid.
-       */
-
-      foreach ($groupNodes as $groupNode) {
-        $group_type = $groupNode->nodeName;
-        $group_values = explode(',', $groupNode->nodeValue);
-        foreach ($group_values as $group_value) {
-
-          //off is the same as lack of, so should be the same
-          if ($group_value != "off") {
-            $group_value = trim($group_value, ' ');
-
-            $arId = AuthRules::getOrCreateRule("!rule!role!" . $group_type, $group_value);
-            AuthNoFedora::addSecurityPermissions($pid, $roleId, $arId);
-          }
-        }
-      }
-    }
-  }
-
-  private function addDatastreamSecurity($acml, $did)
-  {
-    // loop through the ACML docs found for the current pid or in the ancestry
-    $xpath = new DOMXPath($acml);
-    $roleNodes = $xpath->query('/FezACML/rule/role');
-
-    foreach ($roleNodes as $roleNode) {
-      $role = $roleNode->getAttribute('name');
-      $roleId = Auth::getRoleIDByTitle($role);
-      // Use XPath to get the sub groups that have values
-      $groupNodes = $xpath->query('./*[string-length(normalize-space()) > 0]', $roleNode);
-
-      /* todo
-       * Empty rules override non-empty rules. Example:
-       * If a pid belongs to 2 collections, 1 collection has lister restricted to fez users
-       * and 1 collection has no restriction for lister, we want no restrictions for lister
-       * for this pid.
-       */
-
-      foreach ($groupNodes as $groupNode) {
-        $group_type = $groupNode->nodeName;
-        $group_values = explode(',', $groupNode->nodeValue);
-        foreach ($group_values as $group_value) {
-
-          //off is the same as lack of, so should be the same
-          if ($group_value != "off") {
-            $group_value = trim($group_value, ' ');
-
-            $arId = AuthRules::getOrCreateRule("!rule!role!" . $group_type, $group_value);
-            AuthNoFedoraDatastreams::addSecurityPermissions($did, $roleId, $arId, false);
-          }
-        }
-      }
-    }
-  }
-
-  /**
-   * Converts the XML quick templates
-   */
-  private function convertQuickTemplates()
-  {
-    $roles = Auth::getAssocRoleIDs();
-    $authRoles = array_flip($roles);
-    $templates = FezACML::getQuickTemplateAssocList();
-
-    AuthRules::getOrCreateRuleGroup([[
-      'rule' => 'public_list',
-      'value' => 1,
-    ]]);
-
-    foreach ($templates as $qatId => $qatTitle) {
-      $acmlXml = FezACML::getQuickTemplateValue($qatId);
-      $acmlDoc = new DomDocument();
-      $acmlDoc->loadXML($acmlXml);
-      $xpath = new DOMXPath($acmlDoc);
-      $roleNodes = $xpath->query('/FezACML/rule/role');
-
-      foreach ($roleNodes as $roleNode) {
-        $roleName = $roleNode->getAttribute('name');
-        $groupNodes = $xpath->query('./*[string-length(normalize-space()) > 0]', $roleNode);
-
-        foreach ($groupNodes as $groupNode) {
-          $groupRule = $groupNode->nodeName;
-          $groupValues = explode(',', $groupNode->nodeValue);
-          $groups = [];
-          foreach ($groupValues as $groupValue) {
-            if ($groupValue != "off") {
-              $groupValue = trim($groupValue, ' ');
-              $groups[] = [
-                'rule' => '!rule!role!' . $groupRule,
-                'value' => $groupValue,
-              ];
-            }
-          }
-          if (count($groups) === 0) {
-            continue;
-          }
-          $argId = AuthRules::getOrCreateRuleGroup($groups);
-          $aroId = $authRoles[$roleName];
-          $authQuickRule = [
-            ':qac_aro_id' => $aroId,
-            ':qac_arg_id' => $argId
-          ];
-
-          $qacId = '';
-          $stmt = "SELECT qac_id FROM " . APP_TABLE_PREFIX . "auth_quick_rules WHERE "
-            . "qac_aro_id = :qac_aro_id AND qac_arg_id = :qac_arg_id";
-          try {
-            $qacId = $this->_db->fetchOne($stmt, $authQuickRule);
-          } catch (Exception $ex) {
-          }
-
-          if (!$qacId && $qacId != -1) {
-            $stmt = "INSERT INTO " . APP_TABLE_PREFIX . "auth_quick_rules "
-              . "(qac_aro_id, qac_arg_id) VALUES "
-              . "(:qac_aro_id, :qac_arg_id)";
-            try {
-              $this->_db->query($stmt, $authQuickRule);
-            } catch (Exception $ex) {
-              echo " - Error creating quick rule: " . $ex->getMessage() . "\n\n";
-            }
-          }
-        }
-      }
-    }
   }
 
   private function getFezACML($pid, $dsID)
@@ -673,6 +424,73 @@ class MigrateFromFedoraToDatabase
       curl_close($ch);
     }
     return $pid;
+  }
+
+  private function quick_mime_content_type($filename) {
+
+    $mime_types = array(
+
+      'txt' => 'text/plain',
+      'htm' => 'text/html',
+      'html' => 'text/html',
+      'php' => 'text/html',
+      'css' => 'text/css',
+      'js' => 'application/javascript',
+      'json' => 'application/json',
+      'xml' => 'application/xml',
+      'swf' => 'application/x-shockwave-flash',
+      'flv' => 'video/x-flv',
+
+      // images
+      'png' => 'image/png',
+      'jpe' => 'image/jpeg',
+      'jpeg' => 'image/jpeg',
+      'jpg' => 'image/jpeg',
+      'gif' => 'image/gif',
+      'bmp' => 'image/bmp',
+      'ico' => 'image/vnd.microsoft.icon',
+      'tiff' => 'image/tiff',
+      'tif' => 'image/tiff',
+      'svg' => 'image/svg+xml',
+      'svgz' => 'image/svg+xml',
+
+      // archives
+      'zip' => 'application/zip',
+      'rar' => 'application/x-rar-compressed',
+      'exe' => 'application/x-msdownload',
+      'msi' => 'application/x-msdownload',
+      'cab' => 'application/vnd.ms-cab-compressed',
+
+      // audio/video
+      'mp3' => 'audio/mpeg',
+      'qt' => 'video/quicktime',
+      'mov' => 'video/quicktime',
+
+      // adobe
+      'pdf' => 'application/pdf',
+      'psd' => 'image/vnd.adobe.photoshop',
+      'ai' => 'application/postscript',
+      'eps' => 'application/postscript',
+      'ps' => 'application/postscript',
+
+      // ms office
+      'doc' => 'application/msword',
+      'rtf' => 'application/rtf',
+      'xls' => 'application/vnd.ms-excel',
+      'ppt' => 'application/vnd.ms-powerpoint',
+
+      // open office
+      'odt' => 'application/vnd.oasis.opendocument.text',
+      'ods' => 'application/vnd.oasis.opendocument.spreadsheet',
+    );
+
+    $ext = strtolower(array_pop(explode('.',$filename)));
+    if (array_key_exists($ext, $mime_types)) {
+      return $mime_types[$ext];
+    }
+    else {
+      return 'application/octet-stream';
+    }
   }
 
   public function fixRekUpdatedDate() {

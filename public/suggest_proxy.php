@@ -79,7 +79,7 @@ if ($sek_suggest_function == "Search_Key::suggestSearchKeyIndexValue") {
 	eval('$suggestions = '.$sek_suggest_function.'("'.$query.'", true);');
 }
 $suggestions = array(
-    'Result'    =>  $suggestions
+    'Result'    =>  array_unique($suggestions)
 );
 
 echo json_encode($suggestions);

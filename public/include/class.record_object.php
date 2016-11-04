@@ -233,8 +233,6 @@ class RecordObject extends RecordGeneral
         unset($xdisDisplayFields[$last][$lastKey]);
       }
 
-
-
       $xsd_display_fields = RecordGeneral::setDisplayFields($xdisDisplayFields);
 
       $xdis_list = XSD_Relationship::getListByXDIS($_POST['xdis_id']);
@@ -246,7 +244,6 @@ class RecordObject extends RecordGeneral
       $xsdmf_id = XSD_HTML_Match::getXSDMF_IDBySekIDXDIS_ID(Search_Key::getID('Display Type'), $xdis_str);
       $xsd_display_fields[0]['display_type'] = array('xsdmf_id' => $xsdmf_id[0], 'xsdmf_value' => $_POST['xdis_id']);
 
-      $xsdmf_id = XSD_HTML_Match::getXSDMF_IDBySekIDXDIS_ID(Search_Key::getID('Depositor'), $xdis_str);
       if (empty($this->pid)) {
         $depositor = Auth::getUserID();
       } else {
@@ -255,6 +252,7 @@ class RecordObject extends RecordGeneral
         $xsdmf_id = XSD_HTML_Match::getXSDMF_IDBySekIDXDIS_ID(Search_Key::getID('Genre'), $xdis_str);
         $xsd_display_fields[0]['genre'] = array('xsdmf_id' => $xsdmf_id[0], 'xsdmf_value' => $genre);
       }
+      $xsdmf_id = XSD_HTML_Match::getXSDMF_IDBySekIDXDIS_ID(Search_Key::getID('Depositor'), $xdis_str);
       $xsd_display_fields[0]['depositor'] = array('xsdmf_id' => $xsdmf_id[0], 'xsdmf_value' => $depositor);
 
       $updatedDate = Date_API::getCurrentDateGMT();
@@ -338,39 +336,55 @@ class RecordObject extends RecordGeneral
 
             $new_dsID = Foxml::makeNCName($fileInfo->getFilename());
 
-            Fedora_API::getUploadLocationByLocalRef($this->pid, $new_dsID, $resourceDataLocation, $new_dsID, $mimeDataType,"M",null,true);
+            $label = "";
+            if (@$_POST['description'][$i]) {
+              $label = $_POST['description'][$i];
+            }
+
+            Fedora_API::getUploadLocationByLocalRef($this->pid, $new_dsID, $resourceDataLocation, $label, $mimeDataType,"M",null,true);
             array_push($fileNames, $new_dsID);
             $tmpFile = APP_TEMP_DIR . $new_dsID;
-//                      copy($path.$hash['rawHash'], $tmpFile);
             rename($resourceDataLocation, $tmpFile);
 
             Record::generatePresmd($this->pid, $new_dsID);
           }
-          // replace this with a get datastreams loop, file_attachment_name regen
-//          if (count($fileNames) > 0) {
-//            $xsdmf_id = XSD_HTML_Match::getXSDMF_IDBySekIDXDIS_ID(Search_Key::getID('File Attachment Name'), $xdis_str);
-//            $xsd_display_fields[1]['file_attachment_name'] = array('xsdmf_id' => $xsdmf_id[0], 'xsdmf_value' => $fileNames);
-//          }
         }
       }
       // Check for all the existing files in case there are thumbs/presmds etc not indexed
       $datastreams = Fedora_API::callGetDatastreams($this->pid);
-      foreach ($datastreams as $ds_value) {
-        // get the matchfields for the FezACML of the datastream if any exists
-        if (isset($ds_value['controlGroup']) && $ds_value['controlGroup'] == 'M') {
-          if (!is_array($xsd_display_fields[1]['file_attachment_name'])) {
-            $xsd_display_fields[1]['file_attachment_name'] = array();
-            if (!is_array($xsd_display_fields[1]['file_attachment_name']['xsdmf_value'])) {
-              $xsd_display_fields[1]['file_attachment_name']['xsdmf_value'] = array();
+
+      $fileAttachXsdmfId = XSD_HTML_Match::getXSDMF_IDBySekIDXDIS_ID(Search_Key::getID('File Attachment Name'), $xdis_str);
+      if (is_array($fileAttachXsdmfId) && !empty($fileAttachXsdmfId[0])) {
+        foreach ($datastreams as $ds_value) {
+          if (isset($ds_value['controlGroup']) && $ds_value['controlGroup'] == 'M') {
+            if (!is_array($xsd_display_fields[1]['file_attachment_name'])) {
+              $xsd_display_fields[1]['file_attachment_name'] = array();
+              if (!is_array($xsd_display_fields[1]['file_attachment_name']['xsdmf_value'])) {
+                $xsd_display_fields[1]['file_attachment_name']['xsdmf_value'] = array();
+              }
+              $xsd_display_fields[1]['file_attachment_name']['xsdmf_id'] = $fileAttachXsdmfId;
             }
-            $xsd_display_fields[1]['file_attachment_name']['xsdmf_id'] = XSD_HTML_Match::getXSDMF_IDBySekIDXDIS_ID(Search_Key::getID('File Attachment Name'), $xdis_str);
+            array_push($xsd_display_fields[1]['file_attachment_name']['xsdmf_value'], $ds_value['ID']);
           }
-          array_push($xsd_display_fields[1]['file_attachment_name']['xsdmf_value'], $ds_value['ID']);
         }
       }
 
+      $fileDescXsdmfId = XSD_HTML_Match::getXSDMF_IDBySekIDXDIS_ID(Search_Key::getID('File Description'), $xdis_str);
+      if (is_array($fileDescXsdmfId) && !empty($fileDescXsdmfId[0])) {
+        foreach ($datastreams as $ds_value) {
+          if (isset($ds_value['controlGroup']) && $ds_value['controlGroup'] == 'M') {
+            if (!is_array($xsd_display_fields[1]['file_description'])) {
+              $xsd_display_fields[1]['file_description'] = array();
+              if (!is_array($xsd_display_fields[1]['file_description']['xsdmf_value'])) {
+                $xsd_display_fields[1]['file_description']['xsdmf_value'] = array();
+              }
+              $xsd_display_fields[1]['file_description']['xsdmf_id'] = $fileDescXsdmfId;
+            }
+            array_push($xsd_display_fields[1]['file_description']['xsdmf_value'], $ds_value['label']);
+          }
+        }
+      }
 
-//            Record::removeIndexRecord($this->pid, false);
       Record::updateSearchKeys($this->pid, $xsd_display_fields, false, $now); //into the non-shadow tables
       Record::updateSearchKeys($this->pid, $xsd_display_fields, true, $now); //into the shadow tables
 
@@ -396,10 +410,17 @@ class RecordObject extends RecordGeneral
           Fedora_API::deleteDatastream($this->pid, $removeFile);
         }
       }
-
-      if ($newPid) {
-        AuthNoFedora::setInherited($this->pid); //This also calls recalculate permissions after setting inherit to true
-        AuthNoFedora::recalculatePermissions($this->pid);
+      $xdis_title = XSD_Display::getMatchingFezACMLTitle($xdis_str);
+      if (! empty($xdis_title) && !in_array('FezACML', $exclude_list)) {
+        FezACML::editPidSecurity($this->pid, $xdis_title);
+        /*
+         * This pid has been updated, we want to delete any
+         * cached files as well as cached files for custom views
+         */
+        if (APP_FILECACHE == "ON") {
+          $cache = new fileCache($this->pid, 'pid='.$this->pid);
+          $cache->poisonCache();
+        }
       }
 
     } else {
@@ -450,6 +471,10 @@ class RecordObject extends RecordGeneral
       $datastreamTitles = $display->getDatastreamTitles($exclude_list, $specify_list);
       Record::insertXML($pid, compact('datastreamTitles', 'exclude_list', 'specify_list', 'xmlObj', 'indexArray', 'existingDatastreams', 'xdis_id'), $ingestObject);
       $this->clearDetails();  // force the details to be refreshed from fedora.
+    }
+
+    if (APP_FEDORA_BYPASS == 'ON') {
+      AuthIndex::setIndexAuth($this->pid);
     }
     return $this->pid;
   }
