@@ -244,7 +244,7 @@ class MigrateFromFedoraToDatabase
       } else {
         $exif = Exiftool::getDetails($pid, $dsName);
         if (! $exif) {
-          $exif['exif_mime_type'] = quick_mime_content_type($dsName);
+          $exif['exif_mime_type'] = $this->quickMimeContentType($dsName);
         }
       }
 
@@ -398,7 +398,7 @@ class MigrateFromFedoraToDatabase
     return $pid;
   }
 
-  private function quick_mime_content_type($filename) {
+  private function quickMimeContentType($filename) {
 
     $mime_types = array(
 
