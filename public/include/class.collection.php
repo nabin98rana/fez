@@ -134,12 +134,13 @@ class Collection
     // OR parents of the collection have ACML set
     //     AND user is in the roles for the ACML
     $options = array();
-    $options["searchKey".Search_Key::getID("Status")] = 2; // enforce published records only
-    $options["searchKey".Search_Key::getID("Object Type")] = 2; // collections only
+    $filter = array();
+    $filter["searchKey".Search_Key::getID("Status")] = 2; // enforce published records only
+    $filter["searchKey".Search_Key::getID("Object Type")] = 2; // collections only
     if (!empty($community_pid)) {
-      $options["searchKey".Search_Key::getID("isMemberOf")] = $community_pid; //
+      $filter["searchKey".Search_Key::getID("isMemberOf")] = $community_pid; //
     }
-    $list = Record::getListing($options, $roles, 0, 10000, "Title", true, true, array(), 'AND', false,
+    $list = Record::getListing($options, $roles, 0, 10000, "Title", true, true, $filter, 'AND', false,
       false, false, APP_SOLR_FACET_LIMIT, APP_SOLR_FACET_MINCOUNT, false, null, false);
     return $list;
 
