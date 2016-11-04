@@ -142,6 +142,9 @@ class MigrateFromFedoraToDatabase
    */
   private function stepTwoMigration()
   {
+    // PID security
+    $this->addPidsSecurity();
+
     // Datastream (attached files) migration
     echo " - Migrating managed content..";
     $this->migrateManagedContent();
@@ -294,7 +297,7 @@ class MigrateFromFedoraToDatabase
    * Update shadow key stamp with rek_updated_date in core SK table
    * Update rek_security_inherited from FezACML for the pids
    */
-  public function addPidsSecurity()
+  private function addPidsSecurity()
   {
     $stmt = "SELECT rek_pid FROM " . APP_TABLE_PREFIX . "record_search_key";
     try {
