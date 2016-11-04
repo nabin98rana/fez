@@ -4879,7 +4879,7 @@ function getSearchKeyIndexValueShadow($pid, $searchKeyTitle, $getLookup=true, $s
                 $searchKey_join[SK_SEARCH_TXT] .= "\", ";
               }
             } elseif ($sekdet['sek_data_type'] == "date") {
-              if (!empty($searchValue) && $searchValue['filter_enabled'] == 1) {
+              if (!empty($searchValue) && !empty($searchValue['filter_type']) && $searchValue['filter_enabled'] == 1) {
                 $sqlDate = '';
                 switch ($searchValue['filter_type']) {
                   case 'greater':

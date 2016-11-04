@@ -307,7 +307,7 @@ class MyResearch
                 $filter["searchKey" . Search_Key::getID("Author")] = $lastname;
 
                 //Due to the fact some author id are null and not 0 we need to count these too. Because of solr issues we need to add author_mws:[* TO *] to the it as well
-                $filter["manualFilter"] = " ( (author_id_mi:0 AND !author_id_mi:" . $author_id." ) OR ( !author_id_mi:[\"\" TO *] AND author_mws:[* TO *] ) ) ";
+                $filter["manualFilter"] = " ( (author_id_mi:0 AND !author_id_mi:" . $author_id." ) OR ( !author_id_mi:* AND author_mws:[* TO *] ) ) ";
                 //$filter["manualFilter"] .= " AND (author_mws:".'"'.$lastname.'" OR author_mws:'.'"'.$lastname.$firstname.'"^4 '.$alternatives.')';
 
                 if (defined('APP_MY_RESEARCH_EXCLUDE_COLLECTIONS') && APP_MY_RESEARCH_EXCLUDE_COLLECTIONS != '') {
@@ -326,7 +326,6 @@ class MyResearch
                             .= " AND !pid_t:('" . str_replace(':', '\:', implode("' OR '", $hidePids)) . "')";
                     }
                 }
-                $options["manualFilter"] = $filter["manualFilter"];
             }
 
             $message = '';

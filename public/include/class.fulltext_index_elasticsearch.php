@@ -271,7 +271,7 @@ class FulltextIndex_ElasticSearch extends FulltextIndex
 
       }
 
-      $testJson = json_encode($params);
+//      $testJson = json_encode($params);
 //      echo $testJson; exit;
 
       $results = $this->esClient->search($params);

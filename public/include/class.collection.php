@@ -998,12 +998,12 @@ class Collection
     $options = array();
     if (APP_CUSTOM_VIEW_PID != "") {
       // enforce custom view collections only
-      $options["searchKey".Search_Key::getID("isMemberOf")] = APP_CUSTOM_VIEW_PID;
+      $filter["searchKey".Search_Key::getID("isMemberOf")] = APP_CUSTOM_VIEW_PID;
     }
-    $options["searchKey".Search_Key::getID("Status")] = 2; // enforce published records only
-    $options["searchKey".Search_Key::getID("Object Type")] = 2; // collections only
+    $filter["searchKey".Search_Key::getID("Status")] = 2; // enforce published records only
+    $filter["searchKey".Search_Key::getID("Object Type")] = 2; // collections only
 
-    $list = Record::getListing($options, array("Lister"), 0, 1000, "Title", true, false);
+    $list = Record::getListing(array(), array("Lister"), 0, 1000, "Title", true, false, $filter);
 
     $list = $list['list'];
     $returnList = array();

@@ -57,5 +57,3 @@ if (APP_MY_RESEARCH_MODULE != 'ON') {
 		header("Location: " . APP_RELATIVE_URL . "my_research_claimed.php");
 	}
 }
-
-?>
