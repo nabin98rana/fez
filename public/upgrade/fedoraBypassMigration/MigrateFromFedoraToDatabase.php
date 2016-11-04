@@ -315,9 +315,10 @@ class MigrateFromFedoraToDatabase
       echo " - Updating security for $pid ($i/$count)\n";
       $acml = $this->getFezACML($pid, 'FezACML');
       if ($acml) {
-        $location = APP_TEMP_DIR . FezACML::getFezACMLPidName($pid);
+        $dsID = FezACML::getFezACMLPidName($pid);
+        $location = APP_TEMP_DIR . $dsID;
         file_put_contents($location, $acml);
-        Fedora_API::callAddDatastream($pid, 'FezACML', $location,
+        Fedora_API::callAddDatastream($pid, $dsID, $location,
           'FezACML security for PID - ' . $pid, 'A', 'text/xml');
         unlink($location);
       }
