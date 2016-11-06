@@ -51,7 +51,6 @@ class MigrateFromFedoraToDatabase
 {
   protected $_log = null;
   protected $_db = null;
-  protected $_fedoraDb = null;
   protected $_env = null;
   protected $_shadowTableSuffix = "__shadow";
   protected $_tidy;
@@ -95,24 +94,6 @@ class MigrateFromFedoraToDatabase
    */
   private function preMigration()
   {
-    if (! Zend_Registry::isRegistered('fedora_db')) {
-      try {
-        $fdb = Zend_Db::factory(FEDORA_DB_TYPE, [
-          'host'     => FEDORA_DB_HOST,
-          'username' => FEDORA_DB_USERNAME,
-          'password' => FEDORA_DB_PASSWD,
-          'dbname'   => FEDORA_DB_DATABASE_NAME,
-          'port'     => FEDORA_DB_PORT,
-          'profiler' => ['enabled' => false],
-        ]);
-        $fdb->getConnection();
-        Zend_Registry::set('fedora_db', $fdb);
-      } catch (Exception $ex) {
-        echo " - Unable to connect to the Fedora DB.\n";
-        return;
-      }
-    }
-    $this->_fedoraDb = DB_API::get('fedora_db');
   }
 
   /**
@@ -121,7 +102,6 @@ class MigrateFromFedoraToDatabase
    */
   private function postMigration()
   {
-    //$this->reindexPids();
     echo "Congratulations! Your Fez system is now ready to function without Fedora.\n";
   }
 
@@ -142,6 +122,9 @@ class MigrateFromFedoraToDatabase
    */
   private function stepTwoMigration()
   {
+    // PID security
+    //$this->addPidsSecurity();
+
     // Datastream (attached files) migration
     echo " - Migrating managed content..";
     $this->migrateManagedContent();
@@ -201,6 +184,22 @@ class MigrateFromFedoraToDatabase
    */
   private function migrateManagedContent()
   {
+    $fedoraDb = null;
+    try {
+      $fedoraDb = Zend_Db::factory(FEDORA_DB_TYPE, [
+        'host'     => FEDORA_DB_HOST,
+        'username' => FEDORA_DB_USERNAME,
+        'password' => FEDORA_DB_PASSWD,
+        'dbname'   => FEDORA_DB_DATABASE_NAME,
+        'port'     => FEDORA_DB_PORT,
+        'profiler' => ['enabled' => false],
+      ]);
+      $fedoraDb->getConnection();
+    } catch (Exception $ex) {
+      echo " - Unable to connect to the Fedora DB.\n";
+      return;
+    }
+
     ob_flush();
     if ($this->_env != 'production') {
       return;
@@ -210,9 +209,10 @@ class MigrateFromFedoraToDatabase
 
     $ds = [];
     try {
-      $ds = $this->_fedoraDb->fetchAll($stmt, [], Zend_Db::FETCH_ASSOC);
+      $ds = $fedoraDb->fetchAll($stmt, [], Zend_Db::FETCH_ASSOC);
+      $fedoraDb->closeConnection();
     } catch (Exception $ex) {
-      echo " - Failed to retrieve exif data. Error: " . $ex;
+      echo " - Failed to get datastreams from Fedora. Error: " . $ex;
     }
 
     $totalDs = count($ds);
@@ -227,74 +227,40 @@ class MigrateFromFedoraToDatabase
       $dsName = $tokenParts['dsName'];
       $state = 'A';
 
-      echo "\n\n\n - Doing PID $counter/$totalDs ($pid)\n";
+      echo "\n - Doing PID $counter/$totalDs ($pid)\n";
       Zend_Registry::set('version', Date_API::getCurrentDateGMT());
 
       $FezACML_dsID = FezACML::getFezACMLDSName($dsName);
-      $acml = $this->getFezACML($pid, $FezACML_dsID);
+      $acml = false;
+      if(
+        ! (Misc::hasPrefix($dsName, 'preview_')
+        || Misc::hasPrefix($dsName, 'web_')
+        || Misc::hasPrefix($dsName, 'thumbnail_')
+        || Misc::hasPrefix($dsName, 'stream_')
+        || Misc::hasPrefix($dsName, 'presmd_'))
+      ) {
+        $acml = $this->getFezACML($pid, 'FezACML_' . $dsName . '.xml');
+      }
       if ($acml) {
         Fedora_API::callModifyDatastreamByValue($pid, $FezACML_dsID, "A",
           "FezACML security for datastream - " . $dsName,
           $acml->saveXML(), "text/xml", "inherit");
       }
-
-      if(
-        strpos($dsName, 'presmd_') === 0
-      ) {
-        $exif = ['exif_mime_type' => 'application/xml'];
-      } else {
-        $exif = Exiftool::getDetails($pid, $dsName);
-        if (! $exif) {
-          $exif['exif_mime_type'] = 'binary/octet-stream';
-        }
-      }
-
+      $mimeType = $this->quickMimeContentType($dsName);
       $location = 'migration/' . str_replace('/espace/data/fedora_datastreams/', '', $path);
       $location = str_replace('+', '%2B', $location);
-
-      echo "Adding datastream for {$dsName}..\n";
       Fedora_API::callAddDatastream(
         $pid, $dsName, $location, '', $state,
-        $exif['exif_mime_type'], 'M', false, "", false, 'uql-fez-production-san'
+        $mimeType, 'M', false, "", false, 'uql-fez-production-san'
       );
     }
-  }
-
-  /**
-   * Run Reindex workflow on an array of pids
-   * @return boolean
-   */
-  private function reindexPids()
-  {
-    $wft_id = 277;  // hack: Reindex workflow trigger ID
-    $pid = "";
-    $xdis_id = "";
-    $href = "";
-    $dsID = "";
-
-    $stmt = "SELECT rek_pid
-                 FROM " . APP_TABLE_PREFIX . "record_search_key
-                 ORDER BY rek_pid DESC";
-
-    try {
-      $pids = $this->_db->fetchCol($stmt);
-    } catch (Exception $e) {
-      echo " - Failed to retrieve pids. Query: " . $stmt;
-      return false;
-    }
-
-    if (sizeof($pids) > 0) {
-      Workflow::start($wft_id, $pid, $xdis_id, $href, $dsID, $pids);
-    }
-    ob_flush();
-    return true;
   }
 
   /**
    * Update shadow key stamp with rek_updated_date in core SK table
    * Update rek_security_inherited from FezACML for the pids
    */
-  public function addPidsSecurity()
+  private function addPidsSecurity()
   {
     $stmt = "SELECT rek_pid FROM " . APP_TABLE_PREFIX . "record_search_key";
     try {
@@ -312,9 +278,10 @@ class MigrateFromFedoraToDatabase
       echo " - Updating security for $pid ($i/$count)\n";
       $acml = $this->getFezACML($pid, 'FezACML');
       if ($acml) {
-        $location = APP_TEMP_DIR . FezACML::getFezACMLPidName($pid);
+        $dsID = FezACML::getFezACMLPidName($pid);
+        $location = APP_TEMP_DIR . $dsID;
         file_put_contents($location, $acml);
-        Fedora_API::callAddDatastream($pid, 'FezACML', $location,
+        Fedora_API::callAddDatastream($pid, $dsID, $location,
           'FezACML security for PID - ' . $pid, 'A', 'text/xml');
         unlink($location);
       }
@@ -369,7 +336,6 @@ class MigrateFromFedoraToDatabase
 
   private function getFezACML($pid, $dsID)
   {
-    echo " - Getting FezACML for $pid/$dsID\n";
     $result = Misc::processURL(APP_FEDORA_GET_URL . "/" . $pid . "/" . $dsID, false, null, null, null, 10, true);
     if ($result['success'] === 0) {
       return FALSE;
@@ -424,6 +390,73 @@ class MigrateFromFedoraToDatabase
       curl_close($ch);
     }
     return $pid;
+  }
+
+  private function quickMimeContentType($filename) {
+
+    $mime_types = array(
+
+      'txt' => 'text/plain',
+      'htm' => 'text/html',
+      'html' => 'text/html',
+      'php' => 'text/html',
+      'css' => 'text/css',
+      'js' => 'application/javascript',
+      'json' => 'application/json',
+      'xml' => 'application/xml',
+      'swf' => 'application/x-shockwave-flash',
+      'flv' => 'video/x-flv',
+
+      // images
+      'png' => 'image/png',
+      'jpe' => 'image/jpeg',
+      'jpeg' => 'image/jpeg',
+      'jpg' => 'image/jpeg',
+      'gif' => 'image/gif',
+      'bmp' => 'image/bmp',
+      'ico' => 'image/vnd.microsoft.icon',
+      'tiff' => 'image/tiff',
+      'tif' => 'image/tiff',
+      'svg' => 'image/svg+xml',
+      'svgz' => 'image/svg+xml',
+
+      // archives
+      'zip' => 'application/zip',
+      'rar' => 'application/x-rar-compressed',
+      'exe' => 'application/x-msdownload',
+      'msi' => 'application/x-msdownload',
+      'cab' => 'application/vnd.ms-cab-compressed',
+
+      // audio/video
+      'mp3' => 'audio/mpeg',
+      'qt' => 'video/quicktime',
+      'mov' => 'video/quicktime',
+
+      // adobe
+      'pdf' => 'application/pdf',
+      'psd' => 'image/vnd.adobe.photoshop',
+      'ai' => 'application/postscript',
+      'eps' => 'application/postscript',
+      'ps' => 'application/postscript',
+
+      // ms office
+      'doc' => 'application/msword',
+      'rtf' => 'application/rtf',
+      'xls' => 'application/vnd.ms-excel',
+      'ppt' => 'application/vnd.ms-powerpoint',
+
+      // open office
+      'odt' => 'application/vnd.oasis.opendocument.text',
+      'ods' => 'application/vnd.oasis.opendocument.spreadsheet',
+    );
+
+    $ext = strtolower(array_pop(explode('.',$filename)));
+    if (array_key_exists($ext, $mime_types)) {
+      return $mime_types[$ext];
+    }
+    else {
+      return 'application/octet-stream';
+    }
   }
 
   public function fixRekUpdatedDate() {

@@ -368,18 +368,7 @@ class Fedora_API implements FedoraApiInterface {
       }
     } else {
       $obj = null;
-      // @todo(post-migration): Remove migration check
-      $copy = true;
-      if (
-        defined('APP_MIGRATION_RUN')
-        && APP_MIGRATION_RUN === true
-        && $aws->checkExistsById($dataPath, $dsID) === true
-      ) {
-        $copy = false;
-      }
-      if ($copy) {
-        $obj = $aws->copyFile($dsLocation, $dataPath . "/" . $dsID, $srcBucket, $mimetype);
-      }
+      $obj = $aws->copyFile($dsLocation, $dataPath . "/" . $dsID, $srcBucket, $mimetype);
       if ($isFezACML) {
         $fezACMLXML = $aws->getFileContent($dataPath, $dsID);
       }
@@ -398,6 +387,7 @@ class Fedora_API implements FedoraApiInterface {
       'version' => $dsArray['VersionId'],
       'checksum' => str_replace('"', '', $dsArray['ETag'])
     ];
+
     return Datastream::addDatastreamInfo($pid, $dsID, $mimetype, $object, $dsState, $dsLabel, $fezACMLXML);
 	}
 
