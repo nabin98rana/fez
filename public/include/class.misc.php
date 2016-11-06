@@ -856,7 +856,7 @@ public static function multi_implode($glue, $pieces)
           $ds['fezacml'] = $fezacml;
           // now see if its allowed to show etc
           $record = new Record($pid);
-          $FezACML_xdis_id = XSD_Display::getID('FezACML for Datastreams');
+          $FezACML_xdis_id = XSD_Display::getID(FezACML::getXdisTitlePrefix() . 'Datastreams');
           $FezACML_display = new XSD_DisplayObject($FezACML_xdis_id);
           //echo $pid;
           $FezACML_display->getXSDMF_Values($key);
@@ -1003,16 +1003,11 @@ public static function multi_implode($glue, $pieces)
             }
           }
           // now try and find a FezACML metadata datastream of this datastream
-          if(APP_FEDORA_BYPASS == 'ON') {
-            $ds['fezacml_roles'] = Auth::getAuthorisationGroups($pid, $ds['ID']);
-
-          } else {
-            $fezacml = FezACML::getFezACMLDSName($ds['ID']);
-            $ds['fezacml'] = 0;
-            foreach ($original_dsList as $o_key => $o_ds) {
-              if ($fezacml == $o_ds['ID']) {  // found the fezacml datastream so save it against the record
-                $ds['fezacml_roles'] = Auth::getAuthorisationGroups($pid, $ds['ID']);
-              }
+          $fezacml = FezACML::getFezACMLDSName($ds['ID']);
+          $ds['fezacml'] = 0;
+          foreach ($original_dsList as $o_key => $o_ds) {
+            if ($fezacml == $o_ds['ID']) {  // found the fezacml datastream so save it against the record
+              $ds['fezacml_roles'] = Auth::getAuthorisationGroups($pid, $ds['ID']);
             }
           }
           //roles for previewing images
@@ -1569,7 +1564,7 @@ public static function multi_implode($glue, $pieces)
     return $return_str;
   }
 
-  function array_to_object($arr, &$obj)
+  public static function array_to_object($arr, &$obj)
   {
     foreach ($arr as $key => $value) {
       if (is_array($value)) {
@@ -5151,6 +5146,42 @@ public static function multi_implode($glue, $pieces)
 
     return $outputString;
   }
+
+
+  /**
+   * Convert bytes to human readable format
+   *
+   * @param integer $bytes Size in bytes to convert
+   * @param integer $precision how much to round the value, default 2
+   * @return string
+   */
+  public static function bytesToSize($bytes, $precision = 2)
+  {
+    $kilobyte = 1024;
+    $megabyte = $kilobyte * 1024;
+    $gigabyte = $megabyte * 1024;
+    $terabyte = $gigabyte * 1024;
+
+    if (($bytes >= 0) && ($bytes < $kilobyte)) {
+      return $bytes . ' B';
+
+    } elseif (($bytes >= $kilobyte) && ($bytes < $megabyte)) {
+      return round($bytes / $kilobyte, $precision) . ' KB';
+
+    } elseif (($bytes >= $megabyte) && ($bytes < $gigabyte)) {
+      return round($bytes / $megabyte, $precision) . ' MB';
+
+    } elseif (($bytes >= $gigabyte) && ($bytes < $terabyte)) {
+      return round($bytes / $gigabyte, $precision) . ' GB';
+
+    } elseif ($bytes >= $terabyte) {
+      return round($bytes / $terabyte, $precision) . ' TB';
+    } else {
+      return $bytes . ' B';
+    }
+  }
+
+
 } // end of Misc class
 
 if (!function_exists('json_encode')) {

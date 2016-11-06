@@ -195,7 +195,7 @@ if (!empty($pid) && $record->checkExists()) {
     }
   }
 
-  if (APP_SOLR_SWITCH == 'ON' && $username) {
+  if ((APP_SOLR_SWITCH == 'ON' || APP_ES_SWITCH == 'ON') && $username) {
     $details = FulltextQueue::getDetailsForPid($pid);
     if (count($details) > 0) {
       Session::setMessage('This record is currently in the Solr queue - changes may not appear for a few moments.');

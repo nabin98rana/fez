@@ -17,6 +17,9 @@ class RecordGeneral
   var $approver_roles;
   var $checked_auth = false;
   var $auth_groups;
+  /**
+   * @var XSD_DisplayObject
+   */
   var $display;
   var $details;
   var $record_parents;
@@ -1005,7 +1008,7 @@ class RecordGeneral
           $this->pid, "RELS-EXT", "A", "Relationships to other objects", $newXML, "text/xml", "inherit"
       );
       Record::setIndexMatchingFields($this->pid);
-      if (APP_SOLR_INDEXER == "ON") {
+      if (APP_SOLR_INDEXER == "ON" || APP_ES_INDEXER == "ON") {
         FulltextQueue::singleton()->add($this->pid);
         FulltextQueue::singleton()->commit();
       }
@@ -1065,7 +1068,7 @@ class RecordGeneral
       $historyDetail = "Isi_loc was stripped in preparation of Links AMR Service data import";
       History::addHistory($this->pid, null, "", "", true, $historyDetail);
       Record::setIndexMatchingFields($this->pid);
-      /*if( APP_SOLR_INDEXER == "ON" ) {
+      /*if( APP_SOLR_INDEXER == "ON" || APP_ES_INDEXER == "ON" ) {
        FulltextQueue::singleton()->add($this->pid);
        FulltextQueue::singleton()->commit();
        }*/
@@ -1117,7 +1120,7 @@ class RecordGeneral
       $historyDetail = "Scopus ID (EID) was stripped";
       History::addHistory($this->pid, null, "", "", true, $historyDetail);
       Record::setIndexMatchingFields($this->pid);
-      /*if( APP_SOLR_INDEXER == "ON" ) {
+      /*if( APP_SOLR_INDEXER == "ON" || APP_ES_INDEXER == "ON" ) {
        FulltextQueue::singleton()->add($this->pid);
        FulltextQueue::singleton()->commit();
        }*/
@@ -2067,7 +2070,13 @@ class RecordGeneral
         if ($dsID != "") {
           $this->details = $this->display->getXSDMF_Values_Datastream($this->pid, $dsID, $this->createdDT);
         } else {
-          $this->details = $this->display->getXSDMF_Values($this->pid, $this->createdDT, false, $getLookup);
+          $skipIndex = false;
+          $xdis_title = XSD_Display::getTitle($xdis_id);
+          $xdis_title_prefix = FezACML::getXdisTitlePrefix();
+          if (APP_FEDORA_BYPASS == 'ON' && stripos($xdis_title, $xdis_title_prefix) === 0) {
+            $skipIndex = true;
+          }
+          $this->details = $this->display->getXSDMF_Values($this->pid, $this->createdDT, $skipIndex, $getLookup);
         }
       } else {
         $log->err(

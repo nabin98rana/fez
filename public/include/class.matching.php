@@ -291,7 +291,7 @@ class matching
 		}
 
 
-        if (APP_SOLR_INDEXER == "ON") {
+        if (APP_SOLR_INDEXER == "ON" || APP_ES_INDEXER == "ON") {
             FulltextQueue::singleton()->add($pid);
         }
 
@@ -338,7 +338,7 @@ class matching
 			}
 		}
 
-		if (APP_SOLR_INDEXER == "ON") {
+		if (APP_SOLR_INDEXER == "ON" || APP_ES_INDEXER == "ON") {
 			FulltextQueue::singleton()->add($pid);
 		}
 
@@ -399,7 +399,7 @@ class matching
             }
         }
 
-        if (APP_SOLR_INDEXER == "ON") {
+        if (APP_SOLR_INDEXER == "ON" || APP_ES_INDEXER == "ON") {
             FulltextQueue::singleton()->add($pid);
         }
 
@@ -458,7 +458,7 @@ class matching
             $log->err($ex);
             return false;
         }
-        if (APP_SOLR_INDEXER == "ON") {
+        if (APP_SOLR_INDEXER == "ON" || APP_ES_INDEXER == "ON") {
             FulltextQueue::singleton()->add($pid);
         }
 
@@ -498,7 +498,7 @@ class matching
             return false;
         }
 
-        if (APP_SOLR_INDEXER == "ON") {
+        if (APP_SOLR_INDEXER == "ON" || APP_ES_INDEXER == "ON") {
             FulltextQueue::singleton()->add($pid);
         }
 

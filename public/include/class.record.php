@@ -939,53 +939,6 @@ class Record
   }
 
   /**
-   * Method used to edit the security (FezACML) details of a specific Datastream.
-   *
-   * @access  public
-   * @param   string $pid The persistent identifier of the record
-   * @param   string $dsID The datastream ID of the datastream
-   * @return  integer 1 if the update worked, -1 otherwise
-   */
-  function editDatastreamSecurity($pid, $dsID)
-  {
-    //        $record = new RecordObject($pid);
-    $xdis_id = XSD_Display::getID('FezACML for Datastreams');
-    $display = new XSD_DisplayObject($xdis_id);
-    list($array_ptr,$xsd_element_prefix, $xsd_top_element_name, $xml_schema) = $display->getXsdAsReferencedArray();
-    $indexArray = array();
-    $header = "<".$xsd_element_prefix.$xsd_top_element_name." ";
-    $header .= Misc::getSchemaSubAttributes($array_ptr, $xsd_top_element_name, $xdis_id, $pid);
-    $header .= ">\n";
-    $xmlObj = Foxml::array_to_xml_instance(
-        $array_ptr, $xmlObj, $xsd_element_prefix, "", "", "", $xdis_id, $pid, $xdis_id, "",
-        $indexArray, '', '', '', '', '', ''
-    );
-    $xmlObj .= "</".$xsd_element_prefix.$xsd_top_element_name.">\n";
-    $xmlObj = $header . $xmlObj;
-    $FezACML_dsID = FezACML::getFezACMLDSName($dsID);
-    if (Fedora_API::datastreamExists($pid, $FezACML_dsID)) {
-      Fedora_API::callModifyDatastreamByValue(
-          $pid, $FezACML_dsID, "A", "FezACML security for datastream - ".$dsID,
-          $xmlObj, "text/xml", "inherit"
-      );
-    } else {
-      Fedora_API::getUploadLocation(
-          $pid, $FezACML_dsID, $xmlObj, "FezACML security for datastream - ".$dsID,
-          "text/xml", "X", null, "true"
-      );
-    }
-    /*
-     * This pid has been updated, we want to delete any
-     * cached files as well as cached files for custom views
-     */
-
-    if (APP_FILECACHE == "ON") {
-      $cache = new fileCache($pid, 'pid='.$pid);
-      $cache->poisonCache();
-    }
-  }
-
-  /**
    * Method used to update the Admin details (FezMD) of a specific Record.
    *
    * @access  public
@@ -1149,7 +1102,7 @@ class Record
     //
     // KJ: remove from fulltext index
     //
-    if ( APP_SOLR_INDEXER == "ON" && $remove_solr == true) {
+    if ((APP_SOLR_INDEXER == "ON" || APP_ES_INDEXER == "ON") && $remove_solr == true) {
       $log->debug("Record::removeIndexRecord() REMOVING ".$pid." FROM QUEUE");
       FulltextQueue::singleton()->remove($pid);
       FulltextQueue::singleton()->commit();
@@ -1322,7 +1275,7 @@ class Record
           $stmtIns .= ", " . $db->quote($now);
         }
         $stmtIns .= ")";
-            $db->beginTransaction();
+        $db->beginTransaction();
         if (is_numeric(strpos(APP_SQL_DBTYPE, "mysql"))) {
           $stmt = $stmtIns ." ON DUPLICATE KEY UPDATE " . implode(",", $valuesUpd);
         } else {
@@ -1338,10 +1291,10 @@ class Record
         $stmt = Encoding::toUTF8($stmt);
         try {
           $db->exec($stmt);
-                $db->commit();
+          $db->commit();
         }
         catch(Exception $ex) {
-                $db->rollBack();
+          $db->rollBack();
           $log->err($ex." stmt: ".$stmt);
           $ret = false;
         }
@@ -1581,7 +1534,7 @@ class Record
     //
     // KJ: update fulltext index
     //
-    if (APP_SOLR_INDEXER == "ON") {
+    if (APP_SOLR_INDEXER == "ON" || APP_ES_INDEXER == "ON") {
       $log->debug("Record::updateSearchKeys() ADDING ".$pid." TO QUEUE");
       FulltextQueue::singleton()->add($pid);
       FulltextQueue::singleton()->commit();
@@ -1768,9 +1721,7 @@ class Record
     $record = new RecordObject($pid);
     $record->setIndexMatchingFields();
 
-    if (APP_FEDORA_BYPASS != 'ON') {
-      AuthIndex::setIndexAuth($pid); //set the security index
-    }
+    AuthIndex::setIndexAuth($pid); //set the security index
   }
 
   function setIndexMatchingFieldsRecurse($pid, $bgp=null, $fteindex = true)
@@ -1835,20 +1786,22 @@ class Record
   {
     static $acml_cache;
     $ds_pattern = false;
-    $ds_search = 'FezACML';
     if ($dsID != "") {
       if (isset($acml_cache['ds'][$dsID][$pid])) {
         return $acml_cache['ds'][$dsID][$pid];
       } else {
-        $dsIDCore = preg_replace("/(web_|preview_|thumbnail_|stream_)/", "", $dsID);
-        $dsIDCore = substr($dsIDCore, 0, strrpos($dsIDCore, "."));
-        $ds_pattern = '/^FezACML_'.$dsIDCore.'\.(.*)xml$/';
-        $ds_search = 'FezACML_'.$dsID.'.xml';
+        $ds_search = FezACML::getFezACMLDSName($dsID);
+        if (APP_FEDORA_BYPASS != "ON") {
+          $dsIDCore = preg_replace("/(web_|preview_|thumbnail_|stream_)/", "", $dsID);
+          $dsIDCore = substr($dsIDCore, 0, strrpos($dsIDCore, "."));
+          $ds_pattern = '/^FezACML_' . $dsIDCore . '\.(.*)xml$/';
+        }
       }
     } else {
       if (isset($acml_cache['pid'][$pid])) {
         return $acml_cache['pid'][$pid];
       }
+      $ds_search = FezACML::getFezACMLPidName($pid);
     }
     $dsExists = Fedora_API::datastreamExists($pid, $ds_search, true, $ds_pattern);
     if ($dsExists !== false) {
@@ -2456,7 +2409,7 @@ class Record
 
     $searchKey_join = self::buildSearchKeyFilterSolr($options, $sort_by, $operator, $doExactMatch);
     $filter_join = self::buildSearchKeyFilterSolr($filter, "", $operator, $doExactMatch);
-    $index = new FulltextIndex_Solr(true);
+    $index = FulltextIndex::get(true);
 
     $res = $index->searchAdvancedQuery(
         $searchKey_join, $filter_join, $approved_roles, $start, $page_rows, $use_faceting,
@@ -2473,7 +2426,8 @@ class Record
     if (count($res) > 0) {
       if ($getSimple == false || empty($getSimple)) {
         // temporarily jus set everything to citation cache true to test out getting lookups, reseasrc and notes from solr now
-        $citationCache = true;
+        // CK - 19/10/16 - stop doing this because we are now using this function for ES indexing
+//        $citationCache = true;
         if ($citationCache == false) {
           if (is_numeric($usr_id)) {
             //This can be significently made faster by Record::getExtendedPidInfo($res, array('Display Type', 'HERDC Status', 'HERDC code', 'Institutional Status', 'Follow up Flags', 'Follow up Flags IMU'));
@@ -3362,7 +3316,7 @@ class Record
       return false;
     }
 
-    if ( APP_SOLR_INDEXER == "ON" ) {
+    if ( APP_SOLR_INDEXER == "ON" || APP_ES_INDEXER == "ON" ) {
       FulltextQueue::singleton()->add($pid);
     }
     if (APP_FILECACHE == "ON") {
@@ -3503,7 +3457,7 @@ class Record
     // Record in history
     Record::insertThomsonCitationCount($isi_loc, $count);
 
-    if ( APP_SOLR_INDEXER == "ON" ) {
+    if ( APP_SOLR_INDEXER == "ON" || APP_ES_INDEXER == "ON" ) {
       FulltextQueue::singleton()->add($pid);
     }
     if (APP_FILECACHE == "ON") {
@@ -3779,7 +3733,7 @@ class Record
     // Record in history
     Record::insertScopusCitationCount($eid, $count);
 
-    if ( APP_SOLR_INDEXER == "ON" ) {
+    if ( APP_SOLR_INDEXER == "ON" || APP_ES_INDEXER == "ON" ) {
       FulltextQueue::singleton()->add($pid);
     }
     if (APP_FILECACHE == "ON") {
@@ -4925,7 +4879,7 @@ function getSearchKeyIndexValueShadow($pid, $searchKeyTitle, $getLookup=true, $s
                 $searchKey_join[SK_SEARCH_TXT] .= "\", ";
               }
             } elseif ($sekdet['sek_data_type'] == "date") {
-              if (!empty($searchValue) && $searchValue['filter_enabled'] == 1) {
+              if (!empty($searchValue) && !empty($searchValue['filter_type']) && $searchValue['filter_enabled'] == 1) {
                 $sqlDate = '';
                 switch ($searchValue['filter_type']) {
                   case 'greater':
@@ -4998,7 +4952,7 @@ function getSearchKeyIndexValueShadow($pid, $searchKeyTitle, $getLookup=true, $s
               } else {
                 // surround the exact match with quotes specifically (quotes need to go outside escapeSolr
                 // call as we don't want them escaped)
-                if ($doExactMatch && strtolower($sekdet['sek_title']) == 'author') {
+                if ($doExactMatch || strtolower($sekdet['sek_title']) == 'author') {
                   $searchKey_join["sk_where_$operatorToUse"][] = $sqlColumnName.$suffix.":(\"".
                       Record::escapeSolr($searchValue)."\") ";
                 } else {
@@ -5013,7 +4967,7 @@ function getSearchKeyIndexValueShadow($pid, $searchKeyTitle, $getLookup=true, $s
                 $searchKey_join["sk_where_$operatorToUse"][] = $sqlColumnName.$suffix.":\"".Record::escapeSolr($searchValue)."\"";
                 $searchKey_join[SK_SEARCH_TXT] .= $sekdet['sek_title'].":\"".htmlspecialchars(trim($searchValue))."\", ";
             } else {
-              $searchKey_join["sk_where_$operatorToUse"][] = $sqlColumnName.$suffix.":".Record::escapeSolr($searchValue)."";
+              $searchKey_join["sk_where_$operatorToUse"][] = $sqlColumnName.$suffix.":\"".Record::escapeSolr($searchValue)."\"";
               $searchKey_join[SK_SEARCH_TXT] .= $sekdet['sek_title'].":\"".htmlspecialchars(trim($searchValue))."\", ";
             }
           }
@@ -5118,11 +5072,11 @@ function getSearchKeyIndexValueShadow($pid, $searchKeyTitle, $getLookup=true, $s
    * @param string $username The username of the search is performed on
    * @return array $res2 The index details of records associated with the user
    */
-  function getCreated($options, $current_page=0,$page_rows="ALL",$sort_by='', $sort_order=0)
+  function getCreated($options, $current_page=0,$page_rows="ALL",$sort_by='', $sort_order=0, $filter)
   {
     $usr_id = Auth::getUserID();
-    $options["searchKey".Search_Key::getID("Depositor")] = $usr_id;
-    return Record::getListing($options, array("Lister"), $current_page, $page_rows, $sort_by);
+    $filter["searchKey".Search_Key::getID("Depositor")] = $usr_id;
+    return Record::getListing($options, array("Lister"), $current_page, $page_rows, $sort_by, false, false, $filter);
   }
 
 
@@ -5772,7 +5726,7 @@ function getSearchKeyIndexValueShadow($pid, $searchKeyTitle, $getLookup=true, $s
         Fedora_API::callPurgeDatastream($pid, $presmd_check);
       }
       Fedora_API::getUploadLocationByLocalRef(
-          $pid, $presmd_id, $presmd_check, $presmd_check,
+          $pid, $presmd_id, $presmd_check, "PresMD for datastream - " . $dsIDName,
           "text/xml", "M"
       );
       if (is_file(APP_TEMP_DIR.basename($presmd_check))) {
@@ -6133,6 +6087,10 @@ function getSearchKeyIndexValueShadow($pid, $searchKeyTitle, $getLookup=true, $s
    **/
   public static function updateDatastreamLabel($pid, $dsID, $newLabel)
   {
+    if (APP_FEDORA_BYPASS == 'ON') {
+      Datastream::setLabel($pid, $dsID, $newLabel);
+      return;
+    }
     $currentDetails = Fedora_API::callGetDatastream($pid, $dsID);
     Fedora_API::callModifyDatastreamByReference(
         $pid, $dsID, $newLabel, $currentDetails['location'],

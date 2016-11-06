@@ -78,7 +78,7 @@ for ($i = 0; $i < ((int)$listing['info']['total_pages']+1); $i++) {
                     $doiCache[] = $doi;
                 }
                 Record::updateAltmetricScoreFromHistory($pid);
-                if ( APP_SOLR_INDEXER == "ON" ) {
+                if ( APP_SOLR_INDEXER == "ON" || APP_ES_INDEXER == "ON" ) {
                     FulltextQueue::singleton()->add($pid);
                 }
             }
@@ -87,7 +87,7 @@ for ($i = 0; $i < ((int)$listing['info']['total_pages']+1); $i++) {
             echo $pid;
         }
 
-        if ( APP_SOLR_INDEXER == "ON" ) {
+        if ( APP_SOLR_INDEXER == "ON" || APP_ES_INDEXER == "ON" ) {
             FulltextQueue::singleton()->commit();
         }
     }

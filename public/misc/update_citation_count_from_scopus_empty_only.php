@@ -36,7 +36,7 @@ include_once(APP_INC_PATH . "class.record.php");
 include_once(APP_INC_PATH . "class.fulltext_queue.php");
 
 $max = 100; 	// Max number of primary key IDs to send with each service request call
-$sleep = 1; 	// Number of seconds to wait for between successive service calls 
+$sleep = 1; 	// Number of seconds to wait for between successive service calls
 
 // scopus id regex
 $regex = "/^2-s2\\.0-[0-9]{10,11}/";
@@ -53,7 +53,7 @@ $listing = Record::getListing(array(), array(9,10), 0, $max, 'Created Date', fal
 echo "Found ".$listing['info']['total_rows']." pids that have a scopus id to update their citation count \n";
 //exit;
 for($i=0; $i<((int)$listing['info']['total_pages']+1); $i++) {
-	
+
 	// Skip first loop - we have called getListing once already
 	if($i>0 && $listing['info']['next_page'] != '-1') {
 		$listing = Record::getListing(array(), array(9,10), $listing['info']['next_page'], $max, 'Created Date', false, false, $filter);
@@ -81,18 +81,18 @@ for($i=0; $i<((int)$listing['info']['total_pages']+1); $i++) {
             }
         }
 		foreach($result as $pid => $link_data) {
-			$eid = $link_data['eid']; 
+			$eid = $link_data['eid'];
 			if (is_numeric($link_data['citedByCount'])) {
-				$count = $link_data['citedByCount']; 
+				$count = $link_data['citedByCount'];
 			} else {
 				$count = 0;
 			}
 //            echo "DID FIND ".$input_pid." for eid ".$input_array['eid']." with count ".$linked_data['citedByCount']."\n";
 			Record::updateScopusCitationCount($pid, $count, $eid);
 		}
-        if ( APP_SOLR_INDEXER == "ON" ) {
+        if ( APP_SOLR_INDEXER == "ON" || APP_ES_INDEXER == "ON" ) {
           FulltextQueue::singleton()->commit();
         }
-		sleep($sleep); // Wait before using the service again		
+		sleep($sleep); // Wait before using the service again
 	}
 }

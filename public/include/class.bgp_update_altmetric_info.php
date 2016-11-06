@@ -98,7 +98,7 @@ class BackgroundProcess_Update_Altmetric_Info extends BackgroundProcess
               $doiCache[] = $doi;
             }
             Record::updateAltmetricScoreFromHistory($pid);
-            if ( APP_SOLR_INDEXER == "ON" ) {
+            if ( APP_SOLR_INDEXER == "ON" || APP_ES_INDEXER == "ON" ) {
               FulltextQueue::singleton()->add($pid);
             }
           }

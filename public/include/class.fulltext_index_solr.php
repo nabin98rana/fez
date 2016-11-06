@@ -39,23 +39,12 @@ class FulltextIndex_Solr extends FulltextIndex
   }
 
   /**
-   * Returns an instance of the php solr service class.
-   *
-   * @return Apache_Solr_Service
-   */
-  private function getSolr()
-  {
-    $solr = new Apache_Solr_Service($this->solrHost, $this->solrPort, $this->solrPath);
-    return $solr;
-  }
-
-  /**
    * Updates the Solr fulltext index with a new or existing document.
    *
    * @param string $pid
    * @param array $fields
    */
-  protected function updateFulltextIndex($pid, $fields, $fieldTypes)
+  protected function updateFulltextIndex($pid, $fields)
   {
     $log = FezLog::get();
 
@@ -66,7 +55,7 @@ class FulltextIndex_Solr extends FulltextIndex
       $doc->id = $pid;
 
       foreach ($fields as $key => $value) {
-        if (is_array($value) && $fieldTypes) {
+        if (is_array($value)) {
           foreach ($value as $v) {
             // too much utf8_encode for fields already encoded...
             if ($v != "") {
@@ -121,58 +110,6 @@ class FulltextIndex_Solr extends FulltextIndex
 
   }
 
-  protected function prepareQuery($params, $options, $rulegroups, $approved_roles, $sort_by, $start, $page_rows)
-  {
-    $query = '';
-    $filterQuery = '';
-    $i = 0;
-    if ($params['words']) {
-      foreach ($params['words'] as $key => $value) {
-        if ($value['wf'] != 'ALL') {
-          $sek_details = Search_Key::getBasicDetailsByTitle($value['wf']);
-
-          if ($sek_details['sek_relationship'] > 0) {
-            $isMulti = true;
-          } else {
-            $isMulti = false;
-          }
-          $wf = FulltextIndex_Solr::getFieldName($value['wf'], self::FIELD_TYPE_TEXT, $isMulti);
-          $query .= $wf . ":(";
-        } else {
-          $query .= '(';
-        }
-        $query .= $value['w']; // need to do some escaping here?
-        $query .= ')';
-
-        $i++;
-        if ($i < count($params['words'])) {
-          $query .= ' ' . $value['op'] . ' ';
-        }
-      }
-    }
-
-    if ($params['direct']) {
-      foreach ($params['direct'] as $key => $value) {
-        if (strlen(trim($query)) > 0) {
-          $query .= ' AND ';
-        }
-        $query .= '(' . $value . ')';
-      }
-    }
-
-    $queryString = $query;
-    $filterQuery = "(status_i:2)";
-    if (!empty($rulegroups)) {
-      $filterQuery .= " AND (_authlister_t:(" . $rulegroups . "))";
-    }
-
-
-    return array(
-      'query' => $queryString,
-      'filter' => $filterQuery
-    );
-  }
-
   public function suggestQuery($query, $approved_roles, $start, $page_rows)
   {
     $log = FezLog::get();
@@ -218,102 +155,6 @@ class FulltextIndex_Solr extends FulltextIndex
       'snips' => $snips
     );
   }
-
-  public function prepareRuleGroups()
-  {
-    // gets user rule groups for this user
-    $userID = Auth::getUserID();
-    if (empty($userID)) {
-      // get public lister rulegroups
-      $userRuleGroups = Collection::getPublicAuthIndexGroups();
-    } else {
-      $userRuleGroups = Collection::getPublicAuthIndexGroups();
-    }
-    return $userRuleGroups;
-  }
-
-
-  protected function prepareAdvancedQuery($searchKey_join, $filter_join, $roles)
-  {
-
-    $filterQuery = "";
-
-    if ($searchKey_join[2] == "") {
-      $searchQuery = "*:*";
-    } else {
-      $searchQuery = $searchKey_join[2];
-    }
-
-    $approved_roles = array();
-    if (!Auth::isAdministrator()) {
-      $rulegroups = $this->prepareRuleGroups();
-      $usr_id = Auth::getUserID();
-      if (is_array($rulegroups)) {
-        $rulegroups = implode(" OR ", $rulegroups);
-      } else {
-        $rulegroups = false;
-      }
-
-      foreach ($roles as $role) {
-        if (!is_numeric($role)) {
-          $approved_roles[] = $role;
-        } else {
-          $roleID = Auth::getRoleTitleByID($role);
-          if ($roleID != false) {
-            $approved_roles[] = $roleID;
-          }
-        }
-      }
-      if (is_numeric($usr_id)) {
-        if (in_array('Creator', $approved_roles)) {
-          $creatorGroups = Auth::getUserRoleAuthRuleGroupsInUse($usr_id, "Creator");
-          if (is_array($creatorGroups)) {
-            $creatorGroups = implode(" OR ", $creatorGroups);
-            $filterQueryParts[] = "(_authcreator_t:(" . $creatorGroups . "))";
-          } else {
-            $filterQueryParts[] = "(_authcreator_t:(" . $rulegroups . "))";
-          }
-        }
-        if (in_array('Editor', $approved_roles)) {
-          $editorGroups = Auth::getUserRoleAuthRuleGroupsInUse($usr_id, "Editor");
-          if (!empty($editorGroups)) {
-            if (is_array($editorGroups)) {
-              $editorGroups = implode(" OR ", $editorGroups);
-              $filterQueryParts[] = "(_autheditor_t:(" . $editorGroups . "))";
-            } else {
-              $filterQueryParts[] = "(_autheditor_t:(" . $rulegroups . "))";
-            }
-          }
-        }
-        if (in_array('Lister', $approved_roles)) {
-          $listerGroups = Auth::getUserListerAuthRuleGroupsInUse($usr_id);
-          if (!empty($listerGroups)) {
-            $listerGroups = implode(" OR ", $listerGroups);
-            $filterQueryParts[] = "(_authlister_t:(" . $listerGroups . "))";
-          }
-        }
-      } else {
-        if (!empty($rulegroups)) {
-          $filterQueryParts[] = "(_authlister_t:(" . $rulegroups . "))";
-        }
-      }
-      if (is_array($filterQueryParts)) {
-        $filterQuery = implode(" OR ", $filterQueryParts);
-      } else {
-        $filterQuery = "";
-      }
-    }
-
-    if ($filter_join[2] != "") {
-      if ($filterQuery != "") {
-        $filterQuery .= " AND ";
-      }
-      $filterQuery .= $filter_join[2];
-    }
-
-    return array('query' => $searchQuery, 'filter' => $filterQuery);
-  }
-
 
   public function searchAdvancedQuery($searchKey_join, $filter_join, $approved_roles, $start, $page_rows, $use_faceting = false, $use_highlighting = false, $facet_limit = APP_SOLR_FACET_LIMIT, $facet_mincount = APP_SOLR_FACET_MINCOUNT)
   {
@@ -702,50 +543,6 @@ class FulltextIndex_Solr extends FulltextIndex
       'snips' => $snips
     );
   }
-
-
-  public function getFieldName($fezName, $datatype = FulltextIndex::FIELD_TYPE_TEXT,
-                               $multiple = false, $is_sort = false)
-  {
-
-    $fezName .= '_';
-    if ($multiple) {
-      $fezName .= 'm';
-    }
-
-    switch ($datatype) {
-      case FulltextIndex::FIELD_TYPE_TEXT:
-        $fezName .= 't';
-        if ($is_sort) {
-          $fezName .= '_s';
-        }
-        break;
-
-      case FulltextIndex::FIELD_TYPE_DATE:
-        $fezName .= 'dt';
-        break;
-
-      case FulltextIndex::FIELD_TYPE_INT:
-        $fezName .= 'i';
-        break;
-
-      case FulltextIndex::FIELD_TYPE_VARCHAR :
-        $fezName .= 't';
-        if ($is_sort) {
-          $fezName .= '_s';
-        }
-        break;
-
-      default:
-        $fezName .= 't';
-        if ($is_sort) {
-          $fezName .= '_s';
-        }
-    }
-
-    return $fezName;
-  }
-
 
   protected function optimizeIndex()
   {

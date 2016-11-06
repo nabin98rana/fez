@@ -14,12 +14,12 @@ include_once(APP_INC_PATH . "class.fulltext_queue.php");
 include_once(APP_INC_PATH . "class.custom_view.php");
 include_once(APP_INC_PATH . "Apache/Solr/Service.php");
 
-class FulltextIndex_Solr_CSV extends FulltextIndex
+class FulltextIndex_Solr_CSV extends FulltextIndex_Solr
 {
   private $solrHost;
   private $solrPort;
   private $solrPath;
-  private $solr;
+  public $solr;
   const FIELD_TYPE_INT = 0;
   const FIELD_TYPE_DATE = 1;
   const FIELD_TYPE_VARCHAR = 2;
@@ -161,7 +161,7 @@ class FulltextIndex_Solr_CSV extends FulltextIndex
       $this->preBuildCitations($pids);
 
       // Cache any datastreams that have text files
-      if (APP_SOLR_INDEX_DATASTREAMS == 'ON') {
+      if ((APP_SOLR_INDEX_DATASTREAMS == 'ON' || APP_ES_INDEX_DATASTREAMS == 'ON') ) {
         $this->preCacheDatastreams($pids);
       }
 
@@ -388,13 +388,14 @@ class FulltextIndex_Solr_CSV extends FulltextIndex
        * Add datastream text to CSV array
        */
       $content = '';
-      if (APP_SOLR_INDEX_DATASTREAMS == 'ON') {
+      if ((APP_SOLR_INDEX_DATASTREAMS == 'ON' || APP_ES_INDEX_DATASTREAMS == 'ON') ) {
         $content = $this->getCachedContent($pids);
-        $content = preg_replace('/[^(\x20-\x7F)]*/', '', $content);
+
       }
       foreach ($csv as $rek_pid => $rek_line) {
 
         if (!empty($content[$rek_pid])) {
+          $content[$rek_pid] = preg_replace('/[^(\x20-\x7F)]*/', '', $content[$rek_pid]);
           $csv[$rek_pid] .= ',"' .  mb_strimwidth($content[$rek_pid], 0, 31000, "...") . '"';
         } else {
           $csv[$rek_pid] .= ',""';
@@ -539,236 +540,14 @@ class FulltextIndex_Solr_CSV extends FulltextIndex
   }
 
 
-  public function getFieldName($fezName, $datatype = FulltextIndex::FIELD_TYPE_TEXT,
-                               $multiple = false)
-  {
-    $fezName .= '_';
-    if ($multiple) {
-      $fezName .= 'm';
-    }
 
-    switch ($datatype) {
-      case FulltextIndex::FIELD_TYPE_TEXT:
-        $fezName .= 't';
-        break;
-      case FulltextIndex::FIELD_TYPE_DATE:
-        $fezName .= 'dt';
-        break;
-      case FulltextIndex::FIELD_TYPE_INT:
-        $fezName .= 'i';
-        break;
-      case FulltextIndex::FIELD_TYPE_VARCHAR :
-        $fezName .= 't';
-        break;
-      default:
-        $fezName .= 't';
-    }
-
-    return $fezName;
-  }
-
-  private function getRuleGroupsChunk($pids, $roles)
-  {
-    $log = FezLog::get();
-    $db = DB_API::get();
-
-    $stmt = 'SELECT authi_pid, authi_role, authi_arg_id
-                  FROM ' . APP_TABLE_PREFIX . 'auth_index2
-                  WHERE authi_pid IN (' . $pids . ')
-                        AND authi_role IN (' . implode(',', $roles) . ')';
-
-    try {
-      $res = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
-    } catch (Exception $ex) {
-      $log->err($ex);
-      return '';
-    }
-    $ret = array();
-    foreach ($res as $row) {
-      $ret[$row['authi_pid']][$row['authi_role']] = $row['authi_arg_id'];
-    }
-
-    return $ret;
-  }
-
-  private function preBuildCitations($pids)
-  {
-    $log = FezLog::get();
-    $db = DB_API::get();
-
-    $stmt = "SELECT rek_pid
-                FROM " . APP_TABLE_PREFIX . "record_search_key
-                WHERE rek_pid IN (" . $pids . ") AND
-                      (rek_citation IS NULL OR rek_citation = '')";
-
-    try {
-      $res = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
-    } catch (Exception $ex) {
-      $log->err($ex);
-      return '';
-    }
-
-    $rebuildCount = count($res);
-    $rCounter = 0;
-    foreach ($res as $pidData) {
-      $rCounter++;
-      $log->debug(array("processQueue: about to pre build citation " . $pidData['rek_pid'] . " (" . $rCounter . "/" . $rebuildCount . ")"));
-
-      Citation::updateCitationCache($pidData['rek_pid']);
-    }
-  }
-
-  private function preCacheDatastreams($pids)
-  {
-    $log = FezLog::get();
-    $db = DB_API::get();
-
-    if ($this->bgp) {
-      $this->bgp->setStatus("Caching datastreams");
-    }
-    $res = array();
-    if (defined("APP_SQL_CACHE_DBHOST")) {
-      $db_cache = DB_API::get('db_cache');
-
-      $stmt = "SELECT rek_file_attachment_name_pid as rek_pid, rek_file_attachment_name
-                FROM " . APP_TABLE_PREFIX . "record_search_key_file_attachment_name
-                WHERE rek_file_attachment_name_pid IN (" . $pids . ") AND
-                rek_file_attachment_name LIKE '%.pdf'";
-
-      try {
-        $potentials = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
-      } catch (Exception $ex) {
-        $log->err($ex);
-      }
-
-      if (count($potentials) > 0) {
-        $pdfPidsSet = array();
-
-        foreach ($potentials as $pt) {
-          $pdfPidsSet[] = $pt['rek_pid'];
-        }
-
-        $pdfPids = implode("','", $pdfPidsSet);
-
-        $stmt = "SELECT ftc_pid as rek_pid, ftc_dsid
-                FROM " . APP_TABLE_PREFIX . "fulltext_cache
-                WHERE ftc_pid IN ('" . $pdfPids . "')";
-        try {
-          $res = $db_cache->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
-        } catch (Exception $ex) {
-          $log->err($ex);
-        }
-        $missing = array();
-        $found = array();
-        foreach ($potentials as $pt) {
-          foreach ($res as $hit) {
-            if ($hit['rek_pid'] == $pt['rek_pid'] && $hit['ftc_dsid'] == $pt['rek_file_attachment_name']) {
-              $found[] = $hit['rek_pid'];
-            }
-          }
-        }
-        foreach ($potentials as $pt) {
-           if (!in_array($pt['rek_pid'], $found)) {
-            $missing[]['rek_pid'] = $pt['rek_pid'];
-           }
-        }
-        $res = $missing;
-      }
-    } else {
-      $stmt = "SELECT rek_file_attachment_name_pid as rek_pid
-                FROM " . APP_TABLE_PREFIX . "record_search_key_file_attachment_name
-                LEFT JOIN " . APP_TABLE_PREFIX . "fulltext_cache ON rek_file_attachment_name_pid = ftc_pid AND rek_file_attachment_name = ftc_dsid
-                WHERE ftc_dsid IS NULL AND rek_file_attachment_name_pid IN (" . $pids . ") AND
-                      rek_file_attachment_name LIKE '%.pdf'";
-
-      try {
-        $res = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
-      } catch (Exception $ex) {
-        $log->err($ex);
-      }
-
-    }
-
-
-    foreach ($res as $pidData) {
-      $record = new RecordObject($pidData['rek_pid']);
-      $dslist = $record->getDatastreams();
-
-      if (count($dslist) == 0) {
-        if ($this->bgp) {
-          $this->bgp->setStatus($pidData['rek_pid'] . " has no datastreams but it should");
-        }
-        continue;
-      }
-
-      foreach ($dslist as $dsitem) {
-        $this->indexDS($record, $dsitem);
-      }
-    }
-
-    if ($this->bgp) {
-      $this->bgp->setStatus("Finished Caching datastreams");
-    }
-  }
-
-  /**
-   * Retrieves the cached plaintext for a (pid,datastream) pair from the
-   * fulltext cache.
-   *
-   * @param string $pid
-   * @param string $dsID
-   * @return plaintext of datastream, null on error
-   */
-  public function getCachedContent($pids)
-  {
-    $log = FezLog::get();
-    if (defined("APP_SQL_CACHE_DBHOST")) {
-      $db = DB_API::get('db_cache');
-    } else {
-      $db = DB_API::get();
-    }
-
-    $pids = str_replace('"', "'", $pids);
-    // Remove newlines, page breaks and replace " with "" (which is how to escape for CSV files)
-    //$stmt = "SELECT ftc_pid as pid, REPLACE(REPLACE(REPLACE(ftc_content, '\"','\"\"'), '\n', ' '), '\t', ' ') as content, ftc_dsid as dsid ".
-    $stmt = "SELECT ftc_pid as pid, ftc_content as content, ftc_dsid as dsid " .
-      'FROM ' . APP_TABLE_PREFIX . FulltextIndex::FULLTEXT_TABLE_NAME .
-      ' WHERE ftc_pid IN (' . $pids . ') AND ftc_is_text_usable = TRUE';
-
-    try {
-      $res = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
-    } catch (Exception $ex) {
-      $log->err($ex);
-      $res = null;
-    }
-
-    //This assumes this function is run without anyone logged in. IE background process
-    foreach ($res as $key => $value) {
-      $userPIDAuthGroups = Auth::getAuthorisationGroups($value['pid'], $value['dsid']);
-      if (!in_array('Lister', $userPIDAuthGroups)) {
-        unset($res[$key]);
-      }
-    }
-
-    $ret = array();
-    foreach ($res as $row) {
-
-      if (!empty($ret[$row['pid']])) {
-        $ret[$row['pid']] .= "\t" . $row['content'];
-      } else {
-        $ret[$row['pid']] = $row['content'];
-      }
-    }
-
-    return $ret;
-  }
 
   protected function executeQuery($query, $options, $approved_roles, $sort_by, $start, $page_rows)
   {
 
   }
 
-  protected function updateFulltextIndex($pid, $fields, $fieldTypes)
+  protected function updateFulltextIndex($pid, $fields)
   {
 
   }

@@ -134,12 +134,13 @@ class Collection
     // OR parents of the collection have ACML set
     //     AND user is in the roles for the ACML
     $options = array();
-    $options["searchKey".Search_Key::getID("Status")] = 2; // enforce published records only
-    $options["searchKey".Search_Key::getID("Object Type")] = 2; // collections only
+    $filter = array();
+    $filter["searchKey".Search_Key::getID("Status")] = 2; // enforce published records only
+    $filter["searchKey".Search_Key::getID("Object Type")] = 2; // collections only
     if (!empty($community_pid)) {
-      $options["searchKey".Search_Key::getID("isMemberOf")] = $community_pid; //
+      $filter["searchKey".Search_Key::getID("isMemberOf")] = $community_pid; //
     }
-    $list = Record::getListing($options, $roles, 0, 10000, "Title", true, true, array(), 'AND', false,
+    $list = Record::getListing($options, $roles, 0, 10000, "Title", true, true, $filter, 'AND', false,
       false, false, APP_SOLR_FACET_LIMIT, APP_SOLR_FACET_MINCOUNT, false, null, false);
     return $list;
 
@@ -903,7 +904,7 @@ class Collection
     $db = DB_API::get();
 
     if (APP_SOLR_SWITCH == "ON" ) {
-      $index = new FulltextIndex_Solr(true);
+      $index = FulltextIndex::get(true);
       $sort_by = "";
       $approved_roles=array(9,10);
       $params = array();
@@ -997,12 +998,12 @@ class Collection
     $options = array();
     if (APP_CUSTOM_VIEW_PID != "") {
       // enforce custom view collections only
-      $options["searchKey".Search_Key::getID("isMemberOf")] = APP_CUSTOM_VIEW_PID;
+      $filter["searchKey".Search_Key::getID("isMemberOf")] = APP_CUSTOM_VIEW_PID;
     }
-    $options["searchKey".Search_Key::getID("Status")] = 2; // enforce published records only
-    $options["searchKey".Search_Key::getID("Object Type")] = 2; // collections only
+    $filter["searchKey".Search_Key::getID("Status")] = 2; // enforce published records only
+    $filter["searchKey".Search_Key::getID("Object Type")] = 2; // collections only
 
-    $list = Record::getListing($options, array("Lister"), 0, 1000, "Title", true, false);
+    $list = Record::getListing(array(), array("Lister"), 0, 1000, "Title", true, false, $filter);
 
     $list = $list['list'];
     $returnList = array();

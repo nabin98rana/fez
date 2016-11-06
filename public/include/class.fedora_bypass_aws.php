@@ -313,7 +313,7 @@ class Fedora_API implements FedoraApiInterface {
 	 * @param string @pid
 	 * @return string
 	 */
-	private static function getDataPath($pid) {
+	public static function getDataPath($pid) {
 		return "data/".str_replace(":", "_", $pid);
 	}
 
@@ -349,27 +349,28 @@ class Fedora_API implements FedoraApiInterface {
 		$aws = AWS::get();
 		$dataPath = Fedora_API::getDataPath($pid);
 
+    $fezACMLXML = '';
+    $isFezACML = false;
+    if (stripos($dsID, 'FezACML_') === 0) {
+      $isFezACML = true;
+    }
+
     if (stripos($dsLocation, APP_TEMP_DIR) === 0) {
       $obj = $aws->postFile($dataPath, [$dsLocation], false, $mimetype);
       if ($obj) {
         $obj = $obj[0];
+      }
+      if ($isFezACML) {
+        $fezACMLXML = file_get_contents($dsLocation);
       }
       if ($unlinkLocalFile) {
         unlink($dsLocation);
       }
     } else {
       $obj = null;
-      // @todo(post-migration): Remove migration check
-      $copy = true;
-      if (
-        defined('APP_MIGRATION_RUN')
-        && APP_MIGRATION_RUN === true
-        && $aws->checkExistsById($dataPath, $dsID) === true
-      ) {
-        $copy = false;
-      }
-      if ($copy) {
-        $obj = $aws->copyFile($dsLocation, $dataPath . "/" . $dsID, $srcBucket, $mimetype);
+      $obj = $aws->copyFile($dsLocation, $dataPath . "/" . $dsID, $srcBucket, $mimetype);
+      if ($isFezACML) {
+        $fezACMLXML = $aws->getFileContent($dataPath, $dsID);
       }
     }
     if (! $obj) {
@@ -386,7 +387,8 @@ class Fedora_API implements FedoraApiInterface {
       'version' => $dsArray['VersionId'],
       'checksum' => str_replace('"', '', $dsArray['ETag'])
     ];
-    return Datastream::addDatastreamInfo($pid, $dsID, $mimetype, $object, $dsState);
+
+    return Datastream::addDatastreamInfo($pid, $dsID, $mimetype, $object, $dsState, $dsLabel, $fezACMLXML);
 	}
 
 	/**
@@ -487,7 +489,7 @@ class Fedora_API implements FedoraApiInterface {
 		$dsData = array();
 		$dsData['ID'] = $dsID;
 		$dsData['versionID'] = $dsArray['dsi_version'];
-		$dsData['label'] = ''; //TODO: convert to use PUT'd metadata for label
+		$dsData['label'] = $dsArray['dsi_label'];
 		$dsData['controlGroup'] = "M";
     $dsData['MIMEType'] = $dsArray['dsi_mimetype'];
 		$dsData['createDate'] = NULL; //(string)$dsArray['LastModified']; //TODO: convert to saved meta
@@ -575,7 +577,13 @@ class Fedora_API implements FedoraApiInterface {
 		if ($asofDateTime != "") {
 			$args = array("VersionId" => $asofDateTime);
 		}
-		$return['stream'] = $aws->getFileContent($dataPath, $dsID, $args);
+
+		// If the datastream request is FezACML, use the DB cache
+		if (stripos($dsID, 'FezACML_') === 0) {
+      $return['stream'] = Datastream::getDatastreamCachedFezACML($pid, $dsID);
+    } else {
+      $return['stream'] = $aws->getFileContent($dataPath, $dsID, $args);
+    }
 
 		return $return;
 	}
@@ -596,8 +604,15 @@ class Fedora_API implements FedoraApiInterface {
 
 		$dsExists = Fedora_API::datastreamExists($pid, $dsID);
 		if($dsExists)
-		{
-			$dsMeta = Fedora_API::callGetDatastream($pid, $dsID);
+    {
+
+      if ($filehandle != NULL) {
+        $return =  Fedora_API::callGetDatastreamDissemination($pid, $dsID);
+        $return = fwrite($filehandle, $return['stream']);
+        return $return;
+      }
+      $dsMeta = Fedora_API::callGetDatastream($pid, $dsID);
+
 			if($dsMeta['MIMEType'] != 'text/xml' || $getraw)
 			{
 				$return =  Fedora_API::callGetDatastreamDissemination($pid, $dsID);
@@ -662,7 +677,7 @@ class Fedora_API implements FedoraApiInterface {
 	public static function callModifyDatastreamByValue($pid, $dsID, $state, $label, $dsContent, $mimetype = 'text/xml', $versionable = 'inherit')
 	{
 		$log = FezLog::get();
-		$tempFile = APP_TEMP_DIR . str_replace(":", "_", $pid) . "_" . $dsID . ".xml";
+		$tempFile = APP_TEMP_DIR . $dsID;
 		$fp = fopen($tempFile, "w");
 		if (fwrite($fp, $dsContent) === FALSE) {
 			$err = "Cannot write to file ($tempFile)";

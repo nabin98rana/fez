@@ -440,7 +440,7 @@ class DuplicatesReport {
 		if (APP_SOLR_SWITCH == "ON" ) { //Solr - the preferable option if available
 			//Query solr with an OR query on title for a similar fix
 			// Solr search params
-			$index = new FulltextIndex_Solr();
+			$index = FulltextIndex::get();
 			$params = array();
 			$start = 0;
 			$page_rows = 15;
@@ -683,7 +683,7 @@ class DuplicatesReport {
 
 			$base_record->fedoraInsertUpdate(array("FezACML"), array(""),$params);
 
-			if ( APP_SOLR_INDEXER == "ON" ) {
+			if ( APP_SOLR_INDEXER == "ON" || APP_ES_INDEXER == "ON" ) {
 				FulltextQueue::singleton()->add($base_record->pid);
 				FulltextQueue::singleton()->commit();
 				FulltextQueue::singleton()->triggerUpdate();
@@ -1594,7 +1594,7 @@ function authorShortWordsFilter($a)
 			History::addHistory($dup_pid, $wfl_id, "", "", false, '', "Marked Duplicate of ".$base_pid);
 			History::addHistory($base_pid, $wfl_id, "", "", true, '', "Resolved duplicate ".$dup_pid);
 
-			if ( APP_SOLR_INDEXER == "ON" ) {
+			if ( APP_SOLR_INDEXER == "ON" || APP_ES_INDEXER == "ON" ) {
 				FulltextQueue::singleton()->remove($dup_pid);
 				FulltextQueue::singleton()->commit();
 				FulltextQueue::singleton()->triggerUpdate();
