@@ -78,8 +78,18 @@ if ($sek_suggest_function == "Search_Key::suggestSearchKeyIndexValue") {
 } else {
 	eval('$suggestions = '.$sek_suggest_function.'("'.$query.'", true);');
 }
+
+$names = [];
+$suggestions = array_filter($suggestions, function($el) use (&$names) {
+  if (in_array($el['name'], $names)) {
+    return false; // remove it
+  } else {
+    $names[] = $el['name'];
+    return true;
+  }
+});
 $suggestions = array(
-    'Result'    =>  array_unique($suggestions)
+    'Result'    =>  $suggestions
 );
 
 echo json_encode($suggestions);
