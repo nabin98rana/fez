@@ -485,6 +485,13 @@ abstract class FulltextIndex {
           $index_title = $this->getFieldName($index_title, $fieldType, $isMultiValued);
 
           if (APP_ES_SWITCH == "ON") {
+            //Add date year copy
+            if ($fieldType == FulltextIndex::FIELD_TYPE_DATE) {
+              $ftName = str_replace("_dt", "_year_t", $index_title);
+              $date = new DateTime($fieldValue);
+              $docfields[$ftName] = $date->format("Y");
+            }
+
             //Add sort fields
             if ($fieldType == FulltextIndex::FIELD_TYPE_TEXT) {
               $docfields[$index_title . "_s"] = $fieldValue;
@@ -674,7 +681,7 @@ abstract class FulltextIndex {
 		$filename = APP_TEMP_DIR."fulltext_".rand()."_".$dsitem['ID'];
 
 
-    if (defined('AWS_ENABLED') && AWS_ENABLED == 'true') {
+    if (defined('AWS_ENABLED') && AWS_ENABLED == 'true' && APP_FEDORA_BYPASS == 'ON') {
       $aws = AWS::get();
       $dataPath = Fedora_API::getDataPath($pid);
       $aws->saveFileContent($dataPath, $dsitem['ID'], $filename);
