@@ -52,6 +52,7 @@ class MigrateFromFedoraToDatabase
   protected $_log = null;
   protected $_db = null;
   protected $_env = null;
+  protected $_aws = null;
   protected $_shadowTableSuffix = "__shadow";
   protected $_tidy;
 
@@ -59,6 +60,7 @@ class MigrateFromFedoraToDatabase
   {
     $this->_log = FezLog::get();
     $this->_db = DB_API::get();
+    $this->_aws = AWS::get();
     $this->_tidy = new tidy;
   }
 
@@ -233,27 +235,53 @@ class MigrateFromFedoraToDatabase
       $FezACML_dsID = FezACML::getFezACMLDSName($dsName);
       $acml = false;
       if(
-        ! (Misc::hasPrefix($dsName, 'preview_')
+        !(Misc::hasPrefix($dsName, 'thumbnail_')
+        || Misc::hasPrefix($dsName, 'MODS')
+        || Misc::hasPrefix($dsName, 'FezACML_')
+        || Misc::hasPrefix($dsName, 'FezComments')
+        || Misc::hasPrefix($dsName, 'preview_')
         || Misc::hasPrefix($dsName, 'web_')
-        || Misc::hasPrefix($dsName, 'thumbnail_')
         || Misc::hasPrefix($dsName, 'stream_')
         || Misc::hasPrefix($dsName, 'presmd_'))
       ) {
         $acml = $this->getFezACML($pid, 'FezACML_' . $dsName . '.xml');
       }
+      $acmlXml = '';
       if ($acml) {
+        $acmlXml = $acml->saveXML();
+      }
+      if (!empty ($acmlXml)) {
         Fedora_API::callModifyDatastreamByValue($pid, $FezACML_dsID, "A",
           "FezACML security for datastream - " . $dsName,
-          $acml->saveXML(), "text/xml", "inherit");
+          $acmlXml, "text/xml", "inherit");
+      } else {
+        Fedora_API::callPurgeDatastream($pid, $FezACML_dsID);
       }
       $mimeType = $this->quickMimeContentType($dsName);
       $location = 'migration/' . str_replace('/espace/data/fedora_datastreams/', '', $path);
       $location = str_replace('+', '%2B', $location);
+
+      $dsLabel = '';
+      $dsInfo = Datastream::getFullDatastreamInfo($pid, $dsName);
+      if (array_key_exists('dsi_label', $dsInfo)) {
+        $dsLabel = $dsInfo['dsi_label'];
+      }
+
+      $awsPidDataPath = Fedora_API::getDataPath($pid);
+      $this->_aws->purgeById($awsPidDataPath, $dsName);
+
       Fedora_API::callAddDatastream(
-        $pid, $dsName, $location, '', $state,
+        $pid, $dsName, $location, $dsLabel, $state,
         $mimeType, 'M', false, "", false, 'uql-fez-production-san'
       );
     }
+
+    // Remove datastream info shadow entries which don't have a url
+    try {
+      $stmt = "DELETE FROM " . APP_TABLE_PREFIX . "datastream_info__shadow 
+                   WHERE dsi_url='' OR dsi_url IS NULL";
+      $this->_db->query($stmt);
+    } catch (Exception $e) {}
   }
 
   /**
@@ -486,6 +514,47 @@ class MigrateFromFedoraToDatabase
       } catch (Exception $e) {
         echo $e->getMessage() . "\n";
         exit;
+      }
+    }
+  }
+
+  public function getDatastreamLabels() {
+    $stmt = "SELECT rek_pid
+                 FROM " . APP_TABLE_PREFIX . "record_search_key";
+    $pids = [];
+    try {
+      $pids = $this->_db->fetchCol($stmt);
+    } catch (Exception $e) {
+    }
+
+    $count = count($pids);
+    $i = 0;
+    foreach ($pids as $pid) {
+      $i++;
+      echo " - Updating $i/$count\n";
+
+      $datastreams = Fedora_API::callGetDatastreams($pid);
+      foreach ($datastreams as $ds) {
+        if (
+          (is_numeric(strpos($ds['ID'], "thumbnail_")))
+          || (is_numeric(strpos($ds['ID'], "MODS")))
+          || (is_numeric(strpos($ds['ID'], "web_")))
+          || (is_numeric(strpos($ds['ID'], "preview_")))
+          || (is_numeric(strpos($ds['ID'], "presmd_")))
+          || (is_numeric(strpos($ds['ID'], "stream_")))
+          || (is_numeric(strpos($ds['ID'], "FezACML_")))
+          || (is_numeric(strpos($ds['ID'], "FezComments")))
+        ) {
+          continue;
+        }
+
+        $object = [
+          'url' => '',
+          'size' => $ds['size'],
+          'version' => '',
+          'checksum' => ''
+        ];
+        Datastream::addDatastreamInfo($pid, $ds['ID'], $ds['MIMEType'], $object, $ds['state'], $ds['label']);
       }
     }
   }

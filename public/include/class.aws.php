@@ -316,6 +316,7 @@ class AWS
       ];
       if ($mimeType) {
         $object['ContentType'] = $mimeType;
+        $object['MetadataDirective'] = 'REPLACE';
       }
       $res = $client->copyObject($object);
       return $res;
@@ -582,7 +583,7 @@ class AWS
           ]));
       }
     } catch (\Aws\S3\Exception\S3Exception $e) {
-      $this->log->err($e->getMessage());
+      //$this->log->err($e->getMessage());
       return false;
     }
     return true;

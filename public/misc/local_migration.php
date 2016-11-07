@@ -10,3 +10,4 @@ include_once(APP_INC_PATH . "/../upgrade/fedoraBypassMigration/MigrateFromFedora
 $migrate = new MigrateFromFedoraToDatabase();
 
 $migrate->fixRekUpdatedDate();
+$migrate->getDatastreamLabels();

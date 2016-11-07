@@ -674,7 +674,7 @@ abstract class FulltextIndex {
 		$filename = APP_TEMP_DIR."fulltext_".rand()."_".$dsitem['ID'];
 
 
-    if (defined('AWS_ENABLED') && AWS_ENABLED == 'true') {
+    if (defined('AWS_ENABLED') && AWS_ENABLED == 'true' && APP_FEDORA_BYPASS == 'ON') {
       $aws = AWS::get();
       $dataPath = Fedora_API::getDataPath($pid);
       $aws->saveFileContent($dataPath, $dsitem['ID'], $filename);
