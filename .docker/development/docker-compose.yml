@@ -20,6 +20,7 @@ fezdevelopmentrunner:
     - fezdb
     - selenium
     - solr
+    - elasticsearch
   volumes:
     - ../../:/var/app/current
   volumes_from:
@@ -28,7 +29,7 @@ fezdevelopmentrunner:
     - logs
 
 selenium:
-  image: selenium/standalone-chrome-debug:2.53.1
+  image: selenium/standalone-chrome-debug:2.53.1-beryllium
   environment:
     - JAVA_OPTS=-Dselenium.LOGGER.level=WARNING
   links:
@@ -78,6 +79,7 @@ fpm:
     - fezdb
     - fedora
     - solr
+    - elasticsearch
   volumes:
     - ../../:/var/app/current
     - ./backend/nginx/etc/nginx/conf.d:/etc/nginx/conf.d
@@ -138,3 +140,24 @@ solr:
 
 solrdata:
   build: ./solr/data/
+
+elasticsearch:
+  environment:
+    - ES_CLUSTER_NAME=uqlfezsearch
+    - ES_NODE_MASTER=true
+    - ES_NODE_DATA=true
+  image: elasticsearch:5.0
+  ports:
+    - "9200:9200"
+  volumes_from:
+    - elasticsearchdata
+
+elasticsearchdata:
+  build: ./elasticsearch/data/
+
+kibana:
+  image: kibana:5.0
+  ports:
+    - "5601:5601"
+  links:
+    - elasticsearch

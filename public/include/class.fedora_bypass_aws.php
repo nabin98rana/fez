@@ -313,7 +313,7 @@ class Fedora_API implements FedoraApiInterface {
 	 * @param string @pid
 	 * @return string
 	 */
-	private static function getDataPath($pid) {
+	public static function getDataPath($pid) {
 		return "data/".str_replace(":", "_", $pid);
 	}
 
@@ -604,8 +604,15 @@ class Fedora_API implements FedoraApiInterface {
 
 		$dsExists = Fedora_API::datastreamExists($pid, $dsID);
 		if($dsExists)
-		{
-			$dsMeta = Fedora_API::callGetDatastream($pid, $dsID);
+    {
+
+      if ($filehandle != NULL) {
+        $return =  Fedora_API::callGetDatastreamDissemination($pid, $dsID);
+        $return = fwrite($filehandle, $return['stream']);
+        return $return;
+      }
+      $dsMeta = Fedora_API::callGetDatastream($pid, $dsID);
+
 			if($dsMeta['MIMEType'] != 'text/xml' || $getraw)
 			{
 				$return =  Fedora_API::callGetDatastreamDissemination($pid, $dsID);

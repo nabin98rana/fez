@@ -286,13 +286,13 @@ switch ($cat) {
           $rec_obj->markAsDeleted();
           History::addHistory($pid, NULL, '', '', TRUE, 'Bulk Deleted', $historyComment);
 
-          if (APP_SOLR_INDEXER == "ON") {
+          if (APP_SOLR_INDEXER == "ON" || APP_ES_INDEXER == "ON") {
             FulltextQueue::singleton()->remove($pid);
           }
         }
       }
     }
-    if (APP_SOLR_INDEXER == "ON") {
+    if (APP_SOLR_INDEXER == "ON" || APP_ES_INDEXER == "ON") {
       FulltextQueue::singleton()->commit();
       FulltextQueue::singleton()->triggerUpdate();
     }

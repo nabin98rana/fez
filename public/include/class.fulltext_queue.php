@@ -44,6 +44,9 @@ class FulltextQueue
 	const ACTION_INSERT = 'I';
 	const ACTION_DELETE = 'D';
 
+	// the current size of the queue in bytes - checked to prevent going larger than limits causing fatal errors
+  var $memorySize = 0;
+
 	// in-memory array
 	private $pids;
 
@@ -93,15 +96,21 @@ class FulltextQueue
 	 * with remove, the last one called is used.
 	 *
 	 * @param String $pid pid of the object in the fez index
+	 * @param boolean $clearCache Clean out the cache for regeneration in efficient bulk later
 	 */
-	public function add($pid)
+	public function add($pid, $clearCache = true)
 	{
 		$log = FezLog::get();
 
 		//if not in queue and record exists
 		if (!array_key_exists($pid, $this->pids) && (Record::getIfRecordExists($pid))) {
 			$this->pids[$pid] = FulltextQueue::ACTION_INSERT;
-			$log->debug("FulltextQueue::add($pid)");
+      //clear the cache in prep for indexing in the queue later
+      if ($clearCache === true) {
+        $index = FulltextIndex::get(true);
+        $index->deleteFulltextCache($pid);
+      }
+      $log->debug("FulltextQueue::add($pid)");
 		}
 	}
 
@@ -127,17 +136,15 @@ class FulltextQueue
 
 	public static function getProcessInfo($pid='')
 	{
-		$log = FezLog::get();
 		// If we are using AWS, check if any tasks are still running
-		if (defined('AWS_ENABLED') && AWS_ENABLED == 'true' && (!isset($_SERVER['APPLICATION_ENV']) || $_SERVER['APPLICATION_ENV'] != 'development')) {
+    $useAws = false;
+    if (defined('AWS_ENABLED') && AWS_ENABLED == 'true') {
+      $useAws = true;
+    }
+    $env = strtolower($_SERVER['APPLICATION_ENV']);
+    if ($useAws && ($env == 'staging' || $env == 'production')) {
 			$aws = AWS::get();
-			if (!isset($_SERVER['APPLICATION_ENV']) || $_SERVER['APPLICATION_ENV'] === '') {
-				$launchTask = 'staging';
-			} else {
-				$launchTask = $_SERVER['APPLICATION_ENV'];
-			}
-			$family = 'fez' . $launchTask;
-
+			$family = 'fez' . $env;
 			if (empty($pid)) {
 				return 'load_new_task';
 			} else {
@@ -381,11 +388,12 @@ class FulltextQueue
 	 * might be an overkill, but who knows if the queue will be used for
 	 * other operations at a later time (e.g. multiple indexer processes...)
 	 *
+   * @param integer $count - How many to pop
 	 * @return row (pid, action) of front pid
 	 * @return null, if queue is empty or if there is an error
 	 *
 	 */
-	public function pop()
+	public function pop($count = 1)
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
@@ -396,7 +404,7 @@ class FulltextQueue
 		// fetch first row
 		$stmt  = "SELECT * FROM ".APP_TABLE_PREFIX."fulltext_queue ";
 		$stmt .= "ORDER BY ftq_key ASC "; //maybe this needs to be commented out like RP did because of hte below? doubt it surely.. CK
-		$stmt = $db->limit($stmt, 1, 0);
+		$stmt = $db->limit($stmt, $count, 0);
 
 		try {
 			$res = $db->fetchRow($stmt, array(), Zend_Db::FETCH_ASSOC);
@@ -443,6 +451,85 @@ class FulltextQueue
 		}
 		return $res;
 	}
+
+	public function popChunkCache() {
+    $log = FezLog::get();
+    $db = DB_API::get();
+
+    $stmt  = "SELECT ftq_pid, ftc_content
+              FROM ".APP_TABLE_PREFIX."fulltext_queue
+              LEFT JOIN ".APP_TABLE_PREFIX."fulltext_cache ON ftq_pid = ftc_pid AND ftc_dsid = ''
+		          WHERE ftq_op = '".FulltextQueue::ACTION_INSERT."'
+		          ORDER BY ftq_key DESC
+		          LIMIT ".APP_SOLR_COMMIT_LIMIT;
+    try {
+      $res = $db->fetchAll($stmt);
+    }
+    catch(Exception $ex) {
+      $log->err($ex);
+      return false;
+    }
+
+    if (count($res) == 0) {
+      FulltextQueue::cleanDeletedPids();
+      $log->debug("FulltextQueue::pop() Queue is empty.");
+      return false;
+    }
+
+    //We will test if the amount of cached content is to large for the search index to handle if so we will remove content
+    //But we will always do at least one else the queue will get stuck
+    if ((APP_SOLR_INDEX_DATASTREAMS == 'ON' || APP_ES_INDEX_DATASTREAMS == 'ON') ) {
+      $this->memorySize = 0;
+      foreach($res as $elementKey => $elementValue) {
+        if (array_key_exists('rek_pid', $elementValue)) {
+          $this->memorySize += strlen(serialize(FulltextIndex::getCachedContent("'".$elementValue['ftq_pid']."'")));
+        }
+        if (($this->memorySize/1000000 > APP_SOLR_CSV_MAX_SIZE) && ($elementKey > 0)){
+          unset($res[$elementKey]);
+          //unset($keys[$elementKey]);
+        }
+      }
+    }
+
+    $pids = array();
+    foreach ($res as $row) {
+      array_push($pids, $row['ftq_pid']);
+    }
+
+    // delete chunk from queue
+    $stmt =  "DELETE FROM ".APP_TABLE_PREFIX."fulltext_queue ";
+    $stmt .= "WHERE ftq_pid IN (".Misc::arrayToSQLBindStr($res).") AND ftq_op = '".FulltextQueue::ACTION_INSERT."'";
+
+    try {
+      $db->query($stmt, $pids);
+    }
+    catch(Exception $ex) {
+      $log->err($ex);
+    }
+
+    return $res;
+  }
+
+
+  /**
+   * Sometimes the queue gets deleted pids in it as inserts so we'll delete them out
+   */
+  public static function cleanDeletedPids() {
+    $log = FezLog::get();
+    $db = DB_API::get();
+
+    $stmt = "DELETE ".APP_TABLE_PREFIX."fulltext_queue
+                        FROM ".APP_TABLE_PREFIX."fulltext_queue
+                        LEFT JOIN ".APP_TABLE_PREFIX."record_search_key ON rek_pid = ftq_pid
+                        WHERE ftq_op = '".FulltextQueue::ACTION_INSERT."'
+                        AND rek_pid IS NULL";
+    try {
+      $db->query($stmt);
+    }
+    catch(Exception $ex) {
+      $log->err($ex);
+    }
+  }
 
 	public function popChunk($singleColumns)
 	{
@@ -505,21 +592,7 @@ class FulltextQueue
 		}
 
 		if (count($res) == 0) {
-            //Sometimes the queue gets deleted pids in it as inserts so we'll delete them out
-            if (APP_SOLR_COMMIT_LIMIT > 0) {
-                $stmt = "DELETE ".APP_TABLE_PREFIX."fulltext_queue
-                        FROM ".APP_TABLE_PREFIX."fulltext_queue
-                        LEFT JOIN ".APP_TABLE_PREFIX."record_search_key ON rek_pid = ftq_pid
-                        WHERE ftq_op = '".FulltextQueue::ACTION_INSERT."'
-                        AND rek_pid IS NULL";
-                try {
-                    $db->query($stmt);
-                }
-                catch(Exception $ex) {
-                    $log->err($ex);
-                }
-            }
-
+      FulltextQueue::cleanDeletedPids();
 			$log->debug("FulltextQueue::pop() Queue is empty.");
 			return false;
 		}
@@ -634,11 +707,11 @@ class FulltextQueue
 
         //We will test if the amount of cached content is to large for solr to handle if so we will remove content
         //But we will always do at least one else the queue will get stuck
-        if (APP_SOLR_INDEX_DATASTREAMS == 'ON') {
+        if ((APP_SOLR_INDEX_DATASTREAMS == 'ON' || APP_ES_INDEX_DATASTREAMS == 'ON') ) {
             $size = 0;
             foreach($res as $elementKey => $elementValue) {
                 if (array_key_exists('rek_pid', $elementValue)) {
-                  $size += strlen(serialize(FulltextIndex_Solr_CSV::getCachedContent("'".$elementValue['rek_pid']."'")));
+                  $size += strlen(serialize(FulltextIndex::getCachedContent("'".$elementValue['rek_pid']."'")));
                 }
                 if (($size/1000000 > APP_SOLR_CSV_MAX_SIZE) && ($elementKey > 0)){
                     unset($res[$elementKey]);

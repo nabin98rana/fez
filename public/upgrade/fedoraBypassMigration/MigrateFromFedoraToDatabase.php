@@ -241,14 +241,22 @@ class MigrateFromFedoraToDatabase
       ) {
         $acml = $this->getFezACML($pid, 'FezACML_' . $dsName . '.xml');
       }
+      $acmlXml = '';
       if ($acml) {
+        $acmlXml = $acml->saveXML();
+      }
+      if (!empty ($acmlXml)) {
         Fedora_API::callModifyDatastreamByValue($pid, $FezACML_dsID, "A",
           "FezACML security for datastream - " . $dsName,
-          $acml->saveXML(), "text/xml", "inherit");
+          $acmlXml, "text/xml", "inherit");
+      } else {
+        Fedora_API::callPurgeDatastream($pid, $FezACML_dsID);
       }
       $mimeType = $this->quickMimeContentType($dsName);
       $location = 'migration/' . str_replace('/espace/data/fedora_datastreams/', '', $path);
       $location = str_replace('+', '%2B', $location);
+
+      Fedora_API::callPurgeDatastream($pid, $dsName);
       Fedora_API::callAddDatastream(
         $pid, $dsName, $location, '', $state,
         $mimeType, 'M', false, "", false, 'uql-fez-production-san'

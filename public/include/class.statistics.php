@@ -223,7 +223,7 @@ class Statistics
 					}
 					$counter_inserted++;
 
-					if( APP_SOLR_INDEXER == "ON" ) {
+					if( APP_SOLR_INDEXER == "ON" || APP_ES_INDEXER == "ON" ) {
 						$changedPids[$pid] = true;
 					}
 				}
@@ -234,7 +234,7 @@ class Statistics
 		fclose($handle);
 		Statistics::updateSummaryStats();
 		Statistics::updateSummaryTables();
-		if( APP_SOLR_INDEXER == "ON" ) {
+		if( APP_SOLR_INDEXER == "ON" || APP_ES_INDEXER == "ON" ) {
 			foreach ($changedPids as $pid => $null) {
 				FulltextQueue::singleton()->add($pid);
 			}
@@ -451,14 +451,14 @@ class Statistics
 				} else {
 					$increments[$pid]['views']++;
 				}
-				if( APP_SOLR_INDEXER == "ON" ) {
+				if( APP_SOLR_INDEXER == "ON" || APP_ES_INDEXER == "ON" ) {
 					$changedPids[$pid] = true;
 				}
 			}
 		}
 		Statistics::cleanupFalseHits($increments); // clean up any false stats entered in. $increments will be decremented for any bad counter hits.
 		Statistics::updateSummaryStatsByIncrement($increments);
-		if( APP_SOLR_INDEXER == "ON" ) {
+		if( APP_SOLR_INDEXER == "ON" || APP_ES_INDEXER == "ON" ) {
 			if (count($changedPids) > 0) {
 				foreach ($changedPids as $pid => $null) {
 					FulltextQueue::singleton()->add($pid);

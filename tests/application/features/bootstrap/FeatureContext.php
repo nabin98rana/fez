@@ -194,7 +194,7 @@ class FeatureContext extends MinkContext
    */
   public function waitForSolrAfter()
   {
-    /*if (APP_SOLR_INDEXER == "ON") {
+    /*if (APP_SOLR_INDEXER == "ON" || APP_ES_INDEXER == "ON") {
       for ($x = 0; $x<30; $x++) {
         $finished = FulltextQueue::isFinishedProcessing();
         if ($finished == true) {
@@ -214,7 +214,7 @@ class FeatureContext extends MinkContext
    */
   public function waitForSolrBefore()
   {
-    /*if (APP_SOLR_INDEXER == "ON") {
+    /*if (APP_SOLR_INDEXER == "ON" || APP_ES_INDEXER == "ON") {
       for ($x = 0; $x<30; $x++) {
         $finished = FulltextQueue::isFinishedProcessing();
         if ($finished == true) {
@@ -234,7 +234,7 @@ class FeatureContext extends MinkContext
    */
   public function waitForSolr()
   {
-    if (APP_SOLR_INDEXER == "ON") {
+    if (APP_SOLR_INDEXER == "ON" || APP_ES_INDEXER == "ON") {
       for ($x = 0; $x < 30; $x++) {
         $finished = FulltextQueue::isFinishedProcessing();
         if ($finished == true) {

@@ -1102,7 +1102,7 @@ class Record
     //
     // KJ: remove from fulltext index
     //
-    if ( APP_SOLR_INDEXER == "ON" && $remove_solr == true) {
+    if ((APP_SOLR_INDEXER == "ON" || APP_ES_INDEXER == "ON") && $remove_solr == true) {
       $log->debug("Record::removeIndexRecord() REMOVING ".$pid." FROM QUEUE");
       FulltextQueue::singleton()->remove($pid);
       FulltextQueue::singleton()->commit();
@@ -1534,7 +1534,7 @@ class Record
     //
     // KJ: update fulltext index
     //
-    if (APP_SOLR_INDEXER == "ON") {
+    if (APP_SOLR_INDEXER == "ON" || APP_ES_INDEXER == "ON") {
       $log->debug("Record::updateSearchKeys() ADDING ".$pid." TO QUEUE");
       FulltextQueue::singleton()->add($pid);
       FulltextQueue::singleton()->commit();
@@ -2409,7 +2409,7 @@ class Record
 
     $searchKey_join = self::buildSearchKeyFilterSolr($options, $sort_by, $operator, $doExactMatch);
     $filter_join = self::buildSearchKeyFilterSolr($filter, "", $operator, $doExactMatch);
-    $index = new FulltextIndex_Solr(true);
+    $index = FulltextIndex::get(true);
 
     $res = $index->searchAdvancedQuery(
         $searchKey_join, $filter_join, $approved_roles, $start, $page_rows, $use_faceting,
@@ -2426,7 +2426,8 @@ class Record
     if (count($res) > 0) {
       if ($getSimple == false || empty($getSimple)) {
         // temporarily jus set everything to citation cache true to test out getting lookups, reseasrc and notes from solr now
-        $citationCache = true;
+        // CK - 19/10/16 - stop doing this because we are now using this function for ES indexing
+//        $citationCache = true;
         if ($citationCache == false) {
           if (is_numeric($usr_id)) {
             //This can be significently made faster by Record::getExtendedPidInfo($res, array('Display Type', 'HERDC Status', 'HERDC code', 'Institutional Status', 'Follow up Flags', 'Follow up Flags IMU'));
@@ -3315,7 +3316,7 @@ class Record
       return false;
     }
 
-    if ( APP_SOLR_INDEXER == "ON" ) {
+    if ( APP_SOLR_INDEXER == "ON" || APP_ES_INDEXER == "ON" ) {
       FulltextQueue::singleton()->add($pid);
     }
     if (APP_FILECACHE == "ON") {
@@ -3456,7 +3457,7 @@ class Record
     // Record in history
     Record::insertThomsonCitationCount($isi_loc, $count);
 
-    if ( APP_SOLR_INDEXER == "ON" ) {
+    if ( APP_SOLR_INDEXER == "ON" || APP_ES_INDEXER == "ON" ) {
       FulltextQueue::singleton()->add($pid);
     }
     if (APP_FILECACHE == "ON") {
@@ -3732,7 +3733,7 @@ class Record
     // Record in history
     Record::insertScopusCitationCount($eid, $count);
 
-    if ( APP_SOLR_INDEXER == "ON" ) {
+    if ( APP_SOLR_INDEXER == "ON" || APP_ES_INDEXER == "ON" ) {
       FulltextQueue::singleton()->add($pid);
     }
     if (APP_FILECACHE == "ON") {
@@ -4878,7 +4879,7 @@ function getSearchKeyIndexValueShadow($pid, $searchKeyTitle, $getLookup=true, $s
                 $searchKey_join[SK_SEARCH_TXT] .= "\", ";
               }
             } elseif ($sekdet['sek_data_type'] == "date") {
-              if (!empty($searchValue) && $searchValue['filter_enabled'] == 1) {
+              if (!empty($searchValue) && !empty($searchValue['filter_type']) && $searchValue['filter_enabled'] == 1) {
                 $sqlDate = '';
                 switch ($searchValue['filter_type']) {
                   case 'greater':
@@ -4951,7 +4952,7 @@ function getSearchKeyIndexValueShadow($pid, $searchKeyTitle, $getLookup=true, $s
               } else {
                 // surround the exact match with quotes specifically (quotes need to go outside escapeSolr
                 // call as we don't want them escaped)
-                if ($doExactMatch && strtolower($sekdet['sek_title']) == 'author') {
+                if ($doExactMatch || strtolower($sekdet['sek_title']) == 'author') {
                   $searchKey_join["sk_where_$operatorToUse"][] = $sqlColumnName.$suffix.":(\"".
                       Record::escapeSolr($searchValue)."\") ";
                 } else {
@@ -4966,7 +4967,7 @@ function getSearchKeyIndexValueShadow($pid, $searchKeyTitle, $getLookup=true, $s
                 $searchKey_join["sk_where_$operatorToUse"][] = $sqlColumnName.$suffix.":\"".Record::escapeSolr($searchValue)."\"";
                 $searchKey_join[SK_SEARCH_TXT] .= $sekdet['sek_title'].":\"".htmlspecialchars(trim($searchValue))."\", ";
             } else {
-              $searchKey_join["sk_where_$operatorToUse"][] = $sqlColumnName.$suffix.":".Record::escapeSolr($searchValue)."";
+              $searchKey_join["sk_where_$operatorToUse"][] = $sqlColumnName.$suffix.":\"".Record::escapeSolr($searchValue)."\"";
               $searchKey_join[SK_SEARCH_TXT] .= $sekdet['sek_title'].":\"".htmlspecialchars(trim($searchValue))."\", ";
             }
           }
@@ -5071,11 +5072,11 @@ function getSearchKeyIndexValueShadow($pid, $searchKeyTitle, $getLookup=true, $s
    * @param string $username The username of the search is performed on
    * @return array $res2 The index details of records associated with the user
    */
-  function getCreated($options, $current_page=0,$page_rows="ALL",$sort_by='', $sort_order=0)
+  function getCreated($options, $current_page=0,$page_rows="ALL",$sort_by='', $sort_order=0, $filter)
   {
     $usr_id = Auth::getUserID();
-    $options["searchKey".Search_Key::getID("Depositor")] = $usr_id;
-    return Record::getListing($options, array("Lister"), $current_page, $page_rows, $sort_by);
+    $filter["searchKey".Search_Key::getID("Depositor")] = $usr_id;
+    return Record::getListing($options, array("Lister"), $current_page, $page_rows, $sort_by, false, false, $filter);
   }
 
 

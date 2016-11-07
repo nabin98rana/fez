@@ -156,7 +156,7 @@ class BackgroundProcess_Bulk_Assign_Authorid extends BackgroundProcess
       $this->setProgress(100);
       $this->setStatus("Finished. Updated " . $this->_numAuthorsUpdated . " authors for " . count($this->_pidsUpdated) . " pids");
 
-      if (APP_SOLR_INDEXER == "ON") {
+      if (APP_SOLR_INDEXER == "ON" || APP_ES_INDEXER == "ON") {
         foreach ($this->_pidsUpdated as $pid) {
           $this->setStatus("Adding " . $pid . " to Solr reindex queue");
           FulltextQueue::singleton()->add($pid);

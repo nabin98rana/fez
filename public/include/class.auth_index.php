@@ -331,7 +331,7 @@ class AuthIndex
 
 			$this->bgp->setStatus("Finished Index Auth for ".$title);
 
-			if( APP_SOLR_INDEXER == "ON" ) {
+			if( APP_SOLR_INDEXER == "ON" || APP_ES_INDEXER == "ON" ) {
 				// KJ/ETH: fulltext indexing of $pid should automatically
 				// recurse to children
 				FulltextQueue::singleton()->add($pid);

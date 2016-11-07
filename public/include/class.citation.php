@@ -193,7 +193,7 @@ class Citation
 			$log->err($ex);
 			return false;
 		}
-		if (( APP_SOLR_INDEXER == "ON" ) || (APP_FILECACHE == "ON")) {
+		if (( APP_SOLR_INDEXER == "ON" || APP_ES_INDEXER == "ON" ) || (APP_FILECACHE == "ON")) {
 			$stmt = "SELECT rek_pid FROM ".$dbtp."record_search_key WHERE rek_display_type=".$db->quote($xdis_id, 'INTEGER');
 			try {
 				$res = $db->fetchCol($stmt);
@@ -208,12 +208,12 @@ class Citation
 					$cache = new fileCache($pid, 'pid='.$pid);
 					$cache->poisonCache();
 				}
-				if ( APP_SOLR_INDEXER == "ON" ) {
+				if ( APP_SOLR_INDEXER == "ON" || APP_ES_INDEXER == "ON" ) {
 					$log->debug("Citation::clearCitationCacheByType ADDING ".$pid." TO QUEUE");
 					FulltextQueue::singleton()->add($pid);
 				}
 			}
-			if ( APP_SOLR_INDEXER == "ON" ) {
+			if ( APP_SOLR_INDEXER == "ON" || APP_ES_INDEXER == "ON" ) {
 				FulltextQueue::singleton()->commit();
 				FulltextQueue::singleton()->triggerUpdate();
 			}
