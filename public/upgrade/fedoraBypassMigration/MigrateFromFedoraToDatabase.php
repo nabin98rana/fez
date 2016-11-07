@@ -249,6 +249,8 @@ class MigrateFromFedoraToDatabase
       $mimeType = $this->quickMimeContentType($dsName);
       $location = 'migration/' . str_replace('/espace/data/fedora_datastreams/', '', $path);
       $location = str_replace('+', '%2B', $location);
+
+      Fedora_API::callPurgeDatastream($pid, $dsName);
       Fedora_API::callAddDatastream(
         $pid, $dsName, $location, '', $state,
         $mimeType, 'M', false, "", false, 'uql-fez-production-san'
