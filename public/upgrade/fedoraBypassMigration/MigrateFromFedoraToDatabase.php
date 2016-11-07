@@ -249,6 +249,8 @@ class MigrateFromFedoraToDatabase
         Fedora_API::callModifyDatastreamByValue($pid, $FezACML_dsID, "A",
           "FezACML security for datastream - " . $dsName,
           $acmlXml, "text/xml", "inherit");
+      } else {
+        Fedora_API::callPurgeDatastream($pid, $FezACML_dsID);
       }
       $mimeType = $this->quickMimeContentType($dsName);
       $location = 'migration/' . str_replace('/espace/data/fedora_datastreams/', '', $path);
