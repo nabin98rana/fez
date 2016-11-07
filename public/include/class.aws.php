@@ -316,9 +316,6 @@ class AWS
       ];
       if ($mimeType) {
         $object['ContentType'] = $mimeType;
-        $object['Metadata'] = [
-          'Content-Type' => $mimeType
-        ];
         $object['MetadataDirective'] = 'REPLACE';
       }
       $res = $client->copyObject($object);
