@@ -2682,6 +2682,20 @@ function restoreDefaultColours(el)
 							{include file="error_icon.tpl.html" field="aws_cf_key_pair_id"}
 						</td>
 					</tr>
+					<tr>
+						<th>Concurrent background processes</th>
+						<td>
+							<select name="aws_concurrent_bgps">
+								{for $bgps=1 to 10}
+									<option value="{$bgps}" {if $config_settings.aws_concurrent_bgps == "{$bgps}"} selected="selected"{/if}>{$bgps}</option>
+								{/for}
+							</select>
+							<br />The number of concurrent background processes that can be run. In AWS these are
+							launched as separate tasks in the cluster.
+							{include file="error_icon.tpl.html" field="aws_concurrent_bgps"}
+						</td>
+					</tr>
+
 					</tbody>
 				</table>
 			</div>

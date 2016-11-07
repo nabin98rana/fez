@@ -128,8 +128,7 @@ class AWS
       return true;
     }
     // Make sure there aren't any existing running tasks (except the service tasks)
-    // TODO(am): Use a config var instead of hard coding the number..
-    if ($this->countTasksRunningOrPendingInFamily($family) === 1) {
+    if ($this->countTasksRunningOrPendingInFamily($family) <= AWS_CONCURRENT_BGPS) {
       $this->launchedTasks++;
       return $this->runTask($family, $overrides, 1);
     }
