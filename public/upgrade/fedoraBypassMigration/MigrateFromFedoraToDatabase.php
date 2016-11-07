@@ -52,6 +52,7 @@ class MigrateFromFedoraToDatabase
   protected $_log = null;
   protected $_db = null;
   protected $_env = null;
+  protected $_aws = null;
   protected $_shadowTableSuffix = "__shadow";
   protected $_tidy;
 
@@ -59,6 +60,7 @@ class MigrateFromFedoraToDatabase
   {
     $this->_log = FezLog::get();
     $this->_db = DB_API::get();
+    $this->_aws = AWS::get();
     $this->_tidy = new tidy;
   }
 
@@ -265,12 +267,21 @@ class MigrateFromFedoraToDatabase
         $dsLabel = $dsInfo['dsi_label'];
       }
 
-      Fedora_API::callPurgeDatastream($pid, $dsName);
+      $awsPidDataPath = Fedora_API::getDataPath($pid);
+      $this->_aws->purgeById($awsPidDataPath, $dsName);
+
       Fedora_API::callAddDatastream(
         $pid, $dsName, $location, $dsLabel, $state,
         $mimeType, 'M', false, "", false, 'uql-fez-production-san'
       );
     }
+
+    // Remove datastream info shadow entries which don't have a url
+    try {
+      $stmt = "DELETE FROM " . APP_TABLE_PREFIX . "datastream_info__shadow 
+                   WHERE dsi_url='' OR dsi_url IS NULL";
+      $this->_db->query($stmt);
+    } catch (Exception $e) {}
   }
 
   /**
