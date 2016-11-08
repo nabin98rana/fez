@@ -77,8 +77,6 @@ rm -f export/__*
 rm -f export/*__shadow.txt
 rm -f export/fez_background_process.txt
 rm -f export/fez_background_process_pids.txt
-rm -f export/fez_config.sql
-rm -f export/fez_config.txt
 rm -f export/fez_datastream_info.txt
 rm -f export/fez_datastream_info__shadow.txt
 rm -f export/fez_statistics_all.txt
@@ -90,7 +88,7 @@ rm -f export/fez_thomson_citations_cache.txt
 rm -f export/fez_scopus_citations.txt
 rm -f export/fez_scopus_citations_cache.txt
 
-cp ${APP_ENV}.fez.config.sql export/fez_config.sql
+cp ${APP_ENV}.fez.config.sql export/fez_config_extras.sql
 
 if [[ "${APP_ENV}" == "production" ]]; then
     now=$( date +'%F %T' )

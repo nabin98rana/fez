@@ -83,10 +83,8 @@ class BackgroundProcess_Db_Load extends BackgroundProcess
       if (strpos($tbl, 'scd_') !== 0) {
         $db->query('DROP TABLE IF EXISTS ' . $tbl);
       }
-      if ($tbl !== 'fez_config') {
-        $sql = file_get_contents($sql);
-        $db->query($sql);
-      }
+      $sql = file_get_contents($sql);
+      $db->query($sql);
     }
 
     $files = glob($path . "/*.txt");
@@ -107,7 +105,7 @@ class BackgroundProcess_Db_Load extends BackgroundProcess
       $stmt->execute();
     }
 
-    $sql = file_get_contents($path . '/fez_config.sql');
+    $sql = file_get_contents($path . '/fez_config_extras.sql');
     $db->query($sql);
 
     $stmt = $con->prepare("DELETE FROM fez_user WHERE usr_username LIKE '%_test'");
