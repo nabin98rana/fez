@@ -249,6 +249,9 @@ class FulltextIndex_ElasticSearch extends FulltextIndex
         $use_highlighting = false;
       }
 
+      //Force highlighting to be disabled until it can be split into a second query as per advice from ElasticCo
+      $use_highlighting = false;
+
       if ($use_highlighting && $queryString != "") {
         // hit highlighting
         $params['body']['highlight']['fields']['content_mt'] = [
