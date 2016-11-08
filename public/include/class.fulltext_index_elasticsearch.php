@@ -125,6 +125,8 @@ class FulltextIndex_ElasticSearch extends FulltextIndex
       // Solr search params
       $params = array();
       $facets = array();
+      $docs = array();
+      $total_rows = 0;
 
 
       if ($use_faceting) {
@@ -247,6 +249,9 @@ class FulltextIndex_ElasticSearch extends FulltextIndex
         $use_highlighting = false;
       }
 
+      //Force highlighting to be disabled until it can be split into a second query as per advice from ElasticCo
+      $use_highlighting = false;
+
       if ($use_highlighting && $queryString != "") {
         // hit highlighting
         $params['body']['highlight']['fields']['content_mt'] = [
@@ -275,6 +280,86 @@ class FulltextIndex_ElasticSearch extends FulltextIndex
 //      echo $testJson; exit;
 
       $results = $this->esClient->search($params);
+
+      array_push($log->solr_query_time, $results['took']);
+      array_push($log->solr_query_string, '');
+
+      $snips = array();
+      $total_rows = $results['hits']['total'];
+      $facets = $this->extractFacets($results['aggregations'], $facetsToUse, $lookupFacetsToUse);
+
+      // Solr hit highlighting
+      foreach ($results['hits']['hits'] as $hit) {
+        $pid = $hit['_id'];
+        if (array_key_exists('highlight', $hit)) {
+          foreach ($hit['highlight']['content_mt'] as $part) {
+            $part = trim(str_ireplace(chr(12), ' | ', $part));
+            $snips[$pid] .= $part;
+          }
+        }
+      }
+
+      if ($total_rows > 0) {
+        $i = 0;
+        $sekdet = Search_Key::getList(false);
+        $cache_db_names = array();
+        foreach ($results['hits']['hits'] as $doc) {
+
+          foreach ($doc['fields'] as $solrID => $field) {
+            if (($sek_id = Search_Key::getDBnamefromSolrID($solrID))) {
+              if (array_key_exists($sek_id, $cache_db_names)) {
+                $sek_rel = $cache_db_names[$sek_id];
+              } else {
+                $sek_rel = Search_Key::getCardinalityByDBName($sek_id);
+                $cache_db_names[$sek_id] = $sek_rel;
+              }
+              if ($sek_rel == '1' && !is_array($field)) {
+                if (!array_key_exists($sek_id, $docs[$i])) {
+                  $docs[$i][$sek_id] = array();
+                }
+                $docs[$i][$sek_id][] = $field;
+              } else {
+                $docs[$i][$sek_id] = $field[0];
+              }
+              // check for herdc code desc
+            } elseif (in_array($solrID, array('sherpa_colour_t', 'ain_detail_t', 'rj_tier_rank_t', 'rj_tier_title_t', 'rj_2015_rank_t', 'rj_2015_title_t', 'rj_2010_rank_t', 'rj_2010_title_t', 'rj_2012_rank_t', 'rj_2012_title_t', 'rc_2015_rank_t', 'rc_2015_title_t', 'rc_2010_rank_t', 'rc_2010_title_t', 'herdc_code_description_t'))) {
+
+              $sek_id = substr($solrID, 0, -2);
+              if (is_array($field)) {
+                if (!array_key_exists($sek_id, $docs[$i])) {
+                  $docs[$i][$sek_id] = array();
+                }
+                $docs[$i][$sek_id] = $field;
+              } else {
+                $docs[$i][$sek_id] = $field;
+              }
+              // check for lookups and other values and add them too
+            } elseif (is_numeric(strpos($solrID, '_lookup'))) {
+
+              $sek_id = str_replace('_mi_lookup', '_lookup', $solrID);
+              $sek_id = str_replace('_i_lookup', '_lookup', $solrID);
+              $sek_id = "rek_" . $sek_id;
+              if (is_array($field)) {
+                if (!array_key_exists($sek_id, $docs[$i])) {
+                  $docs[$i][$sek_id] = array();
+                }
+                $docs[$i][$sek_id] = $field;
+              } else {
+                $docs[$i][$sek_id] = $field;
+              }
+
+            }
+
+          }
+
+          // resolve result
+          $docs[$i]['Relevance'] = $doc['_score'];
+          $docs[$i]['rek_views'] = $doc['_source']['views'];
+          $i++;
+        }
+      }
+
+
     } catch (Exception $e) {
 
       //
@@ -286,88 +371,12 @@ class FulltextIndex_ElasticSearch extends FulltextIndex
 
       // report nothing found on error
       $docs = array();
+      $facets = array();
+      $snips = array();
       $total_rows = 0;
 
     }
 
-    array_push($log->solr_query_time, $results['took']);
-    array_push($log->solr_query_string, '');
-
-
-    $snips = array();
-    $total_rows = $results['hits']['total'];
-    $facets = $this->extractFacets($results['aggregations'], $facetsToUse, $lookupFacetsToUse);
-
-    // Solr hit highlighting
-    foreach ($results['hits']['hits'] as $hit) {
-      $pid = $hit['_id'];
-      if (array_key_exists('highlight', $hit)) {
-        foreach ($hit['highlight']['content_mt'] as $part) {
-          $part = trim(str_ireplace(chr(12), ' | ', $part));
-          $snips[$pid] .= $part;
-        }
-      }
-    }
-
-    if ($total_rows > 0) {
-      $i = 0;
-      $sekdet = Search_Key::getList(false);
-      $cache_db_names = array();
-      foreach ($results['hits']['hits'] as $doc) {
-
-        foreach ($doc['fields'] as $solrID => $field) {
-          if (($sek_id = Search_Key::getDBnamefromSolrID($solrID))) {
-            if (array_key_exists($sek_id, $cache_db_names)) {
-              $sek_rel = $cache_db_names[$sek_id];
-            } else {
-              $sek_rel = Search_Key::getCardinalityByDBName($sek_id);
-              $cache_db_names[$sek_id] = $sek_rel;
-            }
-            if ($sek_rel == '1' && !is_array($field)) {
-              if (!array_key_exists($sek_id, $docs[$i])) {
-                $docs[$i][$sek_id] = array();
-              }
-              $docs[$i][$sek_id][] = $field;
-            } else {
-              $docs[$i][$sek_id] = $field[0];
-            }
-            // check for herdc code desc
-          } elseif (in_array($solrID, array('sherpa_colour_t', 'ain_detail_t', 'rj_tier_rank_t', 'rj_tier_title_t', 'rj_2015_rank_t', 'rj_2015_title_t', 'rj_2010_rank_t', 'rj_2010_title_t', 'rj_2012_rank_t', 'rj_2012_title_t', 'rc_2015_rank_t', 'rc_2015_title_t', 'rc_2010_rank_t', 'rc_2010_title_t', 'herdc_code_description_t'))) {
-
-            $sek_id = substr($solrID, 0, -2);
-            if (is_array($field)) {
-              if (!array_key_exists($sek_id, $docs[$i])) {
-                $docs[$i][$sek_id] = array();
-              }
-              $docs[$i][$sek_id] = $field;
-            } else {
-              $docs[$i][$sek_id] = $field;
-            }
-            // check for lookups and other values and add them too
-          } elseif (is_numeric(strpos($solrID, '_lookup'))) {
-
-            $sek_id = str_replace('_mi_lookup', '_lookup', $solrID);
-            $sek_id = str_replace('_i_lookup', '_lookup', $solrID);
-            $sek_id = "rek_" . $sek_id;
-            if (is_array($field)) {
-              if (!array_key_exists($sek_id, $docs[$i])) {
-                $docs[$i][$sek_id] = array();
-              }
-              $docs[$i][$sek_id] = $field;
-            } else {
-              $docs[$i][$sek_id] = $field;
-            }
-
-          }
-
-        }
-
-        // resolve result
-        $docs[$i]['Relevance'] = $doc['_score'];
-        $docs[$i]['rek_views'] = $doc['_source']['views'];
-        $i++;
-      }
-    }
 
     return array(
         'total_rows' => $total_rows,
