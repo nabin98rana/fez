@@ -261,17 +261,23 @@ class Datastream
    *
    * @param string $pid The persistent identifier of the object
    * @param string $dsID The ID of the datastream
+   * @param string $tableSuffix Temporary suffix for the table used in migration from Fedora to AWS
    * @return array $dsIDListArray The list of datastreams in an array.
    */
-  public static function getFullDatastreamInfo($pid, $dsID = '')
+  public static function getFullDatastreamInfo($pid, $dsID = '', $tableSuffix = '')
   {
     $log = FezLog::get();
     $db = DB_API::get();
 
+    $tbl = 'datastream_info';
+    if ($tableSuffix) {
+      $tbl .= $tableSuffix;
+    }
+
     $res = [];
     $data = [':dsi_pid' => $pid];
     $sql = "SELECT * FROM "
-      . APP_TABLE_PREFIX . "datastream_info WHERE dsi_pid = :dsi_pid";
+      . APP_TABLE_PREFIX . $tbl . " WHERE dsi_pid = :dsi_pid";
 
     if ($dsID !== '') {
       $data['dsi_dsid'] = $dsID;
