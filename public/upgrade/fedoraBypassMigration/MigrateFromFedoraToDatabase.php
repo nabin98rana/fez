@@ -257,12 +257,17 @@ class MigrateFromFedoraToDatabase
       } else {
         Fedora_API::callPurgeDatastream($pid, $FezACML_dsID);
       }
+
+      if (Fedora_API::datastreamExists($pid, $dsName)) {
+        continue;
+      }
+
       $mimeType = $this->quickMimeContentType($dsName);
       $location = 'migration/' . str_replace('/espace/data/fedora_datastreams/', '', $path);
       $location = str_replace('+', '%2B', $location);
 
       $dsLabel = '';
-      $dsInfo = Datastream::getFullDatastreamInfo($pid, $dsName);
+      $dsInfo = Datastream::getFullDatastreamInfo($pid, $dsName, '_exported');
       if (array_key_exists('dsi_label', $dsInfo)) {
         $dsLabel = $dsInfo['dsi_label'];
       }
@@ -272,8 +277,9 @@ class MigrateFromFedoraToDatabase
 
       Fedora_API::callAddDatastream(
         $pid, $dsName, $location, $dsLabel, $state,
-        $mimeType, 'M', false, "", false, 'uql-fez-production-san'
+        $mimeType, 'M', FALSE, "", FALSE, 'uql-fez-production-san'
       );
+
     }
 
     // Remove datastream info shadow entries which don't have a url
