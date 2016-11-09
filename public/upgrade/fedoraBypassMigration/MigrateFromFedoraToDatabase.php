@@ -125,7 +125,7 @@ class MigrateFromFedoraToDatabase
   private function stepTwoMigration()
   {
     // PID security
-    //$this->addPidsSecurity();
+    $this->addPidsSecurity();
 
     // Datastream (attached files) migration
     echo " - Migrating managed content..";
@@ -207,7 +207,7 @@ class MigrateFromFedoraToDatabase
       return;
     }
 
-    $stmt = "select token, path from datastreamPaths order by path DESC";
+    $stmt = "select token, path from datastreamPaths order by path ASC";
 
     $ds = [];
     try {
@@ -271,15 +271,10 @@ class MigrateFromFedoraToDatabase
       if (array_key_exists('dsi_label', $dsInfo)) {
         $dsLabel = $dsInfo['dsi_label'];
       }
-
-      $awsPidDataPath = Fedora_API::getDataPath($pid);
-      $this->_aws->purgeById($awsPidDataPath, $dsName);
-
       Fedora_API::callAddDatastream(
         $pid, $dsName, $location, $dsLabel, $state,
         $mimeType, 'M', FALSE, "", FALSE, 'uql-fez-production-san'
       );
-
     }
 
     // Remove datastream info shadow entries which don't have a url
