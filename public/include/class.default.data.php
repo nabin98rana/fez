@@ -327,6 +327,7 @@ class Default_Data
 		$defaultData['aws_secret']        = "";
 		$defaultData['aws_bgp_queue_url'] = "";
     $defaultData['aws_s3_src_prefix'] = "";
+    $defaultData['aws_concurrent_bgps'] = "1";
 
 		return $defaultData;
 	}

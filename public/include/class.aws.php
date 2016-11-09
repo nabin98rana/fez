@@ -38,6 +38,11 @@ class AWS
   private $launchedTasks;
 
   /**
+   * @var int
+   */
+  private $concurrentTasksAllowed;
+
+  /**
    * AWS constructor.
    */
   public function __construct($s3Bucket = AWS_S3_BUCKET, $s3SrcPrefix = AWS_S3_SRC_PREFIX) {
@@ -53,6 +58,12 @@ class AWS
     } else {
       $this->s3SrcPrefix = '';
     }
+    if (defined('AWS_CONCURRENT_BGPS')) {
+      $this->concurrentTasksAllowed = (int)AWS_CONCURRENT_BGPS;
+    } else {
+      $this->concurrentTasksAllowed = 1;
+    }
+
     putenv("AWS_ACCESS_KEY_ID=" . AWS_KEY);
     putenv("AWS_SECRET_ACCESS_KEY=" . AWS_SECRET);
   }
@@ -128,8 +139,7 @@ class AWS
       return true;
     }
     // Make sure there aren't any existing running tasks (except the service tasks)
-    // TODO(am): Use a config var instead of hard coding the number..
-    if ($this->countTasksRunningOrPendingInFamily($family) === 1) {
+    if ($this->countTasksRunningOrPendingInFamily($family) <= $this->concurrentTasksAllowed) {
       $this->launchedTasks++;
       return $this->runTask($family, $overrides, 1);
     }
