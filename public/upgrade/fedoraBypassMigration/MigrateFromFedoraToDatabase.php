@@ -258,23 +258,32 @@ class MigrateFromFedoraToDatabase
         Fedora_API::callPurgeDatastream($pid, $FezACML_dsID);
       }
 
-      if (Fedora_API::datastreamExists($pid, $dsName)) {
-        continue;
-      }
-
-      $mimeType = $this->quickMimeContentType($dsName);
-      $location = 'migration/' . str_replace('/espace/data/fedora_datastreams/', '', $path);
-      $location = str_replace('+', '%2B', $location);
-
-      $dsLabel = '';
       $dsInfo = Datastream::getFullDatastreamInfo($pid, $dsName, '_exported');
-      if (array_key_exists('dsi_label', $dsInfo)) {
-        $dsLabel = $dsInfo['dsi_label'];
+
+      if (! Fedora_API::datastreamExists($pid, $dsName)) {
+        $mimeType = $this->quickMimeContentType($dsName);
+        $location = 'migration/' . str_replace('/espace/data/fedora_datastreams/', '', $path);
+        $location = str_replace('+', '%2B', $location);
+        Fedora_API::callAddDatastream(
+          $pid, $dsName, $location, '', $state,
+          $mimeType, 'M', FALSE, "", FALSE, 'uql-fez-production-san'
+        );
       }
-      Fedora_API::callAddDatastream(
-        $pid, $dsName, $location, $dsLabel, $state,
-        $mimeType, 'M', FALSE, "", FALSE, 'uql-fez-production-san'
-      );
+
+      if (array_key_exists('dsi_pid', $dsInfo)) {
+        Datastream::migrateDatastreamInfo([
+          ':dsi_pid' => $pid,
+          ':dsi_dsid' => $dsName,
+          ':dsi_permissions' => $dsInfo['dsi_permissions'],
+          ':dsi_embargo_date' => $dsInfo['dsi_embargo_date'],
+          ':dsi_embargo_processed' => $dsInfo['dsi_embargo_processed'],
+          ':dsi_open_access' => $dsInfo['dsi_open_access'],
+          ':dsi_label' => $dsInfo['dsi_label'],
+          ':dsi_copyright' => $dsInfo['dsi_copyright'],
+          ':dsi_watermark' => $dsInfo['dsi_watermark'],
+          ':dsi_security_inherited' => $dsInfo['dsi_security_inherited'],
+        ]);
+      }
     }
 
     // Remove datastream info shadow entries which don't have a url
