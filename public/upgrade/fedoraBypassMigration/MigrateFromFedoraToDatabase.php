@@ -60,7 +60,9 @@ class MigrateFromFedoraToDatabase
   {
     $this->_log = FezLog::get();
     $this->_db = DB_API::get();
-    $this->_aws = AWS::get();
+    if (defined('AWS_ENABLED') && AWS_ENABLED == 'true') {
+      $this->_aws = AWS::get();
+    }
     $this->_tidy = new tidy;
   }
 
