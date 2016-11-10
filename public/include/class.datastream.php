@@ -218,7 +218,8 @@ class Datastream
       $rows = array();
 
       $sql = "SELECT dsi_dsid, dsi_mimetype FROM "
-        . APP_TABLE_PREFIX . "datastream_info WHERE dsi_pid = :dsi_pid GROUP BY dsi_dsid";
+        . APP_TABLE_PREFIX . "datastream_info "
+        . "WHERE dsi_pid = :dsi_pid AND dsi_state = 'A' GROUP BY dsi_dsid";
 
       try
       {
@@ -277,7 +278,7 @@ class Datastream
     $res = [];
     $data = [':dsi_pid' => $pid];
     $sql = "SELECT * FROM "
-      . APP_TABLE_PREFIX . $tbl . " WHERE dsi_pid = :dsi_pid";
+      . APP_TABLE_PREFIX . $tbl . " WHERE dsi_pid = :dsi_pid AND dsi_state = 'A'";
 
     if ($dsID !== '') {
       $data['dsi_dsid'] = $dsID;

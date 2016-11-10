@@ -162,8 +162,6 @@ class RecordObject extends RecordGeneral
    */
   function fedoraInsertUpdate($exclude_list = array(), $specify_list = array(), $params = array(), $tmpFilesArray = array())
   {
-
-
     if (!empty($params)) {
       // dirty double hack as this function and all the ones it calls assumes this is
       // to do with a form submission
@@ -210,6 +208,12 @@ class RecordObject extends RecordGeneral
            } else {
               $xdisDisplayFields[$xsdmf['xsdmf_id']] = $xdisDisplayFields[$xsdmf['xsdmf_id_ref']];
            }
+          }
+        }
+        if ($xsdmf['xsdmf_html_input'] == 'rich_text') {
+          $value = $xdisDisplayFields[$xsdmf['xsdmf_id']];
+          if ($value == '<br />') {
+            $xdisDisplayFields[$xsdmf['xsdmf_id']] = '';
           }
         }
       }
