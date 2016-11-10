@@ -1210,10 +1210,7 @@ class XSD_DisplayObject
 		if (APP_FEDORA_BYPASS == "ON" && count($return['list']) > 0 && $skipIndex != true && count($this->specify_list) == 0) {
 			$return = $return['list'][0];
 			foreach ($return as $sek_id => $value) {
-        if (strip_tags($value) == '') {
-          $value = '';
-        }
-				$xdis_list = XSD_Relationship::getColListByXDIS($return['rek_display_type']);
+        $xdis_list = XSD_Relationship::getColListByXDIS($return['rek_display_type']);
 				array_push($xdis_list, $return['rek_display_type']);
 				$xdis_str = implode(", ", $xdis_list);
         $sek = Search_Key::getID(ucwords(str_replace("_", " ", str_replace("rek_", "", $sek_id))));
