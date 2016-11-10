@@ -75,8 +75,8 @@ ${MYSQL_CMD} -e 'start slave'
 
 cp export/fez_datastream_info.sql export/fez_datastream_info_exported.sql
 cp export/fez_datastream_info.txt export/fez_datastream_info_exported.txt
-sed -i -- "s/fez_datastream_info/fez_datastream_info_exported/" fez_datastream_info_exported.sql
-sed -i -- "s/fez_datastream_info/fez_datastream_info_exported/" fez_datastream_info_exported.txt
+sed -i -- "s/fez_datastream_info/fez_datastream_info_exported/" export/fez_datastream_info_exported.sql
+sed -i -- "s/fez_datastream_info/fez_datastream_info_exported/" export/fez_datastream_info_exported.txt
 
 rm -f export/__*
 rm -f export/*__shadow.txt
