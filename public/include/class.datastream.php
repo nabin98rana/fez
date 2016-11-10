@@ -512,4 +512,37 @@ class Datastream
     }
     return $res;
   }
+
+  /**
+   * Used in the migration from Fedora -> AWS
+   * @param array $migrateData The data to migrate
+   */
+  public static function migrateDatastreamInfo($migrateData)
+  {
+    $log = FezLog::get();
+    $db = DB_API::get();
+
+    $stmt = "UPDATE " . APP_TABLE_PREFIX . "datastream_info SET
+                dsi_permissions = :dsi_permissions,
+                dsi_embargo_date = :dsi_embargo_date,
+                dsi_embargo_processed = :dsi_embargo_processed,   
+                dsi_open_access = :dsi_open_access,  
+                dsi_label = :dsi_label,
+                dsi_copyright = :dsi_copyright,
+                dsi_watermark = :dsi_watermark,
+                dsi_security_inherited = :dsi_security_inherited
+                WHERE dsi_pid = :dsi_pid AND dsi_dsid = :dsi_dsid";
+    try {
+      $db->query($stmt, $migrateData);
+    } catch (Exception $ex) {
+      $log->err($ex);
+    }
+
+    try {
+      $db->query($stmt);
+    } catch (Exception $ex) {
+      $log->err($ex);
+    }
+  }
+
 }
