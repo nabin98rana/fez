@@ -375,19 +375,18 @@ class MigrateFromFedoraToDatabase
   {
     $result = Misc::processURL(APP_FEDORA_GET_URL . "/" . $pid . "/" . $dsID, false, null, null, null, 10, true);
     if ($result['success'] === 0) {
-      return FALSE;
+      return '';
     }
     $xmlACML = $result['response'];
     if (empty($xmlACML)) {
-      return FALSE;
+      return '';
     }
-    $config = array(
+    $this->_tidy->parseString($xmlACML, [
       'indent' => TRUE,
       'input-xml' => TRUE,
       'output-xml' => TRUE,
-      'wrap' => 0
-    );
-    $this->_tidy->parseString($xmlACML, $config, 'utf8');
+      'wrap' => 0,
+    ], 'utf8');
     $this->_tidy->cleanRepair();
     return $this->_tidy;
   }
