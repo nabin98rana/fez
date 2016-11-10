@@ -209,7 +209,7 @@ class MigrateFromFedoraToDatabase
       return;
     }
 
-    $stmt = "select token, path from datastreamPaths order by path ASC";
+    $stmt = "select token, path from datastreamPaths order by path DESC";
 
     $ds = [];
     try {
@@ -234,10 +234,8 @@ class MigrateFromFedoraToDatabase
       echo "\n - Doing PID $counter/$totalDs ($pid)\n";
       Zend_Registry::set('version', Date_API::getCurrentDateGMT());
 
-      $FezACML_dsID = FezACML::getFezACMLDSName($dsName);
-      $acml = false;
       if(
-        !(Misc::hasPrefix($dsName, 'thumbnail_')
+        !( Misc::hasPrefix($dsName, 'thumbnail_')
         || Misc::hasPrefix($dsName, 'MODS')
         || Misc::hasPrefix($dsName, 'FezACML_')
         || Misc::hasPrefix($dsName, 'FezComments')
@@ -246,21 +244,17 @@ class MigrateFromFedoraToDatabase
         || Misc::hasPrefix($dsName, 'stream_')
         || Misc::hasPrefix($dsName, 'presmd_'))
       ) {
-        $acml = $this->getFezACML($pid, 'FezACML_' . $dsName . '.xml');
-      }
-      $acmlXml = '';
-      if ($acml) {
-        $acmlXml = $acml->saveXML();
-      }
-      if (! empty($acmlXml)) {
-        Fedora_API::callModifyDatastreamByValue($pid, $FezACML_dsID, "A",
-          "FezACML security for datastream - " . $dsName,
-          $acmlXml, "text/xml", "inherit");
-      } else {
+        $FezACML_dsID = FezACML::getFezACMLDSName($dsName);
+        $acml = $this->getFezACML($pid, $FezACML_dsID);
         Fedora_API::callPurgeDatastream($pid, $FezACML_dsID);
+        if (! empty($acml)) {
+          $location = APP_TEMP_DIR . $dsName;
+          file_put_contents($location, $acml);
+          Fedora_API::callAddDatastream($pid, $FezACML_dsID, $location,
+            'FezACML security for datastream - ' . $dsName, 'A', 'text/xml');
+          unlink($location);
+        }
       }
-
-      $dsInfo = Datastream::getFullDatastreamInfo($pid, $dsName, '_exported');
 
       if (! Fedora_API::datastreamExists($pid, $dsName)) {
         $mimeType = $this->quickMimeContentType($dsName);
@@ -272,6 +266,7 @@ class MigrateFromFedoraToDatabase
         );
       }
 
+      $dsInfo = Datastream::getFullDatastreamInfo($pid, $dsName, '_exported');
       if (array_key_exists('dsi_pid', $dsInfo)) {
         Datastream::migrateDatastreamInfo([
           ':dsi_pid' => $pid,
@@ -316,17 +311,16 @@ class MigrateFromFedoraToDatabase
     foreach ($pids as $pid) {
       $i++;
       echo " - Updating security for $pid ($i/$count)\n";
+
+      $dsID = FezACML::getFezACMLPidName($pid);
+      Fedora_API::callPurgeDatastream($pid, $dsID);
       $acml = $this->getFezACML($pid, 'FezACML');
-      if ($acml) {
-        $acmlXml = $acml->saveXML();
-        if (! empty($acmlXml)) {
-          $dsID = FezACML::getFezACMLPidName($pid);
-          $location = APP_TEMP_DIR . $dsID;
-          file_put_contents($location, $acml);
-          Fedora_API::callAddDatastream($pid, $dsID, $location,
-            'FezACML security for PID - ' . $pid, 'A', 'text/xml');
-          unlink($location);
-        }
+      if (! empty($acml)) {
+        $location = APP_TEMP_DIR . $dsID;
+        file_put_contents($location, $acml);
+        Fedora_API::callAddDatastream($pid, $dsID, $location,
+          'FezACML security for PID - ' . $pid, 'A', 'text/xml');
+        unlink($location);
       }
     }
     return true;
@@ -384,7 +378,7 @@ class MigrateFromFedoraToDatabase
       return FALSE;
     }
     $xmlACML = $result['response'];
-    if (! $xmlACML) {
+    if (empty($xmlACML)) {
       return FALSE;
     }
     $config = array(
@@ -395,11 +389,7 @@ class MigrateFromFedoraToDatabase
     );
     $this->_tidy->parseString($xmlACML, $config, 'utf8');
     $this->_tidy->cleanRepair();
-    $xmlACML = $this->_tidy;
-    $xmlDoc = new DomDocument();
-    $xmlDoc->preserveWhiteSpace = FALSE;
-    $xmlDoc->loadXML($xmlACML);
-    return $xmlDoc;
+    return $this->_tidy;
   }
 
   private function getNextPID() {
