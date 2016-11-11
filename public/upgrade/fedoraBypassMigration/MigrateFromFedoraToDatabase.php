@@ -310,18 +310,22 @@ class MigrateFromFedoraToDatabase
     $i = 0;
     foreach ($pids as $pid) {
       $i++;
-      echo " - Updating security for $pid ($i/$count)\n";
+      echo " - Updating security for $pid ($i/$count)";
 
       $dsID = FezACML::getFezACMLPidName($pid);
       Fedora_API::callPurgeDatastream($pid, $dsID);
       $acml = $this->getFezACML($pid, 'FezACML');
       if (! empty($acml)) {
+        echo " - have FezACML";
         $location = APP_TEMP_DIR . $dsID;
         file_put_contents($location, $acml);
         Fedora_API::callAddDatastream($pid, $dsID, $location,
           'FezACML security for PID - ' . $pid, 'A', 'text/xml');
         unlink($location);
+      } else {
+        echo " - empty FezACML";
       }
+      echo "\n";
     }
     return true;
   }
@@ -378,9 +382,6 @@ class MigrateFromFedoraToDatabase
       return '';
     }
     $xmlACML = $result['response'];
-    if (empty($xmlACML)) {
-      return '';
-    }
     $this->_tidy->parseString($xmlACML, [
       'indent' => TRUE,
       'input-xml' => TRUE,
