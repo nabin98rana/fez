@@ -252,7 +252,7 @@ class MigrateFromFedoraToDatabase
           file_put_contents($location, $acml);
           Fedora_API::callAddDatastream($pid, $FezACML_dsID, $location,
             'FezACML security for datastream - ' . $dsName, 'A', 'text/xml');
-          //unlink($location);
+          unlink($location);
         }
       }
 
@@ -321,7 +321,7 @@ class MigrateFromFedoraToDatabase
         file_put_contents($location, $acml);
         Fedora_API::callAddDatastream($pid, $dsID, $location,
           'FezACML security for PID - ' . $pid, 'A', 'text/xml');
-        //unlink($location);
+        unlink($location);
       } else {
         echo " - empty FezACML";
       }
@@ -389,7 +389,7 @@ class MigrateFromFedoraToDatabase
       'wrap' => 0,
     ], 'utf8');
     $this->_tidy->cleanRepair();
-    return $this->_tidy;
+    return (string)$this->_tidy;
   }
 
   private function getNextPID() {
