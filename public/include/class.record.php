@@ -5263,7 +5263,7 @@ function getSearchKeyIndexValueShadow($pid, $searchKeyTitle, $getLookup=true, $s
       $tidy = new tidy;
       $tidy->parseString($foxml, $config, 'utf8');
       $tidy->cleanRepair();
-      $foxml = $tidy;
+      $foxml = (string)$tidy;
     }
 
     $xml_request_data = new DOMDocument();
@@ -5374,7 +5374,7 @@ function getSearchKeyIndexValueShadow($pid, $searchKeyTitle, $getLookup=true, $s
         $tidy = new tidy;
         $tidy->parseString($xmlObj, $config, 'utf8');
         $tidy->cleanRepair();
-        $xmlObj = "$tidy";
+        $xmlObj = (string)$tidy;
       }
       if (APP_FEDORA_VERSION == "3") {
         $result = Fedora_API::callIngestObject($xmlObj, $pid);
@@ -5523,13 +5523,13 @@ function getSearchKeyIndexValueShadow($pid, $searchKeyTitle, $getLookup=true, $s
               $tidy = new tidy();
               $tidy->parseString($currentXML, $config, 'utf8');
               $tidy->cleanRepair();
-              $currentXML = tidy_get_output($tidy);
+              $currentXML = (string)$tidy;
 
 
               $tidy = new tidy();
               $tidy->parseString($datastreamXMLContent[$dsKey], $config, 'utf8');
               $tidy->cleanRepair();
-              $cleanXML = tidy_get_output($tidy);
+              $cleanXML = (string)$tidy;
             } else {
               $cleanXML = $datastreamXMLContent[$dsKey];
             }

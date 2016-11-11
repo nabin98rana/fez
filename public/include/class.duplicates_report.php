@@ -1522,7 +1522,7 @@ function authorShortWordsFilter($a)
                 $tidy = new tidy;
                 $tidy->parseString($xml, $config, 'utf8');
                 $tidy->cleanRepair();
-                $xml = $tidy;
+                $xml = (string)$tidy;
 //                $this->setXML_DOM(new DOMDocument($xml));
                 $this->setXML_DOM(DOMDocument::loadXML($xml));
             } else {

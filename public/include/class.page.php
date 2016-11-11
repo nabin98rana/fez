@@ -121,7 +121,7 @@ class Page
 		$tidy = new tidy;
 		$tidy->parseString($content, $config, 'utf8');
 		$tidy->cleanRepair();
-		$content = $tidy;
+		$content = (string)$tidy;
 
 		$stmt = "UPDATE
                     " . APP_TABLE_PREFIX . "pages

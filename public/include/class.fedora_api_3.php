@@ -623,7 +623,7 @@ class Fedora_API {
       $tidy = new tidy;
       $tidy->parseString($xml, $config, 'utf8');
       $tidy->cleanRepair();
-      $xml = "$tidy";
+      $xml = (string)$tidy;
     }
     return $xml;
   }
@@ -1347,7 +1347,7 @@ class Fedora_API {
         $tidy = new tidy;
         $tidy->parseString($dsIDListArray['stream'], $config, 'utf8');
         $tidy->cleanRepair();
-        $dsIDListArray['stream'] = $tidy;
+        $dsIDListArray['stream'] = (string)$tidy;
       }
     }
 

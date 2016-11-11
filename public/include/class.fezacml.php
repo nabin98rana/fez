@@ -94,7 +94,7 @@ class FezACML
     $tidy = new tidy;
     $tidy->parseString($xmlObj, $config, 'utf8');
     $tidy->cleanRepair();
-    $xmlObj = $tidy;
+    $xmlObj = (string)$tidy;
 
     $FezACML_dsID = FezACML::getFezACMLPidName($pid);
     $logMessage = "FezACML security for PID - " . $pid;
