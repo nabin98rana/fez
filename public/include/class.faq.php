@@ -308,7 +308,7 @@ class FAQ
 		$tidy = new tidy;
 		$tidy->parseString($answer, $config, 'utf8');
 		$tidy->cleanRepair();
-		$answer = Misc::strip_breaks($tidy);
+		$answer = Misc::strip_breaks((string)$tidy);
 		
 		$stmt = "INSERT INTO
                     " . APP_TABLE_PREFIX . "faq_questions
@@ -351,7 +351,7 @@ class FAQ
 		$tidy = new tidy;
 		$tidy->parseString($answer, $config, 'utf8');
 		$tidy->cleanRepair();
-		$answer = Misc::strip_breaks($tidy);
+		$answer = Misc::strip_breaks((string)$tidy);
 		
 		$stmt = "UPDATE
                     " . APP_TABLE_PREFIX . "faq_questions

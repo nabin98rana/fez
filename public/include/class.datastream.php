@@ -536,13 +536,13 @@ class Datastream
     try {
       $db->query($stmt, $migrateData);
     } catch (Exception $ex) {
-      $log->err($ex);
+      //$log->err($ex);
     }
 
     try {
       $db->query($stmt);
     } catch (Exception $ex) {
-      $log->err($ex);
+      //$log->err($ex);
     }
   }
 
