@@ -6,6 +6,7 @@ RUN mkdir -p /var/cache && cd /var/cache/ && \
   mkdir templates_c && \
   mkdir xdebug && \
   mkdir tmp && \
+  mkdir tmp/uploader && \
   mkdir dstree && \
   chmod -R 777 /var/cache
 
