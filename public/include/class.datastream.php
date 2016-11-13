@@ -218,7 +218,8 @@ class Datastream
       $rows = array();
 
       $sql = "SELECT dsi_dsid, dsi_mimetype FROM "
-        . APP_TABLE_PREFIX . "datastream_info WHERE dsi_pid = :dsi_pid GROUP BY dsi_dsid";
+        . APP_TABLE_PREFIX . "datastream_info "
+        . "WHERE dsi_pid = :dsi_pid AND dsi_state = 'A' GROUP BY dsi_dsid";
 
       try
       {
@@ -261,17 +262,23 @@ class Datastream
    *
    * @param string $pid The persistent identifier of the object
    * @param string $dsID The ID of the datastream
+   * @param string $tableSuffix Temporary suffix for the table used in migration from Fedora to AWS
    * @return array $dsIDListArray The list of datastreams in an array.
    */
-  public static function getFullDatastreamInfo($pid, $dsID = '')
+  public static function getFullDatastreamInfo($pid, $dsID = '', $tableSuffix = '')
   {
     $log = FezLog::get();
     $db = DB_API::get();
 
+    $tbl = 'datastream_info';
+    if ($tableSuffix) {
+      $tbl .= $tableSuffix;
+    }
+
     $res = [];
     $data = [':dsi_pid' => $pid];
     $sql = "SELECT * FROM "
-      . APP_TABLE_PREFIX . "datastream_info WHERE dsi_pid = :dsi_pid";
+      . APP_TABLE_PREFIX . $tbl . " WHERE dsi_pid = :dsi_pid AND dsi_state = 'A'";
 
     if ($dsID !== '') {
       $data['dsi_dsid'] = $dsID;
@@ -506,4 +513,37 @@ class Datastream
     }
     return $res;
   }
+
+  /**
+   * Used in the migration from Fedora -> AWS
+   * @param array $migrateData The data to migrate
+   */
+  public static function migrateDatastreamInfo($migrateData)
+  {
+    $log = FezLog::get();
+    $db = DB_API::get();
+
+    $stmt = "UPDATE " . APP_TABLE_PREFIX . "datastream_info SET
+                dsi_permissions = :dsi_permissions,
+                dsi_embargo_date = :dsi_embargo_date,
+                dsi_embargo_processed = :dsi_embargo_processed,   
+                dsi_open_access = :dsi_open_access,  
+                dsi_label = :dsi_label,
+                dsi_copyright = :dsi_copyright,
+                dsi_watermark = :dsi_watermark,
+                dsi_security_inherited = :dsi_security_inherited
+                WHERE dsi_pid = :dsi_pid AND dsi_dsid = :dsi_dsid";
+    try {
+      $db->query($stmt, $migrateData);
+    } catch (Exception $ex) {
+      //$log->err($ex);
+    }
+
+    try {
+      $db->query($stmt);
+    } catch (Exception $ex) {
+      //$log->err($ex);
+    }
+  }
+
 }

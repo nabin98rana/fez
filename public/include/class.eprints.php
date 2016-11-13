@@ -968,7 +968,7 @@ class ePrints
 				$tidy = new tidy;
 				$tidy->parseString($oai_dc_xml, $config, 'utf8');
 				$tidy->cleanRepair();
-				$oai_dc_xml = $tidy;
+				$oai_dc_xml = (string)$tidy;
 
 				$xmlOAIDoc= new DomDocument();
 				$xmlOAIDoc->preserveWhiteSpace = false;
@@ -1120,7 +1120,7 @@ class ePrints
 				$tidy = new tidy;
 				$tidy->parseString($xmlObj, $config, 'utf8');
 				$tidy->cleanRepair();
-				$xmlObj = $tidy;
+				$xmlObj = (string)$tidy;
 
 				//echo "\n$xmlObj\n";
 				BatchImport::saveEprintPid($eprintid, $pid); // save the eprint id against its new Fedora/Fez pid so it can be used with a mod-rewrite redirect for the ePrints record and bringing across stats

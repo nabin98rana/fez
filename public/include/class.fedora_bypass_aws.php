@@ -752,9 +752,11 @@ class Fedora_API implements FedoraApiInterface {
 	{
     $aws = AWS::get();
 
-    Datastream::purgeDatastreamInfo($pid, $dsID);
-    $dataPath = Fedora_API::getDataPath($pid);
+    if (Fedora_API::datastreamExists($pid, $dsID)) {
+      Datastream::purgeDatastreamInfo($pid, $dsID);
+      $dataPath = Fedora_API::getDataPath($pid);
 
-    return $aws->purgeById($dataPath, $dsID);
+      return $aws->purgeById($dataPath, $dsID);
+    }
 	}
 }

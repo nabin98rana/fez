@@ -206,11 +206,19 @@ if (!empty($_POST['filePermissionsNew'])) {
         Datastream::saveDatastreamSelectedPermissions($pid, $filename, $_POST['filePermissionsNew'][$i], $_POST['embargo_date'][$i]);
 
         if ($_POST['filePermissionsNew'][$i] == 5 || !empty($_POST['embargo_date'][$i])) {
-          Datastream::setfezACML($pid, $filename, 10);
+          $templateNum = 10;
+          if ($_SERVER['APPLICATION_ENV'] == 'development') {
+            $templateNum = 2;
+          }
+          Datastream::setfezACML($pid, $filename, $templateNum);
         }
         else {
           if ($_POST['filePermissionsNew'][$i] == 8) {
-            Datastream::setfezACML($pid, $filename, 11);
+            $templateNum = 11;
+            if ($_SERVER['APPLICATION_ENV'] == 'development') {
+              $templateNum = 2;
+            }
+            Datastream::setfezACML($pid, $filename, $templateNum);
           }
         }
         $count++;
