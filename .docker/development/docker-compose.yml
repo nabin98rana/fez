@@ -143,6 +143,7 @@ solrdata:
 
 elasticsearch:
   environment:
+    - ES_JAVA_OPTS=-Xmx2g -Xms2g
     - ES_CLUSTER_NAME=uqlfezsearch
     - ES_NODE_MASTER=true
     - ES_NODE_DATA=true

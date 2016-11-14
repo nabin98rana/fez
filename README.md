@@ -83,6 +83,28 @@ application.
 
 [http://dev-fez.library.uq.edu.au:8983/solr](http://dev-fez.library.uq.edu.au:8983/solr)
 
+### Docker Machine setup for Elasticsearch
+
+NB: If you are using Docker Machine (which uses Boot2Docker) you first need to adjust these settings or the ElasticSearch
+container will not run:
+
+    $ docker-machine ssh [machine name]
+    $ sudo -i
+    $ sysctl -w vm.max_map_count=262144
+
+### Index Setup for Elasticsearch
+
+If you would like to use Elasticsearch (instead of Solr), uncomment the `docker exec` command in dev.sh before running it
+under the heading:
+
+    # Setup the ElasticSearch index and mapping
+    
+NB: this will soon be the default and Solr will be disabled.    
+
+### Elasticsearch Kibana Dashboard
+
+[http://dev-fez.library.uq.edu.au:5601](http://dev-fez.library.uq.edu.au:5601)
+
 ## Bypass Setup (Experimental!)
 
 To run Fez with Bypass enabled, export the following environment variables:
