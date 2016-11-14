@@ -89,17 +89,20 @@ NB: If you are using Docker Machine (which uses Boot2Docker) you first need to a
 container will not run:
 
     $ docker-machine ssh [machine name]
-    $ sudo -i
-    $ sysctl -w vm.max_map_count=262144
-
-### Index Setup for Elasticsearch
-
-If you would like to use Elasticsearch (instead of Solr), uncomment the `docker exec` command in dev.sh before running it
-under the heading:
-
-    # Setup the ElasticSearch index and mapping
+    $ sudo sysctl -w vm.max_map_count=262144
     
-NB: this will soon be the default and Solr will be disabled.    
+NB: Also put that last command in `/var/lib/boot2docker/bootlocal.sh` so it stays on reboot:
+ 
+    $ docker-machine ssh default
+    $ sudo vi /var/lib/boot2docker/bootlocal.sh
+    
+Add this line into /var/lib/boot2docker/bootlocal.sh
+    
+    sudo sysctl -w vm.max_map_count=262144
+    
+Then make sure the `bootlocal.sh` file is executable
+    
+    $ sudo chmod +x /var/lib/boot2docker/bootlocal.sh
 
 ### Elasticsearch Kibana Dashboard
 
