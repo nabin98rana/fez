@@ -486,7 +486,7 @@ class AWS
       $result = $client->headObject($args);
 
     } catch (\Aws\S3\Exception\S3Exception $e) {
-      $this->log->err($e->getMessage());
+      //$this->log->err($e->getMessage());
     }
     return $result;
   }
@@ -526,12 +526,11 @@ class AWS
     try {
       $client = $this->sdk->createS3();
       $path = $this->createPath($src, $id);
-      $found = $client->doesObjectExist($this->s3Bucket, $path);
+      return $client->doesObjectExist($this->s3Bucket, $path);
     } catch (\Aws\S3\Exception\S3Exception $e) {
-      $this->log->err($e->getMessage());
+      //$this->log->err($e->getMessage());
       return false;
     }
-    return $found;
   }
 
   /**
