@@ -585,13 +585,12 @@ class MigrateFromFedoraToDatabase
       $i++;
       echo " - Updating security for $pid ($i/$count)\n";
 
-      $dsID = FezACML::getFezACMLPidName($pid);
       $acml = $this->getFezACML($pid, 'FezACML');
       if (! empty($acml)) {
         if (! is_dir($destDir . $pid)) {
           mkdir($destDir . $pid);
         }
-        file_put_contents($destDir . $pid . '/' . $dsID, $acml);
+        file_put_contents($destDir . $pid . '/' . "FezACML_" . str_replace(":", "_", $pid) . ".xml", $acml);
       }
     }
     $pids = null;
@@ -637,7 +636,7 @@ class MigrateFromFedoraToDatabase
       if (! is_dir($destDir . $pid)) {
         mkdir($destDir . $pid);
       }
-      symlink($path, $destDir . $pid . '/'  . $dsName);
+      @symlink($path, $destDir . $pid . '/'  . $dsName);
 
       if (
       !(Misc::hasPrefix($dsName, 'thumbnail_')
@@ -652,7 +651,7 @@ class MigrateFromFedoraToDatabase
         $FezACML_dsID = FezACML::getFezACMLDSName($dsName);
         $acml = $this->getFezACML($pid, $FezACML_dsID);
         if (!empty($acml)) {
-          file_put_contents($destDir . $pid . '/' . $FezACML_dsID, $acml);
+          file_put_contents($destDir . $pid . '/' . "FezACML_" . str_replace(" ", "_", $dsName) . ".xml", $acml);
         }
       }
     }
