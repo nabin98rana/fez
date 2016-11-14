@@ -9,6 +9,5 @@ if (php_sapi_name()!=="cli") {
 include_once(APP_INC_PATH . "/../upgrade/fedoraBypassMigration/MigrateFromFedoraToDatabase.php");
 $migrate = new MigrateFromFedoraToDatabase();
 
-$migrate->migrateManagedContentLocal();
 $migrate->fixRekUpdatedDate();
 $migrate->getDatastreamLabels();

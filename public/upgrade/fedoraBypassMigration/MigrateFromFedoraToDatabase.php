@@ -248,7 +248,7 @@ class MigrateFromFedoraToDatabase
         $acml = $this->getFezACML($pid, $FezACML_dsID);
         Fedora_API::callPurgeDatastream($pid, $FezACML_dsID);
         if (! empty($acml)) {
-          $location = APP_TEMP_DIR . $dsName;
+          $location = APP_TEMP_DIR . $FezACML_dsID;
           file_put_contents($location, $acml);
           Fedora_API::callAddDatastream($pid, $FezACML_dsID, $location,
             'FezACML security for datastream - ' . $dsName, 'A', 'text/xml');
@@ -562,99 +562,5 @@ class MigrateFromFedoraToDatabase
         Datastream::addDatastreamInfo($pid, $ds['ID'], $ds['MIMEType'], $object, $ds['state'], $ds['label']);
       }
     }
-  }
-
-  /**
-   * Run Fedora managed content migration script & security for the attached files.
-   */
-  public function migrateManagedContentLocal()
-  {
-    $destDir = '/var/www/espace_migration/';
-    $stmt = "SELECT rek_pid FROM " . APP_TABLE_PREFIX . "record_search_key";
-    try {
-      $pids = $this->_db->fetchCol($stmt);
-    } catch (Exception $ex) {
-      $this->_log->err($ex);
-      echo " - Failed to retrieve pids. Error: " . $ex;
-      return false;
-    }
-
-    $count = count($pids);
-    $i = 0;
-    foreach ($pids as $pid) {
-      $i++;
-      echo " - Updating security for $pid ($i/$count)\n";
-
-      $acml = $this->getFezACML($pid, 'FezACML');
-      if (! empty($acml)) {
-        if (! is_dir($destDir . $pid)) {
-          mkdir($destDir . $pid);
-        }
-        file_put_contents($destDir . $pid . '/' . "FezACML_" . str_replace(":", "_", $pid) . ".xml", $acml);
-      }
-    }
-    $pids = null;
-
-    $fedoraDb = null;
-    try {
-      $fedoraDb = Zend_Db::factory(FEDORA_DB_TYPE, [
-        'host'     => FEDORA_DB_HOST,
-        'username' => FEDORA_DB_USERNAME,
-        'password' => FEDORA_DB_PASSWD,
-        'dbname'   => FEDORA_DB_DATABASE_NAME,
-        'port'     => FEDORA_DB_PORT,
-        'profiler' => ['enabled' => false],
-      ]);
-      $fedoraDb->getConnection();
-    } catch (Exception $ex) {
-      echo " - Unable to connect to the Fedora DB.\n";
-      return false;
-    }
-
-    $stmt = "select token, path from datastreamPaths order by path DESC";
-
-    $ds = [];
-    try {
-      $ds = $fedoraDb->fetchAll($stmt, [], Zend_Db::FETCH_ASSOC);
-      $fedoraDb->closeConnection();
-    } catch (Exception $ex) {
-      echo " - Failed to get datastreams from Fedora. Error: " . $ex;
-    }
-
-    $totalDs = count($ds);
-    $counter = 0;
-
-    foreach ($ds as $dataStream) {
-      $counter++;
-
-      $path = $dataStream['path'];
-      $tokenParts = $this->getDsNameAndPidFromToken($dataStream['token']);
-      $pid = $tokenParts['pid'];
-      $dsName = $tokenParts['dsName'];
-
-      echo "\n - Doing PID $counter/$totalDs ($pid)\n";
-      if (! is_dir($destDir . $pid)) {
-        mkdir($destDir . $pid);
-      }
-      @symlink($path, $destDir . $pid . '/'  . $dsName);
-
-      if (
-      !(Misc::hasPrefix($dsName, 'thumbnail_')
-        || Misc::hasPrefix($dsName, 'MODS')
-        || Misc::hasPrefix($dsName, 'FezACML_')
-        || Misc::hasPrefix($dsName, 'FezComments')
-        || Misc::hasPrefix($dsName, 'preview_')
-        || Misc::hasPrefix($dsName, 'web_')
-        || Misc::hasPrefix($dsName, 'stream_')
-        || Misc::hasPrefix($dsName, 'presmd_'))
-      ) {
-        $FezACML_dsID = FezACML::getFezACMLDSName($dsName);
-        $acml = $this->getFezACML($pid, $FezACML_dsID);
-        if (!empty($acml)) {
-          file_put_contents($destDir . $pid . '/' . "FezACML_" . str_replace(" ", "_", $dsName) . ".xml", $acml);
-        }
-      }
-    }
-    return true;
   }
 }
