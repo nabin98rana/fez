@@ -386,7 +386,7 @@ class Fedora_API implements FedoraApiInterface {
       return FALSE;
     }
     $object = [
-      'url' => $obj['ObjectURL'],
+      'url' => $dsArray['@metadata']['effectiveUri'],
       'size' => $dsArray['ContentLength'],
       'version' => $dsArray['VersionId'],
       'checksum' => str_replace('"', '', $dsArray['ETag'])
