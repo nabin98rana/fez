@@ -20,8 +20,8 @@
       <script>jwplayer.key="VDPhCj3HpqB8kdeo/a/tqwW77v3UpjJjHgANDCKarlk=";</script>
       <script type="text/javascript">
         jwplayer("myElement").setup({
-          file: "{/literal}{$flv_url|unescape:\"html\"}{literal}",
-          image: "{/literal}{$flv_img_url|unescape:\"html\"}{literal}",
+          file: "{/literal}{$flv_url nofilter}{literal}",
+          image: "{/literal}{$flv_img_url nofilter}{literal}",
           height: 350,
           width: 425
         });
