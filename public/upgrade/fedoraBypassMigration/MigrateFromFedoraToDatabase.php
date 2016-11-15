@@ -127,7 +127,7 @@ class MigrateFromFedoraToDatabase
   private function stepTwoMigration()
   {
     // PID security
-    $this->addPidsSecurity();
+    //$this->addPidsSecurity();
 
     // Datastream (attached files) migration
     echo " - Migrating managed content..";
@@ -225,6 +225,15 @@ class MigrateFromFedoraToDatabase
     foreach ($ds as $dataStream) {
       $counter++;
 
+      // Check the DB connection is still active and attempt to re-establish
+      // the connection if it has gone away
+      if (! $this->_db->isConnected()) {
+        if (! $this->reEstablishDBConn()) {
+          echo " - Failed to re-establist the DB connection\n";
+          return;
+        }
+      }
+
       $path = $dataStream['path'];
       $tokenParts = $this->getDsNameAndPidFromToken($dataStream['token']);
       $pid = $tokenParts['pid'];
@@ -256,15 +265,13 @@ class MigrateFromFedoraToDatabase
         }
       }
 
-      if (! Fedora_API::datastreamExists($pid, $dsName)) {
-        $mimeType = $this->quickMimeContentType($dsName);
-        $location = 'migration/' . str_replace('/espace/data/fedora_datastreams/', '', $path);
-        $location = str_replace('+', '%2B', $location);
-        Fedora_API::callAddDatastream(
-          $pid, $dsName, $location, '', $state,
-          $mimeType, 'M', FALSE, "", FALSE, 'uql-fez-production-san'
-        );
-      }
+      $mimeType = $this->quickMimeContentType($dsName);
+      $location = 'migration/' . str_replace('/espace/data/fedora_datastreams/', '', $path);
+      $location = str_replace('+', '%2B', $location);
+      Fedora_API::callAddDatastream(
+        $pid, $dsName, $location, '', $state,
+        $mimeType, 'M', FALSE, "", FALSE, 'uql-fez-production-san'
+      );
 
       $dsInfo = Datastream::getFullDatastreamInfo($pid, $dsName, '_exported');
       if (array_key_exists('dsi_pid', $dsInfo)) {
@@ -489,6 +496,25 @@ class MigrateFromFedoraToDatabase
     }
     else {
       return 'application/octet-stream';
+    }
+  }
+
+  private function reEstablishDBConn($retries = 0)
+  {
+    if ($this->_db->isConnected()) {
+      return true;
+    }
+    try {
+      $this->_db->getConnection();
+      return true;
+    } catch (Exception $e) {}
+
+    if ($retries < 5) {
+      $retries++;
+      sleep($retries);
+      return $this->reEstablishDBConn($retries);
+    } else {
+      return FALSE;
     }
   }
 
