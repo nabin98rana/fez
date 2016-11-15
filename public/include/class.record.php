@@ -1404,14 +1404,14 @@ class Record
 
               } else {
                 if ($searchKeyDetails['sek_html_input'] == 'checkbox') {
-                  if ($sek_value['xsdmf_value'] != 'on') {
+                  if ($sek_value['xsdmf_value'] != 'on' && $sek_value['xsdmf_value'] != 1) {
                     $sek_value['xsdmf_value'] = 'off';
                   }
                 }
 
-                if ($sek_value['xsdmf_value'] == 'on' || $sek_value['xsdmf_value'] == 'off') {
+                if (in_array($sek_value['xsdmf_value'], array("on", "off", 1, 0)) || empty($sek_value['xsdmf_value'])) {
                   if ($searchKeyDetails['sek_data_type'] == 'int') {
-                    if ($sek_value['xsdmf_value'] == 'on') {
+                    if ($sek_value['xsdmf_value'] == 'on' || $sek_value['xsdmf_value'] == 1) {
                       $sek_value['xsdmf_value'] = 1;
                     } else {
                       $sek_value['xsdmf_value'] = 0;
