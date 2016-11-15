@@ -376,6 +376,7 @@ if (!empty($pid) && !empty($dsID)) {
       if (defined('AWS_S3_ENABLED') && AWS_S3_ENABLED == 'true') {
         $bri = new bookReaderImplementation($resource);
         $cfURL = $bri->getCloudFrontURL($pid, $resource, $image);
+        header('Content-Type: image/jpeg');
         Misc::processURL($cfURL, true);
       } else {
         $imageFile = BR_IMG_DIR . $pid . '/' . $resource . '/' . $image;
