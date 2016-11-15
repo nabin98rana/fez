@@ -402,12 +402,22 @@ if (!empty($pid) && !empty($dsID)) {
 
     } elseif (($is_video == 1) && (is_numeric(strpos($ctype, "flv")))) {
 
+      $flvUrl = APP_BASE_URL . "stream/{$pid}/{$dsID}";
+      $flvImgUrl = APP_BASE_URL . "";
+      if (APP_FEDORA_BYPASS == 'ON') {
+        $flvUrl = Fedora_API::getCloudFrontUrl($pid, $dsID);
+      }
+
       include_once(APP_INC_PATH . "class.template.php");
       header("Content-Type: text/html");
       $tpl = new Template_API();
       $tpl->setTemplate("flv.tpl.html");
       $tpl->assign("APP_BASE_URL", APP_BASE_URL);
       $tpl->assign("eserv_url", APP_BASE_URL . "eserv.php");
+
+      $tpl->assign("flv_url", $flvUrl);
+      $tpl->assign("flv_img_url", $flvImgUrl);
+
       $tpl->assign("dsID", $dsID);
       if (is_numeric($exif_array['exif_image_height']) && is_numeric($exif_array['exif_image_width'])) {
         $player_height = $exif_array['exif_image_height'];
