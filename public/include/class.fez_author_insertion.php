@@ -111,7 +111,7 @@ class FezAuthorInsertion
             ->where('aut_student_username IN (?)', $users);
 
         $select = $this->db->select()
-            ->union($selectStaff, $selectStudent);
+            ->union([$selectStaff, $selectStudent]);
 
         return $this->db->fetchCol($select);
     }
