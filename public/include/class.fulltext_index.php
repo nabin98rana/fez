@@ -1559,7 +1559,7 @@ abstract class FulltextIndex {
    * @param string $value
    * @return string
    */
-  static public function escapeBooleans($value)
+  public function escapeBooleans($value)
   {
     $value = strtolower($value);
     //list taken from http://lucene.apache.org/java/docs/queryparsersyntax.html#Escaping%20Special%20Characters
