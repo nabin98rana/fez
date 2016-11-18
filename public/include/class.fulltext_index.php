@@ -1530,4 +1530,42 @@ abstract class FulltextIndex {
   }
 
 
+  public function escape($value)
+  {
+    //list taken from http://lucene.apache.org/java/docs/queryparsersyntax.html#Escaping%20Special%20Characters
+    $pattern = '/(\+|-|&&|\|\||!|\(|\)|\{|}|\/|\[|]|\^|"|~|\*|\?|:|\\\)/';
+    $replace = '\\\$1';
+
+    return preg_replace($pattern, $replace, $value);
+  }
+
+  /**
+   * Escape a value meant to be contained in a phrase for special query characters
+   *
+   * @param string $value
+   * @return string
+   */
+  public function escapePhrase($value)
+  {
+    $pattern = '/("|\\\)/';
+    $replace = '\\\$1';
+
+    return preg_replace($pattern, $replace, $value);
+  }
+
+  /**
+   * Escape a boolean value
+   *
+   * @param string $value
+   * @return string
+   */
+  public function escapeBooleans($value)
+  {
+    $value = strtolower($value);
+    //list taken from http://lucene.apache.org/java/docs/queryparsersyntax.html#Escaping%20Special%20Characters
+    $pattern = '/ (and|or) /';
+    $replace = ' \\\$1 ';
+    return preg_replace($pattern, $replace, $value);
+  }
+
 }
