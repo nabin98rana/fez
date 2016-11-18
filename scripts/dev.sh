@@ -15,7 +15,7 @@ if [[ "$IFCONFIG" != "" ]]; then
   NET_IP=`ifconfig ${NET_IF} | grep -Eo 'inet (addr:)?([0-9]*\.){3}[0-9]*' | grep -Eo '([0-9]*\.){3}[0-9]*' | grep -v '127.0.0.1'`
   export XDEBUG_REMOTE_HOST=${NET_IP}
 else
-  export XDEBUG_REMOTE_HOST=127.0.0.1
+  export XDEBUG_REMOTE_HOST=10.0.75.1
 fi
 function waitForServices() {
     MAX_LOOPS="60"
@@ -39,7 +39,7 @@ cd ${BASE_DIR}/.docker/development
 docker-compose stop
 docker-compose rm -f -v
 
-docker-compose up -d
+docker-compose up --build -d
 waitForServices
 
 if [ ! -f "../../public/config.inc.php" ]; then
