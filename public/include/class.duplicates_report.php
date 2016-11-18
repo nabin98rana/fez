@@ -437,7 +437,7 @@ class DuplicatesReport {
 			$pp_where = " AND rek_display_type != ".$pre_print_display_type;
 			$pp_solr_filter = " AND !display_type_i:".$pre_print_display_type;
 		}
-		if (APP_SOLR_SWITCH == "ON" ) { //Solr - the preferable option if available
+		if (APP_SOLR_SWITCH == "ON" || APP_ES_SWITCH == "ON" ) {
 			//Query solr with an OR query on title for a similar fix
 			// Solr search params
 			$index = FulltextIndex::get();
@@ -445,12 +445,12 @@ class DuplicatesReport {
 			$start = 0;
 			$page_rows = 15;
 			$params['fl'] = 'pid_t,score';
-			$params['fq'] = 'object_type_i:3 AND !pid_t:'.$index->solr->escape($pid).$pp_solr_filter;
+			$params['fq'] = 'object_type_i:3 AND !pid_t:'.$index->escape($pid).$pp_solr_filter;
 			//Fez Solr schema.xml has the default search to be an AND based search, while dedupe similar titles query needs to be an OR based search
 			// so it doesn't exclude similar titles
 			$title =  preg_replace("/ +/", " ", $title);
-			$title = $index->solr->escape($title);
-			$title = $index->solr->escapeBooleans($title);
+			$title = $index->escape($title);
+			$title = $index->escapeBooleans($title);
       //$title = preg_replace('/\s+/', '', $title);
       $title = preg_replace ("/[^a-zA-Z0-9 ]/", "", $title);
       $title = preg_replace('!\s+!', ' ', $title);
@@ -463,7 +463,7 @@ class DuplicatesReport {
         return array();
       }
 			$queryString = "title_t:(".$titleOr.")";
-			$response = $index->solr->search($queryString, $start, $page_rows, $params);
+			$response = $index->search($queryString, $start, $page_rows, $params);
 			$total_rows = $response->response->numFound;
 			$res = array();
 			if ($total_rows > 0) {

@@ -2455,15 +2455,15 @@ class RecordGeneral
       $xsdmf_details = XSD_HTML_Match::getDetailsByXSDMF_ID($xsdmf_id);
       if ($xsdmf_details['xsdmf_sek_id'] != "") {
         $sekDetails = Search_Key::getBasicDetails($xsdmf_details['xsdmf_sek_id']);
-        $xsdmf_value = Search_Key::cleanSearchKeyValue($sekDetails, $xsdmf_value);
         if ($sekDetails['sek_data_type'] == 'int' && $sekDetails['sek_html_input'] == 'checkbox') {
           if ($xsdmf_value == 'on') {
             $xsdmf_value = 1;
           } else {
             $xsdmf_value = 0;
           }
+          $xsdmf_array[$xsdmf_id] = $xsdmf_value;
         }
-
+        $xsdmf_value = Search_Key::cleanSearchKeyValue($sekDetails, $xsdmf_value);
         if ($sekDetails['sek_data_type'] == 'date') {
           if (!empty($xsdmf_value)) {
             if (is_numeric($xsdmf_value) && strlen($xsdmf_value) == 4) {

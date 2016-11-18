@@ -20,10 +20,10 @@
       <script>jwplayer.key="VDPhCj3HpqB8kdeo/a/tqwW77v3UpjJjHgANDCKarlk=";</script>
       <script type="text/javascript">
         jwplayer("myElement").setup({
-          file: "{/literal}{$rel_url}{literal}stream/{/literal}{$pid}{literal}/{/literal}{$dsID}{literal}",
-          image: "{/literal}{$eserv_url|replace:".php":""}{literal}/{/literal}{$pid}{literal}/{/literal}{$image_file_name}{literal}",
+          file: "{/literal}{$flv_url nofilter}{literal}",
+          image: "{/literal}{$flv_img_url nofilter}{literal}",
           height: 350,
-          width: 425,
+          width: 425
         });
       </script>
     </center>

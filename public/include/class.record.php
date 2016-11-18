@@ -1368,15 +1368,11 @@ class Record
                 $table .= "__shadow";
               }
 
-              // Run REPLACE INTO when cardinality is 0 and we are using MySQL as db connection type
-              // Otherwise use INSERT INTO
-//              if ($searchKeyDetails['sek_cardinality'] == 0 && is_numeric(strpos(APP_SQL_DBTYPE, "mysql")) ) {
               if (!$shadow) {
                 $stmt = "DELETE FROM " . $table . " WHERE rek_".$sek_table."_pid = " . $db->quote($pid);
                 $db->exec($stmt);
               }
               $stmt = "INSERT INTO " . $table;
-//              }
               $stmt .= " (rek_" . $sek_table . "_pid, rek_" . $sek_table . "_xsdmf_id, rek_" . $sek_table . $cardinalityCol;
 
               if ($shadow) {
@@ -1404,14 +1400,14 @@ class Record
 
               } else {
                 if ($searchKeyDetails['sek_html_input'] == 'checkbox') {
-                  if ($sek_value['xsdmf_value'] != 'on') {
+                  if ($sek_value['xsdmf_value'] != 'on' && $sek_value['xsdmf_value'] != 1) {
                     $sek_value['xsdmf_value'] = 'off';
                   }
                 }
 
-                if ($sek_value['xsdmf_value'] == 'on' || $sek_value['xsdmf_value'] == 'off') {
+                if (in_array($sek_value['xsdmf_value'], array("on", "off", 1, 0)) || empty($sek_value['xsdmf_value'])) {
                   if ($searchKeyDetails['sek_data_type'] == 'int') {
-                    if ($sek_value['xsdmf_value'] == 'on') {
+                    if ($sek_value['xsdmf_value'] == 'on' || $sek_value['xsdmf_value'] == 1) {
                       $sek_value['xsdmf_value'] = 1;
                     } else {
                       $sek_value['xsdmf_value'] = 0;
@@ -1434,7 +1430,15 @@ class Record
                 $log->err($ex." stmt: ".$stmt);
                 $ret = false;
               }
+            } else if (!$shadow) {
+              $table = APP_TABLE_PREFIX . "record_search_key_" . $sek_table;
+              $stmt = "DELETE FROM " . $table . " WHERE rek_".$sek_table."_pid = " . $db->quote($pid);
+              $db->exec($stmt);
             }
+          } else if (!$shadow) {
+            $table = APP_TABLE_PREFIX . "record_search_key_" . $sek_table;
+            $stmt = "DELETE FROM " . $table . " WHERE rek_".$sek_table."_pid = " . $db->quote($pid);
+            $db->exec($stmt);
           }
         }
       }
