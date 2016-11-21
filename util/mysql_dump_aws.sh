@@ -82,6 +82,7 @@ rm -f export/__*
 rm -f export/*__shadow.txt
 rm -f export/fez_background_process.txt
 rm -f export/fez_background_process_pids.txt
+rm -f export/fez_datastream_info.sql
 rm -f export/fez_datastream_info.txt
 rm -f export/fez_datastream_info__shadow.txt
 rm -f export/fez_statistics_all.txt

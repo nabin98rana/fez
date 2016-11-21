@@ -492,14 +492,14 @@ abstract class FulltextIndex {
               $docfields[$ftName] = $date->format("Y");
             }
 
-            //Add sort fields
+            //Add facet fields, exact matching fields, sort fields
+
             if ($fieldType == FulltextIndex::FIELD_TYPE_TEXT) {
               $docfields[$index_title . "_s"] = $fieldValue;
-            }
-            //Add facet fields
-            if ($fieldType == FulltextIndex::FIELD_TYPE_TEXT) {
               $ftName = str_replace("_mt", "_mft", $index_title);
               $ftName = str_replace("_t", "_ft", $ftName);
+              $docfields[$ftName] = $fieldValue;
+              $ftName = str_replace("_mt", "_mt_exact", $index_title);
               $docfields[$ftName] = $fieldValue;
             }
           }
