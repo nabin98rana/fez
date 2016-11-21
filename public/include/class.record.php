@@ -2078,7 +2078,7 @@ class Record
     $log = FezLog::get();
     $db = DB_API::get();
 
-    if (APP_SOLR_SWITCH == "ON" && $forceLocal == false) {
+    if ((APP_SOLR_SWITCH == "ON" || APP_ES_SWITCH == "ON" ) && $forceLocal == false) {
       return Record::getSearchListing(
           $options, $approved_roles, $current_page, $page_rows, $sort_by, $getSimple,
           $citationCache, $filter, $operator, $use_faceting, $use_highlighting, $doExactMatch,
