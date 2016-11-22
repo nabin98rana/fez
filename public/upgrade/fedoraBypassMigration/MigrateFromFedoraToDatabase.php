@@ -127,7 +127,7 @@ class MigrateFromFedoraToDatabase
   private function stepTwoMigration()
   {
     // PID security
-    //$this->addPidsSecurity();
+    $this->addPidsSecurity();
 
     // Datastream (attached files) migration
     echo " - Migrating managed content..";
