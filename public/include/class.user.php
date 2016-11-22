@@ -987,6 +987,12 @@ class User
 		$log = FezLog::get();
 		$db = DB_API::get();
 
+    $user = User::getDetails(trim($_POST["username"]));
+
+    if (array_key_exists('usr_username', $user) && $user['usr_username'] == trim($_POST["username"])) {
+      return -2;
+    }
+
 		if (@$_POST["administrator"]) {
 			$usr_administrator = 'TRUE';
 		} else {
