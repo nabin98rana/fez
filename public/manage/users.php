@@ -71,7 +71,6 @@ if ($isAdministrator) {
 
     if (@$_POST["cat"] == "new") {
         $tpl->assign("result", User::insert());
-        header('Location: ' . $_SERVER['PHP_SELF']);
     } elseif (@$_POST["cat"] == "update") {
         $tpl->assign("result", User::update($isSuperAdministrator));
         header('Location: ' . $_SERVER['PHP_SELF']);

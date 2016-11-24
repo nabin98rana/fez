@@ -97,7 +97,7 @@
               {/literal}              
 
 
-        <form id="user_form" onsubmit="javascript:return checkFormSubmission(this, 'validateForm');" method="post" action="{$smarty.server.PHP_SELF}">
+        <form id="user_form" onsubmit="javascript:return checkFormSubmission(this, 'validateForm');" method="post" action="{$smarty.server.PHP_SELF}" autocomplete="off">
          <div>
           {if $smarty.get.cat == 'edit'}
             <input type="hidden" name="cat" value="update" />
@@ -119,6 +119,8 @@
                   {if $smarty.post.cat == "new"}
                     {if $result == -1}
                       An error occurred while trying to add the new user.
+                    {elseif $result == -2}
+                      User already exists.
                     {elseif $result == 1}
                       Thank you, the user was added successfully.
                     {/if}
@@ -195,7 +197,7 @@
           				  <input type="checkbox" name="change_password" />  <span class="default"><i>(Tick this if you want to change the user password)</i></span>
           					{/if}
           				{/if}
-                  <input type="password" name="password" size="40" class="default" value="{$info.usr_password}" /> <span class="default"><i>(Only for Non-LDAP authentication)</i></span>
+                  <input type="password" name="password" size="40" class="default" value="{$info.usr_password}" autocomplete="new-password" /> <span class="default"><i>(Only for Non-LDAP authentication)</i></span>
                   {include file="error_icon.tpl.html" field="password"}
                 </td>
               </tr>

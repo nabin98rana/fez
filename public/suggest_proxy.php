@@ -80,7 +80,7 @@ if ($sek_suggest_function == "Search_Key::suggestSearchKeyIndexValue") {
 }
 
 $names = [];
-$suggestions = array_filter($suggestions, function($el) use (&$names) {
+$suggestions[0] = array_filter($suggestions[0], function($el) use (&$names) {
   if (in_array($el['name'], $names)) {
     return false; // remove it
   } else {
