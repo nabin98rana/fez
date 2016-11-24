@@ -612,7 +612,7 @@ class Fez_Record_Searchkey
    */
   protected function _updateSolrIndex()
   {
-    if (APP_SOLR_INDEXER != "ON") {
+    if (APP_SOLR_INDEXER != "ON" && APP_ES_INDEXER != "ON") {
       return true;
     }
 
