@@ -307,39 +307,28 @@ class RecordObject extends RecordGeneral
 
       if (isset($_POST['uploader_files_uploaded'])) {
         $wfstatus = &WorkflowStatusStatic::getSession();
-
-        /*This condition required to stop additional ephemera
-         in the tmp upload dir being attached to the pid*/
         if (! count($tmpFilesArray)) {
-          $tmpFilesArray = Uploader::generateFilesArray($wfstatus->id,
-              $_POST['uploader_files_uploaded']);
+          $tmpFilesArray = Uploader::generateFilesArray($wfstatus->id, $_POST['uploader_files_uploaded']);
         }
-
         if (count($tmpFilesArray)) {
 
           $_FILES = $tmpFilesArray;
 
           $resourceData = $_FILES['xsd_display_fields']['new_file_location'];
           $resourceDataKeys = array_keys($resourceData);
-
           $numFiles = count($resourceData[$resourceDataKeys[0]]);
-
-          $filesData = $_FILES['xsd_display_fields']['size'];
-          $filesDataKeys = array_keys($filesData);
-
           $mimeData = $_FILES['xsd_display_fields']['type'];
           $mimeDataKeys = array_keys($mimeData);
           $fileNames = array();
 
           for ($i = 0; $i < $numFiles; $i++) {
             $resourceDataLocation = $resourceData[$resourceDataKeys[0]][$i];
-            $filesDataSize = $filesData[$filesDataKeys[0]][$i];
+            if (! is_file($resourceDataLocation)) {
+              continue;
+            }
             $mimeDataType = $mimeData[$mimeDataKeys[0]][$i];
-
             $fileInfo = new SplFileInfo($resourceDataLocation);
-
             $new_dsID = Foxml::makeNCName($fileInfo->getFilename());
-
             $label = "";
             if (@$_POST['description'][$i]) {
               $label = $_POST['description'][$i];
@@ -395,9 +384,12 @@ class RecordObject extends RecordGeneral
       // now process the ingest triggers now that file_attachment_name etc has been saved into the search keys
       if (count($tmpFilesArray) > 0) {
         for ($i = 0; $i < $numFiles; $i++) {
-          Workflow::processIngestTrigger($this->pid, $fileNames[$i], $mimeDataType);
           $tmpFile = APP_TEMP_DIR . $fileNames[$i];
           $resourceDataLocation = $resourceData[$resourceDataKeys[0]][$i];
+          if (! is_file($resourceDataLocation)) {
+            continue;
+          }
+          Workflow::processIngestTrigger($this->pid, $fileNames[$i], $mimeDataType);
           if (is_file($tmpFile)) {
             unlink($tmpFile);
           }
