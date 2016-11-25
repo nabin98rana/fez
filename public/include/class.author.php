@@ -1408,7 +1408,7 @@ class Author
     // TODO: For postgres it might be worth adding a condition here to use TSEARCH2 which is close to fulltext
     // indexing in MySQL MyISAM
 
-    if (is_numeric(strpos(APP_SQL_DBTYPE, "mysql"))) {
+    if (is_numeric(strpos(APP_SQL_DBTYPE, "mysql")) && !(is_numeric(strpos($term, "-")))) {
         //For small names it becomes a pain since these are stop words, so if there are trying the second name and neither > 3 chars we need to use equals
         if (strlen($term) < 8 && (strpos($term, ' ') !== FALSE)) {
             $tempTerm = substr($term, 0, strpos($term, ' '));;
@@ -1429,7 +1429,7 @@ class Author
             $stmt .= " WHERE (aut_id=".$db->quote($term, 'INTEGER')." OR aut_org_student_id=".$db->quote($term, 'INTEGER');
         }
 
-    } else if (is_numeric(strpos(APP_SQL_DBTYPE, "mysql"))) {
+    } else if (is_numeric(strpos(APP_SQL_DBTYPE, "mysql")) && !(is_numeric(strpos($term, "-")))) {
       $stmt .= " WHERE ( aut_lname = ".$db->quote($term)." OR MATCH (aut_display_name) AGAINST (".$db->quote(''.$term.'*')." IN BOOLEAN MODE)
                  OR MATCH (aut_org_username) AGAINST (".$db->quote($term)." IN BOOLEAN MODE) OR  MATCH (aut_student_username) AGAINST (".$db->quote($term)." IN BOOLEAN MODE) OR aut_ref_num = ".$db->quote($term);
     } else {
@@ -1466,7 +1466,7 @@ class Author
 
     if (is_numeric($term)) {
       $stmt .= " LIMIT 60 OFFSET 0) as tempsuggest";
-    } else if (is_numeric(strpos(APP_SQL_DBTYPE, "mysql"))) {
+    } else if (is_numeric(strpos(APP_SQL_DBTYPE, "mysql")) && !(is_numeric(strpos($term, "-")))) {
       $stmt .= " ORDER BY Relevance DESC, aut_fullname LIMIT 0,60) as tempsuggest";
     } else {
       $stmt .= " LIMIT 60 OFFSET 0) as tempsuggest";
@@ -1920,7 +1920,7 @@ class Author
                SET
                   aut_researcher_id=" . $db->quote($researcher_id) . "
                WHERE
-                  aut_org_username=" . $db->quote($username) . " 
+                  aut_org_username=" . $db->quote($username) . "
                   OR aut_student_username=" . $db->quote($username);
 
       try {
