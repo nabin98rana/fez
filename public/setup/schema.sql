@@ -86,7 +86,7 @@ CREATE TABLE `fez_auth_index2` (
   KEY `authi_pid_arg_id` (`authi_pid`,`authi_arg_id`),
   KEY `authi_pid` (`authi_pid`),
   KEY `authi_arg_id` (`authi_arg_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -101,7 +101,7 @@ CREATE TABLE `fez_auth_index2_lister` (
   `authi_arg_id` int(11) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`authi_pid`,`authi_arg_id`),
   UNIQUE KEY `authi_pid` (`authi_pid`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -144,7 +144,7 @@ CREATE TABLE `fez_auth_index2_pre_fez2_upgrade` (
   KEY `authi_role` (`authi_role`),
   KEY `authi_arg_id` (`authi_arg_id`),
   KEY `authi_role_pid` (`authi_pid`,`authi_role`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -201,7 +201,7 @@ CREATE TABLE `fez_auth_roles` (
   `aro_role` varchar(64) NOT NULL,
   `aro_ranking` int(11) unsigned NOT NULL,
   PRIMARY KEY (`aro_id`)
-) ENGINE=MyISAM AUTO_INCREMENT=15 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=15 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -216,7 +216,7 @@ CREATE TABLE `fez_auth_rule_group_rules` (
   `argr_ar_id` int(11) NOT NULL,
   KEY `argr_arg_id` (`argr_arg_id`),
   KEY `argr_ar_id` (`argr_ar_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -233,7 +233,7 @@ CREATE TABLE `fez_auth_rule_group_users` (
   PRIMARY KEY (`argu_id`),
   KEY `argu_usr_id` (`argu_usr_id`),
   KEY `argu_arg_id` (`argu_arg_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -248,7 +248,7 @@ CREATE TABLE `fez_auth_rule_groups` (
   `arg_md5` varchar(128) NOT NULL,
   PRIMARY KEY (`arg_id`),
   KEY `arg_md5` (`arg_md5`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -265,7 +265,7 @@ CREATE TABLE `fez_auth_rules` (
   PRIMARY KEY (`ar_id`),
   KEY `ar_value` (`ar_value`),
   FULLTEXT KEY `ar_rule` (`ar_rule`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -305,7 +305,7 @@ CREATE TABLE `fez_author` (
   UNIQUE KEY `aut_org_username` (`aut_org_username`),
   FULLTEXT KEY `aut_fname` (`aut_fname`,`aut_lname`),
   FULLTEXT KEY `aut_display_name` (`aut_display_name`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -324,7 +324,7 @@ CREATE TABLE `fez_author_affiliation` (
   `af_status` int(1) DEFAULT '0',
   PRIMARY KEY (`af_id`),
   UNIQUE KEY `unique_constraint` (`af_pid`,`af_author_id`,`af_org_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -338,7 +338,7 @@ CREATE TABLE `fez_author_classification` (
   `cla_id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `cla_title` varchar(64) DEFAULT NULL,
   PRIMARY KEY (`cla_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -352,7 +352,7 @@ CREATE TABLE `fez_author_function` (
   `fun_id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `fun_title` varchar(64) DEFAULT NULL,
   PRIMARY KEY (`fun_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -372,7 +372,7 @@ CREATE TABLE `fez_author_org_structure` (
   `auo_assessed_year` varchar(11) DEFAULT NULL,
   PRIMARY KEY (`auo_id`),
   UNIQUE KEY `support_unique_key` (`auo_org_id`,`auo_aut_id`,`auo_cla_id`,`auo_fun_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -399,7 +399,7 @@ CREATE TABLE `fez_background_process` (
   KEY `bgp_started` (`bgp_started`),
   KEY `bgp_state` (`bgp_state`),
   KEY `bgp_usr_id` (`bgp_usr_id`)
-) ENGINE=MyISAM AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -429,7 +429,7 @@ CREATE TABLE `fez_citation` (
   `cit_template` text NOT NULL,
   `cit_type` varchar(10) NOT NULL,
   PRIMARY KEY (`cit_id`)
-) ENGINE=MyISAM AUTO_INCREMENT=48 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=48 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -519,7 +519,7 @@ CREATE TABLE `fez_config` (
   `config_value` varchar(512) DEFAULT NULL,
   PRIMARY KEY (`config_id`),
   UNIQUE KEY `config_name` (`config_name`,`config_module`)
-) ENGINE=MyISAM AUTO_INCREMENT=395 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=395 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -539,7 +539,7 @@ CREATE TABLE `fez_controlled_vocab` (
   PRIMARY KEY (`cvo_id`),
   UNIQUE KEY `cvo_id` (`cvo_id`),
   KEY `cvo_title` (`cvo_title`)
-) ENGINE=MyISAM AUTO_INCREMENT=465586 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=465586 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -556,7 +556,7 @@ CREATE TABLE `fez_controlled_vocab_relationship` (
   PRIMARY KEY (`cvr_id`),
   UNIQUE KEY `cvr_parent_cvo_id` (`cvr_parent_cvo_id`,`cvr_child_cvo_id`,`cvr_id`),
   KEY `ix_cvr_child_cvo_id` (`cvr_child_cvo_id`)
-) ENGINE=MyISAM AUTO_INCREMENT=16715 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=16715 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -621,7 +621,7 @@ CREATE TABLE `fez_eprints_import_pids` (
   `epr_fez_pid` varchar(255) NOT NULL,
   `epr_date_added` datetime DEFAULT NULL,
   PRIMARY KEY (`epr_eprints_id`,`epr_fez_pid`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -737,7 +737,7 @@ CREATE TABLE `fez_fulltext_cache` (
   `ftc_is_text_usable` tinyint(1) DEFAULT NULL,
   PRIMARY KEY (`ftc_id`),
   UNIQUE KEY `ftc_key` (`ftc_pid`,`ftc_dsid`) USING BTREE
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -754,7 +754,7 @@ CREATE TABLE `fez_fulltext_engine` (
   `fte_weight` smallint(4) NOT NULL DEFAULT '0',
   PRIMARY KEY (`fte_id`),
   KEY `key_id` (`fte_key_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -770,7 +770,7 @@ CREATE TABLE `fez_fulltext_index` (
   `fti_dsid` varchar(128) NOT NULL,
   `fti_indexed` datetime NOT NULL,
   PRIMARY KEY (`fti_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -787,7 +787,7 @@ CREATE TABLE `fez_fulltext_keywords` (
   PRIMARY KEY (`ftk_id`),
   UNIQUE KEY `ftk_word` (`ftk_word`),
   KEY `ftk_twoletters` (`ftk_twoletters`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -920,7 +920,7 @@ CREATE TABLE `fez_group` (
   `grp_status` set('active','archived') NOT NULL DEFAULT 'active',
   `grp_created_date` datetime DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`grp_id`)
-) ENGINE=MyISAM AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -936,7 +936,7 @@ CREATE TABLE `fez_group_user` (
   `gpu_usr_id` int(11) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`gpu_id`),
   KEY `pru_col_id` (`gpu_grp_id`,`gpu_usr_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -1173,7 +1173,7 @@ CREATE TABLE `fez_mail_queue` (
   `maq_body` longtext NOT NULL,
   PRIMARY KEY (`maq_id`),
   KEY `maq_status` (`maq_status`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -1191,7 +1191,7 @@ CREATE TABLE `fez_mail_queue_log` (
   `mql_server_message` text,
   PRIMARY KEY (`mql_id`),
   KEY `mql_maq_id` (`mql_maq_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -1207,7 +1207,7 @@ CREATE TABLE `fez_main_chapter` (
   `mc_author_id` int(11) NOT NULL,
   `mc_status` int(1) DEFAULT '0',
   PRIMARY KEY (`mc_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -1323,7 +1323,7 @@ CREATE TABLE `fez_news` (
   `nws_admin_only` tinyint(1) DEFAULT '0',
   PRIMARY KEY (`nws_id`),
   UNIQUE KEY `nws_title` (`nws_title`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -1338,7 +1338,7 @@ CREATE TABLE `fez_object_type` (
   `ret_title` varchar(25) NOT NULL DEFAULT '',
   PRIMARY KEY (`ret_id`),
   UNIQUE KEY `htt_name` (`ret_title`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -1358,7 +1358,7 @@ CREATE TABLE `fez_org_structure` (
   `org_desc` text,
   `org_image_filename` varchar(512) DEFAULT NULL,
   PRIMARY KEY (`org_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -1373,7 +1373,7 @@ CREATE TABLE `fez_org_structure_relationship` (
   `orr_parent_org_id` int(11) DEFAULT NULL,
   `orr_child_org_id` int(11) DEFAULT NULL,
   PRIMARY KEY (`orr_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -1423,7 +1423,7 @@ CREATE TABLE `fez_premis_event` (
   `pre_is_hidden` tinyint(1) DEFAULT '0',
   `pre_msq_usr_id` int(11) DEFAULT NULL,
   PRIMARY KEY (`pre_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -1485,7 +1485,7 @@ CREATE TABLE `fez_record_locks` (
   `rl_context_type` int(11) NOT NULL,
   `rl_context_value` int(11) NOT NULL,
   PRIMARY KEY (`rl_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -1513,7 +1513,7 @@ CREATE TABLE `fez_record_matching_field` (
   KEY `combo_pid_xsdmf` (`rmf_rec_pid`,`rmf_xsdmf_id`),
   KEY `combo_pid_num_xsdmf` (`rmf_rec_pid_num`,`rmf_xsdmf_id`),
   FULLTEXT KEY `rmf_varchar` (`rmf_varchar`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -1695,7 +1695,7 @@ CREATE TABLE `fez_record_search_key_architectural_features` (
   UNIQUE KEY `unique_constraint_pid_order` (`rek_architectural_features_pid`,`rek_architectural_features_order`),
   KEY `rek_architectural_features_pid` (`rek_architectural_features_pid`),
   FULLTEXT KEY `fulltext` (`rek_architectural_features`)
-) ENGINE=MyISAM AUTO_INCREMENT=42661 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=42661 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 
@@ -1791,7 +1791,7 @@ SET character_set_client = utf8;
   `rek_author_id_xsdmf_id` int(11),
   `rek_author_id` int(11),
   `rek_author_id_order` int(11)
-) ENGINE=MyISAM */;
+) ENGINE=InnoDB */;
 SET character_set_client = @saved_cs_client;
 
 --
@@ -1914,7 +1914,7 @@ CREATE TABLE `fez_record_search_key_building_materials` (
   UNIQUE KEY `unique_constraint_pid_order` (`rek_building_materials_pid`,`rek_building_materials_order`),
   KEY `rek_building_materials_pid` (`rek_building_materials_pid`),
   FULLTEXT KEY `fulltext` (`rek_building_materials`)
-) ENGINE=MyISAM AUTO_INCREMENT=25671 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=25671 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 
@@ -2059,7 +2059,7 @@ CREATE TABLE `fez_record_search_key_category` (
   UNIQUE KEY `unique_constraint_pid_order` (`rek_category_pid`,`rek_category_order`),
   KEY `rek_category_pid` (`rek_category_pid`),
   FULLTEXT KEY `rek_category` (`rek_category`)
-) ENGINE=MyISAM AUTO_INCREMENT=13465 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=13465 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 
@@ -2124,7 +2124,7 @@ CREATE TABLE `fez_record_search_key_condition` (
   UNIQUE KEY `unique_constraint_pid_order` (`rek_condition_pid`,`rek_condition_order`),
   KEY `rek_condition_pid` (`rek_condition_pid`),
   FULLTEXT KEY `rek_condition` (`rek_condition`)
-) ENGINE=MyISAM AUTO_INCREMENT=5495 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=5495 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 
@@ -2187,7 +2187,7 @@ CREATE TABLE `fez_record_search_key_conference_location` (
   UNIQUE KEY `rek_conference_location_pid` (`rek_conference_location_pid`),
   KEY `rek_conference_location` (`rek_conference_location`),
   FULLTEXT KEY `rek_conference_location_ft` (`rek_conference_location`)
-) ENGINE=MyISAM AUTO_INCREMENT=648947 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=648947 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 
@@ -2209,7 +2209,7 @@ CREATE TABLE `fez_record_search_key_conference_name` (
   UNIQUE KEY `rek_conference_name_pid` (`rek_conference_name_pid`),
   KEY `rek_conference_name` (`rek_conference_name`),
   FULLTEXT KEY `rek_conference_name_ft` (`rek_conference_name`)
-) ENGINE=MyISAM AUTO_INCREMENT=632707 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=632707 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 
@@ -2295,7 +2295,7 @@ SET character_set_client = utf8;
   `rek_contributor_id_xsdmf_id` int(11),
   `rek_contributor_id` int(11),
   `rek_contributor_id_order` int(11)
-) ENGINE=MyISAM */;
+) ENGINE=InnoDB */;
 SET character_set_client = @saved_cs_client;
 
 --
@@ -2603,7 +2603,7 @@ SET character_set_client = utf8;
   `rek_convener_pid` varchar(64),
   `rek_convener_xsdmf_id` int(11),
   `rek_convener` varchar(255)
-) ENGINE=MyISAM */;
+) ENGINE=InnoDB */;
 SET character_set_client = @saved_cs_client;
 
 --
@@ -2847,7 +2847,7 @@ SET character_set_client = utf8;
   `rek_convener_pid` varchar(64),
   `rek_convener_xsdmf_id` int(11),
   `rek_convener` varchar(255)
-) ENGINE=MyISAM */;
+) ENGINE=InnoDB */;
 SET character_set_client = @saved_cs_client;
 
 --
@@ -2867,7 +2867,7 @@ CREATE TABLE `fez_record_search_key_country_of_issue` (
   UNIQUE KEY `rek_country_of_issue_pid` (`rek_country_of_issue_pid`),
   KEY `rek_country_of_issue` (`rek_country_of_issue`),
   FULLTEXT KEY `rek_country_of_issue_ft` (`rek_country_of_issue`)
-) ENGINE=MyISAM AUTO_INCREMENT=1005 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=1005 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 
@@ -3077,7 +3077,7 @@ CREATE TABLE `fez_record_search_key_file_description` (
   UNIQUE KEY `unique_constraint_pid_order` (`rek_file_description_pid`,`rek_file_description_order`),
   KEY `rek_file_description_pid` (`rek_file_description_pid`),
   FULLTEXT KEY `rek_file_description` (`rek_file_description`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 
@@ -3318,7 +3318,7 @@ CREATE TABLE `fez_record_search_key_interior_features` (
   UNIQUE KEY `unique_constraint_pid_order` (`rek_interior_features_pid`,`rek_interior_features_order`),
   KEY `rek_interior_features_pid` (`rek_interior_features_pid`),
   FULLTEXT KEY `rek_interior_features` (`rek_interior_features`)
-) ENGINE=MyISAM AUTO_INCREMENT=815 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=815 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 
@@ -3514,7 +3514,7 @@ CREATE TABLE `fez_record_search_key_journal_name` (
   UNIQUE KEY `rek_journal_name_pid` (`rek_journal_name_pid`),
   KEY `rek_journal_name` (`rek_journal_name`),
   FULLTEXT KEY `rek_journal_name_ft` (`rek_journal_name`)
-) ENGINE=MyISAM AUTO_INCREMENT=3358005 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=3358005 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 
@@ -3559,7 +3559,7 @@ CREATE TABLE `fez_record_search_key_keywords` (
   KEY `rek_keywords` (`rek_keywords`),
   KEY `rek_keywords_order` (`rek_keywords_order`),
   FULLTEXT KEY `rek_keywords_fulltext` (`rek_keywords`)
-) ENGINE=MyISAM AUTO_INCREMENT=20633793 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=20633793 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 
@@ -3759,7 +3759,7 @@ SET character_set_client = utf8;
   `rek_link_description_xsdmf_id` int(11),
   `rek_link_description` text,
   `rek_link_description_order` int(11)
-) ENGINE=MyISAM */;
+) ENGINE=InnoDB */;
 SET character_set_client = @saved_cs_client;
 
 --
@@ -3800,7 +3800,7 @@ CREATE TABLE `fez_record_search_key_location` (
   KEY `rek_location` (`rek_location`),
   KEY `rek_location_pid` (`rek_location_pid`),
   FULLTEXT KEY `rek_location_ft` (`rek_location`)
-) ENGINE=MyISAM AUTO_INCREMENT=19527 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=19527 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 
@@ -3820,7 +3820,7 @@ CREATE TABLE `fez_record_search_key_na_explanation` (
   PRIMARY KEY (`rek_na_explanation_id`),
   UNIQUE KEY `rek_na_explanation_pid` (`rek_na_explanation_pid`),
   FULLTEXT KEY `rek_na_explanation` (`rek_na_explanation`)
-) ENGINE=MyISAM AUTO_INCREMENT=37 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=37 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 
@@ -3942,7 +3942,7 @@ CREATE TABLE `fez_record_search_key_newspaper` (
   UNIQUE KEY `rek_newspaper_pid` (`rek_newspaper_pid`),
   KEY `rek_newspaper` (`rek_newspaper`),
   FULLTEXT KEY `rek_newspaper_ft` (`rek_newspaper`)
-) ENGINE=MyISAM AUTO_INCREMENT=1356 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=1356 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 
@@ -3962,7 +3962,7 @@ CREATE TABLE `fez_record_search_key_notes` (
   PRIMARY KEY (`rek_notes_id`),
   UNIQUE KEY `rek_notes_pid` (`rek_notes_pid`),
   FULLTEXT KEY `rek_notes` (`rek_notes`)
-) ENGINE=MyISAM AUTO_INCREMENT=609336 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=609336 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 
@@ -4082,7 +4082,7 @@ CREATE TABLE `fez_record_search_key_parent_publication` (
   UNIQUE KEY `rek_parent_publication_pid` (`rek_parent_publication_pid`),
   KEY `rek_parent_publication` (`rek_parent_publication`),
   FULLTEXT KEY `rek_parent_publication_ft` (`rek_parent_publication`)
-) ENGINE=MyISAM AUTO_INCREMENT=3044 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=3044 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 
@@ -4125,7 +4125,7 @@ CREATE TABLE `fez_record_search_key_period` (
   UNIQUE KEY `unique_constraint_pid_order` (`rek_period_pid`,`rek_period_order`),
   KEY `rek_period_pid` (`rek_period_pid`),
   FULLTEXT KEY `rek_period` (`rek_period`)
-) ENGINE=MyISAM AUTO_INCREMENT=6004 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=6004 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 
@@ -4247,7 +4247,7 @@ CREATE TABLE `fez_record_search_key_place_of_publication` (
   UNIQUE KEY `rek_place_of_publication_pid` (`rek_place_of_publication_pid`),
   KEY `rek_place_of_publication` (`rek_place_of_publication`),
   FULLTEXT KEY `rek_place_of_publication_ft` (`rek_place_of_publication`)
-) ENGINE=MyISAM AUTO_INCREMENT=2752608 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=2752608 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 
@@ -4290,7 +4290,7 @@ CREATE TABLE `fez_record_search_key_proceedings_title` (
   UNIQUE KEY `rek_proceedings_title_pid` (`rek_proceedings_title_pid`),
   KEY `rek_proceedings_title` (`rek_proceedings_title`),
   FULLTEXT KEY `rek_proceedings_title_ft` (`rek_proceedings_title`)
-) ENGINE=MyISAM AUTO_INCREMENT=597424 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=597424 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 
@@ -4312,7 +4312,7 @@ CREATE TABLE `fez_record_search_key_publisher` (
   UNIQUE KEY `rek_publisher_pid` (`rek_publisher_pid`),
   KEY `rek_publisher` (`rek_publisher`),
   FULLTEXT KEY `rek_publisher_ft` (`rek_publisher`)
-) ENGINE=MyISAM AUTO_INCREMENT=2860672 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=2860672 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 
@@ -4557,7 +4557,7 @@ CREATE TABLE `fez_record_search_key_sensitivity_explanation` (
   PRIMARY KEY (`rek_sensitivity_explanation_id`),
   UNIQUE KEY `rek_sensitivity_explanation_pid` (`rek_sensitivity_explanation_pid`),
   FULLTEXT KEY `rek_sensitivity_explanation` (`rek_sensitivity_explanation`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 
@@ -4579,7 +4579,7 @@ CREATE TABLE `fez_record_search_key_series` (
   UNIQUE KEY `rek_series_pid` (`rek_series_pid`),
   KEY `rek_series` (`rek_series`),
   FULLTEXT KEY `rek_series_ft` (`rek_series`)
-) ENGINE=MyISAM AUTO_INCREMENT=42757 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=42757 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 
@@ -4642,7 +4642,7 @@ CREATE TABLE `fez_record_search_key_structural_systems` (
   UNIQUE KEY `unique_constraint_pid_order` (`rek_structural_systems_pid`,`rek_structural_systems_order`),
   KEY `rek_structural_systems_pid` (`rek_structural_systems_pid`),
   FULLTEXT KEY `rek_structural_systems` (`rek_structural_systems`)
-) ENGINE=MyISAM AUTO_INCREMENT=19633 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=19633 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 
@@ -4664,7 +4664,7 @@ CREATE TABLE `fez_record_search_key_style` (
   UNIQUE KEY `unique_constraint_pid_order` (`rek_style_pid`,`rek_style_order`),
   KEY `rek_style_pid` (`rek_style_pid`),
   FULLTEXT KEY `rek_style` (`rek_style`)
-) ENGINE=MyISAM AUTO_INCREMENT=1493 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=1493 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 
@@ -4686,7 +4686,7 @@ CREATE TABLE `fez_record_search_key_subcategory` (
   UNIQUE KEY `unique_constraint_pid_order` (`rek_subcategory_pid`,`rek_subcategory_order`),
   KEY `rek_subcategory_pid` (`rek_subcategory_pid`),
   FULLTEXT KEY `rek_subcategory` (`rek_subcategory`)
-) ENGINE=MyISAM AUTO_INCREMENT=16027 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=16027 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 
@@ -4732,7 +4732,7 @@ CREATE TABLE `fez_record_search_key_surrounding_features` (
   UNIQUE KEY `unique_constraint_pid_order` (`rek_surrounding_features_pid`,`rek_surrounding_features_order`),
   KEY `rek_surrounding_features_pid` (`rek_surrounding_features_pid`),
   FULLTEXT KEY `rek_surrounding_features` (`rek_surrounding_features`)
-) ENGINE=MyISAM AUTO_INCREMENT=5842 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=5842 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 
@@ -5147,7 +5147,7 @@ CREATE TABLE `fez_statistics_all` (
   KEY `stl_pid` (`stl_pid`),
   KEY `stl_dsid` (`stl_dsid`),
   KEY `stl_pid_num` (`stl_pid_num`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -5165,7 +5165,7 @@ CREATE TABLE `fez_statistics_buffer` (
   `str_pid` varchar(255) DEFAULT NULL,
   `str_dsid` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`str_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -5184,7 +5184,7 @@ CREATE TABLE `fez_statistics_proc` (
   `stp_timestarted` timestamp NULL DEFAULT NULL,
   `stp_timefinished` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`stp_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -5200,7 +5200,7 @@ CREATE TABLE `fez_statistics_robots` (
   `str_hostname` varchar(255) DEFAULT NULL,
   `str_date_added` date DEFAULT NULL,
   PRIMARY KEY (`str_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -5334,7 +5334,7 @@ CREATE TABLE `fez_status` (
   `sta_order` int(11) unsigned DEFAULT NULL,
   `sta_color` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`sta_id`)
-) ENGINE=MyISAM AUTO_INCREMENT=10 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -5374,7 +5374,7 @@ CREATE TABLE `fez_survey` (
   `sur_comments` text,
   `sur_datetime` datetime DEFAULT NULL,
   PRIMARY KEY (`sur_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -5473,7 +5473,7 @@ CREATE TABLE `fez_user` (
   UNIQUE KEY `usr_username` (`usr_username`),
   FULLTEXT KEY `usr_fulltext` (`usr_full_name`,`usr_given_names`,`usr_family_name`,`usr_username`,`usr_shib_username`),
   FULLTEXT KEY `usr_full_name` (`usr_full_name`)
-) ENGINE=MyISAM AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -5619,7 +5619,7 @@ CREATE TABLE `fez_workflow` (
   `wfl_roles` varchar(255) DEFAULT NULL,
   `wfl_end_button_label` varchar(64) DEFAULT NULL,
   PRIMARY KEY (`wfl_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -5746,7 +5746,7 @@ CREATE TABLE `fez_xsd` (
   `xsd_element_prefix` varchar(50) DEFAULT NULL,
   `xsd_extra_ns_prefixes` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`xsd_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
