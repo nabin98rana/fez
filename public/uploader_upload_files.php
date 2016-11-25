@@ -58,27 +58,49 @@ $fileNumber = $_REQUEST['fileNumber'];
 $fileNumber = sprintf('%03d', $fileNumber); // left pad with zeros so we can sort without worrying about numeric vs alpha sorting
 $uploadDir = Uploader::getUploadedFilePath($workflowId);
 
-// Create the directory (and any missing directories) for this workflow
-if (!is_dir($uploadDir))
-{
-	$directory_path = "";
-	$directories = explode("/",$uploadDir);
+if (APP_FEDORA_BYPASS == 'ON') {
+  $uploadDirLocal = Uploader::getUploadedFilePath($workflowId, true);
+  // Create the directory (and any missing directories) for this workflow
+  if (!is_dir($uploadDirLocal)) {
+    $directory_path = "";
+    $directories = explode("/", $uploadDirLocal);
+    foreach ($directories as $directory) {
+      $directory_path .= $directory . "/";
+      if (!is_dir($directory_path)) {
+        mkdir($directory_path);
+        chmod($directory_path, 0777);
+      }
+    }
+  }
+  $aws = new AWS(AWS_S3_SAN_IMPORT_BUCKET);
+  foreach ($_FILES as $fieldName => $file) {
+    $fileLoc = $uploadDirLocal . "/{$fileNumber}." . strip_tags(basename($file['name']));
+    move_uploaded_file($file['tmp_name'], $fileLoc);
+    $aws->postFile($uploadDir, [$fileLoc]);
+    unlink($fileLoc);
+  }
+  $returnValue = true;
 
-	foreach($directories as $directory)
-	{
-		$directory_path .= $directory."/";
-		if (!is_dir($directory_path))
-		{
-			mkdir($directory_path);
-			chmod($directory_path, 0777);
-		}
-	}
+} else {
+  // Create the directory (and any missing directories) for this workflow
+  if (!is_dir($uploadDir)) {
+    $directory_path = "";
+    $directories = explode("/", $uploadDir);
+
+    foreach ($directories as $directory) {
+      $directory_path .= $directory . "/";
+      if (!is_dir($directory_path)) {
+        mkdir($directory_path);
+        chmod($directory_path, 0777);
+      }
+    }
+  }
+  // and move the files
+  foreach ($_FILES as $fieldName => $file) {
+    $returnValue = move_uploaded_file($file['tmp_name'], $uploadDir . "/{$fileNumber}." . strip_tags(basename($file['name'])));
+  }
 }
 
-// and move the files
-foreach ($_FILES as $fieldName => $file) {
-	$returnValue = move_uploaded_file($file['tmp_name'], $uploadDir."/{$fileNumber}." . strip_tags(basename($file['name'])));
-}
 if ($returnValue) {
     if (APP_API) {
         $arr = API::makeResponse('202', "Uploaded.");
