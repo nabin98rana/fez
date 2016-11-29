@@ -1372,7 +1372,7 @@ class Record
                 $stmt = "DELETE FROM " . $table . " WHERE rek_".$sek_table."_pid = " . $db->quote($pid);
                 $db->exec($stmt);
               }
-              $stmt = "INSERT INTO " . $table;
+              $stmt = "REPLACE INTO " . $table;
               $stmt .= " (rek_" . $sek_table . "_pid, rek_" . $sek_table . "_xsdmf_id, rek_" . $sek_table . $cardinalityCol;
 
               if ($shadow) {
@@ -5136,7 +5136,9 @@ function getSearchKeyIndexValueShadow($pid, $searchKeyTitle, $getLookup=true, $s
     $xsdmf_id = XSD_HTML_Match::getXSDMF_IDByElementSEL_Title('!titleInfo!title', 'Title', $xdis_id);
     $xsdmf_id_label = XSD_HTML_Match::getXSDMF_IDByElementSEL_Title('!objectProperties!property!VALUE', 'Label', $xdis_id);
 //    $xsdmf_id_label = $display->xsd_html_match->getXSDMF_IDBySELNameXDIS_ID('!objectProperties!property!VALUE', 'Label');
-    $_POST['xsd_display_fields'][$xsdmf_id_label] = '__makeInsertTemplate_DCTitle__';
+    if (APP_FEDORA_BYPASS != 'ON') {
+      $_POST['xsd_display_fields'][$xsdmf_id_label] = '__makeInsertTemplate_DCTitle__';
+    }
 
     $inherit_xsdmf_id = $display->xsd_html_match->getXSDMF_IDByXDIS_ID('!inherit_security');
     if ($inherit_xsdmf_id) {
@@ -5146,13 +5148,17 @@ function getSearchKeyIndexValueShadow($pid, $searchKeyTitle, $getLookup=true, $s
 
     if ($xsdmf_id) {
       // fake the form input for the object title
-      $_POST['xsd_display_fields'][$xsdmf_id] = '__makeInsertTemplate_DCTitle__';
+      if (APP_FEDORA_BYPASS != 'ON') {
+        $_POST['xsd_display_fields'][$xsdmf_id] = '__makeInsertTemplate_DCTitle__';
+      }
     }
 //    $xsdmf_id = $display->xsd_html_match->getXSDMF_IDBySELNameXDIS_ID('!dc:title');
     $xsdmf_id = XSD_HTML_Match::getXSDMF_IDByElementSEL_Title('!dc:title', 'Title', $xdis_id);
     if ($xsdmf_id) {
       // fake the form input for the object title
-      $_POST['xsd_display_fields'][$xsdmf_id] = '__makeInsertTemplate_DCTitle__';
+      if (APP_FEDORA_BYPASS != 'ON') {
+        $_POST['xsd_display_fields'][$xsdmf_id] = '__makeInsertTemplate_DCTitle__';
+      }
     }
     $indexArray = array();
     $xmlObj = '<?xml version="1.0"?>'."\n";

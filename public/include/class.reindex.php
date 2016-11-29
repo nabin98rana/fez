@@ -707,7 +707,7 @@ class Reindex
                 && !Misc::hasPrefix($dsIDName, 'stream_')
                 && !Misc::hasPrefix($dsIDName, 'presmd_') // since presmd is stored as a binary to avoid parsing by fedora at the moment.
               ) {
-                BatchImport::handleStandardFileImport($pid, $dsTitle['location'], $dsTitle['ID'], $xdis_id);
+                BatchImport::handleStandardFileImport($pid, $dsTitle['location'], $dsTitle['ID'], $xdis_id, false, -1, false);
               }
             }
           }

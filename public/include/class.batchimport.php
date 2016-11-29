@@ -292,10 +292,11 @@ class BatchImport
    * @param   int    $xdis_id The XSD Display ID the object will have.
    * @param   bool   $is_temp_file
    * @param   int    $qat_id The datastream quick auth template rule to apply
+   * @param   bool   $useSan True to import from the SAN bucket
    * @return  void
    */
   public static function handleStandardFileImport(
-    $pid, $full_name, $short_name, $xdis_id = 0, $is_temp_file = false, $qat_id = -1
+    $pid, $full_name, $short_name, $xdis_id = 0, $is_temp_file = false, $qat_id = -1, $useSan = true
   )
   {
     $dsIDName = $short_name;
@@ -306,7 +307,7 @@ class BatchImport
     }
     else {
       $temp_store = APP_TEMP_DIR . $ncName;
-      self::getFileContent($full_name, $temp_store);
+      self::getFileContent($full_name, $temp_store, $useSan);
     }
 
     $mimetype = Misc::mime_content_type($temp_store);
@@ -419,40 +420,54 @@ class BatchImport
       foreach ($files as $file) {
         $counter++;
         $handled_as_xml = FALSE;
-        $pid = Fedora_API::getNextPID();
         $short_name = Misc::shortFilename($file);
 
-        if (Misc::endsWith(strtolower($file), '.csv')) {
-          $xmlObj = self::getFileContent($file);
-          if (is_numeric(strpos($xmlObj, "foxml:digitalObject"))) {
-            $this->handleFOXMLImport($xmlObj);
-            if (APP_FEDORA_BYPASS != 'ON') {
+        if (APP_FEDORA_BYPASS != 'ON') {
+          $pid = Fedora_API::getNextPID();
+          if (Misc::endsWith(strtolower($file), '.csv')) {
+            $xmlObj = self::getFileContent($file);
+            if (is_numeric(strpos($xmlObj, "foxml:digitalObject"))) {
+              $this->handleFOXMLImport($xmlObj);
               Record::setIndexMatchingFields($pid);
+              $handled_as_xml = TRUE;
             }
-            $handled_as_xml = TRUE;
-          } else if (is_numeric(strpos($xmlObj, "METS:mets"))) {
-            $xmlBegin = $this->ConvertMETSToFOXML($pid, $xmlObj, $collection_pid, $short_name, $xdis_id, $ret_id, $sta_id);
-            $this->handleMETSImport($pid, $xmlObj, $xmlBegin, $xdis_id);
-            $handled_as_xml = TRUE;
+            else {
+              if (is_numeric(strpos($xmlObj, "METS:mets"))) {
+                $xmlBegin = $this->ConvertMETSToFOXML($pid, $xmlObj, $collection_pid, $short_name, $xdis_id, $ret_id, $sta_id);
+                $this->handleMETSImport($pid, $xmlObj, $xmlBegin, $xdis_id);
+                $handled_as_xml = TRUE;
+              }
+            }
           }
         }
+
         if (!$handled_as_xml) {
           if ($this->bgp) {
             $this->bgp->setProgress(intval($counter * 100 / count($files)));
-            $this->bgp->setStatus($pid . " - " . $short_name);
+            $this->bgp->setStatus($short_name);
           }
-          // Create the Record in Fedora
-          if (empty($dsarray)) {
-            // Use default metadata
-            $xmlObj = Foxml::GenerateSingleFOXMLTemplate(
-              $pid, $parent_pid, $file, $short_name, $xdis_id, $ret_id, $sta_id
-            );
-            // Insert the generated foxml object
-            Fedora_API::callIngestObject($xmlObj);
+
+          if (APP_FEDORA_BYPASS != 'ON') {
+            // Create the Record in Fedora
+            if (empty($dsarray)) {
+              // Use default metadata
+              $xmlObj = Foxml::GenerateSingleFOXMLTemplate(
+                $pid, $parent_pid, $file, $short_name, $xdis_id, $ret_id, $sta_id
+              );
+              // Insert the generated foxml object
+              Fedora_API::callIngestObject($xmlObj);
+            }
+            else {
+              // Use metadata from a user template
+              Record::insertFromTemplate($pid, $xdis_id, $short_name, $dsarray);
+            }
           } else {
-            // Use metadata from a user template
-            Record::insertFromTemplate($pid, $xdis_id, $short_name, $dsarray);
+            extract($dsarray);
+            $_POST = $rawPost;
+            $record = Record::insert();
+            $pid = $record->pid;
           }
+
           // Add the binary batch import file.
           $this->handleStandardFileImport($pid, $file, $short_name, $xdis_id);
           Record::setIndexMatchingFields($pid);
@@ -812,14 +827,18 @@ class BatchImport
   /**
    * @param string $file
    * @param string $saveAs
+   * @param bool $useSan
    * @return string
    */
-  public static function getFileContent($file, $saveAs = '')
+  public static function getFileContent($file, $saveAs = '', $useSan = true)
   {
     $log = FezLog::get();
     if (defined('AWS_ENABLED') && AWS_ENABLED == 'true') {
-      $aws = new AWS(AWS_S3_SAN_IMPORT_BUCKET);
-
+      if ($useSan) {
+        $aws = new AWS(AWS_S3_SAN_IMPORT_BUCKET);
+      } else {
+        $aws = new AWS();
+      }
       $params = [];
       if (! empty($saveAs)) {
         $params['SaveAs'] = $saveAs;
