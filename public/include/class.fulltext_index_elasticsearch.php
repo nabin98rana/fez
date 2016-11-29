@@ -240,7 +240,12 @@ class FulltextIndex_ElasticSearch extends FulltextIndex
         $sortOrder = explode(" ", $searchKey_join[SK_SORT_ORDER]);
         $sortOrder[0] = str_replace("_ms", "_mt_s", $sortOrder[0]);
         $sortOrder[0] = str_replace("score", "_score", $sortOrder[0]);
-        $params['body']['sort'] = [$sortOrder[0] => ["order" => $sortOrder[1], "unmapped_type" => "long"]];
+        // unmapped type prevents an error on empty index, and shows one if using _score
+        if ($sortOrder[0] != "_score") {
+          $params['body']['sort'] = [$sortOrder[0] => ["order" => $sortOrder[1], "unmapped_type" => "long"]];
+        } else {
+          $params['body']['sort'] = [$sortOrder[0] => ["order" => $sortOrder[1]]];
+        }
       }
       $queryString = str_replace("   (", "", $queryString);
       $queryString = trim(str_replace(" AND status_i:(2))", "", $queryString));
