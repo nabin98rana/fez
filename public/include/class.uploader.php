@@ -43,9 +43,15 @@ class Uploader
 	 *
 	 * @return string
 	 **/
-	public static function getUploadedFilePath($wflId)
+	public static function getUploadedFilePath($wflId, $forceLocal = false)
 	{
-		return APP_TEMP_DIR."uploader/{$wflId}";
+    $subDir = "uploader/{$wflId}";
+
+    if (APP_FEDORA_BYPASS == 'ON' && !$forceLocal) {
+      $aws = new AWS(AWS_S3_SAN_IMPORT_BUCKET);
+      return $aws->createPath($subDir, '');
+    }
+		return APP_TEMP_DIR . $subDir;
 	}
 
 	/**
@@ -60,8 +66,35 @@ class Uploader
 	  $uploadDir = self::getUploadedFilePath($wflId);
 		$returnArray = array();
 
+    if (APP_FEDORA_BYPASS == 'ON') {
+      $uploadDirLocal = APP_TEMP_DIR . $wflId;
+      // Create the directory (and any missing directories) for this workflow
+      if (!is_dir($uploadDirLocal)) {
+        $directory_path = "";
+        $directories = explode("/", $uploadDirLocal);
+        foreach ($directories as $directory) {
+          $directory_path .= $directory . "/";
+          if (!is_dir($directory_path)) {
+            @mkdir($directory_path);
+            chmod($directory_path, 0777);
+          }
+        }
+      }
+
+      $aws = new AWS(AWS_S3_SAN_IMPORT_BUCKET);
+      $objects = $aws->listObjects($uploadDir);
+      if (! $objects) {
+        return $returnArray;
+      }
+      foreach ($objects as $obj) {
+        $params = ['SaveAs' => $uploadDirLocal . '/' . basename($obj['Key'])];
+        $aws->getFileContent($obj['Key'], '', $params);
+      }
+      $aws->deleteMatchingObjects($uploadDir);
+      $uploadDir = $uploadDirLocal;
+    }
 		// if the directory doesn't exist, return an empty array
-		if (!file_exists($uploadDir)) {
+		else if (!file_exists($uploadDir)) {
 			return $returnArray;
 		}
 

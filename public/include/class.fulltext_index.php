@@ -477,7 +477,7 @@ abstract class FulltextIndex {
         if ($fieldValue != "") {
           // mark multi-valued search keys
           $isMultiValued = false;
-          if ($sekDetails["sek_relationship"] == 1) {
+          if ($sekDetails["sek_cardinality"] == 1) {
             $isMultiValued = true;
           }
 
