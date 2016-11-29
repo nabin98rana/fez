@@ -292,10 +292,11 @@ class BatchImport
    * @param   int    $xdis_id The XSD Display ID the object will have.
    * @param   bool   $is_temp_file
    * @param   int    $qat_id The datastream quick auth template rule to apply
+   * @param   bool   $useSan True to import from the SAN bucket
    * @return  void
    */
   public static function handleStandardFileImport(
-    $pid, $full_name, $short_name, $xdis_id = 0, $is_temp_file = false, $qat_id = -1
+    $pid, $full_name, $short_name, $xdis_id = 0, $is_temp_file = false, $qat_id = -1, $useSan = true
   )
   {
     $dsIDName = $short_name;
@@ -306,7 +307,7 @@ class BatchImport
     }
     else {
       $temp_store = APP_TEMP_DIR . $ncName;
-      self::getFileContent($full_name, $temp_store);
+      self::getFileContent($full_name, $temp_store, $useSan);
     }
 
     $mimetype = Misc::mime_content_type($temp_store);
@@ -826,14 +827,18 @@ class BatchImport
   /**
    * @param string $file
    * @param string $saveAs
+   * @param bool $useSan
    * @return string
    */
-  public static function getFileContent($file, $saveAs = '')
+  public static function getFileContent($file, $saveAs = '', $useSan = true)
   {
     $log = FezLog::get();
     if (defined('AWS_ENABLED') && AWS_ENABLED == 'true') {
-      $aws = new AWS(AWS_S3_SAN_IMPORT_BUCKET);
-
+      if ($useSan) {
+        $aws = new AWS(AWS_S3_SAN_IMPORT_BUCKET);
+      } else {
+        $aws = new AWS();
+      }
       $params = [];
       if (! empty($saveAs)) {
         $params['SaveAs'] = $saveAs;

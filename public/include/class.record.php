@@ -1372,7 +1372,7 @@ class Record
                 $stmt = "DELETE FROM " . $table . " WHERE rek_".$sek_table."_pid = " . $db->quote($pid);
                 $db->exec($stmt);
               }
-              $stmt = "INSERT INTO " . $table;
+              $stmt = "REPLACE INTO " . $table;
               $stmt .= " (rek_" . $sek_table . "_pid, rek_" . $sek_table . "_xsdmf_id, rek_" . $sek_table . $cardinalityCol;
 
               if ($shadow) {
