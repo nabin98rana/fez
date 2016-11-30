@@ -2538,10 +2538,10 @@ class RecordGeneral
       $xsdmf_ids = array_keys($xsdFields);
 
       $sekFields = array();
-
+      $fields = array();
       try
       {
-          $sql = "SELECT mf.xsdmf_id, mf.xsdmf_html_input, mf.xsdmf_cvo_save_type, xsdmf_smarty_variable, xsdmf_use_parent_option_list, TRIM(LOWER(REPLACE(sk.sek_title,\" \",\"_\"))) AS sek_title, "
+          $sql = "SELECT mf.xsdmf_id, mf.xsdmf_html_input, mf.xsdmf_cvo_save_type, xsdmf_smarty_variable, xsdmf_attached_xsdmf_id, xsdmf_use_parent_option_list, TRIM(LOWER(REPLACE(sk.sek_title,\" \",\"_\"))) AS sek_title, "
           . "sk.sek_relationship, sk.sek_cardinality FROM " . APP_TABLE_PREFIX . "search_key sk, "
           . APP_TABLE_PREFIX . "xsd_display_matchfields mf WHERE sk.sek_id = "
           . "mf.xsdmf_sek_id AND mf.xsdmf_id IN (?)";
@@ -2554,6 +2554,24 @@ class RecordGeneral
       catch(Exception $e)
       {
           $log->err($e->getMessage());
+      }
+
+      // Clear the attached xsdmf if the current value is empty
+      foreach($fields as $field) {
+        if ($field['xsdmf_attached_xsdmf_id'] != "") {
+          if (is_array($xsdFields[$field['xsdmf_id']])) {
+            foreach ($xsdFields[$field['xsdmf_id']] as $xf_key => $xf) {
+              if ($xf == "") {
+                $xsdFields[$field['xsdmf_attached_xsdmf_id']][$xf_key] = "";
+              }
+            }
+          }
+          else {
+            if ($xsdFields[$field['xsdmf_id']] == "") {
+              $xsdFields[$field['xsdmf_attached_xsdmf_id']] = "";
+            }
+          }
+        }
       }
 
       foreach($fields as $field)
@@ -2600,6 +2618,7 @@ class RecordGeneral
               $valueKeys = array_keys($xsdFields[$field['xsdmf_id']]); //Not all keys are numeric.
               $xsdFields[$field['xsdmf_id']] = $xsdFields[$field['xsdmf_id']][$valueKeys[0]];
           }
+
 
           $sekFields[$field['sek_relationship']][$field['sek_title']] = array(
           	'xsdmf_id' => $field['xsdmf_id'],
