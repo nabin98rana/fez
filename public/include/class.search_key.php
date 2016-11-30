@@ -1325,8 +1325,8 @@ class Search_Key
                 $stmt .= "
 					  SELECT rek_" . $sek_title . "_id, rek_" . $sek_title . ",
 						MATCH(rek_" . $sek_title . ") AGAINST (" . $db->quote($term) . ") as Relevance FROM " . $dbtp . "record_search_key_" . $sek_title . "
-					 WHERE MATCH (rek_" . $sek_title . ") AGAINST (" . $db->quote('' . $term . '*') . " IN BOOLEAN MODE) ";
-                $stmt .= " GROUP BY rek_" . $sek_title . "_id, rek_" . $sek_title . " ORDER BY Relevance DESC, rek_" . $sek_title . " LIMIT 10 OFFSET 0) as tempsuggest ";
+					  WHERE MATCH (rek_" . $sek_title . ") AGAINST (" . $db->quote('' . $term . '*') . " IN BOOLEAN MODE) ";
+                $stmt .= " GROUP BY rek_" . $sek_title . " ORDER BY Relevance DESC, rek_" . $sek_title . " LIMIT 10 OFFSET 0) as tempsuggest ";
             }
         } else { //1-1 index table
             if (!is_numeric(strpos(APP_SQL_DBTYPE, "mysql"))) {
