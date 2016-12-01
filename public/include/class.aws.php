@@ -662,9 +662,11 @@ class AWS
    * @param string $src
    * @param string $id
    * @param array $params
+   * @param bool $returnContent
+   * @param bool $getRaw
    * @return String Response
    */
-  public function getFileContent($src, $id, $params = [])
+  public function getFileContent($src, $id, $params = [], $returnContent = false, $getRaw = false)
   {
     try {
       $client = $this->sdk->createS3();
@@ -681,7 +683,13 @@ class AWS
       $this->log->err($e->getMessage());
       return "";
     }
-    return (string) $result['Body'];
+    if ($returnContent) {
+      if ($getRaw) {
+        return $result['Body'];
+      }
+      return (string) $result['Body'];
+    }
+    return '';
   }
 
   /**

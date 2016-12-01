@@ -374,7 +374,7 @@ class Fedora_API implements FedoraApiInterface {
         $obj = $aws->copyFile($dsLocation, $dataPath . "/" . $dsID, $srcBucket, $mimetype);
       }
       if ($isFezACML) {
-        $fezACMLXML = $aws->getFileContent($dataPath, $dsID);
+        $fezACMLXML = $aws->getFileContent($dataPath, $dsID, [], true);
       }
     }
     if (!$obj) {
@@ -559,9 +559,10 @@ class Fedora_API implements FedoraApiInterface {
    * @param string $pid The persistent identifier of the object
    * @param string $dsID The ID of the datastream to be checked
    * @param string $asofDateTime Gets a specified version at a datetime stamp
+   * @param bool $getRaw Return the raw file content else return cast to string
    * @return array The datastream returned in an array
    */
-  public static function callGetDatastreamDissemination($pid, $dsID, $asofDateTime = "") {
+  public static function callGetDatastreamDissemination($pid, $dsID, $asofDateTime = "", $getRaw = false) {
     $return = array();
     $args = array();
 
@@ -577,7 +578,7 @@ class Fedora_API implements FedoraApiInterface {
       $return['stream'] = Datastream::getDatastreamCachedFezACML($pid, $dsID);
     }
     else {
-      $return['stream'] = $aws->getFileContent($dataPath, $dsID, $args);
+      $return['stream'] = $aws->getFileContent($dataPath, $dsID, $args, true, $getRaw);
     }
 
     return $return;
@@ -588,15 +589,16 @@ class Fedora_API implements FedoraApiInterface {
    *
    * @param string $pid The persistent identifier of the object
    * @param string $dsID The ID of the datastream
-   * @param boolean $getraw Get as xml
+   * @param boolean $getRaw Get as xml
    * @param resource $filehandle
    * @param int $current_tries A counter of how many times this function has retried
-   * @return array $resultlist The requested of datastream in an array.
+   * @return mixed $resultlist The requested of datastream in an array.
    */
-  public static function callGetDatastreamContents($pid, $dsID, $getraw = FALSE, $filehandle = NULL, $current_tries = 0) {
+  public static function callGetDatastreamContents($pid, $dsID, $getRaw = FALSE, $filehandle = NULL, $current_tries = 0) {
     // $filehandle is a legacy arg left here to keep the API intact.
 
     $dsExists = Fedora_API::datastreamExists($pid, $dsID);
+    $return = '';
     if ($dsExists) {
 
       if ($filehandle != NULL) {
@@ -606,8 +608,8 @@ class Fedora_API implements FedoraApiInterface {
       }
       $dsMeta = Fedora_API::callGetDatastream($pid, $dsID);
 
-      if ($dsMeta['MIMEType'] != 'text/xml' || $getraw) {
-        $return = Fedora_API::callGetDatastreamDissemination($pid, $dsID);
+      if ($dsMeta['MIMEType'] != 'text/xml' || $getRaw) {
+        $return = Fedora_API::callGetDatastreamDissemination($pid, $dsID, "", $getRaw);
         $return = $return['stream'];
       }
       else {
