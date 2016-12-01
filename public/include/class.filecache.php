@@ -47,7 +47,7 @@ class fileCache {
 		if ($this->useS3 == true && !$this->flushCache) {
       $aws = new AWS(AWS_S3_CACHE_BUCKET);
 			if ($aws->checkExistsById("cache", $this->cacheFileName)) {
-				$htmlContent = $aws->getFileContent("cache", $this->cacheFileName);
+				$htmlContent = $aws->getFileContent("cache", $this->cacheFileName, [], true);
 				$usingCache = true;
 			} else {
 				$usingCache = false;
