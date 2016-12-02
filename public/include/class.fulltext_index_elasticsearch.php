@@ -202,6 +202,9 @@ class FulltextIndex_ElasticSearch extends FulltextIndex
       $fields = explode(",", $params['fl']);
       $solrParams = $params;
 
+      // the default field in ES is '_all' not text as in Solr, so replace for any legacy saved searches that used text:
+      $queryString = str_replace("text:", "_all:", $queryString);
+
       $params = [
           'index' => $this->esIndex,
           'type' => $this->esType,
@@ -249,21 +252,24 @@ class FulltextIndex_ElasticSearch extends FulltextIndex
       }
       $queryString = str_replace("   (", "", $queryString);
       $queryString = trim(str_replace(" AND status_i:(2))", "", $queryString));
+      $highlightQueryString = "";
       if ($queryString != "") {
         // find a phrase to limit by
-        $queryString = str_replace("\\", '', $queryString);
-        preg_match("/\"(.*?)\"/", $queryString, $matches);
+        $highlightQueryString = str_replace("\\", '', $queryString);
+        preg_match("/\"(.*?)\"/", $highlightQueryString, $matches);
         if (count($matches) > 0) {
-          $queryString = $matches[0];
+          $highlightQueryString = $matches[0];
         }
       } else {
         $use_highlighting = false;
       }
 
+
+
       //Force highlighting to be disabled until it can be split into a second query as per advice from ElasticCo
       $use_highlighting = false;
 
-      if ($use_highlighting && $queryString != "") {
+      if ($use_highlighting && $highlightQueryString != "") {
         // hit highlighting
         $params['body']['highlight']['fields']['content_mt'] = [
           'type' => 'fvh',
@@ -274,7 +280,7 @@ class FulltextIndex_ElasticSearch extends FulltextIndex
                   'should' => [
                       'match_phrase' => [
                           'content_mt' => [
-                              'query' => $queryString,
+                              'query' => $highlightQueryString,
                               'slop' => 1,
                               'boost' => 10.0
                           ]
@@ -374,17 +380,17 @@ class FulltextIndex_ElasticSearch extends FulltextIndex
     } catch (Exception $e) {
 
       //
-      // catches any Solr service exceptions (malformed syntax etc.)
+      // catches any service exceptions (malformed syntax etc.)
       //
-
       // TODO add fine grained control, user message error handling
-      $log->err($e);
+      $log->err($e->getMessage());
 
       // report nothing found on error
       $docs = array();
       $facets = array();
       $snips = array();
       $total_rows = 0;
+
 
     }
 
