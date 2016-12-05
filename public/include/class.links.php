@@ -60,7 +60,7 @@ class Links
  			AND rek_link_description_pid = ".$db->quote($pid)."
  			UNION
       SELECT
-				CONCAT('http://dx.doi.org/', rek_doi) as rek_link, null
+				CONCAT('http://dx.doi.org/', rek_doi) as rek_link, 'Full text from publisher'
 			FROM 
 			  " . APP_TABLE_PREFIX . "record_search_key_doi
       WHERE
