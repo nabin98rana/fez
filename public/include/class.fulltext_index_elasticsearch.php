@@ -335,6 +335,12 @@ class FulltextIndex_ElasticSearch extends FulltextIndex
                   $docs[$i][$sek_id] = array();
                 }
                 $docs[$i][$sek_id][] = $field;
+              }
+              else if ($sek_rel == '1' && is_array($field)) {
+                if (!array_key_exists($sek_id, $docs[$i])) {
+                  $docs[$i][$sek_id] = array();
+                }
+                $docs[$i][$sek_id] = $field;
               } else {
                 $docs[$i][$sek_id] = $field[0];
               }
