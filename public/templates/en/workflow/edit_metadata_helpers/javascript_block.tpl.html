@@ -85,6 +85,7 @@ if (
 var fieldYear = document.getElementById('xsd_display_fields[{/literal}{$xsd_display_fields[i].xsdmf_id}{literal}][Year]');
 var fieldMonth = document.getElementById('xsd_display_fields[{/literal}{$xsd_display_fields[i].xsdmf_id}{literal}][Month]');
 var fieldDay = document.getElementById('xsd_display_fields[{/literal}{$xsd_display_fields[i].xsdmf_id}{literal}][Day]');
+var field = fieldDay;
 if (
     (fieldYear != null && fieldMonth != null && fieldDay != null) &&
     (fieldYear.options[fieldYear.selectedIndex].value != '' ||
