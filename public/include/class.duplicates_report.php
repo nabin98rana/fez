@@ -481,10 +481,12 @@ class DuplicatesReport {
       $index = FulltextIndex::get();
       $res = [];
       $filter = [];
+      $options = [];
 
       $filter["searchKey".Search_Key::getID("Status")] = 2;
       $filter["searchKey".Search_Key::getID("Object Type")] = 3;
-      $filter["manualFilter"] = "";
+      $options['sort_order'] = 1;
+      $options["manualFilter"] = "";
 
       $title =  preg_replace("/ +/", " ", $title);
       $title = $index->escape($title);
@@ -498,12 +500,12 @@ class DuplicatesReport {
       if (trim($titleOr) == '') {
         return array();
       }
-      $filter["manualFilter"] = "title_t:(".$titleOr.")".$pp_solr_filter . " AND ";
+      $options["manualFilter"] = "title_t:(".$titleOr.")".$pp_solr_filter;
       if ($pid != "dummy") {
-        $filter["manualFilter"] .= "!pid_t:" . $index->escape($pid) . " AND ";
+        $options["manualFilter"] .= " AND !pid_t:" . $index->escape($pid);
       }
 
-      $listing = Record::getListing(['sort_order' => 1], array(9,10), 0, 5, 'score', false, false, $filter);
+      $listing = Record::getListing($options, array(9,10), 0, 5, 'score', false, false, $filter);
       if (is_array($listing['list'])) {
         foreach ($listing['list'] as $rec) {
           $res[] = ['pid' => $rec['rek_pid'], 'relevance' => $rec['relevance']];
