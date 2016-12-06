@@ -2399,7 +2399,10 @@ class Record
     }
 
       // make sure the sort by is setup well
-    if (!is_numeric(strpos($sort_by, "searchKey"))) {
+    if ($sort_by == "score") {
+      $sort_by = "searchKey0";
+    }
+    else if (!is_numeric(strpos($sort_by, "searchKey"))) {
         $sort_by_id = Search_Key::getID($sort_by);
         $cardinality = Search_Key::getCardinality($sort_by);
         if (($sort_by_id == "") || ($cardinality == '1')) {
@@ -4998,10 +5001,9 @@ function getSearchKeyIndexValueShadow($pid, $searchKeyTitle, $getLookup=true, $s
 
     // Only do a sort if the query has be limited in some way, otherwise it is far too slow
     if (!empty($sort_by)) { //  && $tableJoinID != 1
-
       $sek_id = str_replace("searchKey", "", $sort_by);
       if ($sek_id != '') {
-        if ($sek_id == '0' && (array_key_exists(0, $searchKeys) && trim($searchKeys[0]) != "")) {
+        if ($sek_id == '0') {
           if ($options["sort_order"] == 0) {
             $searchKey_join[SK_SORT_ORDER] .= " score asc ";
           } else {
