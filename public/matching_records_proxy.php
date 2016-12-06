@@ -343,7 +343,7 @@ class MatchingRecords
 
     	if(count($dupes) > 0) {
     		for($i=0; $i<count($dupes); $i++) {
-    			if($dupes[$i]['relevance'] > 1) {
+    			if($dupes[$i]['relevance'] >= 1) {
     				$details = Record::getDetailsLite($dupes[$i]['pid']);
     				$details[0]['relevance'] = $dupes[$i]['relevance'];
     				$dupe_records[] = $details;

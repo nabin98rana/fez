@@ -249,6 +249,7 @@ class FulltextIndex_ElasticSearch extends FulltextIndex
         } else {
           $params['body']['sort'] = [$sortOrder[0] => ["order" => $sortOrder[1]]];
         }
+        $params['body']['track_scores'] = true;
       }
       $queryString = str_replace("   (", "", $queryString);
       $queryString = trim(str_replace(" AND status_i:(2))", "", $queryString));
@@ -293,8 +294,8 @@ class FulltextIndex_ElasticSearch extends FulltextIndex
 
       }
 
-//      $testJson = json_encode($params);
-//      echo $testJson; exit;
+      //$testJson = json_encode($params);
+      //echo $testJson; exit;
 
       $results = $this->esClient->search($params);
 
@@ -376,7 +377,7 @@ class FulltextIndex_ElasticSearch extends FulltextIndex
           }
 
           // resolve result
-          $docs[$i]['Relevance'] = $doc['_score'];
+          $docs[$i]['relevance'] = $doc['_score'];
           $docs[$i]['rek_views'] = $doc['_source']['views'];
           $i++;
         }

@@ -437,7 +437,7 @@ class DuplicatesReport {
 			$pp_where = " AND rek_display_type != ".$pre_print_display_type;
 			$pp_solr_filter = " AND !display_type_i:".$pre_print_display_type;
 		}
-		if (APP_SOLR_SWITCH == "ON" || APP_ES_SWITCH == "ON" ) {
+		if (APP_SOLR_SWITCH == "ON" ) {
 			//Query solr with an OR query on title for a similar fix
 			// Solr search params
 			$index = FulltextIndex::get();
@@ -463,7 +463,7 @@ class DuplicatesReport {
         return array();
       }
 			$queryString = "title_t:(".$titleOr.")";
-			$response = $index->search($queryString, $start, $page_rows, $params);
+      $response = $index->search($queryString, $start, $page_rows, $params);
 			$total_rows = $response->response->numFound;
 			$res = array();
 			if ($total_rows > 0) {
@@ -476,7 +476,42 @@ class DuplicatesReport {
 				}
 			}
 			return $res;
-		} elseif (!is_numeric(strpos(APP_SQL_DBTYPE, "mysql"))) {
+		}
+		elseif (APP_ES_SWITCH == "ON") {
+      $index = FulltextIndex::get();
+      $res = [];
+      $filter = [];
+
+      $filter["searchKey".Search_Key::getID("Status")] = 2;
+      $filter["searchKey".Search_Key::getID("Object Type")] = 3;
+      $filter["manualFilter"] = "";
+
+      $title =  preg_replace("/ +/", " ", $title);
+      $title = $index->escape($title);
+      $title = $index->escapeBooleans($title);
+      $title = preg_replace ("/[^a-zA-Z0-9 ]/", "", $title);
+      $title = preg_replace('!\s+!', ' ', $title);
+      $title = trim($title);
+      $titleOr = implode(" OR ", explode(" ", $title));
+      $titleOr = preg_replace("/( *OR *OR *)/", " OR ", $titleOr);
+      $titleOr = preg_replace("/( *AND *AND *)/", " AND ", $titleOr);
+      if (trim($titleOr) == '') {
+        return array();
+      }
+      $filter["manualFilter"] = "title_t:(".$titleOr.")".$pp_solr_filter . " AND ";
+      if ($pid != "dummy") {
+        $filter["manualFilter"] .= "!pid_t:" . $index->escape($pid) . " AND ";
+      }
+
+      $listing = Record::getListing(['sort_order' => 1], array(9,10), 0, 5, 'score', false, false, $filter);
+      if (is_array($listing['list'])) {
+        foreach ($listing['list'] as $rec) {
+          $res[] = ['pid' => $rec['rek_pid'], 'relevance' => $rec['relevance']];
+        }
+      }
+      return $res;
+    }
+		elseif (!is_numeric(strpos(APP_SQL_DBTYPE, "mysql"))) {
 			$stmt = "SELECT distinct r2.rek_pid as pid, "
 			.self::RELEVANCE_ISI_LOC_MATCH." as relevance " .
 	                "FROM  ".$dbtp."record_search_key AS r2 " .
