@@ -94,8 +94,8 @@
         <td>{$list[i].rek_geographic_area}</td>
         <td>{$list[i].rek_author_role}</td>
         <td>{$list[i].rek_contact_details_email}</td>
-        <td>{$list[i].rek_institutional_status}</td>
-        <td>{$list[i].rek_herdc_status}</td>
+        <td>{$list[i].rek_institutional_status_lookup}</td>
+        <td>{$list[i].rek_herdc_status_lookup}</td>
         <td>{$list[i].rek_acknowledgements}</td>
         <td>{$list[i].rek_genre}</td>
         <td>{$list[i].rek_original_format}</td>
@@ -109,8 +109,12 @@
         <td>{$list[i].rek_project_name}</td>
         <td>{$list[i].rek_project_description}</td>
         <td>{$list[i].rek_journal_name}</td>
-        <td>{$list[i].rek_issn}</td>
-        <td>{$list[i].rek_isbn}</td>
+        <td>{foreach from=$list[i].rek_issn item=entry2 key=name2}
+            {$entry2}|
+          {/foreach}</td>
+        <td>{foreach from=$list[i].rek_isbn item=entry2 key=name2}
+            {$entry2}|
+          {/foreach}</td>
         <td>{$list[i].rek_org_unit_name}</td>
         <td>{$list[i].rek_org_name}</td>
         <td>{$list[i].rek_doi}</td>
@@ -122,7 +126,7 @@
         <td>{$list[i].rek_date_available}</td>
         <td>{$list[i].rek_subtype}</td>
         <td>{$list[i].rek_genre_type}</td>
-        <td>{$list[i].rek_oa_status}</td>
+        <td>{$list[i].rek_oa_status_lookup}</td>
         <td>{$list[i].rek_series}</td>
         <td>{$list[i].rek_report_number}</td>
         <td>{$list[i].rek_volume_number}</td>
@@ -146,10 +150,10 @@
         <td>{$list[i].rek_collection_year}</td>
         <td>{foreach from=$list[i].rek_language item=entry2 key=name2}
             {$entry2}|
-          {/foreach}{$list[i].rek_language}</td>
+          {/foreach}</td>
         <td>{foreach from=$list[i].rek_keywords item=entry2 key=name2}
             {$entry2}|
-          {/foreach}{$list[i].rek_keywords}</td>
+          {/foreach}</td>
         <td>{$list[i].rek_additional_notes}</td>
         <td>{$list[i].rek_references_notes}</td>
     </tr>
