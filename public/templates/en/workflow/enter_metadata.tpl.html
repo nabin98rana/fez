@@ -102,7 +102,7 @@
 			) {
 				var dateToValidate = fieldDay.options[fieldDay.selectedIndex].value + '/' + fieldMonth.options[fieldMonth.selectedIndex].value + '/' + fieldYear.options[fieldYear.selectedIndex].value;
 				{/literal}
-				xsdmfValidate(field, dateToValidate, 'date', '{$xsd_display_fields[i].xsdmf_title}', field.name);
+				xsdmfValidate(fieldDay, dateToValidate, 'date', '{$xsd_display_fields[i].xsdmf_title}', field.name);
 				{literal}
 			}
 			{/literal}

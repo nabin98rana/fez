@@ -61,6 +61,44 @@ function validateForm() {
 		}
         {/literal}
 	{/if}
+
+{elseif $xsd_display_fields[i].xsdmf_html_input == 'date' && $xsd_display_fields[i].xsdmf_date_type == 0 && $xsd_display_fields[i].xsdmf_enabled == 1}
+{literal}
+var fieldYear = document.getElementById('xsd_display_fields[{/literal}{$xsd_display_fields[i].xsdmf_id}{literal}][Year]');
+var fieldMonth = document.getElementById('xsd_display_fields[{/literal}{$xsd_display_fields[i].xsdmf_id}{literal}][Month]');
+var fieldDay = document.getElementById('xsd_display_fields[{/literal}{$xsd_display_fields[i].xsdmf_id}{literal}][Day]');
+if (
+    (fieldYear != null && fieldMonth != null && fieldDay != null) &&
+    (fieldYear.options[fieldYear.selectedIndex].value != '' ||
+    fieldMonth.options[fieldMonth.selectedIndex].value != '' ||
+    fieldDay.options[fieldDay.selectedIndex].value != '')
+) {
+  var dateToValidate = fieldDay.options[fieldDay.selectedIndex].value + '/' + fieldMonth.options[fieldMonth.selectedIndex].value + '/' + fieldYear.options[fieldYear.selectedIndex].value;
+  {/literal}
+  xsdmfValidate(fieldDay, dateToValidate, 'date', '{$xsd_display_fields[i].xsdmf_title}', field.name);
+  {literal}
+}
+{/literal}
+
+{elseif $xsd_display_fields[i].xsdmf_html_input == 'date' && $xsd_display_fields[i].xsdmf_date_type == 0 && $xsd_display_fields[i].xsdmf_enabled == 1}
+{literal}
+var fieldYear = document.getElementById('xsd_display_fields[{/literal}{$xsd_display_fields[i].xsdmf_id}{literal}][Year]');
+var fieldMonth = document.getElementById('xsd_display_fields[{/literal}{$xsd_display_fields[i].xsdmf_id}{literal}][Month]');
+var fieldDay = document.getElementById('xsd_display_fields[{/literal}{$xsd_display_fields[i].xsdmf_id}{literal}][Day]');
+if (
+    (fieldYear != null && fieldMonth != null && fieldDay != null) &&
+    (fieldYear.options[fieldYear.selectedIndex].value != '' ||
+    fieldMonth.options[fieldMonth.selectedIndex].value != '' ||
+    fieldDay.options[fieldDay.selectedIndex].value != '')
+) {
+  var dateToValidate = fieldDay.options[fieldDay.selectedIndex].value + '/' + fieldMonth.options[fieldMonth.selectedIndex].value + '/' + fieldYear.options[fieldYear.selectedIndex].value;
+  {/literal}
+  xsdmfValidate(fieldDay, dateToValidate, 'date', '{$xsd_display_fields[i].xsdmf_title}', field.name);
+  {literal}
+}
+{/literal}
+
+
 {elseif $xsd_display_fields[i].xsdmf_html_input == 'textarea'
 		&& $xsd_display_fields[i].xsdmf_validation_maxlength != null
 		&& $xsd_display_fields[i].xsdmf_validation_maxlength != ''}
@@ -128,7 +166,7 @@ function selectOrgStructure_{$xsd_display_fields[i].xsdmf_id}(f, field_name)
 	{/literal}
 	if (dt_load_state_{$xsd_display_fields[i].xsdmf_id} > 0) {literal}{
 	   return false;
-	} 
+	}
 	{/literal}
 	var field = document.getElementById('xsd_display_fields_{$xsd_display_fields[i].xsdmf_id}_0');
 	var selections = getSelectedItems(field);
@@ -147,7 +185,7 @@ function selectOrgStructure_{$xsd_display_fields[i].xsdmf_id}(f, field_name)
 			{literal}
 		}
 		obj.setTimeout(10000);
-		
+
 		if ((isNumeric(selections[0].value) == true) && (selections[0].value != '-1')) {
 			obj.getSubList(selections[0].value, function(dt_list) {
 					{/literal}
@@ -156,17 +194,17 @@ function selectOrgStructure_{$xsd_display_fields[i].xsdmf_id}(f, field_name)
 					{assign var="temp_select_id" value=$xsd_display_fields[i].xsdmf_org_fill_xsdmf_id}
 					hideLoading_{$xsd_display_fields[i].xsdmf_id}();
 					dt_load_state_{$xsd_display_fields[i].xsdmf_id}--;
-					});	
-					{literal}	
+					});
+					{literal}
 		} else {
 			{/literal}
-			removeAllOptions(f, 'xsd_display_fields[{$xsd_display_fields[i].xsdmf_org_fill_xsdmf_id}]');		
+			removeAllOptions(f, 'xsd_display_fields[{$xsd_display_fields[i].xsdmf_org_fill_xsdmf_id}]');
 			hideLoading_{$xsd_display_fields[i].xsdmf_id}();
 			dt_load_state_{$xsd_display_fields[i].xsdmf_id}--;
-			{literal}	
+			{literal}
 		}
 	}
-}		
+}
 {/literal}
 {/if}
 {/section}
