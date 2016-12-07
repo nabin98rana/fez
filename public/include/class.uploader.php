@@ -90,7 +90,7 @@ class Uploader
         $params = ['SaveAs' => $uploadDirLocal . '/' . basename($obj['Key'])];
         $aws->getFileContent($obj['Key'], '', $params);
       }
-      $aws->deleteMatchingObjects($uploadDir);
+      //$aws->deleteMatchingObjects($uploadDir);
       $uploadDir = $uploadDirLocal;
     }
 		// if the directory doesn't exist, return an empty array
