@@ -23,6 +23,7 @@ class FulltextIndex_ElasticSearch extends FulltextIndex
   private $esPort;
   private $esPath;
   private $esType;
+  private $esIndex;
   private $docsAdded = 0;
   private $docs;
   private $esClient;

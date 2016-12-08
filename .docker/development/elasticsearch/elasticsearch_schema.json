@@ -2,28 +2,7 @@
   "settings" : {
     "max_result_window" : 2147483647,
     "number_of_shards": 1,
-    "number_of_replicas": 0,
-    "analysis": {
-      "analyzer": {
-        "alphaOnlySort": {
-          "type": "custom",
-          "tokenizer": "keyword",
-          "filter": [
-            "lowercase", "trim"
-          ],
-          "char_filter": [
-            "alphaOnlyFilter"
-          ]
-        }
-      },
-      "char_filter": {
-        "alphaOnlyFilter": {
-          "type": "pattern_replace",
-          "pattern": "([^a-z0-9])",
-          "replacement": ""
-        }
-      }
-    }
+    "number_of_replicas": 0
   },
   "mappings" : {
     "fez_record" : {
@@ -110,14 +89,14 @@
           "template__s" : {
             "match" : "*_s",
             "match_mapping_type" : "string",
-            "mapping" : { "type" : "keyword", "fielddata" : true, "store" : false, "index" : true, "analyzer" : "alphaOnlySort" }
+            "mapping" : { "type" : "keyword", "fielddata" : true, "store" : false, "index" : true}
           }
         },
         {
           "template__mt_s" : {
             "match" : "*_mt_s",
             "match_mapping_type" : "string",
-            "mapping" : { "type" : "keyword", "fielddata" : true, "store" : false, "index" : true, "analyzer" : "alphaOnlySort" }
+            "mapping" : { "type" : "keyword", "fielddata" : true, "store" : false, "index" : true }
           }
         },
         {
@@ -159,7 +138,7 @@
           "template__t_s" : {
             "match" : "*_t_s",
             "match_mapping_type" : "string",
-            "mapping" : { "type" : "keyword", "fielddata" : true, "store" : false, "index" : true, "analyzer" : "alphaOnlySort" }
+            "mapping" : { "type" : "keyword", "index" : true, "fielddata" : true, "store" : true }
           }
         },
         {
