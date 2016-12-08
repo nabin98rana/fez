@@ -185,7 +185,7 @@ if (APP_MY_RESEARCH_MODULE == "ON" && MyResearch::getHRorgUnit($username) != "")
 }
 
 if ($sortOnAttachmentFlag) {
-    $ordering = ($options["sort_order"]) ? -1 : 1;
+    $ordering = Misc::GETorPOST('sort_order');
     //We will sort on the number of rek_file_attachment_names
     usort($assigned_items['list'], function($a, $b) {
         global $ordering;

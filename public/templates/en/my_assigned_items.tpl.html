@@ -191,7 +191,11 @@ No items found
      {/if}
      </td>
      <td nowrap align="center" valign="middle" class="default">
+       {if ! $is_bypass}
          {math equation="ceil(x/2)" x=$list[i].rek_file_attachment_name|@count}
+       {else}
+         {$list[i].rek_file_attachment_name|@count}
+       {/if}
         </td>
      </tr>
      {sectionelse}
