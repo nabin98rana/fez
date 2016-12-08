@@ -502,7 +502,7 @@ abstract class FulltextIndex {
             if ($fieldType == FulltextIndex::FIELD_TYPE_TEXT) {
               $docfields[$index_title . "_s"] = $this->alphaOnlySortFormat($fieldValue);
               $ftName = str_replace("_mt", "_mft", $index_title);
-              $ftName = str_replace("_t", "_ft", $ftName);
+              $ftName = preg_replace("/(.*)_t$/", '$1_t_ft', $ftName);
               $docfields[$ftName] = $fieldValue;
               $ftName = str_replace("_mt", "_mt_exact", $index_title);
               $docfields[$ftName] = $fieldValue;
