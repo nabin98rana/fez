@@ -244,6 +244,12 @@ class Template_API
     $this->assign("app_environment", $_SERVER['APP_ENVIRONMENT']);
     $this->assign("application_env", $_SERVER['APPLICATION_ENV']);
 
+    if (APP_FEDORA_BYPASS == 'ON') {
+      $this->assign("is_bypass", true);
+    } else {
+      $this->assign("is_bypass", false);
+    }
+
 		// create the list of collections
 		$username = Auth::getUsername();
 	    if ($username != '') {
