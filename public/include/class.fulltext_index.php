@@ -500,7 +500,7 @@ abstract class FulltextIndex {
             //Add facet fields, exact matching fields, sort fields
 
             if ($fieldType == FulltextIndex::FIELD_TYPE_TEXT) {
-              $docfields[$index_title . "_s"] = $fieldValue;
+              $docfields[$index_title . "_s"] = $this->alphaOnlySortFormat($fieldValue);
               $ftName = str_replace("_mt", "_mft", $index_title);
               $ftName = str_replace("_t", "_ft", $ftName);
               $docfields[$ftName] = $fieldValue;
@@ -547,6 +547,11 @@ abstract class FulltextIndex {
       unset($docfields);
     }
     return $returnContent;
+  }
+
+
+  private function alphaOnlySortFormat($value) {
+    return preg_replace("/([^a-zA-Z0-9])/", "", strtolower($value));
   }
 
 
