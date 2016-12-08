@@ -295,8 +295,8 @@ class FulltextIndex_ElasticSearch extends FulltextIndex
 
       }
 
-      //$testJson = json_encode($params);
-      //echo $testJson; exit;
+//      $testJson = json_encode($params);
+//      echo $testJson; exit;
 
       $results = $this->esClient->search($params);
 
@@ -471,7 +471,7 @@ class FulltextIndex_ElasticSearch extends FulltextIndex
        * we can create a solr id from a fez search key but
        * not the other way around.
        */
-      $sekdet = Search_Key::getList(false);
+      $sekdet = Search_Key::getFacetList(false);
       foreach ($sekdet as $sval) {
         if ($sval['sek_data_type'] == "date") {
           $solr_name = $sval['sek_title_db'] . "_year_t";

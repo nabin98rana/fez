@@ -103,7 +103,7 @@
           "template__mft" : {
             "match" : "*_mft",
             "match_mapping_type" : "string",
-            "mapping" : { "type" : "keyword", "fielddata" : true, "store" : false, "index" : true }
+            "mapping" : { "type" : "keyword", "fielddata" : true, "store" : true, "index" : true }
           }
         },
         {
@@ -152,7 +152,7 @@
           "template__t_ft" : {
             "match" : "*_t_ft",
             "match_mapping_type" : "string",
-            "mapping" : { "type" : "text", "fielddata" : true, "store" : false, "index" : true }
+            "mapping" : { "type" : "keyword", "fielddata" : true, "store" : true, "index" : true }
           }
         },
         {
