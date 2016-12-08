@@ -927,6 +927,32 @@ public static function multi_implode($glue, $pieces)
   }
 
   /**
+   * Given a list of datastream names, filter out certain datastreams
+   *
+   * @param $dsListNames
+   * @return array
+   */
+  public static function removeGeneratedDatastreams($dsListNames)
+  {
+    $return = [];
+    foreach ($dsListNames as $dsName) {
+      // The following ID's should be removed
+      if (! ((is_numeric(strpos($dsName, "thumbnail_")))
+         || (is_numeric(strpos($dsName, "MODS")))
+         || (is_numeric(strpos($dsName, "web_")))
+         || (is_numeric(strpos($dsName, "preview_")))
+         || (is_numeric(strpos($dsName, "presmd_")))
+         || (is_numeric(strpos($dsName, "stream_")))
+         || (is_numeric(strpos($dsName, "FezACML_")))
+         || (is_numeric(strpos($dsName, "FezComments"))))
+      ) {
+        $return[] = $dsName;
+      }
+    }
+    return $return;
+  }
+
+  /**
    * Method used to remove certain datastreams from the list of datastreams the user will see.
    *
    * @access  public

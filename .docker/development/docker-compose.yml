@@ -19,7 +19,6 @@ fezdevelopmentrunner:
     - fedora
     - fezdb
     - selenium
-    - solr
     - elasticsearch
   volumes:
     - ../../:/var/app/current
@@ -78,7 +77,6 @@ fpm:
   links:
     - fezdb
     - fedora
-    - solr
     - elasticsearch
   volumes:
     - ../../:/var/app/current
@@ -128,18 +126,6 @@ fedoradata:
   build: ./fedora/data/
   volumes:
     - ./data/fedora:/data
-
-solr:
-  build: ./solr/
-  ports:
-    - "8983:8983"
-  volumes_from:
-    - cache
-    - solrdata
-    - logs
-
-solrdata:
-  build: ./solr/data/
 
 elasticsearch:
   environment:

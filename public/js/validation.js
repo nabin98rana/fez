@@ -685,7 +685,7 @@ function getSelectedOptionObject(f, field_name)
     }
 }
 
-var errors = null;
+var errors = [];
 
 function checkFormSubmission(f, callback_func)
 {

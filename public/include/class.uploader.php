@@ -48,7 +48,7 @@ class Uploader
     $subDir = "uploader/{$wflId}";
 
     if (APP_FEDORA_BYPASS == 'ON' && !$forceLocal) {
-      $aws = new AWS(AWS_S3_SAN_IMPORT_BUCKET);
+      $aws = new AWS(AWS_S3_CACHE_BUCKET);
       return $aws->createPath($subDir, '');
     }
 		return APP_TEMP_DIR . $subDir;
@@ -81,7 +81,7 @@ class Uploader
         }
       }
 
-      $aws = new AWS(AWS_S3_SAN_IMPORT_BUCKET);
+      $aws = new AWS(AWS_S3_CACHE_BUCKET);
       $objects = $aws->listObjects($uploadDir);
       if (! $objects) {
         return $returnArray;
@@ -90,7 +90,7 @@ class Uploader
         $params = ['SaveAs' => $uploadDirLocal . '/' . basename($obj['Key'])];
         $aws->getFileContent($obj['Key'], '', $params);
       }
-      $aws->deleteMatchingObjects($uploadDir);
+      //$aws->deleteMatchingObjects($uploadDir);
       $uploadDir = $uploadDirLocal;
     }
 		// if the directory doesn't exist, return an empty array

@@ -1059,49 +1059,6 @@ class Lister
 
     if ($tpl_idx == 1) {
       // Add the Research Details to the array
-      $titles = array();
-      foreach ($list as $rec) {
-        $record = new RecordObject($rec['rek_pid']);
-        $record->getDisplay();
-        $details = $record->getDetails();
-        $xsd_display_fields = $record->display->getMatchFieldsList(array("FezACML"), array()); // XSD_DisplayObject
-        $pidTitles = array();
-        $excelRow = array();
-        foreach ($xsd_display_fields as $value) {
-          $pidTitles[] = $value['sek_title'];
-          if ($value['xsdmf_show_in_view'] && $value['xsdmf_enabled'] && !$value['xsdmf_invisible'] && !empty($value['sek_title']) && !empty($details[$value['xsdmf_id']]) && $value['sek_title'] != 'Description' && $value['sek_title'] != 'Formatted Abstract') {
-            $excelRow[$value['sek_title']] = preg_replace('/\<br(\s*)?\/?\>/i', "\n", $details[$value['xsdmf_id']]);
-            $pidTitleUsed[$value['sek_title']] = 1;
-          }
-        }
-
-        if (empty($titles)) {
-          $titles = $pidTitles;
-        }
-
-        //Lets try and approximate the correct view order
-        foreach ($pidTitles as $key => $value)
-          if (!in_array($pidTitles[$key], $titles)) {
-            $positionAfter = array_search($pidTitles[$key - 1], $titles);
-            if ($positionAfter != false) {
-              array_splice($titles, $positionAfter + 1, 0, $pidTitles[$key]);
-            } else {
-              $titles[] = $pidTitles[$key];
-            }
-          }
-        //$titles = array_merge($pidTitles, $titles);
-        $excelData[] = $excelRow;
-      }
-
-      foreach ($titles as $key => $title) {
-        if (!$pidTitleUsed[$title]) {
-          unset($titles[$key]);
-        }
-      }
-      $titles = array_unique($titles);
-      //sort($titles);
-      $tpl->assign('titles', $titles);
-      $tpl->assign('excel_data', $excelData);
       $list = Record::getResearchDetailsbyPIDS($list);
     }
 

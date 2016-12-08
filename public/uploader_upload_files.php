@@ -72,7 +72,7 @@ if (APP_FEDORA_BYPASS == 'ON') {
       }
     }
   }
-  $aws = new AWS(AWS_S3_SAN_IMPORT_BUCKET);
+  $aws = new AWS(AWS_S3_CACHE_BUCKET);
   foreach ($_FILES as $fieldName => $file) {
     $fileLoc = $uploadDirLocal . "/{$fileNumber}." . strip_tags(basename($file['name']));
     move_uploaded_file($file['tmp_name'], $fileLoc);

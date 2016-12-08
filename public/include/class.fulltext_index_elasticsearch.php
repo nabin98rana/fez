@@ -23,6 +23,7 @@ class FulltextIndex_ElasticSearch extends FulltextIndex
   private $esPort;
   private $esPath;
   private $esType;
+  private $esIndex;
   private $docsAdded = 0;
   private $docs;
   private $esClient;
@@ -202,6 +203,9 @@ class FulltextIndex_ElasticSearch extends FulltextIndex
       $fields = explode(",", $params['fl']);
       $solrParams = $params;
 
+      // the default field in ES is '_all' not text as in Solr, so replace for any legacy saved searches that used text:
+      $queryString = str_replace("text:", "_all:", $queryString);
+
       $params = [
           'index' => $this->esIndex,
           'type' => $this->esType,
@@ -246,24 +250,28 @@ class FulltextIndex_ElasticSearch extends FulltextIndex
         } else {
           $params['body']['sort'] = [$sortOrder[0] => ["order" => $sortOrder[1]]];
         }
+        $params['body']['track_scores'] = true;
       }
       $queryString = str_replace("   (", "", $queryString);
       $queryString = trim(str_replace(" AND status_i:(2))", "", $queryString));
+      $highlightQueryString = "";
       if ($queryString != "") {
         // find a phrase to limit by
-        $queryString = str_replace("\\", '', $queryString);
-        preg_match("/\"(.*?)\"/", $queryString, $matches);
+        $highlightQueryString = str_replace("\\", '', $queryString);
+        preg_match("/\"(.*?)\"/", $highlightQueryString, $matches);
         if (count($matches) > 0) {
-          $queryString = $matches[0];
+          $highlightQueryString = $matches[0];
         }
       } else {
         $use_highlighting = false;
       }
 
+
+
       //Force highlighting to be disabled until it can be split into a second query as per advice from ElasticCo
       $use_highlighting = false;
 
-      if ($use_highlighting && $queryString != "") {
+      if ($use_highlighting && $highlightQueryString != "") {
         // hit highlighting
         $params['body']['highlight']['fields']['content_mt'] = [
           'type' => 'fvh',
@@ -274,7 +282,7 @@ class FulltextIndex_ElasticSearch extends FulltextIndex
                   'should' => [
                       'match_phrase' => [
                           'content_mt' => [
-                              'query' => $queryString,
+                              'query' => $highlightQueryString,
                               'slop' => 1,
                               'boost' => 10.0
                           ]
@@ -329,6 +337,12 @@ class FulltextIndex_ElasticSearch extends FulltextIndex
                   $docs[$i][$sek_id] = array();
                 }
                 $docs[$i][$sek_id][] = $field;
+              }
+              else if ($sek_rel == '1' && is_array($field)) {
+                if (!array_key_exists($sek_id, $docs[$i])) {
+                  $docs[$i][$sek_id] = array();
+                }
+                $docs[$i][$sek_id] = $field;
               } else {
                 $docs[$i][$sek_id] = $field[0];
               }
@@ -364,7 +378,7 @@ class FulltextIndex_ElasticSearch extends FulltextIndex
           }
 
           // resolve result
-          $docs[$i]['Relevance'] = $doc['_score'];
+          $docs[$i]['relevance'] = $doc['_score'];
           $docs[$i]['rek_views'] = $doc['_source']['views'];
           $i++;
         }
@@ -374,17 +388,17 @@ class FulltextIndex_ElasticSearch extends FulltextIndex
     } catch (Exception $e) {
 
       //
-      // catches any Solr service exceptions (malformed syntax etc.)
+      // catches any service exceptions (malformed syntax etc.)
       //
-
       // TODO add fine grained control, user message error handling
-      $log->err($e);
+      $log->err($e->getMessage());
 
       // report nothing found on error
       $docs = array();
       $facets = array();
       $snips = array();
       $total_rows = 0;
+
 
     }
 
@@ -457,7 +471,7 @@ class FulltextIndex_ElasticSearch extends FulltextIndex
        * we can create a solr id from a fez search key but
        * not the other way around.
        */
-      $sekdet = Search_Key::getList(false);
+      $sekdet = Search_Key::getFacetList(false);
       foreach ($sekdet as $sval) {
         if ($sval['sek_data_type'] == "date") {
           $solr_name = $sval['sek_title_db'] . "_year_t";

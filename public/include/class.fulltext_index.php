@@ -468,6 +468,11 @@ abstract class FulltextIndex {
           $fieldValue = Citation::updateCitationCache($pid);
         }
 
+        // We don't want solr to add generated datastreams e.g. presmd, FezACML
+        if ($title == 'File Attachment Name') {
+          $fieldValue = Misc::removeGeneratedDatastreams($fieldValue);
+        }
+
         // consolidate field types
         $fieldType = $this->mapType($sekDetails['sek_data_type']);
 
@@ -495,9 +500,9 @@ abstract class FulltextIndex {
             //Add facet fields, exact matching fields, sort fields
 
             if ($fieldType == FulltextIndex::FIELD_TYPE_TEXT) {
-              $docfields[$index_title . "_s"] = $fieldValue;
+              $docfields[$index_title . "_s"] = $this->alphaOnlySortFormat($fieldValue);
               $ftName = str_replace("_mt", "_mft", $index_title);
-              $ftName = str_replace("_t", "_ft", $ftName);
+              $ftName = preg_replace("/(.*)_t$/", '$1_t_ft', $ftName);
               $docfields[$ftName] = $fieldValue;
               $ftName = str_replace("_mt", "_mt_exact", $index_title);
               $docfields[$ftName] = $fieldValue;
@@ -542,6 +547,11 @@ abstract class FulltextIndex {
       unset($docfields);
     }
     return $returnContent;
+  }
+
+
+  private function alphaOnlySortFormat($value) {
+    return preg_replace("/([^a-zA-Z0-9])/", "", strtolower($value));
   }
 
 
