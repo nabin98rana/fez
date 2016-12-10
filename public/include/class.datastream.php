@@ -300,6 +300,35 @@ class Datastream
   }
 
   /**
+   * This function creates an array of all the datastreams in the system
+   *
+   * @param string $fileExt optional restriction on file extension used in like % eg use .pdf
+   * @return array $dsIDListArray The list of pids and datastreams in an array.
+   */
+  public static function getAllDatastreams($fileExt = '') {
+    $log = FezLog::get();
+    $db = DB_API::get();
+
+    $res = [];
+    $fileExtWhere = "";
+
+    if ($fileExt != '') {
+      $fileExtWhere = "WHERE dsi_dsid LIKE '%". $fileExt ."'";
+    }
+
+    $stmt = "SELECT * FROM "
+        . APP_TABLE_PREFIX  . "datastream_info ". $fileExtWhere ." ORDER BY dsi_pid ASC, dsi_dsid ASC limit 0,50";
+
+    try {
+      $res = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
+    } catch(Exception $e) {
+      $log->err($e->getMessage());
+    }
+    return $res;
+  }
+
+
+  /**
    * This function marks a datastream as deleted by setting the state.
    *
    * @param string $pid The persistent identifier of the object
@@ -513,6 +542,53 @@ class Datastream
     }
     return $res;
   }
+
+  /**
+   * @param $pid string
+   * @param $dsId string
+   * @param $bookreader integer 0 or 1 (to indicate it does have a bookreader set of images)
+   * @return bool
+   */
+  public static function setBookreader($pid, $dsId, $bookreader)
+  {
+    $log = FezLog::get();
+    $db = DB_API::get();
+
+    $stmt = "
+			UPDATE " . APP_TABLE_PREFIX . "datastream_info SET dsi_bookreader = " . $db->quote($bookreader) . "
+            WHERE dsi_pid = " . $db->quote($pid) . " AND dsi_dsid = " . $db->quote($dsId);
+
+    try {
+      $res = $db->exec($stmt);
+    } catch (Exception $ex) {
+      $log->err($ex);
+      return false;
+    }
+    return $res;
+  }
+
+  /**
+   * @param $pid
+   * @param $dsId
+   * @return int
+   */
+  public static function getBookreader($pid, $dsId)
+  {
+    $log = FezLog::get();
+    $db = DB_API::get();
+
+    $stmt = "
+			SELECT dsi_bookreader FROM " . APP_TABLE_PREFIX . "datastream_info
+            WHERE dsi_pid = " . $db->quote($pid) . " AND dsi_dsid = " . $db->quote($dsId);
+    try {
+      $res = $db->fetchOne($stmt);
+    } catch (Exception $ex) {
+      $log->err($ex);
+      return 0;
+    }
+    return $res;
+  }
+
 
   /**
    * Used in the migration from Fedora -> AWS
