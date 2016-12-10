@@ -2,6 +2,7 @@
 
 include_once(dirname(dirname(__FILE__)).DIRECTORY_SEPARATOR."config.inc.php");
 include_once(APP_INC_PATH . "class.exiftool.php");
+include_once(APP_INC_PATH . "class.datastream.php");
 
 class bookReaderImplementation
 {
@@ -39,9 +40,14 @@ class bookReaderImplementation
     {
         if ($this->useS3) {
           //Just get it from exiftool because S3 doesn't have a way to count object
-          $exifDetails = Exiftool::getDetails($pid, $dsID);
-          if (is_numeric($exifDetails['exif_page_count'])) {
-            return $exifDetails['exif_page_count'];
+          $hasBookreader = Datastream::getBookreader($pid, $dsID);
+          if ($hasBookreader == 1) {
+            $exifDetails = Exiftool::getDetails($pid, $dsID);
+            if (is_numeric($exifDetails['exif_page_count'])) {
+              return $exifDetails['exif_page_count'];
+            } else {
+              return 0;
+            }
           } else {
             return 0;
           }
