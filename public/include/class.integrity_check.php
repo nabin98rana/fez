@@ -37,6 +37,10 @@ include_once(APP_INC_PATH.'/class.user.php');
 include_once(APP_INC_PATH.'/class.auth.php');
 include_once(APP_INC_PATH . "Apache/Solr/Service.php");
 
+use Elasticsearch\ClientBuilder;
+
+require_once(__DIR__ . '/../include/autoload.php'); // since ES is pulled in via composer, this is how to include it
+
 /**
  * Class to manage all tasks related to the cache abstraction module.
  *
@@ -184,9 +188,40 @@ class IntegrityCheck
         $filter_join = [2 => "*:*"];
         $searchKey_join = [];
         $approved_roles = [];
-        $res = $index->searchAdvancedQuery($searchKey_join, $filter_join, $approved_roles, $start, $page_rows);
-        foreach ($res['docs'] as $doc) {
-          $solrPids[] = $doc['rek_pid'];
+
+        $fields = ["rek_pid"];
+
+        $params = [
+            'index' => APP_ES_INDEX_NAME,
+            'type' => 'fez_record',
+            'body' => [
+                'stored_fields' => $fields,
+                'from' => $start,
+                'size' => $page_rows,
+                'query' => [
+                    'bool' => [
+                        'must' => [
+                            'query_string' => [
+                                'default_operator' => 'AND',
+                                'query' => '*:*'
+                            ]
+                        ],
+                        'filter' => [
+                            'query_string' => [
+                                'default_operator' => 'AND',
+                                'query' => '*:*'
+
+                            ]
+                        ]
+                    ]
+                ]
+            ]
+        ];
+        $esClient = ClientBuilder::create()->setHosts(array(APP_ES_HOST))->build();
+        $res = $esClient->search($params);
+
+        foreach ($res['hits']['hits'] as $doc) {
+          $solrPids[] = $doc['_id'];
         }
 
       } else {
@@ -262,13 +297,39 @@ class IntegrityCheck
         $start = 0;
         $page_rows = 99999999;
 
-        $index = FulltextIndex::get(true);
-        $filter_join = [2 => $manualFilter];
-        $searchKey_join = [];
-        $approved_roles = [];
-        $res = $index->searchAdvancedQuery($searchKey_join, $filter_join, $approved_roles, $start, $page_rows);
-        foreach ($res['docs'] as $doc) {
-          $this->db->insert("{$this->prefix}integrity_solr_unspawned_citations", array('pid'=>$doc['rek_pid']));
+        $fields = ["rek_pid"];
+
+        $params = [
+            'index' => APP_ES_INDEX_NAME,
+            'type' => 'fez_record',
+            'body' => [
+                'stored_fields' => $fields,
+                'from' => $start,
+                'size' => $page_rows,
+                'query' => [
+                    'bool' => [
+                        'must' => [
+                            'query_string' => [
+                                'default_operator' => 'AND',
+                                'query' => '*:*'
+                            ]
+                        ],
+                        'filter' => [
+                            'query_string' => [
+                                'default_operator' => 'AND',
+                                'query' => $manualFilter
+
+                            ]
+                        ]
+                    ]
+                ]
+            ]
+        ];
+        $esClient = ClientBuilder::create()->setHosts(array(APP_ES_HOST))->build();
+        $res = $esClient->search($params);
+
+        foreach ($res['hits']['hits'] as $doc) {
+          $this->db->insert("{$this->prefix}integrity_solr_unspawned_citations", array('pid'=>$doc['_id']));
           $countInserted++;
         }
       } else {
