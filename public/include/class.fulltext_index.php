@@ -53,6 +53,7 @@ include_once(APP_INC_PATH . "class.fulltext_index_solr.php");
 include_once(APP_INC_PATH . "class.fulltext_index_elasticsearch.php");
 include_once(APP_INC_PATH . "class.fulltext_index_solr_csv.php");
 include_once(APP_INC_PATH . "class.citation.php");
+include_once(APP_INC_PATH . "class.auth.php");
 include_once(APP_INC_PATH . "Apache/Solr/Service.php");
 
 abstract class FulltextIndex {
@@ -426,7 +427,15 @@ abstract class FulltextIndex {
         }
       }
     }
-
+    $roles = array(
+        'Lister',
+        'Creator',
+        'Editor',
+    );
+    $roleIDs = Auth::convertTextRolesToIDS($roles);
+    $roleIDs = array_flip($roleIDs);
+    $pidsString = "'" . implode("','", $pids) . "'";
+    $rulesGroups = $this->getRuleGroupsChunk($pidsString, $roleIDs);
     // get the list of search keys because its easier to find and add solr dynamic field mapping that reverse lookup
     // the sekDetails later (less sql calls)
 
@@ -532,13 +541,31 @@ abstract class FulltextIndex {
       }
       unset($ftResult);
 
-      //
-      // add lister security index to document - kind of special
-      // maybe this needs more abstraction for new search engines
-      // _authindex solr: tokenized, indexed and stored _t
-      //
-      $auth_title = $this->getFieldName(FulltextIndex::FIELD_NAME_AUTHLISTER, FulltextIndex::FIELD_TYPE_TEXT, false);
-      $docfields[$auth_title] = $this->getListerRuleGroups($pid);
+      //now add the lister, creator and editor auth indexes
+
+
+      $rules = $rulesGroups[$pid];
+      if (!empty($rules)) {
+        $lister_rules = '';
+        $creator_rules = '';
+        $editor_rules = '';
+
+        if (!empty($rules[$roleIDs['Lister']])) {
+          $lister_rules = $rules[$roleIDs['Lister']];
+          $auth_title = $this->getFieldName(FulltextIndex::FIELD_NAME_AUTHLISTER, FulltextIndex::FIELD_TYPE_TEXT, false);
+          $docfields[$auth_title] = $lister_rules;
+        }
+        if (!empty($rules[$roleIDs['Creator']])) {
+          $creator_rules = $rules[$roleIDs['Creator']];
+          $auth_title = $this->getFieldName(FulltextIndex::FIELD_NAME_AUTHCREATOR, FulltextIndex::FIELD_TYPE_TEXT, false);
+          $docfields[$auth_title] = $creator_rules;
+        }
+        if (!empty($rules[$roleIDs['Editor']])) {
+          $editor_rules = $rules[$roleIDs['Editor']];
+          $auth_title = $this->getFieldName(FulltextIndex::FIELD_NAME_AUTHEDITOR, FulltextIndex::FIELD_TYPE_TEXT, false);
+          $docfields[$auth_title] = $editor_rules;
+        }
+      }
 
       //now save it to the cache.
       $content = json_encode($docfields);
@@ -1288,6 +1315,11 @@ abstract class FulltextIndex {
     return $fezName;
   }
 
+  /**
+   * @param string $pids
+   * @param array $roles
+   * @return array|string
+   */
   public function getRuleGroupsChunk($pids, $roles)
   {
     $log = FezLog::get();

@@ -42,8 +42,12 @@ include_once(APP_INC_PATH . "class.bookreaderpdfconverter.php");
 if (php_sapi_name()==="cli")  {
   // for every datastream, check whether there are bookreader pid images for it, if so set dsi_bookreader to 1
   $datastreams = Datastream::getAllDatastreams(".pdf");
-
+  $total = count($datastreams);
+  echo "Count of datastreams to check: ".$total."\n";
+  $inc = 0;
   foreach ($datastreams as $ds) {
+    $inc++;
+    echo "Progress - ".$inc."/".$total;
     if ($ds['dsi_bookreader'] == 0) {
       $pid = $ds['dsi_pid'];
       if (strstr($pid, ':')) {
