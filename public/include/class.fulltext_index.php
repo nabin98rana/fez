@@ -504,12 +504,15 @@ abstract class FulltextIndex {
             //Add facet fields, exact matching fields, sort fields
 
             if ($fieldType == FulltextIndex::FIELD_TYPE_TEXT) {
-              $docfields[$index_title . "_s"] = $this->alphaOnlySortFormat($fieldValue);
-              $ftName = str_replace("_mt", "_mft", $index_title);
-              $ftName = preg_replace("/(.*)_t$/", '$1_t_ft', $ftName);
-              $docfields[$ftName] = $fieldValue;
-              $ftName = str_replace("_mt", "_mt_exact", $index_title);
-              $docfields[$ftName] = $fieldValue;
+              // text blob search keys are not really suitable for sorting or faceting, so don't bother, only do varchar
+              if ($sekDetails['sek_data_type'] == 'varchar') {
+                $docfields[$index_title . "_s"] = $this->alphaOnlySortFormat($fieldValue);
+                $ftName = str_replace("_mt", "_mft", $index_title);
+                $ftName = preg_replace("/(.*)_t$/", '$1_t_ft', $ftName);
+                $docfields[$ftName] = $fieldValue;
+                $ftName = str_replace("_mt", "_mt_exact", $index_title);
+                $docfields[$ftName] = $fieldValue;
+              }
             }
           }
 
