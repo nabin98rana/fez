@@ -398,17 +398,3 @@ if (APP_API) {
     ini_set("display_errors", 0);
     ini_set("log_errors", 1);
 }
-
-// Protect bypass staging/production with basic auth.
-// Excludes /api/ which uses a token based auth, and CLI scripts
-// @todo(post-migration): Remove $env = production
-$env = strtolower($_SERVER['APPLICATION_ENV']);
-if(
-  APP_FEDORA_BYPASS == "ON"
-  && ($env == 'production' || $env == 'staging')
-  && stripos($_SERVER['REQUEST_URI'], APP_RELATIVE_URL . 'api/') !== 0
-  && php_sapi_name() != "cli"
-) {
-  include_once(APP_INC_PATH . "class.auth.php");
-  Auth::basicAuth('', true);
-}
