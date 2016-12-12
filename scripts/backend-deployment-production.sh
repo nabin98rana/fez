@@ -17,3 +17,14 @@ aws sqs send-message \
   --queue-url ${SQS_URL} \
   --message-body "${SQS_MESSAGE}" \
   --message-attributes "${SQS_MESSAGE_ATTRIBUTES}"
+
+SQS_MESSAGE=$(<${BASE_DIR}/.docker/production/aws-task-definition-bgp.json)
+SQS_MESSAGE="${SQS_MESSAGE//\<COMMIT_HASH\>/${CI_COMMIT_ID}}"
+SQS_MESSAGE="${SQS_MESSAGE//\<NEWRELIC_LICENSE\>/${NEWRELIC_LICENSE}}"
+SQS_MESSAGE="${SQS_MESSAGE/\<WEBCRON_TOKEN\>/${WEBCRON_TOKEN}}"
+SQS_MESSAGE_ATTRIBUTES='{"service": { "StringValue": "fezproductionbgp", "DataType": "String" } }'
+
+aws sqs send-message \
+  --queue-url ${SQS_URL} \
+  --message-body "${SQS_MESSAGE}" \
+  --message-attributes "${SQS_MESSAGE_ATTRIBUTES}"
