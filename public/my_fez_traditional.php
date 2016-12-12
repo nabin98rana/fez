@@ -184,17 +184,34 @@ if (APP_MY_RESEARCH_MODULE == "ON" && MyResearch::getHRorgUnit($username) != "")
 	$show_my_pubs = "0";
 }
 
+$cut_list = $assigned_items['list'];
+$temp_list = $assigned_items['list'];
+foreach ($assigned_items['list'] as $cut_key => $cut_row) {
+  $assigned_items['list'][$cut_key]['rek_file_attachment_name'] = Misc::removeGeneratedDatastreams($cut_row['rek_file_attachment_name']);
+}
+
+
 if ($sortOnAttachmentFlag) {
     $ordering = Misc::GETorPOST('sort_order');
     //We will sort on the number of rek_file_attachment_names
+
     usort($assigned_items['list'], function($a, $b) {
         global $ordering;
         return $ordering*(count($b['rek_file_attachment_name']) - count($a['rek_file_attachment_name']));
     });
+
+
     //Now splice off the values to be displayed on the page
     $assigned_items['list'] = array_slice($assigned_items['list'], $pagerRowAttach*$rowsAttach, $rowsAttach);
     $assigned_items['info'] = $info;
 }
+
+//Now count, then add the others back on that you have sorted
+foreach ($assigned_items['list'] as $cut_key => $cut_row) {
+  $assigned_items['list'][$cut_key]['rek_file_attachment_name_count'] = count($assigned_items['list'][$cut_key]['rek_file_attachment_name']);
+  $assigned_items['list'][$cut_key]['rek_file_attachment_name'] = $temp_list['list'][$cut_key]['rek_file_attachment_name'];
+}
+
 
 $tpl->assign("show_my_pubs", 	       	$show_my_pubs);
 
