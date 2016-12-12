@@ -287,6 +287,10 @@ class BackgroundProcess {
     if ($useAws && ($env == 'staging' || $env == 'production')) {
       $aws = AWS::get();
       $family = 'fez' . $env;
+      // testing separate bgp service/task def, will add to prod too if successful
+      if ($env == 'staging') {
+        $family .= "bgp";
+      }
       $result = $aws->runBackgroundTask($family, [
         'containerOverrides' => [
           [

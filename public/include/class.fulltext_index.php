@@ -477,11 +477,6 @@ abstract class FulltextIndex {
           $fieldValue = Citation::updateCitationCache($pid);
         }
 
-        // We don't want solr to add generated datastreams e.g. presmd, FezACML
-        if ($title == 'File Attachment Name') {
-          $fieldValue = Misc::removeGeneratedDatastreams($fieldValue);
-        }
-
         // consolidate field types
         $fieldType = $this->mapType($sekDetails['sek_data_type']);
 
