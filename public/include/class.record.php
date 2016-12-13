@@ -2576,6 +2576,7 @@ class Record
                 //check the image is not restricted, eg sensitive images
                 // now try and find a FezACML metadata datastream of this datastream
 //                $ds['fezacml_roles'] = Auth::getAuthorisationGroups($result[$i]['rek_pid'], $result[$i]['rek_file_attachment_name'][$x]);
+                $canPreview = false;
                 if (Auth::checkAuthorisation($result[$i]['rek_pid'], $result[$i]['rek_file_attachment_name'][$x], $canPreviewRoles, '', null, false)) {
                   $canPreview = true;
                 }
