@@ -259,6 +259,11 @@ class RecordObject extends RecordGeneral
       $xsdmf_id = XSD_HTML_Match::getXSDMF_IDBySekIDXDIS_ID(Search_Key::getID('Depositor'), $xdis_str);
       $xsd_display_fields[0]['depositor'] = array('xsdmf_id' => $xsdmf_id[0], 'xsdmf_value' => $depositor);
 
+      if (array_key_exists('collection_pid', $_POST) && !empty($_POST['collection_pid'])) {
+        $xsdmf_id = XSD_HTML_Match::getXSDMF_IDBySekIDXDIS_ID(Search_Key::getID('isMemberOf'), $xdis_str);
+        $xsd_display_fields[1]['ismemberof'] = array('xsdmf_id' => $xsdmf_id[0], 'xsdmf_value' => [$_POST['collection_pid']]);
+      }
+
       $updatedDate = Date_API::getCurrentDateGMT();
 
       if (empty($this->pid)) {
