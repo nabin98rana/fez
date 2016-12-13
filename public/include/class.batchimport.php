@@ -530,6 +530,12 @@ class BatchImport
         }
       }
     }
+    $display = XSD_Display::getDetails($xdis_id);
+    if ($display && $display['xdis_title'] === 'Image' && $display['xdis_version'] === 'MODS 1.0') {
+      include_once(APP_INC_PATH . 'class.san_image_import.php');
+      $import = new San_image_import();
+      return $import;
+    }
     return false;
   }
 
