@@ -1795,10 +1795,24 @@ class Record
         return $acml_cache['ds'][$dsID][$pid];
       } else {
         $ds_search = FezACML::getFezACMLDSName($dsID);
+        $dsIDCore = preg_replace("/(web_|preview_|thumbnail_|stream_)/", "", $dsID);
+
         if (APP_FEDORA_BYPASS != "ON") {
-          $dsIDCore = preg_replace("/(web_|preview_|thumbnail_|stream_)/", "", $dsID);
           $dsIDCore = substr($dsIDCore, 0, strrpos($dsIDCore, "."));
           $ds_pattern = '/^FezACML_' . $dsIDCore . '\.(.*)xml$/';
+        } else {
+          // find the first file extension instead
+          $dsIDCore = substr($dsIDCore, 0, strpos($dsIDCore, "."));
+          $ds_pattern = "FezACML_".$dsIDCore."%.xml";
+          $xmlACML = Datastream::getDatastreamCachedFezACMLPattern($pid, $ds_pattern);
+          if ($xmlACML != "") {
+            $xmldoc= new DomDocument();
+            $xmldoc->preserveWhiteSpace = false;
+            $xmldoc->loadXML($xmlACML);
+            return $xmldoc;
+          } else {
+            return false;
+          }
         }
       }
     } else {
@@ -2548,6 +2562,8 @@ class Record
       }
     }
 
+    $canPreviewRoles = array("Viewer", "Community_Admin", "Editor", "Creator", "Annotator");
+
     for ($i = 0; $i < count($result); $i++) {
       if (array_key_exists('rek_file_attachment_name', $result[$i])) {
           for ($x = 0; $x < count($result[$i]['rek_file_attachment_name']); $x++) {
@@ -2555,26 +2571,36 @@ class Record
               if (!is_array(@$result[$i]['thumbnail'])) {
                 $result[$i]['thumbnail'] = array();
               }
-              array_push($result[$i]['thumbnail'], $result[$i]['rek_file_attachment_name'][$x]);
               $thumbnailCF = "";
               if (defined('AWS_S3_ENABLED') && AWS_S3_ENABLED == 'true' && APP_FEDORA_BYPASS == 'ON') {
-                $thumbnailCF = Fedora_API::getCloudFrontUrl($result[$i]['rek_pid'], $result[$i]['rek_file_attachment_name'][$x]);
+                //check the image is not restricted, eg sensitive images
+                // now try and find a FezACML metadata datastream of this datastream
+//                $ds['fezacml_roles'] = Auth::getAuthorisationGroups($result[$i]['rek_pid'], $result[$i]['rek_file_attachment_name'][$x]);
+                if (Auth::checkAuthorisation($result[$i]['rek_pid'], $result[$i]['rek_file_attachment_name'][$x], $canPreviewRoles, '', null, false)) {
+                  $canPreview = true;
+                }
+                if ($canPreview == true) {
+                  $thumbnailCF = Fedora_API::getCloudFrontUrl($result[$i]['rek_pid'], $result[$i]['rek_file_attachment_name'][$x]);
+                }
               }
-              if (!is_array(@$result[$i]['thumbnail_cloudfront'])) {
-                $result[$i]['thumbnail_cloudfront'] = array();
-              }
-              array_push($result[$i]['thumbnail_cloudfront'], $thumbnailCF);
-              if (APP_EXIFTOOL_SWITCH == 'ON') {
-                $exif_details = Exiftool::getDetails($result[$i]['rek_pid'], $result[$i]['rek_file_attachment_name'][$x]);
-                if (count($exif_details) != 0) {
-                  if (!is_array(@$result[$i]['thumbnail_width'])) {
-                    $result[$i]['thumbnail_width'] = array();
+              if ($canPreview == true) {
+                array_push($result[$i]['thumbnail'], $result[$i]['rek_file_attachment_name'][$x]);
+                if (!is_array(@$result[$i]['thumbnail_cloudfront'])) {
+                  $result[$i]['thumbnail_cloudfront'] = array();
+                }
+                array_push($result[$i]['thumbnail_cloudfront'], $thumbnailCF);
+                if (APP_EXIFTOOL_SWITCH == 'ON') {
+                  $exif_details = Exiftool::getDetails($result[$i]['rek_pid'], $result[$i]['rek_file_attachment_name'][$x]);
+                  if (count($exif_details) != 0) {
+                    if (!is_array(@$result[$i]['thumbnail_width'])) {
+                      $result[$i]['thumbnail_width'] = array();
+                    }
+                    if (!is_array(@$result[$i]['thumbnail_height'])) {
+                      $result[$i]['thumbnail_height'] = array();
+                    }
+                    array_push($result[$i]['thumbnail_width'], $exif_details['exif_image_width']);
+                    array_push($result[$i]['thumbnail_height'], $exif_details['exif_image_height']);
                   }
-                  if (!is_array(@$result[$i]['thumbnail_height'])) {
-                    $result[$i]['thumbnail_height'] = array();
-                  }
-                  array_push($result[$i]['thumbnail_width'], $exif_details['exif_image_width']);
-                  array_push($result[$i]['thumbnail_height'], $exif_details['exif_image_height']);
                 }
               }
             }
