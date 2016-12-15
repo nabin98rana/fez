@@ -284,13 +284,30 @@ class RecordObject extends RecordGeneral
       $xsd_display_fields[0]['object_type'] = array('xsdmf_id' => $xsdmf_id[0], 'xsdmf_value' => $xdis_details['xdis_object_type']);
 
       // empty checkboxes don't get posted, so you need to manually set the value to save 'off' or it will never save or change from 'on' values
+      // and empty controlled vocabs don't get posted, so you need to manually remove the values
       foreach ($xsdmf_list as $xsdmf_key => $xsdmf_val) {
         if ($xsdmf_val['xsdmf_html_input'] == 'checkbox') {
           if (!empty($xsdmf_val['xsdmf_sek_id'])) {
             $sek_details = Search_Key::getBasicDetails($xsdmf_val['xsdmf_sek_id']);
-            if (array_key_exists('xdis_id', $_POST) && array_key_exists('xsd_display_fields', $_POST)
+            if (array_key_exists('xsd_display_fields', $_POST)
                 && !array_key_exists($xsdmf_val['xsdmf_id'], $_POST['xsd_display_fields'])) {
               $xsd_display_fields[$sek_details['sek_relationship']][$sek_details['sek_title_db']] = array('xsdmf_id' => $xsdmf_val['xsdmf_id'], 'xsdmf_value' => 'off');
+            }
+          }
+        }
+        if ($xsdmf_val['xsdmf_html_input'] == 'xsdmf_id_ref') {
+          if (!empty($xsdmf_val['xsdmf_id_ref'])) {
+            $xsdmf_details = XSD_HTML_Match::getDetailsByXSDMF_ID($xsdmf_val['xsdmf_id_ref']);
+            if ($xsdmf_details['xsdmf_html_input'] == 'contvocab_selector') {
+              $sek_details = Search_Key::getBasicDetails($xsdmf_val['xsdmf_sek_id']);
+              if (array_key_exists('xsd_display_fields', $_POST)
+                && !array_key_exists($xsdmf_details['xsdmf_id'], $_POST['xsd_display_fields'])
+              ) {
+                $xsd_display_fields[$sek_details['sek_relationship']][$sek_details['sek_title_db']] = array(
+                  'xsdmf_id' => $xsdmf_details['xsdmf_id'],
+                  'xsdmf_value' => ''
+                );
+              }
             }
           }
         }
