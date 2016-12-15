@@ -440,8 +440,11 @@ class FulltextIndex_ElasticSearch extends FulltextIndex
       if ($this->docsAdded % APP_SOLR_COMMIT_LIMIT == 0) {
         $this->forceCommit();
         unset($this->docs);
+        if( APP_FILECACHE == "ON" ) {
+          $cache = new fileCache($pid, 'pid='.$pid);
+          $cache->poisonCache();
+        }
         $log->debug(array("======= FulltextIndex::updateFulltextIndex committed mem_usage=" . memory_get_usage() . " ======="));
-
       }
     } catch (Exception $e) {
 
