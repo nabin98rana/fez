@@ -37,7 +37,7 @@
 if ($this->wft_details['wft_type_id'] == WorkflowTrigger::getTriggerId('Bulk Change Search')) {
 	$options = Pager::saveSearchParams($request_params);
 	$bgp = new BackgroundProcess_Publish();
-	$bgp->register(serialize(compact('options')), Auth::getUserID());
+	$bgp->register(serialize(compact('options')), Auth::getUserID(), $this->id);
 } else {
 	$this->getRecordObject();
 	if ($this->rec_obj->canApprove()) {

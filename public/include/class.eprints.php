@@ -1167,7 +1167,7 @@ class ePrints
 					Fedora_API::getUploadLocationByLocalRef($pid, $short_ds, $short_ds, $short_ds, $mimetype, "M", null, $versionable);
 
 					//                  $presmd_check = Workflow::checkForPresMD($ds);  // try APP_TEMP_DIR.$short_ds
-					$presmd_check = Workflow::checkForPresMD(APP_TEMP_DIR.$short_ds);  // try APP_TEMP_DIR.$short_ds
+					$presmd_check = Workflow::checkForPresMD(Misc::getFileTmpPath($short_ds));  // try APP_TEMP_DIR.$short_ds
 					if ($presmd_check != false) {
 						Fedora_API::getUploadLocationByLocalRef($pid, $presmd_check, $presmd_check,
 						$presmd_check, "text/xml", "M");

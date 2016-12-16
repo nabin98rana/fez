@@ -190,7 +190,7 @@ class Exiftool
 	public static function saveExif($pid, $dsID)
 	{
 		if (APP_EXIFTOOL_SWITCH == "ON") {
-			$exif_array = Exiftool::extractMetadata(APP_TEMP_DIR.$dsID);
+			$exif_array = Exiftool::extractMetadata(Misc::getFileTmpPath($dsID));
 			if (!is_array($exif_array)) {
 				return false;
 			} else {

@@ -2574,8 +2574,6 @@ class Record
               $thumbnailCF = "";
               if (defined('AWS_S3_ENABLED') && AWS_S3_ENABLED == 'true' && APP_FEDORA_BYPASS == 'ON') {
                 //check the image is not restricted, eg sensitive images
-                // now try and find a FezACML metadata datastream of this datastream
-//                $ds['fezacml_roles'] = Auth::getAuthorisationGroups($result[$i]['rek_pid'], $result[$i]['rek_file_attachment_name'][$x]);
                 $canPreview = false;
                 if (Auth::checkAuthorisation($result[$i]['rek_pid'], $result[$i]['rek_file_attachment_name'][$x], $canPreviewRoles, '', null, false)) {
                   $canPreview = true;
@@ -5610,8 +5608,8 @@ function getSearchKeyIndexValueShadow($pid, $searchKeyTitle, $getLookup=true, $s
         Workflow::processIngestTrigger($pid, Foxml::makeNCName($dsTitle['ID']), $dsTitle['MIMETYPE']);
         //clear the managed content file temporarily saved in the APP_TEMP_DIR
         $ncNameDelete = Foxml::makeNCName($dsTitle['ID']);
-        if (is_file(APP_TEMP_DIR.$ncNameDelete)) {
-          unlink(APP_TEMP_DIR.$ncNameDelete);
+        if (is_file(Misc::getFileTmpPath($ncNameDelete))) {
+          unlink(Misc::getFileTmpPath($ncNameDelete));
         }
       }
     }
@@ -5768,8 +5766,9 @@ function getSearchKeyIndexValueShadow($pid, $searchKeyTitle, $getLookup=true, $s
           $pid, $presmd_id, $presmd_check, "PresMD for datastream - " . $dsIDName,
           "text/xml", "M"
       );
-      if (is_file(APP_TEMP_DIR.basename($presmd_check))) {
-        unlink(APP_TEMP_DIR.basename($presmd_check));
+      $tmpFile = Misc::getFileTmpPath(basename($presmd_check));
+      if (is_file($tmpFile)) {
+        unlink($tmpFile);
       }
     }
     //ExifTool

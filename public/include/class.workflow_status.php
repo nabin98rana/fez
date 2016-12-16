@@ -717,8 +717,12 @@ class WorkflowStatusStatic
     $obj = null;
     $dbtp =  APP_TABLE_PREFIX;
     $stmt = "SELECT wfses_object FROM ".$dbtp."workflow_sessions " .
-            "WHERE wfses_usr_id=".$db->quote($usr_id, 'INTEGER').
-            " AND wfses_id=".$db->quote($id, 'INTEGER');
+            "WHERE wfses_id=".$db->quote($id, 'INTEGER');
+
+    if (is_numeric(($usr_id))) {
+      $stmt .= " AND wfses_usr_id=".$db->quote($usr_id, 'INTEGER');
+    }
+
     try {
       $log->debug($stmt);
       $res = $db->fetchOne($stmt);
@@ -797,6 +801,33 @@ class WorkflowStatusStatic
 
     $details = self::getWorkflowDetailsForPid($pid);
     return count($details);
+  }
+
+  /**
+   * Gets the workflow dir string to add to any workflow file operations like image/video processing
+   *
+   * @return string
+   **/
+  public static function getWorkflowSubDir()
+  {
+    //check if we are in a workflow, if so use that dir
+    $wflDir = "";
+    if (Zend_Registry::isRegistered('wfses_id')) {
+      $wfses_id = Zend_Registry::get('wfses_id');
+    } else {
+      $wfses_id = Misc::GETorPOST('id');
+    }
+
+    if (!is_numeric($wfses_id)) {
+      $wfstatus = &WorkflowStatusStatic::getSession();
+      if (is_numeric($wfstatus->id)) {
+        $wfses_id = $wfstatus->id;
+      }
+    }
+    if (is_numeric($wfses_id)) {
+      $wflDir = $wfses_id . "/";
+    }
+    return $wflDir;
   }
 
   /**

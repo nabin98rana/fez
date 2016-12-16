@@ -122,7 +122,7 @@ class San_image_import
   {
     $importData = array();
 
-    $tempDir = APP_TEMP_DIR . '/';
+    $tempDir = Misc::getFileTmpPath() . '/';
     $importFromDir = dirname($file) . '/';
     $tempFile = $tempDir . Misc::shortFilename($file);
     BatchImport::getFileContent($file, $tempFile);
@@ -202,7 +202,7 @@ class San_image_import
     $params['sta_id'] = 2;
     $params['collection_pid'] = $collection_pid;
 
-    $tempDir = APP_TEMP_DIR . '/';
+    $tempDir = Misc::getFileTmpPath() . '/';
 
     $xdis_list = XSD_Relationship::getListByXDIS($xdis_id);
     array_push($xdis_list, array("0" => $xdis_id));

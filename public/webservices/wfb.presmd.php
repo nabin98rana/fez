@@ -38,7 +38,7 @@
 include_once(dirname(dirname(__FILE__)).DIRECTORY_SEPARATOR."config.inc.php");
 include_once(APP_INC_PATH."class.foxml.php");
 $file = escapeshellcmd(urldecode($_GET['file']));
-$file_dir = "";	
+$file_dir = "";
 
 if (is_numeric(strpos($file, "/"))) {
 	$file_dir = substr($file, 0, strrpos($file, "/"));
@@ -60,8 +60,8 @@ if ((!(is_numeric(strpos($file, "&")))) && (!(is_numeric(strpos($file, "|"))))) 
     if (is_numeric(strpos($full_file, " "))) {
         $newfile = Foxml::makeNCName($file);
 // 		Misc::processURL(Misc::escapeString($full_file), true, APP_TEMP_DIR.$newfile);
-        copy($full_file, APP_TEMP_DIR.$newfile);
-        $full_file = APP_TEMP_DIR.$newfile;
+        copy($full_file, Misc::getFileTmpPath($newfile));
+        $full_file = Misc::getFileTmpPath($newfile);
     }
     if (!stristr(PHP_OS, 'win') || stristr(PHP_OS, 'darwin')) { // Not Windows Server
         $unix_extra = " 2>&1";
@@ -85,6 +85,6 @@ if ((!(is_numeric(strpos($file, "&")))) && (!(is_numeric(strpos($file, "|"))))) 
             unlink($full_file);
         }
         echo $presmd_file;
-} 
+}
 
 ?>

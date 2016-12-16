@@ -46,7 +46,7 @@ $log = FezLog::get();
 if ((is_numeric(strpos($filename, "/"))) || (is_numeric(strpos($filename, "\\")))) {
   $filepath = $filename;
 } else {
-  $filepath = APP_TEMP_DIR . $filename;
+  $filepath = Misc::getFileTmpPath($filename);
 }
 
 if (!file_exists($filepath)) {
@@ -107,8 +107,8 @@ if (!file_exists($filepath)) {
       Fedora_API::callPurgeDatastream($pid, $new_file);
     }
     $new_file_name = $new_file;
-    $delete_file = APP_TEMP_DIR . $new_file;
-    $new_file = APP_TEMP_DIR . $new_file;
+    $delete_file = Misc::getFileTmpPath($new_file);
+    $new_file = Misc::getFileTmpPath($new_file);
     if (file_exists($new_file)) {
       $versionable = APP_VERSION_UPLOADS_AND_LINKS == "ON" ? 'true' : 'false';
       Fedora_API::getUploadLocationByLocalRef($pid, $new_file_name, $new_file, $new_file_name, 'image/jpeg', 'M', null, $versionable);

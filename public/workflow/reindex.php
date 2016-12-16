@@ -36,13 +36,13 @@ include_once(dirname(dirname(__FILE__)).DIRECTORY_SEPARATOR."config.inc.php");
 include_once(APP_INC_PATH. 'class.bgp_index_object.php');
 include_once(APP_INC_PATH. 'class.reindex.php');
 
-if (!empty($this->pids) && is_array($this->pids)) { 
-    
+if (!empty($this->pids) && is_array($this->pids)) {
+
 	$params['items']    = $this->pids;  /* The Pids to reindex */
     $index_type         = Reindex::INDEX_TYPE_REINDEX;
-	
-    $bgp = new BackgroundProcess_Index_Object(); 
-    $bgp->register(serialize(compact('params', 'index_type')), Auth::getUserID());
-    
+
+    $bgp = new BackgroundProcess_Index_Object();
+    $bgp->register(serialize(compact('params', 'index_type')), Auth::getUserID(), $this->id);
+
 }
 ?>

@@ -678,6 +678,14 @@ class AWS
       if (count($params) > 0) {
         $args = array_merge($args, $params);
       }
+      // create the directory if it doesn't exist
+      if (array_key_exists('SaveAs', $params)) {
+        $pathInfo = pathinfo($params['SaveAs']);
+        if (!is_dir($pathInfo['dirname'])) {
+          mkdir($pathInfo['dirname']);
+        }
+      }
+
       $result = $client->getObject($args);
     } catch (\Aws\S3\Exception\S3Exception $e) {
       $this->log->err($e->getMessage());

@@ -713,7 +713,7 @@ abstract class FulltextIndex {
 
 		// very slow...
 		// TODO: have to find a solution for very large files...
-		$filename = APP_TEMP_DIR."fulltext_".rand()."_".$dsitem['ID'];
+		$filename = Misc::getFileTmpPath("fulltext_".rand()."_".$dsitem['ID']);
 
 
     if (defined('AWS_ENABLED') && AWS_ENABLED == 'true' && APP_FEDORA_BYPASS == 'ON') {

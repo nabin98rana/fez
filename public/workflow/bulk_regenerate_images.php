@@ -41,7 +41,7 @@ include_once(APP_INC_PATH. 'class.error_handler.php');
 
 $pids = $this->pids;
 
-$bgp = new BackgroundProcess_Bulk_Regenerate_Images(); 
-$bgp->register(serialize(compact('pids')), Auth::getUserID());
-	
+$bgp = new BackgroundProcess_Bulk_Regenerate_Images();
+$bgp->register(serialize(compact('pids')), Auth::getUserID(), $this->id);
+
 ?>
