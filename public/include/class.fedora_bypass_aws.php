@@ -333,7 +333,7 @@ class Fedora_API implements FedoraApiInterface {
    * @param bool|string $srcBucket
    * @return integer
    */
-  public static function callAddDatastream($pid, $dsID, $dsLocation, $dsLabel, $dsState, $mimetype, $controlGroup = 'M', $versionable = FALSE, $xmlContent = "", $unlinkLocalFile = FALSE, $srcBucket = FALSE) {
+  public static function callAddDatastream($pid, $dsID, $dsLocation, $dsLabel, $dsState, $mimetype, $controlGroup = 'M', $versionable = FALSE, $xmlContent = "", $unlinkLocalFile = true, $srcBucket = FALSE) {
     if (is_numeric(strpos($dsID, chr(92)))) {
       $dsID = substr($dsID, strrpos($dsID, chr(92)) + 1);
     }

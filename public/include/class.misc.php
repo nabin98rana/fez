@@ -5216,11 +5216,12 @@ public static function multi_implode($glue, $pieces)
   public static function getFileTmpPath($sourceFile) {
     $wflDir = WorkflowStatusStatic::getWorkflowSubDir();
 
-    if (!is_dir(APP_TEMP_DIR . $wflDir)) {
-      mkdir(APP_TEMP_DIR . $wflDir);
+    $fullWflDir = APP_TEMP_DIR . $wflDir;
+    if (!is_dir($fullWflDir)) {
+      mkdir($fullWflDir);
     }
 
-    $tmpPath = APP_TEMP_DIR . $wflDir . $sourceFile;
+    $tmpPath = $fullWflDir . $sourceFile;
     return $tmpPath;
   }
 
