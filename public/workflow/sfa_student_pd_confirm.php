@@ -57,7 +57,7 @@ $thesis_office_email = "lib-sbs-lodge@library.uq.edu.au";
 
 // Set background process for sending email confirmation
 $bgp = new Fez_BackgroundProcess_Sfa_ConfirmEmail();
-$bgp->register(serialize(compact('pid', 'subject', 'thesis_office_email')), Auth::getUserID(), $this->id);
+$bgp->register(serialize(compact('pid', 'subject', 'thesis_office_email')), Auth::getUserID(), $wfstatus->id);
 
 
 // Utilising Fez_Workflow_Sfa_Confirm class to produce a clean metadata that we can use on the template
