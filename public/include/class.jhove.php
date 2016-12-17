@@ -103,23 +103,23 @@ class Jhove_Helper
 
     }
     if (trim($file_dir) == "") {
-      $file_dir = APP_JHOVE_TEMP_DIR;
+      $file_dir = Misc::getFileTmpPath();
     }
     if ((!(is_numeric(strpos($file, "&")))) && (!(is_numeric(strpos($file, "|"))))) { // check for command hax
       if (is_numeric(strrpos($file, '.'))) {
-        $presmd_file = APP_JHOVE_TEMP_DIR . 'presmd_' . Foxml::makeNCName(substr($file, 0, strrpos($file, '.'))) . '.xml';
+        $presmd_file = Misc::getFileTmpPath('presmd_' . Foxml::makeNCName(substr($file, 0, strrpos($file, '.'))) . '.xml');
       } else {
-        $presmd_file = APP_JHOVE_TEMP_DIR . 'presmd_' . Foxml::makeNCName($file) . '.xml';
+        $presmd_file = Misc::getFileTmpPath('presmd_' . Foxml::makeNCName($file) . '.xml');
       }
       if (is_file($presmd_file)) { // if already exists, delete it
         unlink($presmd_file);
       }
       $full_file = $file_dir . '/' . $file;
       if (is_numeric(strpos($full_file, " "))) {
-        $newfile = Foxml::makeNCName($file);
+        $newfile = Misc::getFileTmpPath(Foxml::makeNCName($file));
 
-        copy($full_file, APP_TEMP_DIR . $newfile);
-        $full_file = APP_TEMP_DIR . $newfile;
+        copy($full_file, $newfile);
+        $full_file = $newfile;
       }
       if (!stristr(PHP_OS, 'win') || stristr(PHP_OS, 'darwin')) { // Not Windows Server
         $unix_extra = " 2>&1";

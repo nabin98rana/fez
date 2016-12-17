@@ -59,8 +59,8 @@ class Datastream
       } else {
         $newFileName = $newFile;
       }
-      $deleteFile = APP_TEMP_DIR . $newFile;
-      $newFile = APP_TEMP_DIR . $newFile;
+      $deleteFile = Misc::getFileTmpPath($newFile);
+      $newFile = $deleteFile;
       if (file_exists($newFile)) {
         $mimetype = Misc::mime_content_type($newFile);
         $versionable = APP_VERSION_UPLOADS_AND_LINKS == "ON" ? 'true' : 'false';

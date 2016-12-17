@@ -5207,6 +5207,23 @@ public static function multi_implode($glue, $pieces)
     }
   }
 
+  /**
+   * A centralised function to gets the temporary file path, adding in workflow id if inside one
+   *
+   * @param string $sourceFile
+   * @return string
+   */
+  public static function getFileTmpPath($sourceFile) {
+    $wflDir = WorkflowStatusStatic::getWorkflowSubDir();
+
+    $fullWflDir = APP_TEMP_DIR . $wflDir;
+    if (!is_dir($fullWflDir)) {
+      mkdir($fullWflDir);
+    }
+
+    $tmpPath = $fullWflDir . $sourceFile;
+    return $tmpPath;
+  }
 
 } // end of Misc class
 

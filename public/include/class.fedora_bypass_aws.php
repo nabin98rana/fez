@@ -252,7 +252,7 @@ class Fedora_API implements FedoraApiInterface {
     $loc_dir = '';
 
     if (!is_numeric(strpos($dsIDName, "/"))) {
-      $loc_dir = APP_TEMP_DIR;
+      $loc_dir = Misc::getFileTmpPath();
     }
 
     $file_full = '';
@@ -333,7 +333,7 @@ class Fedora_API implements FedoraApiInterface {
    * @param bool|string $srcBucket
    * @return integer
    */
-  public static function callAddDatastream($pid, $dsID, $dsLocation, $dsLabel, $dsState, $mimetype, $controlGroup = 'M', $versionable = FALSE, $xmlContent = "", $unlinkLocalFile = FALSE, $srcBucket = FALSE) {
+  public static function callAddDatastream($pid, $dsID, $dsLocation, $dsLabel, $dsState, $mimetype, $controlGroup = 'M', $versionable = FALSE, $xmlContent = "", $unlinkLocalFile = true, $srcBucket = FALSE) {
     if (is_numeric(strpos($dsID, chr(92)))) {
       $dsID = substr($dsID, strrpos($dsID, chr(92)) + 1);
     }
@@ -346,8 +346,8 @@ class Fedora_API implements FedoraApiInterface {
     if (stripos($dsID, 'FezACML_') === 0) {
       $isFezACML = TRUE;
     }
-
-    if (stripos($dsLocation, APP_TEMP_DIR) === 0) {
+    $tmpPath = Misc::getFileTmpPath();
+    if (stripos($dsLocation, $tmpPath) === 0) {
       $obj = $aws->postFile($dataPath, [$dsLocation], FALSE, $mimetype);
       if ($obj) {
         $obj = $obj[0];
@@ -668,7 +668,7 @@ class Fedora_API implements FedoraApiInterface {
    */
   public static function callModifyDatastreamByValue($pid, $dsID, $state, $label, $dsContent, $mimetype = 'text/xml', $versionable = 'inherit') {
     $log = FezLog::get();
-    $tempFile = APP_TEMP_DIR . $dsID;
+    $tempFile = Misc::getFileTmpPath($dsID);
     $fp = fopen($tempFile, "w");
     if (fwrite($fp, $dsContent) === FALSE) {
       $err = "Cannot write to file ($tempFile)";

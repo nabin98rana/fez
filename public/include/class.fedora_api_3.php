@@ -298,7 +298,7 @@ class Fedora_API {
 
     $getString = APP_BASE_FEDORA_APIM_DOMAIN . "/objects/" . $pid . "?format=info:fedora/fedora-system:FOXML-1.0";
 
-    $tempFile = APP_TEMP_DIR . str_replace(":", "_", $pid) . ".xml";
+    $tempFile = Misc::getFileTmpPath(str_replace(":", "_", $pid) . ".xml");
 //				$tempFile = "php://temp";
 
     $fp = fopen($tempFile, "w"); //@@@ CK - 28/7/2005 - Trying to make the file name in /tmp the uploaded file name
@@ -592,7 +592,7 @@ class Fedora_API {
     $log = FezLog::get();
 
     if (!is_numeric(strpos($local_file_location, "/"))) {
-      $local_file_location = APP_TEMP_DIR . $local_file_location;
+      $local_file_location = Misc::getFileTmpPath($local_file_location);
     }
     if ($mimetype == "") {
       $mimetype = Misc::mime_content_type($local_file_location);
@@ -711,10 +711,10 @@ class Fedora_API {
       curl_setopt($ch, CURLOPT_POST, 1);
       if ($controlGroup == 'X') {
         $xmlContent = Fedora_API::tidyXML($xmlContent);
-        $tempFile = APP_TEMP_DIR . str_replace(":", "_", $pid) . "_" . $dsID . ".xml";
+        $tempFile = Misc::getFileTmpPath(str_replace(":", "_", $pid) . "_" . $dsID . ".xml");
       }
       else {
-        $tempFile = APP_TEMP_DIR . $dsID;
+        $tempFile = Misc::getFileTmpPath($dsID);
       }
       $fp = fopen($tempFile, "w");
       if (fwrite($fp, $xmlContent) === FALSE) {
@@ -840,7 +840,7 @@ class Fedora_API {
       curl_setopt($ch, CURLOPT_URL, $getString);
 
       $xmlContent = Fedora_API::tidyXML($xmlContent);
-      $tempFile = APP_TEMP_DIR . str_replace(":", "_", $pid) . "_" . $dsID . ".xml";
+      $tempFile = Misc::getFileTmpPath(str_replace(":", "_", $pid) . "_" . $dsID . ".xml");
       $fp = fopen($tempFile, "w");
       if (fwrite($fp, $xmlContent) === FALSE) {
         $err = "Cannot write to file ($tempFile)";

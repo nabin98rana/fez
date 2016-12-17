@@ -31,9 +31,10 @@
 // |          Lachlan Kuhn <l.kuhn@library.uq.edu.au>,                    |
 // |          Rhys Palmer <r.rpalmer@library.uq.edu.au>                   |
 // +----------------------------------------------------------------------+
- 
+
 include_once(APP_INC_PATH. 'class.auth.php');
 include_once(APP_INC_PATH . "class.bgp_index_object.php");
+include_once(APP_INC_PATH. 'class.workflow_status.php');
 
 $pid = $this->pid;
 $rebuild = true;
@@ -42,6 +43,4 @@ $index_type = Reindex::INDEX_TYPE_REINDEX_OBJECTS;
 $inputs = compact('pid','index_type','rebuild', 'ignore_exif');
 $inputs_str = serialize($inputs);
 $bgp = new BackgroundProcess_Index_Object;
-$bgp->register($inputs_str, Auth::getUserID());
-
-?>
+$bgp->register($inputs_str, Auth::getUserID(), $this->id);

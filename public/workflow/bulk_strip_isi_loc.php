@@ -37,7 +37,7 @@ include_once(APP_INC_PATH. 'class.error_handler.php');
 
 $pids = $this->pids;
 
-if (!empty($pids) && is_array($pids)) { 
-    $bgp = new BackgroundProcess_Bulk_Strip_Isi_Loc; 
-    $bgp->register(serialize(compact('pids')), Auth::getUserID());
+if (!empty($pids) && is_array($pids)) {
+    $bgp = new BackgroundProcess_Bulk_Strip_Isi_Loc;
+    $bgp->register(serialize(compact('pids')), Auth::getUserID(), $this->id);
 }

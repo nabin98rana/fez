@@ -40,7 +40,7 @@ $author_name    = $this->getvar('author_name');
 $author_id      = $this->getvar('author_id');
 $pids           = $this->pids;
 
-$bgp = new BackgroundProcess_Bulk_Assign_Authorid; 
-$bgp->register(serialize(compact('pids', 'author_name', 'author_id')), Auth::getUserID());
+$bgp = new BackgroundProcess_Bulk_Assign_Authorid;
+$bgp->register(serialize(compact('pids', 'author_name', 'author_id')), Auth::getUserID(), $this->id);
 
 ?>

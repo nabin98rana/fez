@@ -47,7 +47,7 @@ $filename = $dsIDName;
 if ((is_numeric(strpos($filename, "/"))) || (is_numeric(strpos($filename, "\\")))) {
   $filepath = $filename;
 } else {
-  $filepath = APP_TEMP_DIR . $filename;
+  $filepath = Misc::getFileTmpPath($filename);
 }
 
 if (!file_exists($filepath)) {
@@ -82,10 +82,10 @@ if (!file_exists($filepath)) {
       Fedora_API::callPurgeDatastream($pid, $new_file);
     }
     $dsIDName = $new_file;
-    $delete_file = APP_TEMP_DIR . $new_file;
-    $new_file = APP_TEMP_DIR . $new_file;
+    $delete_file = Misc::getFileTmpPath($new_file);
+    $new_file = Misc::getFileTmpPath($new_file);
     if (file_exists($new_file)) {
-      Fedora_API::getUploadLocationByLocalRef($pid, $new_file, $new_file, $new_file, 'video/x-flv', 'M');
+      Fedora_API::getUploadLocationByLocalRef($pid, $dsIDName, $new_file, $dsIDName, 'video/x-flv', 'M');
       Exiftool::saveExif($pid, $dsIDName);
       if (is_file($new_file)) {
         $deleteCommand = APP_DELETE_CMD . " " . $delete_file;

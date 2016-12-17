@@ -358,8 +358,8 @@ class RecordObject extends RecordGeneral
 
             Fedora_API::getUploadLocationByLocalRef($this->pid, $new_dsID, $resourceDataLocation, $label, $mimeDataType,"M",null,true);
             array_push($fileNames, $new_dsID);
-            $tmpFile = APP_TEMP_DIR . $new_dsID;
-            rename($resourceDataLocation, $tmpFile);
+            $tmpFile = Misc::getFileTmpPath($new_dsID);
+//            rename($resourceDataLocation, $tmpFile);
 
             Record::generatePresmd($this->pid, $new_dsID);
           }
@@ -406,11 +406,8 @@ class RecordObject extends RecordGeneral
       // now process the ingest triggers now that file_attachment_name etc has been saved into the search keys
       if (count($tmpFilesArray) > 0) {
         for ($i = 0; $i < $numFiles; $i++) {
-          $tmpFile = APP_TEMP_DIR . $fileNames[$i];
+          $tmpFile = Misc::getFileTmpPath($fileNames[$i]);
           $resourceDataLocation = $resourceData[$resourceDataKeys[0]][$i];
-          if (! is_file($resourceDataLocation)) {
-            continue;
-          }
           Workflow::processIngestTrigger($this->pid, $fileNames[$i], $mimeDataType);
           if (is_file($tmpFile)) {
             unlink($tmpFile);
@@ -600,7 +597,8 @@ class RecordObject extends RecordGeneral
 
         // first extract the image and save temporary copy
         if (APP_FEDORA_BYPASS == 'ON') {
-          $tmpPth = APP_TEMP_DIR . $dsIDName;
+
+          $tmpPth = Misc::getFileTmpPath($dsIDName);
           $fhfs = fopen($tmpPth, 'ab');
           $fileContent = Fedora_API::callGetDatastreamDissemination($pid, $dsIDName);
           fwrite($fhfs, $fileContent['stream']);
@@ -609,7 +607,7 @@ class RecordObject extends RecordGeneral
 
         } else {
           $urldata = APP_FEDORA_GET_URL . "/" . $pid . "/" . $dsIDName;
-          $handle = fopen(APP_TEMP_DIR . $dsIDName, "w");
+          $handle = fopen(Misc::getFileTmpPath($dsIDName), "w");
           Misc::processURL($urldata, false, $handle);
           fclose($handle);
           if ($new_dsID != $dsIDName) {
@@ -618,7 +616,7 @@ class RecordObject extends RecordGeneral
             Fedora_API::callPurgeDatastream($pid, $dsIDName);
           }
           $versionable = APP_VERSION_UPLOADS_AND_LINKS == "ON" ? 'true' : 'false';
-          Fedora_API::getUploadLocationByLocalRef($pid, $new_dsID, APP_TEMP_DIR . $dsIDName, $dsIDName,
+          Fedora_API::getUploadLocationByLocalRef($pid, $new_dsID, Misc::getFileTmpPath($dsIDName), $dsIDName,
               $dsTitle['MIMEType'], "M", null, $versionable);
 
         }
@@ -646,8 +644,8 @@ class RecordObject extends RecordGeneral
         // process it's ingest workflows
         Workflow::processIngestTrigger($pid, $dsIDName, $dsTitle['MIMEType']);
         //clear the managed content file temporarily saved in the APP_TEMP_DIR
-        if (is_file(APP_TEMP_DIR . $dsIDName)) {
-          $deleteCommand = APP_DELETE_CMD . " " . APP_TEMP_DIR . $dsTitle['ID'];
+        if (is_file(Misc::getFileTmpPath($dsIDName))) {
+          $deleteCommand = APP_DELETE_CMD . " " . Misc::getFileTmpPath($dsTitle['ID']);
           exec($deleteCommand);
         }
       }

@@ -865,7 +865,7 @@ class FeatureContext extends MinkContext
     if ($pid) {
       $fileName = 'test.pdf';
       $file = APP_PATH . '../tests/application/data/' . $fileName;
-      $tempFile = APP_TEMP_DIR . $fileName;
+      $tempFile = Misc::getFileTmpPath($fileName);
       copy($file, $tempFile);
       BatchImport::handleStandardFileImport($pid, $tempFile, $fileName, 0, true);
       unlink($tempFile);

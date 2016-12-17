@@ -34,18 +34,14 @@ class bookReaderPDFConverter
   public function setSource($pid, $sourceFile, $altFilename = null)
   {
     $sourceFile = trim($sourceFile);
-
     //Is the source file on the filesystem or do we need to download it?
     if (strstr($sourceFile, 'http://') || strstr($sourceFile, 'https://')) {
       $this->sourceFilePath = $this->getURLSource($sourceFile);
 
     } else {
       if ($this->useS3) {
-        $tmpPth = APP_TEMP_DIR . $sourceFile;
-        $fhfs = fopen($tmpPth, 'ab');
-        $fileContent = Fedora_API::callGetDatastreamDissemination($pid, $sourceFile);
-        fwrite($fhfs, $fileContent['stream']);
-        fclose($fhfs);
+        $tmpPth = Misc::getFileTmpPath($sourceFile);
+        BatchImport::getFileContent($sourceFile, $tmpPth, false);
         $this->sourceFilePath = $tmpPth;
       } else {
         $this->sourceFilePath = $sourceFile;
@@ -62,7 +58,7 @@ class bookReaderPDFConverter
     }
     //If this is to store in s3, save to a temp folder mirroring the non-s3 path
     if ($this->useS3) {
-      $this->bookreaderDataPath = APP_TEMP_DIR . $pid . '/' . $this->sourceFileStat['filename'];
+      $this->bookreaderDataPath = Misc::getFileTmpPath($pid . '/' . $this->sourceFileStat['filename']);
       $s3Prefix = '';
       if (defined('AWS_S3_SRC_PREFIX') && !empty(AWS_S3_SRC_PREFIX)) {
         $s3Prefix = AWS_S3_SRC_PREFIX . '/';
@@ -173,7 +169,7 @@ class bookReaderPDFConverter
     if ($fhurl == false) {
       return false;
     }
-    $tmpPth = APP_TEMP_DIR . $parts['basename'];
+    $tmpPth = Misc::getFileTmpPath($parts['basename']);
     $fhfs = fopen($tmpPth, 'ab');
 
     while (!feof($fhurl)) {
@@ -223,7 +219,7 @@ class bookReaderPDFConverter
       }
 
       //Delete the tmp source file if there is one.
-      if (strstr($this->sourceFilePath, APP_TEMP_DIR)) {
+      if (strstr($this->sourceFilePath, Misc::getFileTmpPath())) {
         unlink($this->sourceFilePath);
       }
     } else {

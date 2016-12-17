@@ -4,14 +4,12 @@
 {if $editorCondensedView != 'yes'}
 <div id="footer">
 	<div class="wrapper">
-		
+
 		<div id="siteinfo" class="vcard">
 			<div class="org fn"><a href="http://www.uq.edu.au/">The University of Queensland</a></div>
 			<address id="uq-address" class="adr"><span class="street-address">Brisbane</span>
 			<span class="locality">St Lucia</span>, <span class="region">QLD</span> <span class="postal-code">4072</span></address>
 			<div class="tel">+61 7 3365 1111</div>
-            <br />
-			<div class="campus">Other Campuses: <a href="http://www.uq.edu.au/ipswich/">UQ Ipswich</a>, <br /><a href="http://www.uq.edu.au/gatton/">UQ Gatton</a>, <a href="http://www.uq.edu.au/about/herston-campus">UQ Herston</a></div>
             <br />
 			<div class="directions"><a href="http://www.uq.edu.au/maps/">Maps and Directions</a></div>
 			<div id="copyright" class="copyright">&copy; {'Y'|date} <a title="{$smarty.const.APP_NAME}" href="{$rel_url}">{$smarty.const.APP_NAME}</a></div>
@@ -51,7 +49,7 @@
 
                 <ul class="social-links">
                     <li class="icon-facebook"><a href="https://www.facebook.com/uniofqld">Facebook</a></li>
-                    <li class="icon-twitter"><a href="http://twitter.com/uqnewsonline">Twitter</a></li>
+                    <li class="icon-twitter"><a href="http://twitter.com/UQ_News">Twitter</a></li>
                     <li class="icon-flickr"><a href="http://www.flickr.com/photos/uqnews/sets/">Flickr</a></li>
                     <li class="icon-instagram"><a href="http://instagram.com/uniofqld">Instagram</a></li>
                     <li class="icon-youtube"><a href="https://www.youtube.com/universityqueensland">YouTube</a></li>
@@ -84,9 +82,9 @@
 		</div>
 
 		<div id="powered-by">Powered by <a title="Fez website" href="http://fez.library.uq.edu.au/" onclick="javascript:window.open('http://fez.library.uq.edu.au/'); return false;">Fez {$application_version} Software</a> &bull; <a href="{$rel_url}about">Contact us</a> &bull; <a href="{$rel_url}faq">Help</a>
-	
+
 			<div>Page generated in <!--fez:totaltime-->{$benchmark_total}<!--/fez:totaltime--> seconds {if $solr_query_time}({section name="i" loop=$solr_query_time}{if $isAdministrator}<a href="{$solr_query_string[i]}">{/if}{$solr_query_time[i]} ms{if $isAdministrator}</a>{/if} {/section}search){/if} {if $total_queries}({$total_queries} queries{if $total_elapsed_secs} taking {$total_elapsed_secs} seconds{/if}){/if} on {$generated_time}</div>
-		
+
 		</div>
 
 	</div>
