@@ -1,6 +1,7 @@
 <?php
 
 include_once(dirname(dirname(__FILE__)) . DIRECTORY_SEPARATOR . "config.inc.php");
+include_once(APP_INC_PATH . "class.batchimport.php");
 include_once(APP_INC_PATH . "class.filecache.php");
 include_once(APP_INC_PATH . "class.dsresource.php");
 include_once(APP_INC_PATH . "class.datastream.php");
@@ -41,7 +42,7 @@ class bookReaderPDFConverter
     } else {
       if ($this->useS3) {
         $tmpPth = Misc::getFileTmpPath($sourceFile);
-        BatchImport::getFileContent($sourceFile, $tmpPth, false);
+        BatchImport::getFileContent(Fedora_API::getDataPath($pid) . '/' . $sourceFile, $tmpPth, false);
         $this->sourceFilePath = $tmpPth;
       } else {
         $this->sourceFilePath = $sourceFile;
