@@ -724,10 +724,20 @@ class RecordGeneral
             $searchKeyData = $this->_buildRecordSearchKeyData($search_keys, $values);
 
             // Build history message
-            $historyMsg = "Updated PID '". $this->pid ."' search key values.";
+            $historyDetail = "";
+            foreach ($search_keys as $key => $sekTitle) {
+                if ($historyDetail != "") {
+                    $historyDetail .= ", ";
+                }
+                $historyDetail .= $sekTitle . ": " . $values[$key];
+            }
+            $historyDetail .= " " . $history;
 
             $recordSearchKey = new Fez_Record_Searchkey();
-            $result = $recordSearchKey->updateRecord($this->pid, $searchKeyData, $historyMsg);
+            $result = $recordSearchKey->updateRecord($this->pid, $searchKeyData, $historyDetail);
+
+
+            History::addHistory($this->pid, null, "", "", true, $historyDetail);
 
             return $result;
 
