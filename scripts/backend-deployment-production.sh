@@ -1,7 +1,8 @@
 #!/bin/bash
 #
 # This script is run by Codeship to send an SQS message to deploy the app to production.
-# It expects CI_COMMIT_ID, SQS_URL, NEWRELIC_LICENSE and the AWS credentials to be available in the env.
+# It expects CI_COMMIT_ID, CI_COMMITTER_USERNAME, CI_MESSAGE, SERVICE_NAME, GIT_REPO_URL, 
+# SQS_URL, NEWRELIC_LICENSE and the AWS credentials to be available in the env.
 #
 
 BASE_DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )/../" && pwd )
@@ -11,8 +12,10 @@ SQS_MESSAGE=$(<${BASE_DIR}/.docker/production/aws-task-definition.json)
 SQS_MESSAGE="${SQS_MESSAGE//\<COMMIT_HASH\>/${CI_COMMIT_ID}}"
 SQS_MESSAGE="${SQS_MESSAGE//\<NEWRELIC_LICENSE\>/${NEWRELIC_LICENSE}}"
 SQS_MESSAGE="${SQS_MESSAGE/\<WEBCRON_TOKEN\>/${WEBCRON_TOKEN}}"
-SQS_MESSAGE_ATTRIBUTES='{"service": { "StringValue": "fezproduction", "DataType": "String" }, "commit_url": { "StringValue": "https://github.com/uqlibrary/fez/commit/<COMMIT_HASH>", "DataType": "String" } }'
+SQS_MESSAGE_ATTRIBUTES='{"service": { "StringValue": "fezproduction", "DataType": "String" }, "commit_url": { "StringValue": "https://github.com/uqlibrary/fez/commit/<COMMIT_HASH>", "DataType": "String" }, "committer": { "StringValue": "<COMMITTER>", "DataType": "String" }, "commit_msg": { "StringValue": "<COMMIT_MSG>", "DataType": "String" } }'
 SQS_MESSAGE_ATTRIBUTES="${SQS_MESSAGE_ATTRIBUTES//\<COMMIT_HASH\>/${CI_COMMIT_ID}}"
+SQS_MESSAGE_ATTRIBUTES="${SQS_MESSAGE_ATTRIBUTES//\<COMMITTER\>/${CI_COMMITTER_USERNAME}}"
+SQS_MESSAGE_ATTRIBUTES="${SQS_MESSAGE_ATTRIBUTES//\<COMMIT_MSG\>/${CI_MESSAGE}}"
 
 aws sqs send-message \
   --queue-url ${SQS_URL} \
@@ -23,8 +26,10 @@ SQS_MESSAGE=$(<${BASE_DIR}/.docker/production/aws-task-definition-bgp.json)
 SQS_MESSAGE="${SQS_MESSAGE//\<COMMIT_HASH\>/${CI_COMMIT_ID}}"
 SQS_MESSAGE="${SQS_MESSAGE//\<NEWRELIC_LICENSE\>/${NEWRELIC_LICENSE}}"
 SQS_MESSAGE="${SQS_MESSAGE/\<WEBCRON_TOKEN\>/${WEBCRON_TOKEN}}"
-SQS_MESSAGE_ATTRIBUTES='{"service": { "StringValue": "false", "DataType": "String" }, "commit_url": { "StringValue": "https://github.com/uqlibrary/fez/commit/<COMMIT_HASH>", "DataType": "String" } }'
+SQS_MESSAGE_ATTRIBUTES='{"service": { "StringValue": "false", "DataType": "String" }, "commit_url": { "StringValue": "https://github.com/uqlibrary/fez/commit/<COMMIT_HASH>", "DataType": "String" }, "committer": { "StringValue": "<COMMITTER>", "DataType": "String" }, "commit_msg": { "StringValue": "<COMMIT_MSG>", "DataType": "String" } }'
 SQS_MESSAGE_ATTRIBUTES="${SQS_MESSAGE_ATTRIBUTES//\<COMMIT_HASH\>/${CI_COMMIT_ID}}"
+SQS_MESSAGE_ATTRIBUTES="${SQS_MESSAGE_ATTRIBUTES//\<COMMITTER\>/${CI_COMMITTER_USERNAME}}"
+SQS_MESSAGE_ATTRIBUTES="${SQS_MESSAGE_ATTRIBUTES//\<COMMIT_MSG\>/${CI_MESSAGE}}"
 
 aws sqs send-message \
   --queue-url ${SQS_URL} \
