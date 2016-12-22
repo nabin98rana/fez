@@ -650,7 +650,7 @@ class FulltextIndex_ElasticSearch extends FulltextIndex
         }
       }
     }
-
+    $this->forceCommit();
     if ($this->bgp) {
       $this->bgp->setStatus("Processing any PIDS to delete from solr");
     }
