@@ -32,91 +32,94 @@
 // |          Rhys Palmer <r.rpalmer@library.uq.edu.au>                   |
 // +----------------------------------------------------------------------+
 
-include_once(APP_INC_PATH.'class.background_process.php');
+include_once(APP_INC_PATH . 'class.background_process.php');
+include_once(APP_INC_PATH . "class.fulltext_queue.php");
 
 class BackgroundProcess_Bulk_Change_Search_Key extends BackgroundProcess
 {
-	function __construct()
-	{
-		parent::__construct();
-		$this->include = 'class.bgp_bulk_change_search_key.php';
-		$this->name = 'Bulk Change Search Key Values';
-	}
+  function __construct()
+  {
+    parent::__construct();
+    $this->include = 'class.bgp_bulk_change_search_key.php';
+    $this->name = 'Bulk Change Search Key Values';
+  }
 
-	function run()
-	{
-		$this->setState(BGP_RUNNING);
-		extract(unserialize($this->inputs));
+  function run()
+  {
+    $this->setState(BGP_RUNNING);
+    extract(unserialize($this->inputs));
 
-        $this->setStatus("Starting ".$this->name." with parameters ".print_r(unserialize($this->inputs), true));
+    $this->setStatus("Starting " . $this->name . " with parameters " . print_r(unserialize($this->inputs), true));
 
-		if (!empty($options)) {
-			$this->setStatus("Running search");
-			$pids = $this->getPidsFromSearchBGP($options);
-			$this->setStatus("Found ".count($pids). " records");
-		}
+    if (!empty($options)) {
+      $this->setStatus("Running search");
+      $pids = $this->getPidsFromSearchBGP($options);
+      $this->setStatus("Found " . count($pids) . " records");
+    }
 
-		/*
-		 * Changes pids search keys to value
-		 */
-		if (!empty($pids) && is_array($pids) && !empty($sek_id) && !empty($sek_value)) {
+    /*
+     * Changes pids search keys to value
+     */
+    if (!empty($pids) && is_array($pids) && !empty($sek_id) && !empty($sek_value)) {
 
-            $this->setStatus("Changing ". count($pids) ." Records search key ". $sek_id ." to ". $sek_value);
+      $this->setStatus("Changing " . count($pids) . " Records search key " . $sek_id . " to " . $sek_value);
 
-            $sk = new Search_Key();
-            $sekDetails = $sk->getDetails($sek_id);
-            $history = "changed ".$sekDetails['sek_title']." (".$sek_id.") to ".$sek_value." ".$history;
-            $search_keys = array($sekDetails['sek_title']);
-            $values = array($sek_value);
+      $sk = new Search_Key();
+      $sekDetails = $sk->getDetails($sek_id);
+      $history = "changed " . $sekDetails['sek_title'] . " (" . $sek_id . ") to " . $sek_value . " " . $history;
+      $search_keys = array($sekDetails['sek_title']);
+      $values = array($sek_value);
 
-            $record_counter = 0;
-            $record_count = count($pids);
+      $record_counter = 0;
+      $record_count = count($pids);
 
-            // Get the configurations for ETA calculation
-            $eta_cfg = $this->getETAConfig();
+      // Get the configurations for ETA calculation
+      $eta_cfg = $this->getETAConfig();
 
-			foreach ($pids as $pid) {
-                $record_counter++;
+      foreach ($pids as $pid) {
+        $record_counter++;
 
-                $this->setHeartbeat();
-                $this->setProgress(++$this->pid_count);
+        $this->setHeartbeat();
+        $this->setProgress(++$this->pid_count);
 
-                // Get the ETA calculations
-                $eta = $this->getETA($record_counter, $record_count, $eta_cfg);
+        // Get the ETA calculations
+        $eta = $this->getETA($record_counter, $record_count, $eta_cfg);
 
-                $this->setProgress($eta['progress']);
-                $this->setStatus( "Changing:  '" . $pid . "' " .
-                                          "(" . $record_counter . "/" . $record_count . ") <br />".
-                                          "(Avg " . $eta['time_per_object'] . "s per Object. " .
-                                            "Expected Finish " . $eta['expected_finish'] . ")"
-                                        );
+        $this->setProgress($eta['progress']);
+        $this->setStatus("Changing:  '" . $pid . "' " .
+            "(" . $record_counter . "/" . $record_count . ") <br />" .
+            "(Avg " . $eta['time_per_object'] . "s per Object. " .
+            "Expected Finish " . $eta['expected_finish'] . ")"
+        );
 
-				$record = new RecordObject($pid);
-				if ($record->canEdit()) {
-					// TODO: Update search key function here
+        $record = new RecordObject($pid);
+        if ($record->canEdit()) {
+          // TODO: Update search key function here
 
-					$record->addSearchKeyValueList($search_keys, $values, true, $history);
-						
-					$this->setStatus("Changed '".$pid."'");
-					$this->pid_count++;
-				} else {
-					$this->setStatus("Skipped '".$pid."'. User can't edit this record");
-				}
-				 
-				$this->markPidAsFinished($pid);
-			}
+          $record->addSearchKeyValueList($search_keys, $values, true, $history);
 
-            $this->setProgress(100);
-			$this->setStatus("Finished Bulk Change Search Key");
+          $this->setStatus("Changed '" . $pid . "'");
+          $this->pid_count++;
+        } else {
+          $this->setStatus("Skipped '" . $pid . "'. User can't edit this record");
+        }
 
-		}
-		$this->setState(BGP_FINISHED);
-	}
+        $this->markPidAsFinished($pid);
+      }
+      FulltextQueue::singleton()->commit();
+      FulltextQueue::singleton()->triggerUpdate();
 
-	function getPidsFromSearchBGP($options)
-	{
-		$list = Record::getListing($options, array(9,10), 0, 'ALL', 'searchKey0');
-		$pids = array_keys(Misc::keyArray($list['list'],'rek_pid'));
-		return $pids;
-	}
+      $this->setProgress(100);
+      $this->setStatus("Finished Bulk Change Search Key");
+
+    }
+    $this->setState(BGP_FINISHED);
+  }
+
+  function getPidsFromSearchBGP($options)
+  {
+    $list = Record::getListing($options, array(9, 10), 0, 'ALL', 'searchKey0');
+    $pids = array_keys(Misc::keyArray($list['list'], 'rek_pid'));
+    return $pids;
+  }
 }
