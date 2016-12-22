@@ -736,9 +736,6 @@ class RecordGeneral
             $recordSearchKey = new Fez_Record_Searchkey();
             $result = $recordSearchKey->updateRecord($this->pid, $searchKeyData, $historyDetail);
 
-
-            History::addHistory($this->pid, null, "", "", true, $historyDetail);
-
             return $result;
 
         } else {
