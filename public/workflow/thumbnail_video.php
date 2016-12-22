@@ -45,7 +45,7 @@ $log = FezLog::get();
 if ((is_numeric(strpos($filename, "/"))) || (is_numeric(strpos($filename, "\\")))) {
   $filepath = $filename;
 } else {
-  $filepath = APP_TEMP_DIR . $filename;
+  $filepath = Misc::getFileTmpPath($filename);
 }
 
 if (!file_exists($filepath)) {
@@ -74,17 +74,17 @@ if (!file_exists($filepath)) {
     $new_file .= ".jpg";
   }
 
-  Video_Resample::takeThumbnail($new_file);
+  Video_Resample::takeThumbnail($filename);
 
   if (!empty($new_file)) {
     if (Fedora_API::datastreamExists($pid, $new_file)) {
       Fedora_API::callPurgeDatastream($pid, $new_file);
     }
     $new_file_name = $new_file;
-    $delete_file = APP_TEMP_DIR . $new_file;
-    $new_file = APP_TEMP_DIR . $new_file;
+    $delete_file = Misc::getFileTmpPath($new_file);
+    $new_file = Misc::getFileTmpPath($new_file);
     if (file_exists($new_file)) {
-      Fedora_API::getUploadLocationByLocalRef($pid, $new_file, $new_file, $new_file, 'image/x-jpg', 'M');
+      Fedora_API::getUploadLocationByLocalRef($pid, $new_file_name, $new_file, $new_file_name, 'image/x-jpg', 'M');
       Exiftool::saveExif($pid, $new_file_name);
       if (is_file($new_file)) {
         $deleteCommand = APP_DELETE_CMD . " " . $delete_file;

@@ -39,9 +39,9 @@ include_once(APP_INC_PATH. 'class.error_handler.php');
 $pids           = $this->pids;
 
 
-if (APP_HANDLE == "ON" && !empty($pids) && is_array($pids)) { 
-    $bgp = new BackgroundProcess_Bulk_Add_Handles; 
-    $bgp->register(serialize(compact('pids')), Auth::getUserID());
+if (APP_HANDLE == "ON" && !empty($pids) && is_array($pids)) {
+    $bgp = new BackgroundProcess_Bulk_Add_Handles;
+    $bgp->register(serialize(compact('pids')), Auth::getUserID(), $this->id);
 }
 
 ?>

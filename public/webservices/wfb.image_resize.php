@@ -49,14 +49,14 @@ $height = $_GET["height"]; //maximum height
 $copyright = $_GET["copyright"]; //the copyright message to add (if any)
 $watermark = $_GET["watermark"]; //"true" if the image is to be watermarked
 $ext = strtolower($_GET["ext"]); //the file type extension to convert the image to
-$outfile= $_GET["outfile"]; 
+$outfile= $_GET["outfile"];
 $image_dir = "";
 if (is_numeric(strpos($image, "/"))) {
 	$image_dir = substr($image, 0, strrpos($image, "/")+1);
 	$image = substr($image, strrpos($image, "/")+1);
-}	
+}
 
-if (trim($image_dir) == "") { $image_dir = APP_TEMP_DIR; }
+if (trim($image_dir) == "") { $image_dir = Misc::getFileTmpPath(); }
 
 // Strip existing extension, store in $temp_file.
 $ext_loc = strrpos($outfile, ".");
@@ -76,15 +76,15 @@ if(empty($temp_file)) {
   $error .= "<b>ERROR:</b> outfile: '" . htmlspecialchars($outfile) . "' not a valid name<br>";
 }
 
-// get image from an URL 
+// get image from an URL
 $is_url = false;
 if (preg_match('/^https?:\/\//',$image_dir.$image)) {
   // make a temporary local copy
   $is_url = true;
-  if(!is_file(APP_TEMP_DIR.$image)) {
-		file_put_contents(APP_TEMP_DIR.$image, file_get_contents($image_dir.$image));
+  if(!is_file(Misc::getFileTmpPath($image))) {
+		file_put_contents(Misc::getFileTmpPath($image), file_get_contents($image_dir.$image));
   }
-  $image_dir = APP_TEMP_DIR;
+  $image_dir = Misc::getFileTmpPath();
 }
 
 
@@ -112,7 +112,7 @@ if (!stristr(PHP_OS, 'win') || stristr(PHP_OS, 'darwin')) { // Not Windows Serve
 // Create the output file if it does not exist
 if ($watermark == "" && $copyright == "") {
 //	if(!is_file(APP_TEMP_DIR.$temp_file)) {
-	if(!is_file(APP_TEMP_DIR.$temp_file)) {
+	if(!is_file(Misc::getFileTmpPath($temp_file))) {
 		if (extension_loaded('imagick')) {
 			$im = new Imagick($image_dir.escapeshellcmd($image));
 			$im->setImageColorspace(1); // 1 = rgb
@@ -122,37 +122,37 @@ if ($watermark == "" && $copyright == "") {
 			}
 			$im->thumbnailImage($width, $height);
 			$im->stripImage();
-			$im->writeImage(APP_TEMP_DIR.escapeshellcmd($temp_file));
+			$im->writeImage(Misc::getFileTmpPath(escapeshellcmd($temp_file)));
 		} else {
-			$command = APP_CONVERT_CMD." -strip -quality ".escapeshellcmd($quality)." -resize \"".escapeshellcmd($width)."x".escapeshellcmd($height).">\" -colorspace rgb \"".$image_dir.escapeshellcmd($image)."\" ".APP_TEMP_DIR.escapeshellcmd($temp_file);
+			$command = APP_CONVERT_CMD." -strip -quality ".escapeshellcmd($quality)." -resize \"".escapeshellcmd($width)."x".escapeshellcmd($height).">\" -colorspace rgb \"".$image_dir.escapeshellcmd($image)."\" ".Misc::getFileTmpPath(escapeshellcmd($temp_file));
 			exec($command.$unix_extra, $return_array, $return_status);
 		}
 
-//		$error_message = shell_exec($command.$unix_extra);		
+//		$error_message = shell_exec($command.$unix_extra);
 	//	exec(escapeshellcmd($command));
-	} 
+	}
 } elseif ($watermark == "" && $copyright != "") {
-	$command = APP_CONVERT_CMD." -strip -quality ".escapeshellcmd($quality)." -resize \"".escapeshellcmd($width)."x".escapeshellcmd($height).">\" -colorspace rgb \"".$image_dir.escapeshellcmd($image)."\" ".APP_TEMP_DIR.escapeshellcmd($temp_file);
+	$command = APP_CONVERT_CMD." -strip -quality ".escapeshellcmd($quality)." -resize \"".escapeshellcmd($width)."x".escapeshellcmd($height).">\" -colorspace rgb \"".$image_dir.escapeshellcmd($image)."\" ".Misc::getFileTmpPath(escapeshellcmd($temp_file));
 	exec($command.$unix_extra, $return_array, $return_status);
-	$command = APP_CONVERT_CMD.' '.APP_TEMP_DIR.escapeshellcmd($temp_file).' -font Arial -pointsize 20 -draw "gravity center fill black text 0,12 \'Copyright'.$copyright.'\' fill white  text 1,11 \'Copyright'.$copyright.'\'" '.APP_TEMP_DIR.escapeshellcmd($temp_file).'';
+	$command = APP_CONVERT_CMD.' '.Misc::getFileTmpPath(escapeshellcmd($temp_file)).' -font Arial -pointsize 20 -draw "gravity center fill black text 0,12 \'Copyright'.$copyright.'\' fill white  text 1,11 \'Copyright'.$copyright.'\'" '.Misc::getFileTmpPath(escapeshellcmd($temp_file)).'';
 	exec($command.$unix_extra, $return_array, $return_status);
 } elseif ($watermark != "" && $copyright == "") {
-	$command = APP_CONVERT_CMD." -strip -quality ".escapeshellcmd($quality)." -resize \"".escapeshellcmd($width)."x".escapeshellcmd($height).">\" -colorspace rgb \"".$image_dir.escapeshellcmd($image)."\" ".APP_TEMP_DIR.escapeshellcmd($temp_file);
+	$command = APP_CONVERT_CMD." -strip -quality ".escapeshellcmd($quality)." -resize \"".escapeshellcmd($width)."x".escapeshellcmd($height).">\" -colorspace rgb \"".$image_dir.escapeshellcmd($image)."\" ".Misc::getFileTmpPath(escapeshellcmd($temp_file));
 	exec($command.$unix_extra, $return_array, $return_status);
-	$command = APP_COMPOSITE_CMD." -dissolve 15 -tile ".escapeshellcmd(APP_PATH)."/images/".APP_WATERMARK." ".APP_TEMP_DIR.escapeshellcmd($temp_file)." ".APP_TEMP_DIR.escapeshellcmd($temp_file)."";
+	$command = APP_COMPOSITE_CMD." -dissolve 15 -tile ".escapeshellcmd(APP_PATH)."/images/".APP_WATERMARK." ".Misc::getFileTmpPath(escapeshellcmd($temp_file))." ".Misc::getFileTmpPath(escapeshellcmd($temp_file))."";
 	exec($command.$unix_extra, $return_array, $return_status);
 } elseif ($watermark != "" && $copyright != "") {
-	$command = APP_CONVERT_CMD." -strip -quality ".escapeshellcmd($quality)." -resize \"".escapeshellcmd($width)."x".escapeshellcmd($height).">\" -colorspace rgb \"".$image_dir.escapeshellcmd($image)."\" ".APP_TEMP_DIR.escapeshellcmd($temp_file);
+	$command = APP_CONVERT_CMD." -strip -quality ".escapeshellcmd($quality)." -resize \"".escapeshellcmd($width)."x".escapeshellcmd($height).">\" -colorspace rgb \"".$image_dir.escapeshellcmd($image)."\" ".Misc::getFileTmpPath(escapeshellcmd($temp_file));
 	exec($command.$unix_extra, $return_array, $return_status);
-	$command = APP_CONVERT_CMD.' '.APP_TEMP_DIR.escapeshellcmd($temp_file).' -font Arial -pointsize 20 -draw "gravity center fill black text 0,12 \'Copyright'.$copyright.'\' fill white  text 1,11 \'Copyright'.$copyright.'\'" '.APP_TEMP_DIR.escapeshellcmd($temp_file).'';
+	$command = APP_CONVERT_CMD.' '.Misc::getFileTmpPath(escapeshellcmd($temp_file)).' -font Arial -pointsize 20 -draw "gravity center fill black text 0,12 \'Copyright'.$copyright.'\' fill white  text 1,11 \'Copyright'.$copyright.'\'" '.Misc::getFileTmpPath(escapeshellcmd($temp_file)).'';
 	exec($command.$unix_extra, $return_array, $return_status);
-	$command = APP_COMPOSITE_CMD." -dissolve 15 -tile ".escapeshellcmd(APP_PATH)."/images/".APP_WATERMARK." ".APP_TEMP_DIR.escapeshellcmd($temp_file)." ".APP_TEMP_DIR.escapeshellcmd($temp_file)."";
+	$command = APP_COMPOSITE_CMD." -dissolve 15 -tile ".escapeshellcmd(APP_PATH)."/images/".APP_WATERMARK." ".Misc::getFileTmpPath(escapeshellcmd($temp_file))." ".Misc::getFileTmpPath(escapeshellcmd($temp_file))."";
 	exec($command.$unix_extra, $return_array, $return_status);
 }
 
 //$log->err($command);
 //Error_Handler::logError("Image Magick Error: ".$error_message.", for command $command \n", __FILE__,__LINE__);
-if ($return_status <> 0) {	
+if ($return_status <> 0) {
 	//Error_Handler::logError("Image Magick Error: ".implode(",", $return_array).", return status = $return_status, for command $command$unix_extra \n", __FILE__,__LINE__);
 	$log->err(array('Message' => "Image Magick Error: ".implode(",", $return_array).", return status = $return_status, for command $command$unix_extra \n", 'File' => __FILE__, 'Line' => __LINE__));
 }

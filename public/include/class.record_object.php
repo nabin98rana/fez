@@ -259,6 +259,11 @@ class RecordObject extends RecordGeneral
       $xsdmf_id = XSD_HTML_Match::getXSDMF_IDBySekIDXDIS_ID(Search_Key::getID('Depositor'), $xdis_str);
       $xsd_display_fields[0]['depositor'] = array('xsdmf_id' => $xsdmf_id[0], 'xsdmf_value' => $depositor);
 
+      if (array_key_exists('collection_pid', $_POST) && !empty($_POST['collection_pid'])) {
+        $xsdmf_id = XSD_HTML_Match::getXSDMF_IDBySekIDXDIS_ID(Search_Key::getID('isMemberOf'), $xdis_str);
+        $xsd_display_fields[1]['ismemberof'] = array('xsdmf_id' => $xsdmf_id[0], 'xsdmf_value' => [$_POST['collection_pid']]);
+      }
+
       $updatedDate = Date_API::getCurrentDateGMT();
 
       if (empty($this->pid)) {
@@ -279,13 +284,30 @@ class RecordObject extends RecordGeneral
       $xsd_display_fields[0]['object_type'] = array('xsdmf_id' => $xsdmf_id[0], 'xsdmf_value' => $xdis_details['xdis_object_type']);
 
       // empty checkboxes don't get posted, so you need to manually set the value to save 'off' or it will never save or change from 'on' values
+      // and empty controlled vocabs don't get posted, so you need to manually remove the values
       foreach ($xsdmf_list as $xsdmf_key => $xsdmf_val) {
         if ($xsdmf_val['xsdmf_html_input'] == 'checkbox') {
           if (!empty($xsdmf_val['xsdmf_sek_id'])) {
             $sek_details = Search_Key::getBasicDetails($xsdmf_val['xsdmf_sek_id']);
-            if (array_key_exists('xdis_id', $_POST) && array_key_exists('xsd_display_fields', $_POST)
+            if (array_key_exists('xsd_display_fields', $_POST)
                 && !array_key_exists($xsdmf_val['xsdmf_id'], $_POST['xsd_display_fields'])) {
               $xsd_display_fields[$sek_details['sek_relationship']][$sek_details['sek_title_db']] = array('xsdmf_id' => $xsdmf_val['xsdmf_id'], 'xsdmf_value' => 'off');
+            }
+          }
+        }
+        if ($xsdmf_val['xsdmf_html_input'] == 'xsdmf_id_ref') {
+          if (!empty($xsdmf_val['xsdmf_id_ref'])) {
+            $xsdmf_details = XSD_HTML_Match::getDetailsByXSDMF_ID($xsdmf_val['xsdmf_id_ref']);
+            if ($xsdmf_details['xsdmf_html_input'] == 'contvocab_selector') {
+              $sek_details = Search_Key::getBasicDetails($xsdmf_val['xsdmf_sek_id']);
+              if (array_key_exists('xsd_display_fields', $_POST)
+                && !array_key_exists($xsdmf_details['xsdmf_id'], $_POST['xsd_display_fields'])
+              ) {
+                $xsd_display_fields[$sek_details['sek_relationship']][$sek_details['sek_title_db']] = array(
+                  'xsdmf_id' => $xsdmf_details['xsdmf_id'],
+                  'xsdmf_value' => ''
+                );
+              }
             }
           }
         }
@@ -336,8 +358,8 @@ class RecordObject extends RecordGeneral
 
             Fedora_API::getUploadLocationByLocalRef($this->pid, $new_dsID, $resourceDataLocation, $label, $mimeDataType,"M",null,true);
             array_push($fileNames, $new_dsID);
-            $tmpFile = APP_TEMP_DIR . $new_dsID;
-            rename($resourceDataLocation, $tmpFile);
+            $tmpFile = Misc::getFileTmpPath($new_dsID);
+//            rename($resourceDataLocation, $tmpFile);
 
             Record::generatePresmd($this->pid, $new_dsID);
           }
@@ -384,11 +406,8 @@ class RecordObject extends RecordGeneral
       // now process the ingest triggers now that file_attachment_name etc has been saved into the search keys
       if (count($tmpFilesArray) > 0) {
         for ($i = 0; $i < $numFiles; $i++) {
-          $tmpFile = APP_TEMP_DIR . $fileNames[$i];
+          $tmpFile = Misc::getFileTmpPath($fileNames[$i]);
           $resourceDataLocation = $resourceData[$resourceDataKeys[0]][$i];
-          if (! is_file($resourceDataLocation)) {
-            continue;
-          }
           Workflow::processIngestTrigger($this->pid, $fileNames[$i], $mimeDataType);
           if (is_file($tmpFile)) {
             unlink($tmpFile);
@@ -578,7 +597,8 @@ class RecordObject extends RecordGeneral
 
         // first extract the image and save temporary copy
         if (APP_FEDORA_BYPASS == 'ON') {
-          $tmpPth = APP_TEMP_DIR . $dsIDName;
+
+          $tmpPth = Misc::getFileTmpPath($dsIDName);
           $fhfs = fopen($tmpPth, 'ab');
           $fileContent = Fedora_API::callGetDatastreamDissemination($pid, $dsIDName);
           fwrite($fhfs, $fileContent['stream']);
@@ -587,7 +607,7 @@ class RecordObject extends RecordGeneral
 
         } else {
           $urldata = APP_FEDORA_GET_URL . "/" . $pid . "/" . $dsIDName;
-          $handle = fopen(APP_TEMP_DIR . $dsIDName, "w");
+          $handle = fopen(Misc::getFileTmpPath($dsIDName), "w");
           Misc::processURL($urldata, false, $handle);
           fclose($handle);
           if ($new_dsID != $dsIDName) {
@@ -596,7 +616,7 @@ class RecordObject extends RecordGeneral
             Fedora_API::callPurgeDatastream($pid, $dsIDName);
           }
           $versionable = APP_VERSION_UPLOADS_AND_LINKS == "ON" ? 'true' : 'false';
-          Fedora_API::getUploadLocationByLocalRef($pid, $new_dsID, APP_TEMP_DIR . $dsIDName, $dsIDName,
+          Fedora_API::getUploadLocationByLocalRef($pid, $new_dsID, Misc::getFileTmpPath($dsIDName), $dsIDName,
               $dsTitle['MIMEType'], "M", null, $versionable);
 
         }
@@ -624,8 +644,8 @@ class RecordObject extends RecordGeneral
         // process it's ingest workflows
         Workflow::processIngestTrigger($pid, $dsIDName, $dsTitle['MIMEType']);
         //clear the managed content file temporarily saved in the APP_TEMP_DIR
-        if (is_file(APP_TEMP_DIR . $dsIDName)) {
-          $deleteCommand = APP_DELETE_CMD . " " . APP_TEMP_DIR . $dsTitle['ID'];
+        if (is_file(Misc::getFileTmpPath($dsIDName))) {
+          $deleteCommand = APP_DELETE_CMD . " " . Misc::getFileTmpPath($dsTitle['ID']);
           exec($deleteCommand);
         }
       }

@@ -67,7 +67,7 @@ class Image_Resample
   {
     $real_dsID = $dsID;
     $urldata = APP_FEDORA_GET_URL . "/" . $pid . "/" . $real_dsID;
-    $tempDumpFileName = APP_TEMP_DIR . $real_dsID;
+    $tempDumpFileName = Misc::getFileTmpPath($real_dsID);
     $sourceOAI = fopen($urldata, "r");
     $sourceOAIRead = '';
     while ($tmp = fread($sourceOAI, 4096)) {
@@ -106,7 +106,7 @@ class Image_Resample
     }
 
     if (trim($image_dir) == "") {
-      $image_dir = APP_TEMP_DIR;
+      $image_dir = Misc::getFileTmpPath();
     }
 
 // Strip existing extension, store in $temp_file.
@@ -128,10 +128,10 @@ class Image_Resample
 
 // get image from an URL
     if (preg_match('/^https?:\/\//', $image_dir . $image)) {
-      if (!is_file(APP_TEMP_DIR . $image)) {
-        file_put_contents(APP_TEMP_DIR . $image, file_get_contents($image_dir . $image));
+      if (!is_file(Misc::getFileTmpPath($image))) {
+        file_put_contents(Misc::getFileTmpPath($image), file_get_contents($image_dir . $image));
       }
-      $image_dir = APP_TEMP_DIR;
+      $image_dir = Misc::getFileTmpPath();
     }
 
 
@@ -155,7 +155,7 @@ class Image_Resample
     }
 // Create the output file if it does not exist
     if ($watermark == "" && $copyright == "") {
-      if (!is_file(APP_TEMP_DIR . $temp_file)) {
+      if (!is_file(Misc::getFileTmpPath($temp_file))) {
         if (extension_loaded('imagick')) {
           $im = new Imagick($image_dir . escapeshellcmd($image));
           $im->setImageColorspace(1); // 1 = rgb
@@ -165,28 +165,28 @@ class Image_Resample
           }
           $im->thumbnailImage($width, $height);
           $im->stripImage();
-          $im->writeImage(APP_TEMP_DIR . escapeshellcmd($temp_file));
+          $im->writeImage(Misc::getFileTmpPath(escapeshellcmd($temp_file)));
         } else {
-          $command = APP_CONVERT_CMD . " -strip -quality " . escapeshellcmd($quality) . " -resize \"" . escapeshellcmd($width) . "x" . escapeshellcmd($height) . ">\" -colorspace rgb \"" . $image_dir . escapeshellcmd($image) . "\"[0] " . APP_TEMP_DIR . escapeshellcmd($temp_file);
+          $command = APP_CONVERT_CMD . " -strip -quality " . escapeshellcmd($quality) . " -resize \"" . escapeshellcmd($width) . "x" . escapeshellcmd($height) . ">\" -colorspace rgb \"" . $image_dir . escapeshellcmd($image) . "\"[0] " . Misc::getFileTmpPath(escapeshellcmd($temp_file));
           exec($command . $unix_extra, $return_array, $return_status);
         }
       }
     } elseif ($watermark == "" && $copyright != "") {
-      $command = APP_CONVERT_CMD . " -strip -quality " . escapeshellcmd($quality) . " -resize \"" . escapeshellcmd($width) . "x" . escapeshellcmd($height) . ">\" -colorspace rgb \"" . $image_dir . escapeshellcmd($image) . "\"[0] " . APP_TEMP_DIR . escapeshellcmd($temp_file);
+      $command = APP_CONVERT_CMD . " -strip -quality " . escapeshellcmd($quality) . " -resize \"" . escapeshellcmd($width) . "x" . escapeshellcmd($height) . ">\" -colorspace rgb \"" . $image_dir . escapeshellcmd($image) . "\"[0] " . Misc::getFileTmpPath(escapeshellcmd($temp_file));
       exec($command . $unix_extra, $return_array, $return_status);
-      $command = APP_CONVERT_CMD . ' ' . APP_TEMP_DIR . escapeshellcmd($temp_file) . ' -font Arial -pointsize 20 -draw "gravity center fill black text 0,12 \'Copyright' . $copyright . '\' fill white  text 1,11 \'Copyright' . $copyright . '\'" ' . APP_TEMP_DIR . escapeshellcmd($temp_file) . '';
+      $command = APP_CONVERT_CMD . ' ' . Misc::getFileTmpPath(escapeshellcmd($temp_file)) . ' -font Arial -pointsize 20 -draw "gravity center fill black text 0,12 \'Copyright' . $copyright . '\' fill white  text 1,11 \'Copyright' . $copyright . '\'" ' . Misc::getFileTmpPath(escapeshellcmd($temp_file)) . '';
       exec($command . $unix_extra, $return_array, $return_status);
     } elseif ($watermark != "" && $copyright == "") {
-      $command = APP_CONVERT_CMD . " -strip -quality " . escapeshellcmd($quality) . " -resize \"" . escapeshellcmd($width) . "x" . escapeshellcmd($height) . ">\" -colorspace rgb \"" . $image_dir . escapeshellcmd($image) . "\"[0] " . APP_TEMP_DIR . escapeshellcmd($temp_file);
+      $command = APP_CONVERT_CMD . " -strip -quality " . escapeshellcmd($quality) . " -resize \"" . escapeshellcmd($width) . "x" . escapeshellcmd($height) . ">\" -colorspace rgb \"" . $image_dir . escapeshellcmd($image) . "\"[0] " . Misc::getFileTmpPath(escapeshellcmd($temp_file));
       exec($command . $unix_extra, $return_array, $return_status);
-      $command = APP_COMPOSITE_CMD . " -dissolve 15 -tile " . escapeshellcmd(APP_PATH) . "/images/" . APP_WATERMARK . " " . APP_TEMP_DIR . escapeshellcmd($temp_file) . " " . APP_TEMP_DIR . escapeshellcmd($temp_file) . "";
+      $command = APP_COMPOSITE_CMD . " -dissolve 15 -tile " . escapeshellcmd(APP_PATH) . "/images/" . APP_WATERMARK . " " . Misc::getFileTmpPath(escapeshellcmd($temp_file)) . " " . Misc::getFileTmpPath(escapeshellcmd($temp_file)) . "";
       exec($command . $unix_extra, $return_array, $return_status);
     } elseif ($watermark != "" && $copyright != "") {
-      $command = APP_CONVERT_CMD . " -strip -quality " . escapeshellcmd($quality) . " -resize \"" . escapeshellcmd($width) . "x" . escapeshellcmd($height) . ">\" -colorspace rgb \"" . $image_dir . escapeshellcmd($image) . "\"[0] " . APP_TEMP_DIR . escapeshellcmd($temp_file);
+      $command = APP_CONVERT_CMD . " -strip -quality " . escapeshellcmd($quality) . " -resize \"" . escapeshellcmd($width) . "x" . escapeshellcmd($height) . ">\" -colorspace rgb \"" . $image_dir . escapeshellcmd($image) . "\"[0] " . Misc::getFileTmpPath(escapeshellcmd($temp_file));
       exec($command . $unix_extra, $return_array, $return_status);
-      $command = APP_CONVERT_CMD . ' ' . APP_TEMP_DIR . escapeshellcmd($temp_file) . ' -font Arial -pointsize 20 -draw "gravity center fill black text 0,12 \'Copyright' . $copyright . '\' fill white  text 1,11 \'Copyright' . $copyright . '\'" ' . APP_TEMP_DIR . escapeshellcmd($temp_file) . '';
+      $command = APP_CONVERT_CMD . ' ' . Misc::getFileTmpPath(escapeshellcmd($temp_file)) . ' -font Arial -pointsize 20 -draw "gravity center fill black text 0,12 \'Copyright' . $copyright . '\' fill white  text 1,11 \'Copyright' . $copyright . '\'" ' . Misc::getFileTmpPath(escapeshellcmd($temp_file)) . '';
       exec($command . $unix_extra, $return_array, $return_status);
-      $command = APP_COMPOSITE_CMD . " -dissolve 15 -tile " . escapeshellcmd(APP_PATH) . "/images/" . APP_WATERMARK . " " . APP_TEMP_DIR . escapeshellcmd($temp_file) . " " . APP_TEMP_DIR . escapeshellcmd($temp_file) . "";
+      $command = APP_COMPOSITE_CMD . " -dissolve 15 -tile " . escapeshellcmd(APP_PATH) . "/images/" . APP_WATERMARK . " " . Misc::getFileTmpPath(escapeshellcmd($temp_file)) . " " . Misc::getFileTmpPath(escapeshellcmd($temp_file)) . "";
       exec($command . $unix_extra, $return_array, $return_status);
     }
 

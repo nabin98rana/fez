@@ -59,8 +59,8 @@ class Datastream
       } else {
         $newFileName = $newFile;
       }
-      $deleteFile = APP_TEMP_DIR . $newFile;
-      $newFile = APP_TEMP_DIR . $newFile;
+      $deleteFile = Misc::getFileTmpPath($newFile);
+      $newFile = $deleteFile;
       if (file_exists($newFile)) {
         $mimetype = Misc::mime_content_type($newFile);
         $versionable = APP_VERSION_UPLOADS_AND_LINKS == "ON" ? 'true' : 'false';
@@ -245,7 +245,7 @@ class Datastream
   }
 
   /**
-   * This function creates an array of all the datastreams for a specific object
+   * This function gets the fezacml xml content of a datastream from quick db cache
    *
    * @param string $pid The persistent identifier of the object
    * @param string $dsID The ID of the datastream
@@ -256,6 +256,35 @@ class Datastream
     $ds = Datastream::getFullDatastreamInfo($pid, $dsID);
     return $ds['dsi_cached'];
   }
+
+  /**
+   * This function gets the fezacml xml content of a datastream using a pattern, helpful for thumbnails etc
+   *
+   * @param string $pid
+   * @param string $pattern
+   * @return string
+   */
+  public static function getDatastreamCachedFezACMLPattern($pid, $pattern) {
+    $log = FezLog::get();
+    $db = DB_API::get();
+
+    $tbl = 'datastream_info';
+
+    $res = [];
+    $data = [':dsi_pid' => $pid];
+    $sql = "SELECT dsi_cached FROM "
+        . APP_TABLE_PREFIX . $tbl . " WHERE dsi_pid = :dsi_pid AND dsi_state = 'A'";
+
+    $data['dsi_dsid'] = $pattern;
+    $sql .= " AND dsi_dsid LIKE :dsi_dsid";
+    try {
+      $res = $db->fetchOne($sql, $data);
+    } catch(Exception $e) {
+      $log->err($e->getMessage());
+    }
+    return $res;
+  }
+
 
   /**
    * This function creates an array of all the datastreams for a specific object

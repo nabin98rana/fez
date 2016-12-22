@@ -122,7 +122,7 @@ class San_image_import
   {
     $importData = array();
 
-    $tempDir = APP_TEMP_DIR . '/';
+    $tempDir = Misc::getFileTmpPath() . '/';
     $importFromDir = dirname($file) . '/';
     $tempFile = $tempDir . Misc::shortFilename($file);
     BatchImport::getFileContent($file, $tempFile);
@@ -139,6 +139,7 @@ class San_image_import
     }
 
     $headings = array();
+
     while (($line = fgetcsv($handle)) !== false) {
       if (array_filter($line)) {  // ignore empty lines
         if (count($headings) === 0) {
@@ -153,7 +154,9 @@ class San_image_import
 
           foreach ($expectedHeadings as $k) {
             if (!in_array($k, $headings)) {
-              if ($k == 'Filename 3') {
+              if ($k == 'Filename 2') {
+                $expectedHeadings = array_diff($expectedHeadings, array('Filename 2'));  //Remove Filename 2 from headings
+              } else if ($k == 'Filename 3') {
                 $expectedHeadings = array_diff($expectedHeadings, array('Filename 3'));  //Remove Filename 3 from headings
               } else {
                 // Not all expected headings were found, bailing..
@@ -202,7 +205,7 @@ class San_image_import
     $params['sta_id'] = 2;
     $params['collection_pid'] = $collection_pid;
 
-    $tempDir = APP_TEMP_DIR . '/';
+    $tempDir = Misc::getFileTmpPath() . '/';
 
     $xdis_list = XSD_Relationship::getListByXDIS($xdis_id);
     array_push($xdis_list, array("0" => $xdis_id));
@@ -381,31 +384,18 @@ class San_image_import
       }
     }
 
-
-    BatchImport::handleStandardFileImport(
-      $pid,
-      $recData['ImportDirectory'] . $recData['Filename 1'],
-      $recData['Filename 1'],
-      $xdis_id,
-      true
-    );
-    BatchImport::handleStandardFileImport(
-      $pid,
-      $recData['ImportDirectory'] . $recData['Filename 2'],
-      $recData['Filename 2'],
-      $xdis_id,
-      true
-    );
-
-    if (!empty($recData['Filename 3'])) {
-      BatchImport::handleStandardFileImport(
-        $pid,
-        $recData['ImportDirectory'] . $recData['Filename 3'],
-        $recData['Filename 3'],
-        $xdis_id,
-        true
-      );
+    for ($i = 1; $i <= 3; $i++) {
+      if (!empty($recData['Filename ' . $i])) {
+        BatchImport::handleStandardFileImport(
+          $pid,
+          $recData['ImportDirectory'] . $recData['Filename ' . $i],
+          $recData['Filename ' . $i],
+          $xdis_id,
+          true
+        );
+      }
     }
+
     // Cleanup
     foreach ($this->_filesCleanup as $file) {
       if (is_file($file)) {

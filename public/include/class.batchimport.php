@@ -296,7 +296,7 @@ class BatchImport
    * @return  void
    */
   public static function handleStandardFileImport(
-    $pid, $full_name, $short_name, $xdis_id = 0, $is_temp_file = false, $qat_id = -1, $useSan = true
+    $pid, $full_name, $short_name, $xdis_id = 0, $is_temp_file = false, $qat_id = -1, $useSan = true, $deleteExisting = true
   )
   {
     $dsIDName = $short_name;
@@ -306,7 +306,7 @@ class BatchImport
       $temp_store = $full_name;
     }
     else {
-      $temp_store = APP_TEMP_DIR . $ncName;
+      $temp_store = Misc::getFileTmpPath($ncName);
       self::getFileContent($full_name, $temp_store, $useSan);
     }
 
@@ -317,7 +317,7 @@ class BatchImport
       $controlgroup = 'M';
     }
 
-    if (Fedora_API::datastreamExists($pid, $ncName)) {
+    if ($deleteExisting && Fedora_API::datastreamExists($pid, $ncName)) {
       Fedora_API::callPurgeDatastream($pid, $ncName);
     }
 
@@ -327,31 +327,35 @@ class BatchImport
       $versionable = "false";
     }
 
-    Fedora_API::getUploadLocationByLocalRef(
-      $pid, $ncName, $temp_store, "", $mimetype, $controlgroup, null, $versionable
-    );
+    // this function is used by regen workflows too, so for that we dont want to re-upload
+    // the just downloaded source file, just regen its derivatives
+    if ($deleteExisting) {
+      Fedora_API::getUploadLocationByLocalRef(
+          $pid, $ncName, $temp_store, "", $mimetype, $controlgroup, null, $versionable
+      );
+    }
     Record::generatePresmd($pid, $ncName);
     // Now check for post upload workflow events like thumbnail resizing of images and add them as datastreams if required
     Workflow::processIngestTrigger($pid, $ncName, $mimetype);
     if (is_file($temp_store) && !$is_temp_file) {
       unlink($temp_store);
     }
-    Record::setIndexMatchingFields($pid);
-    
-    if (is_numeric($qat_id) && $qat_id != "-1" && $qat_id != -1) {
+    if ($deleteExisting) {
+      Record::setIndexMatchingFields($pid);
 
-      $xmlObj = FezACML::getQuickTemplateValue($qat_id);
-      if ($xmlObj != FALSE) {
-        $FezACML_dsID = FezACML::getFezACMLDSName($ncName);
-        if (Fedora_API::datastreamExists($pid, $FezACML_dsID)) {
-          Fedora_API::callModifyDatastreamByValue($pid, $FezACML_dsID, "A", "FezACML security for datastream - " . $ncName,
-            $xmlObj, "text/xml", "true");
-        } else {
-          Fedora_API::getUploadLocation($pid, $FezACML_dsID, $xmlObj, "FezACML security for datastream - " . $ncName,
-            "text/xml", "X", NULL, "true");
+      if (is_numeric($qat_id) && $qat_id != "-1" && $qat_id != -1) {
+        $xmlObj = FezACML::getQuickTemplateValue($qat_id);
+        if ($xmlObj != FALSE) {
+          $FezACML_dsID = FezACML::getFezACMLDSName($ncName);
+          if (Fedora_API::datastreamExists($pid, $FezACML_dsID)) {
+            Fedora_API::callModifyDatastreamByValue($pid, $FezACML_dsID, "A", "FezACML security for datastream - " . $ncName,
+                $xmlObj, "text/xml", "true");
+          } else {
+            Fedora_API::getUploadLocation($pid, $FezACML_dsID, $xmlObj, "FezACML security for datastream - " . $ncName,
+                "text/xml", "X", NULL, "true");
+          }
         }
       }
-
     }
   }
 
@@ -529,6 +533,12 @@ class BatchImport
           }
         }
       }
+    }
+    $display = XSD_Display::getDetails($xdis_id);
+    if ($display && $display['xdis_title'] === 'Image' && $display['xdis_version'] === 'MODS 1.0') {
+      include_once(APP_INC_PATH . 'class.san_image_import.php');
+      $import = new San_image_import();
+      return $import;
     }
     return false;
   }

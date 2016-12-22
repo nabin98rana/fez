@@ -665,6 +665,7 @@ class Reindex
     $rebuild = @$params["rebuild"];
     $ignore_exif = @$params["ignore_exif"];
     $index_type = @$params["index_type"];
+    $wfses_id = @$params["wfses_id"];
 
     foreach ($items as $pid) {
       if ($ignore_exif == true) {
@@ -687,6 +688,7 @@ class Reindex
               $dsIDName = $dsTitle['ID'];
               if ($dsTitle['controlGroup'] == "M"
                 && (Misc::hasPrefix($dsIDName, 'preview_')
+                  || Misc::hasPrefix($dsIDName, 'FezACML_')
                   || Misc::hasPrefix($dsIDName, 'web_')
                   || Misc::hasPrefix($dsIDName, 'thumbnail_')
                   || Misc::hasPrefix($dsIDName, 'stream_')
@@ -700,14 +702,16 @@ class Reindex
             }
 
             foreach ($ds as $dsTitle) {
+              $dsIDName = $dsTitle['ID'];
               if ($dsTitle['controlGroup'] == "M"
                 && !Misc::hasPrefix($dsIDName, 'preview_')
+                && !Misc::hasPrefix($dsIDName, 'FezACML_')
                 && !Misc::hasPrefix($dsIDName, 'web_')
                 && !Misc::hasPrefix($dsIDName, 'thumbnail_')
                 && !Misc::hasPrefix($dsIDName, 'stream_')
                 && !Misc::hasPrefix($dsIDName, 'presmd_') // since presmd is stored as a binary to avoid parsing by fedora at the moment.
               ) {
-                BatchImport::handleStandardFileImport($pid, $dsTitle['location'], $dsTitle['ID'], $xdis_id, false, -1, false);
+                BatchImport::handleStandardFileImport($pid, $dsTitle['location'], $dsTitle['ID'], $xdis_id, false, -1, false, false);
               }
             }
           }
@@ -750,7 +754,11 @@ class Reindex
           if ($rebuild_this == true) {
             // need to rebuild presmd and image datastreams
             // get list of datastreams and iterate over them
-            $ds = Fedora_API::callGetDatastreams($pid);
+
+            // we already have the $ds if we are in bypass mode
+            if (APP_FEDORA_BYPASS != "ON") {
+              $ds = Fedora_API::callGetDatastreams($pid);
+            }
             // delete any fez derived datastreams that might be hanging around for no reason.  We'll
             // recreate them later if they are still needed
 
@@ -782,7 +790,7 @@ class Reindex
                 $new_dsID = Foxml::makeNCName($dsIDName);
                 // get the datastream into a file where we can do stuff to it
                 $urldata = APP_FEDORA_GET_URL . "/" . $pid . "/" . $dsIDName;
-                $handle = fopen(APP_TEMP_DIR . $new_dsID, "w");
+                $handle = fopen(Misc::getFileTmpPath($new_dsID), "w");
                 Misc::ProcessURL($urldata, false, $handle);
 
                 fclose($handle);
@@ -800,14 +808,14 @@ class Reindex
                     Fedora_API::deleteDatastream($pid, $dsIDName);
                   } else {
                     Fedora_API::callPurgeDatastream($pid, $dsIDName);
-                    Fedora_API::getUploadLocationByLocalRef($pid, $new_dsID, APP_TEMP_DIR . $new_dsID, $new_dsID,
+                    Fedora_API::getUploadLocationByLocalRef($pid, $new_dsID, Misc::getFileTmpPath($new_dsID), $new_dsID,
                       $dsTitle['MIMEType'], "M", null, $versionable);
                   }
                 }
                 Record::generatePresmd($pid, $new_dsID);
                 Workflow::processIngestTrigger($pid, $new_dsID, $dsTitle['MIMEType']);
-                if (is_file(APP_TEMP_DIR . $dsIDName)) {
-                  unlink(APP_TEMP_DIR . $dsIDName);
+                if (is_file(Misc::getFileTmpPath($dsIDName))) {
+                  unlink(Misc::getFileTmpPath($dsIDName));
                 }
               }
             }
