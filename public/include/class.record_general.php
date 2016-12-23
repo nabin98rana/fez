@@ -710,13 +710,14 @@ class RecordGeneral
      * @param array $values Values of Search keys
      * @param boolean $removeCurrent Flag on whether to remove current value
      * @param string $history Message on the PID history
+     * @param boolean $commitIndex force a commit to the fulltext queue or wait for a later flush
      * @return string
      *
      * @bug Cannot change searchkey title
      *
      */
     function addSearchKeyValueList(
-    $search_keys=array(), $values=array(), $removeCurrent=true, $history="was added based on Links AMR Service data")
+    $search_keys=array(), $values=array(), $removeCurrent=true, $history="was added based on Links AMR Service data", $commitIndex = true)
     {
 
         if (APP_FEDORA_BYPASS == "ON"){
@@ -734,7 +735,7 @@ class RecordGeneral
             $historyDetail .= " " . $history;
 
             $recordSearchKey = new Fez_Record_Searchkey();
-            $result = $recordSearchKey->updateRecord($this->pid, $searchKeyData, $historyDetail);
+            $result = $recordSearchKey->updateRecord($this->pid, $searchKeyData, $historyDetail, $commitIndex);
 
             return $result;
 
