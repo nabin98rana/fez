@@ -96,7 +96,7 @@ class BackgroundProcess_Bulk_Change_Search_Key extends BackgroundProcess
         if ($record->canEdit()) {
           // TODO: Update search key function here
 
-          $record->addSearchKeyValueList($search_keys, $values, true, $history);
+          $record->addSearchKeyValueList($search_keys, $values, true, $history, false);
 
           $this->setStatus("Changed '" . $pid . "'");
           $this->pid_count++;
