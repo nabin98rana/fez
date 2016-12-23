@@ -50,7 +50,7 @@ class BackgroundProcess {
 	var $include = ''; // set this to the include file where the subclass is declared
 	var $name = ''; // set this to the name of the process where the subclass is declared
 	var $states = array(
-	0 => 'Undefined',
+	0 => 'Pending',
 	1 => 'Running',
 	2 => 'Done'
 	);
@@ -350,6 +350,7 @@ class BackgroundProcess {
 		}
 
 		echo 'Finished run of ' . $bgp->name . "..\n";
+    $this->setState(BGP_FINISHED);
 	}
 
 	/**

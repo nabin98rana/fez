@@ -149,7 +149,7 @@ class BackgroundProcessList
 	function getStates()
 	{
 		$bgp = new BackgroundProcess;
-		$bgp->states[0] = 'Starting'; // Instead of undefined on the process list page
+		$bgp->states[0] = 'Pending'; // Instead of undefined on the process list page
 		return $bgp->states;
 	}
 
