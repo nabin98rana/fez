@@ -485,6 +485,7 @@ class FulltextQueue
           $this->memorySize += strlen(serialize(FulltextIndex::getCachedContent("'".$elementValue['ftq_pid']."'")));
         }
         if (($this->memorySize/1000000 > APP_SOLR_CSV_MAX_SIZE) && ($elementKey > 0)){
+          $log->debug("Went over ".$this->memorySize." memory size, so unsetting ".$elementKey." of ".$elementValue['ftq_pid']);
           unset($res[$elementKey]);
           //unset($keys[$elementKey]);
         }
@@ -496,12 +497,14 @@ class FulltextQueue
       array_push($pids, $row['ftq_pid']);
     }
 
+    $pidString = Misc::arrayToSQLBindStr($res);
     // delete chunk from queue
     $stmt =  "DELETE FROM ".APP_TABLE_PREFIX."fulltext_queue ";
-    $stmt .= "WHERE ftq_pid IN (".Misc::arrayToSQLBindStr($res).") AND ftq_op = '".FulltextQueue::ACTION_INSERT."'";
+    $stmt .= "WHERE ftq_pid IN (".$pidString.") AND ftq_op = '".FulltextQueue::ACTION_INSERT."'";
 
     try {
       $db->query($stmt, $pids);
+      $log->debug("Deleting these PIDs from the queue now we've popped them off: ".$pidString);
     }
     catch(Exception $ex) {
       $log->err($ex);

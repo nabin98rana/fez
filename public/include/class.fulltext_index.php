@@ -233,6 +233,7 @@ abstract class FulltextIndex {
 		if (FulltextQueue::USE_LOCKING) {
 			$this->releaseLock();
 		}
+    $this->bgp->setState(2);
 
 	}
 
@@ -615,6 +616,7 @@ abstract class FulltextIndex {
 
   public function indexRecords($pids, $queue = null)
   {
+    $log = FezLog::get();
     $cachedResults = array();
     if ($this->bgp) {
       $this->bgp->setHeartbeat();
@@ -626,6 +628,7 @@ abstract class FulltextIndex {
     foreach ($pids as $pid) {
       if (!array_key_exists($pid, $cache)) {
         array_push($pidsNoCache, $pid);
+        $log->debug("FTI: no content for ".$pid." adding to to-be-cached list");
       } else {
         $this->updateFulltextIndex($pid, $cache[$pid]);
         //lower the rams
@@ -646,6 +649,7 @@ abstract class FulltextIndex {
       } else {
         //put it back on the queue because it didnt fit this time
         FulltextQueue::singleton()->add($cachePid);
+        $log->debug("FTI: adding ".$pid." back onto queue because we are over mem limit already");
         $addedToQueue = true;
       }
       //free more rams
