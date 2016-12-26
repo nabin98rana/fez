@@ -235,7 +235,7 @@ class Lister
 
     if ($tpl_idx == 0 || $tpl_idx == 4 || $tpl_idx == 5 || $tpl_idx == 6) {
       $tpl->setTemplate('header.tpl.html');
-    } else if ($tpl_idx != 2 && $tpl_idx != 3) {
+    } else if ($tpl_idx != 2 && $tpl_idx != 3 && $tpl_idx != 1) {
       // prevent escaping when not using html templates
       $tpl->smarty->default_modifiers = array();
     }
