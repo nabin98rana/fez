@@ -91,9 +91,15 @@
         <td>{$list[i].rek_created_date}</td>
         <td>{$list[i].rek_updated_date}</td>
         <td>{$list[i].rek_ands_collection_type}</td>
-        <td>{$list[i].rek_geographic_area}</td>
-        <td>{$list[i].rek_author_role}</td>
-        <td>{$list[i].rek_contact_details_email}</td>
+        <td>{foreach from=$list[i].rek_geographic_area item=entry2 key=name2}
+            {$entry2}|
+          {/foreach}</td>
+        <td>{foreach from=$list[i].rek_author_role item=entry2 key=name2}
+          {$entry2}|
+        {/foreach}</td>
+        <td>{foreach from=$list[i].rek_contact_details_email item=entry2 key=name2}
+          {$entry2}|
+        {/foreach}</td>
         <td>{$list[i].rek_institutional_status_lookup}</td>
         <td>{$list[i].rek_herdc_status_lookup}</td>
         <td>{$list[i].rek_acknowledgements}</td>
