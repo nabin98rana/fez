@@ -568,6 +568,8 @@ abstract class FulltextIndex {
 
       //now save it to the cache.
       $content = json_encode($docfields);
+      // strip out any bad binary data from files
+      $content = preg_replace('/[^(\x20-\x7F)]*/', '', $content);
       FulltextIndex::updateFulltextCache($pid, "", $content, 0);
       $returnContent[$pid] = $docfields;
       unset($docfields);
