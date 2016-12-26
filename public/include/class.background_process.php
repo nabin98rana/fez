@@ -350,7 +350,7 @@ class BackgroundProcess {
 		}
 
 		echo 'Finished run of ' . $bgp->name . "..\n";
-    $this->setState(BGP_FINISHED);
+    $bgp->setState(BGP_FINISHED);
 	}
 
 	/**
@@ -516,6 +516,7 @@ class BackgroundProcess {
 		while ($next = self::nextUnstarted($from)) {
 			$bgp = new BackgroundProcess($next['bgp_id']);
 			$bgp->runCurrent();
+			$bgp->setState(2);
 		}
 	}
 
