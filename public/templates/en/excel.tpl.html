@@ -142,7 +142,9 @@
         <td>{$list[i].rek_place_of_publication}</td>
         <td>{$list[i].rek_access_conditions}</td>
         <td>{$list[i].rek_license}</td>
-        <td>{$list[i].rek_fields_of_research}</td>
+        <td>{foreach from=$list[i].rek_fields_of_research item=entry2 key=name2}
+            {$entry2}|
+          {/foreach}</td>
         <td>{$list[i].rek_publisher}</td>
         <td>{$list[i].rek_total_pages}</td>
         <td>{$list[i].rek_total_pages_colour}</td>
