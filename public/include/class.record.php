@@ -2572,15 +2572,13 @@ class Record
                 $result[$i]['thumbnail'] = array();
               }
               $thumbnailCF = "";
-              if (defined('AWS_S3_ENABLED') && AWS_S3_ENABLED == 'true' && APP_FEDORA_BYPASS == 'ON') {
-                //check the image is not restricted, eg sensitive images
-                $canPreview = false;
-                if (Auth::checkAuthorisation($result[$i]['rek_pid'], $result[$i]['rek_file_attachment_name'][$x], $canPreviewRoles, '', null, false)) {
-                  $canPreview = true;
-                }
-                if ($canPreview == true) {
-                  $thumbnailCF = Fedora_API::getCloudFrontUrl($result[$i]['rek_pid'], $result[$i]['rek_file_attachment_name'][$x]);
-                }
+              //check the image is not restricted, eg sensitive images
+              $canPreview = false;
+              if (Auth::checkAuthorisation($result[$i]['rek_pid'], $result[$i]['rek_file_attachment_name'][$x], $canPreviewRoles, '', null, false)) {
+                $canPreview = true;
+              }
+              if (defined('AWS_S3_ENABLED') && AWS_S3_ENABLED == 'true' && APP_FEDORA_BYPASS == 'ON' && $canPreview == true) {
+                $thumbnailCF = Fedora_API::getCloudFrontUrl($result[$i]['rek_pid'], $result[$i]['rek_file_attachment_name'][$x]);
               }
               if ($canPreview == true) {
                 array_push($result[$i]['thumbnail'], $result[$i]['rek_file_attachment_name'][$x]);
