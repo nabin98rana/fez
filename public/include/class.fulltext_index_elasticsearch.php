@@ -630,8 +630,6 @@ class FulltextIndex_ElasticSearch extends FulltextIndex
       $pids_arr = array();
       // first cache anything not already cached
       foreach ($chunk as $row) {
-        if (empty($row['ftq_pid']))
-          continue;
         $pids_arr[] = $row['ftq_pid'];
       }
       $this->indexRecords($pids_arr, $queue);
@@ -650,7 +648,7 @@ class FulltextIndex_ElasticSearch extends FulltextIndex
         }
       }
     }
-
+    $this->forceCommit();
     if ($this->bgp) {
       $this->bgp->setStatus("Processing any PIDS to delete from solr");
     }

@@ -233,6 +233,7 @@ abstract class FulltextIndex {
 		if (FulltextQueue::USE_LOCKING) {
 			$this->releaseLock();
 		}
+    $this->bgp->setState(2);
 
 	}
 
@@ -372,7 +373,7 @@ abstract class FulltextIndex {
 		}
 		if ($datatype == FulltextIndex::FIELD_TYPE_DATE) {
 			// update date format
-			$value = Date_API::getFedoraFormattedDateUTC($value);
+			$value = Date_API::getFedoraFormattedDate($value);
 		} elseif ($datatype == FulltextIndex::FIELD_TYPE_INT) {
 		  if (is_array($value)) {
 		    $newValue = array();
@@ -497,8 +498,7 @@ abstract class FulltextIndex {
             //Add date year copy
             if ($fieldType == FulltextIndex::FIELD_TYPE_DATE) {
               $ftName = str_replace("_dt", "_year_t", $index_title);
-              $date = new DateTime($fieldValue);
-              $docfields[$ftName] = $date->format("Y");
+              $docfields[$ftName] = Date_API::getFedoraFormattedYear($fieldValue);
             }
 
             //Add facet fields, exact matching fields, sort fields
@@ -567,6 +567,8 @@ abstract class FulltextIndex {
 
       //now save it to the cache.
       $content = json_encode($docfields);
+      // strip out any bad binary data from files
+      $content = preg_replace('/[^(\x20-\x7F)]*/', '', $content);
       FulltextIndex::updateFulltextCache($pid, "", $content, 0);
       $returnContent[$pid] = $docfields;
       unset($docfields);
@@ -615,6 +617,7 @@ abstract class FulltextIndex {
 
   public function indexRecords($pids, $queue = null)
   {
+    $log = FezLog::get();
     $cachedResults = array();
     if ($this->bgp) {
       $this->bgp->setHeartbeat();
@@ -626,6 +629,7 @@ abstract class FulltextIndex {
     foreach ($pids as $pid) {
       if (!array_key_exists($pid, $cache)) {
         array_push($pidsNoCache, $pid);
+        $log->debug("FTI: no content for ".$pid." adding to to-be-cached list");
       } else {
         $this->updateFulltextIndex($pid, $cache[$pid]);
         //lower the rams
@@ -646,6 +650,7 @@ abstract class FulltextIndex {
       } else {
         //put it back on the queue because it didnt fit this time
         FulltextQueue::singleton()->add($cachePid);
+        $log->debug("FTI: adding ".$pid." back onto queue because we are over mem limit already");
         $addedToQueue = true;
       }
       //free more rams

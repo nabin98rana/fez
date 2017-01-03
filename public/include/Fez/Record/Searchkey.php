@@ -138,7 +138,7 @@ class Fez_Record_Searchkey
    *                                 )
    * @return boolean
    */
-  public function insertRecord($sekData = array(), $historyMsg = false, $citationData = array(), $onlyShadow=false)
+  public function insertRecord($sekData = array(), $historyMsg = false, $citationData = array(), $onlyShadow=false, $commitIndex = true)
   {
     // Set PID
     $this->_setPid();
@@ -158,7 +158,7 @@ class Fez_Record_Searchkey
       $this->_updateHistory($historyMsg);
     }
     $this->_insertRecordCitation($citationData);
-    $this->_updateSolrIndex();
+    $this->_updateSolrIndex($commitIndex);
     $this->_updateLinksAMR();
 
     return true;
@@ -176,7 +176,7 @@ class Fez_Record_Searchkey
    *                                 )
    * @return boolean
    */
-  public function updateRecord($pid = null, $sekData = array(), $historyMsg = false)
+  public function updateRecord($pid = null, $sekData = array(), $historyMsg = false, $commitIndex = true)
   {
 
     // Set PID
@@ -197,7 +197,7 @@ class Fez_Record_Searchkey
       $this->_updateHistory($historyMsg);
     }
     $this->_updateRecordCitation();
-    $this->_updateSolrIndex();
+    $this->_updateSolrIndex($commitIndex);
     $this->_cleanCache();
     $this->_updateLinksAMR();
     return true;
@@ -608,9 +608,10 @@ class Fez_Record_Searchkey
   /**
    * Update SOLR index caches.
    *
+   * @param boolean $commit - to force a queue commit and potential flush or wait for later
    * @return boolean
    */
-  protected function _updateSolrIndex()
+  protected function _updateSolrIndex($commit = true)
   {
     if (APP_SOLR_INDEXER != "ON" && APP_ES_INDEXER != "ON") {
       return true;
@@ -618,7 +619,9 @@ class Fez_Record_Searchkey
 
     $this->_log->debug("Fez_Record_Searchkey->update() adding " . $this->_pid . " to SOLR Queue");
     FulltextQueue::singleton()->add($this->_pid);
-    FulltextQueue::singleton()->commit();
+    if ($commit == true) {
+      FulltextQueue::singleton()->commit();
+    }
     return true;
   }
 

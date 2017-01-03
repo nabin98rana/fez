@@ -321,6 +321,24 @@ class Date_API
 		return $date->format('%Y-%m-%dT%H:%M:%SZ');
 	}
 
+  /**
+   * Method used to get the formatted date for Fedora as a year
+   *
+   * @access  public
+   * @param   string $timestamp The date timestamp to be formatted
+   * @return  string
+   */
+  public static function getFedoraFormattedYear($timestamp = null)
+  {
+    if ($timestamp == null) {
+      //			$timestamp = Date_API::getCurrentUnixTimestampGMT();
+    }
+    $date = new Date($timestamp);
+    $date->setTZbyID(Date_API::getPreferredTimezone());
+
+    return $date->format('%Y');
+  }
+
 	public static function getSimpleDateUTC($timestamp = null)
 	{
 		if ($timestamp == null) {
