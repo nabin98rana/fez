@@ -373,7 +373,7 @@ abstract class FulltextIndex {
 		}
 		if ($datatype == FulltextIndex::FIELD_TYPE_DATE) {
 			// update date format
-			$value = Date_API::getFedoraFormattedDateUTC($value);
+			$value = Date_API::getFedoraFormattedDate($value);
 		} elseif ($datatype == FulltextIndex::FIELD_TYPE_INT) {
 		  if (is_array($value)) {
 		    $newValue = array();
@@ -498,8 +498,7 @@ abstract class FulltextIndex {
             //Add date year copy
             if ($fieldType == FulltextIndex::FIELD_TYPE_DATE) {
               $ftName = str_replace("_dt", "_year_t", $index_title);
-              $date = new DateTime($fieldValue);
-              $docfields[$ftName] = $date->format("Y");
+              $docfields[$ftName] = Date_API::getFedoraFormattedYear($fieldValue);
             }
 
             //Add facet fields, exact matching fields, sort fields
