@@ -468,7 +468,7 @@ class Citation
 		} elseif ($xsdmf['xsdmf_html_input'] == 'author_selector') {
 			$value = Citation::formatAuthor(Author::getFullname($value), $type);
 			// special case hack for editors name fix
-		} elseif ($xsdmf['sek_title'] == "Author" || strpos($xsdmf['xsdmf_title'], 'Editor') !== false) {
+		} elseif ($xsdmf['sek_title'] == "Author" || $xsdmf['sek_title'] == "Creator" || strpos($xsdmf['xsdmf_title'], 'Editor') !== false) {
 			$value = Citation::formatAuthor($value, $type);
 		} else {
             $value = htmlspecialchars($value);
