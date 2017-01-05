@@ -912,29 +912,34 @@ class RJL
         echo "Running " . count($matches) . " insertion queries on eSpace database ... ";
 
         foreach ($matches as $match) {
-            // clear out any existing matches for this match year/pid combo
-            RJL::removeMatchByPIDYear($match['pid'], $match['year']);
 
-            $stmt = "INSERT INTO " . APP_TABLE_PREFIX . "matched_journals (mtj_pid, mtj_jnl_id, mtj_status) VALUES (?, ?, 'A') ON DUPLICATE KEY UPDATE mtj_jnl_id = ?";
-            if (TEST_WHERE != '') {
+            // make sure the pid isn't empty somehow see [#132543213]
+            if (strlen($match['pid']) > 0 && $match['pid'] != '' && !empty($match['pid'])) {
+
+              // clear out any existing matches for this match year/pid combo
+              RJL::removeMatchByPIDYear($match['pid'], $match['year']);
+
+              $stmt = "INSERT INTO " . APP_TABLE_PREFIX . "matched_journals (mtj_pid, mtj_jnl_id, mtj_status) VALUES (?, ?, 'A') ON DUPLICATE KEY UPDATE mtj_jnl_id = ?";
+              if (TEST_WHERE != '') {
                 echo $stmt . "\n";
-            }
-            ob_flush();
-            $data = array(
-                $match['pid'],
-                $match['matching_id'],
-                $match['matching_id']
-            );
+              }
+              ob_flush();
+              $data = array(
+                  $match['pid'],
+                  $match['matching_id'],
+                  $match['matching_id']
+              );
 
-            try {
+              try {
                 $db->query($stmt, $data);
-            } catch (Exception $ex) {
+              } catch (Exception $ex) {
                 $log->err($ex);
                 die('There was a problem with the query ' . $stmt);
-            }
+              }
 
-            if (APP_SOLR_INDEXER == "ON" || APP_ES_INDEXER == "ON") {
+              if (APP_SOLR_INDEXER == "ON" || APP_ES_INDEXER == "ON") {
                 FulltextQueue::singleton()->add($match['pid']);
+              }
             }
         }
 

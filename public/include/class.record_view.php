@@ -160,7 +160,7 @@ class RecordView {
                                 "<a href='http://dx.doi.org/".htmlspecialchars($details[$xsd_display_fields[$dis_key]['xsdmf_id']])."'>".htmlspecialchars($details[$xsd_display_fields[$dis_key]['xsdmf_id']])."</a>";
                     }
                 }
-				if ($dis_field['sek_title'] == "Author" || $dis_field['sek_title'] == "Contributor") {
+				if ($dis_field['sek_title'] == "Author" || $dis_field['sek_title'] == "Contributor" || $dis_field['sek_title'] == "Creator") {
 					if (!empty($details[$dis_field['xsdmf_id']])) {
 						if (is_array($details[$dis_field['xsdmf_id']])) {
 							foreach ($details[$dis_field['xsdmf_id']] as $ckey => $cdata) {
@@ -272,7 +272,7 @@ class RecordView {
 					}
 				}
 
-				if (($dis_field['sek_title'] == "Subject"  || $dis_field['sek_title'] == "Fields of Research" || $dis_field['sek_title'] == "SEO Code" || $dis_field['sek_title'] == "Book Title" || $dis_field['sek_title'] == "Series") && (($dis_field['xsdmf_html_input'] != "contvocab_selector")) ) {
+				if (($dis_field['sek_title'] == "Subject"  || $dis_field['sek_title'] == "Fields of Research" || $dis_field['sek_title'] == "SEO Code" || $dis_field['sek_title'] == "Book Title" || $dis_field['sek_title'] == "Job Number" || $dis_field['sek_title'] == "Series") && (($dis_field['xsdmf_html_input'] != "contvocab_selector")) ) {
 					if (!empty($details[$dis_field['xsdmf_id']])) {
 						if (is_array($details[$dis_field['xsdmf_id']])) {
 							foreach ($details[$dis_field['xsdmf_id']] as $ckey => $cdata) {
