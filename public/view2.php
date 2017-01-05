@@ -643,13 +643,16 @@ if (!empty($pid) && $record->checkExists()) {
       }
 
       if (!$doiInLinks && !empty($doi)) {
-        $linkCount++;
-        $newLink['rek_link'] = 'http://dx.doi.org/' . $doi;
-        $newLink['rek_link_description'] = 'Full text from publisher';
-        if (APP_LINK_PREFIX != "") {
+        // don't add links to UQ dois because it just links to itself
+        if (stripos($doi, CROSSREF_DOI_PREFIX) === FALSE) {
+          $linkCount++;
+          $newLink['rek_link'] = 'http://dx.doi.org/' . $doi;
+          $newLink['rek_link_description'] = 'Full text from publisher';
+          if (APP_LINK_PREFIX != "") {
             $newLink['prefix_location'] = APP_LINK_PREFIX . $newLink['rek_link'];
+          }
+          array_unshift($links, $newLink);
         }
-        array_unshift($links, $newLink);
       }
     }
 
