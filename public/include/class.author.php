@@ -1348,8 +1348,10 @@ class Author
         $res[$key]['positions'] = Author::getPositionsByOrgStaffID($res[$key]['aut_org_staff_id']);
       } else if ($res[$key]['aut_org_username'] != '') {
         $res[$key]['positions'] = Author::getPositionsByOrgUsername($res[$key]['aut_org_username']);
+      } else if ($res[$key]['aut_student_username'] != '') {
+        $res[$key]['positions'] = 'Student';
       } else {
-        $log->err('No position found');
+        $log->err('No position found, not even a student');
         return '';
       }
     }
