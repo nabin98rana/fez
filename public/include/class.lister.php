@@ -719,6 +719,13 @@ class Lister
     } elseif ($browse == "mypubs") {
       $author_id = $params['author_id'];
       $authorDetails = Author::getDetails($author_id);
+      //prefer the staff username if possible
+      if (!empty($authorDetails['aut_org_username'])) {
+        $authorUsername = $authorDetails['aut_org_username'];
+      } else {
+        $authorUsername = $authorDetails['aut_student_username'];
+      }
+      $tpl->assign("author_username", $authorUsername);
       $authorDetails["aut_publons_id"] = Publons::returnOrcidIfHasPublons($author_id);
       $tpl->assign("list_heading", "Publications by " . htmlspecialchars($authorDetails["aut_display_name"]));
 
