@@ -106,7 +106,7 @@ class FulltextQueue
 		if (!array_key_exists($pid, $this->pids) && (Record::getIfRecordExists($pid))) {
 			$this->pids[$pid] = FulltextQueue::ACTION_INSERT;
       //clear the cache in prep for indexing in the queue later
-      if ($clearCache === true) {
+      if ($clearCache == true) {
         $index = FulltextIndex::get(true);
         $index->deleteFulltextCache($pid);
       }
