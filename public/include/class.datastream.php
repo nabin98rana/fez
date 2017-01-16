@@ -292,9 +292,10 @@ class Datastream
    * @param string $pid The persistent identifier of the object
    * @param string $dsID The ID of the datastream
    * @param string $tableSuffix Temporary suffix for the table used in migration from Fedora to AWS
+   * @param string $state The datastream state
    * @return array $dsIDListArray The list of datastreams in an array.
    */
-  public static function getFullDatastreamInfo($pid, $dsID = '', $tableSuffix = '')
+  public static function getFullDatastreamInfo($pid, $dsID = '', $tableSuffix = '', $state = 'A')
   {
     $log = FezLog::get();
     $db = DB_API::get();
@@ -307,8 +308,11 @@ class Datastream
     $res = [];
     $data = [':dsi_pid' => $pid];
     $sql = "SELECT * FROM "
-      . APP_TABLE_PREFIX . $tbl . " WHERE dsi_pid = :dsi_pid AND dsi_state = 'A'";
+      . APP_TABLE_PREFIX . $tbl . " WHERE dsi_pid = :dsi_pid";
 
+    if ($state !== '') {
+      $sql .= " AND dsi_state = 'A'";
+    }
     if ($dsID !== '') {
       $data['dsi_dsid'] = $dsID;
       $sql .= " AND dsi_dsid = :dsi_dsid";
@@ -636,7 +640,8 @@ class Datastream
                 dsi_label = :dsi_label,
                 dsi_copyright = :dsi_copyright,
                 dsi_watermark = :dsi_watermark,
-                dsi_security_inherited = :dsi_security_inherited
+                dsi_security_inherited = :dsi_security_inherited,
+                dsi_state = :dsi_state
                 WHERE dsi_pid = :dsi_pid AND dsi_dsid = :dsi_dsid";
     try {
       $db->query($stmt, $migrateData);

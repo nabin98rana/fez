@@ -273,7 +273,7 @@ class MigrateFromFedoraToDatabase
         $mimeType, 'M', FALSE, "", FALSE, 'uql-fez-production-san'
       );
 
-      $dsInfo = Datastream::getFullDatastreamInfo($pid, $dsName, '_exported');
+      $dsInfo = Datastream::getFullDatastreamInfo($pid, $dsName, '_exported', '');
       if (array_key_exists('dsi_pid', $dsInfo)) {
         Datastream::migrateDatastreamInfo([
           ':dsi_pid' => $pid,
@@ -286,6 +286,7 @@ class MigrateFromFedoraToDatabase
           ':dsi_copyright' => $dsInfo['dsi_copyright'],
           ':dsi_watermark' => $dsInfo['dsi_watermark'],
           ':dsi_security_inherited' => $dsInfo['dsi_security_inherited'],
+          ':dsi_state' => $dsInfo['dsi_state'],
         ]);
       }
     }
@@ -565,6 +566,8 @@ class MigrateFromFedoraToDatabase
       echo " - Updating $i/$count\n";
 
       $datastreams = Fedora_API::callGetDatastreams($pid);
+      $datastreamsDeleted = Fedora_API::callGetDatastreams($pid, NULL, 'D');
+      $datastreams = array_merge($datastreams, $datastreamsDeleted);
       foreach ($datastreams as $ds) {
         if (
           (is_numeric(strpos($ds['ID'], "thumbnail_")))
