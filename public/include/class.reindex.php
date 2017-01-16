@@ -596,7 +596,7 @@ class Reindex
 
     if (is_numeric(strpos(APP_SQL_DBTYPE, "mysql"))) {
       $this->bgp->setStatus("Adding All Fez Index PIDs Solr Queue (with a insert/select)");
-      $stmt .= "INSERT IGNORE INTO " . APP_TABLE_PREFIX . "fulltext_queue (ftq_pid, ftq_op)
+      $stmt = "INSERT IGNORE INTO " . APP_TABLE_PREFIX . "fulltext_queue (ftq_pid, ftq_op)
 			SELECT rek_pid, 'I'
 			FROM " . APP_TABLE_PREFIX . "record_search_key";
       try {
@@ -720,7 +720,6 @@ class Reindex
           //
           if (APP_SOLR_INDEXER == "ON" || APP_ES_INDEXER == "ON") {
             FulltextQueue::singleton()->add($pid);
-            FulltextQueue::singleton()->commit();
           }
 
           if (APP_FILECACHE == "ON" ) {
@@ -832,7 +831,12 @@ class Reindex
 
     }
 
-    return true;
+    if (APP_SOLR_INDEXER == "ON" || APP_ES_INDEXER == "ON") {
+      FulltextQueue::singleton()->commit();
+      FulltextQueue::singleton()->triggerUpdate();
+    }
+
+      return true;
   }
 
   function buildRELSEXT($parent_pid, $pid)
