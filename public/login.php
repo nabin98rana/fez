@@ -40,6 +40,14 @@ include_once(APP_INC_PATH . "class.template.php");
 include_once(APP_INC_PATH . "class.auth.php");
 include_once(APP_INC_PATH . "class.db_api.php");
 
+// @todo(post-migration): Remove after migrating to AWS
+$environment = $_SERVER['APPLICATION_ENV'];
+if ($environment === 'production') {
+  if (!array_key_exists('err', $_GET) || empty($_GET["err"])) {
+    Auth::redirect(APP_RELATIVE_URL . "login.php?err=99");
+  }
+}
+
 /******************************************************************************/
 
 function generateCookieArray($value){
