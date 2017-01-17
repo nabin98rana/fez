@@ -86,7 +86,7 @@ class MigrateFromFedoraToDatabase
 
     // De-dupe auth rules
     echo "Step 3: De-dupe auth rules..";
-    //$this->stepThreeMigration();
+    $this->stepThreeMigration();
     echo "..done!\n";
 
     // Post Migration message
@@ -127,7 +127,7 @@ class MigrateFromFedoraToDatabase
   private function stepTwoMigration()
   {
     // PID security
-    //$this->addPidsSecurity();
+    $this->addPidsSecurity();
 
     // Datastream (attached files) migration
     echo " - Migrating managed content..";
@@ -243,7 +243,7 @@ class MigrateFromFedoraToDatabase
       echo "\n - Doing PID $counter/$totalDs ($pid)\n";
       Zend_Registry::set('version', Date_API::getCurrentDateGMT());
 
-      /*if(
+      if(
         !( Misc::hasPrefix($dsName, 'thumbnail_')
         || Misc::hasPrefix($dsName, 'MODS')
         || Misc::hasPrefix($dsName, 'FezACML_')
@@ -263,15 +263,15 @@ class MigrateFromFedoraToDatabase
             'FezACML security for datastream - ' . $dsName, 'A', 'text/xml');
           unlink($location);
         }
-      }*/
+      }
 
-      /*$mimeType = $this->quickMimeContentType($dsName);
+      $mimeType = $this->quickMimeContentType($dsName);
       $location = 'migration/' . str_replace('/espace/data/fedora_datastreams/', '', $path);
       $location = str_replace('+', '%2B', $location);
       Fedora_API::callAddDatastream(
         $pid, $dsName, $location, '', $state,
         $mimeType, 'M', FALSE, "", FALSE, 'uql-fez-production-san'
-      );*/
+      );
 
       $dsInfo = Datastream::getFullDatastreamInfo($pid, $dsName, '_exported', '');
       if (array_key_exists('dsi_pid', $dsInfo)) {
