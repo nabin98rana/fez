@@ -60,7 +60,7 @@ $allowedBgps = [
   'BackgroundProcess_Links_Amr_Check',
   'BackgroundProcess_Match_Ranked_Journals',
   'BackgroundProcess_Match_Uq_Tiered_Journals',
-  'BackgroundProcess_Migrate_Fedora',
+  //'BackgroundProcess_Migrate_Fedora',
   'BackgroundProcess_Process_Mail_Queue',
   'BackgroundProcess_Process_Researcherid_Upload_Emails',
   'BackgroundProcess_Process_Wok_Queue',

@@ -54,7 +54,7 @@ class BackgroundProcess_Db_Load extends BackgroundProcess
 
     // @todo(post-migration): Remove production env
     $environment = $_SERVER['APP_ENVIRONMENT'];
-    if (! ($environment === 'production' || $environment === 'staging')) {
+    if (! ($environment === 'staging')) {
       $log->err('DB load failed: Unknown environment - ' . $environment);
       return;
     }
