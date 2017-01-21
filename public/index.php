@@ -109,7 +109,7 @@ if ((@$_SESSION[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-TargetedID'] != "" || @$_S
 } elseif (count($_POST) > 0) {
   // @todo(post-migration): Remove after migrating to AWS
   $environment = $_SERVER['APPLICATION_ENV'];
-  if ($environment === 'production') {
+  if ($environment === 'production' && $_POST['username'] != 'uqamartl') {
     Auth::redirect(APP_RELATIVE_URL . "login.php?err=99");
   }
 

@@ -363,13 +363,13 @@ class Fedora_API implements FedoraApiInterface {
       $obj = TRUE;
       // @todo(post-migration): Remove migration check
       $copy = TRUE;
-      if (
+      /*if (
         defined('APP_MIGRATION_RUN')
         && APP_MIGRATION_RUN === TRUE
         && $aws->checkExistsById($dataPath, $dsID) === TRUE
       ) {
         $copy = FALSE;
-      }
+      }*/
       if ($copy) {
         $obj = $aws->copyFile($dsLocation, $dataPath . "/" . $dsID, $srcBucket, $mimetype);
       }
