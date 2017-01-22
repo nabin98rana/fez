@@ -107,12 +107,6 @@ if ((@$_SESSION[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-TargetedID'] != "" || @$_S
 		exit;
 	}
 } elseif (count($_POST) > 0) {
-  // @todo(post-migration): Remove after migrating to AWS
-  $environment = $_SERVER['APPLICATION_ENV'];
-  if ($environment === 'production' && $_POST['username'] != 'uqamartl') {
-    Auth::redirect(APP_RELATIVE_URL . "login.php?err=99");
-  }
-
 	$userVal = new Fez_Validate_Username();
 	$noemptyVal = new Zend_Validate_NotEmpty(Zend_Validate_NotEmpty::ALL);
 	if (!$userVal->isValid($_POST['username'])) {
