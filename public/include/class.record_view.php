@@ -160,24 +160,24 @@ class RecordView {
                                 "<a href='http://dx.doi.org/".htmlspecialchars($details[$xsd_display_fields[$dis_key]['xsdmf_id']])."'>".htmlspecialchars($details[$xsd_display_fields[$dis_key]['xsdmf_id']])."</a>";
                     }
                 }
-				if ($dis_field['sek_title'] == "Author" || $dis_field['sek_title'] == "Contributor") {
+				if ($dis_field['sek_title'] == "Author" || $dis_field['sek_title'] == "Contributor" || $dis_field['sek_title'] == "Creator") {
 					if (!empty($details[$dis_field['xsdmf_id']])) {
 						if (is_array($details[$dis_field['xsdmf_id']])) {
 							foreach ($details[$dis_field['xsdmf_id']] as $ckey => $cdata) {
 								$temp_xsdmf_id = $dis_field['xsdmf_attached_xsdmf_id'];
 								if ( is_array($details[$temp_xsdmf_id]) &&  (is_numeric($details[$temp_xsdmf_id][$ckey])) && ($details[$temp_xsdmf_id][$ckey] != 0)) {
-									$details[$dis_field['xsdmf_id']][$ckey] = "<a title='Browse by Author ID for ".$details[$dis_field['xsdmf_id']][$ckey]."' class='author_id_link' href='".APP_BASE_URL."list/author_id/".urlencode($details[$temp_xsdmf_id][$ckey])."/'>".$details[$dis_field['xsdmf_id']][$ckey]."</a>";
+									$details[$dis_field['xsdmf_id']][$ckey] = "<a title=\"Browse by Author ID for ".($details[$dis_field['xsdmf_id']][$ckey])."\" class='author_id_link' href='".APP_BASE_URL."list/author_id/".urlencode($details[$temp_xsdmf_id][$ckey])."/'>".$details[$dis_field['xsdmf_id']][$ckey]."</a>";
 								} else {
-									$details[$dis_field['xsdmf_id']][$ckey] = "<a title='Browse by Author Name for ".$details[$dis_field['xsdmf_id']][$ckey]."' class='silent_link' href=".'"'.APP_BASE_URL."list/author/".urlencode($details[$dis_field['xsdmf_id']][$ckey])."/".'"'.">".htmlspecialchars($details[$dis_field['xsdmf_id']][$ckey])."</a>";
+									$details[$dis_field['xsdmf_id']][$ckey] = "<a title=\"Browse by Author Name for ".($details[$dis_field['xsdmf_id']][$ckey])."\" class='silent_link' href=".'"'.APP_BASE_URL."list/author/".urlencode($details[$dis_field['xsdmf_id']][$ckey])."/".'"'.">".htmlspecialchars($details[$dis_field['xsdmf_id']][$ckey])."</a>";
 
 								}
 							}
 						} else {
 							$temp_xsdmf_id = $dis_field['xsdmf_attached_xsdmf_id'];
 							if ((is_numeric($details[$temp_xsdmf_id])) && ($details[$temp_xsdmf_id] != 0)) {
-								$details[$dis_field['xsdmf_id']] = "<a title='Browse by Author ID for ".$details[$dis_field['xsdmf_id']]."' class='author_id_link' href='".APP_BASE_URL."list/author_id/".urlencode($details[$temp_xsdmf_id])."/'>".$details[$dis_field['xsdmf_id']]."</a>";
+								$details[$dis_field['xsdmf_id']] = "<a title=\"Browse by Author ID for ".($details[$dis_field['xsdmf_id']])."\" class='author_id_link' href='".APP_BASE_URL."list/author_id/".urlencode($details[$temp_xsdmf_id])."/'>".$details[$dis_field['xsdmf_id']]."</a>";
 							} else {
-								$details[$dis_field['xsdmf_id']] = "<a title='Browse by Author Name for ".$details[$dis_field['xsdmf_id']]."' class='silent_link' href=".'"'.APP_BASE_URL."list/author/".urlencode($details[$dis_field['xsdmf_id']])."/".'"'.">".htmlspecialchars($details[$dis_field['xsdmf_id']])."</a>";
+								$details[$dis_field['xsdmf_id']] = "<a title=\"Browse by Author Name for ".($details[$dis_field['xsdmf_id']])."\" class='silent_link' href=".'"'.APP_BASE_URL."list/author/".urlencode($details[$dis_field['xsdmf_id']])."/".'"'.">".htmlspecialchars($details[$dis_field['xsdmf_id']])."</a>";
 							}
 						}
 					}
@@ -272,7 +272,7 @@ class RecordView {
 					}
 				}
 
-				if (($dis_field['sek_title'] == "Subject"  || $dis_field['sek_title'] == "Fields of Research" || $dis_field['sek_title'] == "SEO Code" || $dis_field['sek_title'] == "Book Title" || $dis_field['sek_title'] == "Series") && (($dis_field['xsdmf_html_input'] != "contvocab_selector")) ) {
+				if (($dis_field['sek_title'] == "Subject"  || $dis_field['sek_title'] == "Fields of Research" || $dis_field['sek_title'] == "SEO Code" || $dis_field['sek_title'] == "Book Title" || $dis_field['sek_title'] == "Job Number" || $dis_field['sek_title'] == "Series") && (($dis_field['xsdmf_html_input'] != "contvocab_selector")) ) {
 					if (!empty($details[$dis_field['xsdmf_id']])) {
 						if (is_array($details[$dis_field['xsdmf_id']])) {
 							foreach ($details[$dis_field['xsdmf_id']] as $ckey => $cdata) {

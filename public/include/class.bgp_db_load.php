@@ -53,7 +53,7 @@ class BackgroundProcess_Db_Load extends BackgroundProcess
     $log = FezLog::get();
 
     $environment = $_SERVER['APP_ENVIRONMENT'];
-    if (! ($environment === 'production' || $environment === 'staging')) {
+    if (! ($environment === 'staging')) {
       $log->err('DB load failed: Unknown environment - ' . $environment);
       return;
     }
@@ -82,10 +82,8 @@ class BackgroundProcess_Db_Load extends BackgroundProcess
       if (strpos($tbl, 'scd_') !== 0) {
         $db->query('DROP TABLE IF EXISTS ' . $tbl);
       }
-      if ($tbl !== 'fez_config') {
-        $sql = file_get_contents($sql);
-        $db->query($sql);
-      }
+      $sql = file_get_contents($sql);
+      $db->query($sql);
     }
 
     $files = glob($path . "/*.txt");
@@ -106,17 +104,10 @@ class BackgroundProcess_Db_Load extends BackgroundProcess
       $stmt->execute();
     }
 
-    $sql = file_get_contents($path . '/fez_config.sql');
+    $sql = file_get_contents($path . '/fez_config_extras.sql');
     $db->query($sql);
 
-    $stmt = $con->prepare('DELETE FROM fez_user WHERE usr_username LIKE \'%\_test\'');
+    $stmt = $con->prepare("DELETE FROM fez_user WHERE usr_username LIKE '%_test'");
     $stmt->execute();
-
-    if ($environment === 'production') {
-      // Run migration from Fedora -> S3
-      $bgp = new BackgroundProcess_Migrate_Fedora();
-      $bgp->register(serialize([]), User::getUserIDByUsername('webcron'));
-      sleep(60);
-    }
   }
 }

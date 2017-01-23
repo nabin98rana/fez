@@ -7,4 +7,4 @@ include_once(APP_INC_PATH. 'class.error_handler.php');
 $pid = $this->pid;
 
 $bgp = new BackgroundProcess_Generate_Bookreader_Images();
-$bgp->register(serialize(compact('pid')), Auth::getUserID());
+$bgp->register(serialize(compact('pid')), Auth::getUserID(), $this->id);

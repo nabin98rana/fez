@@ -292,10 +292,11 @@ class BatchImport
    * @param   int    $xdis_id The XSD Display ID the object will have.
    * @param   bool   $is_temp_file
    * @param   int    $qat_id The datastream quick auth template rule to apply
+   * @param   bool   $useSan True to import from the SAN bucket
    * @return  void
    */
   public static function handleStandardFileImport(
-    $pid, $full_name, $short_name, $xdis_id = 0, $is_temp_file = false, $qat_id = -1
+    $pid, $full_name, $short_name, $xdis_id = 0, $is_temp_file = false, $qat_id = -1, $useSan = true, $deleteExisting = true
   )
   {
     $dsIDName = $short_name;
@@ -305,8 +306,8 @@ class BatchImport
       $temp_store = $full_name;
     }
     else {
-      $temp_store = APP_TEMP_DIR . $ncName;
-      self::getFileContent($full_name, $temp_store);
+      $temp_store = Misc::getFileTmpPath($ncName);
+      self::getFileContent($full_name, $temp_store, $useSan);
     }
 
     $mimetype = Misc::mime_content_type($temp_store);
@@ -316,7 +317,7 @@ class BatchImport
       $controlgroup = 'M';
     }
 
-    if (Fedora_API::datastreamExists($pid, $ncName)) {
+    if ($deleteExisting && Fedora_API::datastreamExists($pid, $ncName)) {
       Fedora_API::callPurgeDatastream($pid, $ncName);
     }
 
@@ -326,31 +327,32 @@ class BatchImport
       $versionable = "false";
     }
 
-    $did = Fedora_API::getUploadLocationByLocalRef(
-      $pid, $ncName, $temp_store, "", $mimetype, $controlgroup, null, $versionable
-    );
+    // this function is used by regen workflows too, so for that we dont want to re-upload
+    // the just downloaded source file, just regen its derivatives
+    if ($deleteExisting) {
+      Fedora_API::getUploadLocationByLocalRef(
+          $pid, $ncName, $temp_store, "", $mimetype, $controlgroup, null, $versionable
+      );
+    }
     Record::generatePresmd($pid, $ncName);
     // Now check for post upload workflow events like thumbnail resizing of images and add them as datastreams if required
     Workflow::processIngestTrigger($pid, $ncName, $mimetype);
     if (is_file($temp_store) && !$is_temp_file) {
       unlink($temp_store);
     }
-    Record::setIndexMatchingFields($pid);
-    
-    if (is_numeric($qat_id) && $qat_id != "-1" && $qat_id != -1) {
-      if (APP_FEDORA_BYPASS == 'ON') {
-        FezACML::updateDatastreamQuickRule($pid, $qat_id, $did);
+    if ($deleteExisting) {
+      Record::setIndexMatchingFields($pid);
 
-      } else {
+      if (is_numeric($qat_id) && $qat_id != "-1" && $qat_id != -1) {
         $xmlObj = FezACML::getQuickTemplateValue($qat_id);
         if ($xmlObj != FALSE) {
           $FezACML_dsID = FezACML::getFezACMLDSName($ncName);
           if (Fedora_API::datastreamExists($pid, $FezACML_dsID)) {
             Fedora_API::callModifyDatastreamByValue($pid, $FezACML_dsID, "A", "FezACML security for datastream - " . $ncName,
-              $xmlObj, "text/xml", "true");
+                $xmlObj, "text/xml", "true");
           } else {
             Fedora_API::getUploadLocation($pid, $FezACML_dsID, $xmlObj, "FezACML security for datastream - " . $ncName,
-              "text/xml", "X", NULL, "true");
+                "text/xml", "X", NULL, "true");
           }
         }
       }
@@ -422,40 +424,54 @@ class BatchImport
       foreach ($files as $file) {
         $counter++;
         $handled_as_xml = FALSE;
-        $pid = Fedora_API::getNextPID();
         $short_name = Misc::shortFilename($file);
 
-        if (Misc::endsWith(strtolower($file), '.csv')) {
-          $xmlObj = self::getFileContent($file);
-          if (is_numeric(strpos($xmlObj, "foxml:digitalObject"))) {
-            $this->handleFOXMLImport($xmlObj);
-            if (APP_FEDORA_BYPASS != 'ON') {
+        if (APP_FEDORA_BYPASS != 'ON') {
+          $pid = Fedora_API::getNextPID();
+          if (Misc::endsWith(strtolower($file), '.csv')) {
+            $xmlObj = self::getFileContent($file);
+            if (is_numeric(strpos($xmlObj, "foxml:digitalObject"))) {
+              $this->handleFOXMLImport($xmlObj);
               Record::setIndexMatchingFields($pid);
+              $handled_as_xml = TRUE;
             }
-            $handled_as_xml = TRUE;
-          } else if (is_numeric(strpos($xmlObj, "METS:mets"))) {
-            $xmlBegin = $this->ConvertMETSToFOXML($pid, $xmlObj, $collection_pid, $short_name, $xdis_id, $ret_id, $sta_id);
-            $this->handleMETSImport($pid, $xmlObj, $xmlBegin, $xdis_id);
-            $handled_as_xml = TRUE;
+            else {
+              if (is_numeric(strpos($xmlObj, "METS:mets"))) {
+                $xmlBegin = $this->ConvertMETSToFOXML($pid, $xmlObj, $collection_pid, $short_name, $xdis_id, $ret_id, $sta_id);
+                $this->handleMETSImport($pid, $xmlObj, $xmlBegin, $xdis_id);
+                $handled_as_xml = TRUE;
+              }
+            }
           }
         }
+
         if (!$handled_as_xml) {
           if ($this->bgp) {
             $this->bgp->setProgress(intval($counter * 100 / count($files)));
-            $this->bgp->setStatus($pid . " - " . $short_name);
+            $this->bgp->setStatus($short_name);
           }
-          // Create the Record in Fedora
-          if (empty($dsarray)) {
-            // Use default metadata
-            $xmlObj = Foxml::GenerateSingleFOXMLTemplate(
-              $pid, $parent_pid, $file, $short_name, $xdis_id, $ret_id, $sta_id
-            );
-            // Insert the generated foxml object
-            Fedora_API::callIngestObject($xmlObj);
+
+          if (APP_FEDORA_BYPASS != 'ON') {
+            // Create the Record in Fedora
+            if (empty($dsarray)) {
+              // Use default metadata
+              $xmlObj = Foxml::GenerateSingleFOXMLTemplate(
+                $pid, $parent_pid, $file, $short_name, $xdis_id, $ret_id, $sta_id
+              );
+              // Insert the generated foxml object
+              Fedora_API::callIngestObject($xmlObj);
+            }
+            else {
+              // Use metadata from a user template
+              Record::insertFromTemplate($pid, $xdis_id, $short_name, $dsarray);
+            }
           } else {
-            // Use metadata from a user template
-            Record::insertFromTemplate($pid, $xdis_id, $short_name, $dsarray);
+            extract($dsarray);
+            $_POST = $rawPost;
+            $record = Record::insert();
+            $pid = $record->pid;
           }
+
           // Add the binary batch import file.
           $this->handleStandardFileImport($pid, $file, $short_name, $xdis_id);
           Record::setIndexMatchingFields($pid);
@@ -517,6 +533,12 @@ class BatchImport
           }
         }
       }
+    }
+    $display = XSD_Display::getDetails($xdis_id);
+    if ($display && $display['xdis_title'] === 'Image' && $display['xdis_version'] === 'MODS 1.0') {
+      include_once(APP_INC_PATH . 'class.san_image_import.php');
+      $import = new San_image_import();
+      return $import;
     }
     return false;
   }
@@ -815,14 +837,18 @@ class BatchImport
   /**
    * @param string $file
    * @param string $saveAs
+   * @param bool $useSan
    * @return string
    */
-  public static function getFileContent($file, $saveAs = '')
+  public static function getFileContent($file, $saveAs = '', $useSan = true)
   {
     $log = FezLog::get();
     if (defined('AWS_ENABLED') && AWS_ENABLED == 'true') {
-      $aws = new AWS(AWS_S3_SAN_IMPORT_BUCKET);
-
+      if ($useSan) {
+        $aws = new AWS(AWS_S3_SAN_IMPORT_BUCKET);
+      } else {
+        $aws = new AWS();
+      }
       $params = [];
       if (! empty($saveAs)) {
         $params['SaveAs'] = $saveAs;

@@ -1,0 +1,2 @@
+ALTER TABLE %TABLE_PREFIX%datastream_info ADD COLUMN dsi_bookreader int(1) DEFAULT 0 AFTER dsi_checksum;
+ALTER TABLE %TABLE_PREFIX%datastream_info__shadow ADD COLUMN dsi_bookreader int(1) DEFAULT 0 AFTER dsi_checksum;

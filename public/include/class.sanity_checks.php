@@ -455,7 +455,7 @@ class SanityChecks
         } else {
             $tidy->parseString($teststr, $config, 'utf8');
             $tidy->cleanRepair();
-            $xml = "$tidy";
+            $xml = (string)$tidy;
             $results = array_merge($results, SanityChecks::checkXMLStr('Tidy Result', $xml, '/this/is'));
         }
         if (!SanityChecks::resultsClean($results)) {

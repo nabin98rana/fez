@@ -39,19 +39,19 @@
 include_once(dirname(dirname(__FILE__)).DIRECTORY_SEPARATOR."config.inc.php");
 include_once(APP_INC_PATH."class.foxml.php");
 $file = escapeshellcmd(urldecode($_GET['file']));
-$file_dir = "";	
+$file_dir = "";
 
 if (is_numeric(strpos($file, "/"))) {
 	$file_dir = substr($file, 0, strrpos($file, "/"));
 	$file = substr($file, strrpos($file, "/")+1);
 
 }
-if (trim($file_dir) == "") { $file_dir = APP_TEMP_DIR; }
+if (trim($file_dir) == "") { $file_dir = Misc::getFileTmpPath(); }
 if ((!(is_numeric(strpos($file, "&")))) && (!(is_numeric(strpos($file, "|"))))) { // check for command hax
 	if (is_numeric(strrpos($file, '.'))) {
-        $ffpmeg_file = APP_TEMP_DIR.'stream_'.Foxml::makeNCName(substr($file, 0, strrpos($file, '.'))).'.flv';
+        $ffpmeg_file = Misc::getFileTmpPath('stream_'.Foxml::makeNCName(substr($file, 0, strrpos($file, '.'))).'.flv');
     } else {
-        $ffpmeg_file = APP_TEMP_DIR.'stream_'.Foxml::makeNCName($file).'.flv';
+        $ffpmeg_file = Misc::getFileTmpPath('stream_'.Foxml::makeNCName($file).'.flv');
     }
 	if (is_file($presmd_file)) { // if already exists, delete it
 		unlink($presmd_file);
@@ -60,8 +60,8 @@ if ((!(is_numeric(strpos($file, "&")))) && (!(is_numeric(strpos($file, "|"))))) 
     if (is_numeric(strpos($full_file, " "))) {
         $newfile = Foxml::makeNCName($file);
 //        copy($full_file, APP_TEMP_DIR.$newfile);
- 		Misc::processURL($full_file, true, APP_TEMP_DIR.$newfile);
-        $full_file = APP_TEMP_DIR.$newfile;
+ 		Misc::processURL($full_file, true, Misc::getFileTmpPath($newfile));
+        $full_file = Misc::getFileTmpPath($newfile);
     }
     if (!stristr(PHP_OS, 'win') || stristr(PHP_OS, 'darwin')) { // Not Windows Server
         $unix_extra = " 2>&1";
@@ -75,14 +75,14 @@ if ((!(is_numeric(strpos($file, "&")))) && (!(is_numeric(strpos($file, "|"))))) 
     if (!empty($error)) {
         Error_Handler::logError($error,__FILE__,__LINE__);
     }
-	
+
 	$return_status = 0;
 	$return_array = array();
 	exec($command.$unix_extra , $return_array, $return_status);
 	if ($return_status <> 0) {
 		Error_Handler::logError("FFMpeg Error: ".implode(",", $return_array).", return status = $return_status, for command $command \n", __FILE__,__LINE__);
 	}
-	
+
 	// add metadata to ffmpeg file using yamdi (yamdi cannot overwrite the file so we need to specify another file)
 	$metadataCommand = APP_FFMPEG_YAMDI_CMD . " -i {$ffpmeg_file} -o {$ffpmeg_file}.2";
 	$return_status = 0;
@@ -96,11 +96,11 @@ if ((!(is_numeric(strpos($file, "&")))) && (!(is_numeric(strpos($file, "|"))))) 
 	if ($return_status == 0) {
 		rename("{$ffpmeg_file}.2", $ffpmeg_file);
 	}
-	
+
 	if (!empty($newfile)) {
 	    unlink($full_file);
 	}
 	echo $ffpmeg_file;
-} 
+}
 
 ?>

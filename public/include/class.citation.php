@@ -193,7 +193,7 @@ class Citation
 			$log->err($ex);
 			return false;
 		}
-		if (( APP_SOLR_INDEXER == "ON" ) || (APP_FILECACHE == "ON")) {
+		if (( APP_SOLR_INDEXER == "ON" || APP_ES_INDEXER == "ON" ) || (APP_FILECACHE == "ON")) {
 			$stmt = "SELECT rek_pid FROM ".$dbtp."record_search_key WHERE rek_display_type=".$db->quote($xdis_id, 'INTEGER');
 			try {
 				$res = $db->fetchCol($stmt);
@@ -208,12 +208,12 @@ class Citation
 					$cache = new fileCache($pid, 'pid='.$pid);
 					$cache->poisonCache();
 				}
-				if ( APP_SOLR_INDEXER == "ON" ) {
+				if ( APP_SOLR_INDEXER == "ON" || APP_ES_INDEXER == "ON" ) {
 					$log->debug("Citation::clearCitationCacheByType ADDING ".$pid." TO QUEUE");
 					FulltextQueue::singleton()->add($pid);
 				}
 			}
-			if ( APP_SOLR_INDEXER == "ON" ) {
+			if ( APP_SOLR_INDEXER == "ON" || APP_ES_INDEXER == "ON" ) {
 				FulltextQueue::singleton()->commit();
 				FulltextQueue::singleton()->triggerUpdate();
 			}
@@ -468,7 +468,7 @@ class Citation
 		} elseif ($xsdmf['xsdmf_html_input'] == 'author_selector') {
 			$value = Citation::formatAuthor(Author::getFullname($value), $type);
 			// special case hack for editors name fix
-		} elseif ($xsdmf['sek_title'] == "Author" || strpos($xsdmf['xsdmf_title'], 'Editor') !== false) {
+		} elseif ($xsdmf['sek_title'] == "Author" || $xsdmf['sek_title'] == "Creator" || strpos($xsdmf['xsdmf_title'], 'Editor') !== false) {
 			$value = Citation::formatAuthor($value, $type);
 		} else {
             $value = htmlspecialchars($value);

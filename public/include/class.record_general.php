@@ -17,6 +17,9 @@ class RecordGeneral
   var $approver_roles;
   var $checked_auth = false;
   var $auth_groups;
+  /**
+   * @var XSD_DisplayObject
+   */
   var $display;
   var $details;
   var $record_parents;
@@ -707,13 +710,14 @@ class RecordGeneral
      * @param array $values Values of Search keys
      * @param boolean $removeCurrent Flag on whether to remove current value
      * @param string $history Message on the PID history
+     * @param boolean $commitIndex force a commit to the fulltext queue or wait for a later flush
      * @return string
      *
      * @bug Cannot change searchkey title
      *
      */
     function addSearchKeyValueList(
-    $search_keys=array(), $values=array(), $removeCurrent=true, $history="was added based on Links AMR Service data")
+    $search_keys=array(), $values=array(), $removeCurrent=true, $history="was added based on Links AMR Service data", $commitIndex = true)
     {
 
         if (APP_FEDORA_BYPASS == "ON"){
@@ -721,10 +725,17 @@ class RecordGeneral
             $searchKeyData = $this->_buildRecordSearchKeyData($search_keys, $values);
 
             // Build history message
-            $historyMsg = "Updated PID '". $this->pid ."' search key values.";
+            $historyDetail = "";
+            foreach ($search_keys as $key => $sekTitle) {
+                if ($historyDetail != "") {
+                    $historyDetail .= ", ";
+                }
+                $historyDetail .= $sekTitle . ": " . $values[$key];
+            }
+            $historyDetail .= " " . $history;
 
             $recordSearchKey = new Fez_Record_Searchkey();
-            $result = $recordSearchKey->updateRecord($this->pid, $searchKeyData, $historyMsg);
+            $result = $recordSearchKey->updateRecord($this->pid, $searchKeyData, $historyDetail, $commitIndex);
 
             return $result;
 
@@ -1005,7 +1016,7 @@ class RecordGeneral
           $this->pid, "RELS-EXT", "A", "Relationships to other objects", $newXML, "text/xml", "inherit"
       );
       Record::setIndexMatchingFields($this->pid);
-      if (APP_SOLR_INDEXER == "ON") {
+      if (APP_SOLR_INDEXER == "ON" || APP_ES_INDEXER == "ON") {
         FulltextQueue::singleton()->add($this->pid);
         FulltextQueue::singleton()->commit();
       }
@@ -1065,7 +1076,7 @@ class RecordGeneral
       $historyDetail = "Isi_loc was stripped in preparation of Links AMR Service data import";
       History::addHistory($this->pid, null, "", "", true, $historyDetail);
       Record::setIndexMatchingFields($this->pid);
-      /*if( APP_SOLR_INDEXER == "ON" ) {
+      /*if( APP_SOLR_INDEXER == "ON" || APP_ES_INDEXER == "ON" ) {
        FulltextQueue::singleton()->add($this->pid);
        FulltextQueue::singleton()->commit();
        }*/
@@ -1117,7 +1128,7 @@ class RecordGeneral
       $historyDetail = "Scopus ID (EID) was stripped";
       History::addHistory($this->pid, null, "", "", true, $historyDetail);
       Record::setIndexMatchingFields($this->pid);
-      /*if( APP_SOLR_INDEXER == "ON" ) {
+      /*if( APP_SOLR_INDEXER == "ON" || APP_ES_INDEXER == "ON" ) {
        FulltextQueue::singleton()->add($this->pid);
        FulltextQueue::singleton()->commit();
        }*/
@@ -2067,7 +2078,13 @@ class RecordGeneral
         if ($dsID != "") {
           $this->details = $this->display->getXSDMF_Values_Datastream($this->pid, $dsID, $this->createdDT);
         } else {
-          $this->details = $this->display->getXSDMF_Values($this->pid, $this->createdDT, false, $getLookup);
+          $skipIndex = false;
+          $xdis_title = XSD_Display::getTitle($xdis_id);
+          $xdis_title_prefix = FezACML::getXdisTitlePrefix();
+          if (APP_FEDORA_BYPASS == 'ON' && stripos($xdis_title, $xdis_title_prefix) === 0) {
+            $skipIndex = true;
+          }
+          $this->details = $this->display->getXSDMF_Values($this->pid, $this->createdDT, $skipIndex, $getLookup);
         }
       } else {
         $log->err(
@@ -2446,15 +2463,15 @@ class RecordGeneral
       $xsdmf_details = XSD_HTML_Match::getDetailsByXSDMF_ID($xsdmf_id);
       if ($xsdmf_details['xsdmf_sek_id'] != "") {
         $sekDetails = Search_Key::getBasicDetails($xsdmf_details['xsdmf_sek_id']);
-        $xsdmf_value = Search_Key::cleanSearchKeyValue($sekDetails, $xsdmf_value);
         if ($sekDetails['sek_data_type'] == 'int' && $sekDetails['sek_html_input'] == 'checkbox') {
           if ($xsdmf_value == 'on') {
             $xsdmf_value = 1;
           } else {
             $xsdmf_value = 0;
           }
+          $xsdmf_array[$xsdmf_id] = $xsdmf_value;
         }
-
+        $xsdmf_value = Search_Key::cleanSearchKeyValue($sekDetails, $xsdmf_value);
         if ($sekDetails['sek_data_type'] == 'date') {
           if (!empty($xsdmf_value)) {
             if (is_numeric($xsdmf_value) && strlen($xsdmf_value) == 4) {
@@ -2529,10 +2546,10 @@ class RecordGeneral
       $xsdmf_ids = array_keys($xsdFields);
 
       $sekFields = array();
-
+      $fields = array();
       try
       {
-          $sql = "SELECT mf.xsdmf_id, mf.xsdmf_html_input, mf.xsdmf_cvo_save_type, xsdmf_smarty_variable, xsdmf_use_parent_option_list, TRIM(LOWER(REPLACE(sk.sek_title,\" \",\"_\"))) AS sek_title, "
+          $sql = "SELECT mf.xsdmf_id, mf.xsdmf_html_input, mf.xsdmf_cvo_save_type, xsdmf_smarty_variable, xsdmf_attached_xsdmf_id, xsdmf_use_parent_option_list, TRIM(LOWER(REPLACE(sk.sek_title,\" \",\"_\"))) AS sek_title, "
           . "sk.sek_relationship, sk.sek_cardinality FROM " . APP_TABLE_PREFIX . "search_key sk, "
           . APP_TABLE_PREFIX . "xsd_display_matchfields mf WHERE sk.sek_id = "
           . "mf.xsdmf_sek_id AND mf.xsdmf_id IN (?)";
@@ -2545,6 +2562,24 @@ class RecordGeneral
       catch(Exception $e)
       {
           $log->err($e->getMessage());
+      }
+
+      // Clear the attached xsdmf if the current value is empty
+      foreach($fields as $field) {
+        if ($field['xsdmf_attached_xsdmf_id'] != "") {
+          if (is_array($xsdFields[$field['xsdmf_id']])) {
+            foreach ($xsdFields[$field['xsdmf_id']] as $xf_key => $xf) {
+              if ($xf == "") {
+                $xsdFields[$field['xsdmf_attached_xsdmf_id']][$xf_key] = "";
+              }
+            }
+          }
+          else {
+            if ($xsdFields[$field['xsdmf_id']] == "") {
+              $xsdFields[$field['xsdmf_attached_xsdmf_id']] = "";
+            }
+          }
+        }
       }
 
       foreach($fields as $field)
@@ -2591,6 +2626,7 @@ class RecordGeneral
               $valueKeys = array_keys($xsdFields[$field['xsdmf_id']]); //Not all keys are numeric.
               $xsdFields[$field['xsdmf_id']] = $xsdFields[$field['xsdmf_id']][$valueKeys[0]];
           }
+
 
           $sekFields[$field['sek_relationship']][$field['sek_title']] = array(
           	'xsdmf_id' => $field['xsdmf_id'],

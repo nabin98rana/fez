@@ -968,7 +968,7 @@ class ePrints
 				$tidy = new tidy;
 				$tidy->parseString($oai_dc_xml, $config, 'utf8');
 				$tidy->cleanRepair();
-				$oai_dc_xml = $tidy;
+				$oai_dc_xml = (string)$tidy;
 
 				$xmlOAIDoc= new DomDocument();
 				$xmlOAIDoc->preserveWhiteSpace = false;
@@ -1120,7 +1120,7 @@ class ePrints
 				$tidy = new tidy;
 				$tidy->parseString($xmlObj, $config, 'utf8');
 				$tidy->cleanRepair();
-				$xmlObj = $tidy;
+				$xmlObj = (string)$tidy;
 
 				//echo "\n$xmlObj\n";
 				BatchImport::saveEprintPid($eprintid, $pid); // save the eprint id against its new Fedora/Fez pid so it can be used with a mod-rewrite redirect for the ePrints record and bringing across stats
@@ -1167,7 +1167,7 @@ class ePrints
 					Fedora_API::getUploadLocationByLocalRef($pid, $short_ds, $short_ds, $short_ds, $mimetype, "M", null, $versionable);
 
 					//                  $presmd_check = Workflow::checkForPresMD($ds);  // try APP_TEMP_DIR.$short_ds
-					$presmd_check = Workflow::checkForPresMD(APP_TEMP_DIR.$short_ds);  // try APP_TEMP_DIR.$short_ds
+					$presmd_check = Workflow::checkForPresMD(Misc::getFileTmpPath($short_ds));  // try APP_TEMP_DIR.$short_ds
 					if ($presmd_check != false) {
 						Fedora_API::getUploadLocationByLocalRef($pid, $presmd_check, $presmd_check,
 						$presmd_check, "text/xml", "M");

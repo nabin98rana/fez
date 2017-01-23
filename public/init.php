@@ -38,7 +38,8 @@ ini_set("display_errors", 0); // LKDB - tmp (was 1)
 //error_reporting(1);
 error_reporting(E_ALL & ~E_NOTICE & ~E_STRICT & ~E_DEPRECATED & ~E_WARNING);
 set_time_limit(0);
-date_default_timezone_set("Australia/Brisbane");
+$timezone = "Australia/Brisbane";
+date_default_timezone_set($timezone);
 
 $firebug_ips = array(); //$firebug_ips = array('130.102.44.20', '130.102.44.12', '130.102.44.50', '130.102.44.1', '130.102.44.21', '130.102.44.54');
 
@@ -120,6 +121,7 @@ catch (Exception $ex) {
 Configuration::registerConf();
 
 // if slave db config.inc.php consts are setup, use them for statistics reading to lessing the burden
+$db_slave = null;
 if (defined("APP_SQL_SLAVE_DBHOST")) {
   $slave_params = array(
     'host' => APP_SQL_SLAVE_DBHOST,
@@ -139,11 +141,13 @@ if (defined("APP_SQL_SLAVE_DBHOST")) {
     Zend_Registry::set('db_slave', $db_slave);
   }
   catch (Exception $ex) {
+    $db_slave = null;
     $error_type = "db_slave";
   }
 }
 
 // if cache db config.inc.php consts are setup, use them for fez_fulltext_cache table read/write instead of the main db, to lessen load/spread storage
+$db_cache = null;
 if (defined("APP_SQL_CACHE_DBHOST")) {
   $cache_params = array(
     'host' => APP_SQL_CACHE_DBHOST,
@@ -163,7 +167,19 @@ if (defined("APP_SQL_CACHE_DBHOST")) {
     Zend_Registry::set('db_cache', $db_cache);
   }
   catch (Exception $ex) {
+    $db_cache = null;
     $error_type = "db_cache";
+  }
+}
+
+$env = strtolower($_SERVER['APPLICATION_ENV']);
+if(APP_FEDORA_BYPASS == "ON" && ($env == 'production' || $env == 'staging')) {
+  $db->query("SET time_zone='$timezone'");
+  if ($db_slave) {
+    $db_slave->query("SET time_zone='$timezone'");
+  }
+  if ($db_cache) {
+    $db_cache->query("SET time_zone='$timezone'");
   }
 }
 

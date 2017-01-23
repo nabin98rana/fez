@@ -39,7 +39,6 @@ header('Access-Control-Allow-Origin: *');
 header('Content-Type: ' . ($callback ? 'application/javascript' : 'application/json') . ';charset=UTF-8');
 
 echo ($callback ? '/**/'.$callback . '(' : '');
-
 $response = -1;
 $error = '';
 $file = APP_INC_PATH . 'class.' . preg_replace('/[^a-z0-9__]/si', '', $_GET['file']) . '.php';
@@ -75,6 +74,7 @@ $allowedBgps = [
   'BackgroundProcess_Update_Sherpa_Romeo_Data',
   'BackgroundProcess_Update_Statistics_Summary_Tables',
   'BackgroundProcess_Update_Ulrichs',
+  'BackgroundProcess_Reindex_Recent_Pids_Into_Solr'
 ];
 
 if ($_GET['token'] !== $_SERVER["APPLICATION_WEBCRON_TOKEN"]) {

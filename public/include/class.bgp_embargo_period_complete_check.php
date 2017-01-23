@@ -62,13 +62,7 @@ class BackgroundProcess_Embargo_Period_Complete_Check extends BackgroundProcess
       $pidPermissions = Auth::getAuthPublic($pidInfo['dsi_pid'], $pidInfo['dsi_dsid']);
       if (!($pidPermissions['lister'] && $pidPermissions['viewer'])) {
 
-        if (APP_FEDORA_BYPASS == "ON") {
-          $did = AuthNoFedoraDatastreams::getDid($pidInfo['dsi_pid'], $pidInfo['dsi_dsid']);
-          AuthNoFedoraDatastreams::setInherited($did);
-          AuthNoFedoraDatastreams::recalculatePermissions($did);
-        } else {
-          Datastream::setfezACMLInherit($pidInfo['dsi_pid'], $pidInfo['dsi_dsid']);
-        }
+        Datastream::setfezACMLInherit($pidInfo['dsi_pid'], $pidInfo['dsi_dsid']);
 
         echo $pidInfo['dsi_pid']." ".$pidInfo['dsi_dsid']." \n";
         if (APP_FILECACHE == "ON") {

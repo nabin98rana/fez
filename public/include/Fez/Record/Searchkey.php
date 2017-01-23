@@ -138,7 +138,7 @@ class Fez_Record_Searchkey
    *                                 )
    * @return boolean
    */
-  public function insertRecord($sekData = array(), $historyMsg = false, $citationData = array(), $onlyShadow=false)
+  public function insertRecord($sekData = array(), $historyMsg = false, $citationData = array(), $onlyShadow=false, $commitIndex = true)
   {
     // Set PID
     $this->_setPid();
@@ -158,7 +158,7 @@ class Fez_Record_Searchkey
       $this->_updateHistory($historyMsg);
     }
     $this->_insertRecordCitation($citationData);
-    $this->_updateSolrIndex();
+    $this->_updateSolrIndex($commitIndex);
     $this->_updateLinksAMR();
 
     return true;
@@ -176,7 +176,7 @@ class Fez_Record_Searchkey
    *                                 )
    * @return boolean
    */
-  public function updateRecord($pid = null, $sekData = array(), $historyMsg = false)
+  public function updateRecord($pid = null, $sekData = array(), $historyMsg = false, $commitIndex = true)
   {
 
     // Set PID
@@ -197,7 +197,7 @@ class Fez_Record_Searchkey
       $this->_updateHistory($historyMsg);
     }
     $this->_updateRecordCitation();
-    $this->_updateSolrIndex();
+    $this->_updateSolrIndex($commitIndex);
     $this->_cleanCache();
     $this->_updateLinksAMR();
     return true;
@@ -400,15 +400,6 @@ class Fez_Record_Searchkey
 
     $new_pid = $recordSearchKey->_pid;
 
-
-    // Copy over the security
-    $perms = AuthNoFedora::getNonInheritedSecurityPermissions($pid);
-
-
-    foreach ($perms as $perm) {
-      AuthNoFedora::addRoleSecurityPermissions($new_pid, $perm['authii_role'], $perm['argr_arg_id'], '0');
-    }
-
     if (!empty($clone_attached_datastreams)) {
       $datastreams = Fedora_API::callGetDatastreams($pid);
 
@@ -417,19 +408,18 @@ class Fez_Record_Searchkey
 
           if ($ds_value['controlGroup'] == 'M') {
 
-            $new_did = Fedora_API::callAddDatastream(
+            if ($ds_value['ID'] == FezACML::getFezACMLPidName($pid)) {
+              $ds_value['ID'] = FezACML::getFezACMLPidName($new_pid);
+            }
+            Fedora_API::callAddDatastream(
               $new_pid, $ds_value['ID'], $ds_value['location'], $ds_value['label'],
               $ds_value['state'], $ds_value['MIMEType'], $ds_value['controlGroup'], $ds_value['versionable']
             );
 
-            $perms = AuthNoFedoraDatastreams::getNonInheritedSecurityPermissions($ds_value['id']);
-            foreach ($perms as $perm) {
-              AuthNoFedoraDatastreams::addRoleSecurityPermissions($new_did, $perm['authdii_role'], $perm['argr_arg_id'], '0');
-            }
             Exiftool::cloneExif($pid, $ds_value['ID'], $new_pid, $ds_value['ID']);
 
           } else if ($ds_value['controlGroup'] == 'R') {
-            $new_did = Fedora_API::callAddDatastream(
+            Fedora_API::callAddDatastream(
               $new_pid, $ds_value['ID'], $ds_value['location'], $ds_value['label'],
               $ds_value['state'], $ds_value['MIMEType'], $ds_value['controlGroup'], $ds_value['versionable']
             );
@@ -438,7 +428,6 @@ class Fez_Record_Searchkey
         }
       }
     }
-    AuthNoFedora::recalculatePermissions($new_pid);
     return $new_pid;
   }
 
@@ -448,30 +437,18 @@ class Fez_Record_Searchkey
     $sekDetails = Search_Key::getDetailsByTitle($sekTitle);
     $sekTitleDb = $sekDetails['sek_title_db'];
     $table = APP_TABLE_PREFIX . "record_search_key_" . $sekTitleDb;
-    $tableShadow = $table . "__shadow";
-
-    // Query to backup old record: copy the data from sk main table to shadow table
-    $stmtBackupToShadow = "INSERT INTO " . $tableShadow .
-      "  SELECT *, " . $this->_db->quote($this->_version, 'DATE') .
-      "  FROM " . $table .
-      "  WHERE rek_" . $sekTitleDb . "_pid = " . $this->_db->quote($this->_pid, 'STRING');
 
     // Query to remove old record on main table.
     $stmtDeleteOld = "DELETE FROM " . $table .
       " WHERE rek_" . $sekTitleDb . "_pid = " . $this->_db->quote($this->_pid, 'STRING');
 
-    // Begin DB transaction explicitly. We want to be able to rollback if any of these queries failed.
-    $this->_db->beginTransaction();
     try {
-      $this->_db->exec($stmtBackupToShadow);
-      $this->_db->exec($stmtDeleteOld);
-      $this->_db->commit();
+      $this->_db->query($stmtDeleteOld);
       FulltextQueue::singleton()->add($this->_pid);
       FulltextQueue::singleton()->commit();
       return true;
     } catch (Exception $ex) {
-      $this->_db->rollBack();
-      $this->_log->err($ex);
+      $this->_log->err($ex . " stmtDeleteOld: ".$stmtDeleteOld);
     }
     return false;
   }
@@ -631,17 +608,20 @@ class Fez_Record_Searchkey
   /**
    * Update SOLR index caches.
    *
+   * @param boolean $commit - to force a queue commit and potential flush or wait for later
    * @return boolean
    */
-  protected function _updateSolrIndex()
+  protected function _updateSolrIndex($commit = true)
   {
-    if (APP_SOLR_INDEXER != "ON") {
+    if (APP_SOLR_INDEXER != "ON" && APP_ES_INDEXER != "ON") {
       return true;
     }
 
     $this->_log->debug("Fez_Record_Searchkey->update() adding " . $this->_pid . " to SOLR Queue");
     FulltextQueue::singleton()->add($this->_pid);
-    FulltextQueue::singleton()->commit();
+    if ($commit == true) {
+      FulltextQueue::singleton()->commit();
+    }
     return true;
   }
 

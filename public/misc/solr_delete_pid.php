@@ -51,5 +51,3 @@ $solr->commit();
 $solr->triggerUpdate();
 // Display result
 print_r($return);
-
-?>

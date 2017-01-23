@@ -328,6 +328,11 @@ if (!empty($pid) && !empty($dsID)) {
 //      } else {
         $resourcePath = BR_IMG_DIR . $pid . '/' . $dsID;
         $protocol = ($_SERVER['HTTPS']) ? 'https://' : 'http://';
+        //HTTPS may be hidden behind cloudfront layers
+        if (isset($_SERVER['HTTP_CLOUDFRONT_FORWARDED_PROTO']) && ($_SERVER['HTTP_CLOUDFRONT_FORWARDED_PROTO'] == 'https')) {
+            $protocol = 'https://';
+        }
+
         $host = $protocol . $_SERVER['HTTP_HOST'];
         $urlPath = str_replace($_SERVER['DOCUMENT_ROOT'], '', BR_IMG_DIR);
 //      }
@@ -376,6 +381,7 @@ if (!empty($pid) && !empty($dsID)) {
       if (defined('AWS_S3_ENABLED') && AWS_S3_ENABLED == 'true') {
         $bri = new bookReaderImplementation($resource);
         $cfURL = $bri->getCloudFrontURL($pid, $resource, $image);
+        header('Content-Type: image/jpeg');
         Misc::processURL($cfURL, true);
       } else {
         $imageFile = BR_IMG_DIR . $pid . '/' . $resource . '/' . $image;
@@ -401,12 +407,22 @@ if (!empty($pid) && !empty($dsID)) {
 
     } elseif (($is_video == 1) && (is_numeric(strpos($ctype, "flv")))) {
 
+      $flvUrl = APP_BASE_URL . "stream/{$pid}/{$dsID}";
+      $flvImgUrl = APP_BASE_URL . "";
+      if (APP_FEDORA_BYPASS == 'ON') {
+        $flvUrl = Fedora_API::getCloudFrontUrl($pid, $dsID);
+      }
+
       include_once(APP_INC_PATH . "class.template.php");
       header("Content-Type: text/html");
       $tpl = new Template_API();
       $tpl->setTemplate("flv.tpl.html");
       $tpl->assign("APP_BASE_URL", APP_BASE_URL);
       $tpl->assign("eserv_url", APP_BASE_URL . "eserv.php");
+
+      $tpl->assign("flv_url", $flvUrl);
+      $tpl->assign("flv_img_url", $flvImgUrl);
+
       $tpl->assign("dsID", $dsID);
       if (is_numeric($exif_array['exif_image_height']) && is_numeric($exif_array['exif_image_width'])) {
         $player_height = $exif_array['exif_image_height'];

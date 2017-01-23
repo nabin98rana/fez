@@ -79,16 +79,40 @@ SET config_value = '/solr/'
 WHERE config_name = 'app_solr_path';
 
 UPDATE fez_config
-SET config_value = 'ON'
+SET config_value = 'OFF'
 WHERE config_name = 'app_solr_switch';
 
 UPDATE fez_config
-SET config_value = 'ON'
+SET config_value = 'OFF'
 WHERE config_name = 'app_solr_indexer';
 
 UPDATE fez_config
 SET config_value = 'ON'
 WHERE config_name = 'app_solr_index_datastreams';
+
+UPDATE fez_config
+SET config_value = 'elasticsearch'
+WHERE config_name = 'app_es_host';
+
+UPDATE fez_config
+SET config_value = 'ON'
+WHERE config_name = 'app_es_index_datastreams';
+
+UPDATE fez_config
+SET config_value = 'fez'
+WHERE config_name = 'app_es_index_name';
+
+UPDATE fez_config
+SET config_value = 'ON'
+WHERE config_name = 'app_es_switch';
+
+UPDATE fez_config
+SET config_value = 'ON'
+WHERE config_name = 'app_es_indexer';
+
+UPDATE fez_config
+SET config_value = 'ON'
+WHERE config_name = 'app_es_index_datastreams';
 
 UPDATE fez_config
 SET config_value = '/var/cache/file/'
@@ -188,7 +212,7 @@ VALUES
 REPLACE INTO fez_auth_quick_template (qat_id, qat_title, qat_value, qat_inherit)
 VALUES
 	(1, 'Masqueraders only', '<FezACML>\r\n  <rule>\r\n    <role name=\"Viewer\">\r\n      <in_AD>off</in_AD>\r\n      <in_Fez>off</in_Fez>\r\n      <Fez_Group>1</Fez_Group>\r\n    </role>\r\n  </rule>\r\n  <inherit_security>off</inherit_security>\r\n</FezACML>\r\n  ', 0),
-	(2, 'Thesis officers only', '<FezACML>\r\n  <rule>\r\n    <role name=\"Viewer\">\r\n      <in_AD>off</in_AD>\r\n      <in_Fez>off</in_Fez>\r\n      <Fez_Group>2</Fez_Group>\r\n    </role>\r\n  </rule>\r\n  <inherit_security>off</inherit_security>\r\n</FezACML>\r\n  ', 0),
+	(2, 'Thesis officers only', '<FezACML>\r\n  <rule>\r\n    <role name=\"Viewer\">\r\n      <in_AD>off</in_AD>\r\n      <in_Fez>off</in_Fez>\r\n      <Fez_Group>2</Fez_Group>\r\n    </role>\r\n  </rule>\r\n <inherit_security>off</inherit_security>\r\n</FezACML>\r\n  ', 0),
 	(3, 'UPOs only', '<FezACML>\r\n  <rule>\r\n    <role name=\"Viewer\">\r\n      <in_AD>off</in_AD>\r\n      <in_Fez>off</in_Fez>\r\n      <Fez_Group>3</Fez_Group>\r\n    </role>\r\n  </rule>\r\n  <inherit_security>off</inherit_security>\r\n</FezACML>\r\n  ', 0),
 	(4, 'UPOs only with inheritance on', '<FezACML>\r\n  <rule>\r\n    <role name=\"Viewer\">\r\n      <in_AD>off</in_AD>\r\n      <in_Fez>off</in_Fez>\r\n      <Fez_Group>3</Fez_Group>\r\n    </role>\r\n  </rule>\r\n  <inherit_security>on</inherit_security>\r\n</FezACML>\r\n  ', 1);
 

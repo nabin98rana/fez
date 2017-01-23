@@ -454,7 +454,7 @@ function xsdmfValidate(field, value, vtype, title, name) {
 		}
 	} else if (vtype == 'date') {
 		if (!isDate(value)) {
-            errors[errors.length] = new Option(title+' (needs to be in date format eg 19/04/2016)', name);
+            errors[errors.length] = new Option(title+' (Must enter date as DD/MM/YYYY, eg. 19/04/2016. Where day and/or month are not known, enter 01 into each.)', name);
 		}
 	} else if (vtype == 'email') {
 		if (!isWhitespace(value) && !isEmail(value)) {
@@ -685,7 +685,7 @@ function getSelectedOptionObject(f, field_name)
     }
 }
 
-var errors = null;
+var errors = [];
 
 function checkFormSubmission(f, callback_func)
 {

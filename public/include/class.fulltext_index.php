@@ -50,8 +50,10 @@ include_once(APP_INC_PATH . "class.bgp_fulltext_index.php");
 include_once(APP_INC_PATH . "class.fulltext_queue.php");
 include_once(APP_INC_PATH . "class.fulltext_tools.php");
 include_once(APP_INC_PATH . "class.fulltext_index_solr.php");
+include_once(APP_INC_PATH . "class.fulltext_index_elasticsearch.php");
 include_once(APP_INC_PATH . "class.fulltext_index_solr_csv.php");
 include_once(APP_INC_PATH . "class.citation.php");
+include_once(APP_INC_PATH . "class.auth.php");
 include_once(APP_INC_PATH . "Apache/Solr/Service.php");
 
 abstract class FulltextIndex {
@@ -67,8 +69,7 @@ abstract class FulltextIndex {
 	const FIELD_NAME_AUTHCREATOR = '_authcreator';
 	const FIELD_NAME_AUTHEDITOR = '_autheditor';
 	const FIELD_NAME_FULLTEXT = 'content';
-
-	const USE_LOCKING = true;
+const USE_LOCKING = true;
 	const LOCK_NAME_FULLTEXT_INDEX = 'indexer';
 
 	const ACTION_INSERT = 'I';
@@ -84,7 +85,20 @@ abstract class FulltextIndex {
 	// how often the index optimizer is called
 	const COMMIT_COUNT = APP_SOLR_COMMIT_LIMIT; // Now gets this variablee from a config var set in the admin gui
 
-	/**
+
+  public static function get($readOnly = false)
+  {
+    if (APP_ES_SWITCH == "ON") {
+      return new FulltextIndex_ElasticSearch($readOnly);
+    } elseif (APP_SOLR_SWITCH == "ON") {
+      return new FulltextIndex_Solr_CSV($readOnly);
+    } else {
+      throw new Exception("No fulltext search index configured.");
+      return false;
+    }
+  }
+
+    /**
 	 * Links this instance to a corresponding background process.
 	 *
 	 * @param BackgroundProcess_Fulltext_Index $bgp
@@ -218,6 +232,7 @@ abstract class FulltextIndex {
 		if (FulltextQueue::USE_LOCKING) {
 			$this->releaseLock();
 		}
+    $this->bgp->setState(2);
 
 	}
 
@@ -274,7 +289,9 @@ abstract class FulltextIndex {
 				if ($ftq_op == FulltextQueue::ACTION_DELETE) {
 					$this->removeByPid($ftq_pid);
 				} else {
-					$this->indexRecord($ftq_pid);
+//				  $sekData = try to get sek data frmo cache else from buidl it manually
+          $sekData = array();
+					$this->indexRecord($ftq_pid, $sekData);
 				}
 
 				$this->countDocs++;
@@ -355,138 +372,299 @@ abstract class FulltextIndex {
 		}
 		if ($datatype == FulltextIndex::FIELD_TYPE_DATE) {
 			// update date format
-			$value = Date_API::getFedoraFormattedDateUTC($value);
-		}
+			$value = Date_API::getFedoraFormattedDate($value);
+		} elseif ($datatype == FulltextIndex::FIELD_TYPE_INT) {
+		  if (is_array($value)) {
+		    $newValue = array();
+        foreach ($value as $val) {
+          array_push($newValue, (int)$val);
+        }
+        $value = $newValue;
+      } else {
+        $value = (int)$value;
+      }
+    }
 
 		return $value;
 	}
+
+  /**
+   * Caches the pid into
+   * will recurse into collection or communities.
+   *
+   * @param array $pids
+   * @param array $sekData
+   */
+  public function cacheRecords($pids = array(), $sekData = array())
+  {
+    //if no data is passed, go and get it yourself for caching
+    if (count($sekData) == 0) {
+      $options = array();
+      $filter = array();
+      $filter["searchKey" . Search_Key::getID("Pid")]['override_op'] = 'OR';
+      foreach ($pids as $starredPid) {
+        $filter["searchKey" . Search_Key::getID("Pid")][] = $starredPid;
+      }
+
+      $current_row = 0;
+      $max = "ALL";
+      $order_by = "Title";
+
+      $sekData = Record::getListing($options, array(9, 10), $current_row, $max, $order_by, false, false, $filter, 'AND', false, false, false, APP_SOLR_FACET_LIMIT, APP_SOLR_FACET_MINCOUNT, false, $createdDT, true);
+
+    }
+    if (!is_array($sekData['list'])) {
+      return;
+    }
+
+    foreach ($pids as $pid) {
+      $record = new RecordObject($pid);
+      $dslist = $record->getDatastreams();
+
+      foreach ($dslist as $dsitem) {
+        if ($dsitem['controlGroup'] == 'M') {
+          $this->indexDS($record, $dsitem);
+        }
+      }
+    }
+    $roles = array(
+        'Lister',
+        'Creator',
+        'Editor',
+    );
+    $roleIDs = Auth::convertTextRolesToIDS($roles);
+    $roleIDs = array_flip($roleIDs);
+    $pidsString = "'" . implode("','", $pids) . "'";
+    $rulesGroups = $this->getRuleGroupsChunk($pidsString, $roleIDs);
+    // get the list of search keys because its easier to find and add solr dynamic field mapping that reverse lookup
+    // the sekDetails later (less sql calls)
+
+    $searchKeys = Search_Key::getList(false);
+
+    /*
+    * Custom search key (not a registered search key)
+    */
+    $citationKey = array(
+        'sek_title' => 'citation',
+        'sek_title_db' => 'citation',
+        'sek_data_type' => 'text',
+        'sek_relationship' => 0,
+    );
+    $docfields = array();
+    $searchKeys[] = $citationKey;
+
+    foreach ($sekData['list'] as $sekKey => $sekRow) {
+      $pid = $sekRow['rek_pid'];
+      foreach ($searchKeys as $sekDetails) {
+        $title = $sekDetails["sek_title"];
+        $index_title = $sekDetails["sek_title_db"];
+        if ($title == 'File Attachment Content') {
+          continue;
+        }
+
+
+        if (!array_key_exists('rek_' . $index_title, $sekRow)
+            || $sekRow['rek_' . $index_title] == null
+            || (is_array($sekRow['rek_' . $index_title]) && count($sekRow['rek_' . $index_title]) == 0) ) {
+          continue;
+        }
+
+        //add lookups? - dont seem to come in yet - although we should get them now which is great from getlisting
+        $fieldValue = $sekRow['rek_' . $index_title];
+
+        // We want solr to cache all citations
+        if ($fieldValue == "" && $title == 'citation') {
+          $fieldValue = Citation::updateCitationCache($pid);
+        }
+
+        // consolidate field types
+        $fieldType = $this->mapType($sekDetails['sek_data_type']);
+
+        // search-engine specific mapping of field content (date!)
+        $fieldValue = $this->mapFieldValue($title, $fieldType, $fieldValue);
+
+        if ($fieldValue != "") {
+          // mark multi-valued search keys
+          $isMultiValued = false;
+          if ($sekDetails["sek_cardinality"] == 1) {
+            $isMultiValued = true;
+          }
+
+          // search-engine specific mapping of field name
+          $index_title = $this->getFieldName($index_title, $fieldType, $isMultiValued);
+
+          if (APP_ES_SWITCH == "ON") {
+            //Add date year copy
+            if ($fieldType == FulltextIndex::FIELD_TYPE_DATE) {
+              $ftName = str_replace("_dt", "_year_t", $index_title);
+              $docfields[$ftName] = Date_API::getFedoraFormattedYear($fieldValue);
+            }
+
+            //Add facet fields, exact matching fields, sort fields
+
+            if ($fieldType == FulltextIndex::FIELD_TYPE_TEXT) {
+              // text blob search keys are not really suitable for sorting or faceting, so don't bother, only do varchar
+              if ($sekDetails['sek_data_type'] == 'varchar') {
+                $docfields[$index_title . "_s"] = $this->alphaOnlySortFormat($fieldValue);
+                $ftName = str_replace("_mt", "_mft", $index_title);
+                $ftName = preg_replace("/(.*)_t$/", '$1_t_ft', $ftName);
+                $docfields[$ftName] = $fieldValue;
+                $ftName = str_replace("_mt", "_mt_exact", $index_title);
+                $docfields[$ftName] = $fieldValue;
+              }
+            }
+          }
+
+          $docfields[$index_title] = $fieldValue;
+
+          //Add any lookups
+          if (!empty($sekDetails['sek_lookup_function'])) {
+            $docfields[$index_title . "_lookup"] = $sekRow["rek_".$sekDetails['sek_title_db']. "_lookup"];
+            $docfields[$index_title . "_lookup_exact"] = $sekRow["rek_".$sekDetails['sek_title_db']. "_lookup"];
+          }
+          unset($fieldValue);
+          unset($fieldType);
+        }
+      }
+
+      // add fulltext for each datastream (fulltext is supposed to be in the special cache)
+      $index_title = $this->getFieldName(self::FIELD_NAME_FULLTEXT, self::FIELD_TYPE_TEXT, true);
+      $docfields[$index_title] = array();
+
+
+      $ftResult = $this->getCachedContent($pid, false);
+      if (!empty($ftResult) && !empty($ftResult[$pid])) {
+        $docfields[$index_title] = $ftResult[$pid];
+      }
+      unset($ftResult);
+
+      //now add the lister, creator and editor auth indexes
+
+
+      $rules = $rulesGroups[$pid];
+      if (!empty($rules)) {
+        $lister_rules = '';
+        $creator_rules = '';
+        $editor_rules = '';
+
+        if (!empty($rules[$roleIDs['Lister']])) {
+          $lister_rules = $rules[$roleIDs['Lister']];
+          $auth_title = $this->getFieldName(FulltextIndex::FIELD_NAME_AUTHLISTER, FulltextIndex::FIELD_TYPE_TEXT, false);
+          $docfields[$auth_title] = $lister_rules;
+        }
+        if (!empty($rules[$roleIDs['Creator']])) {
+          $creator_rules = $rules[$roleIDs['Creator']];
+          $auth_title = $this->getFieldName(FulltextIndex::FIELD_NAME_AUTHCREATOR, FulltextIndex::FIELD_TYPE_TEXT, false);
+          $docfields[$auth_title] = $creator_rules;
+        }
+        if (!empty($rules[$roleIDs['Editor']])) {
+          $editor_rules = $rules[$roleIDs['Editor']];
+          $auth_title = $this->getFieldName(FulltextIndex::FIELD_NAME_AUTHEDITOR, FulltextIndex::FIELD_TYPE_TEXT, false);
+          $docfields[$auth_title] = $editor_rules;
+        }
+      }
+
+      //now save it to the cache.
+      $content = json_encode($docfields);
+      // strip out any bad binary data from files
+      $content = preg_replace('/[^(\x20-\x7F)]*/', '', $content);
+      FulltextIndex::updateFulltextCache($pid, "", $content, 0);
+      $returnContent[$pid] = $docfields;
+      unset($docfields);
+    }
+    return $returnContent;
+  }
+
+
+  private function alphaOnlySortFormat($value) {
+    return preg_replace("/([^a-zA-Z0-9])/", "", strtolower($value));
+  }
 
 
 	/**
 	 * Inserts or updates records in the fulltext index. This function
 	 * will recurse into collection or communities.
 	 *
-	 * @param unknown_type $pid
-	 * @param unknown_type $regen
-	 * @param unknown_type $topcall
+	 * @param string $pid
 	 */
-	public function indexRecord($pid, $regen=false, $topcall=true)
+	public function indexRecord($pid)
 	{
-		$this->regen = $regen;
 
 		if ($this->bgp) {
 			$this->bgp->setHeartbeat();
 			$this->bgp->setProgress(++$this->pid_count);
 		}
 
-		$record = new RecordObject($pid);
-		$dslist = $record->getDatastreams();
-
-		foreach ($dslist as $dsitem) {
-			$this->indexDS($record, $dsitem);
-		}
-
-		//
-		// get record metadata from Fez search index
-		//
-
-		// use all search keys (large list), because e.g. status is not in advanced search
-		$searchKeys = Search_Key::getList(false);
-		$docfields = array();
-		$fieldTypes = array();
-
-		/*
-		 * Custom search key (not a registered search key)
-		 */
-		$citationKey = array(
-            'sek_title'         =>  'citation',
-            'sek_title_db'      =>  'rek_citation',
-            'sek_data_type'     =>  'text',
-            'sek_relationship'  =>  0,
-		);
-
-		$searchKeys[] = $citationKey;
-
-		foreach ($searchKeys as $sekDetails) {
-			$title = $sekDetails["sek_title"];
-			if ($title == 'File Attachment Content') {
-				continue;
-			}
-
-			// TODO: lookups are disabled for the moment
-			// they are a problem because data type does not match,
-			// e.g. "Display Type" (integer, core 1:1) -> lookup returns string
-			// but for full-text searching subjects this would be nice to have
-			$fieldValue = Record::getSearchKeyIndexValue($pid, $title, false, $sekDetails);
-
-			// We want solr to cache all citations
-			if($fieldValue == "" && $title == 'citation') {
-				$fieldValue = Citation::updateCitationCache($pid);
-			}
-
-			// consolidate field types
-			$fieldType = $this->mapType($sekDetails['sek_data_type']);
-
-			// search-engine specific mapping of field content (date!)
-			$fieldValue = $this->mapFieldValue($title, $fieldType, $fieldValue);
-
-			if( $fieldValue != "" ) {
-				// mark multi-valued search keys
-				$isMultiValued = false;
-				if ($sekDetails["sek_relationship"] == 1) {
-					$isMultiValued = true;
-					$fieldTypes[$title.FulltextIndex::FIELD_MOD_MULTI] = true;
-				}
-
-				// search-engine specific mapping of field name
-				$title = $this->getFieldName($title, $fieldType, $isMultiValued);
-				$docfields[$title] = $fieldValue;
-				$fieldTypes[$title] = $fieldType;
-				unset($fieldValue);
-				unset($fieldType);
-			}
-		}
-
-		unset($searchKeys);
-
-		// add fulltext for each datastream (fulltext is supposed to be in the special cache)
-		$title = $this->getFieldName(self::FIELD_NAME_FULLTEXT, self::FIELD_TYPE_TEXT, true);
-		$docfields[$title] = array();
-		$fieldTypes[$title] = self::FIELD_TYPE_TEXT;
-		$fieldTypes[$title.FulltextIndex::FIELD_MOD_MULTI] = true;
-
-		foreach ($dslist as $dsitem) {
-			$dsid = $dsitem['ID'];
-			$ftResult = $this->getCachedContent($pid, $dsid);
-			if (!empty($ftResult) && !empty($ftResult['content'])) {
-				$docfields[$title][$dsid] = $ftResult['content'];
-			}
-			unset($ftResult);
-		}
-
-		//
-		// add lister security index to document - kind of special
-		// maybe this needs more abstraction for new search engines
-		// _authindex solr: tokenized, indexed and stored _t
-		//
-		$auth_title = $this->getFieldName(FulltextIndex::FIELD_NAME_AUTH, FulltextIndex::FIELD_TYPE_TEXT, false);
-		$docfields[$auth_title] = $this->getListerRuleGroups($pid);
-		$fieldTypes[$auth_title] = FulltextIndex::FIELD_TYPE_TEXT;
-
-		//
-		// now we have everything in $docfields >> do update
-		//
-		$this->updateFulltextIndex($pid, $docfields, $fieldTypes);
+    $cache = $this->getMultipleCachedContent(array($pid), true);
+    if ($cache[$pid] == '') {
+      $cache[$pid] = $this->cacheRecords(array($pid));
+    }
+    $this->updateFulltextIndex($pid, $cache[$pid]);
 
 		if ($this->bgp) {
-			$this->bgp->setStatus("Finished Solr fulltext indexing for ".$record->getFieldValueBySearchKey("Title")." ($pid)");
+			$this->bgp->setStatus("Finished Solr fulltext indexing for ($pid)");
 		}
-
-		unset($record);
-		unset($dslist);
-		unset($docfields);
-		unset($fieldTypes);
 	}
+
+
+  /**
+   * Inserts or updates records in the fulltext index for multiple pids at once for performance
+   *
+   * @param array $pids
+   * @param object $queue - the current fulltext queue object
+   */
+
+  public function indexRecords($pids, $queue = null)
+  {
+    $log = FezLog::get();
+    $cachedResults = array();
+    if ($this->bgp) {
+      $this->bgp->setHeartbeat();
+      $this->bgp->setProgress($this->pid_count + count($pids));
+    }
+
+    $cache = $this->getMultipleCachedContent($pids, true);
+    $pidsNoCache = array();
+    foreach ($pids as $pid) {
+      if (!array_key_exists($pid, $cache)) {
+        array_push($pidsNoCache, $pid);
+        $log->debug("FTI: no content for ".$pid." adding to to-be-cached list");
+      } else {
+        $this->updateFulltextIndex($pid, $cache[$pid]);
+        //lower the rams
+        unset($cache[$pid]);
+      }
+    }
+    // free the big rams
+    unset($cache);
+    if (count($pidsNoCache) > 0) {
+      $cachedResults = $this->cacheRecords($pidsNoCache);
+    }
+
+    $addedToQueue = false;
+    foreach ($cachedResults as $cachePid => $cacheContent) {
+      $queue->memorySize += strlen(serialize($cacheContent));
+      if (($queue->memorySize / 1000000 < APP_SOLR_CSV_MAX_SIZE)) {
+        $this->updateFulltextIndex($cachePid, $cacheContent);
+      } else {
+        //put it back on the queue because it didnt fit this time
+        FulltextQueue::singleton()->add($cachePid);
+        $log->debug("FTI: adding ".$pid." back onto queue because we are over mem limit already");
+        $addedToQueue = true;
+      }
+      //free more rams
+      unset($cachedResults[$cachePid]);
+    }
+    if ($addedToQueue == true) {
+      FulltextQueue::singleton()->commit();
+    }
+
+    unset($cachedResults);
+    if ($this->bgp) {
+      $this->bgp->setStatus("Finished Solr fulltext indexing for ".count($pids)." pids");
+    }
+  }
+
 
 
 	/**
@@ -539,11 +717,19 @@ abstract class FulltextIndex {
 
 		// very slow...
 		// TODO: have to find a solution for very large files...
-		$filename = APP_TEMP_DIR."fulltext_".rand()."_".$dsitem['ID'];
+		$filename = Misc::getFileTmpPath("fulltext_".rand()."_".$dsitem['ID']);
 
-		$filehandle = fopen($filename, "w");
-		$rec->getDatastreamContents($dsitem['ID'], $filehandle);
-		fclose($filehandle);
+
+    if (defined('AWS_ENABLED') && AWS_ENABLED == 'true' && APP_FEDORA_BYPASS == 'ON') {
+      $aws = AWS::get();
+      $dataPath = Fedora_API::getDataPath($pid);
+      $aws->saveFileContent($dataPath, $dsitem['ID'], $filename);
+    } else {
+      $filehandle = fopen($filename, "w");
+      $rec->getDatastreamContents($dsitem['ID'], $filehandle);
+      fclose($filehandle);
+    }
+
 
 		$textfilename = Fulltext_Tools::convertFile($dsitem['MIMEType'], $filename);
 		unlink($filename);
@@ -564,10 +750,10 @@ abstract class FulltextIndex {
 	 * Updates the fulltext index with a new or existing document. This function
 	 * has to be implemented by child classes.
 	 *
-	 * @param unknown_type $pid
-	 * @param unknown_type $fields
+	 * @param string $pid
+	 * @param array $fields
 	 */
-	protected abstract function updateFulltextIndex($pid, $fields, $fieldTypes);
+	protected abstract function updateFulltextIndex($pid, $fields);
 
 
 	/**
@@ -623,6 +809,10 @@ abstract class FulltextIndex {
 			}
 
 		}
+		//clean out most things
+    $plaintext = preg_replace("/[^a-zA-Z0-9 ,.-]/", "", $plaintext);
+    //trim it to 31000 chars max
+    $plaintext = mb_strimwidth($plaintext, 0, 31000, "...");
 
 		// insert or replace current entry
 		$this->updateFulltextCache($pid, $dsID, $plaintext, $isTextUsable);
@@ -641,7 +831,7 @@ abstract class FulltextIndex {
 		$log = FezLog::get();
 
 		$log->debug(array("removeByPid($pid)"));
-		$this->deleteFulltextCache($pid);
+		$this->deleteFulltextCache($pid, '', true);
 
 	}
 
@@ -653,10 +843,139 @@ abstract class FulltextIndex {
 	 *
 	 * @param unknown_type $options
 	 */
-	protected function prepareQuery($params, $options, $rulegroups, $approved_roles, $sort_by, $start, $page_rows)
-	{
-		return $options["q"];
-	}
+  protected function prepareQuery($params, $options, $rulegroups, $approved_roles, $sort_by, $start, $page_rows)
+  {
+    $query = '';
+    $filterQuery = '';
+    $i = 0;
+    if ($params['words']) {
+      foreach ($params['words'] as $key => $value) {
+        if ($value['wf'] != 'ALL') {
+          $sek_details = Search_Key::getBasicDetailsByTitle($value['wf']);
+
+          if ($sek_details['sek_relationship'] > 0) {
+            $isMulti = true;
+          } else {
+            $isMulti = false;
+          }
+          $wf = FulltextIndex::getFieldName($value['wf'], self::FIELD_TYPE_TEXT, $isMulti);
+          $query .= $wf . ":(";
+        } else {
+          $query .= '(';
+        }
+        $query .= $value['w']; // need to do some escaping here?
+        $query .= ')';
+
+        $i++;
+        if ($i < count($params['words'])) {
+          $query .= ' ' . $value['op'] . ' ';
+        }
+      }
+    }
+
+    if ($params['direct']) {
+      foreach ($params['direct'] as $key => $value) {
+        if (strlen(trim($query)) > 0) {
+          $query .= ' AND ';
+        }
+        $query .= '(' . $value . ')';
+      }
+    }
+
+    $queryString = $query;
+    $filterQuery = "(status_i:2)";
+    if (!empty($rulegroups)) {
+      $filterQuery .= " AND (_authlister_t:(" . $rulegroups . "))";
+    }
+
+
+    return array(
+        'query' => $queryString,
+        'filter' => $filterQuery
+    );
+  }
+
+  protected function prepareAdvancedQuery($searchKey_join, $filter_join, $roles)
+  {
+
+    $filterQuery = "";
+
+    if ($searchKey_join[2] == "") {
+      $searchQuery = "*:*";
+    } else {
+      $searchQuery = $searchKey_join[2];
+    }
+
+    $approved_roles = array();
+    if (!Auth::isAdministrator()) {
+      $rulegroups = $this->prepareRuleGroups();
+      $usr_id = Auth::getUserID();
+      if (is_array($rulegroups)) {
+        $rulegroups = implode(" OR ", $rulegroups);
+      } else {
+        $rulegroups = false;
+      }
+
+      foreach ($roles as $role) {
+        if (!is_numeric($role)) {
+          $approved_roles[] = $role;
+        } else {
+          $roleID = Auth::getRoleTitleByID($role);
+          if ($roleID != false) {
+            $approved_roles[] = $roleID;
+          }
+        }
+      }
+      if (is_numeric($usr_id)) {
+        if (in_array('Creator', $approved_roles)) {
+          $creatorGroups = Auth::getUserRoleAuthRuleGroupsInUse($usr_id, "Creator");
+          if (is_array($creatorGroups)) {
+            $creatorGroups = implode(" OR ", $creatorGroups);
+            $filterQueryParts[] = "(_authcreator_t:(" . $creatorGroups . "))";
+          } else {
+            $filterQueryParts[] = "(_authcreator_t:(" . $rulegroups . "))";
+          }
+        }
+        if (in_array('Editor', $approved_roles)) {
+          $editorGroups = Auth::getUserRoleAuthRuleGroupsInUse($usr_id, "Editor");
+          if (!empty($editorGroups)) {
+            if (is_array($editorGroups)) {
+              $editorGroups = implode(" OR ", $editorGroups);
+              $filterQueryParts[] = "(_autheditor_t:(" . $editorGroups . "))";
+            } else {
+              $filterQueryParts[] = "(_autheditor_t:(" . $rulegroups . "))";
+            }
+          }
+        }
+        if (in_array('Lister', $approved_roles)) {
+          $listerGroups = Auth::getUserListerAuthRuleGroupsInUse($usr_id);
+          if (!empty($listerGroups)) {
+            $listerGroups = implode(" OR ", $listerGroups);
+            $filterQueryParts[] = "(_authlister_t:(" . $listerGroups . "))";
+          }
+        }
+      } else {
+        if (!empty($rulegroups)) {
+          $filterQueryParts[] = "(_authlister_t:(" . $rulegroups . "))";
+        }
+      }
+      if (is_array($filterQueryParts)) {
+        $filterQuery = implode(" OR ", $filterQueryParts);
+      } else {
+        $filterQuery = "";
+      }
+    }
+
+    if ($filter_join[2] != "") {
+      if ($filterQuery != "") {
+        $filterQuery .= " AND ";
+      }
+      $filterQuery .= $filter_join[2];
+    }
+
+    return array('query' => $searchQuery, 'filter' => $filterQuery);
+  }
+
 
 	/**
 	 * Executes the prepared query in the subclass. This is an abstract class
@@ -679,6 +998,21 @@ abstract class FulltextIndex {
 		}
 		return $userRuleGroups;
 	}
+
+	//TODO: see why this was different from the above
+	// from solr index class - oddly different!
+//  public function prepareRuleGroups()
+//  {
+//    // gets user rule groups for this user
+//    $userID = Auth::getUserID();
+//    if (empty($userID)) {
+//      // get public lister rulegroups
+//      $userRuleGroups = Collection::getPublicAuthIndexGroups();
+//    } else {
+//      $userRuleGroups = Collection::getPublicAuthIndexGroups();
+//    }
+//    return $userRuleGroups;
+//  }
 
 	public function searchAdvancedQuery($searchKey_join, $approved_roles, $start, $page_rows) {}
 
@@ -759,30 +1093,10 @@ abstract class FulltextIndex {
 	 */
 	public function removeByDS($pid, $dsID)
 	{
-		// delete fulltext cache for this datastream
-		$this->deleteFulltextCache($pid, $dsID);
-
 		// Re-index object. Since the datastream is not in Fedora
 		// anymore, the cache will not be rebuilt
 		FulltextQueue::singleton()->add($pid);
 
-	}
-
-	/**
-	 * Internally maps the name of a Fez search key to the search engine's
-	 * internal syntax. This function is usually overwritten in subclasses
-	 * The default behaviour is to replace spaces with underscores.
-	 *
-	 * @param string $fezName
-	 * @param int $datatype
-	 * @param string $multiple
-	 * @return string name of field in search engine
-	 */
-	public function getFieldName($fezName, $datatype=FulltextIndex::FIELD_TYPE_TEXT,
-	$multiple=false)
-	{
-
-		return strtolower(preg_replace('/\s/', '_', $fezName));
 	}
 
 	/**
@@ -817,39 +1131,39 @@ abstract class FulltextIndex {
 	 * @param string $dsID
 	 * @return plaintext of datastream, null on error
 	 */
-	protected function getCachedContent($pid, $dsID)
-	{
-		$log = FezLog::get();
-		$db = DB_API::get();
-    if (defined("APP_SQL_CACHE_DBHOST")) {
-      $db = DB_API::get('db_cache');
-    } else {
-      $db = DB_API::get();
-    }
-
-      $stmt = "SELECT ftc_pid as pid, ftc_dsid as dsid, ftc_content as content ".
-        		"FROM ".APP_TABLE_PREFIX.FulltextIndex::FULLTEXT_TABLE_NAME." ".
-        		"WHERE ftc_pid=".$db->quote($pid)." ".
-        		"AND ftc_dsid=".$db->quote($dsID)." " .
-        		"AND ftc_is_text_usable = 1";
-
-		try {
-			$res = $db->fetchRow($stmt, array(), Zend_Db::FETCH_ASSOC);
-		}
-		catch(Exception $ex) {
-			$log->err($ex);
-			$res = null;
-		}
-
-        //This assumes this function is run without anyone logged in. IE background process
-        foreach ($res as $key => $value) {
-            $userPIDAuthGroups = Auth::getAuthorisationGroups($value['pid'], $value['dsid']);
-            if (!in_array('Lister', $userPIDAuthGroups)) {
-                unset($res[$key]);
-            }
-        }
-		return $res;
-	}
+//	protected function getCachedContent($pid, $dsID)
+//	{
+//		$log = FezLog::get();
+//		$db = DB_API::get();
+//    if (defined("APP_SQL_CACHE_DBHOST")) {
+//      $db = DB_API::get('db_cache');
+//    } else {
+//      $db = DB_API::get();
+//    }
+//
+//      $stmt = "SELECT ftc_pid as pid, ftc_dsid as dsid, ftc_content as content ".
+//        		"FROM ".APP_TABLE_PREFIX.FulltextIndex::FULLTEXT_TABLE_NAME." ".
+//        		"WHERE ftc_pid=".$db->quote($pid)." ".
+//        		"AND ftc_dsid=".$db->quote($dsID)." " .
+//        		"AND ftc_is_text_usable = 1";
+//
+//		try {
+//			$res = $db->fetchRow($stmt, array(), Zend_Db::FETCH_ASSOC);
+//		}
+//		catch(Exception $ex) {
+//			$log->err($ex);
+//			$res = null;
+//		}
+//
+//        //This assumes this function is run without anyone logged in. IE background process
+//        foreach ($res as $key => $value) {
+//            $userPIDAuthGroups = Auth::getAuthorisationGroups($value['pid'], $value['dsid']);
+//            if (!in_array('Lister', $userPIDAuthGroups)) {
+//                unset($res[$key]);
+//            }
+//        }
+//		return $res;
+//	}
 
 	protected function checkCachedContent($pid, $dsID)
 	{
@@ -884,7 +1198,7 @@ abstract class FulltextIndex {
 	 * @param string $pid
 	 * @param string $dsID
 	 */
-	protected function deleteFulltextCache($pid, $dsID='')
+	public function deleteFulltextCache($pid, $dsID='', $deleteAll = false)
 	{
 		$log = FezLog::get();
     if (defined("APP_SQL_CACHE_DBHOST")) {
@@ -898,7 +1212,7 @@ abstract class FulltextIndex {
 				"WHERE ".
 	        	"ftc_pid=".$db->quote($pid);
 
-		if ($dsID > '') {
+		if ($deleteAll !== true) {
 			$stmt .= " AND".
 	        		 " ftc_dsid=".$db->quote($dsID);
 		}
@@ -913,8 +1227,11 @@ abstract class FulltextIndex {
 	/**
 	 * Updates the fulltext cache. Inserts new and replaces existing entries.
 	 *
-	 * @param unknown_type $pid
-	 * @param unknown_type $dsID
+	 * @param string $pid
+	 * @param string $dsID
+   * @param string $fulltext
+   * @param integer $is_text_usable
+   * @return boolean
 	 */
 	protected function updateFulltextCache($pid, $dsID, &$fulltext, $is_text_usable = 1)
 	{
@@ -938,13 +1255,13 @@ abstract class FulltextIndex {
 		// or use transactional integrity - if using multiple indexing processes
 		$stmt = "INSERT INTO ".APP_TABLE_PREFIX.FulltextIndex::FULLTEXT_TABLE_NAME." ";
 
-        $values = array($pid,$dsID,$is_text_usable);
-        if(! empty($fulltext)) {
-        	$stmt .= "(ftc_pid, ftc_dsid, ftc_is_text_usable, ftc_content) VALUES (?,?,?,?)";
-        	$values[] = str_replace("\t", ' ', (str_replace("\n", ' ', (str_replace('"', '""', $fulltext)))));
-        }
-        else
-			$stmt .= "(ftc_pid, ftc_dsid, ftc_is_text_usable) VALUES (?,?,?)";
+    $values = array($pid,$dsID,$is_text_usable);
+    if(! empty($fulltext)) {
+      $stmt .= "(ftc_pid, ftc_dsid, ftc_is_text_usable, ftc_content) VALUES (?,?,?,?)";
+      $values[] = str_replace("\t", ' ', (str_replace("\n", ' ', (str_replace('"', '""', $fulltext)))));
+    } else {
+      $stmt .= "(ftc_pid, ftc_dsid, ftc_is_text_usable) VALUES (?,?,?)";
+    }
 
 		try {
 			$db->query($stmt, $values);
@@ -957,5 +1274,339 @@ abstract class FulltextIndex {
 		}
 
 	}
+
+
+  /**
+   * Internally maps the name of a Fez search key to the search engine's
+   * internal syntax. This function is usually overwritten in subclasses
+   * The default behaviour is to replace spaces with underscores.
+   *
+   * @param string $fezName
+   * @param int $datatype
+   * @param string $multiple
+   * @return string name of field in search engine
+   */
+  public function getFieldName($fezName, $datatype = FulltextIndex::FIELD_TYPE_TEXT,
+                               $multiple = false)
+  {
+    $fezName .= '_';
+    if ($multiple) {
+      $fezName .= 'm';
+    }
+
+    switch ($datatype) {
+      case FulltextIndex::FIELD_TYPE_TEXT:
+        $fezName .= 't';
+        break;
+      case FulltextIndex::FIELD_TYPE_DATE:
+        $fezName .= 'dt';
+        break;
+      case FulltextIndex::FIELD_TYPE_INT:
+        $fezName .= 'i';
+        break;
+      case FulltextIndex::FIELD_TYPE_VARCHAR :
+        $fezName .= 't';
+        break;
+      default:
+        $fezName .= 't';
+    }
+
+    return $fezName;
+  }
+
+  /**
+   * @param string $pids
+   * @param array $roles
+   * @return array|string
+   */
+  public function getRuleGroupsChunk($pids, $roles)
+  {
+    $log = FezLog::get();
+    $db = DB_API::get();
+
+    $stmt = 'SELECT authi_pid, authi_role, authi_arg_id
+                  FROM ' . APP_TABLE_PREFIX . 'auth_index2
+                  WHERE authi_pid IN (' . $pids . ')
+                        AND authi_role IN (' . implode(',', $roles) . ')';
+
+    try {
+      $res = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
+    } catch (Exception $ex) {
+      $log->err($ex);
+      return '';
+    }
+    $ret = array();
+    foreach ($res as $row) {
+      $ret[$row['authi_pid']][$row['authi_role']] = $row['authi_arg_id'];
+    }
+
+    return $ret;
+  }
+
+  public function preBuildCitations($pids)
+  {
+    $log = FezLog::get();
+    $db = DB_API::get();
+
+    $stmt = "SELECT rek_pid
+                FROM " . APP_TABLE_PREFIX . "record_search_key
+                WHERE rek_pid IN (" . $pids . ") AND
+                      (rek_citation IS NULL OR rek_citation = '')";
+
+    try {
+      $res = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
+    } catch (Exception $ex) {
+      $log->err($ex);
+      return '';
+    }
+
+    $rebuildCount = count($res);
+    $rCounter = 0;
+    foreach ($res as $pidData) {
+      $rCounter++;
+      $log->debug(array("processQueue: about to pre build citation " . $pidData['rek_pid'] . " (" . $rCounter . "/" . $rebuildCount . ")"));
+
+      Citation::updateCitationCache($pidData['rek_pid']);
+    }
+  }
+
+  public function preCacheDatastreams($pids)
+  {
+    $log = FezLog::get();
+    $db = DB_API::get();
+
+    if ($this->bgp) {
+      $this->bgp->setStatus("Caching datastreams");
+    }
+    $res = array();
+    if (defined("APP_SQL_CACHE_DBHOST")) {
+      $db_cache = DB_API::get('db_cache');
+
+      $stmt = "SELECT rek_file_attachment_name_pid as rek_pid, rek_file_attachment_name
+                FROM " . APP_TABLE_PREFIX . "record_search_key_file_attachment_name
+                WHERE rek_file_attachment_name_pid IN (" . $pids . ") AND
+                rek_file_attachment_name LIKE '%.pdf'";
+
+      try {
+        $potentials = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
+      } catch (Exception $ex) {
+        $log->err($ex);
+      }
+
+      if (count($potentials) > 0) {
+        $pdfPidsSet = array();
+
+        foreach ($potentials as $pt) {
+          $pdfPidsSet[] = $pt['rek_pid'];
+        }
+
+        $pdfPids = implode("','", $pdfPidsSet);
+
+        $stmt = "SELECT ftc_pid as rek_pid, ftc_dsid
+                FROM " . APP_TABLE_PREFIX . "fulltext_cache
+                WHERE ftc_pid IN ('" . $pdfPids . "')";
+        try {
+          $res = $db_cache->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
+        } catch (Exception $ex) {
+          $log->err($ex);
+        }
+        $missing = array();
+        $found = array();
+        foreach ($potentials as $pt) {
+          foreach ($res as $hit) {
+            if ($hit['rek_pid'] == $pt['rek_pid'] && $hit['ftc_dsid'] == $pt['rek_file_attachment_name']) {
+              $found[] = $hit['rek_pid'];
+            }
+          }
+        }
+        foreach ($potentials as $pt) {
+          if (!in_array($pt['rek_pid'], $found)) {
+            $missing[]['rek_pid'] = $pt['rek_pid'];
+          }
+        }
+        $res = $missing;
+      }
+    } else {
+      $stmt = "SELECT rek_file_attachment_name_pid as rek_pid
+                FROM " . APP_TABLE_PREFIX . "record_search_key_file_attachment_name
+                LEFT JOIN " . APP_TABLE_PREFIX . "fulltext_cache ON rek_file_attachment_name_pid = ftc_pid AND rek_file_attachment_name = ftc_dsid
+                WHERE ftc_dsid IS NULL AND rek_file_attachment_name_pid IN (" . $pids . ") AND
+                      rek_file_attachment_name LIKE '%.pdf'";
+
+      try {
+        $res = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
+      } catch (Exception $ex) {
+        $log->err($ex);
+      }
+
+    }
+
+
+    foreach ($res as $pidData) {
+      $record = new RecordObject($pidData['rek_pid']);
+      $dslist = $record->getDatastreams();
+
+      if (count($dslist) == 0) {
+        if ($this->bgp) {
+          $this->bgp->setStatus($pidData['rek_pid'] . " has no datastreams but it should");
+        }
+        continue;
+      }
+
+      foreach ($dslist as $dsitem) {
+        $this->indexDS($record, $dsitem);
+      }
+    }
+
+    if ($this->bgp) {
+      $this->bgp->setStatus("Finished Caching datastreams");
+    }
+  }
+
+  /**
+   * Retrieves the cached plaintext for a (pid,datastream) pair from the
+   * fulltext cache.
+   *
+   * @param string $pids
+   * @param string $dsID
+   * @return plaintext of datastream, null on error
+   */
+  public function getCachedContent($pids, $noDatastream = false)
+  {
+    $log = FezLog::get();
+    if (defined("APP_SQL_CACHE_DBHOST")) {
+      $db = DB_API::get('db_cache');
+    } else {
+      $db = DB_API::get();
+    }
+
+    $pids = str_replace('"', "'", $pids);
+    // Remove newlines, page breaks and replace " with "" (which is how to escape for CSV files)
+    //$stmt = "SELECT ftc_pid as pid, REPLACE(REPLACE(REPLACE(ftc_content, '\"','\"\"'), '\n', ' '), '\t', ' ') as content, ftc_dsid as dsid ".
+    $stmt = "SELECT ftc_pid as pid, ftc_content as content, ftc_dsid as dsid " .
+        'FROM ' . APP_TABLE_PREFIX . FulltextIndex::FULLTEXT_TABLE_NAME .
+        ' WHERE ftc_pid IN ('.Misc::arrayToSQLBindStr($pids).")";
+
+    if ($noDatastream) {
+      $stmt .= " AND ftc_dsid = ''";
+    } else {
+      $stmt .= " AND ftc_is_text_usable = 1";
+    }
+
+    try {
+      $res = $db->fetchAll($stmt, $pids, Zend_Db::FETCH_ASSOC);
+    } catch (Exception $ex) {
+      $log->err($ex.' FULL SQL: '.$stmt);
+      $res = null;
+    }
+
+    //This assumes this function is run without anyone logged in. IE background process
+    foreach ($res as $key => $value) {
+      $userPIDAuthGroups = Auth::getAuthorisationGroups($value['pid'], $value['dsid']);
+      if (!in_array('Lister', $userPIDAuthGroups)) {
+        unset($res[$key]);
+      }
+    }
+
+    $ret = array();
+    foreach ($res as $row) {
+      if (!empty($ret[$row['pid']])) {
+        $ret[$row['pid']] .= "\t" . $row['content'];
+      } else {
+        $ret[$row['pid']] = $row['content'];
+      }
+    }
+
+    return $ret;
+  }
+
+
+  /**
+   * Retrieves the cached plaintext for a (pid,datastream) pair from the
+   * fulltext cache.
+   *
+   * @param string $pid
+   * @param string $dsID
+   * @return plaintext of datastream, null on error
+   */
+  public function getMultipleCachedContent($pids, $noDatastream = false)
+  {
+    $log = FezLog::get();
+    if (defined("APP_SQL_CACHE_DBHOST")) {
+      $db = DB_API::get('db_cache');
+    } else {
+      $db = DB_API::get();
+    }
+
+    $pids = str_replace('"', "'", $pids);
+    // Remove newlines, page breaks and replace " with "" (which is how to escape for CSV files)
+    //$stmt = "SELECT ftc_pid as pid, REPLACE(REPLACE(REPLACE(ftc_content, '\"','\"\"'), '\n', ' '), '\t', ' ') as content, ftc_dsid as dsid ".
+    $stmt = "SELECT ftc_pid as pid, ftc_content as content " .
+        'FROM ' . APP_TABLE_PREFIX . FulltextIndex::FULLTEXT_TABLE_NAME .
+        ' WHERE ftc_pid IN ('.Misc::arrayToSQLBindStr($pids).")";
+
+    if ($noDatastream) {
+      $stmt .= " AND ftc_dsid = ''";
+    } else {
+      $stmt .= " AND ftc_is_text_usable = 1";
+    }
+
+    try {
+      $res = $db->fetchAssoc($stmt, $pids);
+    } catch (Exception $ex) {
+      $log->err($ex);
+      $res = null;
+    }
+
+    //This assumes this function is run without anyone logged in. IE background process
+    foreach ($res as $key => $value) {
+      if ($noDatastream) {
+        $res[$key] = (array)json_decode(str_replace('""', '"', $value['content']));
+      } else {
+        $res[$key] = mb_strimwidth($value['content'], 0, 31000, "...");
+      }
+    }
+
+    return $res;
+  }
+
+
+  public function escape($value)
+  {
+    //list taken from http://lucene.apache.org/java/docs/queryparsersyntax.html#Escaping%20Special%20Characters
+    $pattern = '/(\+|-|&&|\|\||!|\(|\)|\{|}|\/|\[|]|\^|"|~|\*|\?|:|\\\)/';
+    $replace = '\\\$1';
+
+    return preg_replace($pattern, $replace, $value);
+  }
+
+  /**
+   * Escape a value meant to be contained in a phrase for special query characters
+   *
+   * @param string $value
+   * @return string
+   */
+  public function escapePhrase($value)
+  {
+    $pattern = '/("|\\\)/';
+    $replace = '\\\$1';
+
+    return preg_replace($pattern, $replace, $value);
+  }
+
+  /**
+   * Escape a boolean value
+   *
+   * @param string $value
+   * @return string
+   */
+  public function escapeBooleans($value)
+  {
+    $value = strtolower($value);
+    //list taken from http://lucene.apache.org/java/docs/queryparsersyntax.html#Escaping%20Special%20Characters
+    $pattern = '/ (and|or) /';
+    $replace = ' \\\$1 ';
+    return preg_replace($pattern, $replace, $value);
+  }
 
 }

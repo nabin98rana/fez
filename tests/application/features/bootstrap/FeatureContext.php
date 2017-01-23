@@ -194,7 +194,7 @@ class FeatureContext extends MinkContext
    */
   public function waitForSolrAfter()
   {
-    /*if (APP_SOLR_INDEXER == "ON") {
+    /*if (APP_SOLR_INDEXER == "ON" || APP_ES_INDEXER == "ON") {
       for ($x = 0; $x<30; $x++) {
         $finished = FulltextQueue::isFinishedProcessing();
         if ($finished == true) {
@@ -214,7 +214,7 @@ class FeatureContext extends MinkContext
    */
   public function waitForSolrBefore()
   {
-    /*if (APP_SOLR_INDEXER == "ON") {
+    /*if (APP_SOLR_INDEXER == "ON" || APP_ES_INDEXER == "ON") {
       for ($x = 0; $x<30; $x++) {
         $finished = FulltextQueue::isFinishedProcessing();
         if ($finished == true) {
@@ -234,7 +234,7 @@ class FeatureContext extends MinkContext
    */
   public function waitForSolr()
   {
-    if (APP_SOLR_INDEXER == "ON") {
+    if (APP_SOLR_INDEXER == "ON" || APP_ES_INDEXER == "ON") {
       for ($x = 0; $x < 30; $x++) {
         $finished = FulltextQueue::isFinishedProcessing();
         if ($finished == true) {
@@ -763,15 +763,15 @@ class FeatureContext extends MinkContext
    */
   public function iChooseTheGroupForTheRole($group, $role)
   {
-    if (APP_FEDORA_BYPASS == 'ON') {
+    /*if (APP_FEDORA_BYPASS == 'ON') {
       $this->selectOption('role', $role);
       $this->selectOption('groups_type', 'Fez_Group');
       $this->selectOption('internal_group_list', $group);
       $this->pressButton('Add');
-    } else {
+    } else {*/
       $this->selectOption($role . ' Fez Group helper', $group);
       $this->pressButton($role . ' Fez Group copy left');
-    }
+    //}
   }
 
   /**
@@ -865,7 +865,7 @@ class FeatureContext extends MinkContext
     if ($pid) {
       $fileName = 'test.pdf';
       $file = APP_PATH . '../tests/application/data/' . $fileName;
-      $tempFile = APP_TEMP_DIR . $fileName;
+      $tempFile = Misc::getFileTmpPath($fileName);
       copy($file, $tempFile);
       BatchImport::handleStandardFileImport($pid, $tempFile, $fileName, 0, true);
       unlink($tempFile);

@@ -437,20 +437,20 @@ class DuplicatesReport {
 			$pp_where = " AND rek_display_type != ".$pre_print_display_type;
 			$pp_solr_filter = " AND !display_type_i:".$pre_print_display_type;
 		}
-		if (APP_SOLR_SWITCH == "ON" ) { //Solr - the preferable option if available
+		if (APP_SOLR_SWITCH == "ON" ) {
 			//Query solr with an OR query on title for a similar fix
 			// Solr search params
-			$index = new FulltextIndex_Solr();
+      $index = new FulltextIndex_Solr();
 			$params = array();
 			$start = 0;
 			$page_rows = 15;
 			$params['fl'] = 'pid_t,score';
-			$params['fq'] = 'object_type_i:3 AND !pid_t:'.$index->solr->escape($pid).$pp_solr_filter;
+			$params['fq'] = 'object_type_i:3 AND !pid_t:'.$index->escape($pid).$pp_solr_filter;
 			//Fez Solr schema.xml has the default search to be an AND based search, while dedupe similar titles query needs to be an OR based search
 			// so it doesn't exclude similar titles
 			$title =  preg_replace("/ +/", " ", $title);
-			$title = $index->solr->escape($title);
-			$title = $index->solr->escapeBooleans($title);
+			$title = $index->escape($title);
+			$title = $index->escapeBooleans($title);
       //$title = preg_replace('/\s+/', '', $title);
       $title = preg_replace ("/[^a-zA-Z0-9 ]/", "", $title);
       $title = preg_replace('!\s+!', ' ', $title);
@@ -463,7 +463,7 @@ class DuplicatesReport {
         return array();
       }
 			$queryString = "title_t:(".$titleOr.")";
-			$response = $index->solr->search($queryString, $start, $page_rows, $params);
+      $response = $index->search($queryString, $start, $page_rows, $params);
 			$total_rows = $response->response->numFound;
 			$res = array();
 			if ($total_rows > 0) {
@@ -476,7 +476,44 @@ class DuplicatesReport {
 				}
 			}
 			return $res;
-		} elseif (!is_numeric(strpos(APP_SQL_DBTYPE, "mysql"))) {
+		}
+		elseif (APP_ES_SWITCH == "ON") {
+      $index = FulltextIndex::get();
+      $res = [];
+      $filter = [];
+      $options = [];
+
+      $filter["searchKey".Search_Key::getID("Status")] = 2;
+      $filter["searchKey".Search_Key::getID("Object Type")] = 3;
+      $options['sort_order'] = 1;
+      $options["manualFilter"] = "";
+
+      $title =  preg_replace("/ +/", " ", $title);
+      $title = $index->escape($title);
+      $title = $index->escapeBooleans($title);
+      $title = preg_replace ("/[^a-zA-Z0-9 ]/", "", $title);
+      $title = preg_replace('!\s+!', ' ', $title);
+      $title = trim($title);
+      $titleOr = implode(" OR ", explode(" ", $title));
+      $titleOr = preg_replace("/( *OR *OR *)/", " OR ", $titleOr);
+      $titleOr = preg_replace("/( *AND *AND *)/", " AND ", $titleOr);
+      if (trim($titleOr) == '') {
+        return array();
+      }
+      $options["manualFilter"] = "title_t:(".$titleOr.")".$pp_solr_filter;
+      if ($pid != "dummy") {
+        $options["manualFilter"] .= " AND !pid_t:" . $index->escape($pid);
+      }
+
+      $listing = Record::getListing($options, array(9,10), 0, 5, 'score', false, false, $filter);
+      if (is_array($listing['list'])) {
+        foreach ($listing['list'] as $rec) {
+          $res[] = ['pid' => $rec['rek_pid'], 'relevance' => $rec['relevance']];
+        }
+      }
+      return $res;
+    }
+		elseif (!is_numeric(strpos(APP_SQL_DBTYPE, "mysql"))) {
 			$stmt = "SELECT distinct r2.rek_pid as pid, "
 			.self::RELEVANCE_ISI_LOC_MATCH." as relevance " .
 	                "FROM  ".$dbtp."record_search_key AS r2 " .
@@ -683,7 +720,7 @@ class DuplicatesReport {
 
 			$base_record->fedoraInsertUpdate(array("FezACML"), array(""),$params);
 
-			if ( APP_SOLR_INDEXER == "ON" ) {
+			if ( APP_SOLR_INDEXER == "ON" || APP_ES_INDEXER == "ON" ) {
 				FulltextQueue::singleton()->add($base_record->pid);
 				FulltextQueue::singleton()->commit();
 				FulltextQueue::singleton()->triggerUpdate();
@@ -1522,7 +1559,7 @@ function authorShortWordsFilter($a)
                 $tidy = new tidy;
                 $tidy->parseString($xml, $config, 'utf8');
                 $tidy->cleanRepair();
-                $xml = $tidy;
+                $xml = (string)$tidy;
 //                $this->setXML_DOM(new DOMDocument($xml));
                 $this->setXML_DOM(DOMDocument::loadXML($xml));
             } else {
@@ -1594,7 +1631,7 @@ function authorShortWordsFilter($a)
 			History::addHistory($dup_pid, $wfl_id, "", "", false, '', "Marked Duplicate of ".$base_pid);
 			History::addHistory($base_pid, $wfl_id, "", "", true, '', "Resolved duplicate ".$dup_pid);
 
-			if ( APP_SOLR_INDEXER == "ON" ) {
+			if ( APP_SOLR_INDEXER == "ON" || APP_ES_INDEXER == "ON" ) {
 				FulltextQueue::singleton()->remove($dup_pid);
 				FulltextQueue::singleton()->commit();
 				FulltextQueue::singleton()->triggerUpdate();

@@ -236,14 +236,24 @@
 						{/if}
 				  {/section}
 			{/if}
-
 			{if $list[i].rek_grant_id}
+        {if !is_array($list[i].rek_grant_id)}
 						<relatedObject>
 							<key>{$list[i].rek_grant_id}</key>
 							<relation type="isOutputOf"></relation>
 						</relatedObject>
-			{/if}
-
+        {else}
+          {assign var="loop_grant_id" value=$list[i].rek_grant_id}
+          {section name="g" loop=$loop_grant_id}
+            {if $list[i].rek_grant_id[g]}
+						<relatedObject>
+							<key>{$list[i].rek_grant_id[g]}</key>
+							<relation type="isOutputOf"></relation>
+						</relatedObject>
+						{/if}
+          {/section}
+        {/if}
+      {/if}
 			{if $list[i].rek_isderivationof}
 			      {if !is_array($list[i].rek_isderivationof)}
 				  <relatedInfo type="publication">

@@ -45,16 +45,21 @@ Auth::checkAuthentication(APP_SESSION, $_SERVER['PHP_SELF']."?".$_SERVER['QUERY_
 $tpl = new Template_API();
 $tpl->assign("yui_autosuggest", '1');
 $tpl->setTemplate("my_fez.tpl.html");
-$options = Pager::saveSearchParams();
+$filter = Pager::saveSearchParams();
+$options = array();
 
-$options["searchKey".Search_Key::getID("Depositor")] = Auth::getUserID();
+$preCutFilter = $filter;
+if (array_key_exists("searchKeycore_0", $filter)) {
+  $options["searchKeycore_0"] = $options["searchKeycore_0"];
+  unset($filter["searchKeycore_0"]);
+}
 
 // set up the $sort_by var if necessary (makes rest of page work for sorting)
 if (isset($_REQUEST['sort_by'])) {
 	$sort_by = $_REQUEST['sort_by'];
 }
 
-if (empty($sort_by) || ($sort_by == "searchKey0" && empty($options['searchKey0']))) {
+if (empty($sort_by) || ($sort_by == "searchKey0" && empty($filter['searchKey0']))) {
 	$sort_by = "searchKey".Search_Key::getID("Title");
 }
 
@@ -68,41 +73,41 @@ foreach ($search_keys as $skey => $svalue) {
 	if ($svalue["sek_id"] == $sk_is_memberof) {
 		$search_keys[$skey]["field_options"] = $collection_assoc_list;
 	}
-	
+
 	if ($svalue["sek_smarty_variable"] == 'User::getAssocList()') {
 		$search_keys[$skey]["field_options"] = array(
-    		"-1" => "un-assigned", 
-    		"-2" => "myself", 
+    		"-1" => "un-assigned",
+    		"-2" => "myself",
     		"-3" => "myself and un-assigned"
 		) + $search_keys[$skey]["field_options"];
 	}
-	
+
 	if ($svalue["sek_html_input"] != 'multiple' && $svalue["sek_html_input"] != 'dual_multiple' && $svalue["sek_smarty_variable"] != 'Status::getUnpublishedAssocList()') {
-		$search_keys[$skey]["field_options"] = array("" => "any") + $search_keys[$skey]["field_options"];		
+		$search_keys[$skey]["field_options"] = array("" => "any") + $search_keys[$skey]["field_options"];
 	}
-	
+
 	if ($svalue["sek_id"]  == $sk_depositor) {
 		$search_keys[$skey]["field_options"] = array(Auth::getUserID() => Auth::getUserFullName());
 	}
-	
+
 	if ($svalue["sek_id"]  == $sk_status) {
 		$search_keys[$skey]["field_options"] = array(
 		      ""      => "any",
 		      "-4"    => "any Unpublished",
 		) + Status::getAssocList(); //get all status's
-		
-		if (!array_key_exists($options["searchKeycore_9"], $search_keys[$skey]["field_options"])) {
-			$options["searchKeycore_9"] = "";
+
+		if (!array_key_exists($filter["searchKeycore_9"], $search_keys[$skey]["field_options"])) {
+			$filter["searchKeycore_9"] = "";
 		}
 	}
 }
 
 $bulk_workflows = WorkflowTrigger::getAssocListByTrigger("-1", 7); //get the bulk change workflows
-$bulk_search_workflows = WorkflowTrigger::getAssocListByTrigger("-1", WorkflowTrigger::getTriggerId('Bulk Change Search')); 
+$bulk_search_workflows = WorkflowTrigger::getAssocListByTrigger("-1", WorkflowTrigger::getTriggerId('Bulk Change Search'));
 
-// if search button was just pressed and all fields search 
+// if search button was just pressed and all fields search
 // has something in it then sort by relevance enforced
-if ($_REQUEST["search_button"] == "Search" && trim($options["searchKey0"]) != "") { 
+if ($_REQUEST["search_button"] == "Search" && trim($options["searchKey0"]) != "") {
 	$options["sort_by"] = "searchKey0";
 }
 
@@ -122,7 +127,7 @@ if (empty($sort_by) || ($sort_by == "searchKey0" && empty($options['searchKey0']
 }
 
 $sort_by_dir = Pager::getParam('sort_by_dir');
-$created_items = Record::getCreated($options, $pager_row, $rows, $sort_by, $sort_by_dir);
+$created_items = Record::getCreated($options, $pager_row, $rows, $sort_by, $sort_by_dir, $filter);
 Record::getParentsByPids($created_items['list']);
 $created_items['list'] = Citation::renderIndexCitations($created_items['list']);
 
@@ -154,7 +159,7 @@ $tpl->assign('myFezView',               "MCI");
 $tpl->assign('extra_title',             "My Created Items");
 $tpl->assign('search_keys',             $search_keys);
 $tpl->assign("status_list",             Status::getAssocList());
-$tpl->assign("options",                 $options);
+$tpl->assign("options",                 $preCutFilter);
 $tpl->assign('my_created_items_list',   $created_items['list']);
 $tpl->assign('items_info',              $created_items['info']);
 $tpl->assign('isApprover',              $_SESSION['auth_is_approver']);

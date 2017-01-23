@@ -39,10 +39,17 @@ Auth::checkAuthentication(APP_SESSION);
 $tpl = new Template_API();
 $tpl->assign("yui_autosuggest", '1');
 $tpl->setTemplate("my_fez.tpl.html");
-$options = Pager::saveSearchParams();
+$filter = Pager::saveSearchParams();
+$options = array();
+
+$preCutFilter = $filter;
+if (array_key_exists("searchKeycore_0", $filter)) {
+  $options["searchKeycore_0"] = $options["searchKeycore_0"];
+  unset($filter["searchKeycore_0"]);
+}
 
 $bulk_workflows = WorkflowTrigger::getAssocListByTrigger("-1", 7); //get the bulk change workflows
-$bulk_search_workflows = WorkflowTrigger::getAssocListByTrigger("-1", WorkflowTrigger::getTriggerId('Bulk Change Search')); 
+$bulk_search_workflows = WorkflowTrigger::getAssocListByTrigger("-1", WorkflowTrigger::getTriggerId('Bulk Change Search'));
 
 // // set up the $sort_by var if necessary (makes rest of page work for sorting)
 if (isset($_REQUEST['sort_by'])) {
@@ -52,8 +59,8 @@ if (empty($sort_by) || ($sort_by == "searchKey0" && empty($options['searchKey0']
 	$sort_by = "searchKey".Search_Key::getID("Title");
 }
 
-$options["searchKey".Search_Key::getID("Status")] = Status::getID("In Creation");
-$options["searchKey".Search_Key::getID("Assigned User ID")] = Auth::getUserID();
+$filter["searchKey".Search_Key::getID("Status")] = Status::getID("In Creation");
+$filter["searchKey".Search_Key::getID("Assigned User ID")] = Auth::getUserID();
 
 $pager_row  = $_GET['pager_row'];
 $rows       = $_GET['rows'];
@@ -61,7 +68,7 @@ $rows       = $_GET['rows'];
 if (empty($pager_row))  $pager_row = 0;
 if (empty($rows))       $rows = APP_DEFAULT_PAGER_SIZE;
 
-$items = Record::getListing($options, array("Editor", "Creator"), $pager_row, $rows, $sort_by);
+$items = Record::getListing($options, array("Editor", "Creator"), $pager_row, $rows, $sort_by, false, false, $filter);
 Record::getParentsByPids($items['list']);
 
 $tpl->assign('extra_title',             "My Work In Progress");
@@ -72,7 +79,7 @@ $tpl->assign("page_url",                $_SERVER['PHP_SELF'].'?');
 $tpl->assign("bulk_workflows",          $bulk_workflows);
 $tpl->assign("bulk_search_workflows",   $bulk_search_workflows);
 $tpl->assign("status_list",             Status::getAssocList());
-$tpl->assign("options",                 $options);
+$tpl->assign("options",                 $preCutFilter);
 $tpl->assign('my_assigned_items_list',  $items['list']);
 $tpl->assign('items_info',              $items['info']);
 $tpl->assign('myFezView',               "WIP");

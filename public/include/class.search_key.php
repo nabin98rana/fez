@@ -1071,7 +1071,7 @@ class Search_Key
 
     for ($i = 0; $i < count($res); $i++) {
       $res[$i]['sek_title_db'] = Search_Key::makeSQLTableName($res[$i]['sek_title']);
-      $res[$i]['sek_title_solr'] = FulltextIndex_Solr::getFieldName($res[$i]['sek_title_db'], FulltextIndex::mapType($res[$i]['sek_data_type']), $res[$i]['sek_cardinality']);
+      $res[$i]['sek_title_solr'] = FulltextIndex::getFieldName($res[$i]['sek_title_db'], FulltextIndex::mapType($res[$i]['sek_data_type']), $res[$i]['sek_cardinality']);
       $return[$res[$i]['sek_title_db']] = $res[$i]['sek_title_solr'];
       if (!empty($res[$i]['sek_lookup_function'])) {
         $return[$res[$i]['sek_title_db'].'_lookup'] = $res[$i]['sek_title_solr'].'_lookup';
@@ -1325,8 +1325,8 @@ class Search_Key
                 $stmt .= "
 					  SELECT rek_" . $sek_title . "_id, rek_" . $sek_title . ",
 						MATCH(rek_" . $sek_title . ") AGAINST (" . $db->quote($term) . ") as Relevance FROM " . $dbtp . "record_search_key_" . $sek_title . "
-					 WHERE MATCH (rek_" . $sek_title . ") AGAINST (" . $db->quote('' . $term . '*') . " IN BOOLEAN MODE) ";
-                $stmt .= " GROUP BY rek_" . $sek_title . "_id, rek_" . $sek_title . " ORDER BY Relevance DESC, rek_" . $sek_title . " LIMIT 10 OFFSET 0) as tempsuggest ";
+					  WHERE MATCH (rek_" . $sek_title . ") AGAINST (" . $db->quote('' . $term . '*') . " IN BOOLEAN MODE) ";
+                $stmt .= " GROUP BY rek_" . $sek_title . " ORDER BY Relevance DESC, rek_" . $sek_title . " LIMIT 10 OFFSET 0) as tempsuggest ";
             }
         } else { //1-1 index table
             if (!is_numeric(strpos(APP_SQL_DBTYPE, "mysql"))) {
@@ -1395,7 +1395,7 @@ class Search_Key
         return $res;
     }
 
-    function getSolrTitles($assoc = true, $lookups = true)
+    function getSolrTitles($assoc = true, $lookups = true, $integerSplit = '')
     {
         $log = FezLog::get();
         $db = DB_API::get();
@@ -1404,6 +1404,13 @@ class Search_Key
                     *
                  FROM
                     " . APP_TABLE_PREFIX . "search_key as s1 ";
+
+        if ($integerSplit == 'intOnly') {
+          $stmt .= " WHERE sek_data_type = 'int'";
+        } elseif ($integerSplit == 'notInt') {
+          $stmt .= " WHERE sek_data_type != 'int'";
+        }
+
         try {
             $res = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
         }
@@ -1415,7 +1422,7 @@ class Search_Key
         $return = array();
         for ($i = 0; $i < count($res); $i++) {
             $res[$i]['sek_title_db'] = Search_Key::makeSQLTableName($res[$i]['sek_title']);
-            $res[$i]['sek_title_solr'] = FulltextIndex_Solr::getFieldName($res[$i]['sek_title_db'], FulltextIndex::mapType($res[$i]['sek_data_type']), $res[$i]['sek_cardinality']);
+            $res[$i]['sek_title_solr'] = FulltextIndex::getFieldName($res[$i]['sek_title_db'], FulltextIndex::mapType($res[$i]['sek_data_type']), $res[$i]['sek_cardinality']);
             $return[$res[$i]['sek_title_db']] = $res[$i]['sek_title_solr'];
             if ($lookups && !empty($res[$i]['sek_lookup_function'])) {
                 $return[$res[$i]['sek_title_db'] . '_lookup'] = $res[$i]['sek_title_solr'] . '_lookup';
@@ -1431,7 +1438,7 @@ class Search_Key
         }
 
         //Variables added not dynamically. Assume all end in _t. Don't have normal search tables.
-        if ($lookups) {
+        if ($lookups && $integerSplit != 'intOnly') {
             $extraSolrVariables = array('sherpa_colour_t', 'ain_detail_t', 'rj_tier_rank_t', 'rj_tier_title_t', 'rj_2015_rank_t', 'rj_2015_title_t', 'rj_2010_rank_t', 'rj_2010_title_t', 'rj_2012_rank_t', 'rj_2012_title_t', 'rc_2015_rank_t', 'rc_2015_title_t', 'rc_2010_rank_t', 'rc_2010_title_t', 'herdc_code_description_t');
             foreach ($extraSolrVariables as $solrVariable) {
                 $return[substr($solrVariable, 0, -2)] = $solrVariable;

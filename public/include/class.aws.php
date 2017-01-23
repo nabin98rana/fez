@@ -38,6 +38,11 @@ class AWS
   private $launchedTasks;
 
   /**
+   * @var int
+   */
+  private $concurrentTasksAllowed;
+
+  /**
    * AWS constructor.
    */
   public function __construct($s3Bucket = AWS_S3_BUCKET, $s3SrcPrefix = AWS_S3_SRC_PREFIX) {
@@ -53,6 +58,12 @@ class AWS
     } else {
       $this->s3SrcPrefix = '';
     }
+    if (defined('AWS_CONCURRENT_BGPS')) {
+      $this->concurrentTasksAllowed = (int)AWS_CONCURRENT_BGPS;
+    } else {
+      $this->concurrentTasksAllowed = 1;
+    }
+
     putenv("AWS_ACCESS_KEY_ID=" . AWS_KEY);
     putenv("AWS_SECRET_ACCESS_KEY=" . AWS_SECRET);
   }
@@ -128,8 +139,7 @@ class AWS
       return true;
     }
     // Make sure there aren't any existing running tasks (except the service tasks)
-    // TODO(am): Use a config var instead of hard coding the number..
-    if ($this->countTasksRunningOrPendingInFamily($family) === 1) {
+    if ($this->countTasksRunningOrPendingInFamily($family) <= $this->concurrentTasksAllowed) {
       $this->launchedTasks++;
       return $this->runTask($family, $overrides, 1);
     }
@@ -316,6 +326,7 @@ class AWS
       ];
       if ($mimeType) {
         $object['ContentType'] = $mimeType;
+        $object['MetadataDirective'] = 'REPLACE';
       }
       $res = $client->copyObject($object);
       return $res;
@@ -475,7 +486,7 @@ class AWS
       $result = $client->headObject($args);
 
     } catch (\Aws\S3\Exception\S3Exception $e) {
-      $this->log->err($e->getMessage());
+      //$this->log->err($e->getMessage());
     }
     return $result;
   }
@@ -515,12 +526,11 @@ class AWS
     try {
       $client = $this->sdk->createS3();
       $path = $this->createPath($src, $id);
-      $found = $client->doesObjectExist($this->s3Bucket, $path);
+      return $client->doesObjectExist($this->s3Bucket, $path);
     } catch (\Aws\S3\Exception\S3Exception $e) {
-      $this->log->err($e->getMessage());
+      //$this->log->err($e->getMessage());
       return false;
     }
-    return $found;
   }
 
   /**
@@ -582,7 +592,7 @@ class AWS
           ]));
       }
     } catch (\Aws\S3\Exception\S3Exception $e) {
-      $this->log->err($e->getMessage());
+      //$this->log->err($e->getMessage());
       return false;
     }
     return true;
@@ -652,9 +662,11 @@ class AWS
    * @param string $src
    * @param string $id
    * @param array $params
+   * @param bool $returnContent
+   * @param bool $getRaw
    * @return String Response
    */
-  public function getFileContent($src, $id, $params = [])
+  public function getFileContent($src, $id, $params = [], $returnContent = false, $getRaw = false)
   {
     try {
       $client = $this->sdk->createS3();
@@ -666,13 +678,56 @@ class AWS
       if (count($params) > 0) {
         $args = array_merge($args, $params);
       }
+      // create the directory if it doesn't exist
+      if (array_key_exists('SaveAs', $params)) {
+        $pathInfo = pathinfo($params['SaveAs']);
+        if (!is_dir($pathInfo['dirname'])) {
+          mkdir($pathInfo['dirname']);
+        }
+      }
+
       $result = $client->getObject($args);
     } catch (\Aws\S3\Exception\S3Exception $e) {
       $this->log->err($e->getMessage());
       return "";
     }
-    return (string) $result['Body'];
+    if ($returnContent) {
+      if ($getRaw) {
+        return $result['Body'];
+      }
+      return (string) $result['Body'];
+    }
+    return '';
   }
+
+  /**
+   * @param string $src
+   * @param string $id
+   * @param string $filePath
+   * @param array $params
+   * @return boolean Success/Failure
+   */
+  public function saveFileContent($src, $id, $filePath, $params = [])
+  {
+    try {
+      $client = $this->sdk->createS3();
+      $key = $this->createPath($src, $id);
+      $args = array(
+          'Bucket' => $this->s3Bucket,
+          'Key' => $key,
+          'SaveAs' => $filePath
+      );
+      if (count($params) > 0) {
+        $args = array_merge($args, $params);
+      }
+      $result = $client->getObject($args);
+    } catch (\Aws\S3\Exception\S3Exception $e) {
+      $this->log->err($e->getMessage());
+      return false;
+    }
+    return true;
+  }
+
 
   /**
    * @param string $prefix

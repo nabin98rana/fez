@@ -41,6 +41,72 @@ class FezACML
 {
 
   /**
+   * Method used to edit the security (FezACML) details of a PID.
+   *
+   * @param   string $pid The persistent identifier of the record
+   * @param   string $xdis_title The FezACML XSD title
+   */
+  public static function editPidSecurity($pid, $xdis_title)
+  {
+    FezACML::editSecurity($pid, $xdis_title);
+  }
+
+  /**
+   * Method used to edit the security (FezACML) details of a specific Datastream.
+   *
+   * @param   string $pid The persistent identifier of the record
+   * @param   string $dsID The datastream ID of the datastream
+   */
+  public static function editDatastreamSecurity($pid, $dsID)
+  {
+    FezACML::editSecurity($pid, FezACML::getXdisTitlePrefix() . 'Datastreams', $dsID);
+  }
+
+  /**
+   * Method used to edit the security (FezACML) details of a PID or a datastream.
+   *
+   * @param   string $pid The persistent identifier of the record
+   * @param   string $xdis_title The FezACML XSD title
+   * @param   string $dsID (Optional) The datastream ID of the datastream
+   */
+  private static function editSecurity($pid, $xdis_title, $dsID = '')
+  {
+    $xdis_id = XSD_Display::getID($xdis_title);
+    $display = new XSD_DisplayObject($xdis_id);
+    list($array_ptr, $xsd_element_prefix, $xsd_top_element_name, $xml_schema) = $display->getXsdAsReferencedArray();
+    $indexArray = array();
+    $header = "<" . $xsd_element_prefix . $xsd_top_element_name . " ";
+    $header .= Misc::getSchemaSubAttributes($array_ptr, $xsd_top_element_name, $xdis_id, $pid);
+    $header .= ">\n";
+    $xmlObj = Foxml::array_to_xml_instance(
+      $array_ptr, $xmlObj, $xsd_element_prefix, "", "", "", $xdis_id, $pid, $xdis_id, "",
+      $indexArray, '', '', '', '', '', ''
+    );
+    $xmlObj .= "</" . $xsd_element_prefix . $xsd_top_element_name . ">\n";
+    $xmlObj = $header . $xmlObj;
+
+    $config = [
+      'indent' => TRUE,
+      'input-xml' => TRUE,
+      'output-xml' => TRUE,
+      'wrap' => 0
+    ];
+    $tidy = new tidy;
+    $tidy->parseString($xmlObj, $config, 'utf8');
+    $tidy->cleanRepair();
+    $xmlObj = (string)$tidy;
+
+    $FezACML_dsID = FezACML::getFezACMLPidName($pid);
+    $logMessage = "FezACML security for PID - " . $pid;
+    if (! empty($dsID)) {
+      $FezACML_dsID = FezACML::getFezACMLDSName($dsID);
+      $logMessage = "FezACML security for datastream - " . $dsID;
+    }
+    Fedora_API::callModifyDatastreamByValue($pid, $FezACML_dsID, "A",
+      $logMessage, $xmlObj, "text/xml", "inherit");
+  }
+
+  /**
    * Generate a minimal fezACML template that sets security to be
    * inherited from parent.
    *
@@ -102,23 +168,6 @@ class FezACML
     }
   }
 
-  public static function getDatastreamQuickRule($pid)
-  {
-    $log = FezLog::get();
-    $db = DB_API::get();
-
-    $stmt = "SELECT qrp_qac_id FROM " . APP_TABLE_PREFIX . "auth_quick_rules_pid WHERE qrp_pid = " . $db->quote($pid);
-
-    try {
-      $res = $db->fetchOne($stmt);
-    } catch (Exception $ex) {
-      $log->err($ex);
-      return '';
-    }
-
-    return $res;
-  }
-
   public static function datastreamQuickRuleExists($pid, $rule)
   {
     $log = FezLog::get();
@@ -139,66 +188,9 @@ class FezACML
     return false;
   }
 
-  public static function updateDatastreamQuickRule($pid, $rule, $did = null)
-  {
-    $log = FezLog::get();
-    $db = DB_API::get();
-
-    if ($rule == 0) {
-      $data = [
-        ':pid' => $pid
-      ];
-      $stmt = "DELETE FROM " . APP_TABLE_PREFIX . "auth_quick_rules_pid "
-        . "WHERE qrp_pid=:pid";
-      try {
-        $db->query($stmt, $data);
-
-      } catch (Exception $ex) {
-        $log->err($ex);
-      }
-    }
-    else if (! self::datastreamQuickRuleExists($pid, $rule)) {
-      $data = [
-        ':pid' => $pid,
-        ':qac_id' => $rule
-      ];
-      $stmt = "INSERT INTO " . APP_TABLE_PREFIX . "auth_quick_rules_pid "
-        . "(qrp_pid, qrp_qac_id) VALUES "
-        . "(:pid, :qac_id)";
-      try {
-        $db->query($stmt, $data);
-
-      } catch (Exception $ex) {
-        $log->err($ex);
-      }
-    }
-
-    if (empty($did)) {
-      $datastreams = Fedora_API::callListDatastreamsLite($pid);
-      foreach ($datastreams as $ds) {
-        AuthNoFedoraDatastreams::recalculatePermissions($ds['dsid']);
-      }
-    } else {
-      AuthNoFedoraDatastreams::recalculatePermissions($did);
-    }
-  }
-
   public static function getUsersByRolePidAssoc($pid, $role)
   {
     $return = array();
-
-    if (APP_FEDORA_BYPASS == "ON") {
-      $roleId = AuthNoFedora::getRoleToRoleId($role);
-      $permissions = AuthNoFedora::getNonInheritedSecurityPermissions($pid, $roleId);
-      foreach ($permissions as $permission) {
-        $values = AuthNoFedora::getAuthRuleValue($permission['argr_ar_id']);
-        if ($values['ar_rule'] == '!rule!role!Fez_User') {
-          $return[$values['ar_value']] = User::getDisplayNameByID($values['ar_value']);
-        }
-      }
-      return $return;
-    }
-
     $acmlBase = Record::getACML($pid);
     if ($acmlBase == "") {
       return $return;
@@ -218,88 +210,61 @@ class FezACML
 
   public static function updateUsersByRolePid($pid, $fezacml_user_list, $role, $remove_only_list = array())
   {
-    if (APP_FEDORA_BYPASS == "ON") {
-      $roleId = AuthNoFedora::getRoleToRoleId($role);
-      $permissions = AuthNoFedora::getNonInheritedSecurityPermissions($pid, $roleId);
+    $xmlString = Fedora_API::callGetDatastreamContents($pid, 'FezACML', true);
 
-      //remove from current permissions users
-      foreach ($permissions as $permission) {
-        $values = AuthNoFedora::getAuthRuleValue($permission['argr_ar_id']);
-        if ($values['ar_rule'] == '!rule!role!Fez_User') {
-          if ((!in_array($values['ar_value'], $fezacml_user_list) && in_array($values['ar_value'], $remove_only_list))
-            || ((!in_array($values['ar_value'], $fezacml_user_list)) && empty($remove_only_list))
-          ) {
-            AuthNoFedora::deleteSecurityPermissions($pid, $roleId, $permission['argr_ar_id']);
-          }
-        }
-      }
-
-      foreach ($fezacml_user_list as $user) {
-        $arId = AuthRules::getOrCreateRule('!rule!role!Fez_User', $user);
-        $permisison['authii_role'] = $roleId;
-        $permisison['argr_ar_id'] = $arId;
-        if (!in_array($permisison, $permissions)) {
-          AuthNoFedora::addSecurityPermissions($pid, $roleId, $arId);
-        }
-      }
-      return 1;
-
-    } else {
-      $xmlString = Fedora_API::callGetDatastreamContents($pid, 'FezACML', true);
-
-      if (empty($xmlString) || !is_string($xmlString)) {
-        //	            return -3;
-        //create new fezacml template with inherit on
-        $xmlString = '<FezACML xmlns:xsi="http://www.w3.org/2001/XMLSchema">
-                  <rule>
-                    <role name="' . $role . '" />
-                  </rule>
-                  <inherit_security>on</inherit_security>
-                </FezACML>';
-      }
-
-      $doc = DOMDocument::loadXML($xmlString);
-      $xpath = new DOMXPath($doc);
-
-
-      $fieldNodeList = $xpath->query('/FezACML/rule/role[@name="' . $role . '"]/Fez_User');
-
-
-      if ($fieldNodeList->length == 0) {
-        $parentNodeList = $xpath->query('/FezACML/rule/role[@name="' . $role . '"]');
-        if ($parentNodeList->length == 0) {
-          return -1;
-        }
-        $parentNode = $parentNodeList->item(0);
-      } else {
-        foreach ($fieldNodeList as $fieldNode) { // first delete all the Fez_Users
-          $parentNode = $fieldNode->parentNode;
-          if (count($remove_only_list) == 0) {
-            $parentNode->removeChild($fieldNode);
-          } elseif (in_array($fieldNode->nodeValue, $remove_only_list) || $fieldNode->nodeValue == "") { // if a list of remove only ids is set, only remove ones in this list (eg to send a list of ids in a fez group)
-            $parentNode->removeChild($fieldNode);
-          }
-        }
-      }
-      if (is_array($fezacml_user_list)) {
-        foreach ($fezacml_user_list as $fez_user) {
-          $newNode = $doc->createElement('Fez_User', $fez_user);
-          $parentNode->appendChild($newNode);
-        }
-      }
-      $newXML = $doc->SaveXML();
-      $FezACML = "FezACML";
-      if (Fedora_API::datastreamExists($pid, $FezACML)) {
-        Fedora_API::callModifyDatastreamByValue($pid, $FezACML, "A", "FezACML",
-          $newXML, "text/xml", "inherit");
-      } else {
-        Fedora_API::getUploadLocation($pid, $FezACML, $newXML, "FezACML",
-          "text/xml", "X", null, "true");
-      }
-      Record::setIndexMatchingFields($pid);
-      return 1;
+    if (empty($xmlString) || !is_string($xmlString)) {
+      //	            return -3;
+      //create new fezacml template with inherit on
+      $xmlString = '<FezACML xmlns:xsi="http://www.w3.org/2001/XMLSchema">
+                <rule>
+                  <role name="' . $role . '" />
+                </rule>
+                <inherit_security>on</inherit_security>
+              </FezACML>';
     }
+
+    $doc = DOMDocument::loadXML($xmlString);
+    $xpath = new DOMXPath($doc);
+
+
+    $fieldNodeList = $xpath->query('/FezACML/rule/role[@name="' . $role . '"]/Fez_User');
+
+
+    if ($fieldNodeList->length == 0) {
+      $parentNodeList = $xpath->query('/FezACML/rule/role[@name="' . $role . '"]');
+      if ($parentNodeList->length == 0) {
+        return -1;
+      }
+      $parentNode = $parentNodeList->item(0);
+    } else {
+      foreach ($fieldNodeList as $fieldNode) { // first delete all the Fez_Users
+        $parentNode = $fieldNode->parentNode;
+        if (count($remove_only_list) == 0) {
+          $parentNode->removeChild($fieldNode);
+        } elseif (in_array($fieldNode->nodeValue, $remove_only_list) || $fieldNode->nodeValue == "") { // if a list of remove only ids is set, only remove ones in this list (eg to send a list of ids in a fez group)
+          $parentNode->removeChild($fieldNode);
+        }
+      }
+    }
+    if (is_array($fezacml_user_list)) {
+      foreach ($fezacml_user_list as $fez_user) {
+        $newNode = $doc->createElement('Fez_User', $fez_user);
+        $parentNode->appendChild($newNode);
+      }
+    }
+    $newXML = $doc->SaveXML();
+    $FezACML = "FezACML";
+    if (Fedora_API::datastreamExists($pid, $FezACML)) {
+      Fedora_API::callModifyDatastreamByValue($pid, $FezACML, "A", "FezACML",
+        $newXML, "text/xml", "inherit");
+    } else {
+      Fedora_API::getUploadLocation($pid, $FezACML, $newXML, "FezACML",
+        "text/xml", "X", null, "true");
+    }
+    Record::setIndexMatchingFields($pid);
+    return 1;
   }
+
 
   public static function getQuickTemplateValue($qat_id)
   {
@@ -328,7 +293,24 @@ class FezACML
 
   public static function getFezACMLDSName($dsID)
   {
-    $FezACML_dsID = "FezACML_" . str_replace(" ", "_", $dsID) . ".xml";
+    $FezACML_dsID = $dsID;
+    if (strpos($dsID, "FezACML_") !== 0) {
+      $FezACML_dsID = "FezACML_" . str_replace(" ", "_", $dsID) . ".xml";
+    }
     return $FezACML_dsID;
+  }
+
+  public static function getFezACMLPidName($pid)
+  {
+    $FezACML_DS_name = "FezACML";
+    if (APP_FEDORA_BYPASS == 'ON' && strpos($pid, "FezACML_") !== 0) {
+      $FezACML_DS_name = "FezACML_" . str_replace(":", "_", $pid) . ".xml";
+    }
+    return $FezACML_DS_name;
+  }
+
+  public static function getXdisTitlePrefix()
+  {
+    return 'FezACML for ';
   }
 }

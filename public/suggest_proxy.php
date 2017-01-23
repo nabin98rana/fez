@@ -78,6 +78,18 @@ if ($sek_suggest_function == "Search_Key::suggestSearchKeyIndexValue") {
 } else {
 	eval('$suggestions = '.$sek_suggest_function.'("'.$query.'", true);');
 }
+
+$names = [];
+if (count($suggestions) > 0 && array_key_exists(0, $suggestions)) {
+  $suggestions[0] = array_filter($suggestions[0], function($el) use (&$names) {
+    if (in_array($el['name'], $names)) {
+      return false; // remove it
+    } else {
+      $names[] = $el['name'];
+      return true;
+    }
+  });
+}
 $suggestions = array(
     'Result'    =>  $suggestions
 );

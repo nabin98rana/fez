@@ -63,24 +63,28 @@ class Video_Resample
 
     }
     if (trim($file_dir) == "") {
-      $file_dir = APP_TEMP_DIR;
+      $file_dir = Misc::getFileTmpPath();
     }
     if ((!(is_numeric(strpos($file, "&")))) && (!(is_numeric(strpos($file, "|"))))) { // check for command hax
-      if (is_numeric(strrpos($file, '.'))) {
-        $ffpmeg_file = APP_TEMP_DIR . 'thumbnail_' . Foxml::makeNCName(substr($file, 0, strrpos($file, '.'))) . '.jpg';
-      } else {
-        $ffpmeg_file = APP_TEMP_DIR . 'thumbnail_' . Foxml::makeNCName($file) . '.jpg';
-      }
+//      if (!is_numeric(strrpos($file, 'thumbnail_'))) {
+        if (is_numeric(strrpos($file, '.'))) {
+          $ffpmeg_file = Misc::getFileTmpPath('thumbnail_' . Foxml::makeNCName(substr($file, 0, strrpos($file, '.'))) . '.jpg');
+        } else {
+          $ffpmeg_file = Misc::getFileTmpPath('thumbnail_' . Foxml::makeNCName($file) . '.jpg');
+        }
+//      } else {
+//        $ffpmeg_file = $file;
+//      }
       if (is_file($ffpmeg_file)) { // if already exists, delete it
         unlink($ffpmeg_file);
       }
 
-      $full_file = $file_dir . '/' . $file;
+      $full_file = $file_dir . $file;
       if (is_numeric(strpos($full_file, " "))) {
         $newfile = Foxml::makeNCName($file);
-        Misc::processURL($full_file, true, APP_TEMP_DIR . $newfile);
+        Misc::processURL($full_file, true, Misc::getFileTmpPath($newfile));
 //        copy($full_file, APP_TEMP_DIR.$newfile);
-        $full_file = APP_TEMP_DIR . $newfile;
+        $full_file = Misc::getFileTmpPath($newfile);
       }
       if (!stristr(PHP_OS, 'win') || stristr(PHP_OS, 'darwin')) { // Not Windows Server
         $unix_extra = " 2>&1";
@@ -105,7 +109,7 @@ class Video_Resample
       if (!empty($newfile)) {
         unlink($full_file);
       }
-      echo $ffpmeg_file;
+//      echo $ffpmeg_file;
     }
 
   }
@@ -122,12 +126,12 @@ class Video_Resample
       $file = substr($file, strrpos($file, "/")+1);
 
     }
-    if (trim($file_dir) == "") { $file_dir = APP_TEMP_DIR; }
+    if (trim($file_dir) == "") { $file_dir = Misc::getFileTmpPath(); }
     if ((!(is_numeric(strpos($file, "&")))) && (!(is_numeric(strpos($file, "|"))))) { // check for command hax
       if (is_numeric(strrpos($file, '.'))) {
-        $ffpmeg_file = APP_TEMP_DIR.'stream_'.Foxml::makeNCName(substr($file, 0, strrpos($file, '.'))).'.flv';
+        $ffpmeg_file = Misc::getFileTmpPath('stream_'.Foxml::makeNCName(substr($file, 0, strrpos($file, '.'))).'.flv');
       } else {
-        $ffpmeg_file = APP_TEMP_DIR.'stream_'.Foxml::makeNCName($file).'.flv';
+        $ffpmeg_file = Misc::getFileTmpPath('stream_'.Foxml::makeNCName($file).'.flv');
       }
       if (is_file($ffpmeg_file)) { // if already exists, delete it
         unlink($ffpmeg_file);
@@ -136,8 +140,8 @@ class Video_Resample
       if (is_numeric(strpos($full_file, " "))) {
         $newfile = Foxml::makeNCName($file);
 //        copy($full_file, APP_TEMP_DIR.$newfile);
-        Misc::processURL($full_file, true, APP_TEMP_DIR.$newfile);
-        $full_file = APP_TEMP_DIR.$newfile;
+        Misc::processURL($full_file, true, Misc::getFileTmpPath($newfile));
+        $full_file = Misc::getFileTmpPath($newfile);
       }
       if (!stristr(PHP_OS, 'win') || stristr(PHP_OS, 'darwin')) { // Not Windows Server
         $unix_extra = " 2>&1";
@@ -181,13 +185,13 @@ class Video_Resample
 
     }
     if (trim($file_dir) == "") {
-      $file_dir = APP_TEMP_DIR;
+      $file_dir = Misc::getFileTmpPath();
     }
     if ((!(is_numeric(strpos($file, "&")))) && (!(is_numeric(strpos($file, "|"))))) { // check for command hax
       if (is_numeric(strrpos($file, '.'))) {
-        $ffpmeg_file = APP_TEMP_DIR . 'stream_' . Foxml::makeNCName(substr($file, 0, strrpos($file, '.'))) . '.flv';
+        $ffpmeg_file = Misc::getFileTmpPath('stream_' . Foxml::makeNCName(substr($file, 0, strrpos($file, '.'))) . '.flv');
       } else {
-        $ffpmeg_file = APP_TEMP_DIR . 'stream_' . Foxml::makeNCName($file) . '.flv';
+        $ffpmeg_file = Misc::getFileTmpPath('stream_' . Foxml::makeNCName($file) . '.flv');
       }
       if (is_file($ffpmeg_file)) { // if already exists, delete it
         unlink($ffpmeg_file);
@@ -196,8 +200,8 @@ class Video_Resample
       if (is_numeric(strpos($full_file, " "))) {
         $newfile = Foxml::makeNCName($file);
         //        copy($full_file, APP_TEMP_DIR.$newfile);
-        Misc::processURL($full_file, true, APP_TEMP_DIR . $newfile);
-        $full_file = APP_TEMP_DIR . $newfile;
+        Misc::processURL($full_file, true, Misc::getFileTmpPath($newfile));
+        $full_file = Misc::getFileTmpPath($newfile);
       }
       if (!stristr(PHP_OS, 'win') || stristr(PHP_OS, 'darwin')) { // Not Windows Server
         $unix_extra = " 2>&1";

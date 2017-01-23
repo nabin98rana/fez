@@ -1,0 +1,40 @@
+{
+  "family": "fezproductionbgp",
+  "containerDefinitions": [
+    {
+      "name": "fpm",
+      "image": "uql-registry.library.uq.edu.au/production/fez:<COMMIT_HASH>",
+      "cpu": 128,
+      "memory": 6144,
+      "memoryReservation": 512,
+      "environment": [
+        {
+          "name": "APP_ENVIRONMENT",
+          "value": "production"
+        },
+        {
+          "name": "COMMIT_HASH",
+          "value": "<COMMIT_HASH>"
+        },
+        {
+          "name": "JAVA_HOME",
+          "value": "/usr/lib/jvm/jre"
+        },
+        {
+          "name": "JHOVE_HOME",
+          "value": "/usr/local/jhove"
+        },
+        {
+          "name": "NEWRELIC_LICENSE",
+          "value": "<NEWRELIC_LICENSE>"
+        },
+        {
+          "name": "WEBCRON_TOKEN",
+          "value": "<WEBCRON_TOKEN>"
+        }
+      ],
+      "essential": true
+    }
+  ],
+  "volumes": []
+}

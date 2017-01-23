@@ -82,7 +82,7 @@ class Origami {
 		}
 
 		$fileUrl = APP_FEDORA_GET_URL . "/" . $pid . "/". $filename;
-		$tmpFile = APP_TEMP_DIR.Foxml::makeNCName($filename);
+		$tmpFile = Misc::getFileTmpPath(Foxml::makeNCName($filename));
 
 		$return_status = 0;
 		$return_array = array();

@@ -174,6 +174,7 @@ class BackgroundProcess_Index_Object extends BackgroundProcess
 					$this->setStatus("Reindexing:  '".$source_pid."'  (".$reindex_record_counter."/".$record_count.") (Avg ".$time_per_object."s per Object, Expected Finish ".$expected_finish.")");
 
 					$params['items'] = array($source_pid);
+					$params['wfses_id'] = $this->wfses_id;
 					$reindex->indexFezFedoraObjects($params);
 				}
 				$this->setProgress(100);

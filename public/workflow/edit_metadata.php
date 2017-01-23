@@ -198,19 +198,27 @@ if (isset($_POST['editedFilenames']) && is_array($_POST['editedFilenames'])) {
 //Since fileperms always has a value (Default = 0) we use it to track if files have been added and use it to find the index
 if (!empty($_POST['filePermissionsNew'])) {
     $count=0;
+    $xsdmf_id = $_POST['uploader_files_uploaded'];
     foreach($_POST['filePermissionsNew'] as $i => $value) {
-        $xsdmf_id = XSD_HTML_Match::getXSDMFIDByTitleXDIS_ID('Description for File Upload', $_POST['xdis_id']);
         $_POST['xsd_display_fields'][$xsdmf_id][$count] = $_POST['description'][$i];
         $fileXdis_id = $_POST['uploader_files_uploaded'];
         $filename = $tmpFilesArray['xsd_display_fields']['name'][$fileXdis_id][$count];
         Datastream::saveDatastreamSelectedPermissions($pid, $filename, $_POST['filePermissionsNew'][$i], $_POST['embargo_date'][$i]);
 
         if ($_POST['filePermissionsNew'][$i] == 5 || !empty($_POST['embargo_date'][$i])) {
-          Datastream::setfezACML($pid, $filename, 10);
+          $templateNum = 10;
+          if ($_SERVER['APPLICATION_ENV'] == 'development') {
+            $templateNum = 2;
+          }
+          Datastream::setfezACML($pid, $filename, $templateNum);
         }
         else {
           if ($_POST['filePermissionsNew'][$i] == 8) {
-            Datastream::setfezACML($pid, $filename, 11);
+            $templateNum = 11;
+            if ($_SERVER['APPLICATION_ENV'] == 'development') {
+              $templateNum = 2;
+            }
+            Datastream::setfezACML($pid, $filename, $templateNum);
           }
         }
         $count++;

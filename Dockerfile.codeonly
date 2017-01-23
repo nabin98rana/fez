@@ -11,6 +11,7 @@ RUN mkdir -p /var/cache && cd /var/cache/ && \
     mkdir templates_c && \
     mkdir xdebug && \
     mkdir tmp && \
+    mkdir tmp/uploader && \
     mkdir -p /var/log/espacestage && \
     chown -R nobody /var/log/espacestage && \
     chown -R nobody /var/cache && \

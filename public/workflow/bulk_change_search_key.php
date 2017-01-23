@@ -43,9 +43,9 @@ $history = $this->reason_for_edit;
 
 $regen          = false;
 
-if (!empty($pids) && is_array($pids)) { 
-    
-    $bgp = new BackgroundProcess_Bulk_Change_Search_Key; 
-    $bgp->register(serialize(compact('pids', 'sek_id', 'sek_value', 'regen', 'history')), Auth::getUserID());
-    
+if (!empty($pids) && is_array($pids)) {
+
+    $bgp = new BackgroundProcess_Bulk_Change_Search_Key;
+    $bgp->register(serialize(compact('pids', 'sek_id', 'sek_value', 'regen', 'history')), Auth::getUserID(), $this->id);
+
 }

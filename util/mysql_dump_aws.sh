@@ -73,11 +73,18 @@ mysqldump \
 
 ${MYSQL_CMD} -e 'start slave'
 
+cp export/fez_datastream_info.sql export/fez_datastream_info_exported.sql
+cp export/fez_datastream_info.txt export/fez_datastream_info_exported.txt
+sed -i -- "s/fez_datastream_info/fez_datastream_info_exported/" export/fez_datastream_info_exported.sql
+sed -i -- "s/fez_datastream_info/fez_datastream_info_exported/" export/fez_datastream_info_exported.txt
+
 rm -f export/__*
 rm -f export/*__shadow.txt
 rm -f export/fez_background_process.txt
-rm -f export/fez_config.sql
-rm -f export/fez_config.txt
+rm -f export/fez_background_process_pids.txt
+rm -f export/fez_datastream_info.sql
+rm -f export/fez_datastream_info.txt
+rm -f export/fez_datastream_info__shadow.txt
 rm -f export/fez_statistics_all.txt
 rm -f export/fez_statistics_buffer.txt
 rm -f export/fez_sessions.txt
@@ -87,7 +94,7 @@ rm -f export/fez_thomson_citations_cache.txt
 rm -f export/fez_scopus_citations.txt
 rm -f export/fez_scopus_citations_cache.txt
 
-cp ${APP_ENV}.fez.config.sql export/fez_config.sql
+cp ${APP_ENV}.fez.config.sql export/fez_config_extras.sql
 
 if [[ "${APP_ENV}" == "production" ]]; then
     now=$( date +'%F %T' )
@@ -98,29 +105,6 @@ if [[ "${APP_ENV}" == "production" ]]; then
       shadow=${f/${s}/${r}}
       cp ${f} ${shadow}
       sed -i -- "s/$/,\"${now}\"/" ${shadow}
-    done
-
-    declare -A PIDS
-    regex1='^"([^"]*)",'
-    regex2=',"([0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9] [0-9][0-9]:[0-9][0-9]:[0-9][0-9])",(.*),"([0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9] [0-9][0-9]:[0-9][0-9]:[0-9][0-9])",(.*),"([0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9] [0-9][0-9]:[0-9][0-9]:[0-9][0-9])",'
-
-    while read line; do
-      if [[ "$line" =~ $regex1 ]]; then
-        pid="${BASH_REMATCH[1]}"
-      fi
-      if [[ "$line" =~ $regex2 ]]; then
-        stamp="${BASH_REMATCH[5]}"
-      fi
-      PIDS[$pid]=$stamp
-    done < <(cat export/fez_record_search_key.txt)
-
-    for f in export/fez_record_search_key*__shadow.txt
-    do
-      for pid in "${!PIDS[@]}"
-      do
-        stamp=${PIDS[$pid]}
-        sed -i -- 's/^"\(.*\)","'"${pid}"'",\(.*\),"'"${now}"'"$/"\1","'"${pid}"'",\2,"'"${stamp}"'"/g' ${f}
-      done
     done
 fi
 

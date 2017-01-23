@@ -162,8 +162,6 @@ class RecordObject extends RecordGeneral
    */
   function fedoraInsertUpdate($exclude_list = array(), $specify_list = array(), $params = array(), $tmpFilesArray = array())
   {
-
-
     if (!empty($params)) {
       // dirty double hack as this function and all the ones it calls assumes this is
       // to do with a form submission
@@ -212,6 +210,12 @@ class RecordObject extends RecordGeneral
            }
           }
         }
+        if ($xsdmf['xsdmf_html_input'] == 'rich_text') {
+          $value = $xdisDisplayFields[$xsdmf['xsdmf_id']];
+          if ($value == '<br />') {
+            $xdisDisplayFields[$xsdmf['xsdmf_id']] = '';
+          }
+        }
       }
       //Except the final one if it's empty since it is the empty field reserved for "new item" if a multiple field
       //Previous empty values may be needed to space out between values
@@ -233,8 +237,6 @@ class RecordObject extends RecordGeneral
         unset($xdisDisplayFields[$last][$lastKey]);
       }
 
-
-
       $xsd_display_fields = RecordGeneral::setDisplayFields($xdisDisplayFields);
 
       $xdis_list = XSD_Relationship::getListByXDIS($_POST['xdis_id']);
@@ -246,7 +248,6 @@ class RecordObject extends RecordGeneral
       $xsdmf_id = XSD_HTML_Match::getXSDMF_IDBySekIDXDIS_ID(Search_Key::getID('Display Type'), $xdis_str);
       $xsd_display_fields[0]['display_type'] = array('xsdmf_id' => $xsdmf_id[0], 'xsdmf_value' => $_POST['xdis_id']);
 
-      $xsdmf_id = XSD_HTML_Match::getXSDMF_IDBySekIDXDIS_ID(Search_Key::getID('Depositor'), $xdis_str);
       if (empty($this->pid)) {
         $depositor = Auth::getUserID();
       } else {
@@ -255,7 +256,13 @@ class RecordObject extends RecordGeneral
         $xsdmf_id = XSD_HTML_Match::getXSDMF_IDBySekIDXDIS_ID(Search_Key::getID('Genre'), $xdis_str);
         $xsd_display_fields[0]['genre'] = array('xsdmf_id' => $xsdmf_id[0], 'xsdmf_value' => $genre);
       }
+      $xsdmf_id = XSD_HTML_Match::getXSDMF_IDBySekIDXDIS_ID(Search_Key::getID('Depositor'), $xdis_str);
       $xsd_display_fields[0]['depositor'] = array('xsdmf_id' => $xsdmf_id[0], 'xsdmf_value' => $depositor);
+
+      if (array_key_exists('collection_pid', $_POST) && !empty($_POST['collection_pid'])) {
+        $xsdmf_id = XSD_HTML_Match::getXSDMF_IDBySekIDXDIS_ID(Search_Key::getID('isMemberOf'), $xdis_str);
+        $xsd_display_fields[1]['ismemberof'] = array('xsdmf_id' => $xsdmf_id[0], 'xsdmf_value' => [$_POST['collection_pid']]);
+      }
 
       $updatedDate = Date_API::getCurrentDateGMT();
 
@@ -277,13 +284,30 @@ class RecordObject extends RecordGeneral
       $xsd_display_fields[0]['object_type'] = array('xsdmf_id' => $xsdmf_id[0], 'xsdmf_value' => $xdis_details['xdis_object_type']);
 
       // empty checkboxes don't get posted, so you need to manually set the value to save 'off' or it will never save or change from 'on' values
+      // and empty controlled vocabs don't get posted, so you need to manually remove the values
       foreach ($xsdmf_list as $xsdmf_key => $xsdmf_val) {
         if ($xsdmf_val['xsdmf_html_input'] == 'checkbox') {
           if (!empty($xsdmf_val['xsdmf_sek_id'])) {
             $sek_details = Search_Key::getBasicDetails($xsdmf_val['xsdmf_sek_id']);
-            if (array_key_exists('xdis_id', $_POST) && array_key_exists('xsd_display_fields', $_POST)
+            if (array_key_exists('xsd_display_fields', $_POST)
                 && !array_key_exists($xsdmf_val['xsdmf_id'], $_POST['xsd_display_fields'])) {
               $xsd_display_fields[$sek_details['sek_relationship']][$sek_details['sek_title_db']] = array('xsdmf_id' => $xsdmf_val['xsdmf_id'], 'xsdmf_value' => 'off');
+            }
+          }
+        }
+        if ($xsdmf_val['xsdmf_html_input'] == 'xsdmf_id_ref') {
+          if (!empty($xsdmf_val['xsdmf_id_ref'])) {
+            $xsdmf_details = XSD_HTML_Match::getDetailsByXSDMF_ID($xsdmf_val['xsdmf_id_ref']);
+            if ($xsdmf_details['xsdmf_html_input'] == 'contvocab_selector') {
+              $sek_details = Search_Key::getBasicDetails($xsdmf_val['xsdmf_sek_id']);
+              if (array_key_exists('xsd_display_fields', $_POST)
+                && !array_key_exists($xsdmf_details['xsdmf_id'], $_POST['xsd_display_fields'])
+              ) {
+                $xsd_display_fields[$sek_details['sek_relationship']][$sek_details['sek_title_db']] = array(
+                  'xsdmf_id' => $xsdmf_details['xsdmf_id'],
+                  'xsdmf_value' => ''
+                );
+              }
             }
           }
         }
@@ -305,81 +329,86 @@ class RecordObject extends RecordGeneral
 
       if (isset($_POST['uploader_files_uploaded'])) {
         $wfstatus = &WorkflowStatusStatic::getSession();
-
-        /*This condition required to stop additional ephemera
-         in the tmp upload dir being attached to the pid*/
         if (! count($tmpFilesArray)) {
-          $tmpFilesArray = Uploader::generateFilesArray($wfstatus->id,
-              $_POST['uploader_files_uploaded']);
+          $tmpFilesArray = Uploader::generateFilesArray($wfstatus->id, $_POST['uploader_files_uploaded']);
         }
-
         if (count($tmpFilesArray)) {
 
           $_FILES = $tmpFilesArray;
 
           $resourceData = $_FILES['xsd_display_fields']['new_file_location'];
           $resourceDataKeys = array_keys($resourceData);
-
           $numFiles = count($resourceData[$resourceDataKeys[0]]);
-
-          $filesData = $_FILES['xsd_display_fields']['size'];
-          $filesDataKeys = array_keys($filesData);
-
           $mimeData = $_FILES['xsd_display_fields']['type'];
           $mimeDataKeys = array_keys($mimeData);
           $fileNames = array();
 
           for ($i = 0; $i < $numFiles; $i++) {
             $resourceDataLocation = $resourceData[$resourceDataKeys[0]][$i];
-            $filesDataSize = $filesData[$filesDataKeys[0]][$i];
+            if (! is_file($resourceDataLocation)) {
+              continue;
+            }
             $mimeDataType = $mimeData[$mimeDataKeys[0]][$i];
-
             $fileInfo = new SplFileInfo($resourceDataLocation);
-
             $new_dsID = Foxml::makeNCName($fileInfo->getFilename());
+            $label = "";
+            if (@$_POST['description'][$i]) {
+              $label = $_POST['description'][$i];
+            }
 
-            Fedora_API::getUploadLocationByLocalRef($this->pid, $new_dsID, $resourceDataLocation, $new_dsID, $mimeDataType,"M",null,true);
+            Fedora_API::getUploadLocationByLocalRef($this->pid, $new_dsID, $resourceDataLocation, $label, $mimeDataType,"M",null,true);
             array_push($fileNames, $new_dsID);
-            $tmpFile = APP_TEMP_DIR . $new_dsID;
-//                      copy($path.$hash['rawHash'], $tmpFile);
-            rename($resourceDataLocation, $tmpFile);
+            $tmpFile = Misc::getFileTmpPath($new_dsID);
+//            rename($resourceDataLocation, $tmpFile);
 
             Record::generatePresmd($this->pid, $new_dsID);
           }
-          // replace this with a get datastreams loop, file_attachment_name regen
-//          if (count($fileNames) > 0) {
-//            $xsdmf_id = XSD_HTML_Match::getXSDMF_IDBySekIDXDIS_ID(Search_Key::getID('File Attachment Name'), $xdis_str);
-//            $xsd_display_fields[1]['file_attachment_name'] = array('xsdmf_id' => $xsdmf_id[0], 'xsdmf_value' => $fileNames);
-//          }
         }
       }
       // Check for all the existing files in case there are thumbs/presmds etc not indexed
       $datastreams = Fedora_API::callGetDatastreams($this->pid);
-      foreach ($datastreams as $ds_value) {
-        // get the matchfields for the FezACML of the datastream if any exists
-        if (isset($ds_value['controlGroup']) && $ds_value['controlGroup'] == 'M') {
-          if (!is_array($xsd_display_fields[1]['file_attachment_name'])) {
-            $xsd_display_fields[1]['file_attachment_name'] = array();
-            if (!is_array($xsd_display_fields[1]['file_attachment_name']['xsdmf_value'])) {
-              $xsd_display_fields[1]['file_attachment_name']['xsdmf_value'] = array();
+
+      $fileAttachXsdmfId = XSD_HTML_Match::getXSDMF_IDBySekIDXDIS_ID(Search_Key::getID('File Attachment Name'), $xdis_str);
+      if (is_array($fileAttachXsdmfId) && !empty($fileAttachXsdmfId[0])) {
+        foreach ($datastreams as $ds_value) {
+          if (isset($ds_value['controlGroup']) && $ds_value['controlGroup'] == 'M') {
+            if (!is_array($xsd_display_fields[1]['file_attachment_name'])) {
+              $xsd_display_fields[1]['file_attachment_name'] = array();
+              if (!is_array($xsd_display_fields[1]['file_attachment_name']['xsdmf_value'])) {
+                $xsd_display_fields[1]['file_attachment_name']['xsdmf_value'] = array();
+              }
+              $xsd_display_fields[1]['file_attachment_name']['xsdmf_id'] = $fileAttachXsdmfId;
             }
-            $xsd_display_fields[1]['file_attachment_name']['xsdmf_id'] = XSD_HTML_Match::getXSDMF_IDBySekIDXDIS_ID(Search_Key::getID('File Attachment Name'), $xdis_str);
+            array_push($xsd_display_fields[1]['file_attachment_name']['xsdmf_value'], $ds_value['ID']);
           }
-          array_push($xsd_display_fields[1]['file_attachment_name']['xsdmf_value'], $ds_value['ID']);
         }
       }
 
+      $fileDescXsdmfId = XSD_HTML_Match::getXSDMF_IDBySekIDXDIS_ID(Search_Key::getID('File Description'), $xdis_str);
+      if (is_array($fileDescXsdmfId) && !empty($fileDescXsdmfId[0])) {
+        foreach ($datastreams as $ds_value) {
+          if (isset($ds_value['controlGroup']) && $ds_value['controlGroup'] == 'M') {
+            if (!is_array($xsd_display_fields[1]['file_description'])) {
+              $xsd_display_fields[1]['file_description'] = array();
+              if (!is_array($xsd_display_fields[1]['file_description']['xsdmf_value'])) {
+                $xsd_display_fields[1]['file_description']['xsdmf_value'] = array();
+              }
+              $xsd_display_fields[1]['file_description']['xsdmf_id'] = $fileDescXsdmfId;
+            }
+            array_push($xsd_display_fields[1]['file_description']['xsdmf_value'], $ds_value['label']);
+          }
+        }
+      }
 
-//            Record::removeIndexRecord($this->pid, false);
       Record::updateSearchKeys($this->pid, $xsd_display_fields, false, $now); //into the non-shadow tables
       Record::updateSearchKeys($this->pid, $xsd_display_fields, true, $now); //into the shadow tables
 
       // now process the ingest triggers now that file_attachment_name etc has been saved into the search keys
       if (count($tmpFilesArray) > 0) {
         for ($i = 0; $i < $numFiles; $i++) {
-          Workflow::processIngestTrigger($this->pid, $fileNames[$i], $mimeDataType);
-          $tmpFile = APP_TEMP_DIR . $fileNames[$i];
+          $tmpFile = Misc::getFileTmpPath($fileNames[$i]);
           $resourceDataLocation = $resourceData[$resourceDataKeys[0]][$i];
+          Workflow::processIngestTrigger($this->pid, $fileNames[$i], $mimeDataType);
           if (is_file($tmpFile)) {
             unlink($tmpFile);
           }
@@ -396,10 +425,17 @@ class RecordObject extends RecordGeneral
           Fedora_API::deleteDatastream($this->pid, $removeFile);
         }
       }
-
-      if ($newPid) {
-        AuthNoFedora::setInherited($this->pid); //This also calls recalculate permissions after setting inherit to true
-        AuthNoFedora::recalculatePermissions($this->pid);
+      $xdis_title = XSD_Display::getMatchingFezACMLTitle($xdis_str);
+      if (! empty($xdis_title) && !in_array('FezACML', $exclude_list)) {
+        FezACML::editPidSecurity($this->pid, $xdis_title);
+        /*
+         * This pid has been updated, we want to delete any
+         * cached files as well as cached files for custom views
+         */
+        if (APP_FILECACHE == "ON") {
+          $cache = new fileCache($this->pid, 'pid='.$this->pid);
+          $cache->poisonCache();
+        }
       }
 
     } else {
@@ -450,6 +486,10 @@ class RecordObject extends RecordGeneral
       $datastreamTitles = $display->getDatastreamTitles($exclude_list, $specify_list);
       Record::insertXML($pid, compact('datastreamTitles', 'exclude_list', 'specify_list', 'xmlObj', 'indexArray', 'existingDatastreams', 'xdis_id'), $ingestObject);
       $this->clearDetails();  // force the details to be refreshed from fedora.
+    }
+
+    if (APP_FEDORA_BYPASS == 'ON') {
+      AuthIndex::setIndexAuth($this->pid);
     }
     return $this->pid;
   }
@@ -557,7 +597,8 @@ class RecordObject extends RecordGeneral
 
         // first extract the image and save temporary copy
         if (APP_FEDORA_BYPASS == 'ON') {
-          $tmpPth = APP_TEMP_DIR . $dsIDName;
+
+          $tmpPth = Misc::getFileTmpPath($dsIDName);
           $fhfs = fopen($tmpPth, 'ab');
           $fileContent = Fedora_API::callGetDatastreamDissemination($pid, $dsIDName);
           fwrite($fhfs, $fileContent['stream']);
@@ -566,7 +607,7 @@ class RecordObject extends RecordGeneral
 
         } else {
           $urldata = APP_FEDORA_GET_URL . "/" . $pid . "/" . $dsIDName;
-          $handle = fopen(APP_TEMP_DIR . $dsIDName, "w");
+          $handle = fopen(Misc::getFileTmpPath($dsIDName), "w");
           Misc::processURL($urldata, false, $handle);
           fclose($handle);
           if ($new_dsID != $dsIDName) {
@@ -575,7 +616,7 @@ class RecordObject extends RecordGeneral
             Fedora_API::callPurgeDatastream($pid, $dsIDName);
           }
           $versionable = APP_VERSION_UPLOADS_AND_LINKS == "ON" ? 'true' : 'false';
-          Fedora_API::getUploadLocationByLocalRef($pid, $new_dsID, APP_TEMP_DIR . $dsIDName, $dsIDName,
+          Fedora_API::getUploadLocationByLocalRef($pid, $new_dsID, Misc::getFileTmpPath($dsIDName), $dsIDName,
               $dsTitle['MIMEType'], "M", null, $versionable);
 
         }
@@ -603,8 +644,8 @@ class RecordObject extends RecordGeneral
         // process it's ingest workflows
         Workflow::processIngestTrigger($pid, $dsIDName, $dsTitle['MIMEType']);
         //clear the managed content file temporarily saved in the APP_TEMP_DIR
-        if (is_file(APP_TEMP_DIR . $dsIDName)) {
-          $deleteCommand = APP_DELETE_CMD . " " . APP_TEMP_DIR . $dsTitle['ID'];
+        if (is_file(Misc::getFileTmpPath($dsIDName))) {
+          $deleteCommand = APP_DELETE_CMD . " " . Misc::getFileTmpPath($dsTitle['ID']);
           exec($deleteCommand);
         }
       }

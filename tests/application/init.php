@@ -202,7 +202,7 @@ Class InitSystem
     }
     // now setup the cache
     $aws = new AWS(AWS_S3_CACHE_BUCKET);
-    $prefixes = ['cache', 'mail', 'san_import', 'sitemap', 'solr_upload'];
+    $prefixes = ['cache', 'mail', 'san_import', 'sitemap', 'solr_upload', 'uploader'];
     foreach ($prefixes as $p) {
       $aws->deleteMatchingObjects($p);
       $aws->putObject($p . '/', array('StorageClass' => 'REDUCED_REDUNDANCY'));

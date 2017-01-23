@@ -59,8 +59,8 @@ class Datastream
       } else {
         $newFileName = $newFile;
       }
-      $deleteFile = APP_TEMP_DIR . $newFile;
-      $newFile = APP_TEMP_DIR . $newFile;
+      $deleteFile = Misc::getFileTmpPath($newFile);
+      $newFile = $deleteFile;
       if (file_exists($newFile)) {
         $mimetype = Misc::mime_content_type($newFile);
         $versionable = APP_VERSION_UPLOADS_AND_LINKS == "ON" ? 'true' : 'false';
@@ -103,15 +103,10 @@ class Datastream
 
   static function setfezACML($pid, $dsID, $fezACMLTemplateNum)
   {
-    if (APP_FEDORA_BYPASS == 'ON') {
-      $did = self::getDid($pid, $dsID);
-      return FezACML::updateDatastreamQuickRule($pid, $fezACMLTemplateNum, $did);
-    }
     $xmlObj = FezACML::getQuickTemplateValue($fezACMLTemplateNum);
     if ($xmlObj != false) {
       return self::setfezACMLXml($pid, $dsID, $xmlObj);
     }
-
   }
 
   /**
@@ -119,11 +114,13 @@ class Datastream
    * @param string $pid The persistent identifier of the object to be purged
    * @param string $dsName The name of the datastream
    * @param string $mimetype The mimetype of the datastream
-   * @param string $state The datastream state
    * @param array $object The object in S3
+   * @param string $state The datastream state
+   * @param string $dsLabel The datastream label
+   * @param string $fezACMLXML The FezACML XML string if the info being saved is for a FezACML datastream
    * @return integer The datastream ID
    */
-  public static function addDatastreamInfo($pid, $dsName, $mimetype, $object, $state)
+  public static function addDatastreamInfo($pid, $dsName, $mimetype, $object, $state, $dsLabel, $fezACMLXML = '')
   {
     $log = FezLog::get();
     $db = DB_API::get();
@@ -137,6 +134,8 @@ class Datastream
       ':dsi_size' => $object['size'],
       ':dsi_version' => $object['version'],
       ':dsi_checksum' => $object['checksum'],
+      ':dsi_label' => $dsLabel,
+      ':dsi_cached' => $fezACMLXML,
     ];
 
     $did = self::getDid($pid, $dsName);
@@ -148,13 +147,15 @@ class Datastream
                   dsi_state = :dsi_state,   
                   dsi_size = :dsi_size,  
                   dsi_version = :dsi_version,
-                  dsi_checksum = :dsi_checksum
+                  dsi_checksum = :dsi_checksum,
+                  dsi_label = :dsi_label,
+                  dsi_cached = :dsi_cached
                   WHERE dsi_pid = :dsi_pid AND dsi_dsid = :dsi_dsid";
     } else {
       $data[':dsi_security_inherited'] = 0;
       $stmt = "INSERT INTO " . APP_TABLE_PREFIX . "datastream_info "
-        . "(dsi_dsid, dsi_pid, dsi_mimetype, dsi_url, dsi_security_inherited, dsi_state, dsi_size, dsi_version, dsi_checksum) VALUES "
-        . "(:dsi_dsid, :dsi_pid, :dsi_mimetype, :dsi_url, :dsi_security_inherited, :dsi_state, :dsi_size, :dsi_version, :dsi_checksum)";
+        . "(dsi_dsid, dsi_pid, dsi_mimetype, dsi_url, dsi_security_inherited, dsi_state, dsi_size, dsi_version, dsi_checksum, dsi_label, dsi_cached) VALUES "
+        . "(:dsi_dsid, :dsi_pid, :dsi_mimetype, :dsi_url, :dsi_security_inherited, :dsi_state, :dsi_size, :dsi_version, :dsi_checksum, :dsi_label, :dsi_cached)";
     }
     try {
       $db->query($stmt, $data);
@@ -169,7 +170,7 @@ class Datastream
       Zend_Registry::set('version', Date_API::getCurrentDateGMT());
     }
     $date = Zend_Registry::get('version');
-    $stmt = "INSERT INTO " . APP_TABLE_PREFIX . "datastream_info__shadow
+    $stmt = "REPLACE INTO " . APP_TABLE_PREFIX . "datastream_info__shadow
                SELECT *, " . $db->quote($date) . " FROM " . APP_TABLE_PREFIX . "datastream_info
                         WHERE dsi_id = " . $db->quote($did);
     try {
@@ -217,7 +218,8 @@ class Datastream
       $rows = array();
 
       $sql = "SELECT dsi_dsid, dsi_mimetype FROM "
-        . APP_TABLE_PREFIX . "datastream_info WHERE dsi_pid = :dsi_pid GROUP BY dsi_dsid";
+        . APP_TABLE_PREFIX . "datastream_info "
+        . "WHERE dsi_pid = :dsi_pid AND dsi_state = 'A' GROUP BY dsi_dsid";
 
       try
       {
@@ -243,22 +245,74 @@ class Datastream
   }
 
   /**
+   * This function gets the fezacml xml content of a datastream from quick db cache
+   *
+   * @param string $pid The persistent identifier of the object
+   * @param string $dsID The ID of the datastream
+   * @return array string The FezACML XML
+   */
+  public static function getDatastreamCachedFezACML($pid, $dsID)
+  {
+    $ds = Datastream::getFullDatastreamInfo($pid, $dsID);
+    return $ds['dsi_cached'];
+  }
+
+  /**
+   * This function gets the fezacml xml content of a datastream using a pattern, helpful for thumbnails etc
+   *
+   * @param string $pid
+   * @param string $pattern
+   * @return string
+   */
+  public static function getDatastreamCachedFezACMLPattern($pid, $pattern) {
+    $log = FezLog::get();
+    $db = DB_API::get();
+
+    $tbl = 'datastream_info';
+
+    $res = [];
+    $data = [':dsi_pid' => $pid];
+    $sql = "SELECT dsi_cached FROM "
+        . APP_TABLE_PREFIX . $tbl . " WHERE dsi_pid = :dsi_pid AND dsi_state = 'A'";
+
+    $data['dsi_dsid'] = $pattern;
+    $sql .= " AND dsi_dsid LIKE :dsi_dsid";
+    try {
+      $res = $db->fetchOne($sql, $data);
+    } catch(Exception $e) {
+      $log->err($e->getMessage());
+    }
+    return $res;
+  }
+
+
+  /**
    * This function creates an array of all the datastreams for a specific object
    *
    * @param string $pid The persistent identifier of the object
    * @param string $dsID The ID of the datastream
+   * @param string $tableSuffix Temporary suffix for the table used in migration from Fedora to AWS
+   * @param string $state The datastream state
    * @return array $dsIDListArray The list of datastreams in an array.
    */
-  public static function getFullDatastreamInfo($pid, $dsID = '')
+  public static function getFullDatastreamInfo($pid, $dsID = '', $tableSuffix = '', $state = 'A')
   {
     $log = FezLog::get();
     $db = DB_API::get();
 
+    $tbl = 'datastream_info';
+    if ($tableSuffix) {
+      $tbl .= $tableSuffix;
+    }
+
     $res = [];
     $data = [':dsi_pid' => $pid];
     $sql = "SELECT * FROM "
-      . APP_TABLE_PREFIX . "datastream_info WHERE dsi_pid = :dsi_pid";
+      . APP_TABLE_PREFIX . $tbl . " WHERE dsi_pid = :dsi_pid";
 
+    if ($state !== '') {
+      $sql .= " AND dsi_state = 'A'";
+    }
     if ($dsID !== '') {
       $data['dsi_dsid'] = $dsID;
       $sql .= " AND dsi_dsid = :dsi_dsid";
@@ -277,6 +331,35 @@ class Datastream
     }
     return $res;
   }
+
+  /**
+   * This function creates an array of all the datastreams in the system
+   *
+   * @param string $fileExt optional restriction on file extension used in like % eg use .pdf
+   * @return array $dsIDListArray The list of pids and datastreams in an array.
+   */
+  public static function getAllDatastreams($fileExt = '') {
+    $log = FezLog::get();
+    $db = DB_API::get();
+
+    $res = [];
+    $fileExtWhere = "";
+
+    if ($fileExt != '') {
+      $fileExtWhere = "WHERE dsi_dsid LIKE '%". $fileExt ."'";
+    }
+
+    $stmt = "SELECT * FROM "
+        . APP_TABLE_PREFIX  . "datastream_info ". $fileExtWhere ." ORDER BY dsi_pid ASC, dsi_dsid ASC limit 0,50";
+
+    try {
+      $res = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
+    } catch(Exception $e) {
+      $log->err($e->getMessage());
+    }
+    return $res;
+  }
+
 
   /**
    * This function marks a datastream as deleted by setting the state.
@@ -308,7 +391,6 @@ class Datastream
    *
    * @param string $pid The persistent identifier of the object to be purged
    * @param string $dsID The name of the datastream
-   * @return bool
    */
   public static function purgeDatastreamInfo($pid, $dsID)
   {
@@ -330,14 +412,14 @@ class Datastream
   /**
    * Set the security on the datastream to inherit from parent.
    */
-  static function setfezACMLInherit($pid, $dsID)
+  public static function setfezACMLInherit($pid, $dsID)
   {
     $xml = FezACML::makeQuickTemplateInherit();
     return self::setfezACMLXml($pid, $dsID, $xml);
   }
 
   //Removes permissions on datastream which makes it open access if the pid is accessible.
-  static function removeFezACMLDatastream($pid, $dsID)
+  public static function removeFezACMLDatastream($pid, $dsID)
   {
     $FezACML_dsID = FezACML::getFezACMLDSName($dsID);
     return Fedora_API::callPurgeDatastream($pid, $FezACML_dsID);
@@ -475,4 +557,103 @@ class Datastream
     }
     return $res;
   }
+
+  public static function setLabel($pid, $dsId, $label)
+  {
+    $log = FezLog::get();
+    $db = DB_API::get();
+
+    $stmt = "
+			UPDATE " . APP_TABLE_PREFIX . "datastream_info SET dsi_label = " . $db->quote($label) . "
+            WHERE dsi_pid = " . $db->quote($pid) . " AND dsi_dsid = " . $db->quote($dsId);
+
+    try {
+      $res = $db->exec($stmt);
+    } catch (Exception $ex) {
+      $log->err($ex);
+      return false;
+    }
+    return $res;
+  }
+
+  /**
+   * @param $pid string
+   * @param $dsId string
+   * @param $bookreader integer 0 or 1 (to indicate it does have a bookreader set of images)
+   * @return bool
+   */
+  public static function setBookreader($pid, $dsId, $bookreader)
+  {
+    $log = FezLog::get();
+    $db = DB_API::get();
+
+    $stmt = "
+			UPDATE " . APP_TABLE_PREFIX . "datastream_info SET dsi_bookreader = " . $db->quote($bookreader) . "
+            WHERE dsi_pid = " . $db->quote($pid) . " AND dsi_dsid = " . $db->quote($dsId);
+
+    try {
+      $res = $db->exec($stmt);
+    } catch (Exception $ex) {
+      $log->err($ex);
+      return false;
+    }
+    return $res;
+  }
+
+  /**
+   * @param $pid
+   * @param $dsId
+   * @return int
+   */
+  public static function getBookreader($pid, $dsId)
+  {
+    $log = FezLog::get();
+    $db = DB_API::get();
+
+    $stmt = "
+			SELECT dsi_bookreader FROM " . APP_TABLE_PREFIX . "datastream_info
+            WHERE dsi_pid = " . $db->quote($pid) . " AND dsi_dsid = " . $db->quote($dsId);
+    try {
+      $res = $db->fetchOne($stmt);
+    } catch (Exception $ex) {
+      $log->err($ex);
+      return 0;
+    }
+    return $res;
+  }
+
+
+  /**
+   * Used in the migration from Fedora -> AWS
+   * @param array $migrateData The data to migrate
+   */
+  public static function migrateDatastreamInfo($migrateData)
+  {
+    $log = FezLog::get();
+    $db = DB_API::get();
+
+    $stmt = "UPDATE " . APP_TABLE_PREFIX . "datastream_info SET
+                dsi_permissions = :dsi_permissions,
+                dsi_embargo_date = :dsi_embargo_date,
+                dsi_embargo_processed = :dsi_embargo_processed,   
+                dsi_open_access = :dsi_open_access,  
+                dsi_label = :dsi_label,
+                dsi_copyright = :dsi_copyright,
+                dsi_watermark = :dsi_watermark,
+                dsi_security_inherited = :dsi_security_inherited,
+                dsi_state = :dsi_state
+                WHERE dsi_pid = :dsi_pid AND dsi_dsid = :dsi_dsid";
+    try {
+      $db->query($stmt, $migrateData);
+    } catch (Exception $ex) {
+      //$log->err($ex);
+    }
+
+    try {
+      $db->query($stmt);
+    } catch (Exception $ex) {
+      //$log->err($ex);
+    }
+  }
+
 }

@@ -36,17 +36,17 @@ include_once(APP_INC_PATH . "class.fulltext_queue.php");
 
 class matching
 {
-	/**
-	 * Returns all matches (automatic, manual, and black-listed items).
-	 */
-	function getAllMatches($current_row = 0, $max = 25, $filter = "", $filterYear = '')
-	{
-		$log = FezLog::get();
-		$db = DB_API::get();
+  /**
+   * Returns all matches (automatic, manual, and black-listed items).
+   */
+  function getAllMatches($current_row = 0, $max = 25, $filter = "", $filterYear = '')
+  {
+    $log = FezLog::get();
+    $db = DB_API::get();
 
-		$start = $current_row * $max;
+    $start = $current_row * $max;
 
-		$stmtSelect = "
+    $stmtSelect = "
 			SELECT
 				pid,
 				jnl_era_year,
@@ -62,7 +62,7 @@ class matching
 				mtc_status AS conference_match_status
 		";
 
-		$stmtFrom = "
+    $stmtFrom = "
 			 FROM
 				(SELECT
 					mtj_pid AS pid
@@ -81,71 +81,70 @@ class matching
 		";
 
 
-		if ($filter != '') {
-			$stmtFrom .= "WHERE Q0.pid = " . $db->quote($filter);
-		}
+    if ($filter != '') {
+      $stmtFrom .= "WHERE Q0.pid = " . $db->quote($filter);
+    }
 
-        if ($filterYear != '') {
-            $stmtFrom .= (strpos($stmtFrom, 'WHERE') === FALSE) ? ' WHERE ' : ' AND ';
-            $stmtFrom .= " ( ".APP_TABLE_PREFIX . "journal.jnl_era_year = " . $db->quote($filterYear) . " OR " . APP_TABLE_PREFIX . "conference.cnf_era_year = " . $db->quote($filterYear)." ) ";
-        }
+    if ($filterYear != '') {
+      $stmtFrom .= (strpos($stmtFrom, 'WHERE') === FALSE) ? ' WHERE ' : ' AND ';
+      $stmtFrom .= " ( " . APP_TABLE_PREFIX . "journal.jnl_era_year = " . $db->quote($filterYear) . " OR " . APP_TABLE_PREFIX . "conference.cnf_era_year = " . $db->quote($filterYear) . " ) ";
+    }
 
-		$stmtLimit = "
+    $stmtLimit = "
 			ORDER BY pid ASC
 			LIMIT " . $db->quote($max, 'INTEGER') . " OFFSET " . $db->quote($start, 'INTEGER') . ";";
 
-		$stmt = $stmtSelect . $stmtFrom . $stmtLimit;
+    $stmt = $stmtSelect . $stmtFrom . $stmtLimit;
 
-		try {
-			$result = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
-		}
-		catch(Exception $ex) {
-			$log->err($ex);
-			return '';
-		}
+    try {
+      $result = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
+    } catch (Exception $ex) {
+      $log->err($ex);
+      return '';
+    }
 
-		/* Get page count stuff */
-		$stmt = "SELECT COUNT(*) " . $stmtFrom;
-		try {
-			$total_rows = $db->fetchOne($stmt);
-		} catch(Exception $ex) {
-			$log->err($ex);
-			return '';
-		}
-		if (($start + $max) < $total_rows) {
-			$total_rows_limit = $start + $max;
-		} else {
-			$total_rows_limit = $total_rows;
-		}
-		$total_pages = ceil($total_rows / $max);
-		$last_page = $total_pages - 1;
+    /* Get page count stuff */
+    $stmt = "SELECT COUNT(*) " . $stmtFrom;
+    try {
+      $total_rows = $db->fetchOne($stmt);
+    } catch (Exception $ex) {
+      $log->err($ex);
+      return '';
+    }
+    if (($start + $max) < $total_rows) {
+      $total_rows_limit = $start + $max;
+    } else {
+      $total_rows_limit = $total_rows;
+    }
+    $total_pages = ceil($total_rows / $max);
+    $last_page = $total_pages - 1;
 
-		return array(
-			"list" => $result,
-			"list_info" => array(
-				"current_page"  => $current_row,
-				"start_offset"  => $start,
-				"end_offset"    => $total_rows_limit,
-				"total_rows"    => $total_rows,
-				"total_pages"   => $total_pages,
-				"prev_page" 	=> ($current_row == 0) ? "-1" : ($current_row - 1),
-				"next_page"     => ($current_row == $last_page) ? "-1" : ($current_row + 1),
-				"last_page"     => $last_page
-			)
-		);
-	}
+    return array(
+        "list" => $result,
+        "list_info" => array(
+            "current_page" => $current_row,
+            "start_offset" => $start,
+            "end_offset" => $total_rows_limit,
+            "total_rows" => $total_rows,
+            "total_pages" => $total_pages,
+            "prev_page" => ($current_row == 0) ? "-1" : ($current_row - 1),
+            "next_page" => ($current_row == $last_page) ? "-1" : ($current_row + 1),
+            "last_page" => $last_page
+        )
+    );
+  }
 
-	/**
-	 * Returns all matches (automatic, manual, and black-listed items).
-	 */
-	function getAllUQTieredMatches($current_row = 0, $max = 25, $filter = "")
-	{
-		$log = FezLog::get();
-		$db = DB_API::get();
+  /**
+   * Returns all matches (automatic, manual, and black-listed items).
+   */
+  function getAllUQTieredMatches($current_row = 0, $max = 25, $filter = "")
+  {
+    $log = FezLog::get();
+    $db = DB_API::get();
 
-		$start = $current_row * $max;
+    $start = $current_row * $max;
 
-		$stmtSelect = "
+    $stmtSelect = "
 			SELECT
 				mtj_pid AS pid,
 				jnl_era_year,
@@ -156,7 +155,7 @@ class matching
 				mtj_status AS journal_match_status
 		";
 
-		$stmtFrom = "
+    $stmtFrom = "
 				FROM
 					" . APP_TABLE_PREFIX . "matched_uq_tiered_journals
 			LEFT JOIN " . APP_TABLE_PREFIX . "record_search_key ON rek_pid = mtj_pid
@@ -165,72 +164,71 @@ class matching
 		";
 
 
-		if ($filter != '') {
-			$stmtFrom .= "WHERE mtj_pid = " . $db->quote($filter);
-		}
+    if ($filter != '') {
+      $stmtFrom .= "WHERE mtj_pid = " . $db->quote($filter);
+    }
 
-		$stmtLimit = "
+    $stmtLimit = "
 			ORDER BY mtj_pid ASC
 			LIMIT " . $db->quote($max, 'INTEGER') . " OFFSET " . $db->quote($start, 'INTEGER') . ";";
 
-		$stmt = $stmtSelect . $stmtFrom . $stmtLimit;
+    $stmt = $stmtSelect . $stmtFrom . $stmtLimit;
 
-		try {
-			$result = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
-		}
-		catch(Exception $ex) {
-			$log->err($ex);
-			return '';
-		}
+    try {
+      $result = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
+    } catch (Exception $ex) {
+      $log->err($ex);
+      return '';
+    }
 
-		/* Get page count stuff */
-		$stmt = "SELECT COUNT(*) " . $stmtFrom;
-		try {
-			$total_rows = $db->fetchOne($stmt);
-		} catch(Exception $ex) {
-			$log->err($ex);
-			return '';
-		}
-		if (($start + $max) < $total_rows) {
-			$total_rows_limit = $start + $max;
-		} else {
-			$total_rows_limit = $total_rows;
-		}
-		$total_pages = ceil($total_rows / $max);
-		$last_page = $total_pages - 1;
+    /* Get page count stuff */
+    $stmt = "SELECT COUNT(*) " . $stmtFrom;
+    try {
+      $total_rows = $db->fetchOne($stmt);
+    } catch (Exception $ex) {
+      $log->err($ex);
+      return '';
+    }
+    if (($start + $max) < $total_rows) {
+      $total_rows_limit = $start + $max;
+    } else {
+      $total_rows_limit = $total_rows;
+    }
+    $total_pages = ceil($total_rows / $max);
+    $last_page = $total_pages - 1;
 
-		return array(
-			"list" => $result,
-			"list_info" => array(
-				"current_page"  => $current_row,
-				"start_offset"  => $start,
-				"end_offset"    => $total_rows_limit,
-				"total_rows"    => $total_rows,
-				"total_pages"   => $total_pages,
-				"prev_page" 	=> ($current_row == 0) ? "-1" : ($current_row - 1),
-				"next_page"     => ($current_row == $last_page) ? "-1" : ($current_row + 1),
-				"last_page"     => $last_page
-			)
-		);
-	}
+    return array(
+        "list" => $result,
+        "list_info" => array(
+            "current_page" => $current_row,
+            "start_offset" => $start,
+            "end_offset" => $total_rows_limit,
+            "total_rows" => $total_rows,
+            "total_pages" => $total_pages,
+            "prev_page" => ($current_row == 0) ? "-1" : ($current_row - 1),
+            "next_page" => ($current_row == $last_page) ? "-1" : ($current_row + 1),
+            "last_page" => $last_page
+        )
+    );
+  }
 
-	/**
-	 * Get a list of all PIDs that are not to be mapped.
-	 */
-	function getMatchingExceptions($type)
-	{
-		$log = FezLog::get();
-		$db = DB_API::get();
+  /**
+   * Get a list of all PIDs that are not to be mapped.
+   */
+  function getMatchingExceptions($type)
+  {
+    $log = FezLog::get();
+    $db = DB_API::get();
 
-		if ($type == 'J') {
-			$table = "journals";
-			$prefix = "mtj";
-		} elseif ($type == 'C') {
-			$table = "conferences";
-			$prefix = "mtc";
-		}
+    if ($type == 'J') {
+      $table = "journals";
+      $prefix = "mtj";
+    } elseif ($type == 'C') {
+      $table = "conferences";
+      $prefix = "mtc";
+    }
 
-		$stmt = "
+    $stmt = "
 			SELECT
 				" . $prefix . "_pid AS pid
 			FROM
@@ -241,84 +239,90 @@ class matching
 				pid
 		";
 
-		try {
-			$result = $db->fetchCol($stmt);
-		}
-		catch(Exception $ex) {
-			$log->err($ex);
-			return '';
-		}
+    try {
+      $result = $db->fetchCol($stmt);
+    } catch (Exception $ex) {
+      $log->err($ex);
+      return '';
+    }
 
-		return $result;
-	}
+    return $result;
+  }
 
-	/**
-	 * Save an existing mapping.
-	 */
-	function save()
-	{
-		$log = FezLog::get();
-		$db = DB_API::get();
+  /**
+   * Save an existing mapping.
+   */
+  function save()
+  {
+    $log = FezLog::get();
+    $db = DB_API::get();
 
-		$type = $_POST['type'];
-		$pid = $_POST['pid'];
-		$matching_id = $_POST['matching_id'];
-		$status = $_POST['status'];
+    $type = $_POST['type'];
+    $pid = $_POST['pid'];
 
-		if ($type == 'J') {
-			$table = "journals";
-			$prefix = "mtj";
-            $suffix = "_jnl_id";
-		} elseif ($type == 'C') {
-			$table = "conferences";
-			$prefix = "mtc";
-            $suffix = "_cnf_id";
-		}
+    $matching_id = $_POST['matching_id'];
+    $status = $_POST['status'];
 
-		$stmt = "UPDATE
-                    " . APP_TABLE_PREFIX . "matched_" . $table . "
-                 SET
-                    " . $prefix . $suffix. " = " . $db->quote($matching_id, 'INTEGER') . ",
-                    " . $prefix . "_status = " . $db->quote($status) . "
-                 WHERE
-                    " . $prefix . "_pid = " . $db->quote($pid) . ";";
-		try {
-			$db->exec($stmt);
-		}
-		catch(Exception $ex) {
-			$log->err($ex);
-			return -1;
-		}
+    if ($type == 'J') {
+      $table = "journals";
+      $prefix = "mtj";
+      $suffix = "_jnl_id";
+    } elseif ($type == 'C') {
+      $table = "conferences";
+      $prefix = "mtc";
+      $suffix = "_cnf_id";
+    }
+    // make sure the pid isn't empty somehow see [#132543213]
+    if (strlen($pid) > 0 && $pid != '' && !empty($pid)) {
+
+      $stmt = "UPDATE
+                      " . APP_TABLE_PREFIX . "matched_" . $table . "
+                   SET
+                      " . $prefix . $suffix . " = " . $db->quote($matching_id, 'INTEGER') . ",
+                      " . $prefix . "_status = " . $db->quote($status) . "
+                   WHERE
+                      " . $prefix . "_pid = " . $db->quote($pid) . ";";
+      try {
+        $db->exec($stmt);
+      } catch (Exception $ex) {
+        $log->err($ex);
+        return -1;
+      }
 
 
-        if (APP_SOLR_INDEXER == "ON") {
-            FulltextQueue::singleton()->add($pid);
-        }
+      if (APP_SOLR_INDEXER == "ON" || APP_ES_INDEXER == "ON") {
+        FulltextQueue::singleton()->add($pid);
+      }
+    }
 
-		header("Location: http://" . APP_HOSTNAME . "/manage/matching.php");
-		exit;
-	}
+    header("Location: http://" . APP_HOSTNAME . "/manage/matching.php");
+    exit;
+  }
 
-	/**
-	 * Add a brand new mapping.
-	 */
-	function addUQTier()
-	{
-		$log = FezLog::get();
-		$db = DB_API::get();
+  /**
+   * Add a brand new mapping.
+   */
+  function addUQTier()
+  {
+    $log = FezLog::get();
+    $db = DB_API::get();
 
-		$pid = $_POST['pid'];
-		$matching_id = $_POST['matching_id'];
-		$status = $_POST['status'];
+    $pid = $_POST['pid'];
+    $matching_id = $_POST['matching_id'];
+    $status = $_POST['status'];
 
-		UQTJL::removeMatchByPID($pid);
+    UQTJL::removeMatchByPID($pid);
 
-		if ($status == 'B') {
-			$matching_id = array('0');
-		}
+    if ($status == 'B') {
+      $matching_id = array('0');
+    }
 
-		foreach ($matching_id as $mid) {
-			$stmt = "INSERT INTO " . APP_TABLE_PREFIX . "matched_uq_tiered_journals
+    // make sure the pid isn't empty somehow see [#132543213]
+    if (strlen($pid) > 0 && $pid != '' && !empty($pid)) {
+
+
+      foreach ($matching_id as $mid) {
+        $stmt = "INSERT INTO " . APP_TABLE_PREFIX . "matched_uq_tiered_journals
                     (
                     mtj_pid,
                     mtj_jnl_id ,
@@ -329,57 +333,60 @@ class matching
                     " . $db->quote($status) . "
                     );";
 
-			try {
-				$db->exec($stmt);
-			}
-			catch(Exception $ex) {
-				$log->err($ex);
-				return -1;
-			}
-		}
-
-		if (APP_SOLR_INDEXER == "ON") {
-			FulltextQueue::singleton()->add($pid);
-		}
-
-		header("Location: https://" . APP_HOSTNAME . "/manage/matching_uq_tiered_journal.php");
-		exit;
-	}
-
-	/**
-	 * Add a brand new mapping.
-	 */
-	function add()
-	{
-		$log = FezLog::get();
-		$db = DB_API::get();
-
-		$type = $_POST['type'];
-		$pid = $_POST['pid'];
-		$matching_id = $_POST['matching_id'];
-		$status = $_POST['status'];
-		$suffix = "";
-
-        if (is_array($matching_id) && ((count($matching_id) > 3 && $type == 'J') || (count($matching_id) > 2 && $type == 'C'))) { //catch users bypassing javascript
-          return false;
+        try {
+          $db->exec($stmt);
+        } catch (Exception $ex) {
+          $log->err($ex);
+          return -1;
         }
+      }
 
-        if ($type == 'J') {
-			$table = "journals";
-			$prefix = "mtj";
-            $suffix = "_jnl_id";
-            RJL::removeMatchByPID($pid);
-		} elseif ($type == 'C') {
-			$table = "conferences";
-			$prefix = "mtc";
-            $suffix = "_cnf_id";
-            RCL::removeMatchByPID($pid);
-		}
-		if ($status == 'B') {
-			$matching_id = array('0');
-		}
-		foreach ($matching_id as $mid) {
-            $stmt = "INSERT INTO " . APP_TABLE_PREFIX . "matched_" . $table . "
+      if (APP_SOLR_INDEXER == "ON" || APP_ES_INDEXER == "ON") {
+        FulltextQueue::singleton()->add($pid);
+      }
+    }
+
+    header("Location: https://" . APP_HOSTNAME . "/manage/matching_uq_tiered_journal.php");
+    exit;
+  }
+
+  /**
+   * Add a brand new mapping.
+   */
+  function add()
+  {
+    $log = FezLog::get();
+    $db = DB_API::get();
+
+    $type = $_POST['type'];
+    $pid = $_POST['pid'];
+    $matching_id = $_POST['matching_id'];
+    $status = $_POST['status'];
+    $suffix = "";
+
+    if (is_array($matching_id) && ((count($matching_id) > 3 && $type == 'J') || (count($matching_id) > 2 && $type == 'C'))) { //catch users bypassing javascript
+      return false;
+    }
+
+    if ($type == 'J') {
+      $table = "journals";
+      $prefix = "mtj";
+      $suffix = "_jnl_id";
+      RJL::removeMatchByPID($pid);
+    } elseif ($type == 'C') {
+      $table = "conferences";
+      $prefix = "mtc";
+      $suffix = "_cnf_id";
+      RCL::removeMatchByPID($pid);
+    }
+    if ($status == 'B') {
+      $matching_id = array('0');
+    }
+    // make sure the pid isn't empty somehow see [#132543213]
+    if (strlen($pid) > 0 && $pid != '' && !empty($pid)) {
+
+      foreach ($matching_id as $mid) {
+        $stmt = "INSERT INTO " . APP_TABLE_PREFIX . "matched_" . $table . "
                     (
                     " . $prefix . "_pid,
                     " . $prefix . $suffix . ",
@@ -390,134 +397,137 @@ class matching
                     " . $db->quote($status) . "
                     );";
 
-            try {
-                $db->exec($stmt);
-            }
-            catch(Exception $ex) {
-                $log->err($ex);
-                return -1;
-            }
+        try {
+          $db->exec($stmt);
+        } catch (Exception $ex) {
+          $log->err($ex);
+          return -1;
         }
+      }
 
-        if (APP_SOLR_INDEXER == "ON") {
-            FulltextQueue::singleton()->add($pid);
-        }
+      if (APP_SOLR_INDEXER == "ON" || APP_ES_INDEXER == "ON") {
+        FulltextQueue::singleton()->add($pid);
+      }
+    }
 
-		header("Location: http://" . APP_HOSTNAME . "/manage/matching.php");
-		exit;
-	}
+    header("Location: http://" . APP_HOSTNAME . "/manage/matching.php");
+    exit;
+  }
 
-    function suggest($term, $type, $year = null)
-    {
-        $log = FezLog::get();
-        $db = DB_API::get();
-        $term = str_replace(' ', '%', $term);
-        if($type == 'C') {
-            $stmt = "SELECT cnf_id, CONCAT(cnf_conference_name, ' (', cnf_era_year,')')  AS 'conference_name'
+  function suggest($term, $type, $year = null)
+  {
+    $log = FezLog::get();
+    $db = DB_API::get();
+    $term = str_replace(' ', '%', $term);
+    if ($type == 'C') {
+      $stmt = "SELECT cnf_id, CONCAT(cnf_conference_name, ' (', cnf_era_year,')')  AS 'conference_name'
                     FROM " . APP_TABLE_PREFIX . "conference
                     WHERE
-                    ( cnf_conference_name LIKE ".$db->quote("%".$term."%")."
-                            OR cnf_id = ".$db->quote($term)." ) ";
-            $stmt .= empty($year) ? " LIMIT 30" : " AND cnf_era_year = ".$db->quote($year)." LIMIT 30";
-        } else {
-            $stmt = "SELECT jnl_id, CONCAT(jnl_journal_name, ' (', jnl_era_year,')')  AS 'journal_name'
+                    ( cnf_conference_name LIKE " . $db->quote("%" . $term . "%") . "
+                            OR cnf_id = " . $db->quote($term) . " ) ";
+      $stmt .= empty($year) ? " LIMIT 30" : " AND cnf_era_year = " . $db->quote($year) . " LIMIT 30";
+    } else {
+      $stmt = "SELECT jnl_id, CONCAT(jnl_journal_name, ' (', jnl_era_year,')')  AS 'journal_name'
                     FROM " . APP_TABLE_PREFIX . "journal
                     WHERE
-                    ( jnl_journal_name LIKE ".$db->quote("%".$term."%")."
-                            OR jnl_id = ".$db->quote($term)." ) ";
-            $stmt .= empty($year) ? " LIMIT 30" : " AND jnl_era_year = ".$db->quote($year)." LIMIT 30";
-
-        }
-
-        try {
-            $res = $db->fetchAll($stmt);
-        }
-        catch(Exception $ex) {
-            $log->err($ex);
-            return false;
-        }
-
-        return $res;
+                    ( jnl_journal_name LIKE " . $db->quote("%" . $term . "%") . "
+                            OR jnl_id = " . $db->quote($term) . " ) ";
+      $stmt .= empty($year) ? " LIMIT 30" : " AND jnl_era_year = " . $db->quote($year) . " LIMIT 30";
 
     }
 
-    function addJournalMapping($pid, $eraJournalId, $year) {
-        $log = FezLog::get();
-        $db = DB_API::get();
-
-        $JournalId = Matching:: getJournalIdFromEraId($eraJournalId, $year);
-
-        if(empty($JournalId)) {
-            return false;
-        }
-
-        $stmt = "INSERT INTO " . APP_TABLE_PREFIX . "matched_journals (mtj_pid, mtj_jnl_id, mtj_status) VALUES (" . $db->quote($pid) . ", $db->quote($JournalId), 'M') ON DUPLICATE KEY UPDATE mtj_jnl_id = ".$db->quote($JournalId);
-        try {
-            $db->query($stmt);
-        } catch (Exception $ex) {
-            $log->err($ex);
-            return false;
-        }
-        if (APP_SOLR_INDEXER == "ON") {
-            FulltextQueue::singleton()->add($pid);
-        }
-
-        return true;
+    try {
+      $res = $db->fetchAll($stmt);
+    } catch (Exception $ex) {
+      $log->err($ex);
+      return false;
     }
 
-    function getJournalIdFromEraId($eraJournalId, $year) {
-        $log = FezLog::get();
-        $db = DB_API::get();
+    return $res;
 
-        $stmt = "SELECT jnl_id FROM " . APP_TABLE_PREFIX . "journal WHERE jnl_era_id = " . $db->quote($eraJournalId) . " AND jnl_era_year = " . $db->quote($year) . "";
-        try {
-            $res = $db->fetchOne($stmt);
-        } catch (Exception $ex) {
-            $log->err($ex);
-            return false;
-        }
-        return $res;
+  }
 
+  function addJournalMapping($pid, $eraJournalId, $year)
+  {
+    $log = FezLog::get();
+    $db = DB_API::get();
+
+    $JournalId = Matching:: getJournalIdFromEraId($eraJournalId, $year);
+
+    if (empty($JournalId) || empty($pid)) {
+      return false;
     }
 
-    function addConferenceMapping($pid, $eraConferenceId, $year) {
-        $log = FezLog::get();
-        $db = DB_API::get();
-
-        $ConferenceId = Matching:: getConferenceIdFromEraId($eraConferenceId, $year);
-
-        if(empty($ConferenceId)) {
-            return false;
-        }
-
-        $stmt = "INSERT INTO " . APP_TABLE_PREFIX . "matched_conferences (mtc_pid, mtc_cnf_id, mtc_status) VALUES (" . $db->quote($pid) . ", $db->quote($ConferenceId), 'M') ON DUPLICATE KEY UPDATE mtc_cnf_id = ".$db->quote($ConferenceId);
-        try {
-            $db->query($stmt);
-        } catch (Exception $ex) {
-            $log->err($ex);
-            return false;
-        }
-
-        if (APP_SOLR_INDEXER == "ON") {
-            FulltextQueue::singleton()->add($pid);
-        }
-
-        return true;
+    $stmt = "INSERT INTO " . APP_TABLE_PREFIX . "matched_journals (mtj_pid, mtj_jnl_id, mtj_status) VALUES (" . $db->quote($pid) . ", $db->quote($JournalId), 'M') ON DUPLICATE KEY UPDATE mtj_jnl_id = " . $db->quote($JournalId);
+    try {
+      $db->query($stmt);
+    } catch (Exception $ex) {
+      $log->err($ex);
+      return false;
+    }
+    if (APP_SOLR_INDEXER == "ON" || APP_ES_INDEXER == "ON") {
+      FulltextQueue::singleton()->add($pid);
     }
 
-    function getConferenceIdFromEraId($eraConferenceId, $year) {
-        $log = FezLog::get();
-        $db = DB_API::get();
+    return true;
+  }
 
-        $stmt = "SELECT cnf_id FROM " . APP_TABLE_PREFIX . "conference WHERE cnf_era_id = " . $db->quote($eraConferenceId) . " AND cnf_era_year = " . $db->quote($year) . "";
-        try {
-            $res = $db->fetchOne($stmt);
-        } catch (Exception $ex) {
-            $log->err($ex);
-            return false;
-        }
-        return $res;
+  function getJournalIdFromEraId($eraJournalId, $year)
+  {
+    $log = FezLog::get();
+    $db = DB_API::get();
 
+    $stmt = "SELECT jnl_id FROM " . APP_TABLE_PREFIX . "journal WHERE jnl_era_id = " . $db->quote($eraJournalId) . " AND jnl_era_year = " . $db->quote($year) . "";
+    try {
+      $res = $db->fetchOne($stmt);
+    } catch (Exception $ex) {
+      $log->err($ex);
+      return false;
     }
+    return $res;
+
+  }
+
+  function addConferenceMapping($pid, $eraConferenceId, $year)
+  {
+    $log = FezLog::get();
+    $db = DB_API::get();
+
+    $ConferenceId = Matching:: getConferenceIdFromEraId($eraConferenceId, $year);
+
+    if (empty($ConferenceId) || empty($pid)) {
+      return false;
+    }
+
+    $stmt = "INSERT INTO " . APP_TABLE_PREFIX . "matched_conferences (mtc_pid, mtc_cnf_id, mtc_status) VALUES (" . $db->quote($pid) . ", $db->quote($ConferenceId), 'M') ON DUPLICATE KEY UPDATE mtc_cnf_id = " . $db->quote($ConferenceId);
+    try {
+      $db->query($stmt);
+    } catch (Exception $ex) {
+      $log->err($ex);
+      return false;
+    }
+
+    if (APP_SOLR_INDEXER == "ON" || APP_ES_INDEXER == "ON") {
+      FulltextQueue::singleton()->add($pid);
+    }
+
+    return true;
+  }
+
+  function getConferenceIdFromEraId($eraConferenceId, $year)
+  {
+    $log = FezLog::get();
+    $db = DB_API::get();
+
+    $stmt = "SELECT cnf_id FROM " . APP_TABLE_PREFIX . "conference WHERE cnf_era_id = " . $db->quote($eraConferenceId) . " AND cnf_era_year = " . $db->quote($year) . "";
+    try {
+      $res = $db->fetchOne($stmt);
+    } catch (Exception $ex) {
+      $log->err($ex);
+      return false;
+    }
+    return $res;
+
+  }
 
 }

@@ -685,10 +685,10 @@ abstract class RecordImport
     $state = 0;
 
     $queryMap = array(
-      'spage' => "AND PREG_REPLACE('/[^0-9]/', '', rek_start_page) = PREG_REPLACE('/[^0-9]/', '', '" . $fields['_startPage'] . "') ",
-      'volume' => "AND PREG_REPLACE('/[^0-9]/', '', rek_volume_number) = PREG_REPLACE('/[^0-9]/', '', '" . $fields['_issueVolume'] . "') ",
-      'issue' => "AND PREG_REPLACE('/[^0-9]/', '', rek_issue_number) = PREG_REPLACE('/[^0-9]/', '', '" . $fields['_issueNumber'] . "') ",
-      'epage' => "AND PREG_REPLACE('/[^0-9]/', '', rek_end_page) = PREG_REPLACE('/[^0-9]/', '', '" . $fields['_endPage'] . "') "
+      'spage' => "AND rek_start_page = '" . $fields['_startPage'] . "' ",
+      'volume' => "AND rek_volume_number = '" . $fields['_issueVolume'] . "' ",
+      'issue' => "AND rek_issue_number = '" . $fields['_issueNumber'] . "' ",
+      'epage' => "AND rek_end_page = '" . $fields['_endPage'] . "' "
     );
 
 
@@ -696,7 +696,7 @@ abstract class RecordImport
     $searchSets[1] = array('spage', 'volume', 'issue', 'epage'); //ST14/15, now 10/11
     $searchSets[2] = array('spage', 'volume', 'issue'); //ST21/22, now 12/13
 
-    $fuzzyTitle = "WHERE PREG_REPLACE('/[^a-z]/', '', LOWER(rek_title)) = PREG_REPLACE('/[^a-z]/', '', '" . strtolower($fields['_title']) . "') ";
+    $fuzzyTitle = "WHERE LOWER(rek_title) = '" . strtolower($fields['_title']) . "' ";
 
     $sqlPre = "SELECT rek_pid, rek_title, rek_scopus_id, rek_isi_loc, rek_start_page, "
       . "rek_end_page, rek_volume_number, rek_issue_number "
@@ -969,7 +969,7 @@ abstract class RecordImport
         }
 
         //assume solr need updating for new lister permissions
-        if (APP_SOLR_INDEXER == "ON") {
+        if (APP_SOLR_INDEXER == "ON" || APP_ES_INDEXER == "ON") {
             FulltextQueue::singleton()->add($recordSearchKey->getPid());
             FulltextQueue::singleton()->commit();
         }

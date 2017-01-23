@@ -235,13 +235,13 @@ class Lister
 
     if ($tpl_idx == 0 || $tpl_idx == 4 || $tpl_idx == 5 || $tpl_idx == 6) {
       $tpl->setTemplate('header.tpl.html');
-    } else if ($tpl_idx != 2 && $tpl_idx != 3) {
+    } else if ($tpl_idx != 2 && $tpl_idx != 3 && $tpl_idx != 1) {
       // prevent escaping when not using html templates
       $tpl->smarty->default_modifiers = array();
     }
 
     $getFunction = 'getListing';
-    if (APP_SOLR_SWITCH == "ON") {
+    if ((APP_SOLR_SWITCH == 'ON' || APP_ES_SWITCH == 'ON')) {
       $getFunction = 'getSearchListing';
     }
 
@@ -486,7 +486,7 @@ class Lister
 
       /* Only the starred records */
       if (count($starredPids) > 0) {
-        if (APP_SOLR_SWITCH == 'ON') {
+        if ((APP_SOLR_SWITCH == 'ON' || APP_ES_SWITCH == 'ON')) {
           $filter["manualFilter"] = "(pid_t:('" . str_replace(':', '\:', implode("' OR '", $starredPids)) . "'))";
         } else {
           $filter["searchKey" . Search_Key::getID("Pid")]['override_op'] = 'OR';
@@ -495,7 +495,7 @@ class Lister
           }
         }
       } else {
-        if (APP_SOLR_SWITCH == 'ON') {
+        if ((APP_SOLR_SWITCH == 'ON' || APP_ES_SWITCH == 'ON')) {
           $filter["manualFilter"] = "(pid_t:('INVALID_PID'))";
         } else {
           $filter["searchKey" . Search_Key::getID("Pid")][] = 'INVALID_PID';
@@ -719,6 +719,13 @@ class Lister
     } elseif ($browse == "mypubs") {
       $author_id = $params['author_id'];
       $authorDetails = Author::getDetails($author_id);
+      //prefer the staff username if possible
+      if (!empty($authorDetails['aut_org_username'])) {
+        $authorUsername = $authorDetails['aut_org_username'];
+      } else {
+        $authorUsername = $authorDetails['aut_student_username'];
+      }
+      $tpl->assign("author_username", $authorUsername);
       $authorDetails["aut_publons_id"] = Publons::returnOrcidIfHasPublons($author_id);
       $tpl->assign("list_heading", "Publications by " . htmlspecialchars($authorDetails["aut_display_name"]));
 
@@ -1059,49 +1066,6 @@ class Lister
 
     if ($tpl_idx == 1) {
       // Add the Research Details to the array
-      $titles = array();
-      foreach ($list as $rec) {
-        $record = new RecordObject($rec['rek_pid']);
-        $record->getDisplay();
-        $details = $record->getDetails();
-        $xsd_display_fields = $record->display->getMatchFieldsList(array("FezACML"), array()); // XSD_DisplayObject
-        $pidTitles = array();
-        $excelRow = array();
-        foreach ($xsd_display_fields as $value) {
-          $pidTitles[] = $value['sek_title'];
-          if ($value['xsdmf_show_in_view'] && $value['xsdmf_enabled'] && !$value['xsdmf_invisible'] && !empty($value['sek_title']) && !empty($details[$value['xsdmf_id']]) && $value['sek_title'] != 'Description' && $value['sek_title'] != 'Formatted Abstract') {
-            $excelRow[$value['sek_title']] = preg_replace('/\<br(\s*)?\/?\>/i', "\n", $details[$value['xsdmf_id']]);
-            $pidTitleUsed[$value['sek_title']] = 1;
-          }
-        }
-
-        if (empty($titles)) {
-          $titles = $pidTitles;
-        }
-
-        //Lets try and approximate the correct view order
-        foreach ($pidTitles as $key => $value)
-          if (!in_array($pidTitles[$key], $titles)) {
-            $positionAfter = array_search($pidTitles[$key - 1], $titles);
-            if ($positionAfter != false) {
-              array_splice($titles, $positionAfter + 1, 0, $pidTitles[$key]);
-            } else {
-              $titles[] = $pidTitles[$key];
-            }
-          }
-        //$titles = array_merge($pidTitles, $titles);
-        $excelData[] = $excelRow;
-      }
-
-      foreach ($titles as $key => $title) {
-        if (!$pidTitleUsed[$title]) {
-          unset($titles[$key]);
-        }
-      }
-      $titles = array_unique($titles);
-      //sort($titles);
-      $tpl->assign('titles', $titles);
-      $tpl->assign('excel_data', $excelData);
       $list = Record::getResearchDetailsbyPIDS($list);
     }
 

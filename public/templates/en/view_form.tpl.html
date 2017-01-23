@@ -121,7 +121,7 @@ function loadPreview(pid,datastreamID, alt, origami)
 	{if $displayReqOpenAccess == "NOT_RDH"}
 		<div style="float:right"><a href="{$rel_url}view/UQ:299070/OpenAccessThesisAuthorisation.pdf" target="_blank"><img src="{$rel_url}images/request_open_access.png" title="Thesis authors click here to request their thesis be made open access"/></a></div>
 	{elseif $displayReqOpenAccess == "RDH"}
-		<div style="float:right"><a href="https://graduate-school.uq.edu.au/sites/graduate-school.uq.edu.au/files/ckfinder/files/Current-students/request-for-open-access-form.doc" target="_blank"><img src="{$rel_url}images/request_open_access.png" title="Thesis authors click here to request their thesis be made open access"/></a></div>
+		<div style="float:right"><a href="https://graduate-school.uq.edu.au/files/1092/request-open-access.doc" target="_blank"><img src="{$rel_url}images/request_open_access.png" title="Thesis authors click here to request their thesis be made open access"/></a></div>
 	{/if}
     {if $showMetrics}
     {if $addthis && (!$isEditor && !$isAdministrator)}
@@ -140,11 +140,11 @@ function loadPreview(pid,datastreamID, alt, origami)
             <a class="addthis_button_email addthis_20x20_style"></a>
             <a class="addthis_button_print addthis_20x20_style"></a>
             <a class="addthis_counter addthis_pill_style"></a>
-            {if $displayOrderForm}
-              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <a href="https://web.library.uq.edu.au/library-services/other-libraries/ordering-copies-uq-theses" target="_blank"><img src="/images/order_a_copy.png"/></a>
-            {/if}
         </span>
-        <script type="text/javascript" src="//s7.addthis.com/js/300/addthis_widget.js#pubid={$addthis}"></script>
+				{if $displayOrderForm}
+					&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <a href="https://web.library.uq.edu.au/library-services/other-libraries/ordering-copies-uq-theses" target="_blank"><img src="/images/order_a_copy.png"/></a>
+				{/if}
+			<script type="text/javascript" src="//s7.addthis.com/js/300/addthis_widget.js#pubid={$addthis}"></script>
         <!-- AddThis Button END -->
     {/if}
     {/if}
@@ -325,7 +325,7 @@ function loadPreview(pid,datastreamID, alt, origami)
                                                 <a onclick="javascript:window.open('{$rel_url}view/{$pid}/{$ds_show}{if $viewingPreviousVersion}?version_date={$versionDate}{/if}'); return false;" href="{$rel_url}view/{$pid}/{$ds_show}{if $viewingPreviousVersion}?version_date={$versionDate}{/if}">
 										{/if}
 										{assign var="show_preview_pane" value="1"}
-										{if $datastreams[d].thumbnail != "0"}
+										{if ($datastreams[d].canPreview || $isAdministrator) && $datastreams[d].thumbnail != "0"}
 											<img alt="Click to show the corresponding preview" title="Click to show the corresponding preview"
 													 {if $datastreams[d].thumbnail_cloudfront != ""}
 														 src="{$datastreams[d].thumbnail_cloudfront}{if $viewingPreviousVersion}?version_date={$versionDate}{/if}"
@@ -349,11 +349,11 @@ function loadPreview(pid,datastreamID, alt, origami)
 
 								{* Name of file *}
                                 {assign var="dsName" value=$datastreams[d].ID}
-                                    {if ($datastreams[d].MIMEType == 'application/pdf' || $datastreams[d].MIMEType == 'application/pdf;') && $pageCounts[$dsName]}
+                                    {if ($datastreams[d].MIMEType == 'application/pdf' || $datastreams[d].MIMEType == 'application/pdf;') && $pageCounts[$dsName] && $pageCounts[$dsName] > 0}
                                     {if $datastreams[d].isViewer == 1 || $isAdministrator}
                                         <a target="_blank" href="{$rel_url}view/{$pid}/{$ds_show}?bookreader=true">
                                             <img style="float:left;clear:none;" src="/images/icons/bookreader.png" alt="Read with bookreader" /></a>
-                                            <a class="ds-link" href="{$rel_url}view/{$pid}/{$ds_show}" ><span style="display:block; margin-top: 7px;">&nbsp;{$datastreams[d].ID}</span></a>
+                                            <a class="ds-link" onclick="javascript:window.open('{$rel_url}view/{$pid}/{$ds_show}'); return false;" href="{$rel_url}view/{$pid}/{$ds_show}" ><span style="display:block; margin-top: 7px;">&nbsp;{$datastreams[d].ID}</span></a>
                                     {else}
                                         {$datastreams[d].ID}
                                  {/if}

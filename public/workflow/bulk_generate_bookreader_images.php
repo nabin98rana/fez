@@ -39,11 +39,11 @@ include_once(APP_INC_PATH. 'class.error_handler.php');
 
 $pids = $this->pids;
 
-if (!empty($pids) && is_array($pids)) { 
-    
+if (!empty($pids) && is_array($pids)) {
+
     $bgp = new BackgroundProcess_Bulk_Generate_Bookreader_Images();
-    $bgp->register(serialize(compact('pids')), Auth::getUserID());
-    
+    $bgp->register(serialize(compact('pids')), Auth::getUserID(), $this->id);
+
 }
 
 ?>

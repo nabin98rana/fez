@@ -15,12 +15,63 @@
         <td bgcolor="#CCCCCC"><b>HERDC code</b></td>
         <td bgcolor="#CCCCCC"><b>HERDC status</b></td>
         <td bgcolor="#CCCCCC"><b>HERDC affiliation</b></td>
-        {foreach from=$titles item=entry key=name}
-            <td bgcolor="#CCCCCC"><b>{$entry}</b></td>
-        {/foreach}
+        <td bgcolor="#CCCCCC"><b>Created Date</b></td>
+        <td bgcolor="#CCCCCC"><b>Updated Date</b></td>
+        <td bgcolor="#CCCCCC"><b>ANDS Collection Type</b></td>
+        <td bgcolor="#CCCCCC"><b>Geographic Area</b></td>
+        <td bgcolor="#CCCCCC"><b>Author Role</b></td>
+        <td bgcolor="#CCCCCC"><b>Contact Details Email</b></td>
+        <td bgcolor="#CCCCCC"><b>Institutional Status</b></td>
+        <td bgcolor="#CCCCCC"><b>HERDC Status</b></td>
+        <td bgcolor="#CCCCCC"><b>Acknowledgements</b></td>
+        <td bgcolor="#CCCCCC"><b>Genre</b></td>
+        <td bgcolor="#CCCCCC"><b>Original Format</b></td>
+        <td bgcolor="#CCCCCC"><b>Source</b></td>
+        <td bgcolor="#CCCCCC"><b>Length</b></td>
+        <td bgcolor="#CCCCCC"><b>Title</b></td>
+        <td bgcolor="#CCCCCC"><b>Author</b></td>
+        <td bgcolor="#CCCCCC"><b>Formatted Title</b></td>
+        <td bgcolor="#CCCCCC"><b>Project Name</b></td>
+        <td bgcolor="#CCCCCC"><b>Project Description</b></td>
+        <td bgcolor="#CCCCCC"><b>Journal Name</b></td>
+        <td bgcolor="#CCCCCC"><b>ISSN</b></td>
+        <td bgcolor="#CCCCCC"><b>ISBN</b></td>
+        <td bgcolor="#CCCCCC"><b>Org Unit Name</b></td>
+        <td bgcolor="#CCCCCC"><b>Org Name</b></td>
+        <td bgcolor="#CCCCCC"><b>DOI</b></td>
+        <td bgcolor="#CCCCCC"><b>Related Publications</b></td>
+        <td bgcolor="#CCCCCC"><b>Date</b></td>
+        <td bgcolor="#CCCCCC"><b>Date Recorded</b></td>
+        <td bgcolor="#CCCCCC"><b>Location</b></td>
+        <td bgcolor="#CCCCCC"><b>Rights</b></td>
+        <td bgcolor="#CCCCCC"><b>Date Available</b></td>
+        <td bgcolor="#CCCCCC"><b>Subtype</b></td>
+        <td bgcolor="#CCCCCC"><b>Genre Type</b></td>
+        <td bgcolor="#CCCCCC"><b>OA Status</b></td>
+        <td bgcolor="#CCCCCC"><b>Series</b></td>
+        <td bgcolor="#CCCCCC"><b>Report Number</b></td>
+        <td bgcolor="#CCCCCC"><b>Volume Number</b></td>
+        <td bgcolor="#CCCCCC"><b>Issue Number</b></td>
+        <td bgcolor="#CCCCCC"><b>Start Page</b></td>
+        <td bgcolor="#CCCCCC"><b>End Page</b></td>
+        <td bgcolor="#CCCCCC"><b>Supervisor</b></td>
+        <td bgcolor="#CCCCCC"><b>Contributor</b></td>
+        <td bgcolor="#CCCCCC"><b>Place of Publication
+        <td bgcolor="#CCCCCC"><b>Access Conditions</b></td>
+        <td bgcolor="#CCCCCC"><b>License</b></td>
+        <td bgcolor="#CCCCCC"><b>Fields of Research</b></td>
+        <td bgcolor="#CCCCCC"><b>Publisher</b></td>
+        <td bgcolor="#CCCCCC"><b>Total Pages</b></td>
+        <td bgcolor="#CCCCCC"><b>Total Pages Colour</b></td>
+        <td bgcolor="#CCCCCC"><b>Total Pages BW</b></td>
+        <td bgcolor="#CCCCCC"><b>Collection Year</b></td>
+        <td bgcolor="#CCCCCC"><b>Language</b></td>
+        <td bgcolor="#CCCCCC"><b>Keywords</b></td>
+        <td bgcolor="#CCCCCC"><b>Additional Notes</b></td>
+        <td bgcolor="#CCCCCC"><b>References	Notes</b></td>
       </tr>
 
-    {section name="i" loop=$excel_data}
+    {section name="i" loop=$list}
     <tr>
         <td>{$list[i].rek_pid}</td>
         <td>{$list[i].rek_title}</td>
@@ -37,17 +88,82 @@
         <td>{$list[i].rek_herdc_code_lookup}</td>
         <td>{$list[i].rek_herdc_status_lookup}</td>
         <td>{$list[i].rek_institutional_status_lookup}</td>
-        {foreach from=$titles item=entry1 key=name1}
-            {if is_array($excel_data[i][$entry1])}
-                <td>
-                {foreach from=$excel_data[i][$entry1] item=entry2 key=name2}
-                    {$entry2}|
-                {/foreach}
-                </td>
-            {else}
-                    <td>{$excel_data[i][$entry1]}</td>
-            {/if}
-        {/foreach}
+        <td>{$list[i].rek_created_date}</td>
+        <td>{$list[i].rek_updated_date}</td>
+        <td>{$list[i].rek_ands_collection_type}</td>
+        <td>{foreach from=$list[i].rek_geographic_area item=entry2 key=name2}
+            {$entry2}|
+          {/foreach}</td>
+        <td>{foreach from=$list[i].rek_author_role item=entry2 key=name2}
+          {$entry2}|
+        {/foreach}</td>
+        <td>{foreach from=$list[i].rek_contact_details_email item=entry2 key=name2}
+          {$entry2}|
+        {/foreach}</td>
+        <td>{$list[i].rek_institutional_status_lookup}</td>
+        <td>{$list[i].rek_herdc_status_lookup}</td>
+        <td>{$list[i].rek_acknowledgements}</td>
+        <td>{$list[i].rek_genre}</td>
+        <td>{$list[i].rek_original_format}</td>
+        <td>{$list[i].rek_source}</td>
+        <td>{$list[i].rek_length}</td>
+        <td>{$list[i].rek_title}</td>
+        <td>{foreach from=$list[i].rek_author item=entry2 key=name2}
+            {$entry2}|
+          {/foreach}</td>
+        <td>{$list[i].rek_formatted_title}</td>
+        <td>{$list[i].rek_project_name}</td>
+        <td>{$list[i].rek_project_description}</td>
+        <td>{$list[i].rek_journal_name}</td>
+        <td>{foreach from=$list[i].rek_issn item=entry2 key=name2}
+            {$entry2}|
+          {/foreach}</td>
+        <td>{foreach from=$list[i].rek_isbn item=entry2 key=name2}
+            {$entry2}|
+          {/foreach}</td>
+        <td>{$list[i].rek_org_unit_name}</td>
+        <td>{$list[i].rek_org_name}</td>
+        <td>{$list[i].rek_doi}</td>
+        <td>{$list[i].rek_related_publications}</td>
+        <td>{$list[i].rek_date}</td>
+        <td>{$list[i].rek_date_recorded}</td>
+        <td>{$list[i].rek_location}</td>
+        <td>{$list[i].rek_rights}</td>
+        <td>{$list[i].rek_date_available}</td>
+        <td>{$list[i].rek_subtype}</td>
+        <td>{$list[i].rek_genre_type}</td>
+        <td>{$list[i].rek_oa_status_lookup}</td>
+        <td>{$list[i].rek_series}</td>
+        <td>{$list[i].rek_report_number}</td>
+        <td>{$list[i].rek_volume_number}</td>
+        <td>{$list[i].rek_issue_number}</td>
+        <td>{$list[i].rek_start_page}</td>
+        <td>{$list[i].rek_end_page}</td>
+        <td>{foreach from=$list[i].rek_supervisor item=entry2 key=name2}
+            {$entry2}|
+          {/foreach}</td>
+        <td>{foreach from=$list[i].rek_contributor item=entry2 key=name2}
+            {$entry2}|
+          {/foreach}</td>
+        <td>{$list[i].rek_place_of_publication}</td>
+        <td>{$list[i].rek_access_conditions}</td>
+        <td>{$list[i].rek_license}</td>
+        <td>{foreach from=$list[i].rek_fields_of_research item=entry2 key=name2}
+            {$entry2}|
+          {/foreach}</td>
+        <td>{$list[i].rek_publisher}</td>
+        <td>{$list[i].rek_total_pages}</td>
+        <td>{$list[i].rek_total_pages_colour}</td>
+        <td>{$list[i].rek_total_pages_bw}</td>
+        <td>{$list[i].rek_collection_year}</td>
+        <td>{foreach from=$list[i].rek_language item=entry2 key=name2}
+            {$entry2}|
+          {/foreach}</td>
+        <td>{foreach from=$list[i].rek_keywords item=entry2 key=name2}
+            {$entry2}|
+          {/foreach}</td>
+        <td>{$list[i].rek_additional_notes}</td>
+        <td>{$list[i].rek_references_notes}</td>
     </tr>
     {/section}
 </table>

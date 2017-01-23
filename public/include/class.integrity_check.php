@@ -33,7 +33,13 @@
 //
 include_once dirname(dirname(__FILE__)).DIRECTORY_SEPARATOR.'config.inc.php';
 include_once(APP_INC_PATH.'/class.fedora_direct_access.php');
+include_once(APP_INC_PATH.'/class.user.php');
+include_once(APP_INC_PATH.'/class.auth.php');
 include_once(APP_INC_PATH . "Apache/Solr/Service.php");
+
+use Elasticsearch\ClientBuilder;
+
+require_once(__DIR__ . '/../include/autoload.php'); // since ES is pulled in via composer, this is how to include it
 
 /**
  * Class to manage all tasks related to the cache abstraction module.
@@ -65,6 +71,9 @@ class IntegrityCheck
     $this->log = FezLog::get();
     $this->db = DB_API::get();
     $this->prefix = APP_TABLE_PREFIX;
+
+    $userDetails = User::getDetailsByID(APP_SYSTEM_USER_ID);
+    Auth::createLoginSession($userDetails['usr_username'], $userDetails['usr_full_name'], $userDetails['usr_email'], '');
   }
 
   /**
@@ -80,7 +89,7 @@ class IntegrityCheck
       if (APP_FEDORA_BYPASS != "ON") {
         $this->doFedoraFezIntegrityChecks();
       }
-      if (APP_SOLR_INDEXER == "ON") {
+      if (APP_SOLR_INDEXER == "ON" || APP_ES_INDEXER == "ON") {
         $this->doFezSolrIntegrityChecks();
         $this->doSolrCitationChecks();
       }
@@ -91,7 +100,7 @@ class IntegrityCheck
       if (APP_FEDORA_BYPASS != "ON") {
         $this->doFedoraFezDelete();
       }
-      if (APP_SOLR_INDEXER == "ON") {
+      if (APP_SOLR_INDEXER == "ON" || APP_ES_INDEXER == "ON") {
         $this->doFezSolrDeletes();
         $this->addSolrCitations();
         $this->addSolrUnspawned();
@@ -165,20 +174,67 @@ class IntegrityCheck
   private function doFezSolrIntegrityChecks() {
     $countInsertedGhosts = 0;
     $countInsertedUnspawned = 0;
-
+    $solrPids = [];
     try {
       // grab all fez pids
       $fezPidsQuery = "SELECT rek_pid FROM {$this->prefix}record_search_key";
       $fezPids = $this->db->fetchCol($fezPidsQuery);
 
-      // find all items
-      $solrQuery = 'id:[* TO *]';
+      if (APP_ES_SWITCH == 'ON') {
+        $start = 0;
+        $page_rows = 99999999;
 
-      $response = $this->doSolrSearch($solrQuery);
-      foreach ($response->response->docs as $doc) {
-        $solrPids[] = $doc->id;
+        $index = FulltextIndex::get(true);
+        $filter_join = [2 => "*:*"];
+        $searchKey_join = [];
+        $approved_roles = [];
+
+        $fields = ["rek_pid"];
+
+        $params = [
+            'index' => APP_ES_INDEX_NAME,
+            'type' => 'fez_record',
+            'body' => [
+                'stored_fields' => $fields,
+                'from' => $start,
+                'size' => $page_rows,
+                'query' => [
+                    'bool' => [
+                        'must' => [
+                            'query_string' => [
+                                'default_operator' => 'AND',
+                                'query' => '*:*'
+                            ]
+                        ],
+                        'filter' => [
+                            'query_string' => [
+                                'default_operator' => 'AND',
+                                'query' => '*:*'
+
+                            ]
+                        ]
+                    ]
+                ]
+            ]
+        ];
+        $esClient = ClientBuilder::create()->setHosts(array(APP_ES_HOST))->build();
+        $res = $esClient->search($params);
+
+        foreach ($res['hits']['hits'] as $doc) {
+          $solrPids[] = $doc['_id'];
+        }
+
+      } else {
+        // find all items
+        $solrQuery = 'id:[* TO *]';
+
+        $response = $this->doSolrSearch($solrQuery);
+        foreach ($response->response->docs as $doc) {
+          $solrPids[] = $doc->id;
+        }
+        unset($response);
+
       }
-      unset($response);
 
       // truncate the two result tables
       $this->db->query("TRUNCATE TABLE {$this->prefix}integrity_solr_ghosts");
@@ -236,14 +292,54 @@ class IntegrityCheck
 
     try {
       $this->db->query("TRUNCATE TABLE {$this->prefix}integrity_solr_unspawned_citations");
+      if (APP_ES_SWITCH == 'ON') {
+        $manualFilter = '-citation_t:[* TO *]';
+        $start = 0;
+        $page_rows = 99999999;
 
-      // find where the citation_t field has no value
-      $solrQuery = '-citation_t:[* TO *]';
-      $response = $this->doSolrSearch($solrQuery);
+        $fields = ["rek_pid"];
 
-      foreach ($response->response->docs as $doc) {
-        $this->db->insert("{$this->prefix}integrity_solr_unspawned_citations", array('pid'=>$doc->id));
-        $countInserted++;
+        $params = [
+            'index' => APP_ES_INDEX_NAME,
+            'type' => 'fez_record',
+            'body' => [
+                'stored_fields' => $fields,
+                'from' => $start,
+                'size' => $page_rows,
+                'query' => [
+                    'bool' => [
+                        'must' => [
+                            'query_string' => [
+                                'default_operator' => 'AND',
+                                'query' => '*:*'
+                            ]
+                        ],
+                        'filter' => [
+                            'query_string' => [
+                                'default_operator' => 'AND',
+                                'query' => $manualFilter
+
+                            ]
+                        ]
+                    ]
+                ]
+            ]
+        ];
+        $esClient = ClientBuilder::create()->setHosts(array(APP_ES_HOST))->build();
+        $res = $esClient->search($params);
+
+        foreach ($res['hits']['hits'] as $doc) {
+          $this->db->insert("{$this->prefix}integrity_solr_unspawned_citations", array('pid'=>$doc['_id']));
+          $countInserted++;
+        }
+      } else {
+        // find where the citation_t field has no value
+        $solrQuery = '-citation_t:[* TO *]';
+        $response = $this->doSolrSearch($solrQuery);
+        foreach ($response->response->docs as $doc) {
+          $this->db->insert("{$this->prefix}integrity_solr_unspawned_citations", array('pid' => $doc->id));
+          $countInserted++;
+        }
       }
       echo "\tFound {$countInserted} pids that don't have citations in solr\n";
     } catch(Exception $ex) {
@@ -354,6 +450,8 @@ class IntegrityCheck
     }
 
   }
+
+
 
   // BUILD OUR OWN VERSION OF THE SOLR SEARCH SERVICE BECAUSE THE GENERAL VERSION HAS A 30 SECOND TIMEOUT
   // COPIED AND PASTED FROM Apache_Solr_Service AND MODIFIED AS NECESSARY

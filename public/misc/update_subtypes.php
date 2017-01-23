@@ -165,7 +165,7 @@ for ($i = 0; $i < ((int)$listing['info']['total_pages']+1); $i++) {
                     $history = 'Mapped to new subtype';
                     $r = new RecordObject($record['rek_pid']);
                     $r->addSearchKeyValueList(array("Subtype"), array($subtype), true, $history);
-                    if ( APP_SOLR_INDEXER == "ON" ) {
+                    if ( APP_SOLR_INDEXER == "ON" || APP_ES_INDEXER == "ON" ) {
                         FulltextQueue::singleton()->add($record['rek_pid']);
                     }
                     if (APP_FILECACHE == "ON") {
@@ -177,7 +177,7 @@ for ($i = 0; $i < ((int)$listing['info']['total_pages']+1); $i++) {
             }
         }
 
-        if ( APP_SOLR_INDEXER == "ON" ) {
+        if ( APP_SOLR_INDEXER == "ON" || APP_ES_INDEXER == "ON" ) {
             FulltextQueue::singleton()->commit();
         }
     }

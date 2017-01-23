@@ -40,11 +40,11 @@ $pids           = $this->pids;  /* The Pids to copy */
 $collection_pid = $this->pid;   /* The collection to copy PID's into */
 $regen          = false;
 
-if (!empty($pids) && is_array($pids)) { 
-    
-    $bgp = new BackgroundProcess_Bulk_Copy_Record_Collection; 
-    $bgp->register(serialize(compact('pids', 'collection_pid', 'regen')), Auth::getUserID());
-    
+if (!empty($pids) && is_array($pids)) {
+
+    $bgp = new BackgroundProcess_Bulk_Copy_Record_Collection;
+    $bgp->register(serialize(compact('pids', 'collection_pid', 'regen')), Auth::getUserID(), $this->id);
+
 }
 
 ?>

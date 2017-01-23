@@ -266,17 +266,16 @@ class Workflow
 	 * The file is read and preservation metadata saved as a tmp file with presmd_ prefix
 	 *
 	 * @param string filename - the name of the file being ingested as a datastream
-	 * @return name of preservation metadata temporary file (it is not automatically ingested as a datastream).
+	 * @return string name of preservation metadata temporary file (it is not automatically ingested as a datastream).
 	 */
 	public static function checkForPresMD($filename)
 	{
 		Jhove_Helper::processFile($filename);
-		//			print_r($val);
-		//            Error_Handler::logError($getString);
+
 		if (is_numeric(strpos($filename, "/"))) {
-			$res = APP_TEMP_DIR."presmd_".Foxml::makeNCName(substr($filename, strrpos($filename, "/")+1));
+			$res = Misc::getFileTmpPath("presmd_".Foxml::makeNCName(substr($filename, strrpos($filename, "/")+1)));
 		} else {
-			$res = APP_TEMP_DIR."presmd_".Foxml::makeNCName($filename);
+			$res = Misc::getFileTmpPath("presmd_".Foxml::makeNCName($filename));
 		}
 		if (is_numeric(strpos($res, "."))) {
 			$res = substr($res, 0, strrpos($res,'.')).'.xml';

@@ -100,10 +100,10 @@ if ($isAdministrator || $isUPO) {
     } else {
       $get_url = APP_FEDORA_APIM_PROTOCOL_TYPE . APP_FEDORA_LOCATION . "/get" . "/" . $pid;
     }
-    $tpl->assign("fedora_get_view", 1);
   } else {
-    $tpl->assign("fedora_get_view", 0);
+    $get_url = "";
   }
+  $tpl->assign("fedora_get_view", 1);
 
   $affilliations = AuthorAffiliations::getListAll($pid);
   $tpl->assign('affilliations', $affilliations);
@@ -113,8 +113,8 @@ if ($isAdministrator || $isUPO) {
   $tpl->assign("fedora_get_view", 0);
 }
 
-$spyglasshref = ($isSuperAdministrator) ? $get_url : '#';
-$spyglassclick = ($isSuperAdministrator) ? "javascript:window.open('$get_url'); return false;" : "";
+$spyglasshref = ($isSuperAdministrator && !empty($get_url)) ? $get_url : '#';
+$spyglassclick = ($isSuperAdministrator && !empty($get_url)) ? "javascript:window.open('$get_url'); return false;" : "";
 
 $tpl->assign('spyglasshref', $spyglasshref);
 $tpl->assign('spyglassclick', $spyglassclick);
@@ -195,7 +195,7 @@ if (!empty($pid) && $record->checkExists()) {
     }
   }
 
-  if (APP_SOLR_SWITCH == 'ON' && $username) {
+  if ((APP_SOLR_SWITCH == 'ON' || APP_ES_SWITCH == 'ON') && $username) {
     $details = FulltextQueue::getDetailsForPid($pid);
     if (count($details) > 0) {
       Session::setMessage('This record is currently in the Solr queue - changes may not appear for a few moments.');
@@ -643,13 +643,16 @@ if (!empty($pid) && $record->checkExists()) {
       }
 
       if (!$doiInLinks && !empty($doi)) {
-        $linkCount++;
-        $newLink['rek_link'] = 'http://dx.doi.org/' . $doi;
-        $newLink['rek_link_description'] = 'Full text from publisher';
-        if (APP_LINK_PREFIX != "") {
+        // don't add links to UQ dois because it just links to itself
+        if (stripos($doi, CROSSREF_DOI_PREFIX) === FALSE) {
+          $linkCount++;
+          $newLink['rek_link'] = 'http://dx.doi.org/' . $doi;
+          $newLink['rek_link_description'] = 'Full text from publisher';
+          if (APP_LINK_PREFIX != "") {
             $newLink['prefix_location'] = APP_LINK_PREFIX . $newLink['rek_link'];
+          }
+          array_unshift($links, $newLink);
         }
-        array_unshift($links, $newLink);
       }
     }
 

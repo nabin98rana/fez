@@ -1,0 +1,245 @@
+{
+  "settings" : {
+    "max_result_window" : 2147483647,
+    "number_of_shards": 1,
+    "number_of_replicas": 0
+  },
+  "mappings" : {
+    "fez_record" : {
+      "properties" : {
+        "_version_" : { "type" : "long", "store" : true, "index" : true },
+        "id" : { "type" : "text", "store" : true, "index" : true },
+        "word" : { "type" : "text", "store" : true, "index" : false },
+        "text" : { "type" : "text", "store" : false, "index" : true },
+        "timestamp" : { "type" : "date", "store" : true, "index" : true },
+        "content" : { "type" : "text", "store" : true, "index" : true }
+      },
+      "dynamic_templates" : [
+        {
+          "template__i" : {
+            "match" : "*_i",
+            "match_mapping_type" : "long",
+            "mapping" : { "type" : "integer", "store" : true, "index" : true }
+          }
+        },
+        {
+          "template__i_lookup" : {
+            "match" : "*_i_lookup",
+            "match_mapping_type" : "string",
+            "mapping" : { "type" : "text", "fielddata" : true, "store" : true, "index" : true, "analyzer" : "standard" }
+          }
+        },
+        {
+          "template__i_lookup_exact" : {
+            "match" : "*_i_lookup_exact",
+            "match_mapping_type" : "string",
+            "mapping" : { "type" : "keyword", "fielddata" : true, "store" : true, "index" : true }
+          }
+        },
+        {
+          "template__mi" : {
+            "match" : "*_mi",
+            "match_mapping_type" : "long",
+            "mapping" : { "type" : "integer", "store" : true, "index" : true }
+          }
+        },
+        {
+          "template__mi_lookup" : {
+            "match" : "*_mi_lookup",
+            "match_mapping_type" : "string",
+            "mapping" : { "type" : "text", "fielddata" : true, "store" : true, "index" : true, "analyzer" : "standard" }
+          }
+        },
+        {
+          "template__mi_lookup_exact" : {
+            "match" : "*_mi_lookup_exact",
+            "match_mapping_type" : "string",
+            "mapping" : { "type" : "keyword", "fielddata" : true, "store" : true, "index" : true }
+          }
+        },
+        {
+          "template__mi_cv_desc_lookup" : {
+            "match" : "*_mi_cv_desc_lookup",
+            "match_mapping_type" : "string",
+            "mapping" : { "type" : "text", "fielddata" : true, "store" : true, "index" : true, "analyzer" : "standard" }
+          }
+        },
+        {
+          "template__mi_cv_id_lookup" : {
+            "match" : "*_mi_cv_id_lookup",
+            "match_mapping_type" : "string",
+            "mapping" : { "type" : "text", "fielddata" : true, "store" : true, "index" : true, "analyzer" : "standard" }
+          }
+        },
+        {
+          "template__i_cv_desc_lookup" : {
+            "match" : "*_i_cv_desc_lookup",
+            "match_mapping_type" : "string",
+            "mapping" : { "type" : "text", "fielddata" : true, "store" : true, "index" : true, "analyzer" : "standard" }
+          }
+        },
+        {
+          "template__i_cv_id_lookup" : {
+            "match" : "*_i_cv_id_lookup",
+            "match_mapping_type" : "string",
+            "mapping" : { "type" : "text", "fielddata" : true, "store" : true, "index" : true, "analyzer" : "standard" }
+          }
+        },
+        {
+          "template__s" : {
+            "match" : "*_s",
+            "match_mapping_type" : "string",
+            "mapping" : { "type" : "keyword", "fielddata" : true, "store" : false, "index" : true}
+          }
+        },
+        {
+          "template__mt_s" : {
+            "match" : "*_mt_s",
+            "match_mapping_type" : "string",
+            "mapping" : { "type" : "keyword", "fielddata" : true, "store" : false, "index" : true }
+          }
+        },
+        {
+          "template__mft" : {
+            "match" : "*_mft",
+            "match_mapping_type" : "string",
+            "mapping" : { "type" : "keyword", "fielddata" : true, "store" : true, "index" : true }
+          }
+        },
+        {
+          "template__l" : {
+            "match" : "*_l",
+            "match_mapping_type" : "string",
+            "mapping" : { "type" : "text", "store" : true, "index" : false }
+          }
+        },
+        {
+          "template__t" : {
+            "match" : "*_t",
+            "match_mapping_type" : "string",
+            "mapping" : { "type" : "text", "fielddata" : true, "store" : true, "index" : true, "analyzer" : "standard" }
+          }
+        },
+        {
+          "template__t_lookup" : {
+            "match" : "*_t_lookup",
+            "match_mapping_type" : "string",
+            "mapping" : { "type" : "text", "fielddata" : true, "store" : true, "index" : true, "analyzer" : "standard" }
+          }
+        },
+        {
+          "template__t_lookup_exact" : {
+            "match" : "*_t_lookup_exact",
+            "match_mapping_type" : "string",
+            "mapping" : { "type" : "keyword", "fielddata" : true, "store" : true, "index" : true }
+          }
+        },
+        {
+          "template__t_s" : {
+            "match" : "*_t_s",
+            "match_mapping_type" : "string",
+            "mapping" : { "type" : "keyword", "index" : true, "fielddata" : true, "store" : true }
+          }
+        },
+        {
+          "template__t_ws" : {
+            "match" : "*_t_ws",
+            "match_mapping_type" : "string",
+            "mapping" : { "type" : "text", "store" : false, "index" : false }
+          }
+        },
+        {
+          "template__t_ft" : {
+            "match" : "*_t_ft",
+            "match_mapping_type" : "string",
+            "mapping" : { "type" : "keyword", "fielddata" : true, "store" : true, "index" : true }
+          }
+        },
+        {
+          "template__mt" : {
+            "match" : "*_mt",
+            "match_mapping_type" : "string",
+            "mapping" : { "term_vector" : "with_positions_offsets", "type" : "text", "fielddata" : true, "store" : true, "index" : true, "analyzer" : "standard" }
+          }
+        },
+        {
+          "template__mt_lookup" : {
+            "match" : "*_mt_lookup",
+            "match_mapping_type" : "string",
+            "mapping" : { "type" : "text", "fielddata" : true, "store" : true, "index" : true, "analyzer" : "standard" }
+          }
+        },
+        {
+          "template__mt_lookup_exact" : {
+            "match" : "*_mt_lookup_exact",
+            "match_mapping_type" : "string",
+            "mapping" : { "type" : "keyword", "fielddata" : true, "store" : true, "index" : true }
+          }
+        },
+        {
+          "template__mws" : {
+            "match" : "*_mws",
+            "match_mapping_type" : "string",
+            "mapping" : { "type" : "text", "store" : false, "index" : false }
+          }
+        },
+        {
+          "template__mtl" : {
+            "match" : "*_mtl",
+            "match_mapping_type" : "string",
+            "mapping" : { "type" : "text", "store" : false, "index" : true, "analyzer" : "standard" }
+          }
+        },
+        {
+          "template__mt_exact" : {
+            "match" : "*_mt_exact",
+            "match_mapping_type" : "string",
+            "mapping" : { "type" : "keyword", "fielddata" : true, "store" : true, "index" : true }
+          }
+        },
+        {
+          "template__b" : {
+            "match" : "*_b",
+            "match_mapping_type" : "string",
+            "mapping" : { "type" : "text", "store" : true, "index" : false }
+          }
+        },
+        {
+          "template__f" : {
+            "match" : "*_f",
+            "match_mapping_type" : "string",
+            "mapping" : { "type" : "text", "store" : true, "index" : false }
+          }
+        },
+        {
+          "template__d" : {
+            "match" : "*_d",
+            "match_mapping_type" : "string",
+            "mapping" : { "type" : "text", "store" : true, "index" : false }
+          }
+        },
+        {
+          "template__dt" : {
+            "match" : "*_dt",
+            "match_mapping_type" : "date",
+            "mapping" : { "type" : "date", "store" : true, "index" : true, "analyzer" : "standard" }
+          }
+        },
+        {
+          "template__mdt" : {
+            "match" : "*_mdt",
+            "match_mapping_type" : "date",
+            "mapping" : { "type" : "date", "store" : true, "index" : true, "analyzer" : "standard" }
+          }
+        },
+        {
+          "template_ignored_" : {
+            "match" : "ignored_*",
+            "match_mapping_type" : "string",
+            "mapping" : { "type" : "text", "store" : false, "index" : false }
+          }
+        }
+      ]
+    }
+  }
+}

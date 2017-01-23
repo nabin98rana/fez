@@ -50,7 +50,7 @@ class BackgroundProcess {
 	var $include = ''; // set this to the include file where the subclass is declared
 	var $name = ''; // set this to the name of the process where the subclass is declared
 	var $states = array(
-	0 => 'Undefined',
+	0 => 'Pending',
 	1 => 'Running',
 	2 => 'Done'
 	);
@@ -240,6 +240,7 @@ class BackgroundProcess {
 	 * @param string $inputs A serialized array or object that is the inputs to the process to be run.
 	 *                       e.g. serialize(compact('pid','dsID'))
 	 * @param int $usr_id The user who will own the process.
+   * @param int $wfses_id The workflow session id to pass as a param to any spawned
 	 * @return int The background process ID or -1 if registering the process failed
 	 */
 	function register($inputs, $usr_id, $wfses_id = null)
@@ -286,7 +287,7 @@ class BackgroundProcess {
     }
     if ($useAws && ($env == 'staging' || $env == 'production')) {
       $aws = AWS::get();
-      $family = 'fez' . $env;
+      $family = 'fez' . $env . 'bgp';
       $result = $aws->runBackgroundTask($family, [
         'containerOverrides' => [
           [
@@ -323,7 +324,7 @@ class BackgroundProcess {
 		$this->setHostname($_SERVER['HOSTNAME']);
 		$res = $this->getDetails();
 
-		if (! is_null($res['bpg_state'])) {
+		if (! is_null($res['bgp_state'])) {
 			// Bail as the state has changed
 			return;
 		}
@@ -331,16 +332,25 @@ class BackgroundProcess {
 		include_once(APP_INC_PATH . $res['bgp_include']);
 		$bgp = unserialize($res['bgp_serialized']);
 		echo 'Starting ' . $bgp->name . "..\n";
-		$bgp->setAuth();
+
+    // set the workflow session id up as a param that file operations can grab from anywhere
+    if (!empty($bgp->wfses_id)) {
+      Zend_Registry::set('wfses_id', $bgp->wfses_id);
+    }
+
+    $bgp->setAuth();
 		$bgp->setState(BGP_RUNNING);
 		$bgp->run();
 
 		if (!empty($bgp->wfses_id)) {
-			$wfstatus = WorkflowStatusStatic::getSession($bgp->wfses_id);
-			$wfstatus->auto_next();
+ 			$wfstatus = &WorkflowStatusStatic::getSession($bgp->wfses_id);
+ 			if (is_object($wfstatus)) {
+        $wfstatus->auto_next();
+      }
 		}
 
 		echo 'Finished run of ' . $bgp->name . "..\n";
+    $bgp->setState(BGP_FINISHED);
 	}
 
 	/**
@@ -506,6 +516,7 @@ class BackgroundProcess {
 		while ($next = self::nextUnstarted($from)) {
 			$bgp = new BackgroundProcess($next['bgp_id']);
 			$bgp->runCurrent();
+			$bgp->setState(2);
 		}
 	}
 
