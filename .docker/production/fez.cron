@@ -90,13 +90,13 @@
 #30 4    * * *   root    /usr/bin/wget -O - "http://fez-production.library.uq.edu.au/api/cron_register_bgp.php?file=bgp_email_subscribed_search_users&class=BackgroundProcess_Email_Subscribed_Search_Users&token=WEBCRON_TOKEN" > /dev/null 2>&1
 
 # eSpace / Eventum job sync
-*/15 *  * * *   root    /usr/bin/wget -O - "http://fez-production.library.uq.edu.au/api/cron_register_bgp.php?file=bgp_sync_eventum_jobs&class=BackgroundProcess_Sync_Eventum_Jobs&token=WEBCRON_TOKEN" > /dev/null 2>&1
+#*/15 *  * * *   root    /usr/bin/wget -O - "http://fez-production.library.uq.edu.au/api/cron_register_bgp.php?file=bgp_sync_eventum_jobs&class=BackgroundProcess_Sync_Eventum_Jobs&token=WEBCRON_TOKEN" > /dev/null 2>&1
 
 # ResearcherID Batch Download - Checks the status of jobs created using the ResearcherID Batch Download service
 #*/5 0-23 * * *  root    /usr/bin/wget -O - "http://fez-production.library.uq.edu.au/api/cron_register_bgp.php?file=bgp_check_researcherid_download_status&class=BackgroundProcess_Check_Researcherid_Download_Status&token=WEBCRON_TOKEN" > /dev/null 2>&1
 
 # Process mail queue
-*/2 *    * * *  root    /usr/bin/wget -O - "http://fez-production.library.uq.edu.au/api/cron_register_bgp.php?file=bgp_process_mail_queue&class=BackgroundProcess_Process_Mail_Queue&token=WEBCRON_TOKEN" > /dev/null 2>&1
+#*/2 *    * * *  root    /usr/bin/wget -O - "http://fez-production.library.uq.edu.au/api/cron_register_bgp.php?file=bgp_process_mail_queue&class=BackgroundProcess_Process_Mail_Queue&token=WEBCRON_TOKEN" > /dev/null 2>&1
 
 # ResearcherID Batch Upload - Process reports received from the service
 #*/5 0-23 * * *  root    /usr/bin/wget -O - "http://fez-production.library.uq.edu.au/api/cron_register_bgp.php?file=bgp_process_researcherid_upload_emails&class=BackgroundProcess_Process_Researcherid_Upload_Emails&token=WEBCRON_TOKEN" > /dev/null 2>&1
