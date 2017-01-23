@@ -328,6 +328,11 @@ if (!empty($pid) && !empty($dsID)) {
 //      } else {
         $resourcePath = BR_IMG_DIR . $pid . '/' . $dsID;
         $protocol = ($_SERVER['HTTPS']) ? 'https://' : 'http://';
+        //HTTPS may be hidden behind cloudfront layers
+        if (isset($_SERVER['HTTP_CLOUDFRONT_FORWARDED_PROTO']) && ($_SERVER['HTTP_CLOUDFRONT_FORWARDED_PROTO'] == 'https')) {
+            $protocol = 'https://';
+        }
+
         $host = $protocol . $_SERVER['HTTP_HOST'];
         $urlPath = str_replace($_SERVER['DOCUMENT_ROOT'], '', BR_IMG_DIR);
 //      }
