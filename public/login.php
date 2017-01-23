@@ -127,7 +127,6 @@ function parseSSO($string, $IDProviders, $redirectCookieName){
 /******************************************************************************/
 
 // Determine if we're https.
-phpinfo();
 $is_https = false;
 if (isset($_SERVER["HTTPS"])) {
     switch (strtolower($_SERVER["HTTPS"])) {
