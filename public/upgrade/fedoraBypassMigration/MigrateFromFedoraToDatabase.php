@@ -76,7 +76,7 @@ class MigrateFromFedoraToDatabase
 
     // Updating the structure of Fedora-less
     echo "Step 1: Updating the structure of Fedora-less..";
-    $this->stepOneMigration();
+    //$this->stepOneMigration();
     echo "..done!\n";
 
     // Content migration
@@ -86,11 +86,11 @@ class MigrateFromFedoraToDatabase
 
     // De-dupe auth rules
     echo "Step 3: De-dupe auth rules..";
-    $this->stepThreeMigration();
+    //$this->stepThreeMigration();
     echo "..done!\n";
 
     // Post Migration message
-    $this->postMigration();
+    //$this->postMigration();
   }
 
   /**
@@ -127,7 +127,7 @@ class MigrateFromFedoraToDatabase
   private function stepTwoMigration()
   {
     // PID security
-    $this->addPidsSecurity();
+    //$this->addPidsSecurity();
 
     // Datastream (attached files) migration
     echo " - Migrating managed content..";
@@ -209,7 +209,7 @@ class MigrateFromFedoraToDatabase
       return;
     }
 
-    $stmt = "select token, path from datastreamPaths order by path DESC";
+    $stmt = "select token, path from datastreamPaths where path like '/espace/data/fedora_datastreams/2017/%' order by path DESC";
 
     $ds = [];
     try {

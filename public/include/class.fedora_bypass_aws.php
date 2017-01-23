@@ -360,7 +360,19 @@ class Fedora_API implements FedoraApiInterface {
       }
     }
     else {
-      $obj = $aws->copyFile($dsLocation, $dataPath . "/" . $dsID, $srcBucket, $mimetype);
+      $obj = TRUE;
+      // @todo(post-migration): Remove migration check
+      $copy = TRUE;
+      if (
+        defined('APP_MIGRATION_RUN')
+        && APP_MIGRATION_RUN === TRUE
+        && $aws->checkExistsById($dataPath, $dsID) === TRUE
+      ) {
+        $copy = FALSE;
+      }
+      if ($copy) {
+        $obj = $aws->copyFile($dsLocation, $dataPath . "/" . $dsID, $srcBucket, $mimetype);
+      }
       if ($isFezACML) {
         $fezACMLXML = $aws->getFileContent($dataPath, $dsID, [], true);
       }
