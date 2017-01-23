@@ -69,8 +69,7 @@ abstract class FulltextIndex {
 	const FIELD_NAME_AUTHCREATOR = '_authcreator';
 	const FIELD_NAME_AUTHEDITOR = '_autheditor';
 	const FIELD_NAME_FULLTEXT = 'content';
-
-	const USE_LOCKING = true;
+const USE_LOCKING = true;
 	const LOCK_NAME_FULLTEXT_INDEX = 'indexer';
 
 	const ACTION_INSERT = 'I';
@@ -1094,9 +1093,6 @@ abstract class FulltextIndex {
 	 */
 	public function removeByDS($pid, $dsID)
 	{
-		// delete fulltext cache for this datastream
-		$this->deleteFulltextCache($pid, $dsID);
-
 		// Re-index object. Since the datastream is not in Fedora
 		// anymore, the cache will not be rebuilt
 		FulltextQueue::singleton()->add($pid);

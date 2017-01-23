@@ -127,7 +127,6 @@ function parseSSO($string, $IDProviders, $redirectCookieName){
 /******************************************************************************/
 
 // Determine if we're https.
-
 $is_https = false;
 if (isset($_SERVER["HTTPS"])) {
     switch (strtolower($_SERVER["HTTPS"])) {
@@ -142,14 +141,17 @@ if (isset($_SERVER["HTTPS"])) {
 }
 else if ($_SERVER["SERVER_PORT"] == 443) {
     $is_https = true;
-}
-else if (isset($_SERVER['HTTP_X_FORWARDED_PROTO'])) {
+} else if (isset($_SERVER['HTTP_X_FORWARDED_PROTO'])) {
     // If we're behind a reverse proxy with https stripped out.
     if ($_SERVER['HTTP_X_FORWARDED_PROTO'] == 'https') {
         $is_https = true;
     }
+} else if (isset($_SERVER['HTTP_CLOUDFRONT_FORWARDED_PROTO"'])) {
+        // If we're behind a reverse proxy with https stripped out.
+        if ($_SERVER['HTTP_CLOUDFRONT_FORWARDED_PROTO"'] == 'https') {
+            $is_https = true;
+        }
 }
-
 // Redirect for secure login.
 
 if (((!$is_https && (APP_HTTPS == "ON")) || ($_SERVER['HTTP_HOST'] != APP_HOSTNAME)) && APP_REDIRECT_CHECK != 'OFF')  {

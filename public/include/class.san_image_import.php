@@ -205,8 +205,6 @@ class San_image_import
     $params['sta_id'] = 2;
     $params['collection_pid'] = $collection_pid;
 
-    $tempDir = Misc::getFileTmpPath() . '/';
-
     $xdis_list = XSD_Relationship::getListByXDIS($xdis_id);
     array_push($xdis_list, array("0" => $xdis_id));
     $xdis_str = Misc::sql_array_to_string($xdis_list);
@@ -352,7 +350,7 @@ class San_image_import
     }
 
     // Original Format
-      $params['xsd_display_fields']['8567'] = $recData['Format'];  //Has no searchkey
+    $params['xsd_display_fields']['8567'] = $recData['Format'];  //Has no searchkey
 
     // Remove published date
     $xsdmf = XSD_HTML_Match::getDetailsBySekIDXDIS_ID(Search_Key::getID('Date'), $xdis_str);
@@ -373,12 +371,12 @@ class San_image_import
       if (!empty($recData['Filename ' . $i])) {
         // Attempt to get the file if it doesn't exist
         if (!is_file($recData['ImportDirectory'] . $recData['Filename ' . $i])) {
-          BatchImport::getFileContent($recData['ImportFromDirectory'] . $recData['Filename ' . $i], $tempDir . $recData['Filename ' . $i]);
+          BatchImport::getFileContent($recData['ImportFromDirectory'] . $recData['Filename ' . $i], $recData['ImportDirectory'] . $recData['Filename ' . $i]);
         }
         // Check the file was imported
         if (!is_file($recData['ImportDirectory'] . $recData['Filename ' . $i])) {
           $this->_log->err('San image batch import - the file ' . $recData['Filename ' . $i] . '  was not found.');
-          return false;
+          //return false;
         }
         $this->_filesCleanup[] = $recData['ImportDirectory'] . $recData['Filename ' . $i];
       }

@@ -39,7 +39,6 @@ header('Access-Control-Allow-Origin: *');
 header('Content-Type: ' . ($callback ? 'application/javascript' : 'application/json') . ';charset=UTF-8');
 
 echo ($callback ? '/**/'.$callback . '(' : '');
-// @todo(post-migration): Remove BackgroundProcess_Migrate_Fedora
 $response = -1;
 $error = '';
 $file = APP_INC_PATH . 'class.' . preg_replace('/[^a-z0-9__]/si', '', $_GET['file']) . '.php';

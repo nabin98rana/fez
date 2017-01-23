@@ -74,7 +74,7 @@ $show_tombstone = true;  // tell view2.php to show the tombstone if the record h
 $savePage = true;
 
 $logged_in = Auth::isValidSession($_SESSION);
-$cache = new fileCache($pid, $_SERVER['QUERY_STRING'], $flushCache);
+$cache = new fileCache($pid, 'pid='.$pid, $flushCache);
 
 if(!$logged_in && APP_FILECACHE == "ON") {
 	$cache->checkForCacheFile();
