@@ -1,4 +1,4 @@
-FROM uqlibrary/docker-fpm70-fez:18
+FROM uqlibrary/docker-fpm70-fez:19
 
 RUN rm -f /etc/opt/remi/php70/php.d/15-xdebug.ini
 
