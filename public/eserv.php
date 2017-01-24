@@ -49,6 +49,11 @@ include_once(APP_INC_PATH . "class.bookreaderimplementation.php");
 //$auth = new Auth();
 //$auth->checkForBasicAuthRequest('eserv');
 
+// disable new relic for js serving
+if (extension_loaded('newrelic')) {
+    newrelic_disable_autorum();
+}
+
 $qs = @$_REQUEST["qs"];
 extractQS();
 
