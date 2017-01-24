@@ -22,7 +22,7 @@
 // | 59 Temple Place - Suite 330                                          |
 // | Boston, MA 02111-1307, USA.                                          |
 // +----------------------------------------------------------------------+
-// | Authors: João Prado Maia <jpm@mysql.com>                             |
+// | Authors: Joï¿½o Prado Maia <jpm@mysql.com>                             |
 // +----------------------------------------------------------------------+
 //
 // @(#) $Id: s.class.mail.php 1.26 04/01/23 00:25:55-00:00 jpradomaia $
@@ -36,7 +36,7 @@
  * different platforms.
  *
  * @version 1.0
- * @author João Prado Maia <jpm@mysql.com>
+ * @author Joï¿½o Prado Maia <jpm@mysql.com>
  */
 
 include_once(APP_INC_PATH . "class.error_handler.php");
@@ -79,7 +79,7 @@ class Mail_API
 	 */
 	function removeExcessRe($subject)
 	{
-		$re_pattern = "/^(([Rr][Ee][Ss]?|Îòâåò|Antwort|SV|[Aa][Ww])(\[[0-9]+\])?[ \t]*: ){2}(.*)/";
+		$re_pattern = "/^(([Rr][Ee][Ss]?|ï¿½ï¿½ï¿½ï¿½ï¿½|Antwort|SV|[Aa][Ww])(\[[0-9]+\])?[ \t]*: ){2}(.*)/";
 		if (preg_match($re_pattern, $subject)) {
 			$subject = preg_replace($re_pattern, 'Re: $4', $subject);
 			return Mail_API::removeExcessRe($subject);
@@ -278,9 +278,15 @@ class Mail_API
 	 */
 	function getSMTPSettings()
 	{
-		return array('host' => APP_EMAIL_SMTP);
+	  $port = 25;
+    if (defined('APP_EMAIL_SMTP_PORT')) {
+      $port = APP_EMAIL_SMTP_PORT;
+    }
+		return array(
+		  'host' => APP_EMAIL_SMTP,
+      'port' => $port
+    );
 	}
-
 
 	/**
 	 * Method used to set the text version of the body of the MIME
