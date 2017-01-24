@@ -2088,7 +2088,7 @@ class Record
       $options, $approved_roles=array(9,10), $current_page=0,$page_rows="ALL", $sort_by="Title",
       $getSimple=false, $citationCache=false, $filter=array(), $operator='AND', $use_faceting = false,
       $use_highlighting = false, $doExactMatch = false, $facet_limit = APP_SOLR_FACET_LIMIT,
-      $facet_mincount = APP_SOLR_FACET_MINCOUNT, $getAuthorMatching = false, $versionDate=null, $forceLocal = false
+      $facet_mincount = APP_SOLR_FACET_MINCOUNT, $getAuthorMatching = false, $versionDate=null, $forceLocal = false, $ignoreSecurity = false
   )
   {
     $log = FezLog::get();
@@ -2140,7 +2140,14 @@ class Record
     //echo $sort_by . '<br />';
     $searchKey_join = Record::buildSearchKeyJoins($options, $sort_by, $operator, $filter);
 
-    $authArray = Collection::getAuthIndexStmt($approved_roles, "r1.rek_pid");
+    // Some forms secure the pid really quick (thesis) so the student cant view the meta in receipt or email pages
+    // this will only get called from getXSDMF_Values -> getListing for the getDetails on pages like sfa_student*.php
+    if ($ignoreSecurity == true) {
+        $authArray = array('authStmt' => '', 'joinStmt' => '');
+    } else {
+        $authArray = Collection::getAuthIndexStmt($approved_roles, "r1.rek_pid");
+    }
+
     $authStmt = $authArray['authStmt'];
 
     if(!is_null($versionDate))
