@@ -1252,7 +1252,9 @@ class Record
                   ? $sek_value['xsdmf_value']['Year'] : $sek_value['xsdmf_value'];
                 $xsdmf_value = $db->quote(trim($sek_value['xsdmf_value']));
               }
-
+              if (!is_numeric($sek_value['xsdmf_id'])) {
+                  $sek_value['xsdmf_id'] = "NULL";
+              }
               $valuesIns[] = "$xsdmf_value, {$sek_value['xsdmf_id']}";
               $valuesUpd[] = "rek_{$sek_column} = $xsdmf_value, rek_{$sek_column}_xsdmf_id = {$sek_value['xsdmf_id']}";
 
