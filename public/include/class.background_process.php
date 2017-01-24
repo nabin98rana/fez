@@ -341,7 +341,8 @@ class BackgroundProcess {
     $bgp->setAuth();
 		$bgp->setState(BGP_RUNNING);
 		$bgp->run();
-
+		
+    $bgp->setState(BGP_FINISHED);
 		if (!empty($bgp->wfses_id)) {
  			$wfstatus = &WorkflowStatusStatic::getSession($bgp->wfses_id);
  			if (is_object($wfstatus)) {
@@ -350,7 +351,6 @@ class BackgroundProcess {
 		}
 
 		echo 'Finished run of ' . $bgp->name . "..\n";
-    $bgp->setState(BGP_FINISHED);
 	}
 
 	/**
@@ -516,7 +516,7 @@ class BackgroundProcess {
 		while ($next = self::nextUnstarted($from)) {
 			$bgp = new BackgroundProcess($next['bgp_id']);
 			$bgp->runCurrent();
-			$bgp->setState(2);
+			$bgp->setState(BGP_FINISHED);
 		}
 	}
 
