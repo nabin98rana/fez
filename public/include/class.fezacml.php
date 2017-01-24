@@ -253,7 +253,7 @@ class FezACML
       }
     }
     $newXML = $doc->SaveXML();
-    $FezACML = "FezACML";
+    $FezACML = FezACML::getFezACMLPidName($pid);
     if (Fedora_API::datastreamExists($pid, $FezACML)) {
       Fedora_API::callModifyDatastreamByValue($pid, $FezACML, "A", "FezACML",
         $newXML, "text/xml", "inherit");
