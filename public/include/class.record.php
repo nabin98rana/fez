@@ -1334,10 +1334,7 @@ class Record
                 } else {
                     $sek_value['xsdmf_value'] = 0;
                 }
-            } else {
-                $sek_value['xsdmf_value'] = $db->quote(trim($sek_value['xsdmf_value']));
             }
-
 
             // do final check for cardinality before trying to insert/update an array of values in one to many tables
             if (is_array($sek_value['xsdmf_value'])) {
