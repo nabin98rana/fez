@@ -1244,6 +1244,8 @@ class Record
                   } else {
                     $xsdmf_value = 0;
                   }
+                } else {
+                  $xsdmf_value = $db->quote(trim($sek_value['xsdmf_value']));
                 }
               } else {
                 $sek_value['xsdmf_value'] = (is_array($sek_value['xsdmf_value']) && array_key_exists('Year', $sek_value['xsdmf_value']))
@@ -1407,7 +1409,7 @@ class Record
                 unset($stmtVars);
 
               } else {
-                if ($searchKeyDetails['sek_html_input'] == 'checkbox') {
+                if ($searchKeyDetails['sek_html_input'] == 'checkbox' && $searchKeyDetails['sek_data_type'] == 'int') {
                   if ($sek_value['xsdmf_value'] !== 'on' && $sek_value['xsdmf_value'] !== 1) {
                     $sek_value['xsdmf_value'] = 0;
                   }
