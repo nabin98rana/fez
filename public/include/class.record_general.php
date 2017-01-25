@@ -2464,7 +2464,7 @@ class RecordGeneral
       if ($xsdmf_details['xsdmf_sek_id'] != "") {
         $sekDetails = Search_Key::getBasicDetails($xsdmf_details['xsdmf_sek_id']);
         if ($sekDetails['sek_data_type'] == 'int' && $sekDetails['sek_html_input'] == 'checkbox') {
-          if ($xsdmf_value == 'on') {
+          if ($xsdmf_value == 'on' || $xsdmf_value == 1) {
             $xsdmf_value = 1;
           } else {
             $xsdmf_value = 0;
