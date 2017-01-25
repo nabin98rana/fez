@@ -92,9 +92,9 @@ class RecordView {
 
                 if ($dis_field['sek_title'] == "Geographic Area" && !empty($details[$dis_field['xsdmf_id']])) {
                     $details[$dis_field['xsdmf_id']] =  "
-                        <script type='text/javascript' src='https://maps.googleapis.com/maps/api/js?libraries=drawing&amp;sensor=false'></script>
+                        <script type='text/javascript' src='https://maps.googleapis.com/maps/api/js?libraries=drawing&amp;key=".APP_GOOGLE_MAP_KEY."'></script>
                         <div id='spatial_coverage_map' style='margin-bottom: 0px;'></div>
-                        <p class='coverage hide' style='margin-bottom: 0px;'>".$details[$dis_field['xsdmf_id']]."</p><script type='text/javascript'>
+                        <p class='coverage hide' style='margin-bottom: 0px;'>".$details[$dis_field['xsdmf_id']][0]."</p><script type='text/javascript'>
                         $(document).ready(function() {
                             drawMap();
                             });
