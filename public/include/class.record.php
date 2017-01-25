@@ -1234,18 +1234,16 @@ class Record
                 $xsdmf_value = 'NULL';
                 $sek_value['xsdmf_id'] = 'NULL';
 
-              } elseif ($sek_value['xsdmf_value'] == 'on' || $sek_value['xsdmf_value'] == 'off' || $sek_value['xsdmf_value'] == 1 || $sek_value['xsdmf_value'] == "1") {
+              } elseif ($sek_value['xsdmf_value'] == 'on' || $sek_value['xsdmf_value'] == 'off') {
                 $xsdDetails = XSD_HTML_Match::getDetailsByXSDMF_ID($sek_value['xsdmf_id']);
                 $searchKeyDetails = Search_Key::getDetails($xsdDetails['xsdmf_sek_id']);
                 $sek_value['xsdmf_value'] = Search_Key::cleanSearchKeyValue($searchKeyDetails, $sek_value['xsdmf_value']);
-                if ($searchKeyDetails['sek_data_type'] == 'int') {
-                  if ($sek_value['xsdmf_value'] == 'on' || $sek_value['xsdmf_value'] == 1 || $sek_value['xsdmf_value'] == "1") {
+                if ($searchKeyDetails['sek_data_type'] == 'int' ) {
+                  if (($sek_value['xsdmf_value'] == 'on' || $sek_value['xsdmf_value'] == 1) && $searchKeyDetails['sek_html_input'] == 'checkbox') {
                     $xsdmf_value = 1;
                   } else {
                     $xsdmf_value = 0;
                   }
-                } else {
-                  $xsdmf_value = $db->quote(trim($sek_value['xsdmf_value']));
                 }
               } else {
                 $sek_value['xsdmf_value'] = (is_array($sek_value['xsdmf_value']) && array_key_exists('Year', $sek_value['xsdmf_value']))
@@ -1328,8 +1326,8 @@ class Record
             $xsdDetails = XSD_HTML_Match::getDetailsByXSDMF_ID($sek_value['xsdmf_id']);
             $searchKeyDetails = Search_Key::getDetails($xsdDetails['xsdmf_sek_id']);
             $sek_value['xsdmf_value'] = Search_Key::cleanSearchKeyValue($searchKeyDetails, $sek_value['xsdmf_value']);
-            if ($searchKeyDetails['sek_data_type'] == 'int') {
-                if (($sek_value['xsdmf_value'] == 'on' || $sek_value['xsdmf_value'] === 1 || $sek_value['xsdmf_value'] === "1") && $sek_value['xsdmf_value'] !== 0) {
+            if ($searchKeyDetails['sek_data_type'] == 'int' && $searchKeyDetails['sek_html_input'] == 'checkbox') {
+                if (($sek_value['xsdmf_value'] == 'on' || $sek_value['xsdmf_value'] == 1) && $sek_value['xsdmf_value'] !== 0) {
                     $sek_value['xsdmf_value'] = 1;
                 } else {
                     $sek_value['xsdmf_value'] = 0;
@@ -1416,8 +1414,8 @@ class Record
                 }
 
                 if (in_array($sek_value['xsdmf_value'], array("on", "off", 1, 0)) || empty($sek_value['xsdmf_value'])) {
-                  if ($searchKeyDetails['sek_data_type'] == 'int') {
-                    if ($sek_value['xsdmf_value'] === 'on' || $sek_value['xsdmf_value'] === 1) {
+                  if ($searchKeyDetails['sek_data_type'] == 'int' && $searchKeyDetails['sek_html_input'] == 'checkbox') {
+                    if ($sek_value['xsdmf_value'] === 'on' || $sek_value['xsdmf_value'] === 1)  {
                       $sek_value['xsdmf_value'] = 1;
                     } else {
                       $sek_value['xsdmf_value'] = 0;
