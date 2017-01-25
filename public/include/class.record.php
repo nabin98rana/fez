@@ -1238,8 +1238,8 @@ class Record
                 $xsdDetails = XSD_HTML_Match::getDetailsByXSDMF_ID($sek_value['xsdmf_id']);
                 $searchKeyDetails = Search_Key::getDetails($xsdDetails['xsdmf_sek_id']);
                 $sek_value['xsdmf_value'] = Search_Key::cleanSearchKeyValue($searchKeyDetails, $sek_value['xsdmf_value']);
-                if ($searchKeyDetails['sek_data_type'] == 'int' ) {
-                  if (($sek_value['xsdmf_value'] == 'on' || $sek_value['xsdmf_value'] == 1) && $searchKeyDetails['sek_html_input'] == 'checkbox') {
+                if ($searchKeyDetails['sek_data_type'] == 'int' && $searchKeyDetails['sek_html_input'] == 'checkbox') {
+                  if ($sek_value['xsdmf_value'] == 'on' || $sek_value['xsdmf_value'] == 1) {
                     $xsdmf_value = 1;
                   } else {
                     $xsdmf_value = 0;
@@ -1352,7 +1352,7 @@ class Record
             $notEmpty = 1;  // start assuming that value is not empty
             if (is_array($sek_value['xsdmf_value'])) {
               $stringvalue = implode("", $sek_value['xsdmf_value']);
-              if (strlen($stringvalue) === 0) {
+              if (strlen($stringvalue) == 0) {
                 $notEmpty = 0;  // this value is an array and it is empty
                 //Error_Handler::logError($sek_value['xsdmf_value']);
               }
