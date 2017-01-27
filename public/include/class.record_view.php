@@ -160,7 +160,7 @@ class RecordView {
                                 "<a href='http://dx.doi.org/".htmlspecialchars($details[$xsd_display_fields[$dis_key]['xsdmf_id']])."'>".htmlspecialchars($details[$xsd_display_fields[$dis_key]['xsdmf_id']])."</a>";
                     }
                 }
-				if ($dis_field['sek_title'] == "Author" || $dis_field['sek_title'] == "Contributor" || $dis_field['sek_title'] == "Creator") {
+				if ($dis_field['sek_title'] == "Author" || $dis_field['sek_title'] == "Contributor" || $dis_field['sek_title'] == "Creator Name") {
 					if (!empty($details[$dis_field['xsdmf_id']])) {
 						if (is_array($details[$dis_field['xsdmf_id']])) {
 							foreach ($details[$dis_field['xsdmf_id']] as $ckey => $cdata) {
