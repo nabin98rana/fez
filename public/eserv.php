@@ -455,7 +455,8 @@ if (!empty($pid) && !empty($dsID)) {
         // If we are using S3 and Cloudfront, just redirect the user to a time signed CF url and exit
 
         $cfURL = Fedora_API::getCloudFrontURL($pid, $dsID);
-        Auth::redirect($cfURL);
+        header('Location: '.$cfURL);
+        exit;
 
       } else {
         $header = (isset($dsMeta['mimetype'])) ? $dsMeta['mimetype'] : 'text/html';
