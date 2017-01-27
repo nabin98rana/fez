@@ -104,11 +104,7 @@ No items found
 
 
    {if $list[i].thumbnail.0 != "" && $list[i].isViewer==1}
-     {if $list[i].thumbnail_cloudfront.0 != ""}
-       {assign var="icon" value=$list[i].thumbnail_cloudfront.0}
-     {else}
        {assign var="icon" value=$eserv_url|cat:$list[i].rek_pid|cat:"/"|cat:$list[i].thumbnail.0}
-     {/if}
    {else}
      {assign var="icon" value=$rel_url|cat:"images/record.jpg"}
    {/if}
