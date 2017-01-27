@@ -546,10 +546,16 @@ if (!empty($pid) && $record->checkExists()) {
         if (($datastreams[$ds_key]['controlGroup'] == 'R') && ($datastreams[$ds_key]['ID'] != 'DOI')) {
           $links[$linkCount - 1]['rek_link'] = trim($datastreams[$ds_key]['location']);
           $links[$linkCount - 1]['rek_link_description'] = $datastreams[$ds_key]['label'];
-          $links[$linkCount - 1]['rek_link_description'] = $datastreams[$ds_key]['label'];
 
           if (strtoupper('http://dx.doi.org/' . $doi) == strtoupper($links[$linkCount - 1]['rek_link'])) {
             $doiInLinks = true;
+
+          }
+          // If its a DOI that points to this repo, don't show it in links
+          if (stripos($links[$linkCount - 1]['rek_link'], CROSSREF_DOI_PREFIX) !== FALSE) {
+              unset($links[$linkCount - 1]);
+              $linkCount--;
+              continue;
           }
 
           // Check for APP_LINK_PREFIX and add if not already there add it to a special ezyproxy link for it
@@ -637,7 +643,9 @@ if (!empty($pid) && $record->checkExists()) {
         }
 
         if ($datastreams[$ds_key]['controlGroup'] == 'R' && $datastreams[$ds_key]['ID'] == 'DOI') {
-          $links[$linkCount - 1]['rek_link'] = trim($datastreams[$ds_key]['location']);
+          if (stripos($doi, CROSSREF_DOI_PREFIX) === FALSE) {
+            $links[$linkCount - 1]['rek_link'] = trim($datastreams[$ds_key]['location']);
+          }
           $tpl->assign('doi', $datastreams[$ds_key]);
         }
       }
@@ -653,6 +661,8 @@ if (!empty($pid) && $record->checkExists()) {
           }
           array_unshift($links, $newLink);
         }
+      } else {
+
       }
     }
 
