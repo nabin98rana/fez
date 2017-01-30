@@ -1,4 +1,4 @@
-FROM uqlibrary/docker-nginx-fez:5
+FROM uqlibrary/docker-nginx-fez:6
 
 RUN mkdir -p /espace/data && \
   mkdir -p /espace_san/incoming && \
