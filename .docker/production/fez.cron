@@ -37,9 +37,9 @@
 #0 0     * * 0   root    /usr/bin/wget -O - "http://fez-production.library.uq.edu.au/api/cron_register_bgp.php?file=bgp_update_citation_counts&class=BackgroundProcess_Update_Citation_Counts&input[runType]=scopus-empty&token=WEBCRON_TOKEN" > /dev/null 2>&1
 
 # Download new UQ pubs from WoS / Scopus / ResearcherID
-0 0     * * 0   root    /usr/bin/wget -O - "http://fez-production.library.uq.edu.au/api/cron_register_bgp.php?file=bgp_download_uq_pubs&class=BackgroundProcess_Era_Download_Uq_Pubs&input[runType]=wos&token=WEBCRON_TOKEN" > /dev/null 2>&1
-0 0     * * 2   root    /usr/bin/wget -O - "http://fez-production.library.uq.edu.au/api/cron_register_bgp.php?file=bgp_download_uq_pubs&class=BackgroundProcess_Era_Download_Uq_Pubs&input[runType]=scopus&token=WEBCRON_TOKEN" > /dev/null 2>&1
-4 18    * * 5   root    /usr/bin/wget -O - "http://fez-production.library.uq.edu.au/api/cron_register_bgp.php?file=bgp_download_uq_pubs&class=BackgroundProcess_Era_Download_Uq_Pubs&input[runType]=researcherid&token=WEBCRON_TOKEN" > /dev/null 2>&1
+0 0     * * 0   root    /usr/bin/wget -O - "http://fez-production.library.uq.edu.au/api/cron_register_bgp.php?file=bgp_download_uq_pubs&class=BackgroundProcess_Download_Uq_Pubs&input[runType]=wos&token=WEBCRON_TOKEN" > /dev/null 2>&1
+0 0     * * 2   root    /usr/bin/wget -O - "http://fez-production.library.uq.edu.au/api/cron_register_bgp.php?file=bgp_download_uq_pubs&class=BackgroundProcess_Download_Uq_Pubs&input[runType]=scopus&token=WEBCRON_TOKEN" > /dev/null 2>&1
+4 18    * * 5   root    /usr/bin/wget -O - "http://fez-production.library.uq.edu.au/api/cron_register_bgp.php?file=bgp_download_uq_pubs&class=BackgroundProcess_Download_Uq_Pubs&input[runType]=researcherid&token=WEBCRON_TOKEN" > /dev/null 2>&1
 
 # Run Links AMR check
 0 0     * * 3   root    /usr/bin/wget -O - "http://fez-production.library.uq.edu.au/api/cron_register_bgp.php?file=bgp_links_amr_check&class=BackgroundProcess_Links_Amr_Check&token=WEBCRON_TOKEN" > /dev/null 2>&1
