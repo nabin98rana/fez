@@ -16,7 +16,6 @@ fezdevelopmentrunner:
   links:
     - cache
     - fez
-    - fedora
     - fezdb
     - selenium
     - elasticsearch
@@ -24,7 +23,6 @@ fezdevelopmentrunner:
     - ../../:/var/app/current
   volumes_from:
     - cache
-    - fedoradata
     - logs
 
 selenium:
@@ -54,7 +52,6 @@ fez:
   volumes_from:
     - fpm
     - cache
-    - fedoradata
     - logs
 
 fpm:
@@ -76,7 +73,6 @@ fpm:
     - WEBCRON_TOKEN=southpark
   links:
     - fezdb
-    - fedora
     - elasticsearch
   volumes:
     - ../../:/var/app/current
@@ -84,7 +80,6 @@ fpm:
     - ../etc/nginx/rules:/etc/nginx/rules
   volumes_from:
     - cache
-    - fedoradata
     - logs
 
 fezdb:
@@ -104,28 +99,6 @@ fezdb:
 
 fezdbdata:
   build: ./backend/db/data/
-
-
-fedora:
-  build: ./fedora/
-  environment:
-    - FEDORA_HOME=/opt/fedora
-    - FEDORA_WEBAPP_HOME=/opt/fedora/tomcat/webapps/fedora
-  links:
-    - fezdb
-  ports:
-    - "10081:10081"
-    - "10082:10082"
-  privileged: true
-  volumes_from:
-    - cache
-    - fedoradata
-    - logs
-
-fedoradata:
-  build: ./fedora/data/
-  volumes:
-    - ./data/fedora:/data
 
 elasticsearch:
   environment:
