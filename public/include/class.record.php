@@ -1238,8 +1238,8 @@ class Record
                 $xsdDetails = XSD_HTML_Match::getDetailsByXSDMF_ID($sek_value['xsdmf_id']);
                 $searchKeyDetails = Search_Key::getDetails($xsdDetails['xsdmf_sek_id']);
                 $sek_value['xsdmf_value'] = Search_Key::cleanSearchKeyValue($searchKeyDetails, $sek_value['xsdmf_value']);
-                if ($searchKeyDetails['sek_data_type'] == 'int') {
-                  if ($sek_value['xsdmf_value'] == 'on') {
+                if ($searchKeyDetails['sek_data_type'] == 'int' && $searchKeyDetails['sek_html_input'] == 'checkbox') {
+                  if ($sek_value['xsdmf_value'] == 'on' || $sek_value['xsdmf_value'] == 1) {
                     $xsdmf_value = 1;
                   } else {
                     $xsdmf_value = 0;
@@ -1252,7 +1252,9 @@ class Record
                   ? $sek_value['xsdmf_value']['Year'] : $sek_value['xsdmf_value'];
                 $xsdmf_value = $db->quote(trim($sek_value['xsdmf_value']));
               }
-
+              if (!is_numeric($sek_value['xsdmf_id'])) {
+                  $sek_value['xsdmf_id'] = "NULL";
+              }
               $valuesIns[] = "$xsdmf_value, {$sek_value['xsdmf_id']}";
               $valuesUpd[] = "rek_{$sek_column} = $xsdmf_value, rek_{$sek_column}_xsdmf_id = {$sek_value['xsdmf_id']}";
 
@@ -1326,6 +1328,14 @@ class Record
             $xsdDetails = XSD_HTML_Match::getDetailsByXSDMF_ID($sek_value['xsdmf_id']);
             $searchKeyDetails = Search_Key::getDetails($xsdDetails['xsdmf_sek_id']);
             $sek_value['xsdmf_value'] = Search_Key::cleanSearchKeyValue($searchKeyDetails, $sek_value['xsdmf_value']);
+            if ($searchKeyDetails['sek_data_type'] == 'int' && $searchKeyDetails['sek_html_input'] == 'checkbox') {
+                if (($sek_value['xsdmf_value'] == 'on' || $sek_value['xsdmf_value'] == 1) && $sek_value['xsdmf_value'] !== 0) {
+                    $sek_value['xsdmf_value'] = 1;
+                } else {
+                    $sek_value['xsdmf_value'] = 0;
+                }
+            }
+
             // do final check for cardinality before trying to insert/update an array of values in one to many tables
             if (is_array($sek_value['xsdmf_value'])) {
               if ($searchKeyDetails['sek_cardinality'] == 0) {
@@ -1399,15 +1409,15 @@ class Record
                 unset($stmtVars);
 
               } else {
-                if ($searchKeyDetails['sek_html_input'] == 'checkbox') {
-                  if ($sek_value['xsdmf_value'] != 'on' && $sek_value['xsdmf_value'] != 1) {
-                    $sek_value['xsdmf_value'] = 'off';
+                if ($searchKeyDetails['sek_html_input'] == 'checkbox' && $searchKeyDetails['sek_data_type'] == 'int') {
+                  if ($sek_value['xsdmf_value'] !== 'on' && $sek_value['xsdmf_value'] !== 1) {
+                    $sek_value['xsdmf_value'] = 0;
                   }
                 }
 
                 if (in_array($sek_value['xsdmf_value'], array("on", "off", 1, 0)) || empty($sek_value['xsdmf_value'])) {
-                  if ($searchKeyDetails['sek_data_type'] == 'int') {
-                    if ($sek_value['xsdmf_value'] == 'on' || $sek_value['xsdmf_value'] == 1) {
+                  if ($searchKeyDetails['sek_data_type'] == 'int' && $searchKeyDetails['sek_html_input'] == 'checkbox') {
+                    if ($sek_value['xsdmf_value'] === 'on' || $sek_value['xsdmf_value'] === 1)  {
                       $sek_value['xsdmf_value'] = 1;
                     } else {
                       $sek_value['xsdmf_value'] = 0;
@@ -2086,7 +2096,7 @@ class Record
       $options, $approved_roles=array(9,10), $current_page=0,$page_rows="ALL", $sort_by="Title",
       $getSimple=false, $citationCache=false, $filter=array(), $operator='AND', $use_faceting = false,
       $use_highlighting = false, $doExactMatch = false, $facet_limit = APP_SOLR_FACET_LIMIT,
-      $facet_mincount = APP_SOLR_FACET_MINCOUNT, $getAuthorMatching = false, $versionDate=null, $forceLocal = false
+      $facet_mincount = APP_SOLR_FACET_MINCOUNT, $getAuthorMatching = false, $versionDate=null, $forceLocal = false, $ignoreSecurity = false
   )
   {
     $log = FezLog::get();
@@ -2138,7 +2148,14 @@ class Record
     //echo $sort_by . '<br />';
     $searchKey_join = Record::buildSearchKeyJoins($options, $sort_by, $operator, $filter);
 
-    $authArray = Collection::getAuthIndexStmt($approved_roles, "r1.rek_pid");
+    // Some forms secure the pid really quick (thesis) so the student cant view the meta in receipt or email pages
+    // this will only get called from getXSDMF_Values -> getListing for the getDetails on pages like sfa_student*.php
+    if ($ignoreSecurity == true) {
+        $authArray = array('authStmt' => '', 'joinStmt' => '');
+    } else {
+        $authArray = Collection::getAuthIndexStmt($approved_roles, "r1.rek_pid");
+    }
+
     $authStmt = $authArray['authStmt'];
 
     if(!is_null($versionDate))
@@ -2577,15 +2594,8 @@ class Record
               if (Auth::checkAuthorisation($result[$i]['rek_pid'], $result[$i]['rek_file_attachment_name'][$x], $canPreviewRoles, '', null, false)) {
                 $canPreview = true;
               }
-              if (defined('AWS_S3_ENABLED') && AWS_S3_ENABLED == 'true' && APP_FEDORA_BYPASS == 'ON' && $canPreview == true) {
-                $thumbnailCF = Fedora_API::getCloudFrontUrl($result[$i]['rek_pid'], $result[$i]['rek_file_attachment_name'][$x]);
-              }
               if ($canPreview == true) {
                 array_push($result[$i]['thumbnail'], $result[$i]['rek_file_attachment_name'][$x]);
-                if (!is_array(@$result[$i]['thumbnail_cloudfront'])) {
-                  $result[$i]['thumbnail_cloudfront'] = array();
-                }
-                array_push($result[$i]['thumbnail_cloudfront'], $thumbnailCF);
                 if (APP_EXIFTOOL_SWITCH == 'ON') {
                   $exif_details = Exiftool::getDetails($result[$i]['rek_pid'], $result[$i]['rek_file_attachment_name'][$x]);
                   if (count($exif_details) != 0) {

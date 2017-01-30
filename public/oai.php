@@ -38,6 +38,11 @@ include_once(APP_INC_PATH . "class.oai.php");
 include_once(APP_INC_PATH . "class.xsd_display.php");
 include_once(APP_INC_PATH . "class.record.php");
 
+// disable new relic js injection
+if (extension_loaded('newrelic')) {
+    newrelic_disable_autorum();
+}
+
 $tpl = new Template_API();
 $verb = trim(Misc::GETorPOST('verb'));
 $metadataPrefix = trim(Misc::GETorPOST('metadataPrefix'));

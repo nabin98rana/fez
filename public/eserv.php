@@ -49,6 +49,11 @@ include_once(APP_INC_PATH . "class.bookreaderimplementation.php");
 //$auth = new Auth();
 //$auth->checkForBasicAuthRequest('eserv');
 
+// disable new relic for js serving
+if (extension_loaded('newrelic')) {
+    newrelic_disable_autorum();
+}
+
 $qs = @$_REQUEST["qs"];
 extractQS();
 
@@ -328,6 +333,11 @@ if (!empty($pid) && !empty($dsID)) {
 //      } else {
         $resourcePath = BR_IMG_DIR . $pid . '/' . $dsID;
         $protocol = ($_SERVER['HTTPS']) ? 'https://' : 'http://';
+        //HTTPS may be hidden behind cloudfront layers
+        if (isset($_SERVER['HTTP_CLOUDFRONT_FORWARDED_PROTO']) && ($_SERVER['HTTP_CLOUDFRONT_FORWARDED_PROTO'] == 'https')) {
+            $protocol = 'https://';
+        }
+
         $host = $protocol . $_SERVER['HTTP_HOST'];
         $urlPath = str_replace($_SERVER['DOCUMENT_ROOT'], '', BR_IMG_DIR);
 //      }
@@ -445,7 +455,8 @@ if (!empty($pid) && !empty($dsID)) {
         // If we are using S3 and Cloudfront, just redirect the user to a time signed CF url and exit
 
         $cfURL = Fedora_API::getCloudFrontURL($pid, $dsID);
-        Auth::redirect($cfURL);
+        header('Location: '.$cfURL);
+        exit;
 
       } else {
         $header = (isset($dsMeta['mimetype'])) ? $dsMeta['mimetype'] : 'text/html';

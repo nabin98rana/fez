@@ -2,6 +2,11 @@
 
 include_once("config.inc.php");
 
+// disable new relic for js serving
+if (extension_loaded('newrelic')) {
+    newrelic_disable_autorum();
+}
+
 // Prepends include_path. You could alternately do this via .htaccess or php.ini
 set_include_path(
     APP_PATH . 'min/lib'

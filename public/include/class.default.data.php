@@ -195,6 +195,7 @@ class Default_Data
 		$defaultData['app_system_user_id']                  = "1";
 		$defaultData['app_email_system_from_address']       = "fez@yourdomain.com";
 		$defaultData['app_email_smtp']                      = "mail.yourdomain.com";
+    $defaultData['app_email_smtp_port']                 = 25;
 		$defaultData['app_watermark']                       = "watermark.gif";
 		$defaultData['app_default_user_timezone']           = "Australia/Brisbane";
 		$defaultData['app_default_refresh_rate']            = "5";

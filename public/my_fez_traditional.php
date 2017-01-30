@@ -220,7 +220,7 @@ $tpl->assign("bulk_search_workflows",   $bulk_search_workflows);
 
 $tpl->assign("page_url_order",          $_SERVER['PHP_SELF'].'?'.$urlnoSort);
 $tpl->assign("page_url",                $_SERVER['PHP_SELF'].'?'.$urlnoOrder);
-
+$tpl->assign("eserv_url", APP_BASE_URL . "view/");
 $tpl->assign('myFezView',               "MAI");
 $tpl->assign('extra_title',             "Assigned Unpublished Items");
 $tpl->assign('search_keys',             $search_keys);

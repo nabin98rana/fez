@@ -22,7 +22,7 @@
 // | 59 Temple Place - Suite 330                                          |
 // | Boston, MA 02111-1307, USA.                                          |
 // +----------------------------------------------------------------------+
-// | Authors: João Prado Maia <jpm@mysql.com>                             |
+// | Authors: Joï¿½o Prado Maia <jpm@mysql.com>                             |
 // +----------------------------------------------------------------------+
 //
 // @(#) $Id$
@@ -134,7 +134,7 @@ class Mail_Queue
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		list(,$text_headers) = Mail_API::prepareHeaders($headers);
 		$save_email_copy = $save_email_copy ? '1':'0';
 		$stmt = "INSERT INTO
@@ -181,6 +181,7 @@ class Mail_Queue
 		// foreach email
 		for ($i = 0; $i < count($emails); $i++) {
 			$result = Mail_Queue::_sendEmail($emails[$i]['recipient'], $emails[$i]['headers'], $emails[$i]['body']);
+			sleep(3); // SMTP servers get angry otherwise
 			if (PEAR::isError($result)) {
 				Mail_Queue::_saveLog($emails[$i]['id'], 'error', Mail_Queue::_getErrorMessage($result));
 			} else {
@@ -197,14 +198,14 @@ class Mail_Queue
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		$stmt = " DELETE FROM " . APP_TABLE_PREFIX . "mail_queue_log WHERE
             mql_maq_id IN (select maq_id FROM " . APP_TABLE_PREFIX . "mail_queue WHERE
                     maq_status='sent' AND ";
 		if (!is_numeric(strpos(APP_SQL_DBTYPE, "mysql"))) { //eg if postgresql etc
 			$stmt .= "maq_queued_date < (NOW() - INTERVAL '1 MONTHS'))";
 		} else {
-			$stmt .= "maq_queued_date < date_sub(NOW(), INTERVAL 1 MONTH))";			
+			$stmt .= "maq_queued_date < date_sub(NOW(), INTERVAL 1 MONTH))";
 		}
 
 
@@ -242,7 +243,7 @@ class Mail_Queue
 	function _sendEmail($recipient, $text_headers, $body)
 	{
 		$header_names = Mime_Helper::getHeaderNames($text_headers);
-		 
+
 		$_headers = Mail_Queue::_getHeaders($text_headers, $body);
 		$headers = array();
 		foreach ($_headers as $lowercase_name => $value) {
@@ -294,7 +295,7 @@ class Mail_Queue
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		$stmt = "SELECT
                     maq_id id,
                     maq_save_copy save_copy,
@@ -309,7 +310,7 @@ class Mail_Queue
                     maq_id ASC
                  LIMIT
                     ".$db->quote($limit, 'INTEGER')." OFFSET 0";
-		
+
 		try {
 			$res = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
 		}
@@ -335,7 +336,7 @@ class Mail_Queue
 	{
 		$log = FezLog::get();
 		$db = DB_API::get();
-		
+
 		$stmt = "INSERT INTO
                     " . APP_TABLE_PREFIX . "mail_queue_log
                  (

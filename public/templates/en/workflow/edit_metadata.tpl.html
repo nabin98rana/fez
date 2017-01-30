@@ -76,11 +76,7 @@
                 <td bgcolor="{$value_color}">
                 {if $datastreams[d].thumbnail != "0"}
 											<img align="absmiddle"
-                  {if $datastreams[d].thumbnail_cloudfront != ""}
-                    src="{$datastreams[d].thumbnail_cloudfront}{if $viewingPreviousVersion}?version_date={$versionDate}{/if}"
-                  {else}
                     src="{$eserv_url}{$datastreams[d].thumbnail}{if $viewingPreviousVersion}?version_date={$versionDate}{/if}"
-                  {/if}
                   />
                 {/if}
                 {if $image_file_string != ""}<img align="absmiddle" src="{$rel_url}images/{$image_file_name}">{else}<img align="absmiddle" src="{$rel_url}images/default.png">{/if}
