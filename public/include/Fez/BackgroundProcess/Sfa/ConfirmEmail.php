@@ -73,8 +73,10 @@ class Fez_BackgroundProcess_Sfa_ConfirmEmail extends BackgroundProcess{
         // Get inputs
         extract(unserialize($this->inputs));
 
-        // Before we getting the display data, give Fedora a bit of time to create the object, specially the Datastream(s) of the binary content for attached files
-        sleep(20);
+        if (APP_FEDORA_BYPASS != "ON") {
+            // Before we getting the display data, give Fedora a bit of time to create the object, specially the Datastream(s) of the binary content for attached files
+            sleep(20);
+        }
 
         // Utilising Fez_Workflow_Sfa_Confirm class to produce a clean metadata that we can use on the template
         // Instantiate Confirm class
