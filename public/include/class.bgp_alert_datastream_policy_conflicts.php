@@ -130,7 +130,8 @@ class BackgroundProcess_Alert_Datastream_Policy_Conflicts extends BackgroundProc
               && !Misc::hasPrefix($datastream['ID'], 'web_')
               && !Misc::hasPrefix($datastream['ID'], 'thumbnail_')
               && !Misc::hasPrefix($datastream['ID'], 'stream_')
-              && !Misc::hasPrefix($datastream['ID'], 'presmd_'))) {
+              && !Misc::hasPrefix($datastream['ID'], 'presmd_')
+              && !Misc::hasPrefix($datastream['ID'], 'FezACML_'))) {
 
             $userPIDAuthGroups = Auth::getAuthorisationGroups($pid, $datastream['ID']);
             if (in_array('Viewer', $userPIDAuthGroups)) {
