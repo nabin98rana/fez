@@ -72,7 +72,7 @@ class BackgroundProcess_Alert_Datastream_Policy_Conflicts extends BackgroundProc
                 INNER JOIN " . APP_TABLE_PREFIX . "record_search_key_ismemberof 
                 ON rek_ismemberof = rek_datastream_policy_pid
                 INNER JOIN " . APP_TABLE_PREFIX . "record_search_key_datastream_policy AS B
-                ON rek_ismemberof_pid = B.rek_datastream_policy_pid
+                ON rek_ismemberof_pid = B.rek_datastream_policy_pid AND B.rek_datastream_policy > 0
                 WHERE A.rek_datastream_policy != B.rek_datastream_policy";
 
     try {
