@@ -69,6 +69,7 @@ class Fez_BackgroundProcess_Sfa_ConfirmEmail extends BackgroundProcess{
 
         // Set BGP status to running
         $this->setState(BGP_RUNNING);
+        $log->warn("SFA Email details: " . print_r($this->inputs,1) );
 
         // Get inputs
         extract(unserialize($this->inputs));
@@ -84,18 +85,18 @@ class Fez_BackgroundProcess_Sfa_ConfirmEmail extends BackgroundProcess{
 
         // Get display data to be used by smarty template
         $this->display_data = $this->confirmation->getDisplayData();
-
+        $log->warn("SFA Email depositor: " . $this->confirmation->record->depositor );
         // Assigns the URL for viewing the thesis' record
         $this->view_record_url = $this->confirmation->getViewURL();
-
+        $log->warn("SFA Email view url: " . $this->view_record_url );
         // Assigns the record title
         $this->record_title = $this->confirmation->getRecordTitle();
 
         $this->usrDetails = User::getDetailsByID($this->confirmation->record->depositor);
-
+        $log->warn("SFA Email usrDetails: " . print_r($this->usrDetails, true));
         // Get display data to be used by smarty template
         $this->attached_files = $this->confirmation->getAttachedFiles();
-
+        $log->warn("SFA Email files: " . print_r($this->attached_files, true));
         // Submission confirmation email
         if(is_numeric($this->confirmation->record->depositor)) {
 
@@ -120,7 +121,7 @@ class Fez_BackgroundProcess_Sfa_ConfirmEmail extends BackgroundProcess{
 
 
     /**
-     * Prepares email templates and send email to specified recipient 
+     * Prepares email templates and send email to specified recipient
      * @param array $recipient
      * @param string $subject
      * @param bool $show_url
