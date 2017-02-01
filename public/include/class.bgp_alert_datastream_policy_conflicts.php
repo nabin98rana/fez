@@ -169,6 +169,10 @@ class BackgroundProcess_Alert_Datastream_Policy_Conflicts extends BackgroundProc
       return false;
     }
 
+
+    // Next check must be run in the context of a logged out user
+    Auth::logout();
+
     foreach ($res as $pid) {
       $isMemberOf = $pid['rek_ismemberof'];
       $pid = $pid['pid'];
