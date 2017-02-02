@@ -3,6 +3,7 @@
   - service: fpmtestrunner
     command: .codeship/jet.sh @datadependant
   - service: fpmtestrunner
+    exclude: production
     command: .codeship/jet.sh @nodata
 
 - type: serial
