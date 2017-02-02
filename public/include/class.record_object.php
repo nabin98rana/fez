@@ -191,7 +191,7 @@ class RecordObject extends RecordGeneral
       $last = "";
       $lastKey = null;
       //Now add all the xsdmf_ref_id values
-      $xsdmf_list = XSD_HTML_Match::getListByDisplay($_POST['xdis_id']);
+      $xsdmf_list = XSD_HTML_Match::getListByDisplay($_POST['xdis_id'], $exclude_list, $specify_list);
       foreach ($xsdmf_list as $xsdmf) {
         if ($xsdmf['xsdmf_html_input'] == 'xsdmf_id_ref') {
           //now check if the posted data contains a reference to it
