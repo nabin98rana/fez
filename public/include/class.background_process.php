@@ -523,7 +523,7 @@ class BackgroundProcess {
 		$dbtp = APP_TABLE_PREFIX;
 
 		//get all the next available bgps, but also running state bgps that havent had a heartbeat in the last 10 minutes
-		$stmt = "SELECT * FROM " . $dbtp . "background_process WHERE (bgp_id > $from AND bgp_state IS NULL) OR (bgp_state = 1 AND (bgp_heartbeat < DATE_SUB('".$utc_date."',INTERVAL 10 MINUTE)) ORDER BY bgp_id ASC";
+		$stmt = "SELECT * FROM " . $dbtp . "background_process WHERE (bgp_id > $from AND bgp_state IS NULL) OR (bgp_state = 1 AND (bgp_heartbeat < DATE_SUB('".$utc_date."',INTERVAL 10 MINUTE))) ORDER BY bgp_id ASC";
 		try {
 			return $db->fetchRow($stmt, array(), Zend_Db::FETCH_ASSOC);
 		} catch (Exception $ex) {
