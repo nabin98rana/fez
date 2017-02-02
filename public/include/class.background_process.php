@@ -286,23 +286,28 @@ class BackgroundProcess {
       $useAws = true;
     }
     if ($useAws && ($env == 'staging' || $env == 'production')) {
-      $aws = AWS::get();
-      $family = 'fez' . $env . 'bgp';
-      $result = $aws->runBackgroundTask($family, [
-        'containerOverrides' => [
-          [
-            'environment' => [
-              [
-                'name' => 'BGP_ID',
-                'value' => $this->bgp_id,
-              ],
+        $aws = AWS::get();
+        $family = 'fez' . $env . 'bgp';
+        $result = $aws->runBackgroundTask($family, [
+            'containerOverrides' => [
+                [
+                    'environment' => [
+                        [
+                            'name' => 'BGP_ID',
+                            'value' => $this->bgp_id,
+                        ],
+                    ],
+                    'name' => 'fpm',
+                ],
             ],
-            'name' => 'fpm',
-          ],
-        ],
-      ]);
-      $tasks = $result->get('tasks');
-      $this->setTask($tasks[0]['taskArn']);
+        ]);
+        // Check we got an actual object back
+        if ($result === true || $result === false) {
+            $this->setTask("Failed to get a task");
+        } else {
+            $tasks = $result->get('tasks');
+            $this->setTask($tasks[0]['taskArn']);
+        }
     } else {
       $command = APP_PHP_EXEC . " \"" . APP_PATH . "misc/run_background_process.php\" \"" .
         $this->bgp_id . "\" > " . APP_TEMP_DIR . "fezbgp/fezbgp_" . $this->bgp_id . ".log";
@@ -518,7 +523,7 @@ class BackgroundProcess {
 		$dbtp = APP_TABLE_PREFIX;
 
 		//get all the next available bgps, but also running state bgps that havent had a heartbeat in the last 10 minutes
-		$stmt = "SELECT * FROM " . $dbtp . "background_process WHERE (bgp_id > $from AND bgp_state IS NULL) OR (bgp_state = 1 AND (bgp_heartbeat < DATE_SUB('".$utc_date."',INTERVAL 10 MINUTE)) )) ORDER BY bgp_id ASC";
+		$stmt = "SELECT * FROM " . $dbtp . "background_process WHERE (bgp_id > $from AND bgp_state IS NULL) OR (bgp_state = 1 AND (bgp_heartbeat < DATE_SUB('".$utc_date."',INTERVAL 10 MINUTE)) ORDER BY bgp_id ASC";
 		try {
 			return $db->fetchRow($stmt, array(), Zend_Db::FETCH_ASSOC);
 		} catch (Exception $ex) {
