@@ -1811,7 +1811,14 @@ class Search_Key
             break;
           case "int":
             if (!is_numeric($value)) {
-              $return = NULL;
+              // check for checkbox values
+              if ($value == "on") {
+                  $return = 1;
+              } elseif ($value == "off") {
+                  $return = 0;
+              } else {
+                  $return = NULL;
+              }
             } else {
               $return = $value;
             }

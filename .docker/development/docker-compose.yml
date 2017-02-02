@@ -16,7 +16,6 @@ fezdevelopmentrunner:
   links:
     - cache
     - fez
-    - fedora
     - fezdb
     - selenium
     - elasticsearch
@@ -24,11 +23,10 @@ fezdevelopmentrunner:
     - ../../:/var/app/current
   volumes_from:
     - cache
-    - fedoradata
     - logs
 
 selenium:
-  image: selenium/standalone-chrome-debug:2.53.1-beryllium
+  image: selenium/standalone-chrome-debug:3.0.1-fermium
   environment:
     - JAVA_OPTS=-Dselenium.LOGGER.level=WARNING
   links:
@@ -54,7 +52,6 @@ fez:
   volumes_from:
     - fpm
     - cache
-    - fedoradata
     - logs
 
 fpm:
@@ -76,7 +73,6 @@ fpm:
     - WEBCRON_TOKEN=southpark
   links:
     - fezdb
-    - fedora
     - elasticsearch
   volumes:
     - ../../:/var/app/current
@@ -84,7 +80,6 @@ fpm:
     - ../etc/nginx/rules:/etc/nginx/rules
   volumes_from:
     - cache
-    - fedoradata
     - logs
 
 fezdb:
@@ -105,35 +100,13 @@ fezdb:
 fezdbdata:
   build: ./backend/db/data/
 
-
-fedora:
-  build: ./fedora/
-  environment:
-    - FEDORA_HOME=/opt/fedora
-    - FEDORA_WEBAPP_HOME=/opt/fedora/tomcat/webapps/fedora
-  links:
-    - fezdb
-  ports:
-    - "10081:10081"
-    - "10082:10082"
-  privileged: true
-  volumes_from:
-    - cache
-    - fedoradata
-    - logs
-
-fedoradata:
-  build: ./fedora/data/
-  volumes:
-    - ./data/fedora:/data
-
 elasticsearch:
   environment:
     - ES_JAVA_OPTS=-Xmx2g -Xms2g
     - ES_CLUSTER_NAME=uqlfezsearch
     - ES_NODE_MASTER=true
     - ES_NODE_DATA=true
-  image: elasticsearch:5.1
+  image: elasticsearch:5.2
   ports:
     - "9200:9200"
   volumes_from:

@@ -327,11 +327,7 @@ function loadPreview(pid,datastreamID, alt, origami)
 										{assign var="show_preview_pane" value="1"}
 										{if ($datastreams[d].canPreview || $isAdministrator) && $datastreams[d].thumbnail != "0"}
 											<img alt="Click to show the corresponding preview" title="Click to show the corresponding preview"
-													 {if $datastreams[d].thumbnail_cloudfront != ""}
-														 src="{$datastreams[d].thumbnail_cloudfront}{if $viewingPreviousVersion}?version_date={$versionDate}{/if}"
-													 {else}
 													 	 src="{$eserv_url}{$datastreams[d].thumbnail}{if $viewingPreviousVersion}?version_date={$versionDate}{/if}"
-													 {/if}
 										{elseif ($datastreams[d].canPreview || $isAdministrator) && $datastreams[d].stream != "0"}
 											{assign var="ds_show" value=$datastreams[d].ID}
 											{assign var="ds_show_extra" value=$datastreams[d].stream}

@@ -570,7 +570,7 @@ class ResearcherID {
   private static function getEmailMessageContents($email) {
     if (defined('AWS_ENABLED') && AWS_ENABLED == 'true') {
       $aws = new AWS(AWS_S3_CACHE_BUCKET);
-      return $aws->getFileContent('', $email['Key'], [], true);
+      return $aws->getFileContent($email['Key'], '', [], true);
     }
 
     return file_get_contents(RID_UL_SERVICE_ROUTED_EMAIL_PATH . '/' . $email);
@@ -594,7 +594,7 @@ class ResearcherID {
    */
   private static function getEmailFilename($email) {
     if (defined('AWS_ENABLED') && AWS_ENABLED == 'true') {
-      return 's3://' . AWS_S3_BUCKET . '/' . $email['Key'];
+      return 's3://' . AWS_S3_CACHE_BUCKET . '/' . $email['Key'];
     }
 
     return $email;

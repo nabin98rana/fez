@@ -10,11 +10,11 @@ if [ "${WEBCRON_TOKEN}" != "" ]; then
   sed -i "s/WEBCRON_TOKEN/${WEBCRON_TOKEN}/" ${BASE_DIR}/.docker/production/fez.cron
 fi
 
-aws s3 cp s3://uql/ecs/default/services/fezproduction/config.inc.php ${BASE_DIR}/public/config.inc.php
-aws s3 cp s3://uql/fez/fez_production_cloudfront_private_key.pem ${BASE_DIR}/data/
-aws s3 cp ${BASE_DIR}/.docker/production/fez.cron s3://uql/ecs/default/services/crond/cron.d/fezproduction
-aws s3 cp s3://uql-fez-production-cache/GeoIP.dat.gz /usr/share/GeoIP/GeoIP.dat.gz && /bin/gunzip -f /usr/share/GeoIP/GeoIP.dat.gz
-aws s3 cp s3://uql-fez-production-cache/GeoLiteCity.dat.gz /usr/share/GeoIP/GeoLiteCity.dat.gz && /bin/gunzip -f /usr/share/GeoIP/GeoLiteCity.dat.gz
+aws s3 cp s3://uql/ecs/default/services/fezproduction/config.inc.php ${BASE_DIR}/public/config.inc.php --only-show-errors
+aws s3 cp s3://uql/fez/fez_production_cloudfront_private_key.pem ${BASE_DIR}/data/ --only-show-errors
+aws s3 cp ${BASE_DIR}/.docker/production/fez.cron s3://uql/ecs/default/services/crond/cron.d/fezproduction --only-show-errors
+aws s3 cp s3://uql-fez-production-cache/GeoIP.dat.gz /usr/share/GeoIP/GeoIP.dat.gz --only-show-errors && /bin/gunzip -f /usr/share/GeoIP/GeoIP.dat.gz
+aws s3 cp s3://uql-fez-production-cache/GeoLiteCity.dat.gz /usr/share/GeoIP/GeoLiteCity.dat.gz --only-show-errors && /bin/gunzip -f /usr/share/GeoIP/GeoLiteCity.dat.gz
 cp ${BASE_DIR}/.docker/production/robots.txt ${BASE_DIR}/public/
 chmod -R 777 ${BASE_DIR}/public/include/htmlpurifier/library/HTMLPurifier
 
