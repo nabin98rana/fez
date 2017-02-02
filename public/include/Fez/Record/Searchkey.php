@@ -892,9 +892,19 @@ class Fez_Record_Searchkey
     // Set the query fields & values
     if (is_array($current)) {
       foreach ($current as $field => $value) {
+        // stop sending through xsmdf_id values if they are not numeric, we're phasing them out
+        if (is_numeric(strpos($field, 'xsdmf_id')) && !is_numeric($value)) {
+            continue;
+        }
+        //skip saving empty existing values
+        if (empty($value)) {
+            continue;
+        }
+
+
         $stmtFields[] = $field;
 
-        if ($field == "rek_updated_date" || $field == "rek_created_date") {
+        if ($field == "rek_updated_date") {
           $stmtValues[] = $this->_db->quote($this->_version);
           continue;
         }
@@ -922,8 +932,10 @@ class Fez_Record_Searchkey
 
         $stmtFields[] = $fieldname;
         $stmtValues[] = $this->_db->quote($valueArray['xsdmf_value']);
-        $stmtFields[] = $fieldname . "_xsdmf_id";
-        $stmtValues[] = $valueArray['xsdmf_id'];
+        if (is_numeric($valueArray['xsdmf_id'])) {
+          $stmtFields[] = $fieldname . "_xsdmf_id";
+          $stmtValues[] = $valueArray['xsdmf_id'];
+        }
       }
     }
 
