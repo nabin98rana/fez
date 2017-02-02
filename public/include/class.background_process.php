@@ -525,8 +525,11 @@ class BackgroundProcess {
 
 		$dbtp = APP_TABLE_PREFIX;
 
-		//get all the next available bgps, but also running state bgps that havent had a heartbeat in the last 10 minutes
-		$stmt = "SELECT * FROM " . $dbtp . "background_process WHERE (bgp_id > $from AND bgp_state IS NULL) OR (bgp_state = 1 AND (bgp_heartbeat < DATE_SUB('".$utc_date."',INTERVAL 10 MINUTE))) ORDER BY bgp_id ASC";
+		//get all the next available bgps, but also running state bgps that couldn't get a task within 10 minutes
+		$stmt = "SELECT * FROM " . $dbtp . "background_process WHERE (bgp_id > $from AND bgp_state IS NULL)
+		   OR (bgp_state = 1 AND (bgp_heartbeat < DATE_SUB('".$utc_date."',INTERVAL 10 MINUTE))
+		    AND (bgp_task_arn IS NULL OR bgp_task_arn = 'Failed to get a task')) 
+		   ORDER BY bgp_id ASC";
 		try {
 			return $db->fetchRow($stmt, array(), Zend_Db::FETCH_ASSOC);
 		} catch (Exception $ex) {
@@ -538,12 +541,16 @@ class BackgroundProcess {
 	/**
 	 * Runs all remaining background processes
 	 * @param int $from The ID to start from
+   * @param string $host The ECS host to port over
+   * @param string $taskARN The ECS Task to port over
 	 */
-	public static function runRemaining($from) {
+	public static function runRemaining($from, $host, $taskARN) {
     $log = FezLog::get();
     $log->warn("In runRemaining with from of ".$from);
 		while ($next = self::nextUnstarted($from)) {
 			$bgp = new BackgroundProcess($next['bgp_id']);
+			$bgp->setTask($taskARN);
+			$bgp->setHostname($host);
 			$bgp->runCurrent();
 			$bgp->setState(BGP_FINISHED);
 		}

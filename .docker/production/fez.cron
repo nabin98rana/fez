@@ -45,7 +45,7 @@
 0 0     * * 3   root    /usr/bin/wget -O - "http://fez-production.library.uq.edu.au/api/cron_register_bgp.php?file=bgp_links_amr_check&class=BackgroundProcess_Links_Amr_Check&token=WEBCRON_TOKEN" > /dev/null 2>&1
 
 # ERA Ranked Journal matching
-0 19    * * *   root    /usr/bin/wget -O - "http://fez-production.library.uq.edu.au/api/cron_register_bgp.php?file=bgp_match_ranked_journals&class=BackgroundProcess_Match_Ranked_Journals&token=WEBCRON_TOKEN" > /dev/null 2>&1
+#0 19    * * *   root    /usr/bin/wget -O - "http://fez-production.library.uq.edu.au/api/cron_register_bgp.php?file=bgp_match_ranked_journals&class=BackgroundProcess_Match_Ranked_Journals&token=WEBCRON_TOKEN" > /dev/null 2>&1
 
 # Link Status Report
 0 0     1 * *   root    /usr/bin/wget -O - "http://fez-production.library.uq.edu.au/api/cron_register_bgp.php?file=bgp_check_links&class=BackgroundProcess_Check_Links&token=WEBCRON_TOKEN" > /dev/null 2>&1
