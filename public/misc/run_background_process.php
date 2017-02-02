@@ -61,4 +61,7 @@ if ($useAws) {
   // Continue to process any remaining background processes (going back to 100 IDs ago)
   // before exiting the task
   BackgroundProcess::runRemaining(((int) $bgp_id - 100));
+} else {
+    echo "Aborting because this is not in AWS";
+    exit;
 }

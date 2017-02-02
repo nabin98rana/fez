@@ -69,12 +69,15 @@ class Fez_BackgroundProcess_Sfa_ConfirmEmail extends BackgroundProcess{
 
         // Set BGP status to running
         $this->setState(BGP_RUNNING);
+        $log->debug("SFA Email details: " . print_r($this->inputs,1) );
 
         // Get inputs
         extract(unserialize($this->inputs));
 
-        // Before we getting the display data, give Fedora a bit of time to create the object, specially the Datastream(s) of the binary content for attached files
-        sleep(20);
+        if (APP_FEDORA_BYPASS != "ON") {
+            // Before we getting the display data, give Fedora a bit of time to create the object, specially the Datastream(s) of the binary content for attached files
+            sleep(20);
+        }
 
         // Utilising Fez_Workflow_Sfa_Confirm class to produce a clean metadata that we can use on the template
         // Instantiate Confirm class
@@ -82,18 +85,18 @@ class Fez_BackgroundProcess_Sfa_ConfirmEmail extends BackgroundProcess{
 
         // Get display data to be used by smarty template
         $this->display_data = $this->confirmation->getDisplayData();
-
+        $log->debug("SFA Email depositor: " . $this->confirmation->record->depositor );
         // Assigns the URL for viewing the thesis' record
         $this->view_record_url = $this->confirmation->getViewURL();
-
+        $log->debug("SFA Email view url: " . $this->view_record_url );
         // Assigns the record title
         $this->record_title = $this->confirmation->getRecordTitle();
 
         $this->usrDetails = User::getDetailsByID($this->confirmation->record->depositor);
-
+        $log->debug("SFA Email usrDetails: " . print_r($this->usrDetails, true));
         // Get display data to be used by smarty template
         $this->attached_files = $this->confirmation->getAttachedFiles();
-
+        $log->debug("SFA Email files: " . print_r($this->attached_files, true));
         // Submission confirmation email
         if(is_numeric($this->confirmation->record->depositor)) {
 
@@ -118,7 +121,7 @@ class Fez_BackgroundProcess_Sfa_ConfirmEmail extends BackgroundProcess{
 
 
     /**
-     * Prepares email templates and send email to specified recipient 
+     * Prepares email templates and send email to specified recipient
      * @param array $recipient
      * @param string $subject
      * @param bool $show_url

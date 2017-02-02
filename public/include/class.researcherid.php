@@ -594,7 +594,7 @@ class ResearcherID {
    */
   private static function getEmailFilename($email) {
     if (defined('AWS_ENABLED') && AWS_ENABLED == 'true') {
-      return 's3://' . AWS_S3_BUCKET . '/' . $email['Key'];
+      return 's3://' . AWS_S3_CACHE_BUCKET . '/' . $email['Key'];
     }
 
     return $email;

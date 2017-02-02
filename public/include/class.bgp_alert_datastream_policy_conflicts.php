@@ -72,7 +72,7 @@ class BackgroundProcess_Alert_Datastream_Policy_Conflicts extends BackgroundProc
                 INNER JOIN " . APP_TABLE_PREFIX . "record_search_key_ismemberof 
                 ON rek_ismemberof = rek_datastream_policy_pid
                 INNER JOIN " . APP_TABLE_PREFIX . "record_search_key_datastream_policy AS B
-                ON rek_ismemberof_pid = B.rek_datastream_policy_pid
+                ON rek_ismemberof_pid = B.rek_datastream_policy_pid AND B.rek_datastream_policy > 0
                 WHERE A.rek_datastream_policy != B.rek_datastream_policy";
 
     try {
@@ -130,7 +130,8 @@ class BackgroundProcess_Alert_Datastream_Policy_Conflicts extends BackgroundProc
               && !Misc::hasPrefix($datastream['ID'], 'web_')
               && !Misc::hasPrefix($datastream['ID'], 'thumbnail_')
               && !Misc::hasPrefix($datastream['ID'], 'stream_')
-              && !Misc::hasPrefix($datastream['ID'], 'presmd_'))) {
+              && !Misc::hasPrefix($datastream['ID'], 'presmd_')
+              && !Misc::hasPrefix($datastream['ID'], 'FezACML_'))) {
 
             $userPIDAuthGroups = Auth::getAuthorisationGroups($pid, $datastream['ID']);
             if (in_array('Viewer', $userPIDAuthGroups)) {
@@ -167,6 +168,10 @@ class BackgroundProcess_Alert_Datastream_Policy_Conflicts extends BackgroundProc
       $log->err($ex);
       return false;
     }
+
+
+    // Next check must be run in the context of a logged out user
+    Auth::logout();
 
     foreach ($res as $pid) {
       $isMemberOf = $pid['rek_ismemberof'];

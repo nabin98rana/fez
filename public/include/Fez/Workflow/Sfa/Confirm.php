@@ -464,16 +464,6 @@ class Fez_Workflow_Sfa_Confirm{
 	    						$datastreams[$ds_key]['archival_size'] =  Misc::size_hum_read($fileSize);
 	    						$datastreams[$ds_key]['archival_size_raw'] = $fileSize;
 
-	    						$spatialMetrics = $jhoveHelp->extractSpatialMetrics();
-
-	    						if( is_numeric($spatialMetrics[0]) && $spatialMetrics[0] > 0 ) {
-	                                $tpl->assign("img_width", $spatialMetrics[0]);
-	    						}
-
-	    						if( is_numeric($spatialMetrics[1]) && $spatialMetrics[1] > 0 ) {
-	                                $tpl->assign("img_height", $spatialMetrics[1]);
-	    						}
-
 	    						unset($jhoveHelp);
 	    						unset($Jhove_XML);
 							}

@@ -1,3 +1,6 @@
+fedoradata:
+  build: ./.docker/development/fedora/data/
+
 fpmtestrunner:
   build:
     dockerfile_path: "Dockerfile.runner"
@@ -20,17 +23,20 @@ fpmtestrunner:
   links:
     - fez
     - fezdb
+    - fedora
     - selenium
   volumes_from:
     - fezcode
+    - fedoradata
     - cache
 
 selenium:
-  image: selenium/standalone-chrome:2.53.1-beryllium
+  image: selenium/standalone-chrome:3.0.1-fermium
   environment:
     - JAVA_OPTS=-Dselenium.LOGGER.level=WARNING
   links:
     - fez
+    - fedora
 
 fez:
   build:
@@ -41,6 +47,7 @@ fez:
     - fpm
   volumes_from:
     - fezcode
+    - fedoradata
 
 fezcode:
   build:
@@ -67,7 +74,9 @@ fpm:
     FEZ_S3_SRC_PREFIX: "${FEZ_S3_SRC_PREFIX}"
   links:
     - fezdb
+    - fedora
   volumes_from:
+    - fedoradata
     - fezcode
     - cache
 
@@ -86,6 +95,20 @@ fezdb:
   privileged: true
   volumes_from:
     - fezcode
+
+fedora:
+  build:
+    image: codeship_fedora
+    dockerfile_path: Dockerfile
+    path: ./.docker/development/fedora/
+  environment:
+    FEDORA_HOME: "/opt/fedora"
+    FEDORA_WEBAPP_HOME: "/opt/fedora/tomcat/webapps/fedora"
+  links:
+    - fezdb
+  volumes_from:
+    - fedoradata
+    - cache
 
 cache:
   build:

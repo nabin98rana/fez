@@ -78,7 +78,7 @@
 30 18   * * 1   root    /usr/bin/wget -O - "http://fez-production.library.uq.edu.au/api/cron_register_bgp.php?file=bgp_find_expired_eids&class=BackgroundProcess_Find_Expired_Eids&token=WEBCRON_TOKEN" > /dev/null 2>&1
 
 # Check for datastream policy conflicts. It could cause security issues so will need an alert ASAP.
-#0 0-23/2 * * *  root    /usr/bin/wget -O - "http://fez-production.library.uq.edu.au/api/cron_register_bgp.php?file=bgp_alert_datastream_policy_conflicts&class=BackgroundProcess_Alert_Datastream_Policy_Conflicts&token=WEBCRON_TOKEN" > /dev/null 2>&1
+0 8-17/3 * * *  root    /usr/bin/wget -O - "http://fez-production.library.uq.edu.au/api/cron_register_bgp.php?file=bgp_alert_datastream_policy_conflicts&class=BackgroundProcess_Alert_Datastream_Policy_Conflicts&token=WEBCRON_TOKEN" > /dev/null 2>&1
 
 # Update all Publons reviews
 25 7    * * *   root    /usr/bin/wget -O - "http://fez-production.library.uq.edu.au/api/cron_register_bgp.php?file=bgp_update_all_publons_reviews&class=BackgroundProcess_Update_All_Publons_Reviews&token=WEBCRON_TOKEN" > /dev/null 2>&1

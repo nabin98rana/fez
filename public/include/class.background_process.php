@@ -301,6 +301,8 @@ class BackgroundProcess {
           ],
         ],
       ]);
+      $tasks = $result->get('tasks');
+      $this->setTask($tasks[0]['taskArn']);
     } else {
       $command = APP_PHP_EXEC . " \"" . APP_PATH . "misc/run_background_process.php\" \"" .
         $this->bgp_id . "\" > " . APP_TEMP_DIR . "fezbgp/fezbgp_" . $this->bgp_id . ".log";
@@ -321,37 +323,51 @@ class BackgroundProcess {
 	 * Runs the current background process
 	 */
 	public function runCurrent() {
-		$this->setHostname($_SERVER['HOSTNAME']);
-		$res = $this->getDetails();
+    $log = FezLog::get();
+    try {
+        $this->setHostname($_SERVER['HOSTNAME']);
+        $res = $this->getDetails();
 
-		if (! is_null($res['bgp_state'])) {
-			// Bail as the state has changed
-			return;
-		}
+        if (! is_null($res['bgp_state'])) {
+          // Bail as the state has changed
+          $log->err("Aborting because state already changed: ".print_r($res, true));
+          return;
+        }
+        if (!isset($res['bgp_include']) || $res['bgp_include'] == '') {
+            // Bail as no bgp include
+            $log->err("Aborting because no bgp_include is set: ".print_r($res, true));
+            return;
+        }
+        include_once(APP_INC_PATH . $res['bgp_include']);
+        $bgp = unserialize($res['bgp_serialized']);
+        $msg = 'Starting BGP ID:'. $bgp->bgp_id . ' with name ' . $bgp->name . "..\n";
 
-		include_once(APP_INC_PATH . $res['bgp_include']);
-		$bgp = unserialize($res['bgp_serialized']);
-		echo 'Starting ' . $bgp->name . "..\n";
+        // set the workflow session id up as a param that file operations can grab from anywhere
+        if (!empty($bgp->wfses_id)) {
+          Zend_Registry::set('wfses_id', $bgp->wfses_id);
+        }
 
-    // set the workflow session id up as a param that file operations can grab from anywhere
-    if (!empty($bgp->wfses_id)) {
-      Zend_Registry::set('wfses_id', $bgp->wfses_id);
+        $bgp->setAuth();
+        $bgp->setStatus($msg);
+        $bgp->setState(BGP_RUNNING);
+
+        $bgp->run();
+        $msg = 'Finishing BGP ID:'. $bgp->bgp_id . ' with name ' . $bgp->name . "..\n";
+        $bgp->setStatus($msg);
+        $bgp->setState(BGP_FINISHED);
+        if (!empty($bgp->wfses_id)) {
+          echo "Found wfses_id of ".$bgp->wfses_id;
+          $wfstatus = &WorkflowStatusStatic::getSession($bgp->wfses_id);
+          if (is_object($wfstatus)) {
+            echo "Going into auto_next for ".print_r($wfstatus, true);
+            $wfstatus->auto_next();
+          }
+        }
+        echo 'Finished run for BGP ID: '. $bgp->bgp_id . ' of ' . $bgp->name . "..\n";
+    } catch(Exception $ex) {
+        $log->err($ex);
     }
-
-    $bgp->setAuth();
-		$bgp->setState(BGP_RUNNING);
-		$bgp->run();
-		
-    $bgp->setState(BGP_FINISHED);
-		if (!empty($bgp->wfses_id)) {
- 			$wfstatus = &WorkflowStatusStatic::getSession($bgp->wfses_id);
- 			if (is_object($wfstatus)) {
-        $wfstatus->auto_next();
-      }
-		}
-
-		echo 'Finished run of ' . $bgp->name . "..\n";
-	}
+  }
 
 	/**
 	 * subclass this function for your background process
@@ -497,9 +513,12 @@ class BackgroundProcess {
 	public static function nextUnstarted($from) {
 		$log = FezLog::get();
 		$db = DB_API::get();
+    $utc_date = Date_API::getSimpleDateUTC();
 
 		$dbtp = APP_TABLE_PREFIX;
-		$stmt = "SELECT * FROM " . $dbtp . "background_process WHERE bgp_id > $from AND bgp_state IS NULL ORDER BY bgp_id ASC";
+
+		//get all the next available bgps, but also running state bgps that havent had a heartbeat in the last 10 minutes
+		$stmt = "SELECT * FROM " . $dbtp . "background_process WHERE (bgp_id > $from AND bgp_state IS NULL) OR (bgp_state = 1 AND (bgp_heartbeat < DATE_SUB('".$utc_date."',INTERVAL 10 MINUTE)) )) ORDER BY bgp_id ASC";
 		try {
 			return $db->fetchRow($stmt, array(), Zend_Db::FETCH_ASSOC);
 		} catch (Exception $ex) {
@@ -513,6 +532,8 @@ class BackgroundProcess {
 	 * @param int $from The ID to start from
 	 */
 	public static function runRemaining($from) {
+    $log = FezLog::get();
+    $log->warn("In runRemaining with from of ".$from);
 		while ($next = self::nextUnstarted($from)) {
 			$bgp = new BackgroundProcess($next['bgp_id']);
 			$bgp->runCurrent();
