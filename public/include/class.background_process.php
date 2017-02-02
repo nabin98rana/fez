@@ -321,37 +321,49 @@ class BackgroundProcess {
 	 * Runs the current background process
 	 */
 	public function runCurrent() {
-		$this->setHostname($_SERVER['HOSTNAME']);
-		$res = $this->getDetails();
+    $log = FezLog::get();
+    try {
+        $this->setHostname($_SERVER['HOSTNAME']);
+        $res = $this->getDetails();
 
-		if (! is_null($res['bgp_state'])) {
-			// Bail as the state has changed
-			return;
-		}
+        if (! is_null($res['bgp_state'])) {
+          // Bail as the state has changed
+          $log->err("Aborting because state already changed: ".print_r($res, true));
+          return;
+        }
+        if (!isset($res['bgp_include']) || $res['bgp_include'] == '') {
+            // Bail as no bgp include
+            $log->err("Aborting because no bgp_include is set: ".print_r($res, true));
+            return;
+        }
+        include_once(APP_INC_PATH . $res['bgp_include']);
+        $bgp = unserialize($res['bgp_serialized']);
+        $msg = 'Starting BGP ID:'. $bgp->id . ' with name ' . $bgp->name . "..\n";
+        echo $msg;
 
-		include_once(APP_INC_PATH . $res['bgp_include']);
-		$bgp = unserialize($res['bgp_serialized']);
-		echo 'Starting ' . $bgp->name . "..\n";
+        // set the workflow session id up as a param that file operations can grab from anywhere
+        if (!empty($bgp->wfses_id)) {
+          Zend_Registry::set('wfses_id', $bgp->wfses_id);
+        }
 
-    // set the workflow session id up as a param that file operations can grab from anywhere
-    if (!empty($bgp->wfses_id)) {
-      Zend_Registry::set('wfses_id', $bgp->wfses_id);
+        $bgp->setAuth();
+        $bgp->setStatus($msg);
+        $bgp->setState(BGP_RUNNING);
+
+        $bgp->run();
+
+        $bgp->setState(BGP_FINISHED);
+        if (!empty($bgp->wfses_id)) {
+          $wfstatus = &WorkflowStatusStatic::getSession($bgp->wfses_id);
+          if (is_object($wfstatus)) {
+            $wfstatus->auto_next();
+          }
+        }
+        echo 'Finished run of ' . $bgp->name . "..\n";
+    } catch(Exception $ex) {
+        $log->err($ex);
     }
-
-    $bgp->setAuth();
-		$bgp->setState(BGP_RUNNING);
-		$bgp->run();
-		
-    $bgp->setState(BGP_FINISHED);
-		if (!empty($bgp->wfses_id)) {
- 			$wfstatus = &WorkflowStatusStatic::getSession($bgp->wfses_id);
- 			if (is_object($wfstatus)) {
-        $wfstatus->auto_next();
-      }
-		}
-
-		echo 'Finished run of ' . $bgp->name . "..\n";
-	}
+  }
 
 	/**
 	 * subclass this function for your background process
@@ -513,6 +525,8 @@ class BackgroundProcess {
 	 * @param int $from The ID to start from
 	 */
 	public static function runRemaining($from) {
+    $log = FezLog::get();
+    $log->warn("In runRemaining with from of ".$from);
 		while ($next = self::nextUnstarted($from)) {
 			$bgp = new BackgroundProcess($next['bgp_id']);
 			$bgp->runCurrent();
