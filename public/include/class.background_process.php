@@ -332,10 +332,13 @@ class BackgroundProcess {
     try {
         $this->setHostname($_SERVER['HOSTNAME']);
         $res = $this->getDetails();
+        $utc_date = Date_API::getSimpleDateUTC();
 
-        if (! is_null($res['bgp_state'])) {
+
+        $lastHeartbeat = Date_API::dateDiff("n", $res['bgp_state'], $utc_date);
+        if (! is_null($res['bgp_state']) && $lastHeartbeat < 10) {
           // Bail as the state has changed
-          $log->err("Aborting because state already changed: ".print_r($res, true));
+          $log->err("TimeDiff: ".$lastHeartbeat. ", Aborting because state already changed, less than limit ago: ".print_r($res, true));
           return;
         }
         if (!isset($res['bgp_include']) || $res['bgp_include'] == '') {
