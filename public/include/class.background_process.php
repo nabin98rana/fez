@@ -338,8 +338,7 @@ class BackgroundProcess {
         }
         include_once(APP_INC_PATH . $res['bgp_include']);
         $bgp = unserialize($res['bgp_serialized']);
-        $msg = 'Starting BGP ID:'. $bgp->id . ' with name ' . $bgp->name . "..\n";
-        echo $msg;
+        $msg = 'Starting BGP ID:'. $bgp->bgp_id . ' with name ' . $bgp->name . "..\n";
 
         // set the workflow session id up as a param that file operations can grab from anywhere
         if (!empty($bgp->wfses_id)) {
@@ -351,11 +350,14 @@ class BackgroundProcess {
         $bgp->setState(BGP_RUNNING);
 
         $bgp->run();
-
+        $msg = 'Finishing BGP ID:'. $bgp->bgp_id . ' with name ' . $bgp->name . "..\n";
+        $bgp->setStatus($msg);
         $bgp->setState(BGP_FINISHED);
         if (!empty($bgp->wfses_id)) {
+          echo "Found wfses_id of ".$bgp->wfses_id;
           $wfstatus = &WorkflowStatusStatic::getSession($bgp->wfses_id);
           if (is_object($wfstatus)) {
+            echo "Going into auto_next for ".print_r($wfstatus, true);
             $wfstatus->auto_next();
           }
         }
