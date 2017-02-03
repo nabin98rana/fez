@@ -289,6 +289,7 @@ class WosRecItem extends RecordImport
     $this->_log = FezLog::get();
     $this->_comparisonIdTypes = array( '_isiLoc',  '_doi', '_title', '_pubmedId');
     $this->_loaded = FALSE;
+    $this->_importAPI = 'WOS';
     if ($record) {
       $this->load($record);
     }

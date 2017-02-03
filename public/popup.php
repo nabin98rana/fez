@@ -47,6 +47,8 @@ include_once(APP_INC_PATH . "class.fulltext_queue.php");
 include_once(APP_INC_PATH . "class.author_era_affiliations.php");
 include_once(APP_INC_PATH . "class.exiftool.php");
 include_once(APP_INC_PATH . "class.api.php");
+include_once(APP_INC_PATH . "class.pager.php");
+include_once(APP_INC_PATH . 'class.bgp_publish.php');
 
 Auth::checkAuthentication(APP_SESSION, 'index.php?err=5', TRUE);
 
@@ -311,15 +313,11 @@ switch ($cat) {
     break;
   }
   case 'publish_objects': {
-    $items = $_REQUEST['pids'];
-    foreach ($items as $pid) {
-      $rec_obj = new RecordObject($pid);
-      if ($rec_obj->canApprove()) {
-        $res = $rec_obj->setStatusId(2);
-        History::addHistory($pid, NULL, '', '', TRUE, 'Bulk Published');
-      }
-    }
-    $tpl->assign('generic_result', $res);
+
+      $pids = $_REQUEST['pids'];
+      $bgp = new BackgroundProcess_Publish();
+      $bgp->register(serialize(compact('pids')), Auth::getUserID());
+    $tpl->assign('generic_result', 1);
     $tpl->assign("generic_action", 'publish');
     $tpl->assign("generic_type", 'records');
     break;

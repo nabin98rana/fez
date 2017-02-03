@@ -667,7 +667,7 @@ if (!empty($pid) && $record->checkExists()) {
     }
 
     $oa_status = Record::getSearchKeyIndexValue($pid, "OA Status", true);
-    if (current( $oa_status) == 'Link (no DOI)') {   //We just want the value not key of the one element array $oa_status
+    if (count($oa_status) == 1 && $oa_status[0] == 'Link (no DOI)') {   //We just want the value not key of the one element array $oa_status
       $linkCount++;
       $newLink['rek_link'] = 'https://scholar.google.com/scholar?q=intitle:"' . $title . '""';
       $newLink['rek_link_description'] = 'Search Google Scholar for this open access article.';
