@@ -124,7 +124,7 @@ class BackgroundProcess_Set_Refereed_Details extends BackgroundProcess
                  AND (rek_genre != 'thesis' AND rek_genre != 'database')
                  ";
 
-    for ($i=0; $i<7; $i++) {
+    for ($i=0; $i<6; $i++) {
 
       try {
         $result = $db->fetchAll($query[$i]);
