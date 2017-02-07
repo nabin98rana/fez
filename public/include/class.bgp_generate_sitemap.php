@@ -65,7 +65,7 @@ class BackgroundProcess_Generate_Sitemap extends BackgroundProcess
 
     $sitemap = new Sitemap(false);
     $sitemap->page('records');
-
+    $this->setHeartbeat();
     foreach ($pidList as $pidDetails) {
       $pid = $pidDetails['rek_pid'];
       $updated = $pidDetails['rek_updated_date'];
@@ -96,7 +96,7 @@ class BackgroundProcess_Generate_Sitemap extends BackgroundProcess
             GROUP BY url)
             ;";
     $userUrlList = $db->fetchAll($stmt);
-
+    $this->setHeartbeat();
     foreach ($userUrlList as $userUrl) {
       $changeFrequency = 'weekly';
       $updated = $userUrl['recent_date'];

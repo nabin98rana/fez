@@ -59,6 +59,7 @@ class BackgroundProcess_Embargo_Period_Complete_Check extends BackgroundProcess
     }
 
     foreach ($res as $pidInfo) {
+      $this->setHeartbeat();
       $pidPermissions = Auth::getAuthPublic($pidInfo['dsi_pid'], $pidInfo['dsi_dsid']);
       if (!($pidPermissions['lister'] && $pidPermissions['viewer'])) {
 

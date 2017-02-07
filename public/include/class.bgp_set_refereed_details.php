@@ -125,7 +125,7 @@ class BackgroundProcess_Set_Refereed_Details extends BackgroundProcess
                  ";
 
     for ($i=0; $i<6; $i++) {
-
+      $this->setHeartbeat();
       try {
         $result = $db->fetchAll($query[$i]);
       } catch (Exception $ex) {
@@ -136,7 +136,7 @@ class BackgroundProcess_Set_Refereed_Details extends BackgroundProcess
       // for each pid,
       foreach ($result as $pidDetails) {
         $pid = $pidDetails['pid'];
-
+        $this->setHeartbeat();
         //For the last option (Nothing found, we save as not yet assessed)
         if ($i < 6) {
           Refereed::saveIfHigher($pid, $refereedSource[$i], $history[$i]);

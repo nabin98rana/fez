@@ -75,6 +75,7 @@ class BackgroundProcess_Update_Oa_Pids_With_Ulrichs extends BackgroundProcess
     }
 
     foreach ($result as $pidDetails) {
+      $this->setHeartbeat();
       $pid = $pidDetails['pid'];
       $doi = $pidDetails['doi'];
       $record = new RecordObject($pid);

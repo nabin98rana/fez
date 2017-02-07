@@ -45,7 +45,7 @@ class BackgroundProcess_Check_Links extends BackgroundProcess
   function run() {
     $this->setState(BGP_RUNNING);
     extract(unserialize($this->inputs));
-
+    $this->setHeartbeat();
     $links = LinkCheck::findLinks(); // List of unique links on eSpace records
 
     if (count($links) > 0) {
@@ -54,6 +54,7 @@ class BackgroundProcess_Check_Links extends BackgroundProcess
         $status = LinkCheck::testLink($url);
         $result = compact("url", "status");
         LinkCheck::saveLinkStatusResult($result);
+        $this->setHeartbeat();
       }
     }
 

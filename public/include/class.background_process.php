@@ -335,7 +335,7 @@ class BackgroundProcess {
         $utc_date = Date_API::getSimpleDateUTC();
 
 
-        $lastHeartbeat = Date_API::dateDiff("n", $res['bgp_state'], $utc_date);
+        $lastHeartbeat = Date_API::dateDiff("n", $res['bgp_heartbeat'], $utc_date);
         if (! is_null($res['bgp_state']) && $lastHeartbeat < 10) {
           // Bail as the state has changed
           $log->err("TimeDiff: ".$lastHeartbeat. ", Aborting because state already changed, less than limit ago: ".print_r($res, true));
@@ -548,12 +548,23 @@ class BackgroundProcess {
 	public static function runRemaining($from, $host, $taskARN) {
     $log = FezLog::get();
     $log->warn("In runRemaining with from of ".$from);
+    $env = strtolower($_SERVER['APPLICATION_ENV']);
+
 		while ($next = self::nextUnstarted($from)) {
 			$bgp = new BackgroundProcess($next['bgp_id']);
-			$bgp->setTask($taskARN);
-			$bgp->setHostname($host);
-			$bgp->runCurrent();
-			$bgp->setState(BGP_FINISHED);
+			// If a real task value was picked up only run it if its not pending/runnning already
+      if ($next['bgp_task_arn'] != '' && !empty($next['bgp_task_arn']) && $next['bgp_task_arn'] != 'Failed to get a task') {
+          //check its running
+          $aws = AWS::get();
+          $family = 'fez' . $env;
+          if ($aws->isTaskRunning($next['bgp_task_arn'], $family) == true) {
+              continue;
+          }
+      }
+      $bgp->setTask($taskARN);
+      $bgp->setHostname($host);
+      $bgp->runCurrent();
+      $bgp->setState(BGP_FINISHED);
 		}
 	}
 
