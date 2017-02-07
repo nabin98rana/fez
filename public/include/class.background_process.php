@@ -529,7 +529,7 @@ class BackgroundProcess {
 		$stmt = "SELECT * FROM " . $dbtp . "background_process WHERE (bgp_id > $from AND bgp_state IS NULL)
 		   OR (bgp_state = 1 AND (bgp_heartbeat < DATE_SUB('".$utc_date."',INTERVAL 10 MINUTE))
 		    AND (bgp_task_arn = '' OR bgp_task_arn IS NULL OR bgp_task_arn = 'Failed to get a task'))
-		     OR (bgp_state = 1 AND (bgp_heartbeat < DATE_SUB(NOW() ,INTERVAL 120 MINUTE)))
+		   OR ((bgp_state = 1 OR bgp_state is null) AND (bgp_heartbeat is null AND  bgp_started < DATE_SUB('".$utc_date."',INTERVAL 120 MINUTE)))		     
 		   ORDER BY bgp_id ASC";
 		try {
 			return $db->fetchRow($stmt, array(), Zend_Db::FETCH_ASSOC);
