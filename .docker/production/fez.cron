@@ -57,7 +57,7 @@
 0 15    * * 6   root    /usr/bin/wget -O - "http://fez-production.library.uq.edu.au/api/cron_register_bgp.php?file=bgp_update_sherpa_romeo_data&class=BackgroundProcess_Update_Sherpa_Romeo_Data&token=WEBCRON_TOKEN" > /dev/null 2>&1
 
 # Download Altmetric scores using the Altmetric API
-0 1     * * 1   root    /usr/bin/wget -O - "http://fez-production.library.uq.edu.au/api/cron_register_bgp.php?file=bgp_update_altmetric_info&class=BackgroundProcess_Update_Altmetric_Info&token=WEBCRON_TOKEN" > /dev/null 2>&1
+#0 1     * * 1   root    /usr/bin/wget -O - "http://fez-production.library.uq.edu.au/api/cron_register_bgp.php?file=bgp_update_altmetric_info&class=BackgroundProcess_Update_Altmetric_Info&token=WEBCRON_TOKEN" > /dev/null 2>&1
 
 # Open up open access documents past embargo
 15 18   * * *   root    /usr/bin/wget -O - "http://fez-production.library.uq.edu.au/api/cron_register_bgp.php?file=bgp_embargo_period_complete_check&class=BackgroundProcess_Embargo_Period_Complete_Check&token=WEBCRON_TOKEN" > /dev/null 2>&1
@@ -72,10 +72,10 @@
 0 5     * * 6   root    /usr/bin/wget -O - "http://fez-production.library.uq.edu.au/api/cron_register_bgp.php?file=bgp_insert_scopus_id_using_doi_search&class=BackgroundProcess_Insert_Scopus_Id_Using_Doi_Search&token=WEBCRON_TOKEN" > /dev/null 2>&1
 
 # Find auto refereed matches
-30 6    * * *   root    /usr/bin/wget -O - "http://fez-production.library.uq.edu.au/api/cron_register_bgp.php?file=bgp_set_refereed_details&class=BackgroundProcess_Set_Refereed_Details&token=WEBCRON_TOKEN" > /dev/null 2>&1
+#30 6    * * *   root    /usr/bin/wget -O - "http://fez-production.library.uq.edu.au/api/cron_register_bgp.php?file=bgp_set_refereed_details&class=BackgroundProcess_Set_Refereed_Details&token=WEBCRON_TOKEN" > /dev/null 2>&1
 
 # Find all EIDs that have expired
-30 18   * * 1   root    /usr/bin/wget -O - "http://fez-production.library.uq.edu.au/api/cron_register_bgp.php?file=bgp_find_expired_eids&class=BackgroundProcess_Find_Expired_Eids&token=WEBCRON_TOKEN" > /dev/null 2>&1
+#30 18   * * 1   root    /usr/bin/wget -O - "http://fez-production.library.uq.edu.au/api/cron_register_bgp.php?file=bgp_find_expired_eids&class=BackgroundProcess_Find_Expired_Eids&token=WEBCRON_TOKEN" > /dev/null 2>&1
 
 # Check for datastream policy conflicts. It could cause security issues so will need an alert ASAP.
 0 8-17/3 * * *  root    /usr/bin/wget -O - "http://fez-production.library.uq.edu.au/api/cron_register_bgp.php?file=bgp_alert_datastream_policy_conflicts&class=BackgroundProcess_Alert_Datastream_Policy_Conflicts&token=WEBCRON_TOKEN" > /dev/null 2>&1
