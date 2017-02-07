@@ -59,7 +59,7 @@ class BackgroundProcess_Alert_Datastream_Policy_Conflicts extends BackgroundProc
 
     // Stage one Datastream Policy conflicts (Is it in two collections with
     // different set datastream policies
-
+    $this->setHeartbeat();
     $body = '';
     $stmt =     "SELECT rek_ismemberof_pid AS pid, GROUP_CONCAT(rek_ismemberof)  AS collections 
                 FROM " . APP_TABLE_PREFIX . "record_search_key_datastream_policy 
@@ -82,6 +82,7 @@ class BackgroundProcess_Alert_Datastream_Policy_Conflicts extends BackgroundProc
       $log->err($ex);
       return false;
     }
+    $this->setHeartbeat();
     if (!empty($res)) {
       foreach ($res as $row) {
         $pid = $row['pid'];
@@ -120,6 +121,7 @@ class BackgroundProcess_Alert_Datastream_Policy_Conflicts extends BackgroundProc
     }
     $status = Status::getID("Published");
     foreach ($res as $pid) {
+      $this->setHeartbeat();
       $isMemberOf = $pid['rek_ismemberof'];
       $pid = $pid['pid'];
       if ($status == Record::getSearchKeyIndexValue($pid, "Status", false)) {
@@ -174,6 +176,7 @@ class BackgroundProcess_Alert_Datastream_Policy_Conflicts extends BackgroundProc
     Auth::logout();
 
     foreach ($res as $pid) {
+      $this->setHeartbeat();
       $isMemberOf = $pid['rek_ismemberof'];
       $pid = $pid['pid'];
       $record = new RecordObject($pid);

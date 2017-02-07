@@ -80,6 +80,8 @@ class BackgroundProcess_Find_Expired_Eids extends BackgroundProcess
       $doi = $row['rek_doi'];
       $scopusId = false;
 
+      $this->setHeartbeat();
+
       $result = $scopusService->getRecordByScopusId($eid);
       if (strpos($result, 'RESOURCE_NOT_FOUND') !== false) {
 
@@ -140,7 +142,9 @@ class BackgroundProcess_Find_Expired_Eids extends BackgroundProcess
         }
 
       }
+      $this->setHeartbeat();
       usleep(500000);
+      $this->setHeartbeat();
     }
     if (!empty($body)) {
       $mail = new Mail_API;

@@ -47,6 +47,14 @@ class RJL
     var $userManualMatchCount = 0;
     var $unMatched = "0";
 
+    var $bgp; // background process object for keeping track of status
+
+    function setBackgroundObject($bgp)
+    {
+        $this->bgp = $bgp;
+    }
+
+
     function matchAll()
     {
         $userDetails = User::getDetailsByID(APP_SYSTEM_USER_ID);
@@ -54,7 +62,7 @@ class RJL
             echo "======================================\n";
             echo "RJL Matching Utility\n";
             echo date('d/m/Y H:i:s') . "\n";
-
+        $this->bgp->setHeartbeat();
             $matches = array(); // All matches
 
     $matchingExceptions = matching::getMatchingExceptions("J");
@@ -64,19 +72,19 @@ class RJL
             $candidateISSNs = RJL::getCandidateISSNs();
 
             $candidateConferences = RJL::getCandidateConfs();
-
+        $this->bgp->setHeartbeat();
 		$rankedJournals = RJL::getRankedJournals();
 		$rankedJournalISSNs = RJL::getISSNsRJL();
 		$manualMatches = RJL::getManualMatches();
 		$this->userManualMatches = RJL::getUserManualMatches();
-
+        $this->bgp->setHeartbeat();
             /* Perform normalisation */
             $normalisedCandidateJournals = RJL::normaliseListOfTitles($candidateJournals);
             $normalisedCandidateISSNs = RJL::normaliseListOfISSNs($candidateISSNs);
             $normalisedCandidateConferences = RJL::normaliseListOfTitles($candidateConferences);
 		$normalisedRankedJournals = RJL::normaliseListOfTitles($rankedJournals);
 		$normalisedRankedJournalISSNs = $rankedJournalISSNs;
-
+        $this->bgp->setHeartbeat();
             /* See how many unique records we're really talking about here */
             $master = array_merge($candidateJournals, $candidateISSNs, $candidateConferences);
             $master = RJL::keyMasterList($master);
@@ -89,25 +97,27 @@ class RJL
             echo "Number of ranked journals: " . sizeof($rankedJournals) . "\n";
             echo "Number of ranked ISSNs: " . sizeof($normalisedRankedJournalISSNs) . "\n";
             ob_flush();
-
+        $this->bgp->setHeartbeat();
             /* Look for manual matches first because it should be authoritative over any dupe pid/year era id combos */
             RJL::lookForManualMatches($normalisedCandidateJournals, $manualMatches, $matches);
             echo "Number after manual matches: " . sizeof($matches) . "\n";
             ob_flush();
-
+        $this->bgp->setHeartbeat();
             /* Look for ISSN matches */
             RJL::lookForMatchesByISSN($normalisedCandidateISSNs, $normalisedRankedJournalISSNs, $matches);
             echo "Number after ISSN matches: " . sizeof($matches) . "\n";
             ob_flush();
+        $this->bgp->setHeartbeat();
             /* Look for title matches (string normalisation and comparison) */
             RJL::lookForMatchesByStringComparison($normalisedCandidateJournals, $normalisedRankedJournals, $matches, "T");
             echo "Number after normalised string matches (journal): " . sizeof($matches) . "\n";
             ob_flush();
+        $this->bgp->setHeartbeat();
             /* Look for conference matches (string normalisation and comparison) */
             RJL::lookForMatchesByStringComparison($normalisedCandidateConferences, $normalisedRankedJournals, $matches, "C");
             echo "Number after normalised string matches (conference): " . sizeof($matches) . "\n";
             ob_flush();
-
+        $this->bgp->setHeartbeat();
             echo "Total number of matches: " . sizeof($matches) . "\n";
             ob_flush();
 
@@ -125,7 +135,7 @@ class RJL
                 $to = APP_ADMIN_EMAIL;
                 $mail->send($from, $to, $subject, false);
             }
-
+        $this->bgp->setHeartbeat();
             $okMatches = array();
             /* Subtract from any match results those PIDs that are either black-listed, or manually mapped */
             foreach ($matches as $match) {
@@ -163,6 +173,7 @@ class RJL
             }
 
             echo " About to run inserts \n";
+        $this->bgp->setHeartbeat();
             ob_flush();
             /* Insert all the found matches */
             RJL::runInserts($matches);

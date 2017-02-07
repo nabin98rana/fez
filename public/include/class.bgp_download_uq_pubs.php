@@ -79,7 +79,7 @@ class BackgroundProcess_Download_Uq_Pubs extends BackgroundProcess
     $first_rec = 1;
     $num_recs = WOK_BATCH_SIZE;
     $wok_ws = new WokService(FALSE);
-
+    $this->setHeartbeat();
     // Do an initial sleep just in something else ran just before this..
     sleep(WOK_SECONDS_BETWEEN_CALLS);
     $response = $wok_ws->search($databaseID, $query, $editions, $timeSpan, $depth, "en", $num_recs);
@@ -95,6 +95,7 @@ class BackgroundProcess_Download_Uq_Pubs extends BackgroundProcess
     $pages = ceil(($records_found/$num_recs));
     $wq = WokQueue::get();
     for($i=0; $i<$pages; $i++) {
+      $this->setHeartbeat();
       if($i>0) {
         sleep(WOK_SECONDS_BETWEEN_CALLS);
         $response = $wok_ws->retrieve($queryId, $first_rec, $num_recs);
@@ -133,6 +134,7 @@ class BackgroundProcess_Download_Uq_Pubs extends BackgroundProcess
         'start' => $i,
         'view' => 'STANDARD'
       );
+      $this->setHeartbeat();
       $resp = $scopusService->search($query);
       $doc = new DOMDocument();
       $doc->loadXML($resp);
@@ -155,6 +157,7 @@ class BackgroundProcess_Download_Uq_Pubs extends BackgroundProcess
     $rids_chunked = array_chunk($authors, 100);
     $date = getdate(time()-3600*24*28); //28 days previous
     for ($i=0; $i<count($rids_chunked); $i++) {
+      $this->setHeartbeat();
       ResearcherID::downloadRequest($rids_chunked[$i], 'researcherIDs', 'researcherID', array($date['year'],$date['mon'],$date['mday']));
     }
   }

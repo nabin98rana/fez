@@ -56,7 +56,7 @@ class BackgroundProcess_Import_New_Rhd_Students extends BackgroundProcess
     {
         $this->setState(BGP_RUNNING);
         extract(unserialize($this->inputs));
-        
+
         // allow this to be turned off in interface
         if (defined('SINET_LOAD_ENABLED') && (SINET_LOAD_ENABLED === 'true')) {
             $sinetDb = $this->getSinetDbConnection();
@@ -64,7 +64,7 @@ class BackgroundProcess_Import_New_Rhd_Students extends BackgroundProcess
             // get the fez friendly candidates from sinet
             $rhdr = new RhdStudentRetrieval($sinetDb);
             $students = $rhdr->retrieveStudentsForFez();
-
+            $this->setHeartbeat();
             $this->log->info('RHD students retrieved count: ' . count($students));
 
             if (count($students) > 0) {
@@ -72,8 +72,9 @@ class BackgroundProcess_Import_New_Rhd_Students extends BackgroundProcess
 
                 // insert any which don't exist into fez author
                 $rhdi = new FezAuthorInsertion($db);
+                $this->setHeartbeat();
                 $inserted = $rhdi->insertNew($students);
-
+                $this->setHeartbeat();
                 $this->log->info('RHD students inserted: ' . $inserted);
             }
         }

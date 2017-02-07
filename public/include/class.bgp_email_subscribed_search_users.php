@@ -55,9 +55,10 @@ class BackgroundProcess_Email_Subscribed_Search_Users extends BackgroundProcess
 
   function emailSubscribed() {
     $alerts = Favourites::savedSearches();
-    
+
     // Step through each of the Closed (but non-synched) Eventum jobs
     foreach ($alerts as $alert) {
+      $this->setHeartbeat();
       $parsed_url = parse_url($alert['fvs_search_parameters']);
       $path = isset($parsed_url['path']) ? trim($parsed_url['path'], ' /\\') : '' ;
 
