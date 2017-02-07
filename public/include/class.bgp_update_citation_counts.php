@@ -77,6 +77,7 @@ class BackgroundProcess_Update_Citation_Counts extends BackgroundProcess
     ob_flush();
     for ($i = 0; $i < ((int) $listing['info']['total_pages'] + 1); $i++) {
       ob_flush();
+      $this->setHeartbeat();
       // Skip first loop - we have called getListing once already
       if ($i > 0) {
         $listing = Record::getListing([], [9,10], $listing['info']['next_page'], $max, 'Created Date', FALSE, FALSE, $filter);
@@ -97,6 +98,7 @@ class BackgroundProcess_Update_Citation_Counts extends BackgroundProcess
         if ($records_xml) {
           $records = simplexml_load_string($records_xml);
           foreach ($records->REC as $record) {
+            $this->setHeartbeat();
             if ($record->UID) {
               $recordUid = str_ireplace("WOS:", "", $record->UID);
               $pid = Record::getPIDByIsiLoc($recordUid);
@@ -124,7 +126,7 @@ class BackgroundProcess_Update_Citation_Counts extends BackgroundProcess
 
     $listing = Record::getListing([], [9,10], 0, $max, 'Created Date', false, false, $filter);
     for($i=0; $i<((int)$listing['info']['total_pages']+1); $i++) {
-
+      $this->setHeartbeat();
       // Skip first loop - we have called getListing once already
       if($i>0 && $listing['info']['next_page'] != '-1') {
         $listing = Record::getListing([], [9,10], $listing['info']['next_page'], $max, 'Created Date', false, false, $filter);
@@ -162,13 +164,14 @@ class BackgroundProcess_Update_Citation_Counts extends BackgroundProcess
             } else {
               $count = 0;
             }
-
+            $this->setHeartbeat();
             Record::updateScopusCitationCount($pid, $count, $eid);
           }
           if (APP_SOLR_INDEXER == "ON" || APP_ES_INDEXER == "ON") {
             FulltextQueue::singleton()->commit();
           }
         }
+        $this->setHeartbeat();
         sleep($sleep); // Wait before using the service again
       }
     }
@@ -186,7 +189,7 @@ class BackgroundProcess_Update_Citation_Counts extends BackgroundProcess
     echo "Found ".$listing['info']['total_rows']." pids that have a scopus id to update their citation count \n";
 
     for($i=0; $i<((int)$listing['info']['total_pages']+1); $i++) {
-
+      $this->setHeartbeat();
       // Skip first loop - we have called getListing once already
       if($i>0 && $listing['info']['next_page'] != '-1') {
         $listing = Record::getListing([], [9,10], $listing['info']['next_page'], $max, 'Created Date', false, false, $filter);
@@ -218,11 +221,13 @@ class BackgroundProcess_Update_Citation_Counts extends BackgroundProcess
           } else {
             $count = 0;
           }
+          $this->setHeartbeat();
           Record::updateScopusCitationCount($pid, $count, $eid);
         }
         if ( APP_SOLR_INDEXER == "ON" || APP_ES_INDEXER == "ON" ) {
           FulltextQueue::singleton()->commit();
         }
+        $this->setHeartbeat();
         sleep($sleep); // Wait before using the service again
       }
     }
