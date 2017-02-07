@@ -51,6 +51,7 @@ class BackgroundProcess_Match_Ranked_Journals extends BackgroundProcess
     //$unMatched = strtolower($unMatched);
 
     $m = new RJL();
+    $m->setBackgroundObject($this);
 
     // Cron job is currently configured to run matching with the defaults.
     /*$m->runType = $runType;

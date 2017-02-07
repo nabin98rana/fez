@@ -361,8 +361,8 @@ class Fez_Workflow_Sfa_Confirm{
 
         // @debug Temporary logging for monitoring the attached files
         $log = FezLog::get();
-        $log->warn("Thesis Files. getAttachedFiles(). PID=" . $this->pid .  ". Returned_DataStreams= " . sizeof($datastreams));
-        $log->warn("Thesis Files. getAttachedFiles(). Returned_DataStreams_Details= " . print_r($datastreams,1));
+        $log->debug("Thesis Files. getAttachedFiles(). PID=" . $this->pid .  ". Returned_DataStreams= " . sizeof($datastreams));
+        $log->debug("Thesis Files. getAttachedFiles(). Returned_DataStreams_Details= " . print_r($datastreams,1));
 
         $c=0;
 
@@ -410,8 +410,8 @@ class Fez_Workflow_Sfa_Confirm{
 
         // @debug Temporary logging for monitoring the attached files
         $log = FezLog::get();
-        $log->warn("Thesis Files. _getFilesViaFedoraDatastreams(). PID=" . $this->pid .  ". DataStreamsAll= " . sizeof($datastreamsAll));
-        $log->warn("Thesis Files. _getFilesViaFedoraDatastreams(). PID=" . $this->pid .  ". DataStreamsClean= " . sizeof($datastreams));
+        $log->debug("Thesis Files. _getFilesViaFedoraDatastreams(). PID=" . $this->pid .  ". DataStreamsAll= " . sizeof($datastreamsAll));
+        $log->debug("Thesis Files. _getFilesViaFedoraDatastreams(). PID=" . $this->pid .  ". DataStreamsClean= " . sizeof($datastreams));
 
 
         $linkCount = 0;

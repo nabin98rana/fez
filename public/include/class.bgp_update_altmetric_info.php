@@ -87,6 +87,7 @@ class BackgroundProcess_Update_Altmetric_Info extends BackgroundProcess
           $record = $listing['list'][$j];
           $pid = $record['rek_pid'];
           $doi = $record['rek_doi'];
+          $this->setHeartbeat();
           if (! empty($doi)) {
             if (! in_array($doi, $doiCache)) {
               $currentTime = microtime(TRUE);

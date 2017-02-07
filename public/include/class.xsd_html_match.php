@@ -775,7 +775,6 @@ class XSD_HTML_Match
 							xsdmf_key_match,
 							xsdmf_parent_key_match,
 							xsdmf_value_prefix,
-							xsdmf_static_text,
 							xsdmf_xsdsel_id,
 							xsdmf_image_location,
 		                    xsdmf_xdis_id_ref,

@@ -48,9 +48,10 @@ class BackgroundProcess_Sync_Eventum_Jobs extends BackgroundProcess
     extract(unserialize($this->inputs));
 
     $jobs = Eventum::getAllClosedMyResearchJobs();
-
+    $this->setHeartbeat();
     // Step through each of the Closed (but non-synched) Eventum jobs
     foreach ($jobs as $job) {
+      $this->setHeartbeat();
       $parts = explode(" :: ", $job['ticket_subject']); // Extract the information from the subject line
       $type = $parts[1];
       $jobID = $parts[2];
