@@ -38,6 +38,7 @@
  */
 
 include_once(APP_INC_PATH . "class.error_handler.php");
+include_once(APP_INC_PATH . "class.auth_index.php");
 
 class Fez_Record_SearchkeyShadow
 {
@@ -281,6 +282,7 @@ class Fez_Record_SearchkeyShadow
       }
     }
     Record::updateSearchKeys($this->_pid, $searchKeyData);
+    AuthIndex::setIndexAuth($this->_pid, true);
     return $searchKeyData;
   }
 }
