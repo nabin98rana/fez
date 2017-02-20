@@ -35,7 +35,7 @@
 // restores WorkflowStatus object from the session
 $wfstatus = &WorkflowStatusStatic::getSession(); 
 
-$date = Date_API::getCurrentDateGMT(true);
+$date = Date_API::getCurrentDateGMT();
 
 Record::markAsDeleted($this->pid, $date);
 // need to add history here because the status object 
