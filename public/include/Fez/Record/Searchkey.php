@@ -713,7 +713,7 @@ class Fez_Record_Searchkey
 
     // Query to backup old record: copy the data from sk main table to shadow table
     $stmtBackupToShadow = "INSERT INTO " . $tableShadow .
-      "  SELECT *, " . $this->_db->quote($this->_version, 'DATE') .
+      "  SELECT *, " . $this->_db->quote($this->_version, 'DATE') . ", " . $this->_db->quote($this->_pid . ' ' . $this->_version) . ", 'master', ''" .
       "  FROM " . $table .
       "  WHERE rek_pid = " . $this->_db->quote($this->_pid, 'STRING');
 
@@ -778,7 +778,7 @@ class Fez_Record_Searchkey
 
       // Query to backup old record to shadow table
       $stmtBackupToShadow = "INSERT INTO " . $tableShadow .
-        "  SELECT *, " . $this->_db->quote($this->_version, 'DATE') .
+        "  SELECT *, " . $this->_db->quote($this->_version, 'DATE') . ", " . $this->_db->quote($this->_pid . ' ' . $this->_version) .
         "  FROM " . $table .
         "  WHERE " . $pidColumn . " = " . $this->_db->quote($this->_pid, 'STRING');
 
