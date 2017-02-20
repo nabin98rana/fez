@@ -204,8 +204,8 @@ class BackgroundProcessList
 
 		if (!is_numeric(strpos(APP_SQL_DBTYPE, "mysql"))) { //eg if postgresql etc
 			$stmt .=
-	             "AND (((bgp_state = 0 OR bgp_state IS NULL) AND bgp_started < (TIMESTAMP '".$utc_date."' - INTERVAL '1 hours') )  " .
-	             "OR ((bgp_state = 2) AND (bgp_heartbeat IS NULL OR bgp_heartbeat < (TIMESTAMP '".$utc_date."' - INTERVAL '1 hours') ) ) )";
+	             "AND (((bgp_state = 0 OR bgp_state IS NULL) AND bgp_started < (TIMESTAMP '".$utc_date."' - INTERVAL '3 hours') )  " .
+	             "OR ((bgp_state = 2) AND (bgp_heartbeat IS NULL OR bgp_heartbeat < (TIMESTAMP '".$utc_date."' - INTERVAL '3 hours') ) ) )";
 		} else {
 			$stmt .=
 	             "AND (((bgp_state = 0 OR bgp_state IS NULL) AND bgp_started < DATE_SUB('".$utc_date."',INTERVAL 1 HOUR) )  " .

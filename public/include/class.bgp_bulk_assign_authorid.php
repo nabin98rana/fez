@@ -203,7 +203,7 @@ class BackgroundProcess_Bulk_Assign_Authorid extends BackgroundProcess
     $authorExistsOnPID = false;
 
     foreach ($authors as $author) {
-      if ($author["rek_author"] == $authorName) {
+      if (trim($author["rek_author"]) == trim($authorName)) {
         $authorExistsOnPID = true;
         $this->_numAuthorsUpdated++;
         $authorIDs[] = $newAuthorId;

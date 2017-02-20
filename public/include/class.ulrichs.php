@@ -137,10 +137,15 @@ class Ulrichs
 
     /* This function will get all ISSN from the pids and fill the Ulrichs table with data.
      */
-    function getDataFromUlrichs($reloadAll=false) {
+    function getDataFromUlrichs($reloadAll=false, $bgp = false) {
         $log = FezLog::get();
         $db = DB_API::get();
         $regexp = '/[0-9]{4}-[0-9]{3}[0-9X]/';
+
+        if ($bgp !== false) {
+            $bgp->setHeartbeat();
+        }
+
         if ($reloadAll) {
             $stmt = "SELECT DISTINCT issn FROM (SELECT rek_issn AS issn FROM " . APP_TABLE_PREFIX . "record_search_key_issn UNION SELECT jni_issn FROM " . APP_TABLE_PREFIX . "journal_issns) AS T3";
         } else {
@@ -158,6 +163,9 @@ class Ulrichs
         $ulrichs = new Ulrichs();
 
         foreach ($res as $journal) {
+            if ($bgp !== false) {
+                $bgp->setHeartbeat();
+            }
             preg_match_all($regexp, $journal['issn'], $matches);
             foreach ($matches[0] as $match) {
                 if ($ulrichs::loadXMLData($match) && !$reloadAll) {

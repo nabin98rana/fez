@@ -32,9 +32,9 @@
 0 1     * * *   root    /usr/bin/wget -O - "http://fez-production.library.uq.edu.au/api/cron_register_bgp.php?file=bgp_process_wok_queue&class=BackgroundProcess_Process_Wok_Queue&token=WEBCRON_TOKEN" > /dev/null 2>&1
 
 # Get citation count from WoS and Scopus
-#0 0     * * 0   root    /usr/bin/wget -O - "http://fez-production.library.uq.edu.au/api/cron_register_bgp.php?file=bgp_update_citation_counts&class=BackgroundProcess_Update_Citation_Counts&input[runType]=wsp&token=WEBCRON_TOKEN" > /dev/null 2>&1
-#7 2     * * 0   root    /usr/bin/wget -O - "http://fez-production.library.uq.edu.au/api/cron_register_bgp.php?file=bgp_update_citation_counts&class=BackgroundProcess_Update_Citation_Counts&input[runType]=scopus&token=WEBCRON_TOKEN" > /dev/null 2>&1
-#0 0     * * 0   root    /usr/bin/wget -O - "http://fez-production.library.uq.edu.au/api/cron_register_bgp.php?file=bgp_update_citation_counts&class=BackgroundProcess_Update_Citation_Counts&input[runType]=scopus-empty&token=WEBCRON_TOKEN" > /dev/null 2>&1
+0 0     * * 0   root    /usr/bin/wget -O - "http://fez-production.library.uq.edu.au/api/cron_register_bgp.php?file=bgp_update_citation_counts&class=BackgroundProcess_Update_Citation_Counts&input[runType]=wsp&token=WEBCRON_TOKEN" > /dev/null 2>&1
+7 2     * * 0   root    /usr/bin/wget -O - "http://fez-production.library.uq.edu.au/api/cron_register_bgp.php?file=bgp_update_citation_counts&class=BackgroundProcess_Update_Citation_Counts&input[runType]=scopus&token=WEBCRON_TOKEN" > /dev/null 2>&1
+0 0     * * 0   root    /usr/bin/wget -O - "http://fez-production.library.uq.edu.au/api/cron_register_bgp.php?file=bgp_update_citation_counts&class=BackgroundProcess_Update_Citation_Counts&input[runType]=scopus-empty&token=WEBCRON_TOKEN" > /dev/null 2>&1
 
 # Download new UQ pubs from WoS / Scopus / ResearcherID
 0 0     * * 0   root    /usr/bin/wget -O - "http://fez-production.library.uq.edu.au/api/cron_register_bgp.php?file=bgp_download_uq_pubs&class=BackgroundProcess_Download_Uq_Pubs&input[runType]=wos&token=WEBCRON_TOKEN" > /dev/null 2>&1

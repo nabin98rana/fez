@@ -286,21 +286,28 @@ class BackgroundProcess {
       $useAws = true;
     }
     if ($useAws && ($env == 'staging' || $env == 'production')) {
-      $aws = AWS::get();
-      $family = 'fez' . $env . 'bgp';
-      $result = $aws->runBackgroundTask($family, [
-        'containerOverrides' => [
-          [
-            'environment' => [
-              [
-                'name' => 'BGP_ID',
-                'value' => $this->bgp_id,
-              ],
+        $aws = AWS::get();
+        $family = 'fez' . $env . 'bgp';
+        $result = $aws->runBackgroundTask($family, [
+            'containerOverrides' => [
+                [
+                    'environment' => [
+                        [
+                            'name' => 'BGP_ID',
+                            'value' => $this->bgp_id,
+                        ],
+                    ],
+                    'name' => 'fpm',
+                ],
             ],
-            'name' => 'fpm',
-          ],
-        ],
-      ]);
+        ]);
+        // Check we got an actual object back
+        if ($result === true || $result === false) {
+            $this->setTask("Failed to get a task");
+        } else {
+            $tasks = $result->get('tasks');
+            $this->setTask($tasks[0]['taskArn']);
+        }
     } else {
       $command = APP_PHP_EXEC . " \"" . APP_PATH . "misc/run_background_process.php\" \"" .
         $this->bgp_id . "\" > " . APP_TEMP_DIR . "fezbgp/fezbgp_" . $this->bgp_id . ".log";
@@ -325,10 +332,13 @@ class BackgroundProcess {
     try {
         $this->setHostname($_SERVER['HOSTNAME']);
         $res = $this->getDetails();
+        $utc_date = Date_API::getSimpleDateUTC();
 
-        if (! is_null($res['bgp_state'])) {
+
+        $lastHeartbeat = Date_API::dateDiff("n", $res['bgp_heartbeat'], $utc_date);
+        if (! is_null($res['bgp_state']) && $lastHeartbeat < 10) {
           // Bail as the state has changed
-          $log->err("Aborting because state already changed: ".print_r($res, true));
+          $log->err("TimeDiff: ".$lastHeartbeat. ", Aborting because state already changed, less than limit ago: ".print_r($res, true));
           return;
         }
         if (!isset($res['bgp_include']) || $res['bgp_include'] == '') {
@@ -361,7 +371,7 @@ class BackgroundProcess {
             $wfstatus->auto_next();
           }
         }
-        echo 'Finished run of ' . $bgp->name . "..\n";
+        echo 'Finished run for BGP ID: '. $bgp->bgp_id . ' of ' . $bgp->name . "..\n";
     } catch(Exception $ex) {
         $log->err($ex);
     }
@@ -511,9 +521,16 @@ class BackgroundProcess {
 	public static function nextUnstarted($from) {
 		$log = FezLog::get();
 		$db = DB_API::get();
+    $utc_date = Date_API::getSimpleDateUTC();
 
 		$dbtp = APP_TABLE_PREFIX;
-		$stmt = "SELECT * FROM " . $dbtp . "background_process WHERE bgp_id > $from AND bgp_state IS NULL ORDER BY bgp_id ASC";
+
+		//get all the next available bgps, but also running state bgps that couldn't get a task within 10 minutes
+		$stmt = "SELECT * FROM " . $dbtp . "background_process WHERE (bgp_id > $from AND bgp_state IS NULL)
+		   OR (bgp_state = 1 AND (bgp_heartbeat < DATE_SUB('".$utc_date."',INTERVAL 10 MINUTE))
+		    AND (bgp_task_arn = '' OR bgp_task_arn IS NULL OR bgp_task_arn = 'Failed to get a task'))
+		   OR ((bgp_state = 1 OR bgp_state is null) AND (bgp_heartbeat is null AND  bgp_started < DATE_SUB('".$utc_date."',INTERVAL 120 MINUTE)))		     
+		   ORDER BY bgp_id ASC";
 		try {
 			return $db->fetchRow($stmt, array(), Zend_Db::FETCH_ASSOC);
 		} catch (Exception $ex) {
@@ -525,14 +542,29 @@ class BackgroundProcess {
 	/**
 	 * Runs all remaining background processes
 	 * @param int $from The ID to start from
+   * @param string $host The ECS host to port over
+   * @param string $taskARN The ECS Task to port over
 	 */
-	public static function runRemaining($from) {
+	public static function runRemaining($from, $host, $taskARN) {
     $log = FezLog::get();
     $log->warn("In runRemaining with from of ".$from);
+    $env = strtolower($_SERVER['APPLICATION_ENV']);
+
 		while ($next = self::nextUnstarted($from)) {
 			$bgp = new BackgroundProcess($next['bgp_id']);
-			$bgp->runCurrent();
-			$bgp->setState(BGP_FINISHED);
+			// If a real task value was picked up only run it if its not pending/runnning already
+      if ($next['bgp_task_arn'] != '' && !empty($next['bgp_task_arn']) && $next['bgp_task_arn'] != 'Failed to get a task') {
+          //check its running
+          $aws = AWS::get();
+          $family = 'fez' . $env;
+          if ($aws->isTaskRunning($next['bgp_task_arn'], $family) == true) {
+              continue;
+          }
+      }
+      $bgp->setTask($taskARN);
+      $bgp->setHostname($host);
+      $bgp->runCurrent();
+      $bgp->setState(BGP_FINISHED);
 		}
 	}
 

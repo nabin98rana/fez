@@ -46,7 +46,7 @@ class BackgroundProcess_Update_Ulrichs extends BackgroundProcess
     $this->setState(BGP_RUNNING);
     extract(unserialize($this->inputs));
 
-    Ulrichs::getDataFromUlrichs(true);
+    Ulrichs::getDataFromUlrichs(true, $this);
 
     $this->setState(BGP_FINISHED);
   }

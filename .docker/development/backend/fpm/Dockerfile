@@ -1,4 +1,4 @@
-FROM uqlibrary/docker-fpm56-fez:23
+FROM uqlibrary/docker-fpm56-fez:25
 
 COPY bootstrap.sh /opt/bootstrap.sh
 

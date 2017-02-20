@@ -1269,12 +1269,12 @@ class Record
 
         $stmtIns = "INSERT INTO " . $table . " (" . implode(",", $stmt);
         if ($shadow) {
-          $stmtIns .= ", rek_stamp";
+          $stmtIns .= ", rek_stamp, rek_version";
         }
         $stmtIns .= ") ";
         $stmtIns .= " VALUES (" . implode(",", $valuesIns);
         if ($shadow) {
-          $stmtIns .= ", " . $db->quote($now);
+          $stmtIns .= ", " . $db->quote($now) . ", " . $db->quote($pid . ' ' . $now);
         }
         $stmtIns .= ")";
         $db->beginTransaction();
@@ -1386,7 +1386,7 @@ class Record
               $stmt .= " (rek_" . $sek_table . "_pid, rek_" . $sek_table . "_xsdmf_id, rek_" . $sek_table . $cardinalityCol;
 
               if ($shadow) {
-                $stmt .= ", rek_" . $sek_table . "_stamp, rek_" . $sek_table . "_id";
+                $stmt .= ", rek_" . $sek_table . "_stamp, rek_" . $sek_table . "_id, rek_" . $sek_table . "_version";
               }
               $stmt .= ") VALUES ";
 
@@ -1400,6 +1400,7 @@ class Record
                     $val .= ", " . $db->quote($now);
                     $pidInt = explode(':', $pid);
                     $val .= ", " . $db->quote($pidInt[1], 'INTEGER');
+                    $val .= ", " . $db->quote($pid . ' ' . $now);
                   }
                   $val .= ")";
                   $stmtVars[] = $val;
@@ -1429,6 +1430,7 @@ class Record
                   $stmt .= ", " . $db->quote($now);
                   $pidInt = explode(':', $pid);
                   $stmt .= ", " . $db->quote($pidInt[1], 'INTEGER');
+                  $stmt .= ", " . $db->quote($pid . ' ' . $now);
                 }
                 $stmt .= ")";
               }
@@ -1483,7 +1485,7 @@ class Record
 
         $stmt .= " (rek_{$sekTable}_pid, rek_{$sekTable}";
         if ($shadow) {
-          $stmt .= ", rek_{$sekTable}_stamp, rek_{$sekTable}_id";
+          $stmt .= ", rek_{$sekTable}_stamp, rek_{$sekTable}_id, rek_{$sekTable}_version";
         }
         $stmt .= ") VALUES ";
 
@@ -1505,6 +1507,7 @@ class Record
                 $stmtIns .= ", " . $db->quote($now);
                 $pidInt = explode(':', $pid);
                 $stmtIns .= ", " . $db->quote($pidInt[1], 'INTEGER');
+                $stmtIns .= ", " . $db->quote($pid . ' ' . $now);
               }
               $stmtVars[] = $stmtIns.")";
               $cardinalityVal++;
@@ -1519,6 +1522,7 @@ class Record
               $stmt .= ", " . $db->quote($now);
               $pidInt = explode(':', $pid);
               $stmt .= ", " . $db->quote($pidInt[1], 'INTEGER');
+              $stmt .= ", " . $db->quote($pid . ' ' . $now);
             }
             $stmt .= ")";
           }

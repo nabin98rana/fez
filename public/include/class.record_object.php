@@ -191,8 +191,11 @@ class RecordObject extends RecordGeneral
       $last = "";
       $lastKey = null;
       //Now add all the xsdmf_ref_id values
-      $xsdmf_list = XSD_HTML_Match::getListByDisplay($_POST['xdis_id']);
+      $xsdmf_list = XSD_HTML_Match::getListByDisplay($_POST['xdis_id'], $exclude_list, $specify_list);
       foreach ($xsdmf_list as $xsdmf) {
+        if ($xsdmf['xsdmf_html_input'] == 'static' && $xsdmf['xsdmf_element'] == '!genre') {
+            $xdisDisplayFields[$xsdmf['xsdmf_id']] = $xsdmf['xsdmf_static_text'];
+        }
         if ($xsdmf['xsdmf_html_input'] == 'xsdmf_id_ref') {
           //now check if the posted data contains a reference to it
           if (array_key_exists($xsdmf['xsdmf_id_ref'], $xdisDisplayFields)
@@ -252,10 +255,16 @@ class RecordObject extends RecordGeneral
         $depositor = Auth::getUserID();
       } else {
         $depositor = Record::getSearchKeyIndexValue($this->pid, "Depositor", false);
-        $genre = Record::getSearchKeyIndexValue($this->pid, "Genre", false);
-        $xsdmf_id = XSD_HTML_Match::getXSDMF_IDBySekIDXDIS_ID(Search_Key::getID('Genre'), $xdis_str);
-        $xsd_display_fields[0]['genre'] = array('xsdmf_id' => $xsdmf_id[0], 'xsdmf_value' => $genre);
       }
+      if (empty($xsd_display_fields[0]['genre'])) {
+          $genre = Record::getSearchKeyIndexValue($this->pid, "Genre", false);
+          $xsdmf_id = XSD_HTML_Match::getXSDMF_IDBySekIDXDIS_ID(Search_Key::getID('Genre'), $xdis_str);
+          if (empty($genre)) {
+              $genre = $xsdmf[$xsdmf_id]['xsdmf_static_text'];
+          }
+          $xsd_display_fields[0]['genre'] = array('xsdmf_id' => $xsdmf_id[0], 'xsdmf_value' => $genre);
+      }
+
       $xsdmf_id = XSD_HTML_Match::getXSDMF_IDBySekIDXDIS_ID(Search_Key::getID('Depositor'), $xdis_str);
       $xsd_display_fields[0]['depositor'] = array('xsdmf_id' => $xsdmf_id[0], 'xsdmf_value' => $depositor);
 

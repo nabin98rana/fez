@@ -60,16 +60,14 @@ class BackgroundProcess_Set_Refereed_Details extends BackgroundProcess
     $refereedSource[2] = 'ERA Journal List 2012';
     $refereedSource[3] = 'ERA Journal List 2015';
     $refereedSource[4] = 'ERA Journal List 2010';
-    $refereedSource[5] = 'Other';
-    $refereedSource[6] = 'Not yet assessed';
+    $refereedSource[5] = 'Not yet assessed';
 
     $history[0] = 'set due to Ulrichs';
     $history[1] = 'set due to ISI Loc set';
     $history[2] = 'set due to Journal being in ERA 2012';
     $history[3] = 'set due to Journal being in ERA 2015';
     $history[4] = 'set due to Journal being in ERA 2010';
-    $history[5] = 'set due to Refereed being set but no automatic Refereed Source matches';
-    $history[6] = 'set due to no other information or matches';
+    $history[5] = 'set due to no other information or matches';
 
 
     $refereedSourceCV[0] = Controlled_Vocab::getID($refereedSource[0], 'Refereed Source');
@@ -78,7 +76,6 @@ class BackgroundProcess_Set_Refereed_Details extends BackgroundProcess
     $refereedSourceCV[3] = Controlled_Vocab::getID($refereedSource[3], 'Refereed Source');
     $refereedSourceCV[4] = Controlled_Vocab::getID($refereedSource[4], 'Refereed Source');
     $refereedSourceCV[5] = Controlled_Vocab::getID($refereedSource[5], 'Refereed Source');
-    $refereedSourceCV[6] = Controlled_Vocab::getID($refereedSource[6], 'Refereed Source');
 
 
     $query[0] = "SELECT rek_pid AS pid FROM " . APP_TABLE_PREFIX . "record_search_key
@@ -120,19 +117,15 @@ class BackgroundProcess_Set_Refereed_Details extends BackgroundProcess
                    && rek_refereed_source != " .$refereedSourceCV[3]. "&& rek_refereed_source != " .$refereedSourceCV[4].") OR rek_refereed_source IS NULL)
                  AND (rek_genre != 'thesis' AND rek_genre != 'database')";
 
-    $query[5] = "SELECT rek_refereed_pid AS pid FROM " . APP_TABLE_PREFIX . "record_search_key_refereed
-                 LEFT JOIN " . APP_TABLE_PREFIX . "record_search_key_refereed_source ON rek_refereed_source_pid = rek_refereed_pid
-                 WHERE rek_refereed_source_pid IS NULL";
-
-    $query[6] = "SELECT rek_pid AS pid FROM " . APP_TABLE_PREFIX . "record_search_key
+    $query[5] = "SELECT rek_pid AS pid FROM " . APP_TABLE_PREFIX . "record_search_key
                  LEFT JOIN " . APP_TABLE_PREFIX . "record_search_key_refereed_source
                  ON rek_refereed_source_pid = rek_pid
                  WHERE rek_refereed_source IS NULL
                  AND (rek_genre != 'thesis' AND rek_genre != 'database')
                  ";
 
-    for ($i=0; $i<7; $i++) {
-
+    for ($i=0; $i<6; $i++) {
+      $this->setHeartbeat();
       try {
         $result = $db->fetchAll($query[$i]);
       } catch (Exception $ex) {
@@ -143,7 +136,7 @@ class BackgroundProcess_Set_Refereed_Details extends BackgroundProcess
       // for each pid,
       foreach ($result as $pidDetails) {
         $pid = $pidDetails['pid'];
-
+        $this->setHeartbeat();
         //For the last option (Nothing found, we save as not yet assessed)
         if ($i < 6) {
           Refereed::saveIfHigher($pid, $refereedSource[$i], $history[$i]);

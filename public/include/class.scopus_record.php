@@ -71,6 +71,7 @@ class ScopusRecItem extends RecordImport
         $this->_comparisonIdTypes = array('_scopusId', '_doi', '_pubmedId', '_title');
         $this->_doctypeExceptions = array();
         $this->_primaryIdPrefix = 'scopus';
+        $this->_importAPI = 'Scopus';
         $this->_insertCollection = APP_SCOPUS_IMPORT_COLLECTION;
         if($recordData)
         {

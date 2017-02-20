@@ -80,7 +80,7 @@ class BackgroundProcess_Update_All_Publons_Reviews extends BackgroundProcess
 
     foreach ($res as $orcid) {
       $authorId = ApiResearchers::authorIdFromOrcid($orcid);
-
+      $this->setHeartbeat();
       $user = Publons::getUser($orcid);
 
       if ($user) {
@@ -96,7 +96,7 @@ class BackgroundProcess_Update_All_Publons_Reviews extends BackgroundProcess
       }
       usleep(self::RATE_LIMIT);
     }
-
+    $this->setHeartbeat();
     echo "Updating publons tiered list\n";
     $stmt = "UPDATE " . APP_TABLE_PREFIX . "publons_journals
                 INNER JOIN " . APP_TABLE_PREFIX . "journal_uq_tiered_issns ON jni_issn = psj_journal_issn

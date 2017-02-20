@@ -49,7 +49,9 @@ class BackgroundProcess_Process_Mail_Queue extends BackgroundProcess
     // handle only pending emails
     $limit = 50;
     Mail_Queue::send('pending', $limit);
+    $this->setHeartbeat();
     Mail_Queue::clearOld();
+    $this->setHeartbeat();
     Mail_Queue::removeProcessFile();
 
     $this->setState(BGP_FINISHED);
