@@ -147,7 +147,7 @@ class Fez_Record_SearchkeyShadow
     $pid = $this->_pid;
 
     $stmt = "INSERT INTO " . APP_TABLE_PREFIX . "record_search_key__shadow
-               SELECT *, " . $db->quote($date) . ", " . $db->quote($pid . ' ' . $date) . " FROM " . APP_TABLE_PREFIX . "record_search_key
+               SELECT *, " . $db->quote($date) . ", " . $db->quote($pid . ' ' . $date) . ", 'master', ''  FROM " . APP_TABLE_PREFIX . "record_search_key
                         WHERE rek_pid = " . $db->quote($pid);
     try {
       $res = $db->exec($stmt);
