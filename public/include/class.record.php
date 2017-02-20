@@ -5933,7 +5933,7 @@ function getSearchKeyIndexValueShadow($pid, $searchKeyTitle, $getLookup=true, $s
   {
     $shadow = false;
     if ($date == '') {
-      $date = Date_API::getCurrentDateGMT(true);
+      $date = Date_API::getCurrentDateGMT();
     }
 
     if(APP_FEDORA_BYPASS != 'ON') {
