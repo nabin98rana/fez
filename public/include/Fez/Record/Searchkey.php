@@ -762,6 +762,14 @@ class Fez_Record_Searchkey
       return $result;
     }
 
+    $recordSearchKeyShadow = new Fez_Record_SearchkeyShadow($this->_pid);
+    $skDates = $recordSearchKeyShadow->returnVersionDates();
+    $now = $skDates[0];
+    if ($this->_version != $now) {
+      Zend_Registry::set('version', $now);
+      $this->_version = $now;
+    }
+
     foreach ($data as $sekTitle => $value) {
       $table = APP_TABLE_PREFIX . "record_search_key_" . $sekTitle;
       $tableShadow = $table . "__shadow";
@@ -771,11 +779,7 @@ class Fez_Record_Searchkey
       if (!$this->_verifyOneToManyData($value, $sekTitle)) {
         continue;
       }
-      // Check that the data to be inserted is not exactly the same as the new data. If it is exactly the same don't save it and just rely on deltas.
-      $recordSearchKeyShadow = new Fez_Record_SearchkeyShadow($this->_pid);
-      //$hasDelta = $recordSearchKeyShadow->hasDelta($sekTitle);
-
-
+      
       // Query to backup old record to shadow table
       $stmtBackupToShadow = "INSERT INTO " . $tableShadow .
         "  SELECT *, " . $this->_db->quote($this->_version, 'DATE') . ", " . $this->_db->quote($this->_pid . ' ' . $this->_version) .
