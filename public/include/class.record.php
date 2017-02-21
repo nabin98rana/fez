@@ -1062,6 +1062,11 @@ class Record
         $recordSearchkeyShadow = new Fez_Record_SearchkeyShadow($pid);
     }
 
+
+    if ($shadow == true) {
+      $recordSearchkeyShadow->copyRecordSearchKeyToShadow();
+    }
+
     // get list of the Related 1-M search keys, delete those first, then delete the 1-1 core table entries
     $sekDet = Search_Key::getList();
     foreach ($sekDet as $sval) {
@@ -1069,26 +1074,11 @@ class Record
       if ($sval['sek_relationship'] == 1) {
         $sekTable = $sval['sek_title_db'];
         if ($shadow == true) {
-            //$hasDelta = $recordSearchkeyShadow->hasDelta($sval['sek_title']);
-            //if ($hasDelta) {
-              $recordSearchkeyShadow->copySearchKeyToShadow($sekTable);
-            //}
-        }
-        $stmt = "DELETE FROM
-                        " . APP_TABLE_PREFIX . "record_search_key_".$sekTable."
-             WHERE rek_".$sekTable."_pid = " . $db->quote($pid);
-        try {
-          $db->query($stmt);
-        }
-        catch(Exception $ex) {
-          $log->err($ex);
+          $recordSearchkeyShadow->copySearchKeyToShadow($sekTable);
         }
       }
     }
 
-    if ($shadow == true) {
-        $recordSearchkeyShadow->copyRecordSearchKeyToShadow();
-    }
     $stmt = "DELETE FROM
                     " . APP_TABLE_PREFIX . "record_search_key
          WHERE rek_pid = " . $db->quote($pid);
@@ -1300,7 +1290,14 @@ class Record
           $log->err($ex." stmt: ".$stmt);
           $ret = false;
         }
+    } else if ($shadow) {
+        // Get the last version to use below
+        $skShadow = new Fez_Record_SearchkeyShadow($pid);
+        $skDates = $skShadow->returnVersionDates();
+        $now = $skDates[0];
+        Zend_Registry::set('version', $now);
     }
+
     /*
      *  Update 1-to-Many search keys
      */
