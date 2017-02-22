@@ -182,16 +182,8 @@ class Fez_Record_Searchkey
     // Set PID
     $this->_setPid($pid);
 
-    // Save 1-to-1 search key
-    $oneToOne = $this->_updateOneToOneRecord($sekData[0]);
-
-    // Save 1-to-many search key
-    $oneToMany = $this->_updateOneToManyRecord($sekData[1]);
-
-    // Returns false when both updates failed.
-    if (!$oneToOne && !$oneToMany['oneSuccess']) {
-      return false;
-    }
+    Record::updateSearchKeys($this->_pid, $sekData);
+    Record::updateSearchKeys($this->_pid, $sekData, true); // Update shadow tables
 
     if ($historyMsg) {
       $this->_updateHistory($historyMsg);

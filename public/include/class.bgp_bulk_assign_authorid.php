@@ -221,7 +221,7 @@ class BackgroundProcess_Bulk_Assign_Authorid extends BackgroundProcess
 
     // @todo: do we still need to pass in update_date?
     $searchKeyData[0]['updated_date']['xsdmf_id'] = $details[0]['rek_updated_date_xsdmf_id'];
-    $searchKeyData[0]['updated_date']['xsdmf_value'] = Date_API::getFedoraFormattedDateUTC();
+    $searchKeyData[0]['updated_date']['xsdmf_value'] = Date_API::getCurrentDateGMT();
 
     // Set record search key values
     $searchKeyData[1]['author_id']['xsdmf_id'] = $xsdmfIdForAuthorId;
