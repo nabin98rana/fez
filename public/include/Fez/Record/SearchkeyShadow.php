@@ -108,6 +108,21 @@ class Fez_Record_SearchkeyShadow
     return $this->_version;
   }
 
+  public function createVersion()
+  {
+      $this->copyRecordSearchKeyToShadow();
+      // get list of the Related 1-M search keys, delete those first, then delete the 1-1 core table entries
+      $sekDet = Search_Key::getList();
+      foreach ($sekDet as $sval) {
+          // if is a 1-M needs its own delete sql, otherwise if a 0 (1-1) the core delete will do it
+          if ($sval['sek_relationship'] == 1) {
+              $sekTable = $sval['sek_title_db'];
+              $this->copySearchKeyToShadow($sekTable);
+          }
+      }
+      return true;
+  }
+
   /**
    * Copy the given search key to the appropriate shadow table
    *

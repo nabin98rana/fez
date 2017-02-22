@@ -178,7 +178,6 @@ class Fez_Record_Searchkey
    */
   public function updateRecord($pid = null, $sekData = array(), $historyMsg = false, $commitIndex = true)
   {
-
     // Set PID
     $this->_setPid($pid);
 
@@ -340,7 +339,7 @@ class Fez_Record_Searchkey
     return $details;
   }
 
-  private function getSekDataByXSDMFID($changeUpdatedDate = true)
+  public function getSekDataByXSDMFID($changeUpdatedDate = true)
   {
     $record = new RecordObject($this->_pid);
     $record->getDisplay();

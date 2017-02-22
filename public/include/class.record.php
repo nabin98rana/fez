@@ -1204,20 +1204,28 @@ class Record
     // Get the timestamp to be used for shadow tables.
     $now = Record::setSearchKeyTimestamp($updateTS);
 
+    if ($shadow) {
+        $recordSearchkeyShadow = new Fez_Record_SearchkeyShadow($pid);
+        return $recordSearchkeyShadow->createVersion();
+    }
+
     /*
      *  Update 1-to-1 search keys
      */
     $stmt[] = 'rek_pid';
     $valuesIns[] = $db->quote($pid);
     $existingData = array(0 => array('rek_pid' => $pid));
-    Record::getSearchKeysByPIDS($existingData, true, $shadow);
+    Record::getSearchKeysByPIDS($existingData, true);
     $foundDifference = false;
 //    $diff = Misc::array_diff_assoc_recursive($sekData, $existingData[0]);
     if (is_array($sekData[0])) {
         foreach ($sekData[0] as $sek_column => $sek_value) {
           //Check that the column value has changed before using it
-            if ((!is_array($existingData) || !isset($existingData[0]['rek_'.$sek_column]) || $existingData[0]['rek_'.$sek_column] != $sek_value['xsdmf_value']) &&
-              !($sek_value['xsdmf_value'] == '' && $existingData[0]['rek_'.$sek_column] == null) ) {
+            if ((!is_array($existingData)
+                    || !isset($existingData[0]['rek_'.$sek_column])
+                    || $existingData[0]['rek_'.$sek_column] != $sek_value['xsdmf_value'])
+                    && !($sek_value['xsdmf_value'] == ''
+                    && $existingData[0]['rek_'.$sek_column] == null) ) {
               $stmt[] = "rek_{$sek_column}, rek_{$sek_column}_xsdmf_id";
 
               if ($sek_value['xsdmf_value'] === 'NULL' || $sek_value['xsdmf_value'] === '') {
