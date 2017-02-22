@@ -178,20 +178,11 @@ class Fez_Record_Searchkey
    */
   public function updateRecord($pid = null, $sekData = array(), $historyMsg = false, $commitIndex = true)
   {
-
     // Set PID
     $this->_setPid($pid);
 
-    // Save 1-to-1 search key
-    $oneToOne = $this->_updateOneToOneRecord($sekData[0]);
-
-    // Save 1-to-many search key
-    $oneToMany = $this->_updateOneToManyRecord($sekData[1]);
-
-    // Returns false when both updates failed.
-    if (!$oneToOne && !$oneToMany['oneSuccess']) {
-      return false;
-    }
+    Record::updateSearchKeys($this->_pid, $sekData);
+    Record::updateSearchKeys($this->_pid, $sekData, true); // Update shadow tables
 
     if ($historyMsg) {
       $this->_updateHistory($historyMsg);
@@ -348,7 +339,7 @@ class Fez_Record_Searchkey
     return $details;
   }
 
-  private function getSekDataByXSDMFID($changeUpdatedDate = true)
+  public function getSekDataByXSDMFID($changeUpdatedDate = true)
   {
     $record = new RecordObject($this->_pid);
     $record->getDisplay();
@@ -762,6 +753,14 @@ class Fez_Record_Searchkey
       return $result;
     }
 
+    $recordSearchKeyShadow = new Fez_Record_SearchkeyShadow($this->_pid);
+    $skDates = $recordSearchKeyShadow->returnVersionDates();
+    $now = $skDates[0];
+    if ($this->_version != $now) {
+      Zend_Registry::set('version', $now);
+      $this->_version = $now;
+    }
+
     foreach ($data as $sekTitle => $value) {
       $table = APP_TABLE_PREFIX . "record_search_key_" . $sekTitle;
       $tableShadow = $table . "__shadow";
@@ -771,11 +770,7 @@ class Fez_Record_Searchkey
       if (!$this->_verifyOneToManyData($value, $sekTitle)) {
         continue;
       }
-      // Check that the data to be inserted is not exactly the same as the new data. If it is exactly the same don't save it and just rely on deltas.
-      $recordSearchKeyShadow = new Fez_Record_SearchkeyShadow($this->_pid);
-      //$hasDelta = $recordSearchKeyShadow->hasDelta($sekTitle);
-
-
+      
       // Query to backup old record to shadow table
       $stmtBackupToShadow = "INSERT INTO " . $tableShadow .
         "  SELECT *, " . $this->_db->quote($this->_version, 'DATE') . ", " . $this->_db->quote($this->_pid . ' ' . $this->_version) .
