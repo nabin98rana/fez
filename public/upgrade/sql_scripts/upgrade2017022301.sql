@@ -1,0 +1,3 @@
+ALTER TABLE `%TABLE_PREFIX%record_search_key_datastream_policy__shadow` ADD COLUMN `rek_datastream_policy_version` varchar(100) NOT NULL AFTER `rek_datastream_policy_stamp`;
+ALTER TABLE `%TABLE_PREFIX%record_search_key_datastream_policy` ADD CONSTRAINT `rek_datpo_foreign` FOREIGN KEY (`rek_datastream_policy_pid`) REFERENCES `%TABLE_PREFIX%record_search_key` (`rek_pid`) ON DELETE CASCADE;
+ALTER TABLE `%TABLE_PREFIX%record_search_key_datastream_policy__shadow` ADD CONSTRAINT `rek_datpo__foreign` FOREIGN KEY (`rek_datastream_policy_version`) REFERENCES `%TABLE_PREFIX%record_search_key__shadow` (`rek_version`) ON DELETE CASCADE;
