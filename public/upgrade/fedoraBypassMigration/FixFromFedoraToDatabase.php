@@ -111,7 +111,7 @@ class FixFromFedoraToDatabase
             echo "\n - Doing PID $counter/$totalDs ($pid)\n";
             Zend_Registry::set('version', Date_API::getCurrentDateGMT());
 
-            $acml = $this->getFezACML($pid, $FezACML_dsID);
+            $acml = $this->getFezACML($pid, 'FezACML');
             Fedora_API::callPurgeDatastream($pid, $FezACML_dsID);
             if (!empty($acml)) {
                 $location = APP_TEMP_DIR . $FezACML_dsID;
