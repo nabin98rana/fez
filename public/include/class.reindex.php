@@ -704,6 +704,7 @@ class Reindex
               $dsIDName = $dsTitle['ID'];
               if ($dsTitle['controlGroup'] == "M"
                 && !Misc::hasPrefix($dsIDName, 'preview_')
+                && !Misc::hasPrefix($dsIDName, 'FezACML_')
                 && !Misc::hasPrefix($dsIDName, 'web_')
                 && !Misc::hasPrefix($dsIDName, 'thumbnail_')
                 && !Misc::hasPrefix($dsIDName, 'stream_')
@@ -779,6 +780,7 @@ class Reindex
               $dsIDName = $dsTitle['ID'];
               if ($dsTitle['controlGroup'] == "M"
                 && !Misc::hasPrefix($dsIDName, 'preview_')
+                && !Misc::hasPrefix($dsIDName, 'FezACML_')
                 && !Misc::hasPrefix($dsIDName, 'web_')
                 && !Misc::hasPrefix($dsIDName, 'thumbnail_')
                 && !Misc::hasPrefix($dsIDName, 'stream_')
