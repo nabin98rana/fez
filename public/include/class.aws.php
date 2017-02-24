@@ -207,7 +207,8 @@ class AWS
    */
   private function isTaskInTaskResult($taskARN, $result) {
     if ($result->hasKey('taskArns')) {
-      foreach ($result->get('taskArns') as $task) {
+      $tasks = $result->get('taskArns');
+      foreach ($tasks as $task) {
         if ($task == $taskARN) {
           return true;
         }
