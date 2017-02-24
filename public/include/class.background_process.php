@@ -564,7 +564,7 @@ class BackgroundProcess {
       $bgp->setTask($taskARN);
       $bgp->setHostname($host);
       $bgp->runCurrent();
-      $bgp->setState(BGP_FINISHED);
+
 		}
 	}
 
