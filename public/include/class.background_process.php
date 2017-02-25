@@ -333,7 +333,6 @@ class BackgroundProcess {
         $this->setHostname($_SERVER['HOSTNAME']);
         $res = $this->getDetails();
         $utc_date = Date_API::getSimpleDateUTC();
-        $bgp = unserialize($res['bgp_serialized']);
 
         $lastHeartbeat = Date_API::dateDiff("n", $res['bgp_heartbeat'], $utc_date);
         if (! is_null($res['bgp_state']) && $lastHeartbeat < 10) {
@@ -343,12 +342,14 @@ class BackgroundProcess {
         }
         if (!isset($res['bgp_include']) || $res['bgp_include'] == '') {
             // Bail as no bgp include
+            $bgp = new BackgroundProcess($res['bgp_id']);
             $log->err("Aborting because no bgp_include is set: ".print_r($res, true));
             $bgp->setStatus("Aborting and finishing because no bgp_include is set");
             $bgp->setState(BGP_FINISHED);
             return;
         }
         include_once(APP_INC_PATH . $res['bgp_include']);
+        $bgp = unserialize($res['bgp_serialized']);
 
         $msg = 'Starting BGP ID:'. $bgp->bgp_id . ' with name ' . $bgp->name . "..\n";
 
