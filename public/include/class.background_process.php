@@ -333,6 +333,7 @@ class BackgroundProcess {
         $this->setHostname($_SERVER['HOSTNAME']);
         $res = $this->getDetails();
         $utc_date = Date_API::getSimpleDateUTC();
+        include_once(APP_INC_PATH . $res['bgp_include']);
         $bgp = unserialize($res['bgp_serialized']);
 
         $lastHeartbeat = Date_API::dateDiff("n", $res['bgp_heartbeat'], $utc_date);
@@ -348,7 +349,7 @@ class BackgroundProcess {
             $bgp->setState(BGP_FINISHED);
             return;
         }
-        include_once(APP_INC_PATH . $res['bgp_include']);
+
 
         $msg = 'Starting BGP ID:'. $bgp->bgp_id . ' with name ' . $bgp->name . "..\n";
 
