@@ -33,7 +33,14 @@
           "value": "<WEBCRON_TOKEN>"
         }
       ],
-      "essential": true
+      "essential": true,
+      "logConfiguration": {
+          "logDriver": "syslog",
+          "options": {
+              "syslog-address": "udp://logs5.papertrailapp.com:36269",
+              "tag": "{{.Name}}"
+          }
+      }
     }
   ],
   "volumes": []
