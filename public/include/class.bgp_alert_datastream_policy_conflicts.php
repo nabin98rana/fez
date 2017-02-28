@@ -108,7 +108,10 @@ class BackgroundProcess_Alert_Datastream_Policy_Conflicts extends BackgroundProc
 
     $body = '';
 
-    //This is currently run ever two hours. It will have to be adapted if large collections are checked below
+      // Next checks must be run in the context of a logged out user
+      Auth::logout();
+
+      //This is currently run ever two hours. It will have to be adapted if large collections are checked below
     $stmt =     "SELECT rek_pid AS pid, rek_ismemberof FROM " . APP_TABLE_PREFIX . "record_search_key
                   LEFT JOIN " . APP_TABLE_PREFIX . "record_search_key_ismemberof ON rek_pid = rek_ismemberof_pid
                   WHERE rek_ismemberof IN ('UQ:342107', 'UQ:335745')";
@@ -170,10 +173,6 @@ class BackgroundProcess_Alert_Datastream_Policy_Conflicts extends BackgroundProc
       $log->err($ex);
       return false;
     }
-
-
-    // Next check must be run in the context of a logged out user
-    Auth::logout();
 
     foreach ($res as $pid) {
       $this->setHeartbeat();
