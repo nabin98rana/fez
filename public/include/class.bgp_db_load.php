@@ -53,14 +53,14 @@ class BackgroundProcess_Db_Load extends BackgroundProcess
     $log = FezLog::get();
 
     $environment = $_SERVER['APP_ENVIRONMENT'];
-    if (! ($environment === 'staging')) {
+    if ($environment !== 'staging') {
       $log->err('DB load failed: Unknown environment - ' . $environment);
       return;
     }
     set_time_limit(0);
 
     $db = DB_API::get();
-    $path = '/tmp/' . $environment;
+    $path = '/tmp/' . $environment . '/export';
     system("rm -Rf ${path}");
     mkdir($path);
     chdir($path);
@@ -68,13 +68,33 @@ class BackgroundProcess_Db_Load extends BackgroundProcess
     if (! system("AWS_ACCESS_KEY_ID=" .
       AWS_KEY. " AWS_SECRET_ACCESS_KEY=" .
       AWS_SECRET .
-      " bash -c \"aws s3 cp s3://uql-fez-${environment}-cache/fez${environment}.tar.gz ${path}/fez${environment}.tar.gz\"")
+      " bash -c \"aws s3 cp s3://uql-fez-${environment}-cache/prod.config.inc.php ${path}/prod.config.inc.php\"")
     ) {
-      $log->err('DB load failed: Unable to copy Fez DB from S3');
-      exit;
+      $log->err('DB config failed: Unable to copy Fez prod config from S3');
+      return;
+    }
+    include_once($path . "/prod.config.inc.php");
+
+    if (! system(
+      "MYSQL_DUMP_DIR=" . "${path}/../" .
+      " MYSQL_HOST=" . DB_LOAD_PROD_SQL_DBHOST .
+      " MYSQL_NAME=" . DB_LOAD_PROD_SQL_DBNAME .
+      " MYSQL_USER=" . DB_LOAD_PROD_SQL_DBUSER .
+      " MYSQL_PASS=" . DB_LOAD_PROD_SQL_DBPASS .
+      " bash -c \"" . APP_INC_PATH . "../../util/mysql_dump_aws.sh\"")
+    ) {
+      $log->err('DB load failed: Unable to export Fez DB');
+      return;
     }
 
-    system("cd ${path} && tar xzvf ${path}/fez${environment}.tar.gz --no-same-owner --strip-components 1");
+    if (! system(
+      "AWS_ACCESS_KEY_ID=" . AWS_KEY .
+      " AWS_SECRET_ACCESS_KEY=" . AWS_SECRET .
+      " bash -c \"aws s3 cp s3://uql-fez-${environment}-cache/fez_config_extras.sql ${path}/fez_config_extras.sql\"")
+    ) {
+      $log->err('DB load failed: Unable to copy Fez DB from S3');
+      return;
+    }
 
     $files = glob($path . "/*.sql");
     foreach ($files as $sql) {
@@ -107,7 +127,15 @@ class BackgroundProcess_Db_Load extends BackgroundProcess
     $sql = file_get_contents($path . '/fez_config_extras.sql');
     $db->query($sql);
 
-    $stmt = $con->prepare("DELETE FROM fez_user WHERE usr_username LIKE '%_test'");
-    $stmt->execute();
+    system("rm -Rf ${path}");
+  }
+
+  /**
+   * Check that an existing DB load process isn't scheduled or running
+   * @return bool
+   */
+  function registerCheck() {
+    // Check hasn't been scheduled in the past 10 minutes and isn't already running
+    return !($this->isScheduledOrRunning(time() - (10 * 60)));
   }
 }
