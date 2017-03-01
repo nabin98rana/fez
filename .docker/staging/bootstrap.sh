@@ -12,7 +12,6 @@ fi
 if [ "${APP_ENVIRONMENT}" == "staging" ]; then
   aws s3 cp s3://uql/ecs/default/services/fezstaging/config.inc.php ${BASE_DIR}/public/config.inc.php --only-show-errors
   aws s3 cp s3://uql/fez/fez_staging_cloudfront_private_key.pem ${BASE_DIR}/data/ --only-show-errors
-  aws s3 cp ${BASE_DIR}/.docker/staging/fez.cron s3://uql/ecs/default/services/crond/cron.d/fezstaging --only-show-errors
   aws s3 cp s3://uql-fez-staging-cache/GeoIP.dat.gz /usr/share/GeoIP/GeoIP.dat.gz --only-show-errors && /bin/gunzip -f /usr/share/GeoIP/GeoIP.dat.gz
   aws s3 cp s3://uql-fez-staging-cache/GeoLiteCity.dat.gz /usr/share/GeoIP/GeoLiteCity.dat.gz --only-show-errors && /bin/gunzip -f /usr/share/GeoIP/GeoLiteCity.dat.gz
   # Note this nginx ip restriction does NOT stop being getting through via cloudfront. CF is geoblocked to AUS and robots.txt will stop crawlers.
@@ -36,5 +35,9 @@ set -x
 if [ "${BGP_ID}" != "" ]; then
   php ${BASE_DIR}/public/misc/run_background_process.php ${BGP_ID}
 else
+  if [ "${APP_ENVIRONMENT}" == "staging" ]; then
+    # only do a deploy of the cron for non-bgp containers or it has too many versions mount up in s3 of the cron file
+    aws s3 cp ${BASE_DIR}/.docker/staging/fez.cron s3://uql/ecs/default/services/crond/cron.d/fezstaging --only-show-errors
+  fi
   exec /usr/sbin/php-fpm --nodaemonize
 fi
