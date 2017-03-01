@@ -3,28 +3,21 @@
 function usage {
   echo
   echo "DESCRIPTION"
-  echo "    Dumps Fez database and copies the compressed export to S3. This script should be run on slave database servers only."
+  echo "    Dumps Fez database and copies the compressed export to S3."
   echo
   echo "USAGE"
-  echo "    mysql_dump_aws.sh <APP_ENV> <MYSQL_DUMP_DIR> <MYSQL_DB_FEZ> <FEZ_URL>"
+  echo "    mysql_dump_aws.sh"
   echo
-  echo "    APP_ENV        = The running environment (e.g. production)"
-  echo "    MYSQL_DUMP_DIR = The directory to dump the database files to."
-  echo "    MYSQL_DB_FEZ   = The Fez database."
+  echo "    The script expects the following to be set as the environment variables:"
   echo
-  echo "    The script expects the MySQL username/password to be set as the environment variables MYSQL_USER / MYSQL_PASS respectively,"
-  echo "    and S3_KEY / S3_SECRET which provide access to the S3 bucket to store the dumped file."
+  echo "    MYSQL_DUMP_DIR    = The directory to dump the database files to."
+  echo "    MYSQL_DB_HOST_FEZ = The Fez database host"
+  echo "    MYSQL_DB_FEZ      = The Fez database name."
+  echo "    MYSQL_USER        = The Fez database user."
+  echo "    MYSQL_PASS        = The Fez database password."
   echo
   exit
 }
-
-if [ "$#" -ne 3 ]; then
-  usage
-fi
-
-APP_ENV=$1
-MYSQL_DUMP_DIR=$2
-MYSQL_DB_FEZ=$3
 
 if [ ! -d "${MYSQL_DUMP_DIR}" ]; then
   echo
@@ -42,19 +35,19 @@ mkdir export
 chown root:mysql export
 chmod 775 export
 
-MYSQL_CMD="mysql -u${MYSQL_USER} -p${MYSQL_PASS}"
 mysqldump \
     --tab=${MYSQL_DUMP_DIR}/export \
     --fields-terminated-by ',' \
     --fields-enclosed-by '"' \
     --lines-terminated-by '\n' \
-    ${MYSQL_DB_FEZ} \
+    ${MYSQL_NAME} \
     --single-transaction \
     --order-by-primary \
     --add-drop-table \
     --routines=0 \
     --triggers=0 \
     --events=0 \
+    -h${MYSQL_HOST} \
     -u${MYSQL_USER} \
     -p${MYSQL_PASS}
 
@@ -63,7 +56,10 @@ mysqldump \
     --no-create-info \
     --no-data \
     --no-create-db \
-    --skip-opt ${MYSQL_DB_FEZ} \
+    --skip-opt ${MYSQL_NAME} \
+    -h${MYSQL_HOST} \
+    -u${MYSQL_USER} \
+    -p${MYSQL_PASS} \
     > export/spandtriggers.sql
 
 rm -f export/__*

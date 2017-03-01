@@ -65,15 +65,31 @@ class BackgroundProcess_Db_Load extends BackgroundProcess
     mkdir($path);
     chdir($path);
 
-    if (! system("bash -c \"" . APP_INC_PATH . "../../util/mysql_dump_aws.sh ${environment} ${path}/../ " . APP_SQL_DBNAME . "\"")
+    if (! system("AWS_ACCESS_KEY_ID=" .
+      AWS_KEY. " AWS_SECRET_ACCESS_KEY=" .
+      AWS_SECRET .
+      " bash -c \"aws s3 cp s3://uql-fez-${environment}-cache/prod.config.inc.php ${path}/prod.config.inc.php\"")
+    ) {
+      $log->err('DB config failed: Unable to copy Fez prod config from S3');
+      return;
+    }
+    include_once($path . "/prod.config.inc.php");
+
+    if (! system(
+      "MYSQL_DUMP_DIR=" . "${path}/../" .
+      " MYSQL_HOST=" . DB_LOAD_PROD_SQL_DBHOST .
+      " MYSQL_NAME=" . DB_LOAD_PROD_SQL_DBNAME .
+      " MYSQL_USER=" . DB_LOAD_PROD_SQL_DBUSER .
+      " MYSQL_PASS=" . DB_LOAD_PROD_SQL_DBPASS .
+      " bash -c \"" . APP_INC_PATH . "../../util/mysql_dump_aws.sh\"")
     ) {
       $log->err('DB load failed: Unable to export Fez DB');
       return;
     }
 
-    if (! system("AWS_ACCESS_KEY_ID=" .
-      AWS_KEY. " AWS_SECRET_ACCESS_KEY=" .
-      AWS_SECRET .
+    if (! system(
+      "AWS_ACCESS_KEY_ID=" . AWS_KEY .
+      " AWS_SECRET_ACCESS_KEY=" . AWS_SECRET .
       " bash -c \"aws s3 cp s3://uql-fez-${environment}-cache/fez_config_extras.sql ${path}/fez_config_extras.sql\"")
     ) {
       $log->err('DB load failed: Unable to copy Fez DB from S3');
