@@ -585,6 +585,8 @@ class Auth
             $failed_url = base64_encode($failed_url);
             header('HTTP/1.0 401 Unauthorized');
             Auth::redirect(APP_RELATIVE_URL . "login.php?err=21&url=" . $failed_url, $is_popup);
+          } else {
+              return false;
           }
         }
       } else {

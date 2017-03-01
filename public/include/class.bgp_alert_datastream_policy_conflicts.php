@@ -114,7 +114,7 @@ class BackgroundProcess_Alert_Datastream_Policy_Conflicts extends BackgroundProc
       //This is currently run ever two hours. It will have to be adapted if large collections are checked below
     $stmt =     "SELECT rek_pid AS pid, rek_ismemberof FROM " . APP_TABLE_PREFIX . "record_search_key
                   LEFT JOIN " . APP_TABLE_PREFIX . "record_search_key_ismemberof ON rek_pid = rek_ismemberof_pid
-                  WHERE rek_ismemberof IN ('UQ:342107', 'UQ:335745')";
+                  WHERE rek_ismemberof IN ('UQ:342107', 'UQ:335745', 'UQ:152694', 'UQ:183974', 'UQ:130846', 'UQ:155729', 'UQ:151710')";
     try {
       $res = $db->fetchAll($stmt);
     }
