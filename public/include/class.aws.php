@@ -207,7 +207,8 @@ class AWS
    */
   private function isTaskInTaskResult($taskARN, $result) {
     if ($result->hasKey('taskArns')) {
-      foreach ($result->get('taskArns') as $task) {
+      $tasks = $result->get('taskArns');
+      foreach ($tasks as $task) {
         if ($task == $taskARN) {
           return true;
         }
@@ -280,15 +281,18 @@ class AWS
       }
       $key = $this->createPath($src, $baseFile);
       try {
-        $res = $client->putObject([
-            'Bucket' => $this->s3Bucket,
-            'Key' => $key,
-            'SourceFile' => $file,
-            'ContentType' => $mimeType,
-            'ServerSideEncryption' => 'AES256'
-        ]);
-        $results[] = $res;
-      } catch (\Aws\S3\Exception\S3Exception $e) {
+          $uploader = new \Aws\S3\MultipartUploader($client, $file, [
+              'bucket'      => $this->s3Bucket,
+              'key'         => $key,
+              'before_initiate' => function(\Aws\Command $command) use ($mimeType)
+              {
+                  $command['ContentType'] = $mimeType;
+                  $command['ServerSideEncryption'] = 'AES256';
+              }
+          ]);
+
+          $results[] = $uploader->upload();
+      } catch (\Aws\Exception\MultipartUploadException $e) {
         $this->log->err($e->getMessage());
         return false;
       }

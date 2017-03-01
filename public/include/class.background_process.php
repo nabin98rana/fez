@@ -334,7 +334,6 @@ class BackgroundProcess {
         $res = $this->getDetails();
         $utc_date = Date_API::getSimpleDateUTC();
 
-
         $lastHeartbeat = Date_API::dateDiff("n", $res['bgp_heartbeat'], $utc_date);
         if (! is_null($res['bgp_state']) && $lastHeartbeat < 10) {
           // Bail as the state has changed
@@ -343,11 +342,15 @@ class BackgroundProcess {
         }
         if (!isset($res['bgp_include']) || $res['bgp_include'] == '') {
             // Bail as no bgp include
+            $bgp = new BackgroundProcess($res['bgp_id']);
             $log->err("Aborting because no bgp_include is set: ".print_r($res, true));
+            $bgp->setStatus("Aborting and finishing because no bgp_include is set");
+            $bgp->setState(BGP_FINISHED);
             return;
         }
         include_once(APP_INC_PATH . $res['bgp_include']);
         $bgp = unserialize($res['bgp_serialized']);
+
         $msg = 'Starting BGP ID:'. $bgp->bgp_id . ' with name ' . $bgp->name . "..\n";
 
         // set the workflow session id up as a param that file operations can grab from anywhere
@@ -525,11 +528,17 @@ class BackgroundProcess {
 
 		$dbtp = APP_TABLE_PREFIX;
 
-		//get all the next available bgps, but also running state bgps that couldn't get a task within 10 minutes
+		// get all the next available bgps, but also running state bgps that couldn't get a task within 10 minutes
+    // or all the ones that started but never got a heart beat after they started for 2 hours and didnt finish
+    // or all the ones where they started, got a heart beat within 2 hours but started 6 hours ago and didnt finish
+    // or started but never got a heartbeat within 120 mins and didnt finish
 		$stmt = "SELECT * FROM " . $dbtp . "background_process WHERE (bgp_id > $from AND bgp_state IS NULL)
 		   OR (bgp_state = 1 AND (bgp_heartbeat < DATE_SUB('".$utc_date."',INTERVAL 10 MINUTE))
-		    AND (bgp_task_arn = '' OR bgp_task_arn IS NULL OR bgp_task_arn = 'Failed to get a task'))
-		     OR (bgp_state = 1 AND (bgp_heartbeat < DATE_SUB(NOW() ,INTERVAL 120 MINUTE)))
+		    AND (bgp_task_arn = '' OR bgp_task_arn IS NULL OR bgp_task_arn = 'Failed to get a task'))	     
+		   OR ((bgp_state = 1 OR bgp_state is null) 
+		     AND 
+		     ((  bgp_heartbeat < DATE_SUB('".$utc_date."',INTERVAL 120 MINUTE) AND bgp_started < DATE_SUB('".$utc_date."',INTERVAL 360 MINUTE)   )  
+		       OR (bgp_heartbeat is null AND  bgp_started < DATE_SUB('".$utc_date."',INTERVAL 120 MINUTE))))		     
 		   ORDER BY bgp_id ASC";
 		try {
 			return $db->fetchRow($stmt, array(), Zend_Db::FETCH_ASSOC);
@@ -564,7 +573,7 @@ class BackgroundProcess {
       $bgp->setTask($taskARN);
       $bgp->setHostname($host);
       $bgp->runCurrent();
-      $bgp->setState(BGP_FINISHED);
+
 		}
 	}
 

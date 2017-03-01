@@ -171,7 +171,7 @@ class Datastream
     }
     $date = Zend_Registry::get('version');
     $stmt = "REPLACE INTO " . APP_TABLE_PREFIX . "datastream_info__shadow
-               SELECT *, " . $db->quote($date) . " FROM " . APP_TABLE_PREFIX . "datastream_info
+               SELECT *, " . $db->quote($date) . ", " . $db->quote($pid . ' ' . $date) . " FROM " . APP_TABLE_PREFIX . "datastream_info
                         WHERE dsi_id = " . $db->quote($did);
     try {
       $db->query($stmt);

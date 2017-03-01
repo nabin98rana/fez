@@ -38,6 +38,7 @@
  */
 
 include_once(APP_INC_PATH . "class.error_handler.php");
+include_once(APP_INC_PATH . "class.auth_index.php");
 
 class Fez_Record_SearchkeyShadow
 {
@@ -107,6 +108,21 @@ class Fez_Record_SearchkeyShadow
     return $this->_version;
   }
 
+  public function createVersion()
+  {
+      $this->copyRecordSearchKeyToShadow();
+      // get list of the Related 1-M search keys, delete those first, then delete the 1-1 core table entries
+      $sekDet = Search_Key::getList();
+      foreach ($sekDet as $sval) {
+          // if is a 1-M needs its own delete sql, otherwise if a 0 (1-1) the core delete will do it
+          if ($sval['sek_relationship'] == 1) {
+              $sekTable = $sval['sek_title_db'];
+              $this->copySearchKeyToShadow($sekTable);
+          }
+      }
+      return true;
+  }
+
   /**
    * Copy the given search key to the appropriate shadow table
    *
@@ -121,8 +137,16 @@ class Fez_Record_SearchkeyShadow
     $date = $this->_version;
     $pid = $this->_pid;
 
+    // Make sure we have a matching version from the core shadow table
+    $skDates = $this->returnVersionDates();
+    $now = $skDates[0];
+    if ($date != $now) {
+      Zend_Registry::set('version', $now);
+      $date = $now;
+      $this->_version = $now;
+    }
     $stmt = "INSERT INTO " . APP_TABLE_PREFIX . "record_search_key_" . $sekTable . "__shadow
-               SELECT *, " . $db->quote($date) . " FROM " . APP_TABLE_PREFIX . "record_search_key_" . $sekTable . "
+               SELECT *, " . $db->quote($date) . ", " . $db->quote($pid . ' ' . $date) . " FROM " . APP_TABLE_PREFIX . "record_search_key_" . $sekTable . "
                         WHERE rek_" . $sekTable . "_pid = " . $db->quote($pid);
     try {
       $res = $db->exec($stmt);
@@ -146,7 +170,7 @@ class Fez_Record_SearchkeyShadow
     $pid = $this->_pid;
 
     $stmt = "INSERT INTO " . APP_TABLE_PREFIX . "record_search_key__shadow
-               SELECT *, " . $db->quote($date) . " FROM " . APP_TABLE_PREFIX . "record_search_key
+               SELECT *, " . $db->quote($date) . ", " . $db->quote($pid . ' ' . $date) . ", 'master', ''  FROM " . APP_TABLE_PREFIX . "record_search_key
                         WHERE rek_pid = " . $db->quote($pid);
     try {
       $res = $db->exec($stmt);
@@ -204,35 +228,13 @@ class Fez_Record_SearchkeyShadow
     $log = FezLog::get();
     $db = DB_API::get();
     $pid = $this->_pid;
-    $searchKeys = Search_Key::getList(false);
-    $datesArray = array();
-
-    foreach ($searchKeys as $sekDetails) {
-      if ($sekDetails['sek_relationship'] == 1) {
-        $sek_title_db = $sekDetails['sek_title_db'];
-        $stmt = "SELECT
-                    rek_" . $sek_title_db . "_stamp
-                 FROM
-                    " . APP_TABLE_PREFIX . "record_search_key_" . $sek_title_db . "__shadow
-                 WHERE
-                    rek_" . $sek_title_db . "_pid = " . $db->quote($pid) . "
-                 ORDER BY rek_" . $sek_title_db . "_stamp DESC";
-        try {
-          $res = $db->fetchCol($stmt);
-        } catch (Exception $ex) {
-          $log->err($ex);
-          //return false;
-        }
-        $datesArray = array_merge($datesArray, $res);
-      }
-    }
 
     $stmt = "SELECT
                 rek_stamp
              FROM
                 " . APP_TABLE_PREFIX . "record_search_key__shadow
              WHERE
-                rek_pid = " . $db->quote($pid) . "
+                rek_pid = " . $db->quote($pid) . " AND rek_source = 'master'
              ORDER BY rek_stamp DESC";
     try {
       $res = $db->fetchCol($stmt);
@@ -241,9 +243,7 @@ class Fez_Record_SearchkeyShadow
       return false;
     }
 
-    $datesArray = array_merge($datesArray, $res);
-
-    return array_unique($datesArray);
+    return array_unique($res);
   }
 
   public function hasDelta($sek_title)
@@ -281,6 +281,7 @@ class Fez_Record_SearchkeyShadow
       }
     }
     Record::updateSearchKeys($this->_pid, $searchKeyData);
+    AuthIndex::setIndexAuth($this->_pid, true);
     return $searchKeyData;
   }
 }

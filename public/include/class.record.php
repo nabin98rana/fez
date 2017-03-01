@@ -1062,6 +1062,11 @@ class Record
         $recordSearchkeyShadow = new Fez_Record_SearchkeyShadow($pid);
     }
 
+
+    if ($shadow == true) {
+      $recordSearchkeyShadow->copyRecordSearchKeyToShadow();
+    }
+
     // get list of the Related 1-M search keys, delete those first, then delete the 1-1 core table entries
     $sekDet = Search_Key::getList();
     foreach ($sekDet as $sval) {
@@ -1069,26 +1074,11 @@ class Record
       if ($sval['sek_relationship'] == 1) {
         $sekTable = $sval['sek_title_db'];
         if ($shadow == true) {
-            //$hasDelta = $recordSearchkeyShadow->hasDelta($sval['sek_title']);
-            //if ($hasDelta) {
-              $recordSearchkeyShadow->copySearchKeyToShadow($sekTable);
-            //}
-        }
-        $stmt = "DELETE FROM
-                        " . APP_TABLE_PREFIX . "record_search_key_".$sekTable."
-             WHERE rek_".$sekTable."_pid = " . $db->quote($pid);
-        try {
-          $db->query($stmt);
-        }
-        catch(Exception $ex) {
-          $log->err($ex);
+          $recordSearchkeyShadow->copySearchKeyToShadow($sekTable);
         }
       }
     }
 
-    if ($shadow == true) {
-        $recordSearchkeyShadow->copyRecordSearchKeyToShadow();
-    }
     $stmt = "DELETE FROM
                     " . APP_TABLE_PREFIX . "record_search_key
          WHERE rek_pid = " . $db->quote($pid);
@@ -1214,20 +1204,28 @@ class Record
     // Get the timestamp to be used for shadow tables.
     $now = Record::setSearchKeyTimestamp($updateTS);
 
+    if ($shadow) {
+        $recordSearchkeyShadow = new Fez_Record_SearchkeyShadow($pid);
+        return $recordSearchkeyShadow->createVersion();
+    }
+
     /*
      *  Update 1-to-1 search keys
      */
     $stmt[] = 'rek_pid';
     $valuesIns[] = $db->quote($pid);
     $existingData = array(0 => array('rek_pid' => $pid));
-    Record::getSearchKeysByPIDS($existingData, true, $shadow);
+    Record::getSearchKeysByPIDS($existingData, true);
     $foundDifference = false;
 //    $diff = Misc::array_diff_assoc_recursive($sekData, $existingData[0]);
     if (is_array($sekData[0])) {
         foreach ($sekData[0] as $sek_column => $sek_value) {
           //Check that the column value has changed before using it
-            if ((!is_array($existingData) || !isset($existingData[0]['rek_'.$sek_column]) || $existingData[0]['rek_'.$sek_column] != $sek_value['xsdmf_value']) &&
-              !($sek_value['xsdmf_value'] == '' && $existingData[0]['rek_'.$sek_column] == null) ) {
+            if ((!is_array($existingData)
+                    || !isset($existingData[0]['rek_'.$sek_column])
+                    || $existingData[0]['rek_'.$sek_column] != $sek_value['xsdmf_value'])
+                    && !($sek_value['xsdmf_value'] == ''
+                    && $existingData[0]['rek_'.$sek_column] == null) ) {
               $stmt[] = "rek_{$sek_column}, rek_{$sek_column}_xsdmf_id";
 
               if ($sek_value['xsdmf_value'] === 'NULL' || $sek_value['xsdmf_value'] === '') {
@@ -1269,12 +1267,12 @@ class Record
 
         $stmtIns = "INSERT INTO " . $table . " (" . implode(",", $stmt);
         if ($shadow) {
-          $stmtIns .= ", rek_stamp";
+          $stmtIns .= ", rek_stamp, rek_version";
         }
         $stmtIns .= ") ";
         $stmtIns .= " VALUES (" . implode(",", $valuesIns);
         if ($shadow) {
-          $stmtIns .= ", " . $db->quote($now);
+          $stmtIns .= ", " . $db->quote($now) . ", " . $db->quote($pid . ' ' . $now);
         }
         $stmtIns .= ")";
         $db->beginTransaction();
@@ -1300,7 +1298,14 @@ class Record
           $log->err($ex." stmt: ".$stmt);
           $ret = false;
         }
+    } else if ($shadow) {
+        // Get the last version to use below
+        $skShadow = new Fez_Record_SearchkeyShadow($pid);
+        $skDates = $skShadow->returnVersionDates();
+        $now = $skDates[0];
+        Zend_Registry::set('version', $now);
     }
+
     /*
      *  Update 1-to-Many search keys
      */
@@ -1386,7 +1391,7 @@ class Record
               $stmt .= " (rek_" . $sek_table . "_pid, rek_" . $sek_table . "_xsdmf_id, rek_" . $sek_table . $cardinalityCol;
 
               if ($shadow) {
-                $stmt .= ", rek_" . $sek_table . "_stamp, rek_" . $sek_table . "_id";
+                $stmt .= ", rek_" . $sek_table . "_stamp, rek_" . $sek_table . "_id, rek_" . $sek_table . "_version";
               }
               $stmt .= ") VALUES ";
 
@@ -1400,6 +1405,7 @@ class Record
                     $val .= ", " . $db->quote($now);
                     $pidInt = explode(':', $pid);
                     $val .= ", " . $db->quote($pidInt[1], 'INTEGER');
+                    $val .= ", " . $db->quote($pid . ' ' . $now);
                   }
                   $val .= ")";
                   $stmtVars[] = $val;
@@ -1429,6 +1435,7 @@ class Record
                   $stmt .= ", " . $db->quote($now);
                   $pidInt = explode(':', $pid);
                   $stmt .= ", " . $db->quote($pidInt[1], 'INTEGER');
+                  $stmt .= ", " . $db->quote($pid . ' ' . $now);
                 }
                 $stmt .= ")";
               }
@@ -1483,7 +1490,7 @@ class Record
 
         $stmt .= " (rek_{$sekTable}_pid, rek_{$sekTable}";
         if ($shadow) {
-          $stmt .= ", rek_{$sekTable}_stamp, rek_{$sekTable}_id";
+          $stmt .= ", rek_{$sekTable}_stamp, rek_{$sekTable}_id, rek_{$sekTable}_version";
         }
         $stmt .= ") VALUES ";
 
@@ -1505,6 +1512,7 @@ class Record
                 $stmtIns .= ", " . $db->quote($now);
                 $pidInt = explode(':', $pid);
                 $stmtIns .= ", " . $db->quote($pidInt[1], 'INTEGER');
+                $stmtIns .= ", " . $db->quote($pid . ' ' . $now);
               }
               $stmtVars[] = $stmtIns.")";
               $cardinalityVal++;
@@ -1519,6 +1527,7 @@ class Record
               $stmt .= ", " . $db->quote($now);
               $pidInt = explode(':', $pid);
               $stmt .= ", " . $db->quote($pidInt[1], 'INTEGER');
+              $stmt .= ", " . $db->quote($pid . ' ' . $now);
             }
             $stmt .= ")";
           }
@@ -5929,7 +5938,7 @@ function getSearchKeyIndexValueShadow($pid, $searchKeyTitle, $getLookup=true, $s
   {
     $shadow = false;
     if ($date == '') {
-      $date = Date_API::getCurrentDateGMT(true);
+      $date = Date_API::getCurrentDateGMT();
     }
 
     if(APP_FEDORA_BYPASS != 'ON') {

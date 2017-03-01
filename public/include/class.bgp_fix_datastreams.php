@@ -3,7 +3,7 @@
 // +----------------------------------------------------------------------+
 // | Fez - Digital Repository System                                      |
 // +----------------------------------------------------------------------+
-// | Copyright (c) 2005, 2006, 2007 The University of Queensland,         |
+// | Copyright (c) 2005, 2006 The University of Queensland,               |
 // | Australian Partnership for Sustainable Repositories,                 |
 // | eScholarship Project                                                 |
 // |                                                                      |
@@ -27,28 +27,26 @@
 // | 59 Temple Place - Suite 330                                          |
 // | Boston, MA 02111-1307, USA.                                          |
 // +----------------------------------------------------------------------+
-// | Authors: Christiaan Kortekaas <c.kortekaas@library.uq.edu.au>,       |
-// |          Lachlan Kuhn <l.kuhn@library.uq.edu.au>,                    |
-// |          Rhys Palmer <r.rpalmer@library.uq.edu.au>                   |
+// | Authors: Rhys Palmer <r.palmer@library.uq.edu.au>                    |
 // +----------------------------------------------------------------------+
 
-// restores WorkflowStatus object from the session
-$wfstatus = &WorkflowStatusStatic::getSession(); 
+include_once(APP_INC_PATH . 'class.background_process.php');
+include_once(APP_INC_PATH . '../upgrade/fedoraBypassMigration/FixFromFedoraToDatabase.php');
 
-$date = Date_API::getCurrentDateGMT();
+class BackgroundProcess_Fix_Datastreams extends BackgroundProcess
+{
+  function __construct()
+  {
+    parent::__construct();
+    $this->include = 'class.bgp_fix_datastreams.php';
+    $this->name = 'Fixing Datastreams';
+  }
 
-Record::markAsDeleted($this->pid, $date);
-// need to add history here because the status object 
-// doesn't like to add history to a deleted object
-$historyComment = $wfstatus->getVar('historyDetail');
-if ($historyComment) {
-  History::addHistory(
-      $this->pid, $this->wfl_details['wfl_id'],
-      '', '', true, '', $historyComment, $date
-  );
-} else {
-  History::addHistory($this->pid, $this->wfl_details['wfl_id'], '', '', true, '', '', $date);
+  function run() {
+    $this->setState(BGP_RUNNING);
+    extract(unserialize($this->inputs));
+    $migrate = new FixFromFedoraToDatabase();
+    $migrate->run();
+    $this->setState(BGP_FINISHED);
+  }
 }
-
-$cache = new fileCache($this->pid, 'pid='.$this->pid);
-$cache->poisonCache();
