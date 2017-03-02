@@ -50,92 +50,104 @@ class BackgroundProcess_Db_Load extends BackgroundProcess
   }
 
   function loadDb() {
-    $log = FezLog::get();
+      $log = FezLog::get();
 
-    $environment = $_SERVER['APP_ENVIRONMENT'];
-    if ($environment !== 'staging') {
-      $log->err('DB load failed: Unknown environment - ' . $environment);
-      return;
-    }
-    set_time_limit(0);
-
-    $db = DB_API::get();
-    $path = '/tmp/' . $environment . '/export';
-    system("rm -Rf ${path}");
-    mkdir($path);
-    chdir($path);
-
-    if (! system("AWS_ACCESS_KEY_ID=" .
-      AWS_KEY. " AWS_SECRET_ACCESS_KEY=" .
-      AWS_SECRET .
-      " bash -c \"aws s3 cp s3://uql-fez-${environment}-cache/prod.config.inc.php ${path}/prod.config.inc.php\"")
-    ) {
-      $log->err('DB config failed: Unable to copy Fez prod config from S3');
-      return;
-    }
-    include_once($path . "/prod.config.inc.php");
-
-    if (! system(
-      "MYSQL_DUMP_DIR=" . "${path}/../" .
-      " MYSQL_HOST=" . DB_LOAD_PROD_SQL_DBHOST .
-      " MYSQL_NAME=" . DB_LOAD_PROD_SQL_DBNAME .
-      " MYSQL_USER=" . DB_LOAD_PROD_SQL_DBUSER .
-      " MYSQL_PASS=" . DB_LOAD_PROD_SQL_DBPASS .
-      " bash -c \"" . APP_INC_PATH . "../../util/mysql_dump_aws.sh\"")
-    ) {
-      $log->err('DB load failed: Unable to export Fez DB');
-      return;
-    }
-
-    if (! system(
-      "AWS_ACCESS_KEY_ID=" . AWS_KEY .
-      " AWS_SECRET_ACCESS_KEY=" . AWS_SECRET .
-      " bash -c \"aws s3 cp s3://uql-fez-${environment}-cache/fez_config_extras.sql ${path}/fez_config_extras.sql\"")
-    ) {
-      $log->err('DB load failed: Unable to copy Fez DB from S3');
-      return;
-    }
-
-    $files = glob($path . "/*.sql");
-    foreach ($files as $sql) {
-      $tbl = basename($sql, '.sql');
-      if (strpos($tbl, 'scd_') !== 0) {
-        $db->query('DROP TABLE IF EXISTS ' . $tbl);
+      $environment = $_SERVER['APP_ENVIRONMENT'];
+      if ($environment !== 'staging') {
+          $log->err('DB load failed: Unknown environment - ' . $environment);
+          return;
       }
-      $sql = file_get_contents($sql);
-      $db->query($sql);
-    }
+      set_time_limit(0);
 
-    $files = glob($path . "/*.txt");
+      $db = DB_API::get();
+      $path = '/tmp';
+      chdir($path);
 
-    $dsn = "mysql:host=".APP_SQL_DBHOST.";dbname=".APP_SQL_DBNAME;
-    $con = new PDO($dsn, APP_SQL_DBUSER, APP_SQL_DBPASS,
-      array(
-        PDO::MYSQL_ATTR_LOCAL_INFILE => 1,
-      ));
+      if (! system("AWS_ACCESS_KEY_ID=" .
+          AWS_KEY. " AWS_SECRET_ACCESS_KEY=" .
+          AWS_SECRET .
+          " bash -c \"aws s3 cp s3://uql-fez-${environment}-cache/prod.config.inc.php ${path}/prod.config.inc.php\"")
+      ) {
+          $log->err('DB config failed: Unable to copy Fez prod config from S3');
+          return;
+      }
+      include_once($path . "/prod.config.inc.php");
+      if (! system(
+          "AWS_ACCESS_KEY_ID=" . AWS_KEY .
+          " AWS_SECRET_ACCESS_KEY=" . AWS_SECRET .
+          " bash -c \"aws s3 cp s3://uql-fez-${environment}-cache/fez_config_extras.sql ${path}/fez_config_extras.sql\"")
+      ) {
+          $log->err('DB load failed: Unable to copy Fez DB from S3');
+          return;
+      }
 
-    foreach ($files as $txt) {
-      $tbl = basename($txt, '.txt');
+      $excludeData = [
+          APP_TABLE_PREFIX . 'background_process',
+          APP_TABLE_PREFIX . 'background_process_pids',
+          APP_TABLE_PREFIX . 'statistics_all',
+          APP_TABLE_PREFIX . 'statistics_buffer',
+          APP_TABLE_PREFIX . 'sessions',
+          APP_TABLE_PREFIX . 'statistics_all',
+          APP_TABLE_PREFIX . 'thomson_citations',
+          APP_TABLE_PREFIX . 'thomson_citations_cache',
+          APP_TABLE_PREFIX . 'scopus_citations',
+          APP_TABLE_PREFIX . 'scopus_citations_cache',
+      ];
+      try {
+          $sql = "SHOW TABLES FROM " . DB_LOAD_PROD_SQL_DBNAME;
+          $tables = $db->fetchCol($sql);
+      }
+      catch(Exception $ex) {
+          $log->err('DB load failed: Unable to get tables names for Fez DB');
+          return;
+      }
 
-      $sql = "LOAD DATA LOCAL INFILE '${path}/" . basename($txt) . "' INTO TABLE ${tbl}" .
-        " FIELDS TERMINATED BY ',' ENCLOSED BY '\"' LINES TERMINATED BY '\\n'";
-      $stmt = $con->prepare($sql);
+      $count = 0;
+      foreach ($tables as $table) {
+          $count++;
+          echo "[$count/" . count($tables) . "] $table\n";
+          $cmd = " mysqldump" .
+              " -h" . DB_LOAD_PROD_SQL_DBHOST .
+              " -u" . DB_LOAD_PROD_SQL_DBUSER .
+              " -p" . DB_LOAD_PROD_SQL_DBPASS .
+              " " . DB_LOAD_PROD_SQL_DBNAME .
+              " " . $table .
+              (in_array($table, $excludeData) ? " --no-data" : "") .
+              " --add-drop-table" .
+              " --routines=0" .
+              " --triggers=0" .
+              " --events=0" .
+              " | mysql" .
+              " -h" . APP_SQL_DBHOST .
+              " -u" . APP_SQL_DBUSER .
+              " -p" . APP_SQL_DBPASS .
+              " " . APP_SQL_DBNAME;
+          system($cmd);
+          if ($table === APP_TABLE_PREFIX . 'config') {
+              $sql = file_get_contents($path . '/fez_config_extras.sql');
+              $db->query($sql);
+          }
+      }
 
-      $stmt->execute();
-    }
+      system(
+          " mysqldump" .
+          " -h" . DB_LOAD_PROD_SQL_DBHOST .
+          " -u" . DB_LOAD_PROD_SQL_DBUSER .
+          " -p" . DB_LOAD_PROD_SQL_DBPASS .
+          " " . DB_LOAD_PROD_SQL_DBNAME .
+          " --routines" .
+          " --no-create-info" .
+          " --no-create-db" .
+          " --no-data" .
+          " --skip-opt" .
+          " | mysql" .
+          " -h" . APP_SQL_DBHOST .
+          " -u" . APP_SQL_DBUSER .
+          " -p" . APP_SQL_DBPASS .
+          " " . APP_SQL_DBNAME
+      );
 
-    $sql = file_get_contents($path . '/fez_config_extras.sql');
-    $db->query($sql);
-
-    system("rm -Rf ${path}");
-  }
-
-  /**
-   * Check that an existing DB load process isn't scheduled or running
-   * @return bool
-   */
-  function registerCheck() {
-    // Check hasn't been scheduled in the past 10 minutes and isn't already running
-    return !($this->isScheduledOrRunning(time() - (10 * 60)));
+      @unlink($path . '/fez_config_extras.sql');
+      @unlink($path . '/prod.config.inc.php');
   }
 }
