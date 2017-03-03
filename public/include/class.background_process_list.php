@@ -258,7 +258,7 @@ class BackgroundProcessList
 			$papertrail = new Papertrail();
 			$message = json_decode(
 				$papertrail->search(
-					'system_id=' . $details['bgp_host'] . '&min_time=' .
+					'q=program%3A' . $details['bgp_host'] . '&min_time=' .
 					strtotime($details['bgp_started'])),
 				true
 			);

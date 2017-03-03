@@ -38,7 +38,7 @@
           "logDriver": "syslog",
           "options": {
               "syslog-address": "udp://logs5.papertrailapp.com:33089",
-              "tag": "{{.Name}}"
+              "tag": "{{.Name}}/{{.ID}}"
           }
       }
     }

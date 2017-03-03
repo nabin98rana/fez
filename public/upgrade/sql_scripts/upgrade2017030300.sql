@@ -1,0 +1,1 @@
+ALTER TABLE `%TABLE_PREFIX%background_process` CHANGE `bgp_include` `bgp_include` VARCHAR(255)  CHARACTER SET utf8  COLLATE utf8_general_ci  NOT NULL  DEFAULT '';

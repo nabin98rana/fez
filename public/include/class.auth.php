@@ -2577,8 +2577,17 @@ class Auth
     // instance) then you need to reset the save_session_hanlder
     // See the unresolved php bug for details http://bugs.php.net/bug.php?id=32330
     ////////////////////////////////////////////////////////////////////////////////
-    foreach ($_SESSION as $k => $v) {
-      unset($_SESSION[$k]);
+    global $auth_isBGP, $auth_bgp_session, $auth_api_session;
+
+    if (APP_API) {
+        $ses =& $auth_api_session;
+    } else if ($auth_isBGP) {
+        $ses =& $auth_bgp_session;
+    } else {
+        $ses =& $_SESSION;
+    }
+    foreach ($ses as $k => $v) {
+        unset($ses[$k]);
     }
 
     if (SHIB_VERSION != "3" && SHIB_SWITCH == "ON") {
