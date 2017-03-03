@@ -664,6 +664,9 @@ function loadPreview(pid,datastreamID, alt, origami)
 					</tr>
 					<tr style="background: {$cell_color}">
 						<td colspan="2">Version</td>
+						{if $created_dates_external_list}
+						<td colspan="2">External Versions</td>
+						{/if}
 						<td colspan="3">Filter Type</td>
 					</tr>
 					<tr>
@@ -678,6 +681,19 @@ function loadPreview(pid,datastreamID, alt, origami)
 							</select>
 							<input type="submit" value="View Version" />
 						</td>
+						{if $created_dates_external_list}
+						<td colspan="2" style="background: {$light_color}">
+							<select name="version_date">
+								{section name="versions" loop=$created_dates_external_list}
+								<option value="{$created_dates_external_list[versions].fedoraDate}"
+									{if $created_dates_external_list[versions].selected} selected="selected"{/if}>
+									{$created_dates_external_list[versions].displayDate}
+								</option>
+								{/section}
+							</select>
+							<input type="submit" value="View Version" />
+						</td>
+						{/if}
 						<td colspan="3" style="background: {$light_color}">
 							<select name="version_view_type">
 								<option value="FILTERED"{if $version_view_type == 'FILTERED'} selected="selected"{/if}>Filtered</option>
