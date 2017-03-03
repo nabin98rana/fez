@@ -600,6 +600,7 @@ class RecordObject extends RecordGeneral
           && !Misc::hasPrefix($dsIDName, 'preview_')
           && !Misc::hasPrefix($dsIDName, 'web_')
           && !Misc::hasPrefix($dsIDName, 'stream_')
+          && !Misc::hasPrefix($dsIDName, 'FezACML')
           && !Misc::hasPrefix($dsIDName, 'thumbnail_')
       ) {
         $new_dsID = Foxml::makeNCName($dsIDName);
