@@ -351,15 +351,15 @@ class BackgroundProcess {
         include_once(APP_INC_PATH . $res['bgp_include']);
         $bgp = unserialize($res['bgp_serialized']);
 
-        $msg = 'Starting BGP ID:'. $bgp->bgp_id . ' with name ' . $bgp->name . "..\n";
-
+        $msg = 'Starting BGP ID:'. $res['bgp_id'] . ' with include ' . $res['bgp_include'] . "..\n";
+        $bgp->setStatus($msg);
         // set the workflow session id up as a param that file operations can grab from anywhere
         if (!empty($bgp->wfses_id)) {
           Zend_Registry::set('wfses_id', $bgp->wfses_id);
         }
 
         $bgp->setAuth();
-        $bgp->setStatus($msg);
+
         $bgp->setState(BGP_RUNNING);
 
         $bgp->run();
