@@ -46,6 +46,7 @@
 include_once(APP_INC_PATH . "class.validation.php");
 include_once(APP_INC_PATH . "class.misc.php");
 include_once(APP_INC_PATH . "class.auth.php");
+include_once(APP_INC_PATH . "class.auth_index.php");
 include_once(APP_INC_PATH . "class.user.php");
 include_once(APP_INC_PATH . "class.date.php");
 include_once(APP_INC_PATH . "class.batchimport.php");
@@ -720,7 +721,7 @@ class Reindex
           if (APP_SOLR_INDEXER == "ON" || APP_ES_INDEXER == "ON") {
             FulltextQueue::singleton()->add($pid);
           }
-
+          AuthIndex::setIndexAuth($pid);
           if (APP_FILECACHE == "ON" ) {
             $cache = new fileCache($pid, 'pid='.$pid);
             $cache->poisonCache();
@@ -823,6 +824,8 @@ class Reindex
           Record::propagateExistingPremisDatastreamToFez($pid);
           if (APP_FEDORA_BYPASS != 'ON') {
             Record::setIndexMatchingFields($pid);
+          } else {
+            AuthIndex::setIndexAuth($pid);
           }
         }
       } else {
