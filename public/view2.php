@@ -522,6 +522,10 @@ if (!empty($pid) && $record->checkExists()) {
     // Extact and generate list of timestamps for the datastreams of the record
     generateTimestamps($pid, $datastreams, $requestedVersionDate, $tpl);
 
+    if (APP_FEDORA_BYPASS == 'ON' && $record->canEdit(false)) {
+      generateTimestampsForExternalIntegrations($pid, $requestedVersionDate, $tpl);
+    }
+
     //Make this method call pull from the db.
     if ($requestedVersionDate != null) {
       $datastreams = Misc::addDeletedDatastreams($datastreams, $pid, $requestedVersionDate);
@@ -1011,6 +1015,42 @@ function generateTimestamps($pid, $datastreams, $requestedVersionDate, $tpl)
     $versionViewType = $_REQUEST['version_view_type'];
   $tpl->assign("version_view_type", $versionViewType);
 }
+
+function generateTimestampsForExternalIntegrations($pid, $requestedVersionDate, $tpl)
+{
+  $createdDates = Fedora_API::callGetHistoryNonMaster($pid);
+  if ($createdDates === false || empty($createdDates)) {
+    return;
+  }
+  $originalCreatedDates = $createdDates;
+
+  $createdDatesForDisplay = array();
+  $timezone = Date_API::getPreferredTimezone();
+
+  foreach ($originalCreatedDates as $createdDate) {
+    // format as RFC 2822 formatted date for readibility
+    $displayDate = Date_API::getFormattedDate($createdDate['rek_stamp'], $timezone);
+
+    // Create the date display entry
+    $createdDatesForDisplay[] = [
+      "fedoraDate" => $createdDate,
+      "displayDate" => $displayDate . ' from ' . $createdDate['rek_source'],
+      "selected" => $createdDate['rek_stamp'] == $requestedVersionDate
+    ];
+  }
+
+  // set the last date (ie, current version) to null to force latest revision to be displayed
+  $createdDatesForDisplay[sizeof($createdDatesForDisplay) - 1]['fedoraDate'] = null;
+
+  // If a version date hasn't been selected, flag the last (ie, current revision) as selected
+  if ($requestedVersionDate == null) {
+    $createdDatesForDisplay[sizeof($createdDatesForDisplay) - 1]['selected'] = true;
+  }
+
+  // Put date lists on the template
+  $tpl->assign('created_dates_external_list', $createdDatesForDisplay);
+}
+
 
 /**
  * Custom date sorter for Fedora dates, used by PHP's usort()

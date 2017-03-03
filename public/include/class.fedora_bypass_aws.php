@@ -515,6 +515,16 @@ class Fedora_API implements FedoraApiInterface {
   }
 
   /**
+   * Gets the history of a a PID npt generated from a master record
+   *
+   * @return array|bool of the history
+   */
+  public static function callGetHistoryNonMaster($pid) {
+    $rec = new Fez_Record_SearchkeyShadow($pid);
+    return $rec->returnNonMasterVersionDates();
+  }
+
+  /**
    * Does a datastream with a given ID already exist in an object
    *
    * @param string $pid The persistent identifier of the object

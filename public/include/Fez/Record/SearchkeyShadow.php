@@ -222,6 +222,7 @@ class Fez_Record_SearchkeyShadow
 
   /**
    * Returns a list of all versions.
+   * @return array|bool
    */
   public function returnVersionDates()
   {
@@ -234,8 +235,7 @@ class Fez_Record_SearchkeyShadow
              FROM
                 " . APP_TABLE_PREFIX . "record_search_key__shadow
              WHERE
-                rek_pid = " . $db->quote($pid) . " AND rek_source = 'master'
-             ORDER BY rek_stamp DESC";
+                rek_pid = " . $db->quote($pid) . " AND rek_source = 'master' ORDER BY rek_stamp DESC";
     try {
       $res = $db->fetchCol($stmt);
     } catch (Exception $ex) {
@@ -244,6 +244,32 @@ class Fez_Record_SearchkeyShadow
     }
 
     return array_unique($res);
+  }
+
+  /**
+   * Returns a list of all versions not generated from the master record
+   * @return array|bool
+   */
+  public function returnNonMasterVersionDates()
+  {
+    $log = FezLog::get();
+    $db = DB_API::get();
+    $pid = $this->_pid;
+
+    $stmt = "SELECT
+                rek_stamp, rek_source
+             FROM
+                " . APP_TABLE_PREFIX . "record_search_key__shadow
+             WHERE
+                rek_pid = " . $db->quote($pid) . " AND rek_source <> 'master' ORDER BY rek_stamp DESC";
+    try {
+      $res = $db->fetchAssoc($stmt);
+    } catch (Exception $ex) {
+      $log->err($ex);
+      return false;
+    }
+
+    return $res;
   }
 
   public function hasDelta($sek_title)
