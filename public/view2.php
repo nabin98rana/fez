@@ -1033,20 +1033,20 @@ function generateTimestampsForExternalIntegrations($pid, $requestedVersionDate, 
 
     // Create the date display entry
     $createdDatesForDisplay[] = [
-      "fedoraDate" => $createdDate,
+      "fedoraDate" => $createdDate['rek_stamp'],
       "displayDate" => $displayDate . ' from ' . $createdDate['rek_source'],
       "selected" => $createdDate['rek_stamp'] == $requestedVersionDate
     ];
+    if ($requestedVersionDate == $createdDate['rek_stamp']) {
+      $createdDatesForDisplay[sizeof($createdDatesForDisplay) - 1]['selected'] = true;
+    }
   }
-
-  // set the last date (ie, current version) to null to force latest revision to be displayed
-  $createdDatesForDisplay[sizeof($createdDatesForDisplay) - 1]['fedoraDate'] = null;
 
   // If a version date hasn't been selected, flag the last (ie, current revision) as selected
   if ($requestedVersionDate == null) {
     $createdDatesForDisplay[sizeof($createdDatesForDisplay) - 1]['selected'] = true;
   }
-
+  
   // Put date lists on the template
   $tpl->assign('created_dates_external_list', $createdDatesForDisplay);
 }
