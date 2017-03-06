@@ -2569,7 +2569,7 @@ class Auth
   /**
    * Logs the current user out of Fez.
    */
-  function logout()
+  public static function logout()
   {
     ////////////////////////////////////////////////////////////////////////////////
     // IMPORTANT! everytime you destroy a cookie and you are using

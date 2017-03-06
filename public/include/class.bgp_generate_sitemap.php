@@ -56,6 +56,7 @@ class BackgroundProcess_Generate_Sitemap extends BackgroundProcess
     $log = FezLog::get();
 
     $approved_roles=array(9,10);
+    Auth::logout();
     // Get listing of all published pids, which CLI will be publicly viewable pids
     $stmt = "SELECT rek_pid, rek_updated_date FROM " . APP_TABLE_PREFIX . "record_search_key";
     $authArray = Collection::getAuthIndexStmt($approved_roles, "rek_pid", false);
