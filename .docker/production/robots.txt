@@ -1,3 +1,12 @@
 User-agent: *
-Crawl-Delay: 10
-Disallow: /
+Crawl-delay: 10
+Disallow: /login.php
+Disallow: /stat_details.php
+Disallow: /stats.php
+Disallow: /history.php
+Disallow: /adv_search.php
+Disallow: /list.php
+Disallow: /list/
+Disallow: /flviewer/
+
+Sitemap: https://espace.library.uq.edu.au/sitemap/sitemap-index.xml
