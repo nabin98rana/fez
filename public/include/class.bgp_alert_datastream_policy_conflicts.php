@@ -143,8 +143,8 @@ class BackgroundProcess_Alert_Datastream_Policy_Conflicts extends BackgroundProc
             if (in_array('Viewer', $userPIDAuthGroups)) {
               $body .= APP_URL . "/view/" . $pid . "  has a datastream: " . $datastream['ID'] .
                 "that's open in collection: " . $isMemberOf . " where datastreams should be closed. Auto Auth Fix Attempted. Please confirm if successful.\n";
+              AuthIndex::setIndexAuth($pid);
             }
-            AuthIndex::setIndexAuth($pid);
           }
         }
       }
