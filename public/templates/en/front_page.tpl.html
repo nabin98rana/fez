@@ -13,7 +13,20 @@
 
 {/literal}
 
+{if $smarty.get.err != 0}
+	{if $smarty.get.err == 999}
+		<div class="msg">
+			<span class="error">To upload files to the {$smarty.const.APP_ORG_NAME} repository,
+				Flash must be enabled in your browser.<br>Please enable Flash or
+				install Adobe Flash version 9.0.45 or higher,
+				<a href="http://www.adobe.com/go/getflashplayer">available here</a>.</span>
+		</div>
+	{/if}
+{/if}
+
 	<div id="container">
+
+
 
 		{if $fedora_connectivity != '1'}
 			<div id="fedora_fail">Fez has not yet been configured to connect to Fedora.</div>
