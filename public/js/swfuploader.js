@@ -28,6 +28,9 @@ function swfuploaderLoad(maxNumberFiles, baseUrl, postParams) {
     showFileUploadExtras = postParams.showFileUploadExtras;
 
 	if (!uploaderHasReqestedVersion) {
+		if (window.location.hostname != 'fez') {
+			window.location.href = baseUrl + 'index.php?err=999';
+        }
 		// if not, remove the flash tbody section
 		removeTbodySection('flash_file_uploader_rows');
 
