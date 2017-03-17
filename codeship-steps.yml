@@ -12,20 +12,20 @@
   - service: fezstaging
     type: push
     tag: staging
-    image_name: uql-registry.library.uq.edu.au/staging/fez
+    image_name: 908660671515.dkr.ecr.ap-southeast-2.amazonaws.com/staging/fez
     image_tag: "{{.CommitID}}"
-    registry: uql-registry.library.uq.edu.au
-    encrypted_dockercfg_path: dockercfg.encrypted
+    registry: 908660671515.dkr.ecr.ap-southeast-2.amazonaws.com
+    dockercfg_service: aws_generator
   - service: awsdeployment
     tag: staging
     command: scripts/backend-deployment-staging.sh
   - service: fezproduction
     type: push
     tag: production
-    image_name: uql-registry.library.uq.edu.au/production/fez
+    image_name: 908660671515.dkr.ecr.ap-southeast-2.amazonaws.com/production/fez
     image_tag: "{{.CommitID}}"
-    registry: uql-registry.library.uq.edu.au
-    encrypted_dockercfg_path: dockercfg.encrypted
+    registry: 908660671515.dkr.ecr.ap-southeast-2.amazonaws.com
+    dockercfg_service: aws_generator
   - service: awsdeployment
     tag: production
     command: scripts/backend-deployment-production.sh

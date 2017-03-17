@@ -93,6 +93,11 @@ cache:
     path: ./.docker/development/cache/
     dockerfile_path: Dockerfile
 
+aws_generator: 
+  image: codeship/aws-ecr-dockercfg-generator
+  encrypted_env_file: "aws_creds.encrypted"
+  add_docker: true
+
 fezstaging:
   build:
     image: codeship_fezstaging

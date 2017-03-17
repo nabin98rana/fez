@@ -26,13 +26,13 @@
           "logDriver": "syslog",
           "options": {
               "syslog-address": "udp://logs5.papertrailapp.com:31003",
-              "tag": "{{.Name}}"
+              "tag": "{{.Name}}/{{.ID}}"
           }
       }
     },
     {
       "name": "fpm",
-      "image": "uql-registry.library.uq.edu.au/production/fez:<COMMIT_HASH>",
+      "image": "908660671515.dkr.ecr.ap-southeast-2.amazonaws.com/production/fez:<COMMIT_HASH>",
       "cpu": 128,
       "memory": 6144,
       "memoryReservation": 512,
@@ -67,7 +67,7 @@
           "logDriver": "syslog",
           "options": {
               "syslog-address": "udp://logs5.papertrailapp.com:31003",
-              "tag": "{{.Name}}"
+              "tag": "{{.Name}}/{{.ID}}"
           }
       }
     }
