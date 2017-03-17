@@ -33,6 +33,7 @@
 include_once(APP_INC_PATH . 'class.background_process.php');
 include_once(APP_INC_PATH . 'class.scopus_service.php');
 include_once(APP_INC_PATH . "class.scopus_queue.php");
+include_once(APP_INC_PATH . "class.auth_index.php");
 include_once(APP_INC_PATH . "class.author_era_affiliations.php");
 
 class BackgroundProcess_Alert_Datastream_Policy_Conflicts extends BackgroundProcess
@@ -141,9 +142,9 @@ class BackgroundProcess_Alert_Datastream_Policy_Conflicts extends BackgroundProc
             $userPIDAuthGroups = Auth::getAuthorisationGroups($pid, $datastream['ID']);
             if (in_array('Viewer', $userPIDAuthGroups)) {
               $body .= APP_URL . "/view/" . $pid . "  has a datastream: " . $datastream['ID'] .
-                "that's open in collection: " . $isMemberOf . " where datastreams should be closed.\n";
+                "that's open in collection: " . $isMemberOf . " where datastreams should be closed. Auto Auth Fix Attempted. Please confirm if successful.\n";
+              AuthIndex::setIndexAuth($pid);
             }
-
           }
         }
       }
@@ -182,7 +183,8 @@ class BackgroundProcess_Alert_Datastream_Policy_Conflicts extends BackgroundProc
       $canView = $record->canView(false);
       if ($canView) {
         $body .= APP_URL . "/view/" . $pid . "  citation is open when it should be restricted " .
-          "in collection: " . $isMemberOf ."\n";
+          "in collection: " . $isMemberOf ." Automatic Fix attempted, please check. \n";
+        AuthIndex::setIndexAuth($pid);
       }
     }
 
