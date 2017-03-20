@@ -108,8 +108,8 @@ class BackgroundProcess_Db_Load extends BackgroundProcess
           echo "[$count/" . count($tables) . "] $table\n";
           $cmd = " mysqldump" .
               " -h" . DB_LOAD_PROD_SQL_DBHOST .
-              " -u" . DB_LOAD_PROD_SQL_DBUSER .
-              " -p" . DB_LOAD_PROD_SQL_DBPASS .
+              " -u" . DB_LOAD_SQL_DBUSER .
+              " -p" . DB_LOAD_SQL_DBPASS .
               " " . DB_LOAD_PROD_SQL_DBNAME .
               " " . $table .
               (in_array($table, $excludeData) ? " --no-data" : "") .
@@ -119,8 +119,8 @@ class BackgroundProcess_Db_Load extends BackgroundProcess
               " --events=0" .
               " | mysql" .
               " -h" . APP_SQL_DBHOST .
-              " -u" . APP_SQL_DBUSER .
-              " -p" . APP_SQL_DBPASS .
+              " -u" . DB_LOAD_SQL_DBUSER .
+              " -p" . DB_LOAD_SQL_DBPASS .
               " " . APP_SQL_DBNAME;
           system($cmd);
           if ($table === APP_TABLE_PREFIX . 'config') {
@@ -132,8 +132,8 @@ class BackgroundProcess_Db_Load extends BackgroundProcess
       system(
           " mysqldump" .
           " -h" . DB_LOAD_PROD_SQL_DBHOST .
-          " -u" . DB_LOAD_PROD_SQL_DBUSER .
-          " -p" . DB_LOAD_PROD_SQL_DBPASS .
+          " -u" . DB_LOAD_SQL_DBUSER .
+          " -p" . DB_LOAD_SQL_DBPASS .
           " " . DB_LOAD_PROD_SQL_DBNAME .
           " --routines" .
           " --no-create-info" .
@@ -142,8 +142,8 @@ class BackgroundProcess_Db_Load extends BackgroundProcess
           " --skip-opt" .
           " | mysql" .
           " -h" . APP_SQL_DBHOST .
-          " -u" . APP_SQL_DBUSER .
-          " -p" . APP_SQL_DBPASS .
+          " -u" . DB_LOAD_SQL_DBUSER .
+          " -p" . DB_LOAD_SQL_DBPASS .
           " " . APP_SQL_DBNAME
       );
 
