@@ -3,7 +3,7 @@
   "containerDefinitions": [
     {
       "name": "fpm",
-      "image": "uql-registry.library.uq.edu.au/staging/fez:<COMMIT_HASH>",
+      "image": "908660671515.dkr.ecr.ap-southeast-2.amazonaws.com/staging/fez:<COMMIT_HASH>",
       "cpu": 128,
       "memory": 6144,
       "memoryReservation": 512,
