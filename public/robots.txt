@@ -3,6 +3,7 @@ Crawl-delay: 10
 Disallow: /login.php
 Disallow: /stat_details.php
 Disallow: /stats.php
+Disallow: /oai.php
 Disallow: /history.php
 Disallow: /adv_search.php
 Disallow: /list.php
