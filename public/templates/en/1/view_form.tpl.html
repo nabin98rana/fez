@@ -9,69 +9,7 @@ var image_preview_current_id = '';
 // get an image and put it in the preview image
 function loadPreview(pid,datastreamID, alt, origami)
 {
-    if (image_preview_loading > 0) {
-        return;
-    }
-    image_preview_loading = 1;
-
-    // display the 'loading...' text. (unhide it)
-    pv_loading = document.getElementById('datastream_preview_loading');
-    pv_loading.innerHTML = ' - Loading...';
-    pv_loading.style.display = '';
-
-
-    if (datastreamID.substring(0, 7) == 'stream_') {
-        document.getElementById('datastream_preview_td').width = 450;
-        document.getElementById('datastream_preview_frame').innerHTML='<iframe frameborder="no" width="100%" height="400" src="'+rel_url+'view/'+pid+'/'+datastreamID+'?wrapper=no{/literal}{if $viewingPreviousVersion}&version_date={$versionDate}{/if}{literal}"></iframe>';
-    } else {
-        {/literal}
-        
-        {if $img_width > 0}
-        datastream_preview_td_width = screen.width * .3;
-        image_width = {$img_width};
-        {literal}
-        if(datastream_preview_td_width > image_width)
-        {
-            document.getElementById('datastream_preview_td').width = image_width;
-        }
-        {/literal}
-        {/if}
-        
-        document.getElementById('datastream_preview_frame').innerHTML='<a id="datastream_preview_href" title="Click on the image to see a larger version"  target="_blank" href="{$rel_url}view/{$pid}/{$preview_ds_1.ID}{if $viewingPreviousVersion}?version_date={$versionDate}{/if}"><img width="100%" id="datastream_preview" alt="Datastream Preview" src="#" /></a>';
-        {literal}
-        pv_img = document.getElementById('datastream_preview');
-        pv_img_href = document.getElementById('datastream_preview_href');
-        
-        // get the resized image
-        pv_img_href.href = rel_url+'view/'+pid;
-        if(origami == "true") {
-            pv_img_href.href += '/'+datastreamID+'?oi=1{/literal}{if $viewingPreviousVersion}&version_date={$versionDate}{/if}{literal}';
-            // This replace must be done AFTER creating href
-            datastreamID = str_replace(datastreamID, '.tif', '.jpg');
-        } else {
-            datastreamID = str_replace(datastreamID, '.tif', '.jpg');
-            datastreamID = str_replace(datastreamID, '.gif', '.jpg');
-            datastreamID = str_replace(datastreamID, '.eps', '.jpg');
-            datastreamID = str_replace(datastreamID, '.png', '.jpg');
-            datastreamID = str_replace(datastreamID, '.bmp', '.jpg');
-            datastreamID = str_replace(datastreamID, '.BMP', '.jpg');
-            datastreamID = str_replace(datastreamID, '.JPG', '.jpg');
-            pv_img_href.href += '/web_'+datastreamID+'{/literal}{if $viewingPreviousVersion}?version_date={$versionDate}{/if}{literal}';
-        }
-        
-        pv_img.src = rel_url+'view/'+pid+'/preview_'+datastreamID+'{/literal}{if $viewingPreviousVersion}?version_date={$versionDate}{/if}{literal}';
-        pv_img.alt = alt;
-    }
-    pv_loading.style.display = 'none';
-    image_preview_loading = 0;
-    if (image_preview_current_id.length > 0) {
-      tr_list = document.getElementById(image_preview_current_id);
-      tr_list.style.backgroundColor='{/literal}{$light_color}{literal}';
-    }
-    tr_list = document.getElementById('datastream_list_'+alt);
-    tr_list.style.backgroundColor='{/literal}{$selected_color}{literal}';
-    image_preview_current_id = 'datastream_list_'+alt;
-
+    return;
 }
 
 {/literal}
