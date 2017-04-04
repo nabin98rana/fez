@@ -337,7 +337,7 @@ class BackgroundProcess {
         $lastHeartbeat = Date_API::dateDiff("n", $res['bgp_heartbeat'], $utc_date);
         if (! is_null($res['bgp_state']) && $lastHeartbeat < 10) {
           // Bail as the state has changed
-          $log->err("TimeDiff: ".$lastHeartbeat. ", Aborting because state already changed, less than limit ago: ".print_r($res, true));
+          $log->debug("TimeDiff: ".$lastHeartbeat. ", Aborting because state already changed, less than limit ago: ".print_r($res, true));
           return;
         }
         if (!isset($res['bgp_include']) || $res['bgp_include'] == '') {

@@ -6,7 +6,7 @@
       "image": "908660671515.dkr.ecr.ap-southeast-2.amazonaws.com/production/fez:<COMMIT_HASH>",
       "cpu": 128,
       "memory": 6144,
-      "memoryReservation": 512,
+      "memoryReservation": 2048,
       "environment": [
         {
           "name": "APP_ENVIRONMENT",
