@@ -362,6 +362,8 @@ class San_image_import
     $xsdmf = XSD_HTML_Match::getDetailsBySekIDXDIS_ID(Search_Key::getID('Date'), $xdis_str);
     if ($xsdmf) {
       $params['xsd_display_fields'][$xsdmf['xsdmf_id']]['Year'] = $recData['Publication date'];
+      $params['xsd_display_fields'][$xsdmf['xsdmf_id']]['Month'] = '01';
+      $params['xsd_display_fields'][$xsdmf['xsdmf_id']]['Day'] = '01';
     }
 
     $record = new RecordObject();
