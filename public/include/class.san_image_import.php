@@ -398,6 +398,7 @@ class San_image_import
         );
       }
     }
+    Record::setIndexMatchingFields($pid);
     // Cleanup
     foreach ($this->_filesCleanup as $file) {
       if (is_file($file)) {

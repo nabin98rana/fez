@@ -341,7 +341,6 @@ class BatchImport
       unlink($temp_store);
     }
     if ($deleteExisting) {
-      Record::setIndexMatchingFields($pid);
 
       if (is_numeric($qat_id) && $qat_id != "-1" && $qat_id != -1) {
         $xmlObj = FezACML::getQuickTemplateValue($qat_id);
@@ -474,7 +473,7 @@ class BatchImport
 
           // Add the binary batch import file.
           $this->handleStandardFileImport($pid, $file, $short_name, $xdis_id);
-          Record::setIndexMatchingFields($pid);
+
 
           if ($this->bgp) {
             $this->bgp->setStatus('Imported ' . $counter . ' files');
@@ -482,6 +481,7 @@ class BatchImport
         }
 
       }
+      Record::setIndexMatchingFields($pid);
     }
 
     if ($this->bgp) {

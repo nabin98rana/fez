@@ -90,6 +90,7 @@ class BatchAdd
         }
         BatchImport::handleStandardFileImport($pid, $ds, Misc::shortFilename($ds), $xdis_id, false, $qat_id, true, true);
       }
+      Record::setIndexMatchingFields($pid);
     } else {
       return false;
     }
