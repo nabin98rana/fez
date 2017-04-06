@@ -88,7 +88,7 @@ class BatchAdd
             $qat_id = $files_FezACML[$t_file];
           }
         }
-        BatchImport::handleStandardFileImport($pid, $ds, Misc::shortFilename($ds), $xdis_id, false, $qat_id, true, false);
+        BatchImport::handleStandardFileImport($pid, $ds, Misc::shortFilename($ds), $xdis_id, false, $qat_id, true, true);
       }
     } else {
       return false;

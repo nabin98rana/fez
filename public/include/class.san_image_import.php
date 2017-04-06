@@ -394,7 +394,7 @@ class San_image_import
           true,
           -1,
           true,
-          false
+          true
         );
       }
     }
