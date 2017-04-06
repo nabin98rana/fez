@@ -868,6 +868,7 @@ class FeatureContext extends MinkContext
       $tempFile = Misc::getFileTmpPath($fileName);
       copy($file, $tempFile);
       BatchImport::handleStandardFileImport($pid, $tempFile, $fileName, 0, true);
+      Record::setIndexMatchingFields($pid);
       unlink($tempFile);
     }
   }

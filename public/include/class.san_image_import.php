@@ -391,11 +391,14 @@ class San_image_import
           $recData['ImportDirectory'] . $recData['Filename ' . $i],
           $recData['Filename ' . $i],
           $xdis_id,
+          true,
+          -1,
+          true,
           true
         );
       }
     }
-
+    Record::setIndexMatchingFields($pid);
     // Cleanup
     foreach ($this->_filesCleanup as $file) {
       if (is_file($file)) {
