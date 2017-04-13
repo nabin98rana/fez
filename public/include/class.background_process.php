@@ -530,15 +530,15 @@ class BackgroundProcess {
 
 		// get all the next available bgps, but also running state bgps that couldn't get a task within 10 minutes
     // or all the ones that started but never got a heart beat after they started for 2 hours and didnt finish
-    // or all the ones where they started, got a heart beat within 2 hours but started 6 hours ago and didnt finish
-    // or started but never got a heartbeat within 120 mins and didnt finish
+    // or all the ones where they started, got a heart beat within 60 hours but started 1.5 hours ago and didnt finish
+    // or started but never got a heartbeat within 60 mins and didnt finish
 		$stmt = "SELECT * FROM " . $dbtp . "background_process WHERE (bgp_id > $from AND bgp_state IS NULL)
 		   OR (bgp_state = 1 AND (bgp_heartbeat < DATE_SUB('".$utc_date."',INTERVAL 10 MINUTE))
 		    AND (bgp_task_arn = '' OR bgp_task_arn IS NULL OR bgp_task_arn = 'Failed to get a task'))	     
 		   OR ((bgp_state = 1 OR bgp_state is null) 
 		     AND 
-		     ((  bgp_heartbeat < DATE_SUB('".$utc_date."',INTERVAL 120 MINUTE) AND bgp_started < DATE_SUB('".$utc_date."',INTERVAL 360 MINUTE)   )  
-		       OR (bgp_heartbeat is null AND  bgp_started < DATE_SUB('".$utc_date."',INTERVAL 120 MINUTE))))		     
+		     ((  bgp_heartbeat < DATE_SUB('".$utc_date."',INTERVAL 60 MINUTE) AND bgp_started < DATE_SUB('".$utc_date."',INTERVAL 90 MINUTE)   )  
+		       OR (bgp_heartbeat is null AND  bgp_started < DATE_SUB('".$utc_date."',INTERVAL 60 MINUTE))))		     
 		   ORDER BY bgp_id ASC";
 		try {
 			return $db->fetchRow($stmt, array(), Zend_Db::FETCH_ASSOC);
