@@ -5203,7 +5203,7 @@ public static function multi_implode($glue, $pieces)
    * @param string $sourceFile
    * @return string
    */
-  public static function getFileTmpPath($sourceFile) {
+  public static function getFileTmpPath($sourceFile = "") {
     $wflDir = WorkflowStatusStatic::getWorkflowSubDir();
 
     $fullWflDir = APP_TEMP_DIR . $wflDir;
