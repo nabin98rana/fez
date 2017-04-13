@@ -4460,7 +4460,7 @@ function getSearchKeyIndexValueShadow($pid, $searchKeyTitle, $getLookup=true, $s
         $options["sql"] = array();
         $temp_value = "";
         $operatorToUse = trim($operator);
-
+        $searchKey_join["sk_where_$operatorToUse"] = array();
         /*
          * joinID is the prefix when using a column in the SQL
          *
@@ -4879,7 +4879,7 @@ function getSearchKeyIndexValueShadow($pid, $searchKeyTitle, $getLookup=true, $s
           $options["sql"] = array();
           $temp_value = "";
           $operatorToUse = trim($operator);
-
+          $searchKey_join["sk_where_$operatorToUse"] = array();
           $sqlColumnName = $sekdet['sek_title_db'];
 
           // Build the SQL for this particular search key
