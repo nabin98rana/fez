@@ -4451,7 +4451,7 @@ function getSearchKeyIndexValueShadow($pid, $searchKeyTitle, $getLookup=true, $s
       if (empty($sek_id)) continue;
 
       if (!empty($searchValue)) {
-
+        $sekdet = array();
         $sekdet = Search_Key::getDetails($sek_id);
 
         if(empty($sekdet['sek_id']))
@@ -4576,9 +4576,9 @@ function getSearchKeyIndexValueShadow($pid, $searchKeyTitle, $getLookup=true, $s
 
             if ($sekdet['sek_relationship'] == 1) {
               $tmpSql .= "OR NOT EXISTS
-                          (SELECT *
-                           FROM {$dbtp}record_search_key_".$sekdet['sek_title_db']." AS sr
-                           WHERE sr.rek_".$sekdet['sek_title_db']."_pid = r{$joinID}.rek_pid))";
+                          (SELECT *                                                    
+                           FROM ".$dbtp."record_search_key_".$sekdet['sek_title_db']." AS sr                                                    
+                           WHERE sr.rek_".$sekdet['sek_title_db']."_pid = r".$joinID."rek_pid))";
             } else {
               $tmpSql .= "OR ($sqlColumnName IS NULL OR $sqlColumnName = ''))";
             }
@@ -4713,8 +4713,8 @@ function getSearchKeyIndexValueShadow($pid, $searchKeyTitle, $getLookup=true, $s
     $searchKey_join[SK_GROUP_BY] = ""; // initialise the group by string
     $searchKey_join[SK_ORDER_BY] = ""; // initialise the order by return string
 
-    $searchKey_join['sk_where_AND'] = '';
-    $searchKey_join['sk_where_OR'] = '';
+    $searchKey_join['sk_where_AND'] = array();
+    $searchKey_join['sk_where_OR'] = array();
 
     $searchKeys = array();
     foreach ($options as $sek_id => $value) {

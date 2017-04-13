@@ -1122,7 +1122,7 @@ class Search_Key
         $log = FezLog::get();
         $db = DB_API::get();
         if ($sek_id == "0") {
-            return false;
+            return array();
         }
         $stmt = "SELECT
                     *
@@ -1137,7 +1137,7 @@ class Search_Key
         }
         catch (Exception $ex) {
             $log->err($ex);
-            return '';
+            return array();
         }
 
         $res['sek_title_db'] = Search_Key::makeSQLTableName($res['sek_title']);
