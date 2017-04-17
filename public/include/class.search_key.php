@@ -1366,7 +1366,7 @@ class Search_Key
     }
 
 
-    function getAllDetailsByXSDMF_ID($xsdmf_id)
+    public static function getAllDetailsByXSDMF_ID($xsdmf_id)
     {
         $log = FezLog::get();
         $db = DB_API::get();

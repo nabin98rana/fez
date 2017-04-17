@@ -1249,11 +1249,8 @@ class Record
                 $table .= "__shadow";
             }
 
-            if (count($valuesUpd) > 0) {
-                $stmtIns = "INSERT INTO " . $table . " (" . implode(",", $stmt);
-            } else {
-                $stmtIns = "REPLACE INTO " . $table . " (" . implode(",", $stmt);
-            }
+
+            $stmtIns = "INSERT INTO " . $table . " (" . implode(",", $stmt);
 
             if ($shadow) {
                 $stmtIns .= ", rek_stamp, rek_version";
