@@ -4643,7 +4643,7 @@ class Record
            * This is done so we can seperate the AND's and OR's
            * in the WHERE clause with brackets
            */
-        if (( is_array($searchKey_join['sk_where_AND'] && count($searchKey_join['sk_where_AND']) > 0))
+        if ((is_array($searchKey_join['sk_where_AND']) && count($searchKey_join['sk_where_AND']) > 0)
         || (is_array($searchKey_join['sk_where_OR']) && count($searchKey_join['sk_where_OR']) > 0) ) {
                 $sk_where_and = false;
                 $searchKey_join[SK_WHERE] = " WHERE ";
@@ -4847,9 +4847,6 @@ class Record
                     $options["sql"] = array();
                     $temp_value = "";
                     $operatorToUse = trim($operator);
-                    if (!is_array($searchKey_join["sk_where_$operatorToUse"])) {
-                        $searchKey_join["sk_where_$operatorToUse"] = array();
-                    }
                     $sqlColumnName = $sekdet['sek_title_db'];
 
                     // Build the SQL for this particular search key
@@ -4990,7 +4987,8 @@ class Record
                     }
                 }
             }
-            if ((is_array($searchKey_join['sk_where_AND'] && count($searchKey_join['sk_where_AND']) > 0))
+
+            if ( (is_array($searchKey_join['sk_where_AND']) && count($searchKey_join['sk_where_AND']) > 0)
             || (is_array($searchKey_join['sk_where_OR']) && count($searchKey_join['sk_where_OR']) > 0)
             ) {
                 if (is_array($searchKey_join['sk_where_AND']) || is_array($searchKey_join['sk_where_OR'])) {
