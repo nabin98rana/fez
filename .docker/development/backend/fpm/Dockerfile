@@ -1,4 +1,4 @@
-FROM uqlibrary/docker-fpm71-fez:3
+FROM uqlibrary/docker-fpm71-fez:4
 
 COPY bootstrap.sh /opt/bootstrap.sh
 
