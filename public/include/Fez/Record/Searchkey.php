@@ -473,7 +473,7 @@ class Fez_Record_Searchkey
       try {
         $this->_db->exec($stmtInsertNew);
       } catch (Exception $ex) {
-        $this->_log->err($ex);
+        $this->_log->err($ex->getMessage()." stmt = ".$stmtInsertNew);
         return false;
       }
     }
@@ -520,7 +520,7 @@ class Fez_Record_Searchkey
         try {
           $this->_db->exec($stmtInsertNew);
         } catch (Exception $ex) {
-          $this->_log->err($ex);
+          $this->_log->err($ex->getMessage()." stmt = ".$stmtInsertNew);
           // Ignore the rest of processing if Insert query failed.
           continue;
         }

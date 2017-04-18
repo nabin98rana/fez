@@ -84,7 +84,7 @@ fpm:
 dbgpproxy:
   image: uqlibrary/docker-dbgp-proxy:2
   ports:
-    - "9001:9001"
+    - "9081:9001"
 
 fezdb:
   build: ./backend/db/
@@ -112,7 +112,7 @@ elasticsearch:
     - ES_NODE_DATA=true
   image: elasticsearch:5.2
   ports:
-    - "9200:9200"
+    - "9280:9200"
   volumes_from:
     - elasticsearchdata
 
@@ -122,6 +122,6 @@ elasticsearchdata:
 kibana:
   image: kibana:5.1
   ports:
-    - "5601:5601"
+    - "5681:5601"
   links:
     - elasticsearch
