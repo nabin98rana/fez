@@ -569,7 +569,7 @@ class Mail_API
 	 *               elements: Any From: address found in the headers,
 	 *               and the plain text version of the headers.
 	 */
-	function prepareHeaders($headers)
+	public static function prepareHeaders($headers)
 	{
 		$params = Mail_API::getSMTPSettings();
 		$mail =& Mail::factory('smtp', $params);

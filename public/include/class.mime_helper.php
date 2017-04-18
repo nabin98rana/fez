@@ -22,7 +22,7 @@
 // | 59 Temple Place - Suite 330                                          |
 // | Boston, MA 02111-1307, USA.                                          |
 // +----------------------------------------------------------------------+
-// | Authors: João Prado Maia <jpm@mysql.com>                             |
+// | Authors: Joï¿½o Prado Maia <jpm@mysql.com>                             |
 // +----------------------------------------------------------------------+
 //
 // @(#) $Id: s.class.mime_helper.php 1.23 04/01/21 22:49:54-00:00 jpradomaia $
@@ -37,7 +37,7 @@
  * below.
  *
  * @version 1.0
- * @author João Prado Maia <jpm@mysql.com>
+ * @author Joï¿½o Prado Maia <jpm@mysql.com>
  */
 
 /**
@@ -274,7 +274,7 @@ class Mime_Helper
 	 * @param   string $hdr_value The string to be encoded
 	 * @return  string The encoded string
 	 */
-	function encodeValue($hdr_value)
+	public static function encodeValue($hdr_value)
 	{
 		preg_match_all('/(\w*[\x80-\xFF]+\w*)/', $hdr_value, $matches);
 		foreach ($matches[1] as $value) {
@@ -489,7 +489,7 @@ class Mime_Helper
 	 * @param   boolean $include_bodies Whether to include the bodies in the return value or not
 	 * @return  mixed The decoded content of the message
 	 */
-	function decode($message, $include_bodies = FALSE, $decode_bodies = TRUE)
+	public static function decode($message, $include_bodies = FALSE, $decode_bodies = TRUE)
 	{
 		// need to fix a pretty annoying bug where if the 'boundary' part of a
 		// content-type header is split into another line, the PEAR library would
