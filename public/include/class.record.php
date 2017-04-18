@@ -1266,7 +1266,8 @@ class Record
             if (count($valuesUpd) > 0) {
                 $stmt = $stmtIns ." ON DUPLICATE KEY UPDATE " . implode(",", $valuesUpd);
             } else {
-                $stmt = $stmtIns;
+                $count = 1;
+                $stmt = str_replace("INSERT", "INSERT IGNORE", $stmtIns, $count);
             }
 
         //        } else {
