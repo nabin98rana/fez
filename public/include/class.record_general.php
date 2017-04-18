@@ -2496,6 +2496,10 @@ class RecordGeneral
           } else {
             $xsdmf_value = "NULL";
           }
+          $searchKeyData[$sekDetails['sek_relationship']][$sekDetails['sek_title_db']] = array(
+              "xsdmf_id" => $xsdmf_id,
+              "xsdmf_value" => $xsdmf_value,
+          );
         }
 
         if (@empty($searchKeyData[$sekDetails['sek_relationship']][$sekDetails['sek_title_db']]['xsdmf_value'])) {

@@ -435,8 +435,10 @@ class Fez_Record_Searchkey
 
     try {
       $this->_db->query($stmtDeleteOld);
-      FulltextQueue::singleton()->add($this->_pid);
-      FulltextQueue::singleton()->commit();
+      if ( APP_SOLR_INDEXER == "ON" || APP_ES_INDEXER == "ON" ) {
+        FulltextQueue::singleton()->add($this->_pid);
+        FulltextQueue::singleton()->commit();
+      }
       return true;
     } catch (Exception $ex) {
       $this->_log->err($ex . " stmtDeleteOld: ".$stmtDeleteOld);
@@ -471,7 +473,7 @@ class Fez_Record_Searchkey
       try {
         $this->_db->exec($stmtInsertNew);
       } catch (Exception $ex) {
-        $this->_log->err($ex);
+        $this->_log->err($ex->getMessage()." stmt = ".$stmtInsertNew);
         return false;
       }
     }
@@ -518,7 +520,7 @@ class Fez_Record_Searchkey
         try {
           $this->_db->exec($stmtInsertNew);
         } catch (Exception $ex) {
-          $this->_log->err($ex);
+          $this->_log->err($ex->getMessage()." stmt = ".$stmtInsertNew);
           // Ignore the rest of processing if Insert query failed.
           continue;
         }
@@ -770,7 +772,7 @@ class Fez_Record_Searchkey
       if (!$this->_verifyOneToManyData($value, $sekTitle)) {
         continue;
       }
-      
+
       // Query to backup old record to shadow table
       $stmtBackupToShadow = "INSERT INTO " . $tableShadow .
         "  SELECT *, " . $this->_db->quote($this->_version, 'DATE') . ", " . $this->_db->quote($this->_pid . ' ' . $this->_version) .
