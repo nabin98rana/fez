@@ -20,7 +20,7 @@ chmod -R 777 ${BASE_DIR}/public/include/htmlpurifier/library/HTMLPurifier
 rm -f /etc/php.d/15-xdebug.ini
 
 if [ "${NEWRELIC_LICENSE}" != "" ]; then
-  sed -i "s/NEWRELIC_LICENSE/${NEWRELIC_LICENSE}/" /etc/nginx/conf.d/fez.conf
+  sed -i "s/#fastcgi_param PHP_VALUE \"newrelic.license=NEWRELIC_LICENSE/fastcgi_param PHP_VALUE \"newrelic.license=${NEWRELIC_LICENSE}/" /etc/nginx/conf.d/fez.conf
 fi
 set -x
 
