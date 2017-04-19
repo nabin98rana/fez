@@ -135,7 +135,7 @@ class Mail_Queue
 		$log = FezLog::get();
 		$db = DB_API::get();
 
-		list(,$text_headers) = Mail_API::prepareHeaders($headers);
+		list($nothing,$text_headers) = Mail_API::prepareHeaders($headers);
 		$save_email_copy = $save_email_copy ? '1':'0';
 		$stmt = "INSERT INTO
                     " . APP_TABLE_PREFIX . "mail_queue
