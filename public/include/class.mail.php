@@ -50,7 +50,7 @@ class Mail_API
 	// variable to keep the Mail_mime object
 	var $mime;
 	// variable to keep the headers to be used in the email
-	var $headers = '';
+	var $headers = array();
 	// text version of this message
 	var $text_body = '';
 
