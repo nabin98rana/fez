@@ -95,10 +95,10 @@ class Eventum
 						iss_id DESC;
 				";
 
-		$result = mysql_query($query, $db);
+		$result = $db->query($query);
 
 		$return = array();
-		while ($row = mysql_fetch_assoc($result)) {
+    while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
 			$return[] = array('ticket_id' => $row['ticket_id'], 'ticket_subject' => $row['ticket_subject']);
 		}
 
@@ -114,15 +114,10 @@ class Eventum
 
 		global $db;
 		echo "Connecting to database ... ";
-		$conn = @mysql_connect(APP_EVENTUM_DATABASE_HOST, APP_EVENTUM_DATABASE_USER, APP_EVENTUM_DATABASE_PASS);
+		$conn = new PDO('mysql:host='.APP_EVENTUM_DATABASE_HOST.'dbname='.APP_EVENTUM_DATABASE_NAME, APP_EVENTUM_DATABASE_USER, APP_EVENTUM_DATABASE_PASS);
 
 		if (!$conn) {
 			die("Error: Could not connect to Eventum database. Aborting.\n");
-		}
-
-		$db_selected = @mysql_select_db(APP_EVENTUM_DATABASE_NAME, $conn);
-		if (!$db_selected) {
-			die ("Can't use " . APP_EVENTUM_DATABASE_NAME . " : " . mysql_error());
 		}
 
 		echo "done.\n";
@@ -142,10 +137,10 @@ class Eventum
 		$query = "
 					UPDATE eventum_issue
 					SET iss_sta_id = " . STATUS_CLOSED_AND_SYNCHED . "
-					WHERE iss_id = '" . mysql_real_escape_string($eventumID) . "';
+					WHERE iss_id = '" . Misc::escapeString($eventumID) . "';
 				";
 
-		$result = mysql_query($query, $db);
+		$result = $db->query($query);
 		if (!$result) {
 			echo "There was a problem removing Eventum Job " . $eventumID . " : " . mysql_error() . "\n";
 		}
@@ -174,10 +169,10 @@ class Eventum
 						iss_id DESC;
 				";
 
-    $result = mysql_query($query, $db);
+    $result = $db->query($query);
 
     $return = array();
-    while ($row = mysql_fetch_assoc($result)) {
+    while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
       $return[] = array('ticket_id' => $row['ticket_id']);
     }
 
