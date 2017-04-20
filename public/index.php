@@ -84,7 +84,8 @@ if (SSO_LOGIN == "ON" && !empty($_GET["sso_login"]) && $_GET["sso_login"] == 'tr
     if (Auth::LoginAuthenticatedUser("", "", false, false, true) > 0) {
         Auth::redirect(APP_RELATIVE_URL . "login.php?err=22&local_login=true");
     }
-    if (!empty($_GET["url"])) {
+    $realUrl = urldecode(base64_decode($_GET["url"]));
+    if (!empty($_GET["url"]) && $realUrl != APP_RELATIVE_URL && $realUrl != "/index.php?err=6") {
         Auth::redirect(urldecode(base64_decode($_GET["url"])));
     } else {
         $username = Auth::getUsername();
