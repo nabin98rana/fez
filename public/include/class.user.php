@@ -1122,8 +1122,8 @@ class User
 		$log = FezLog::get();
 		$db = DB_API::get();
 
-		$usr_administrator = 'FALSE';
-		$ldap_authentication = 'TRUE';
+		$usr_administrator = 0;
+		$ldap_authentication = 1;
 
 		$prefs = Prefs::getDefaults();
 		$stmt = "INSERT INTO
@@ -1275,6 +1275,49 @@ class User
 		//            Notification::notifyNewUser($new_usr_id, "");
 		return 1;
 	}
+
+    /**
+     * Method used to get a user Account API details.
+     *
+     * @access  public
+     * @return array $userdetails An array of the user Account API details
+     */
+    function GetUserAPIAccountDetails() {
+        $userdetails = array();
+        $client = new Zend_Http_Client(API_URL . '/account',
+            array('adapter' => 'Zend_Http_Client_Adapter_Curl'));
+
+        //set the below values to to config vars too
+        $client->setHeaders(array(
+            'X-Uql-Token: ' . $_COOKIE['UQLID']
+        ));
+        $response = $client->request(Zend_Http_Client::GET);
+
+        $account = json_decode($response->getBody(), JSON_OBJECT_AS_ARRAY);
+
+        if ($response->getStatus() === 403) {
+            return array();
+        }
+//        $username = $account['id'];
+        $userdetails['username'] = $account['id'];
+        $userdetails['email'] = $account['mail'];
+        $userdetails['displayname'] = $account['name'];
+        $home_idp_suffix = 'uq.edu.au';
+        if (in_array($account['type'], array(3,17,18))) {
+            $_SESSION[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-UnscopedAffiliation'] = 'staff';
+            $_SESSION[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-PrimaryAffiliation'] = 'staff';
+            $_SESSION[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-ScopedAffiliation'] = 'staff@' . $home_idp_suffix;
+        }
+        if (in_array($account['type'], array(1,2,11,21,22))) {
+            $_SESSION[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-UnscopedAffiliation'] = 'student';
+            $_SESSION[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-PrimaryAffiliation'] = 'student';
+            $_SESSION[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-ScopedAffiliation'] = 'student@' . $home_idp_suffix;
+        }
+        $_SESSION[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-OrgDN'] = LDAP_ORGANISATION;
+
+        return $userdetails;
+    }
+
 
 	/**
 	 * Method used to get a user LDAP details.

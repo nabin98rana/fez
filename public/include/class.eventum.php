@@ -114,7 +114,7 @@ class Eventum
 
 		global $db;
 		echo "Connecting to database ... ";
-		$conn = new PDO('mysql:host='.APP_EVENTUM_DATABASE_HOST.'dbname='.APP_EVENTUM_DATABASE_NAME, APP_EVENTUM_DATABASE_USER, APP_EVENTUM_DATABASE_PASS);
+		$conn = new PDO('mysql:host='.APP_EVENTUM_DATABASE_HOST.';dbname='.APP_EVENTUM_DATABASE_NAME, APP_EVENTUM_DATABASE_USER, APP_EVENTUM_DATABASE_PASS);
 
 		if (!$conn) {
 			die("Error: Could not connect to Eventum database. Aborting.\n");
