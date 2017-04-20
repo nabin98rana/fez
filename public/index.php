@@ -81,8 +81,9 @@ $masquerade = @$_POST["masquerade"];
 
 // SSO LOGIN check
 if (SSO_LOGIN == "ON" && !empty($_GET["sso_login"]) && $_GET["sso_login"] == 'true') {
-    if (Auth::LoginAuthenticatedUser("", "", false, false, true) > 0) {
-        Auth::redirect(APP_RELATIVE_URL . "login.php?err=22&local_login=true");
+    $loginres = Auth::LoginAuthenticatedUser("", "", false, false, true);
+    if ($loginres > 0) {
+        Auth::redirect(APP_RELATIVE_URL . "login.php?err=".$loginres."&local_login=true");
     }
     if (!empty($_GET["url"])) {
         Auth::redirect(urldecode(base64_decode($_GET["url"])));
