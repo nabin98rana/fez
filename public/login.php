@@ -363,6 +363,15 @@ if (SHIB_SWITCH == "ON" && SHIB_VERSION == "1") {
 		$SSPDirectUrl = $_SERVER['PHP_SELF']."?default-idp=true";
 		$tpl->assign("SSP_DIRECT_URL", $SSPDirectUrl);
 	}
+  // if its SSO login, redirect to SSO if local_login override is not 1
+	if (SSO_LOGIN == "ON" && (empty($_GET["local_login"]) || $_GET["local_login"] != "1")) {
+      //redirect with a return url
+      $app_protocol = "http://";
+      if (APP_HTTPS == "ON") {
+        $app_protocol = "https://";
+      }
+      Auth::redirect(SSO_LOGIN_URL.base64_encode($app_protocol.APP_HOSTNAME."/index.php?sso_login=true&url=".$_GET['url']));
+  }
 }
 $shib_home_idp = Auth::getHomeIDPCookie();
 if ($shib_home_idp == "") {

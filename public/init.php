@@ -184,7 +184,7 @@ if(APP_FEDORA_BYPASS == "ON" && ($env == 'production' || $env == 'staging')) {
 }
 
 if (APP_LOGGING_ENABLED == "true") {
-	
+
 	$log_file = APP_LOG_LOCATION;
   if (preg_match('/%([^%]*)%/i', APP_LOG_LOCATION, $matches)) {
     if (count($matches) == 2) {
@@ -196,7 +196,7 @@ if (APP_LOGGING_ENABLED == "true") {
 			}
 		}
 	}
-	
+
 	$level = intval(APP_LOG_LEVEL);
   if ( (!$level) || $level > 7) {
 		$level = 0; // Zend_log::EMERG
@@ -206,27 +206,27 @@ if (APP_LOGGING_ENABLED == "true") {
   if (array_key_exists('REMOTE_ADDR', $_SERVER)) {
 	$file_log->setEventItem('visitorIp', $_SERVER['REMOTE_ADDR']);
   }
-	$file_writer = new Zend_Log_Writer_Stream($log_file);	
+	$file_writer = new Zend_Log_Writer_Stream($log_file);
 	$file_writer->addFilter($level);
   $file_formatter = new Zend_Log_Formatter_Simple(
       '[ %timestamp% ] [ %priorityName% ] [ %visitorIp% ] : %message%' . PHP_EOL
   );
 	$file_writer->setFormatter($file_formatter);
 	$file_log->addWriter($file_writer);
-	
+
 	if(in_array($_SERVER['REMOTE_ADDR'], $firebug_ips)) {
 		// Firebug logging
 		$firebug_log = new Zend_Log();
 		$firebug_writer = new Zend_Log_Writer_Firebug();
 		$firebug_writer->addFilter(Zend_Log::DEBUG);
 		$firebug_log->addWriter($firebug_writer);
-		
+
 		$log = new FezLog(array(
 				array('log'=>$firebug_log, 'type' => 'firebug'),
 				//array('log'=>$file_log, 'type' => 'file')
 				), true, true);
 	}
-	else {	
+	else {
 		$log = new FezLog(array(
 	                    //array('log'=>$firebug_log, 'type' => 'firebug'),
 	                    array('log'=>$file_log, 'type' => 'file')
@@ -234,7 +234,7 @@ if (APP_LOGGING_ENABLED == "true") {
 	}
 }
 else {
-	
+
 	$null_writer = new Zend_Log_Writer_Null;
 	$null_log = new Zend_Log($null_writer);
 	$log = new FezLog(array(
@@ -397,6 +397,12 @@ if ($check1 || $check2) {
         header($header);
     }
 }
+
+// put these into config db params
+define('SSO_LOGIN', 'ON');
+define('API_URL', 'https://app.library.uq.edu.au/api');
+define('SSO_LOGIN_URL', "https://www.library.uq.edu.au/uqlais/login?return=");
+define('SSO_LOGOUT_URL', "https://www.library.uq.edu.au/uqlais/logout?return=");
 
 define('APP_API', $app_api);
 // Json is tricker to do because of the way fez is written.

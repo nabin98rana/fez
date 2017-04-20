@@ -1887,7 +1887,7 @@ class Auth
    * @param   string $password The password of the user (in ldap)
    * @return  boolean true if the user successfully binds to the LDAP server
    */
-  public static function LoginAuthenticatedUser($username, $password, $shib_login = false, $masquerade = false)
+  public static function LoginAuthenticatedUser($username, $password, $shib_login = false, $masquerade = false, $sso_login = false)
   {
     $log = FezLog::get();
 
@@ -1919,6 +1919,13 @@ class Auth
 
     if ($shib_login == true && (@$session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-TargetedID'] == "" && $session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-PrincipalName'] == "")) {
       return 24;
+    }
+
+    if ($sso_login == true) {
+      $userDetails = User::GetUserAPIAccountDetails();
+      $username = $userDetails['username'];
+      $fullname = $userDetails['displayname'];
+      $email = $userDetails['email'];
     }
 
     if ($shib_login == true) {
@@ -1962,38 +1969,49 @@ class Auth
 
     if (!Auth::userExists($username)) {
       if ($shib_login == true) {
-        $session['isInAD'] = false;
-        $session['isInDB'] = false;
-        $session['isInFederation'] = true;
+          $session['isInAD'] = false;
+          $session['isInDB'] = false;
+          $session['isInFederation'] = true;
 
-        if ($session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-Person-commonName'] != "") {
-          $fullname = $session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-Person-commonName'];
-        } elseif ($session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-PrincipalName'] != "") {
-          $fullname = $session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-PrincipalName'];
-        } elseif ($session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-TargetedID'] != "") {
-          $fullname = $session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-TargetedID'];
-        } elseif ($session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-Nickname'] != "") {
-          $fullname = $session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-Nickname'];
-        } else {
-          $fullname = "Anonymous User";
-        }
-        if ($session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-Person-mail'] != "") {
-          $email = $session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-Person-mail'];
-        } else {
-          $email = "";
-        }
+          if ($session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-Person-commonName'] != "") {
+              $fullname = $session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-Person-commonName'];
+          } elseif ($session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-PrincipalName'] != "") {
+              $fullname = $session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-PrincipalName'];
+          } elseif ($session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-TargetedID'] != "") {
+              $fullname = $session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-TargetedID'];
+          } elseif ($session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-Nickname'] != "") {
+              $fullname = $session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-Nickname'];
+          } else {
+              $fullname = "Anonymous User";
+          }
+          if ($session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-Person-mail'] != "") {
+              $email = $session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-Person-mail'];
+          } else {
+              $email = "";
+          }
 
-        if ($session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-TargetedID'] != "") {
-          $shib_username = $session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-TargetedID'];
-        } else {
-          $shib_username = $username;
-        }
+          if ($session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-TargetedID'] != "") {
+              $shib_username = $session[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-TargetedID'];
+          } else {
+              $shib_username = $username;
+          }
 
-        $distinguishedname = "";
-        // Create the user in Fez
-        User::insertFromShibLogin($username, $fullname, $email, $shib_username);
-        $usr_id = User::getUserIDByUsername($username);
-        User::updateShibAttribs($usr_id);
+          $distinguishedname = "";
+          // Create the user in Fez
+          User::insertFromShibLogin($username, $fullname, $email, $shib_username);
+          $usr_id = User::getUserIDByUsername($username);
+          User::updateShibAttribs($usr_id);
+      } elseif ($sso_login == true) {
+          // is really a local AD user, via SSO
+          $session['isInAD'] = true;
+          $session['isInDB'] = false;
+          $session['isInFederation'] = false;
+          // Create the user in Fez
+//          $userDetails = User::getUserDetailsAccountAPI($username);
+//
+          User::insertFromShibLogin($username, $userDetails['displayname'], $userDetails['email'], $username);
+          $usr_id = User::getUserIDByUsername($username);
+          User::updateShibAttribs($usr_id);
       } else {
         $session['isInAD'] = true;
         $session['isInDB'] = false;
