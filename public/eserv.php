@@ -57,6 +57,7 @@ if (extension_loaded('newrelic')) {
 $qs = @$_REQUEST["qs"];
 extractQS();
 
+$localLogin = @($_REQUEST["local_login"] == "1") ? true : false;
 $stream = @$_REQUEST["stream"];
 $wrapper = @$_REQUEST["wrapper"];
 $pid = @$_REQUEST["pid"];
@@ -152,8 +153,10 @@ if (!empty($pid) && !empty($dsID)) {
 
   $exif_array = Exiftool::getDetails($pid, $dsID);
   if ((!is_numeric($exif_array['exif_file_size']) || $requestedVersionDate != "") && (!$bookpage)) {
-    $getURL = APP_FEDORA_GET_URL . "/" . $pid . "/" . $dsID . $requestedVersionDate;
-    list($data, $info) = Misc::processURL_info($getURL);
+//    $getURL = APP_FEDORA_GET_URL . "/" . $pid . "/" . $dsID . $requestedVersionDate;
+//    list($data, $info) = Misc::processURL_info($getURL);
+      $list = array();
+      $data = array();
   } else {
     $info['content_type'] = $exif_array['exif_mime_type'];
     $info['download_content_length'] = $exif_array['exif_file_size'];
@@ -207,7 +210,7 @@ if (!empty($pid) && !empty($dsID)) {
 
     //todo Can't check bookpage security currently will need to be looked at.
     if (!$bookpage) {
-      if (Auth::checkAuthorisation($pid, $dsID, $acceptable_roles, $_SERVER['REQUEST_URI'], null, $ALLOW_SECURITY_REDIRECT) != true) {
+      if (Auth::checkAuthorisation($pid, $dsID, $acceptable_roles, $_SERVER['REQUEST_URI'], null, $ALLOW_SECURITY_REDIRECT, $localLogin) != true) {
         if ($SHOW_STATUS) {
           header("HTTP/1.0 403 Forbidden");
           exit;
