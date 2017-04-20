@@ -1928,7 +1928,7 @@ class Auth
     if ($sso_login == true) {
       $userDetails = User::GetUserAPIAccountDetails();
       $username = $userDetails['username'];
-      if (empty($username) || $username = '') {
+      if (empty($username) || $username == '') {
           return 23;
       }
       $fullname = $userDetails['displayname'];

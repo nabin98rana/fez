@@ -83,7 +83,7 @@ $masquerade = @$_POST["masquerade"];
 if (SSO_LOGIN == "ON" && !empty($_GET["sso_login"]) && $_GET["sso_login"] == 'true') {
     $loginres = Auth::LoginAuthenticatedUser("", "", false, false, true);
     if ($loginres > 0) {
-        Auth::redirect(APP_RELATIVE_URL . "login.php?err=".$loginres."&local_login=true");
+        Auth::redirect(APP_RELATIVE_URL . "login.php?err=".$loginres."&local_login=1");
     }
     if (!empty($_GET["url"])) {
         Auth::redirect(urldecode(base64_decode($_GET["url"])));
