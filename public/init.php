@@ -399,7 +399,6 @@ if ($check1 || $check2) {
 }
 
 // put these into config db params
-define('SSO_LOGIN', 'ON');
 define('API_URL', 'https://app.library.uq.edu.au/api');
 define('SSO_LOGIN_URL', "https://www.library.uq.edu.au/uqlais/login?return=");
 define('SSO_LOGOUT_URL', "https://www.library.uq.edu.au/uqlais/logout?return=");
