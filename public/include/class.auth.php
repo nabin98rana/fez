@@ -491,7 +491,7 @@ class Auth
    * @param   boolean $userPIDAuthGroups OPTIONAL (default is true) whether to redirect to the login page or not.
    * @returns boolean true if access is ok.
    */
-  public static function checkAuthorisation($pid, $dsID, $acceptable_roles, $failed_url, $userPIDAuthGroups = null, $redirect = true)
+  public static function checkAuthorisation($pid, $dsID, $acceptable_roles, $failed_url, $userPIDAuthGroups = null, $redirect = true, $local_login = false)
   {
     $log = FezLog::get();
 
@@ -584,7 +584,11 @@ class Auth
           if ($redirect != false) {
             $failed_url = base64_encode($failed_url);
             header('HTTP/1.0 401 Unauthorized');
-            Auth::redirect(APP_RELATIVE_URL . "login.php?err=21&url=" . $failed_url, $is_popup);
+            $localExtra = '';
+            if ($local_login == true) {
+                $localExtra = 'local_login=1&';
+            }
+            Auth::redirect(APP_RELATIVE_URL . "login.php?".$localExtra."err=21&url=" . $failed_url, $is_popup);
           } else {
               return false;
           }
@@ -1449,7 +1453,8 @@ class Auth
       echo $html;
       exit;
     } else {
-      exit('<meta http-equiv="refresh" content="0; url=' . urldecode($new_url) . '"/>');
+      header("Location: " . urldecode($new_url));
+      exit;
     }
   }
 
@@ -1924,6 +1929,9 @@ class Auth
     if ($sso_login == true) {
       $userDetails = User::GetUserAPIAccountDetails();
       $username = $userDetails['username'];
+      if (empty($username) || $username == '') {
+          return 23;
+      }
       $fullname = $userDetails['displayname'];
       $email = $userDetails['email'];
     }

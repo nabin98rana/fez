@@ -37,4 +37,13 @@ include_once(APP_INC_PATH . "class.configuration.php");
 include_once(APP_INC_PATH . "class.auth.php");
 
 Auth::logout();
-Auth::redirect(APP_RELATIVE_URL . "index.php?err=6");
+if (SSO_LOGIN == "ON") {
+    //logout and return to where you are, even if it prompts a re-login, because SSO staff vs student accounts issues
+    $app_protocol = "http://";
+    if (APP_HTTPS == "ON") {
+        $app_protocol = "https://";
+    }
+    Auth::redirect(SSO_LOGOUT_URL.base64_encode($app_protocol.APP_HOSTNAME."/index.php?sso_logout=true&url=".$_GET['url']));
+} else {
+    Auth::redirect(APP_RELATIVE_URL . "index.php?err=6");
+}

@@ -370,7 +370,7 @@ if (SHIB_SWITCH == "ON" && SHIB_VERSION == "1") {
       if (APP_HTTPS == "ON") {
         $app_protocol = "https://";
       }
-      Auth::redirect(SSO_LOGIN_URL.base64_encode($app_protocol.APP_HOSTNAME."/index.php?sso_login=true&url=".$_GET['url']));
+      Auth::redirect(SSO_LOGIN_URL.base64_encode($app_protocol.APP_HOSTNAME."/index.php?sso_login=true&url=".base64_encode($_GET['url'])));
   }
 }
 $shib_home_idp = Auth::getHomeIDPCookie();

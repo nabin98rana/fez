@@ -247,6 +247,9 @@ class Fez_Record_Searchkey
     if ($removeCurrent) {
       $sekData[1]['ismemberof']['xsdmf_value'] = array($collection_pid);
     } else {
+      if (!is_array($sekData[1]['ismemberof']['xsdmf_value'])) {
+        $sekData[1]['ismemberof']['xsdmf_value'] = array($sekData[1]['ismemberof']['xsdmf_value']);
+      }
       $sekData[1]['ismemberof']['xsdmf_value'][] = $collection_pid;
     }
 

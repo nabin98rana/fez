@@ -80,21 +80,30 @@ if (@$_SESSION['IDP_LOGIN_FLAG'] == 1) {
 $masquerade = @$_POST["masquerade"];
 
 // SSO LOGIN check
-if (SSO_LOGIN == "ON" && !empty($_GET["sso_login"]) && $_GET["sso_login"] == 'true') {
-    if (Auth::LoginAuthenticatedUser("", "", false, false, true) > 0) {
-        Auth::redirect(APP_RELATIVE_URL . "login.php?err=22&local_login=true");
-    }
-    if (!empty($_GET["url"]) && $realUrl != APP_RELATIVE_URL && $realUrl != "/index.php?err=6") {
-        Auth::redirect(urldecode($_GET["url"]));
-    } else {
-        $username = Auth::getUsername();
-        if (APP_MY_RESEARCH_MODULE == 'ON' && MyResearch::isClassicUser($username) == 1) {
-            Auth::redirect(APP_BASE_URL."my_fez_traditional.php");
-        } elseif (APP_MY_RESEARCH_MODULE == 'ON' && MyResearch::getHRorgUnit($username) != "") {
-            Auth::redirect(APP_BASE_URL."my_fez.php"); // even though its the same page redirect so if they refresh it doesnt have the get vars
+if (SSO_LOGIN == "ON") {
+    if (!empty($_GET["sso_login"]) && $_GET["sso_login"] == 'true') {
+        $loginres = Auth::LoginAuthenticatedUser("", "", false, false, true);
+        if ($loginres > 0) {
+            Auth::redirect(APP_RELATIVE_URL . "login.php?err=".$loginres."&local_login=1");
+        }
+        $realUrl = urldecode(base64_decode($_GET["url"]));
+        if (!empty($_GET["url"]) && $realUrl != APP_RELATIVE_URL && $realUrl != "/index.php?err=6") {
+            Auth::redirect(urldecode(base64_decode($_GET["url"])));
         } else {
-            Auth::redirect(APP_BASE_URL); // even though its the same page redirect so if they refresh it doesnt have the get vars
-            $extra = '';
+            $username = Auth::getUsername();
+            if (APP_MY_RESEARCH_MODULE == 'ON' && MyResearch::isClassicUser($username) == 1) {
+                Auth::redirect(APP_BASE_URL."my_fez_traditional.php");
+            } elseif (APP_MY_RESEARCH_MODULE == 'ON' && MyResearch::getHRorgUnit($username) != "") {
+                Auth::redirect(APP_BASE_URL."my_fez.php"); // even though its the same page redirect so if they refresh it doesnt have the get vars
+            } else {
+                Auth::redirect(APP_BASE_URL); // even though its the same page redirect so if they refresh it doesnt have the get vars
+                $extra = '';
+            }
+        }
+    } elseif (!empty($_GET["sso_logout"]) && $_GET["sso_logout"] == 'true') {
+        $realUrl = urldecode(base64_decode($_GET["url"]));
+        if (!empty($_GET["url"]) && $realUrl != APP_RELATIVE_URL && $realUrl != "/index.php?err=6") {
+            Auth::redirect(urldecode(base64_decode($_GET["url"])));
         }
     }
 }
