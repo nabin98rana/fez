@@ -314,7 +314,7 @@ class Template_API
             if ($_GET['wfs_id'] == '789') {
                 $request_uri = '/rhdsubmission';
             }
-            $uri_encoded = base64_encode($_SERVER['REQUEST_URI']);
+            $uri_encoded = base64_encode($request_uri);
         }
 
         if (preg_match('/\/manage\/.*/', $request_uri)) {
