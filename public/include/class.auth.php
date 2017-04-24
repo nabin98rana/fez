@@ -1453,7 +1453,8 @@ class Auth
       echo $html;
       exit;
     } else {
-      exit('<meta http-equiv="refresh" content="0; url=' . urldecode($new_url) . '"/>');
+      header("Location: " . urldecode($new_url));
+      exit;
     }
   }
 
