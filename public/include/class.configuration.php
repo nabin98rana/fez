@@ -121,7 +121,12 @@ class Configuration
     define("APP_JHOVE_TEMP_DIR", APP_TEMP_DIR);
     define("APP_LOCKS_PATH", APP_TEMP_DIR);
 
-    $protocol = ($_SERVER['HTTPS']) ? 'https://' : 'http://';
+
+    $protocol = "http://";
+    if (APP_HTTPS == "ON") {
+        $protocol = "https://";
+    }
+
     if ($customView) {
       define("APP_BASE_URL", $protocol . $customView['cvcom_hostname'] . APP_RELATIVE_URL);
       define("APP_CUSTOM_VIEW_ID", $customView['cview_id']);
