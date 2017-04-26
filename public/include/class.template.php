@@ -310,7 +310,11 @@ class Template_API
         $request_uri = '';
         if (array_key_exists('REQUEST_URI', $_SERVER)) {
             $request_uri = $_SERVER['REQUEST_URI'];
-            $uri_encoded = base64_encode($_SERVER['REQUEST_URI']);
+            // start a new session if this is from a redirect/sso logout/backin
+            if ($_GET['wfs_id'] == '789') {
+                $request_uri = '/rhdsubmission';
+            }
+            $uri_encoded = base64_encode($request_uri);
         }
 
         if (preg_match('/\/manage\/.*/', $request_uri)) {
