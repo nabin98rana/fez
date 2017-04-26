@@ -1560,7 +1560,7 @@ class ResearcherID {
     // Save date on GMT timezone
     $timecleaned = Date_API::getCurrentDateGMT();
 
-    $clean_stmt = "";
+    $clean_stmt = array();
 
     foreach ($jobs['list'] as $job) {
       if (!isset($job['rij_id']) || empty($job['rij_id'])) {
