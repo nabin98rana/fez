@@ -1123,7 +1123,7 @@ class User
 		$db = DB_API::get();
 
 		$usr_administrator = 0;
-		$ldap_authentication = 1;
+		$ldap_authentication = 0;
 
 		$prefs = Prefs::getDefaults();
 		$stmt = "INSERT INTO
