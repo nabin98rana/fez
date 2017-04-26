@@ -122,10 +122,7 @@ class Configuration
     define("APP_LOCKS_PATH", APP_TEMP_DIR);
 
 
-    $protocol = "http://";
-    if (APP_HTTPS == "ON") {
-        $protocol = "https://";
-    }
+    $protocol = ($_SERVER['HTTPS']) ? 'https://' : 'http://';
 
     if ($customView) {
       define("APP_BASE_URL", $protocol . $customView['cvcom_hostname'] . APP_RELATIVE_URL);
