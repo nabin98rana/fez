@@ -5,7 +5,7 @@ namespace Elasticsearch\Endpoints;
 use Elasticsearch\Common\Exceptions;
 
 /**
- * Class Explain
+ * Class Deletebyquery
  *
  * @category Elasticsearch
  * @package  Elasticsearch\Endpoints
@@ -13,7 +13,7 @@ use Elasticsearch\Common\Exceptions;
  * @license  http://www.apache.org/licenses/LICENSE-2.0 Apache2
  * @link     http://elastic.co
  */
-class Explain extends AbstractEndpoint
+class DeleteByQuery extends AbstractEndpoint
 {
     /**
      * @param array $body
@@ -38,28 +38,15 @@ class Explain extends AbstractEndpoint
      */
     public function getURI()
     {
-        if (isset($this->id) !== true) {
+        if (!$this->index) {
             throw new Exceptions\RuntimeException(
-                'id is required for Explain'
+                'index is required for Deletebyquery'
             );
         }
-        if (isset($this->index) !== true) {
-            throw new Exceptions\RuntimeException(
-                'index is required for Explain'
-            );
-        }
-        if (isset($this->type) !== true) {
-            throw new Exceptions\RuntimeException(
-                'type is required for Explain'
-            );
-        }
-        $id = $this->id;
-        $index = $this->index;
-        $type = $this->type;
-        $uri   = "/$index/$type/$id/_explain";
 
-        if (isset($index) === true && isset($type) === true && isset($id) === true) {
-            $uri = "/$index/$type/$id/_explain";
+        $uri = "/{$this->index}/_delete_by_query";
+        if ($this->type) {
+            $uri = "/{$this->index}/{$this->type}/_delete_by_query";
         }
 
         return $uri;
@@ -71,22 +58,38 @@ class Explain extends AbstractEndpoint
     public function getParamWhitelist()
     {
         return array(
-            'analyze_wildcard',
-            'analyzer',
-            'default_operator',
-            'df',
-            'fields',
-            'lenient',
-            'lowercase_expanded_terms',
-            'parent',
-            'preference',
-            'q',
-            'routing',
-            'source',
             '_source',
             '_source_exclude',
             '_source_include',
-            'stored_fields'
+            'allow_no_indices',
+            'analyze_wildcard',
+            'analyzer',
+            'conflicts',
+            'default_operator',
+            'df',
+            'expand_wildcards',
+            'from',
+            'ignore_unavailable',
+            'lenient',
+            'preference',
+            'query',
+            'refresh',
+            'request_cache',
+            'requests_per_second',
+            'routing',
+            'scroll',
+            'scroll_size',
+            'search_timeout',
+            'search_type',
+            'size',
+            'slices',
+            'sort',
+            'stats',
+            'terminate_after',
+            'timeout',
+            'version',
+            'wait_for_active_shards',
+            'wait_for_completion',
         );
     }
 
@@ -95,6 +98,6 @@ class Explain extends AbstractEndpoint
      */
     public function getMethod()
     {
-        return 'GET';
+        return 'POST';
     }
 }

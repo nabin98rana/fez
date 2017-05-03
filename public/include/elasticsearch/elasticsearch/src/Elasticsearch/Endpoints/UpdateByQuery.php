@@ -2,19 +2,18 @@
 
 namespace Elasticsearch\Endpoints;
 
-use Elasticsearch\Common\Exceptions\InvalidArgumentException;
 use Elasticsearch\Common\Exceptions;
 
 /**
- * Class Search
+ * Class UpdateByQuery
  *
  * @category Elasticsearch
- * @package  Elasticsearch\Endpoints
- * @author   Zachary Tong <zach@elastic.co>
+ * @package Elasticsearch\Endpoints *
+ * @author   Zachary Tong <zachary.tong@elasticsearch.com>
  * @license  http://www.apache.org/licenses/LICENSE-2.0 Apache2
- * @link     http://elastic.co
+ * @link     http://elasticsearch.org
  */
-class Search extends AbstractEndpoint
+class UpdateByQuery extends AbstractEndpoint
 {
     /**
      * @param array $body
@@ -28,84 +27,93 @@ class Search extends AbstractEndpoint
             return $this;
         }
 
+        if (is_array($body) !== true) {
+            throw new Exceptions\InvalidArgumentException(
+                'Body must be an array'
+            );
+        }
         $this->body = $body;
 
         return $this;
     }
 
+
     /**
+     * @throws \Elasticsearch\Common\Exceptions\BadMethodCallException
      * @return string
      */
     public function getURI()
     {
-        $index = $this->index;
-        $type = $this->type;
-        $uri   = "/_search";
+        if (!$this->index) {
+            throw new Exceptions\RuntimeException(
+                'index is required for UpdateByQuery'
+            );
+        }
 
-        if (isset($index) === true && isset($type) === true) {
-            $uri = "/$index/$type/_search";
-        } elseif (isset($index) === true) {
-            $uri = "/$index/_search";
-        } elseif (isset($type) === true) {
-            $uri = "/_all/$type/_search";
+        $uri = "/{$this->index}/_update_by_query";
+        if ($this->type) {
+            $uri = "/{$this->index}/{$this->type}/_update_by_query";
         }
 
         return $uri;
     }
+
 
     /**
      * @return string[]
      */
     public function getParamWhitelist()
     {
-        return array(
+        return [
             'analyzer',
             'analyze_wildcard',
             'default_operator',
             'df',
             'explain',
+            'fields',
+            'fielddata_fields',
             'from',
             'ignore_unavailable',
             'allow_no_indices',
+            'conflicts',
             'expand_wildcards',
-            'indices_boost',
             'lenient',
             'lowercase_expanded_terms',
             'preference',
             'q',
-            'query_cache',
-            'request_cache',
             'routing',
             'scroll',
             'search_type',
+            'search_timeout',
             'size',
             'sort',
-            'source',
             '_source',
             '_source_exclude',
             '_source_include',
+            'terminate_after',
             'stats',
             'suggest_field',
             'suggest_mode',
             'suggest_size',
             'suggest_text',
             'timeout',
+            'track_scores',
             'version',
-            'fielddata_fields',
-            'docvalue_fields',
-            'filter_path',
-            'terminate_after',
-            'stored_fields',
-            'batched_reduce_size',
-            'typed_keys'
-        );
+            'version_type',
+            'request_cache',
+            'refresh',
+            'consistency',
+            'scroll_size',
+            'wait_for_completion',
+        ];
     }
+
 
     /**
      * @return string
      */
     public function getMethod()
     {
-        return 'GET';
+        return 'POST';
     }
 }
