@@ -91,7 +91,7 @@ SET config_value = 'ON'
 WHERE config_name = 'app_solr_index_datastreams';
 
 UPDATE fez_config
-SET config_value = 'elasticsearch'
+SET config_value = 'http://elastic:changeme@elasticsearch'
 WHERE config_name = 'app_es_host';
 
 UPDATE fez_config
