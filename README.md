@@ -132,10 +132,11 @@ like the pdf bookreader functionality. The CloudFront private key is a full path
 eg "https://fez.org". The key pair ID is found in your AWS Cloudfront security configuration settings.
 
 ## Debugging
-- Set up a PHP server in PHPStorm: Settings -> PHP -> Servers
+- Set up a PHP server in PHPStorm: PhpStorm -> Preferences -> Languages & Frameworks-> PHP -> Servers
 - Add the new server with name + host `dev-fez.library.uq.edu.au` and port `8080`
-- Click on "Add path mapping" and find the `src` folder in the left panel. Click on the right of it and write `/var/app/current/src`
+- Click on "Add path mapping" and find the `src` folder in the left panel. Click on the right of it and write `/var/app/current`
 - Open the DBGP proxy configuration in PHPStorm: Tools -> DBGp Proxy -> Configuration
 - Key: `PHPSTORM`, host: `dev-fez.library.uq.edu.au`, port: `9081`
+- Register IDE: Tools -> DBGp Proxy -> Register IDE
 - In PHPStorm, click the [Start Listening for PHP Debug Connections icon](https://confluence.jetbrains.com/download/attachments/50497722/zero_conf_debug_1.png?version=2&modificationDate=1420211001000&api=v2)
 - All done! 
