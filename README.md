@@ -134,7 +134,7 @@ eg "https://fez.org". The key pair ID is found in your AWS Cloudfront security c
 ## Debugging
 - Set up a PHP server in PHPStorm: PhpStorm -> Preferences -> Languages & Frameworks-> PHP -> Servers
 - Add the new server with name + host `dev-fez.library.uq.edu.au` and port `8080`
-- Click on "Add path mapping" and find the `src` folder in the left panel. Click on the right of it and write `/var/app/current`
+- Click on "Add path mapping" and find the project repo in the left panel. Click on the right of it and write `/var/app/current`
 - Open the DBGP proxy configuration in PHPStorm: Tools -> DBGp Proxy -> Configuration
 - Key: `PHPSTORM`, host: `dev-fez.library.uq.edu.au`, port: `9081`
 - Register IDE: Tools -> DBGp Proxy -> Register IDE

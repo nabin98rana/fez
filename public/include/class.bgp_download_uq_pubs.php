@@ -123,13 +123,13 @@ class BackgroundProcess_Download_Uq_Pubs extends BackgroundProcess
     $scopusService = new ScopusService();
     $sq = ScopusQueue::get();
     $i = 0;
-    $foundResults = TRUE;
+    $previousWeek = date("Ymd",strtotime("-1 week"));
+    $numRecords = 0;
 
-    while ($i < 5030 && $foundResults) {
-      $foundResults = FALSE;
-      //get the last 30 days of recently added records
+    while ($i < 4970 && $i <= $numRecords) {
+        //get past 7 days recently updated records
       $query = array(
-        'query' => '(af-id(' . $afids[0] . ') OR af-id(' . $afids[1] . ')) AND recent(30)',
+        'query' => '(af-id(' . $afids[0] . ') OR af-id(' . $afids[1] . ')) AND load-date aft ' . $previousWeek,
         'count' => 30,
         'start' => $i,
         'view' => 'STANDARD'
@@ -138,11 +138,13 @@ class BackgroundProcess_Download_Uq_Pubs extends BackgroundProcess
       $resp = $scopusService->search($query);
       $doc = new DOMDocument();
       $doc->loadXML($resp);
+
+      if($numRecords == 0) {
+        $numRecords = $doc->getElementsByTagName('totalResults')->item(0)->nodeValue;
+      }
+
       $records = $doc->getElementsByTagName('identifier');
       foreach ($records as $record) {
-        if (!$foundResults) {
-          $foundResults = TRUE;
-        }
         $scopus_id = $record->nodeValue;
         echo $scopus_id . "\n";
         $sq->add($scopus_id);
