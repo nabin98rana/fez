@@ -910,11 +910,12 @@ class User
 		} else {
 			$superAdminUpdateStatement = "";
 		}
-		if (@$_POST["ldap_authentication"]) {
-			$ldap_authentication = 'TRUE';
-		} else {
+//		if (@$_POST["ldap_authentication"]) {
+//			$ldap_authentication = 'TRUE';
+//		} else {
+      // forced to FALSE for now because there is no reason to have these with SSO on
 			$ldap_authentication = 'FALSE';
-		}
+//		}
 
 		$stmt = "UPDATE
                     " . APP_TABLE_PREFIX . "user
@@ -1005,11 +1006,12 @@ class User
 			$usr_super_administrator = 'FALSE';
 		}
 
-		if (@$_POST["ldap_authentication"]) {
-			$ldap_authentication = 'TRUE';
-		} else {
+//		if (@$_POST["ldap_authentication"]) {
+//			$ldap_authentication = 'TRUE';
+//		} else {
+      // forcing to flase now we have UQ SSO
 			$ldap_authentication = 'FALSE';
-		}
+//		}
 
 		$prefs = Prefs::getDefaults();
 		$stmt = "INSERT INTO
@@ -1181,7 +1183,7 @@ class User
 
 		$usr_administrator = 'FALSE';
 
-		$ldap_authentication = 'TRUE';
+		$ldap_authentication = 'FALSE';
 
 		$prefs = Prefs::getDefaults();
 		$stmt = "INSERT INTO
@@ -1236,7 +1238,7 @@ class User
 		$db = DB_API::get();
 
 		$usr_administrator = 'FALSE';
-		$ldap_authentication = 'TRUE';
+		$ldap_authentication = 'FALSE';
 		$userDetails = User::GetUserLDAPDetails($_POST["username"], $_POST["passwd"]);
 
 		$prefs = Prefs::getDefaults();
