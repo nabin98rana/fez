@@ -76,7 +76,9 @@ foreach ($list as $list_key => $list_field) {
 		$temp_value = "";
 		if (array_key_exists("searchKey".$list_field['sek_id'], $options) && is_array($options["searchKey".$list_field['sek_id']])) {
 			foreach ($options["searchKey".$list_field['sek_id']] as $option) {
-				eval("\$temp_value = ".$list_field["sek_lookup_function"]."(".$option.");");		
+			    if (is_numeric($option)) {
+                    eval("\$temp_value = " . $list_field["sek_lookup_function"] . "(" . $option . ");");
+                }
 				$list[$list_key]["field_options"][$option] = $temp_value;
 			}
 			$list[$list_key]['field_options_count'] = count($list[$list_key]["field_options"]);
@@ -87,12 +89,14 @@ foreach ($list as $list_key => $list_field) {
 		$temp_value = "";
 		if (array_key_exists("searchKey".$list_field['sek_id'], $options) && is_array($options["searchKey".$list_field['sek_id']])) {
 			foreach ($options["searchKey".$list_field['sek_id']] as $option) {
-				eval("\$temp_value = ".$list_field["sek_lookup_function"]."(".$option.");");		
+                if (is_numeric($option)) {
+                    eval("\$temp_value = " . $list_field["sek_lookup_function"] . "(" . $option . ");");
+                }
 				$list[$list_key]["field_options"][$option] = $temp_value;
 			}
 			$list[$list_key]['field_options_count'] = count($list[$list_key]["field_options"]);
 		}
-	} 
+	}
 }
 
 $tpl->assign("options", $options);
