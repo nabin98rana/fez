@@ -45,12 +45,8 @@
               }
               function togglePasswordText()
               {
-                  var f = document.getElementsByName("ldap_authentication")[0];
-				  if (f.checked) {
-                      document.getElementsByName("password")[0].disabled = true;
-				  } else {
-                      document.getElementsByName("password")[0].disabled = false;
-				  }
+
+                  document.getElementsByName("password")[0].disabled = false;
                   return true;
               }
               //-->
