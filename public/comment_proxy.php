@@ -45,7 +45,7 @@ $sek_comment_function = Search_Key::getCommentFunctionByXSDMF_ID($xsdmf_id);
 
 $comment = false;
 
-if (strlen($query) > 2 && preg_match('/[0-9]{4}-[0-9]{3}[0-9X]/', $query)) {
+if (strlen($query) > 2 && preg_match('/^[0-9]{4}-[0-9]{3}[0-9X]$/', $query)) {
     eval('$comment = '.$sek_comment_function.'("'.$query.'");');
 }
 
