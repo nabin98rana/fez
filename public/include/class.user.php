@@ -1303,7 +1303,7 @@ class User
         $userdetails['email'] = $account['mail'];
         $userdetails['displayname'] = $account['name'];
         $home_idp_suffix = 'uq.edu.au';
-        if (in_array($account['type'], array(3,17,18))) {
+        if (in_array($account['type'], array(3,17,18,33,34))) {
             $_SESSION[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-UnscopedAffiliation'] = 'staff';
             $_SESSION[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-PrimaryAffiliation'] = 'staff';
             $_SESSION[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-ScopedAffiliation'] = 'staff@' . $home_idp_suffix;
