@@ -10,7 +10,7 @@
 ## Fez staging tasks ##
 
 # Reload the DB from prod
-00 21 * * *  root    /usr/bin/wget -O - "http://fez-staging.library.uq.edu.au/api/cron_register_bgp.php?file=bgp_db_load&class=BackgroundProcess_Db_Load&token=WEBCRON_TOKEN" > /dev/null 2>&1
+# 00 21 * * *  root    /usr/bin/wget -O - "http://fez-staging.library.uq.edu.au/api/cron_register_bgp.php?file=bgp_db_load&class=BackgroundProcess_Db_Load&token=WEBCRON_TOKEN" > /dev/null 2>&1
 
 # Update the GeoIP and GeoLiteCity data files in S3 every month on the 3rd at 3:33am
 #33  3   3 * *   root    /usr/bin/wget -nd -q -O /tmp/GeoIP.dat.gz http://www.maxmind.com/download/geoip/database/GeoIP.dat.gz && aws s3 cp /tmp/GeoIP.dat.gz s3://uql-fez-staging-cache/GeoIP.dat.gz > /dev/null 2>&1
