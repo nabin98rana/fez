@@ -3360,7 +3360,13 @@ public static function multi_implode($glue, $pieces)
       $a, $xdis_id=0, $element_match_list=array(), $counter=0, $parent_counter=-1, &$open_array = array()
   )
   {
-    $match_form_url = APP_BASE_URL."manage/xsd_tree_match_form.php?xdis_id=".$xdis_id."&xml_element=";
+    // due to the fact it uses iframes we can't cross the protocols
+    $app_protocol = "http://";
+    if (APP_HTTPS == "ON") {
+        $app_protocol = "https://";
+    }
+
+    $match_form_url = $app_protocol.APP_HOSTNAME."/manage/xsd_tree_match_form.php?xdis_id=".$xdis_id."&xml_element=";
     $ret = array();
     $dtree_image = "";
     $ret[0] = 0;
