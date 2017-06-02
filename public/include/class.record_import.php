@@ -1220,7 +1220,7 @@ abstract class RecordImport
         $sekData['ISSN']            = $this->_issn;
         $sekData['DOI']            = $this->_doi;
         $sekData['Publisher']       = $this->_publisher;
-        $sekData['Scopus Doc Type'] = $this->_scopusDocType;
+        $sekData['Scopus Doc Type'] = $this->_scopusDocTypeCode;
 
         /// exception for conf papers that the subtype goes into genre type
         if ($this->_xdisTitle == "Conference Paper") {
