@@ -63,6 +63,14 @@ $anchor = "";
 $tpl->assign("type", "custom_fields");
 $tpl->assign("active_nav", "admin");
 
+// due to the fact it uses iframes we can't cross the protocols
+$app_protocol = "http://";
+if (APP_HTTPS == "ON") {
+    $app_protocol = "https://";
+}
+
+$tpl->assign("manage_url", $app_protocol.APP_HOSTNAME."manage/");
+
 $isUser = Auth::getUsername();
 $isAdministrator = User::isUserAdministrator($isUser);
 $isSuperAdministrator = User::isUserSuperAdministrator($isUser);
@@ -87,10 +95,10 @@ $tpl->assign("controlled_vocab_list", Controlled_Vocab::getAssocList());
 		if (is_numeric(strpos(@$_POST["submit"], "Delete"))) {
 			$form_cat = "delete";
 			$tpl->assign("cat", $form_cat);
-		} else { 
+		} else {
 			$form_cat = @$_POST["form_cat"];
 		}
-		
+
 		if ($form_cat == "new") {
 			$tpl->assign("result", XSD_HTML_Match::insert($xdis_id, $xml_element));
 		} elseif ($form_cat == "update") {
@@ -124,7 +132,7 @@ $tpl->assign("controlled_vocab_list", Controlled_Vocab::getAssocList());
 		if ($form_cat == "new") {
 			$tpl->assign("result", XSD_Loop_Subelement::insert());
 		} elseif ($form_cat == "update") {
-			$tpl->assign("result", XSD_Loop_Subelement::update());		
+			$tpl->assign("result", XSD_Loop_Subelement::update());
 		}
 	} elseif (is_numeric(strpos(@$_POST["form_name"], "att_delete"))) {
 		$anchor = "#att_main";
@@ -149,12 +157,12 @@ $tpl->assign("controlled_vocab_list", Controlled_Vocab::getAssocList());
 		$tpl->assign("xsdsel_title", $xsdsel_details['xsdsel_title']);
 	} else {
 		$tpl->assign("xsdsel_title", "N/A");
-	}	
+	}
 
 	$parent_subelement_loops = XSD_Loop_Subelement::getTopParentLoopList($xml_element, $xdis_id);
 
 	if (count($parent_subelement_loops) > 0) {
-		if (empty($xsdsel_id)) { 
+		if (empty($xsdsel_id)) {
 			$tpl->assign("xsdsel_loop_list", $parent_subelement_loops);
 			$show_subelement_parents = true;
 		} else {
@@ -167,8 +175,8 @@ $tpl->assign("controlled_vocab_list", Controlled_Vocab::getAssocList());
 	$tpl->assign("xsdsel_id", $xsdsel_id);
 	$tpl->assign("xsdsel_id_edit", $xsdsel_id_edit);
 
-	if ((count($parent_subelement_loops) > 0) && is_numeric($xsdsel_id)) {	
-	// It does have parents so 
+	if ((count($parent_subelement_loops) > 0) && is_numeric($xsdsel_id)) {
+	// It does have parents so
 		$info_array = XSD_HTML_Match::getDetailsSubelement($xdis_id, $xml_element, $xsdsel_id);
 	} else {
 		$info_array = XSD_HTML_Match::getDetails($xdis_id, $xml_element);
@@ -196,7 +204,7 @@ $tpl->assign("controlled_vocab_list", Controlled_Vocab::getAssocList());
 		$xsd_display_ref_list = XSD_Relationship::getListByXSDMF($info_array['xsdmf_id']);
 		$xsd_display_att_list = XSD_Display_Attach::getListByXSDMF($info_array['xsdmf_id']);
 		$xsd_loop_subelement_list = XSD_Loop_Subelement::getListByXSDMF($info_array['xsdmf_id']);
-		$org_levels = Org_Structure::getAssocListLevels(); 
+		$org_levels = Org_Structure::getAssocListLevels();
 		if ((is_numeric($att_id_edit)) && ($_GET['att_cat'] == "edit")) {
 			$xsd_attach_details = XSD_Display_Attach::getDetails($att_id_edit); // changed to xsdsel_id_edit for loops on loops - CK
 			$tpl->assign("xsd_attach_details", $xsd_attach_details);

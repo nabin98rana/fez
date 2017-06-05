@@ -705,7 +705,7 @@
 					&nbsp;{$xsdsel_loop_list[i].xsdsel_order}
 				  </td>
 				  <td width="15%" bgcolor="{$row_color}" class="default">
-                        &nbsp;<a class="link" href="{$smarty.const.APP_BASE_URL}manage/xsd_tree_match_form.php?&xdis_id={$xdis_id}&xml_element={$xml_element}&xsdsel_id={$xsdsel_loop_list[i].xsdsel_id}" title="match this XSD Display against HTML elements">Link</a>
+                        &nbsp;<a class="link" href="{$manage_url}xsd_tree_match_form.php?&xdis_id={$xdis_id}&xml_element={$xml_element}&xsdsel_id={$xsdsel_loop_list[i].xsdsel_id}" title="match this XSD Display against HTML elements">Link</a>
 				  </td>
 				</tr>
 				{/section}
@@ -1526,7 +1526,7 @@
 								<input type="checkbox" name="items[]" value="{$xsd_display_ref_list[i].xsdrel_id}" {if $smarty.section.i.total == 0}disabled{/if}>
 							  </td>
 							  <td width="50%" bgcolor="{$row_color}" class="default">
-								&nbsp;<a href="{$smarty.const.APP_BASE_URL}manage/xsd_tree_match_form.php?xdis_id={$xdis_id}&xml_element={$xml_element}&xsdsel_id={$xsdsel_id}&xsdref_cat=edit&xsdrel_id={$xsd_display_ref_list[i].xsdrel_id}">{$xsd_display_ref_list[i].xdis_title}</a>
+								&nbsp;<a href="{$manage_url}xsd_tree_match_form.php?xdis_id={$xdis_id}&xml_element={$xml_element}&xsdsel_id={$xsdsel_id}&xsdref_cat=edit&xsdrel_id={$xsd_display_ref_list[i].xsdrel_id}">{$xsd_display_ref_list[i].xdis_title}</a>
 							  </td>
 							  <td width="15%" bgcolor="{$row_color}" class="default">
 								&nbsp;{$xsd_display_ref_list[i].xdis_version}
@@ -1535,7 +1535,7 @@
 								&nbsp;{$xsd_display_ref_list[i].xsdrel_order}
 							  </td>
 							  <td width="15%" bgcolor="{$row_color}" class="default">
-								&nbsp;<a class="link" href={$smarty.const.APP_BASE_URL}manage/"xsd_tree_match.php?&xdis_id={$xsd_display_ref_list[i].xdis_id}" title="match this XSD Display against HTML elements" target="_blank" >Edit</a>
+								&nbsp;<a class="link" href="{$manage_url}xsd_tree_match.php?&xdis_id={$xsd_display_ref_list[i].xdis_id}" title="match this XSD Display against HTML elements" target="_blank" >Edit</a>
 							  </td>
 							</tr>
 							{sectionelse}
@@ -1738,7 +1738,7 @@
 										<input type="checkbox" name="items[]" value="{$xsd_loop_subelement_list[i].xsdsel_id}" {if $smarty.section.i.total == 0}disabled{/if}>
 									  </td>
 									  <td width="35%" bgcolor="{$row_color}" class="default">
-										&nbsp;<a href="xsd_tree_match_form.php?xdis_id={$xdis_id}&xml_element={$xml_element}&xsdsel_id={$xsdsel_id}&xsdsel_cat=edit&xsdsel_id_edit={$xsd_loop_subelement_list[i].xsdsel_id}">{$xsd_loop_subelement_list[i].xsdsel_title}</a>
+										&nbsp;<a href="{$manage_url}xsd_tree_match_form.php?xdis_id={$xdis_id}&xml_element={$xml_element}&xsdsel_id={$xsdsel_id}&xsdsel_cat=edit&xsdsel_id_edit={$xsd_loop_subelement_list[i].xsdsel_id}">{$xsd_loop_subelement_list[i].xsdsel_title}</a>
 									  </td>
 									  <td width="15%" bgcolor="{$row_color}" class="default">
 										&nbsp;{$xsd_loop_subelement_list[i].xsdsel_type}

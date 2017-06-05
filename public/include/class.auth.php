@@ -2082,6 +2082,14 @@ class Auth
             $distinguishedname = '';
           }
           $session['isInAD'] = true;
+
+        } elseif ($sso_login == true) {
+            // is really a local AD user, via SSO
+            $session['isInAD'] = true;
+            $session['isInDB'] = false;
+            $session['isInFederation'] = false;
+            $usr_id = User::getUserIDByUsername($username);
+            User::updateShibAttribs($usr_id);
         } else {
           $distinguishedname = '';
           $session['isInAD'] = false;
