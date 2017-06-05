@@ -367,8 +367,8 @@ const USE_LOCKING = true;
 	 */
 	protected function mapFieldValue($title, $datatype, $value)
 	{
-		if (empty($value)) {
-			return;
+		if (is_null($value)) {
+			return "";
 		}
 		if ($datatype == FulltextIndex::FIELD_TYPE_DATE) {
 			// update date format
@@ -483,7 +483,7 @@ const USE_LOCKING = true;
         // search-engine specific mapping of field content (date!)
         $fieldValue = $this->mapFieldValue($title, $fieldType, $fieldValue);
 
-        if ($fieldValue != "") {
+        if ($fieldValue !== "") {
           // mark multi-valued search keys
           $isMultiValued = false;
           if ($sekDetails["sek_cardinality"] == 1) {
