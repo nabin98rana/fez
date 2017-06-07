@@ -150,6 +150,15 @@ class ScopusRecItem extends RecordImport
             $year = $this->extract('//source/publicationdate/year', $xpath);
             $month = $this->extract('//source/publicationdate/month', $xpath);
             $day = $this->extract('//source/publicationdate/day', $xpath);
+
+            // MySQL expects a full real date now, so replace empty days and months with 01
+            if (!is_numeric($day)) {
+                $day = '01';
+            }
+            if (!is_numeric($month)) {
+                $month = '01';
+            }
+
             if (is_numeric($month) && is_numeric($day) && is_numeric($year)) {
               $date = $year.'-'.$month.'-'.$day;
             } elseif (is_numeric($year)) {
