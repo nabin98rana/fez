@@ -296,7 +296,12 @@ class Date_API
 			$timestamp = Date_API::getUnixTimestamp();
 		}
 		$date = new Date($timestamp);
-
+    if ($date->getDay() === 0) {
+        $date->setDay(1);
+    }
+    if ($date->getMonth() === 0) {
+        $date->setMonth(1);
+    }
 
 		return $date->format('%Y-%m-%dT%H:%M:%SZ');
 	}
