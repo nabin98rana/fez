@@ -576,6 +576,9 @@ class FulltextIndex_ElasticSearch extends FulltextIndex
 
         $result = $this->esClient->bulk($params);
 
+        if (array_key_exists('errors', $result) && $result['errors'] == true) {
+            $log->err("ElasticSearch returned an error on indexing: ".print_r($result['items'], true));
+        }
         unset($this->docs);
         $memoryUsage = Misc::bytesToSize(memory_get_usage());
         $log->debug(array("======= FulltextIndex::updateFulltextIndex committed mem_usage=" . $memoryUsage . " ======="));
