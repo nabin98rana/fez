@@ -33,7 +33,7 @@ ALTER TABLE `%TABLE_PREFIX%record_search_key_contributor__shadow` DROP PRIMARY K
 ALTER TABLE `%TABLE_PREFIX%record_search_key_contributor_id__shadow` DROP PRIMARY KEY, ADD PRIMARY KEY(`rek_contributor_id_version`,`rek_contributor_id_order`);
 ALTER TABLE `%TABLE_PREFIX%record_search_key_convener__shadow` DROP PRIMARY KEY, ADD PRIMARY KEY(`rek_convener_version`);
 ALTER TABLE `%TABLE_PREFIX%record_search_key_country_of_issue__shadow` DROP PRIMARY KEY, ADD PRIMARY KEY(`rek_country_of_issue_version`);
-ALTER TABLE `%TABLE_PREFIX%record_search_key_coverage_period__shadow` CHANGE `rek_coverage_period_id` `rek_coverage_period_id` INT(11) NOT NULL
+ALTER TABLE `%TABLE_PREFIX%record_search_key_coverage_period__shadow` CHANGE `rek_coverage_period_id` `rek_coverage_period_id` INT(11) NOT NULL;
 ALTER TABLE `%TABLE_PREFIX%record_search_key_coverage_period__shadow` ADD KEY `rek_coverage_period_order` (`rek_coverage_period_order`);
 ALTER TABLE `%TABLE_PREFIX%record_search_key_coverage_period__shadow` DROP PRIMARY KEY, ADD PRIMARY KEY(`rek_coverage_period_version`,`rek_coverage_period_order`);
 ALTER TABLE `%TABLE_PREFIX%record_search_key_creator_id__shadow` DROP PRIMARY KEY, ADD PRIMARY KEY(`rek_creator_id_version`,`rek_creator_id_order`);
