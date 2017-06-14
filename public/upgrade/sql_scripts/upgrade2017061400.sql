@@ -1,10 +1,26 @@
 CREATE TABLE IF NOT EXISTS `%TABLE_PREFIX%record_search_key_article_number` (
   `rek_article_number_id` int(11) NOT NULL AUTO_INCREMENT,
   `rek_article_number_pid` varchar(64) DEFAULT NULL,
-  `rek_article_number_xsdmf_id` int(11) default NULL,
+  `rek_article_number_xsdmf_id` int(11) DEFAULT NULL,
   `rek_article_number` varchar(255) DEFAULT NULL,
-  PRIMARY KEY  (`rek_article_number_id`),
-  KEY `rek_article_number_pid` (`rek_article_number_pid`, `rek_article_number`)
+  PRIMARY KEY (`rek_article_number_id`),
+  UNIQUE KEY `unique_constraint` (`rek_article_number_pid`,`rek_article_number`),
+  UNIQUE KEY `rek_article_number_pid` (`rek_article_number_pid`),
+  KEY `rek_article_number` (`rek_article_number`),
+  CONSTRAINT `rek_artnu_foreign` FOREIGN KEY (`rek_article_number_pid`) REFERENCES `fez_record_search_key` (`rek_pid`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+CREATE TABLE IF NOT EXISTS `%TABLE_PREFIX%record_search_key_article_number__shadow` (
+  `rek_article_number_id` int(11) NOT NULL,
+  `rek_article_number_pid` varchar(64) NOT NULL DEFAULT '',
+  `rek_article_number_xsdmf_id` int(11) DEFAULT NULL,
+  `rek_article_number` varchar(255) DEFAULT NULL,
+  `rek_article_number_stamp` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `rek_article_number_version` varchar(100) NOT NULL,
+  PRIMARY KEY (`rek_article_number_version`),
+  KEY `rek_article_number` (`rek_article_number`),
+  KEY `rek_article_number_pi` (`rek_article_number_pid`,`rek_article_number_stamp`),
+  CONSTRAINT `rek_artnu__foreign` FOREIGN KEY (`rek_article_number_version`) REFERENCES `fez_record_search_key__shadow` (`rek_version`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE IF NOT EXISTS `%TABLE_PREFIX%record_search_key_grant_agency` (
