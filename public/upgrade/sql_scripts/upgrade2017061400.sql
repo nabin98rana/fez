@@ -103,3 +103,30 @@ CREATE TABLE IF NOT EXISTS `%TABLE_PREFIX%record_search_key_grant_text__shadow` 
   KEY `rek_grant_text_pi` (`rek_grant_text_pid`,`rek_grant_text_stamp`,`rek_grant_text_order`),
   CONSTRAINT `rek_grate__foreign` FOREIGN KEY (`rek_grant_text_version`) REFERENCES `fez_record_search_key__shadow` (`rek_version`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+CREATE TABLE IF NOT EXISTS `%TABLE_PREFIX%record_search_key_grant_acronym` (
+  `rek_grant_acronym_id` int(11) NOT NULL AUTO_INCREMENT,
+  `rek_grant_acronym_pid` varchar(64) NOT NULL,
+  `rek_grant_acronym_xsdmf_id` int(11) NOT NULL,
+  `rek_grant_acronym_order` int(11) DEFAULT '1',
+  `rek_grant_acronym` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`rek_grant_acronym_id`),
+  UNIQUE KEY `unique_constraint_pid_order` (`rek_grant_acronym_pid`,`rek_grant_acronym_order`),
+  KEY `rek_grant_acronym` (`rek_grant_acronym`),
+  KEY `rek_grant_acronym_pid` (`rek_grant_acronym_pid`),
+  CONSTRAINT `rek_graar_foreign` FOREIGN KEY (`rek_grant_acronym_pid`) REFERENCES `fez_record_search_key` (`rek_pid`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+CREATE TABLE IF NOT EXISTS `%TABLE_PREFIX%record_search_key_grant_acronym__shadow` (
+  `rek_grant_acronym_id` int(11) NOT NULL,
+  `rek_grant_acronym_pid` varchar(64) NOT NULL DEFAULT '',
+  `rek_grant_acronym_xsdmf_id` int(11) DEFAULT NULL,
+  `rek_grant_acronym` varchar(255) DEFAULT NULL,
+  `rek_grant_acronym_order` int(11) NOT NULL DEFAULT '1',
+  `rek_grant_acronym_stamp` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `rek_grant_acronym_version` varchar(100) NOT NULL,
+  PRIMARY KEY (`rek_grant_acronym_version`,`rek_grant_acronym_order`),
+  KEY `rek_grant_acronym_pid` (`rek_grant_acronym_pid`),
+  KEY `rek_grant_acronym_pi` (`rek_grant_acronym_pid`,`rek_grant_acronym_stamp`,`rek_grant_acronym_order`),
+  CONSTRAINT `rek_graar__foreign` FOREIGN KEY (`rek_grant_acronym_version`) REFERENCES `fez_record_search_key__shadow` (`rek_version`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;

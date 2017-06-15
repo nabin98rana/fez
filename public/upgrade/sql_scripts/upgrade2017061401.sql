@@ -78,3 +78,30 @@ CREATE TABLE IF NOT EXISTS `%TABLE_PREFIX%record_search_key_author_affiliation_c
   KEY `rek_author_affiliation_country_pi` (`rek_author_affiliation_country_pid`,`rek_author_affiliation_country_stamp`,`rek_author_affiliation_country_order`),
   CONSTRAINT `rek_affac__foreign` FOREIGN KEY (`rek_author_affiliation_country_version`) REFERENCES `fez_record_search_key__shadow` (`rek_version`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+CREATE TABLE IF NOT EXISTS `%TABLE_PREFIX%record_search_key_author_affiliation_full_address` (
+  `rek_author_affiliation_full_address_id` int(11) NOT NULL AUTO_INCREMENT,
+  `rek_author_affiliation_full_address_pid` varchar(64) NOT NULL,
+  `rek_author_affiliation_full_address_xsdmf_id` int(11) NOT NULL,
+  `rek_author_affiliation_full_address_order` int(11) DEFAULT '1',
+  `rek_author_affiliation_full_address` text,
+  PRIMARY KEY (`rek_author_affiliation_full_address_id`),
+  UNIQUE KEY `unique_constraint_pid_order` (`rek_author_affiliation_full_address_pid`,`rek_author_affiliation_full_address_order`),
+  FULLTEXT KEY `rek_author_affiliation_full_address` (`rek_author_affiliation_full_address`),
+  KEY `rek_author_affiliation_full_address_pid` (`rek_author_affiliation_full_address_pid`),
+  CONSTRAINT `rek_afffa_foreign` FOREIGN KEY (`rek_author_affiliation_full_address_pid`) REFERENCES `fez_record_search_key` (`rek_pid`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+CREATE TABLE IF NOT EXISTS `%TABLE_PREFIX%record_search_key_author_affiliation_full_address__shadow` (
+  `rek_author_affiliation_full_address_id` int(11) NOT NULL,
+  `rek_author_affiliation_full_address_pid` varchar(64) NOT NULL DEFAULT '',
+  `rek_author_affiliation_full_address_xsdmf_id` int(11) DEFAULT NULL,
+  `rek_author_affiliation_full_address` text DEFAULT NULL,
+  `rek_author_affiliation_full_address_order` int(11) NOT NULL DEFAULT '1',
+  `rek_author_affiliation_full_address_stamp` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `rek_author_affiliation_full_address_version` varchar(100) NOT NULL,
+  PRIMARY KEY (`rek_author_affiliation_full_address_version`,`rek_author_affiliation_full_address_order`),
+  KEY `rek_author_affiliation_full_address_pid` (`rek_author_affiliation_full_address_pid`),
+  KEY `rek_author_affiliation_full_address_pi` (`rek_author_affiliation_full_address_pid`,`rek_author_affiliation_full_address_stamp`,`rek_author_affiliation_full_address_order`),
+  CONSTRAINT `rek_afffa__foreign` FOREIGN KEY (`rek_author_affiliation_full_address_version`) REFERENCES `fez_record_search_key__shadow` (`rek_version`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
