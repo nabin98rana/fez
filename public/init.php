@@ -400,8 +400,8 @@ if ($check1 || $check2) {
 
 // put these into config db params
 define('API_URL', 'https://app.library.uq.edu.au/api');
-define('SSO_LOGIN_URL', "https://www.library.uq.edu.au/uqlais/login?return=");
-define('SSO_LOGOUT_URL', "https://www.library.uq.edu.au/uqlais/logout?return=");
+define('SSO_LOGIN_URL', "https://auth.library.uq.edu.au/login?return=");
+define('SSO_LOGOUT_URL', "https://auth.library.uq.edu.au/logout?return=");
 
 define('APP_API', $app_api);
 // Json is tricker to do because of the way fez is written.
