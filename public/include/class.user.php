@@ -741,7 +741,7 @@ class User
 		$log = FezLog::get();
 		$db = DB_API::get();
 
-		$user = $this->getDetailsByID($usr_id);
+		$user = User::getDetailsByID($usr_id);
 		$stmt = "UPDATE
                     " . APP_TABLE_PREFIX . "user
                  SET
@@ -772,7 +772,7 @@ class User
 		$log = FezLog::get();
 		$db = DB_API::get();
 
-        $user = $this->getDetailsByID($usr_id);
+        $user = User::getDetailsByID($usr_id);
 		$stmt = "UPDATE
                     " . APP_TABLE_PREFIX . "user
                  SET
