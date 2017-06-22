@@ -1,8 +1,4 @@
-CREATE TABLE %TABLE_PREFIX%background_process_pids
-(
-	bgpid_bgp_id int(11) not null,
-	bgpid_pid varchar(64) not null,
-	primary key (bgpid_bgp_id, bgpid_pid)
-);
-
-ALTER TABLE %TABLE_PREFIX%background_process_pids ADD INDEX bgpid_pid_idx (bgpid_pid)
+ALTER TABLE %TABLE_PREFIX%premis_event ADD fulltext pre_detail (pre_detail);
+ALTER TABLE %TABLE_PREFIX%premis_event ADD INDEX pre_usr_id (pre_usr_id);
+ALTER TABLE %TABLE_PREFIX%user ADD COLUMN usr_real_last_login_date datetime DEFAULT CURRENT_TIMESTAMP;
+ALTER TABLE %TABLE_PREFIX%user ADD INDEX usr_real_last_login_date (usr_real_last_login_date);
