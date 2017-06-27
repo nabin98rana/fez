@@ -747,7 +747,7 @@ class User
                  SET
                     usr_login_count=usr_login_count + 1,
 					usr_last_login_date=" . $db->quote(Date_API::getCurrentDateGMT()) . ",
-					usr_real_last_login_date=" . $user['usr_last_login_date'] . "
+					usr_real_last_login_date=" . $db->quote($user['usr_last_login_date']) . "
                  WHERE
                     usr_id=".$db->quote($usr_id, 'INTEGER');
 		try {
@@ -778,7 +778,7 @@ class User
                  SET
                     usr_shib_login_count=usr_shib_login_count + 1,
 					usr_last_login_date=" . $db->quote(Date_API::getCurrentDateGMT()) . ",
-					usr_real_last_login_date=" . $user['usr_last_login_date'] . "
+					usr_real_last_login_date=" . $db->quote($user['usr_last_login_date']) . "
                  WHERE
                     usr_id=".$db->quote($usr_id, 'INTEGER');
 		try {
