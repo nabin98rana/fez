@@ -570,6 +570,7 @@ class BackgroundProcess {
               continue;
           }
       }
+      $bgp->setAuth();
       $bgp->setTask($taskARN);
       $bgp->setHostname($host);
       $bgp->runCurrent();

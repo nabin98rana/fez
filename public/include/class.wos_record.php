@@ -635,6 +635,7 @@ class WosRecItem extends RecordImport
         $sekData['End Page']        = $this->bibPageEnd;
         $sekData['Total Pages']     = $this->bibPageCount;
 
+
         $sekData['Date']            = Misc::MySQLDate(array("Year" => date("Y", strtotime($this->date_issued)), "Month" => date("m", strtotime($this->date_issued))));
 
         $sekData['Language']        = Language::resolveWoSLanguage($this->primaryLang);
@@ -883,7 +884,7 @@ class WosRecItem extends RecordImport
     $xdis_subtype = $dTMap[$this->docTypeCode][1];
     $searchKeyTargets = array(
       "ISI LOC" => $this->ut,
-      "Date" => $this->date_issued,
+      "Date" => Misc::MySQLDate(array("Year" => date("Y", strtotime($this->date_issued)), "Month" => date("m", strtotime($this->date_issued)))),
       "ISSN" => $this->issn,
       "ISBN" => $this->isbn,
       "DOI" => $this->articleNos[0],

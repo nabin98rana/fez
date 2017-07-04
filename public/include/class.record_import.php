@@ -8,6 +8,8 @@
  * @since November 2012
  *
  */
+include_once(APP_INC_PATH . "class.auth_index.php");
+
 abstract class RecordImport
 {
     /**
@@ -967,7 +969,7 @@ abstract class RecordImport
         if (!$result) {
             return false;
         }
-
+        AuthIndex::setIndexAuth($recordSearchKey->getPid());
         //assume solr need updating for new lister permissions
         if (APP_SOLR_INDEXER == "ON" || APP_ES_INDEXER == "ON") {
             FulltextQueue::singleton()->add($recordSearchKey->getPid());
