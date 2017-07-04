@@ -161,13 +161,6 @@ class AWS
       ]);
       $count = count($result['taskArns']);
 
-      $result = $ecs->listTasks([
-        'cluster' => AWS_ECS_CLUSTER,
-        'desiredStatus' => 'PENDING',
-        'family' => $family
-      ]);
-      $count += count($result['taskArns']);
-
       return $count;
 
     } catch (Exception $ex) {
@@ -235,13 +228,6 @@ class AWS
       if ($this->isTaskInTaskResult($taskARN, $result) == true) {
         return true;
       }
-      // Also check if it's pending
-      $result = $ecs->listTasks([
-          'cluster' => AWS_ECS_CLUSTER,
-          'family' => $family,
-          'desiredStatus' => 'PENDING'
-      ]);
-      return $this->isTaskInTaskResult($taskARN, $result);
     } catch (Exception $ex) {
       $this->log->err($ex->getMessage());
       return false;
