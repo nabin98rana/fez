@@ -77,7 +77,7 @@ class BackgroundProcess_Batch_External_Add_Datastreams extends BackgroundProcess
                     continue;
                 }
                 BatchImport::handleStandardFileImport($pid, $ds, Misc::shortFilename($ds));
-                $filesToCleanup[] = $ds;
+                $filesToCleanup[] = basename($ds);
             }
             Record::setIndexMatchingFields($pid);
         }
