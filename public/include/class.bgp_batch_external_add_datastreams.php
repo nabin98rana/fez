@@ -47,7 +47,7 @@ class BackgroundProcess_Batch_External_Add_Datastreams extends BackgroundProcess
 
 	function run()
 	{
-		$this->setState(1);
+        $this->setState(BGP_RUNNING);
 		extract(unserialize($this->inputs));
 		if (empty($pid)) {
 		    return;
@@ -57,10 +57,12 @@ class BackgroundProcess_Batch_External_Add_Datastreams extends BackgroundProcess
         $dataPath = Uploader::getUploadedFilePath($pid);
         if (! $aws->checkExistsById($dataPath, '')) {
             // No files to be processed
+            $this->setState(BGP_FINISHED);
             return;
         }
         if ($aws->checkExistsById($dataPath, $processedFileName)) {
             // Files have already (or are being) processed
+            $this->setState(BGP_FINISHED);
             return;
         }
         touch(APP_TEMP_DIR . $processedFileName);
@@ -85,5 +87,6 @@ class BackgroundProcess_Batch_External_Add_Datastreams extends BackgroundProcess
         }
         $aws->deleteById($dataPath, $processedFileName);
         $aws->deleteById($dataPath, '');
+        $this->setState(BGP_FINISHED);
 	}
 }
