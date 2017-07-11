@@ -63,7 +63,8 @@ class BackgroundProcess_Batch_External_Add_Datastreams extends BackgroundProcess
             // Files have already (or are being) processed
             return;
         }
-        $aws->postFile($dataPath, [APP_TEMP_DIR . $processedFileName], FALSE, 'plain/text');
+        touch(APP_TEMP_DIR . $processedFileName);
+        $aws->postFile($dataPath, [APP_TEMP_DIR . $processedFileName], TRUE, 'plain/text');
         $filesToCleanup = array();
         $tmpFilesArray = Uploader::generateFilesArray($pid, 0);
         if (!empty($tmpFilesArray['_files']) && count($tmpFilesArray['_files']) > 0) {
