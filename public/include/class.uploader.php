@@ -102,15 +102,16 @@ class Uploader
 		$scandirList = scandir($uploadDir);
 		$counter = 0;
 
+        $returnArray['files'] = array();
 		foreach ($scandirList as $file) {
 			if (is_file("{$uploadDir}/{$file}")) {
-        $pathstuff = pathinfo("{$uploadDir}/{$file}");
-        $newFilename = basename($pathstuff['basename'], ".".$pathstuff['extension']);
-        $start = strpos($newFilename, '.');
-        if ($start) {
-          $newFilename = substr($newFilename, $start+1, strlen($newFilename));
-        }
-        $newFilename .= "." . $pathstuff['extension'];
+                $pathstuff = pathinfo("{$uploadDir}/{$file}");
+                $newFilename = basename($pathstuff['basename'], ".".$pathstuff['extension']);
+                $start = strpos($newFilename, '.');
+                if ($start) {
+                  $newFilename = substr($newFilename, $start+1, strlen($newFilename));
+                }
+                $newFilename .= "." . $pathstuff['extension'];
 				rename("{$uploadDir}/{$file}", "{$uploadDir}/{$newFilename}"); // move into new filename (so we don't get confused later)
 
 				// determine the file size and mime type
@@ -124,6 +125,7 @@ class Uploader
 				$returnArray['xsd_display_fields']['new_file_location'][$xsdmfId][$counter] = "{$uploadDir}/{$newFilename}";
 				$returnArray['xsd_display_fields']['error'][$xsdmfId][$counter] = 0;
 				$returnArray['xsd_display_fields']['size'][$xsdmfId][$counter] = $fileSize;
+                $returnArray['_files'][] = "{$uploadDir}/{$newFilename}";
 				$counter++;
 			}
 		}
