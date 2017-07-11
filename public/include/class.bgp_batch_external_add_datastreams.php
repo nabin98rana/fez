@@ -51,6 +51,19 @@ class BackgroundProcess_Batch_External_Add_Datastreams extends BackgroundProcess
 		if (empty($pid)) {
 		    return;
         }
+        $aws = new AWS(AWS_S3_CACHE_BUCKET);
+        $processedFileName = $pid . '.processed.txt';
+        $dataPath = Uploader::getUploadedFilePath($pid);
+        if (! $aws->checkExistsById($dataPath, '')) {
+            // No files to be processed
+            return;
+        }
+        if ($aws->checkExistsById($dataPath, $processedFileName)) {
+            // Files have already (or are being) processed
+            return;
+        }
+        $aws->postFile($dataPath, [APP_TEMP_DIR . $processedFileName], FALSE, 'plain/text');
+        $filesToCleanup = array();
         $tmpFilesArray = Uploader::generateFilesArray($pid, 0);
         if (!empty($tmpFilesArray['_files']) && count($tmpFilesArray['_files']) > 0) {
             $files = $tmpFilesArray['_files'];
@@ -60,8 +73,15 @@ class BackgroundProcess_Batch_External_Add_Datastreams extends BackgroundProcess
                     continue;
                 }
                 BatchImport::handleStandardFileImport($pid, $ds, Misc::shortFilename($ds));
+                $filesToCleanup[] = $ds;
             }
             Record::setIndexMatchingFields($pid);
         }
+        // Cleanup
+        foreach ($filesToCleanup as $file) {
+            $aws->deleteById($dataPath, $file);
+        }
+        $aws->deleteById($dataPath, $processedFileName);
+        $aws->deleteById($dataPath, '');
 	}
 }
