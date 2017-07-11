@@ -32,6 +32,7 @@
 // |          Rhys Palmer <r.rpalmer@library.uq.edu.au>                   |
 // +----------------------------------------------------------------------+
 
+include_once(APP_INC_PATH.'class.uploader.php');
 include_once(APP_INC_PATH.'class.batchimport.php');
 include_once(APP_INC_PATH.'class.background_process.php');
 
