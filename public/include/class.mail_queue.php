@@ -357,18 +357,21 @@ class Mail_Queue
 			$log->err($ex);
 			return false;
 		}
-		$stmt = "UPDATE
+		// leave email errors at pending status so they can be tried again when smtp server can't be contacted
+		if ($status != 'error') {
+        $stmt = "UPDATE
                 " . APP_TABLE_PREFIX . "mail_queue
                  SET
                  maq_status=" . $db->quote($status) . "
                  WHERE
                  maq_id=".$db->quote($maq_id, 'INTEGER');
-		try {
-			$db->exec($stmt);
-		}
-		catch(Exception $ex) {
-			$log->err($ex);
-		}
+        try {
+            $db->exec($stmt);
+        }
+        catch(Exception $ex) {
+            $log->err($ex);
+        }
+    }
 		return true;
 	}
 
