@@ -55,20 +55,19 @@ class BackgroundProcess_Batch_External_Add_Datastreams extends BackgroundProcess
         $aws = new AWS(AWS_S3_CACHE_BUCKET);
         $processedFileName = $pid . '.processed.txt';
         $dataPath = Uploader::getUploadedFilePath($pid);
-        if (! $aws->checkExistsById($dataPath, '')) {
-            // No files to be processed
-            $this->setState(BGP_FINISHED);
-            return;
-        }
+
         if ($aws->checkExistsById($dataPath, $processedFileName)) {
             // Files have already (or are being) processed
             $this->setState(BGP_FINISHED);
             return;
         }
+
         touch(APP_TEMP_DIR . $processedFileName);
         $aws->postFile($dataPath, [APP_TEMP_DIR . $processedFileName], TRUE, 'plain/text');
         $filesToCleanup = array();
+        Zend_Registry::set('wfses_id', $pid);
         $tmpFilesArray = Uploader::generateFilesArray($pid, 0);
+        
         if (!empty($tmpFilesArray['_files']) && count($tmpFilesArray['_files']) > 0) {
             $files = $tmpFilesArray['_files'];
             for ($i = 0; $i < count($files); $i++) {
@@ -76,17 +75,18 @@ class BackgroundProcess_Batch_External_Add_Datastreams extends BackgroundProcess
                 if (! is_file($ds)) {
                     continue;
                 }
-                BatchImport::handleStandardFileImport($pid, $ds, Misc::shortFilename($ds));
+                BatchImport::handleStandardFileImport($pid, $ds, Misc::shortFilename($ds), 0, true, -1, false, true);
                 $filesToCleanup[] = basename($ds);
             }
             Record::setIndexMatchingFields($pid);
         }
+
         // Cleanup
         foreach ($filesToCleanup as $file) {
             $aws->deleteById($dataPath, $file);
         }
         $aws->deleteById($dataPath, $processedFileName);
-        $aws->deleteById($dataPath, '');
+
         $this->setState(BGP_FINISHED);
 	}
 }
