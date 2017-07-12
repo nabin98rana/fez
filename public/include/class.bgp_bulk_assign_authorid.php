@@ -228,7 +228,7 @@ class BackgroundProcess_Bulk_Assign_Authorid extends BackgroundProcess
     $searchKeyData[1]['author_id']['xsdmf_value'] = $authorIDs;
 
     // Update record search key
-    $recordSearchKey = new Fez_Record_Searchkey();
+    $recordSearchKey = new Fez_Record_Searchkey($this->_pid);
     if (!$recordSearchKey->updateRecord($this->_pid, $searchKeyData)) {
       return false;
     }

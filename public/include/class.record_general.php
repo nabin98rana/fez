@@ -734,7 +734,7 @@ class RecordGeneral
             }
             $historyDetail .= " " . $history;
 
-            $recordSearchKey = new Fez_Record_Searchkey();
+            $recordSearchKey = new Fez_Record_Searchkey($this->pid);
             $result = $recordSearchKey->updateRecord($this->pid, $searchKeyData, $historyDetail, $commitIndex);
 
             return $result;
