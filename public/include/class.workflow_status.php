@@ -819,12 +819,16 @@ class WorkflowStatusStatic
     }
 
     if (!is_numeric($wfses_id)) {
-      $wfstatus = &WorkflowStatusStatic::getSession();
-      if (is_numeric($wfstatus->id)) {
-        $wfses_id = $wfstatus->id;
+      if (stripos($wfses_id, APP_PID_NAMESPACE . ":") === 0) {
+        $wflDir = $wfses_id . "/";
+      } else {
+        $wfstatus = &WorkflowStatusStatic::getSession();
+        if (is_numeric($wfstatus->id)) {
+          $wfses_id = $wfstatus->id;
+        }
       }
     }
-    if (is_numeric($wfses_id)) {
+    if (empty($wflDir) && is_numeric($wfses_id)) {
       $wflDir = $wfses_id . "/";
     }
     return $wflDir;
