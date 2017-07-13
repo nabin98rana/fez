@@ -174,18 +174,21 @@ class Fedora_API implements FedoraApiInterface {
           $stmt .= " WHERE ";
         }
         $stmt .= "rek_pid LIKE " . $db->quote("%" . str_replace('*', '', $queryTerms['terms']) . "%");
+        $stmt .= "OR rek_title LIKE " . $db->quote("%" . str_replace('*', '', $queryTerms['terms']) . "%");
       }
       $stmt .= ' GROUP BY rek_pid';
     }
     else {
       if (!empty($queryTerms) && $queryTerms != '*') {
         $stmt .= " WHERE rek_pid LIKE " . $db->quote("%" . str_replace('*', '', $queryTerms) . "%");
+        $stmt .= " OR rek_title LIKE " . $db->quote("%" . str_replace('*', '', $queryTerms) . "%");
       }
     }
 
     if ($maxResults > 0) {
       $stmt .= " LIMIT 0," . $db->quote($maxResults, 'INTEGER');
     }
+    echo $stmt;
     try {
       $list['resultList']['objectFields'] = $db->fetchAll($stmt, array(), Zend_Db::FETCH_ASSOC);
       return $list;
