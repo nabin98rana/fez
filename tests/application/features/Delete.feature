@@ -55,6 +55,8 @@ Feature: Test that deleting communities/collections/records works correctly
     And I press "Undelete objects"
     And I select the first record in the search results with name "items"
     And I press "Undelete Selected Items"
+    And I select the first record in the search results with name "items"
+    And I press "Undelete Selected Items"
     And I wait for solr
     And I wait for bgps
     And I carefully fill search entry with "title:(\"Security Test Name 2012\")"
