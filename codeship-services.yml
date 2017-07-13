@@ -26,7 +26,7 @@ fpmtestrunner:
     - cache
 
 selenium:
-  image: selenium/standalone-chrome:3.0.1-fermium
+  image: selenium/standalone-chrome:3.4.0-einsteinium
   environment:
     - JAVA_OPTS=-Dselenium.LOGGER.level=WARNING
   links:
@@ -93,7 +93,7 @@ cache:
     path: ./.docker/development/cache/
     dockerfile_path: Dockerfile
 
-aws_generator: 
+aws_generator:
   image: codeship/aws-ecr-dockercfg-generator
   encrypted_env_file: "aws_creds.encrypted"
   add_docker: true
