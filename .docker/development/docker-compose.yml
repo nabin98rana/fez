@@ -26,7 +26,7 @@ fezdevelopmentrunner:
     - logs
 
 selenium:
-  image: selenium/standalone-chrome-debug:3.0.1-fermium
+  image: selenium/standalone-chrome-debug:3.4.0-einsteinium
   environment:
     - JAVA_OPTS=-Dselenium.LOGGER.level=WARNING
   links:
@@ -110,7 +110,7 @@ elasticsearch:
     - ES_CLUSTER_NAME=uqlfezsearch
     - ES_NODE_MASTER=true
     - ES_NODE_DATA=true
-  image: docker.elastic.co/elasticsearch/elasticsearch:5.4.2
+  image: docker.elastic.co/elasticsearch/elasticsearch:5.5.0
   ports:
     - "9280:9200"
   volumes_from:
@@ -120,7 +120,7 @@ elasticsearchdata:
   build: ./elasticsearch/data/
 
 kibana:
-  image: docker.elastic.co/kibana/kibana:5.4.2
+  image: docker.elastic.co/kibana/kibana:5.5.0
   ports:
     - "5681:5601"
   links:
