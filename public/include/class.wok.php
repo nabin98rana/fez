@@ -118,7 +118,7 @@ class Wok {
      *
      * This is not one to one so the results might be considered unknown
      */
-    public function getDoctype($wdt_description)
+    public static function getDoctype($wdt_description)
     {
         $log = FezLog::get();
         $db = DB_API::get();

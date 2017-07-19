@@ -151,6 +151,7 @@ class WokService
         //$editions[] = array("collection" => $databaseId, "edition" => "CCR");
         $editions[] = array("collection" => $databaseId, "edition" => "BSCI");
         $editions[] = array("collection" => $databaseId, "edition" => "BHCI");
+        $editions[] = array("collection" => $databaseId, "edition" => "ESCI");
     }
 
     // Clean user query from invalid characters
