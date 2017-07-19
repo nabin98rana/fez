@@ -137,7 +137,7 @@ class ScopusRecItem extends RecordImport
 
 //        if ($this->likenAffiliation()) {
             $this->_pubmedId = $this->extract('//d:pubmed-id', $xpath);
-            $this->_embaseId = $xpath->query("//d:itemidlist/d:itemid[@idtype='PUI']")->item(0)->nodeValue;
+            $this->_embaseId = $xpath->query("//d:itemidlist/d:itemid[@idtype='PUI']|//itemidlist/itemid[@idtype='PUI']")->item(0)->nodeValue;
             $this->_scopusCitationCount = $this->extract('//d:citedby-count', $xpath);
             $this->_issn = $this->extract('//prism:issn', $xpath);
             //scopus ISSNs don't have a - in the middle, so add it
@@ -207,7 +207,7 @@ class ScopusRecItem extends RecordImport
               $this->_keywords[] = $keyword->nodeValue;
             }
 
-            $authors = $xpath->query('/d:abstracts-retrieval-response/d:authors/d:author'); ///ce:indexed-name');
+            $authors = $xpath->query('/d:abstracts-retrieval-response/d:authors/author|/d:abstracts-retrieval-response/d:authors/d:author'); ///ce:indexed-name');
             foreach ($authors as $author) {
                 $sequence = $author->getAttribute('seq');
                 if (is_numeric($sequence)) {
@@ -259,8 +259,12 @@ class ScopusRecItem extends RecordImport
             }
 
 
-            $this->_abstract = $this->extract('/d:abstracts-retrieval-response/d:coredata/dc:description/d:abstract/ce:para', $xpath);
-            $this->_abstract = substr($this->_abstract, 0, strrpos($this->_abstract, '©'));
+            $this->_abstract = $this->extract('/d:abstracts-retrieval-response/d:coredata/dc:description/d:abstract/ce:para|/d:abstracts-retrieval-response/d:coredata/dc:description/abstract/ce:para', $xpath);
+            $copyRightLocation = strrpos($this->_abstract, '©');
+            if (is_numeric($copyRightLocation)) {
+                $this->_abstract = substr($this->_abstract, 0, strrpos($this->_abstract, '©'));
+            }
+
             $subjects = $xpath->query('/d:abstracts-retrieval-response/d:subject-areas/d:subject-area[@code]');
             foreach ($subjects as $subject) {
               $this->_subjects[] = Controlled_Vocab::getInternalIDByExternalID($subject->getAttribute('code'));
