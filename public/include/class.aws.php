@@ -639,7 +639,7 @@ class AWS
           'Key' => $key
       ));
     } catch (\Aws\S3\Exception\S3Exception $e) {
-      $this->log->err($e->getMessage());
+      //$this->log->err($e->getMessage());
       return "";
     }
     return $result['Metadata'];
