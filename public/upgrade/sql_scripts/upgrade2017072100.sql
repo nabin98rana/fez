@@ -68,6 +68,11 @@ DELETE FROM %TABLE_PREFIX%search_key where sek_title in (
     'Views'
   );
 
+INSERT INTO %TABLE_PREFIX%record_search_key_grant_agency (rek_grant_agency_pid, rek_grant_agency, rek_grant_agency_order)
+SELECT rek_funding_body_pid, rek_funding_body, rek_funding_body_order
+FROM %TABLE_PREFIX%record_search_key_funding_body
+INNER JOIN %TABLE_PREFIX%record_search_key on rek_pid = rek_funding_body_pid;
+
 DROP TABLE %TABLE_PREFIX%record_search_key_abbreviated_title;
 DROP TABLE %TABLE_PREFIX%record_search_key_abbreviated_title__shadow;
 DROP TABLE %TABLE_PREFIX%record_search_key_embase_id;
@@ -85,12 +90,8 @@ DROP TABLE %TABLE_PREFIX%record_search_key_sensitivity_explanation__shadow;
 DROP TABLE %TABLE_PREFIX%record_search_key_isannotationof;
 DROP TABLE %TABLE_PREFIX%record_search_key_isannotationof__shadow;
 
-ALTER TABLE %TABLE_PREFIX%record_search_key DROP COLUMN rek_gs_citation_count;
-ALTER TABLE %TABLE_PREFIX%record_search_key__shadow DROP COLUMN rek_gs_citation_count;
-ALTER TABLE %TABLE_PREFIX%record_search_key DROP COLUMN rek_sequence;
-ALTER TABLE %TABLE_PREFIX%record_search_key__shadow DROP COLUMN rek_sequence;
-ALTER TABLE %TABLE_PREFIX%record_search_key DROP COLUMN rek_gs_cited_by_link;
-ALTER TABLE %TABLE_PREFIX%record_search_key__shadow DROP COLUMN rek_gs_cited_by_link;
+ALTER TABLE %TABLE_PREFIX%record_search_key DROP COLUMN rek_gs_citation_count, DROP COLUMN rek_sequence, DROP COLUMN rek_gs_cited_by_link;
+ALTER TABLE %TABLE_PREFIX%record_search_key__shadow DROP COLUMN rek_gs_citation_count, DROP COLUMN rek_sequence, DROP COLUMN rek_gs_cited_by_link;
 
 ALTER TABLE %TABLE_PREFIX%record_search_key_adt_id DROP FOREIGN KEY `rek_adtid_foreign`;
 ALTER TABLE %TABLE_PREFIX%record_search_key_adt_id__shadow DROP FOREIGN KEY `rek_adtid__foreign`;
