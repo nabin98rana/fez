@@ -24,6 +24,7 @@ UPDATE %TABLE_PREFIX%xsd_display_matchfields set xsdmf_sek_id = null, xsdmf_enab
     'Phonetic Title',
     'Print Details',
     'PRN',
+    'Publisher ID',
     'References',
     'Research Program',
     'Sensitivity Explanation',
@@ -59,6 +60,7 @@ DELETE FROM %TABLE_PREFIX%search_key where sek_title in (
     'Phonetic Title',
     'Print Details',
     'PRN',
+    'Publisher ID',
     'References',
     'Research Program',
     'Sensitivity Explanation',
@@ -89,6 +91,8 @@ DROP TABLE %TABLE_PREFIX%record_search_key_sensitivity_explanation;
 DROP TABLE %TABLE_PREFIX%record_search_key_sensitivity_explanation__shadow;
 DROP TABLE %TABLE_PREFIX%record_search_key_isannotationof;
 DROP TABLE %TABLE_PREFIX%record_search_key_isannotationof__shadow;
+DROP TABLE %TABLE_PREFIX%record_search_key_publisher_id;
+DROP TABLE %TABLE_PREFIX%record_search_key_publisher_id__shadow;
 
 ALTER TABLE %TABLE_PREFIX%record_search_key DROP COLUMN rek_gs_citation_count, DROP COLUMN rek_sequence, DROP COLUMN rek_gs_cited_by_link;
 ALTER TABLE %TABLE_PREFIX%record_search_key__shadow DROP COLUMN rek_gs_citation_count, DROP COLUMN rek_sequence, DROP COLUMN rek_gs_cited_by_link;
