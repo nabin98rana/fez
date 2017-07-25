@@ -361,10 +361,6 @@ class MyResearch
             $tpl->assign("flagged_possible", $flagged_possible);
             $tpl->assign("options", $options);
 
-            if (Auth::isValidSession($_SESSION)) {
-                $sort_by_list["searchKey" . Search_Key::getID("GS Citation Count")] = "Google Scholar Citation Count";
-            }
-
             $tpl->assign('sort_by_list', $sort_by_list);
 
             if (count($params) > 0) {
@@ -508,9 +504,6 @@ class MyResearch
 
         if (count(array_intersect($herdc_trial_collection, $isMemberOf)) > 0) {
             $record = new RecordObject($pid);
-            $search_keys = array("Follow up Flags");
-            $values = array(Controlled_Vocab::getID("Follow-up"));
-            $record->addSearchKeyValueList($search_keys, $values, true);
             $subject = str_replace("Claimed Publication ::", "Claimed Publication :: Completed HERDC author change :: ", $subject);
             $sendEmail = true; //make sure the email is sent even if author id matching was automatic as this will need a followup
         }

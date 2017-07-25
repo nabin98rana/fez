@@ -84,34 +84,6 @@
 		</org_unit_names>
 	{/if}
 
-	{if $list[i].rek_sensitivity_explanation}
-		<sensitivity_explanations>
-		{if !is_array($list[i].rek_sensitivity_explanation)}
-			<sensitivity_explanation>{$list[i].rek_sensitivity_explanation}</sensitivity_explanation>
-		{else}
-			{section name="sensitivity_explanation_loop" loop=$list[i].rek_sensitivity_explanation}
-				<sensitivity_explanation>{$list[i].rek_sensitivity_explanation[sensitivity_explanation_loop]}</sensitivity_explanation>
-			{sectionelse}
-				<sensitivity_explanation />
-			{/section}
-		{/if}
-		</sensitivity_explanations>
-	{/if}
-
-	{if $list[i].rek_na_explanation}
-		<na_explanations>
-		{if !is_array($list[i].rek_na_explanation)}
-			<na_explanation>{$list[i].rek_na_explanation[na_explanation_loop]}</na_explanation>
-		{else}
-			{section name="na_explanation_loop" loop=$list[i].rek_na_explanation}
-				<na_explanation>{$list[i].rek_na_explanation[na_explanation_loop]}</na_explanation>
-			{sectionelse}
-				<na_explanation />
-			{/section}
-		{/if}
-		</na_explanations>
-	{/if}
-
 	{if $list[i].rek_output_availability}
 		<output_availabilitys>
 		{if !is_array($list[i].rek_output_availability)}
@@ -124,20 +96,6 @@
 			{/section}
 		{/if}
 		</output_availabilitys>
-	{/if}
-
-	{if $list[i].rek_prn}
-		<prns>
-		{if !is_array($list[i].rek_prn)}
-			<prn>{$list[i].rek_prn}</prn>
-		{else}
-			{section name="prn_loop" loop=$list[i].rek_prn}
-				<prn>{$list[i].rek_prn[prn_loop]}</prn>
-			{sectionelse}
-				<prn />
-			{/section}
-		{/if}
-		</prns>
 	{/if}
 
 	{if $list[i].rek_isi_loc}
@@ -867,7 +825,7 @@
         {/if}
     </alternate_genre_lookups>
     {/if}
-    
+
 	{if $list[i].rek_refereed}
 		<refereeds>
 		{if !is_array($list[i].rek_refereed)}

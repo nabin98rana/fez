@@ -773,12 +773,8 @@ function loadPreview(pid,datastreamID, alt, origami)
                         {/if}
                         <br />
                     {/if}
-					{if $isUser && ($useGoogleCitationCounts == "ON")}
-						{if $citationsGoogle != ''}<img src="{$rel_url}images/favicon_googlescholar.png" style="vertial-align: text-top;" alt="Google Scholar Citation Count" title="Google Scholar Citation Count" /> Cited <a href="{$citationsGoogleLink}">{$citationsGoogle}</a> times in <a href="http://scholar.google.com/">Google Scholar</a>{/if}
-					{else}
                         <img src="{$rel_url}images/favicon_googlescholar.png" style="vertial-align: text-top;" alt="Google Scholar" title="Google Scholar " />
                         <a href='http://scholar.google.com/scholar?q=intitle:"{$title}"'> Search Google Scholar</a>
-					{/if}
 					</td>
 				</tr>
                   {if $altmetricDOI && ($isEditor || $isAdministrator)}
