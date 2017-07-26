@@ -6,6 +6,7 @@
 						{elseif $list[i].rek_genre_type != ''}
 							<strong>Sub Type:</strong> {$list[i].rek_genre_type}<br />
 						{/if}
+						<strong>HERDC Status:</strong> {$list[i].rek_herdc_status_lookup}<br />
 						<strong>HERDC Code:</strong> {$list[i].rek_herdc_code_lookup}<br />
 						<strong>Institutional Status:</strong> {$list[i].rek_institutional_status_lookup}<br /><br />
 						{if $list[i].rek_display_type_lookup == "Book" || $list[i].rek_display_type_lookup == "Book Chapter"}

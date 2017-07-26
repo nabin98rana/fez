@@ -11,7 +11,6 @@ UPDATE %TABLE_PREFIX%xsd_display_matchfields set xsdmf_sek_id = null, xsdmf_enab
     'Funding Body',
     'GS Citation Count',
     'GS Cited By Link',
-    'HERDC Status',
     'isAnnotationOf',
     'isDataComponentOf',
     'NA Explanation',
@@ -47,7 +46,6 @@ DELETE FROM %TABLE_PREFIX%search_key where sek_title in (
     'Funding Body',
     'GS Citation Count',
     'GS Cited By Link',
-    'HERDC Status',
     'isAnnotationOf',
     'isDataComponentOf',
     'NA Explanation',
@@ -109,8 +107,6 @@ ALTER TABLE %TABLE_PREFIX%record_search_key_follow_up_flags_imu DROP FOREIGN KEY
 ALTER TABLE %TABLE_PREFIX%record_search_key_follow_up_flags_imu__shadow DROP FOREIGN KEY `rek_folupi__foreign`;
 ALTER TABLE %TABLE_PREFIX%record_search_key_funding_body DROP FOREIGN KEY `rek_funbo_foreign`;
 ALTER TABLE %TABLE_PREFIX%record_search_key_funding_body__shadow DROP FOREIGN KEY `rek_funbo__foreign`;
-ALTER TABLE %TABLE_PREFIX%record_search_key_herdc_status DROP FOREIGN KEY `rek_herst_foreign`;
-ALTER TABLE %TABLE_PREFIX%record_search_key_herdc_status__shadow DROP FOREIGN KEY `rek_herst__foreign`;
 ALTER TABLE %TABLE_PREFIX%record_search_key_isdatacomponentof DROP FOREIGN KEY `rek_isda_foreign`;
 ALTER TABLE %TABLE_PREFIX%record_search_key_isdatacomponentof__shadow DROP FOREIGN KEY `rek_isda__foreign`;
 ALTER TABLE %TABLE_PREFIX%record_search_key_oa_compliance DROP FOREIGN KEY `rek_oacom_foreign`;
@@ -148,8 +144,6 @@ RENAME TABLE %TABLE_PREFIX%record_search_key_follow_up_flags_imu TO zzz_%TABLE_P
 RENAME TABLE %TABLE_PREFIX%record_search_key_follow_up_flags_imu__shadow TO zzz_%TABLE_PREFIX%record_search_key_follow_up_flags_imu__shadow;
 RENAME TABLE %TABLE_PREFIX%record_search_key_funding_body TO zzz_%TABLE_PREFIX%record_search_key_funding_body;
 RENAME TABLE %TABLE_PREFIX%record_search_key_funding_body__shadow TO zzz_%TABLE_PREFIX%record_search_key_funding__shadow;
-RENAME TABLE %TABLE_PREFIX%record_search_key_herdc_status TO zzz_%TABLE_PREFIX%record_search_key_herdc_status;
-RENAME TABLE %TABLE_PREFIX%record_search_key_herdc_status__shadow TO zzz_%TABLE_PREFIX%record_search_key_herdc_status__shadow;
 RENAME TABLE %TABLE_PREFIX%record_search_key_isdatacomponentof TO zzz_%TABLE_PREFIX%record_search_key_isdatacomponentof;
 RENAME TABLE %TABLE_PREFIX%record_search_key_isdatacomponentof__shadow TO zzz_%TABLE_PREFIX%record_search_key_isdatacomponentof__shadow;
 RENAME TABLE %TABLE_PREFIX%record_search_key_oa_compliance TO zzz_%TABLE_PREFIX%record_search_key_oa_compliance;

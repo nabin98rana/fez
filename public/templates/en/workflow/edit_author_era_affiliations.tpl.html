@@ -74,7 +74,7 @@ function validateForm(f)
         <tr bgcolor="{$light_color}"><td colspan="4" > <br />
             <a href="/workflow/update.php?pid={$authors[0].pid}&cat=select_workflow&xdis_id={$xdis_id}&wft_id=289&href={$smarty.server.REQUEST_URI}#tr_xsd_display_fields_{$hLink}_0">
             <img src="/images/edit.gif" /></a>
-            &nbsp;
+            &nbsp;<b>HERDC Notes:</b> {$herdc_notes nofilter}</td><td bgcolor="{$cell_color}">&nbsp;</td></tr>
             {if $links}
             <tr><td><br /><b>Links:</b></td></tr>
             {section name=i loop=$links}

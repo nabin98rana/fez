@@ -820,7 +820,7 @@ class Record
           rek_herdc_status_pid,
           cvo_title AS herdc_status
         FROM
-          zzz_" . APP_TABLE_PREFIX . "record_search_key_herdc_status,
+          " . APP_TABLE_PREFIX . "record_search_key_herdc_status,
           " . APP_TABLE_PREFIX . "controlled_vocab,
           " . APP_TABLE_PREFIX . "controlled_vocab_relationship
         WHERE

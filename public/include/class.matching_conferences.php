@@ -179,7 +179,7 @@ class RCL
 			rek_conference_name AS conference_name FROM fez_record_search_key_herdc_code
         INNER JOIN fez_controlled_vocab AS A
         ON cvo_id = rek_herdc_code
-        LEFT JOIN zzz_fez_record_search_key_herdc_status
+        LEFT JOIN fez_record_search_key_herdc_status
         ON rek_herdc_code_pid = rek_herdc_status_pid
         LEFT JOIN fez_controlled_vocab AS B
         ON rek_herdc_status = B.cvo_id
