@@ -81,6 +81,10 @@ class BackgroundProcess_Db_Load extends BackgroundProcess
           return;
       }
 
+      $excludeTable = [
+          APP_TABLE_PREFIX . 'jobs',
+      ];
+
       $excludeData = [
           APP_TABLE_PREFIX . 'background_process',
           APP_TABLE_PREFIX . 'background_process_pids',
@@ -103,9 +107,13 @@ class BackgroundProcess_Db_Load extends BackgroundProcess
       }
 
       $count = 0;
+      $totalCount = count($tables) - count($excludeTable);
       foreach ($tables as $table) {
+          if (in_array($table, $excludeTable)) {
+              continue;
+          }
           $count++;
-          echo "[$count/" . count($tables) . "] $table\n";
+          echo "[$count/" . $totalCount . "] $table\n";
           $cmd = " mysqldump" .
               " -h" . DB_LOAD_PROD_SQL_DBHOST .
               " -u" . DB_LOAD_SQL_DBUSER .

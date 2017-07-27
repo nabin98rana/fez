@@ -32,61 +32,65 @@
 // |          Rhys Palmer <r.rpalmer@library.uq.edu.au>                   |
 // +----------------------------------------------------------------------+
 
-include_once(APP_INC_PATH.'class.uploader.php');
-include_once(APP_INC_PATH.'class.batchimport.php');
-include_once(APP_INC_PATH.'class.background_process.php');
+include_once(APP_INC_PATH . 'class.uploader.php');
+include_once(APP_INC_PATH . 'class.batchimport.php');
+include_once(APP_INC_PATH . 'class.background_process.php');
 
-class BackgroundProcess_Batch_External_Add_Datastreams extends BackgroundProcess
-{
-	function __construct()
-	{
-		parent::__construct();
-		$this->include = 'class.bgp_batch_external_add_datastreams.php';
-		$this->name = 'Batch Add Datastreams (External)';
-	}
+class BackgroundProcess_Batch_External_Add_Datastreams extends BackgroundProcess {
+  function __construct() {
+    parent::__construct();
+    $this->include = 'class.bgp_batch_external_add_datastreams.php';
+    $this->name = 'Batch Add Datastreams (External)';
+  }
 
-	function run()
-	{
-        $this->setState(BGP_RUNNING);
-		extract(unserialize($this->inputs));
-		if (empty($pid)) {
-		    return;
+  function run() {
+    $this->setState(BGP_RUNNING);
+    extract(unserialize($this->inputs));
+    if (empty($pid)) {
+      $this->setState(BGP_FINISHED);
+      return;
+    }
+    $aws = new AWS(AWS_S3_CACHE_BUCKET);
+    $processedFileName = $pid . '.processed.txt';
+    $dataPath = Uploader::getUploadedFilePath($pid);
+    $src = preg_replace('/' . preg_quote($pid) . '$/', '', $dataPath);
+    $meta = $aws->getMetadata($src, $pid . '/');
+    if (! is_array($meta) ) {
+      // No files to process
+      $this->setState(BGP_FINISHED);
+      return;
+    }
+    if ($aws->checkExistsById($dataPath, $processedFileName)) {
+      // Files have already (or are being) processed
+      $this->setState(BGP_FINISHED);
+      return;
+    }
+
+    touch(APP_TEMP_DIR . $processedFileName);
+    $aws->postFile($dataPath, [APP_TEMP_DIR . $processedFileName], TRUE, 'plain/text');
+    $filesToCleanup = array();
+    Zend_Registry::set('wfses_id', $pid);
+    $tmpFilesArray = Uploader::generateFilesArray($pid, 0);
+
+    if (!empty($tmpFilesArray['_files']) && count($tmpFilesArray['_files']) > 0) {
+      $files = $tmpFilesArray['_files'];
+      for ($i = 0; $i < count($files); $i++) {
+        $ds = $files[$i];
+        if (!is_file($ds)) {
+          continue;
         }
-        $aws = new AWS(AWS_S3_CACHE_BUCKET);
-        $processedFileName = $pid . '.processed.txt';
-        $dataPath = Uploader::getUploadedFilePath($pid);
+        BatchImport::handleStandardFileImport($pid, $ds, Misc::shortFilename($ds), 0, TRUE, -1, FALSE, TRUE);
+        $filesToCleanup[] = basename($ds);
+      }
+      Record::setIndexMatchingFields($pid);
+    }
 
-        if ($aws->checkExistsById($dataPath, $processedFileName)) {
-            // Files have already (or are being) processed
-            $this->setState(BGP_FINISHED);
-            return;
-        }
+    // Cleanup
+    foreach ($filesToCleanup as $file) {
+      $aws->deleteById($dataPath, $file);
+    }
+    $aws->deleteById($dataPath, $processedFileName);
 
-        touch(APP_TEMP_DIR . $processedFileName);
-        $aws->postFile($dataPath, [APP_TEMP_DIR . $processedFileName], TRUE, 'plain/text');
-        $filesToCleanup = array();
-        Zend_Registry::set('wfses_id', $pid);
-        $tmpFilesArray = Uploader::generateFilesArray($pid, 0);
-        
-        if (!empty($tmpFilesArray['_files']) && count($tmpFilesArray['_files']) > 0) {
-            $files = $tmpFilesArray['_files'];
-            for ($i = 0; $i < count($files); $i++) {
-                $ds = $files[$i];
-                if (! is_file($ds)) {
-                    continue;
-                }
-                BatchImport::handleStandardFileImport($pid, $ds, Misc::shortFilename($ds), 0, true, -1, false, true);
-                $filesToCleanup[] = basename($ds);
-            }
-            Record::setIndexMatchingFields($pid);
-        }
-
-        // Cleanup
-        foreach ($filesToCleanup as $file) {
-            $aws->deleteById($dataPath, $file);
-        }
-        $aws->deleteById($dataPath, $processedFileName);
-
-        $this->setState(BGP_FINISHED);
-	}
+    $this->setState(BGP_FINISHED);
+  }
 }
