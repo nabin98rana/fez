@@ -296,7 +296,6 @@ class FulltextIndex_Solr extends FulltextIndex
 
           // resolve result
           $docs[$i]['Relevance'] = $doc->score;
-          $docs[$i]['rek_views'] = $doc->views_i;
           $i++;
         }
 
