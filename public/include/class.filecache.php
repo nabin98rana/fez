@@ -61,8 +61,8 @@ class fileCache {
 		if ($usingCache == true) {
 			Statistics::addBuffer($this->pid);
 
-			$views = Record::getSearchKeyIndexValue($this->pid, "Views");
-			$dls = Record::getSearchKeyIndexValue($this->pid, "File Downloads");
+			$views = 0;
+			$dls = 0;
 
 			$pat = array('/<!--fez:statsAbs-->\d+<!--\/fez:statsAbs-->/', '/<!--fez:statsDownloads-->\d+<!--\/fez:statsDownloads-->/');
 			$rep = array("<!--fez:statsAbs-->$views<!--/fez:statsAbs-->", "<!--fez:statsDownloads-->$dls<!--/fez:statsDownloads-->");
