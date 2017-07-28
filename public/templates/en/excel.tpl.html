@@ -4,8 +4,6 @@
         <td bgcolor="#CCCCCC"><b>Title</b></td>
         <td bgcolor="#CCCCCC"><b>Type</b></td>
         <td bgcolor="#CCCCCC"><b>Details</b></td>
-        <td bgcolor="#CCCCCC"><b>Abstract views</b></td>
-        <td bgcolor="#CCCCCC"><b>Downloads</b></td>
         <td bgcolor="#CCCCCC"><b>WoS citations</b></td>
         <td bgcolor="#CCCCCC"><b>Scopus citations</b></td>
         <td bgcolor="#CCCCCC"><b>Altmetric Score</b></td>
@@ -74,13 +72,13 @@
         <td>{$list[i].rek_title}</td>
         <td>{$list[i].rek_genre}</td>
         <td>{$list[i].rek_citation_stripped}</td>
-        <td>{$list[i].rek_file_downloads}</td>
         <td>{$list[i].rek_thomson_citation_count}</td>
         <td>{$list[i].rek_scopus_citation_count}</td>
         <td>{$list[i].rek_altmetric_score}</td>
         <td>{$list[i].rj_2010_rank}</td>
         <td>{if $list[i].rj_2012_title}Y{else}N{/if}</td>
         <td>{$list[i].rek_herdc_code_lookup}</td>
+        <td>{$list[i].rek_herdc_status_lookup}</td>
         <td>{$list[i].rek_institutional_status_lookup}</td>
         <td>{$list[i].rek_created_date}</td>
         <td>{$list[i].rek_updated_date}</td>
@@ -95,7 +93,6 @@
           {$entry2}|
         {/foreach}</td>
         <td>{$list[i].rek_institutional_status_lookup}</td>
-        <td>{$list[i].rek_herdc_status_lookup}</td>
         <td>{$list[i].rek_acknowledgements}</td>
         <td>{$list[i].rek_genre}</td>
         <td>{$list[i].rek_original_format}</td>
