@@ -92,8 +92,8 @@ DROP TABLE %TABLE_PREFIX%record_search_key_isannotationof__shadow;
 DROP TABLE %TABLE_PREFIX%record_search_key_publisher_id;
 DROP TABLE %TABLE_PREFIX%record_search_key_publisher_id__shadow;
 
-ALTER TABLE %TABLE_PREFIX%record_search_key DROP COLUMN rek_gs_citation_count, DROP COLUMN rek_sequence, DROP COLUMN rek_gs_cited_by_link;
-ALTER TABLE %TABLE_PREFIX%record_search_key__shadow DROP COLUMN rek_gs_citation_count, DROP COLUMN rek_sequence, DROP COLUMN rek_gs_cited_by_link;
+ALTER TABLE %TABLE_PREFIX%record_search_key DROP COLUMN rek_gs_citation_count, DROP COLUMN rek_sequence, DROP COLUMN rek_gs_cited_by_link, DROP COLUMN rek_views;
+ALTER TABLE %TABLE_PREFIX%record_search_key__shadow DROP COLUMN rek_gs_citation_count, DROP COLUMN rek_sequence, DROP COLUMN rek_gs_cited_by_link, DROP COLUMN rek_views;
 
 ALTER TABLE %TABLE_PREFIX%record_search_key_adt_id DROP FOREIGN KEY `rek_adtid_foreign`;
 ALTER TABLE %TABLE_PREFIX%record_search_key_adt_id__shadow DROP FOREIGN KEY `rek_adtid__foreign`;
