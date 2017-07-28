@@ -1689,10 +1689,6 @@ class Record
             $provCode = Controlled_Vocab::getID($provHERDCcode);
             $record->addSearchKeyValueList(array("HERDC code"), array($provCode), true, $history);
 
-          // HERDC status
-            $provisional = Controlled_Vocab::getID('Provisional Code');
-            $record->addSearchKeyValueList(array("HERDC Status"), array($provisional), true, $history);
-
           // Institutional status
             $unknown = Controlled_Vocab::getID('Unknown');
             $record->addSearchKeyValueList(array("Institutional Status"), array($unknown), true, $history);
@@ -2497,7 +2493,6 @@ class Record
           //        $citationCache = true;
                 if ($citationCache == false) {
                     if (is_numeric($usr_id)) {
-                        //This can be significently made faster by Record::getExtendedPidInfo($res, array('Display Type', 'HERDC Status', 'HERDC code', 'Institutional Status', 'Follow up Flags', 'Follow up Flags IMU'));
                         Record::getExtendedPidInfo($res);
                     } else {
                         Record::getExtendedPidInfo($res);

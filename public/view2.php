@@ -800,14 +800,8 @@ if (!empty($pid) && $record->checkExists()) {
     // citations from thomson and scopus
     $countThomsonCitations = Record::getSearchKeyIndexValue($pid, "Thomson Citation Count", false);
     $countScopusCitations = Record::getSearchKeyIndexValue($pid, "Scopus Citation Count", false);
-    $countGoogleCitations = Record::getSearchKeyIndexValue($pid, "GS Citation Count", false);
     $tpl->assign("citationsThomson", $countThomsonCitations);
     $tpl->assign("citationsScopus", $countScopusCitations);
-    $tpl->assign("citationsGoogle", $countGoogleCitations);
-    if ($countGoogleCitations > 0) {
-      $googleCitationsLink = Record::getSearchKeyIndexValue($pid, "GS Cited By Link", false);
-      $tpl->assign("citationsGoogleLink", $googleCitationsLink);
-    }
 
     // Thomson and Scopus IDs. Grab 1st ID only
     $ThomsonCitationsID = Record::getSearchKeyIndexValue($pid, "ISI LOC", false);
@@ -1046,7 +1040,7 @@ function generateTimestampsForExternalIntegrations($pid, $requestedVersionDate, 
   if ($requestedVersionDate == null) {
     $createdDatesForDisplay[sizeof($createdDatesForDisplay) - 1]['selected'] = true;
   }
-  
+
   // Put date lists on the template
   $tpl->assign('created_dates_external_list', $createdDatesForDisplay);
 }
