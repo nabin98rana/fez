@@ -137,7 +137,6 @@ class ScopusRecItem extends RecordImport
 
 //        if ($this->likenAffiliation()) {
             $this->_pubmedId = $this->extract('//d:pubmed-id', $xpath);
-            $this->_embaseId = $xpath->query("//d:itemidlist/d:itemid[@idtype='PUI']|//itemidlist/itemid[@idtype='PUI']")->item(0)->nodeValue;
             $this->_scopusCitationCount = $this->extract('//d:citedby-count', $xpath);
             $this->_issn = $this->extract('//prism:issn', $xpath);
             //scopus ISSNs don't have a - in the middle, so add it

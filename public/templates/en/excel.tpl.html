@@ -4,11 +4,8 @@
         <td bgcolor="#CCCCCC"><b>Title</b></td>
         <td bgcolor="#CCCCCC"><b>Type</b></td>
         <td bgcolor="#CCCCCC"><b>Details</b></td>
-        <td bgcolor="#CCCCCC"><b>Abstract views</b></td>
-        <td bgcolor="#CCCCCC"><b>Downloads</b></td>
         <td bgcolor="#CCCCCC"><b>WoS citations</b></td>
         <td bgcolor="#CCCCCC"><b>Scopus citations</b></td>
-        <td bgcolor="#CCCCCC"><b>Google Scholar citations</b></td>
         <td bgcolor="#CCCCCC"><b>Altmetric Score</b></td>
         <td bgcolor="#CCCCCC"><b>ERA 2010 Journal ranking</b></td>
         <td bgcolor="#CCCCCC"><b>ERA 2012 Journal listed</b></td>
@@ -22,7 +19,6 @@
         <td bgcolor="#CCCCCC"><b>Author Role</b></td>
         <td bgcolor="#CCCCCC"><b>Contact Details Email</b></td>
         <td bgcolor="#CCCCCC"><b>Institutional Status</b></td>
-        <td bgcolor="#CCCCCC"><b>HERDC Status</b></td>
         <td bgcolor="#CCCCCC"><b>Acknowledgements</b></td>
         <td bgcolor="#CCCCCC"><b>Genre</b></td>
         <td bgcolor="#CCCCCC"><b>Original Format</b></td>
@@ -64,7 +60,6 @@
         <td bgcolor="#CCCCCC"><b>Total Pages</b></td>
         <td bgcolor="#CCCCCC"><b>Total Pages Colour</b></td>
         <td bgcolor="#CCCCCC"><b>Total Pages BW</b></td>
-        <td bgcolor="#CCCCCC"><b>Collection Year</b></td>
         <td bgcolor="#CCCCCC"><b>Language</b></td>
         <td bgcolor="#CCCCCC"><b>Keywords</b></td>
         <td bgcolor="#CCCCCC"><b>Additional Notes</b></td>
@@ -77,11 +72,8 @@
         <td>{$list[i].rek_title}</td>
         <td>{$list[i].rek_genre}</td>
         <td>{$list[i].rek_citation_stripped}</td>
-        <td>{$list[i].rek_views}</td>
-        <td>{$list[i].rek_file_downloads}</td>
         <td>{$list[i].rek_thomson_citation_count}</td>
         <td>{$list[i].rek_scopus_citation_count}</td>
-        <td>{$list[i].rek_gs_citation_count}</td>
         <td>{$list[i].rek_altmetric_score}</td>
         <td>{$list[i].rj_2010_rank}</td>
         <td>{if $list[i].rj_2012_title}Y{else}N{/if}</td>
@@ -101,7 +93,6 @@
           {$entry2}|
         {/foreach}</td>
         <td>{$list[i].rek_institutional_status_lookup}</td>
-        <td>{$list[i].rek_herdc_status_lookup}</td>
         <td>{$list[i].rek_acknowledgements}</td>
         <td>{$list[i].rek_genre}</td>
         <td>{$list[i].rek_original_format}</td>

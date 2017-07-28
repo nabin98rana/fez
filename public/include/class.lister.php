@@ -291,11 +291,6 @@ class Lister
       $sort_by_list["searchKey" . Search_Key::getID("Altmetric Score")] = "Altmetric Score";
     }
 
-    if (Auth::isValidSession($session)) {
-      $sort_by_list["searchKey" . Search_Key::getID("GS Citation Count")] = "Google Scholar Citation Count";
-    }
-
-
     if (($cat == 'search' || $cat == 'all_fields' || $cat == 'quick_filter')) {
       $sort_by_list['searchKey0'] = "Search Relevance";
       if (($params["sort_by"]) == "") {
