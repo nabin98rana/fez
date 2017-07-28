@@ -35,6 +35,7 @@ include_once dirname(dirname(__FILE__)).DIRECTORY_SEPARATOR.'config.inc.php';
 include_once(APP_INC_PATH.'/class.fedora_direct_access.php');
 include_once(APP_INC_PATH.'/class.user.php');
 include_once(APP_INC_PATH.'/class.auth.php');
+include_once(APP_INC_PATH . "class.auth_index.php");
 include_once(APP_INC_PATH . "Apache/Solr/Service.php");
 
 use Elasticsearch\ClientBuilder;
@@ -283,7 +284,7 @@ class IntegrityCheck
   }
 
   /**
-   * checks to make sure that all solr items have citations
+   * checks to make sure that all solr items have citations and auth rules
    *
    * @return void
    **/
@@ -293,7 +294,7 @@ class IntegrityCheck
     try {
       $this->db->query("TRUNCATE TABLE {$this->prefix}integrity_solr_unspawned_citations");
       if (APP_ES_SWITCH == 'ON') {
-        $manualFilter = '-citation_t:[* TO *]';
+        $manualFilter = '((!citation_t:[* TO *]) OR (!_authlister_t:[* TO *]))';
         $start = 0;
         $page_rows = 99999999;
 
@@ -341,7 +342,7 @@ class IntegrityCheck
           $countInserted++;
         }
       }
-      echo "\tFound {$countInserted} pids that don't have citations in solr\n";
+      echo "\tFound {$countInserted} pids that don't have citations or auth_lister values in the index\n";
     } catch(Exception $ex) {
       echo "The following exception occurred in doSolrCitationChecks: " . $ex->getMessage() . "\n";
       $this->log->err($ex);
@@ -385,6 +386,7 @@ class IntegrityCheck
       $queue = FulltextQueue::singleton();
 
       foreach($pids as $pid) {
+        AuthIndex::setIndexAuth($pid);
         Citation::updateCitationCache($pid);
         $queue->add($pid);
       }

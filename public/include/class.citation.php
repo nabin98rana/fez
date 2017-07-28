@@ -252,6 +252,11 @@ class Citation
 				$result = $det['cit_template'];
 				if (empty($result)) {
 					$citation = Record::getTitleFromIndex($list[$row]['rek_pid']);
+					// if the pid has no title, throw and error and continue, don't go into an infinite loop
+					if ($citation == '') {
+              $log->err($list[$row]['rek_pid'] . " has no title! Probably a failed creation record needing deletion");
+              continue;
+          }
 					$log->debug("No Style, so setting Citation to just title of ".$citation." for PID ".$pid." xdis_id of ".$xdis_id);
 					$citation = Citation::formatTitle($citation, $list[$row]);
 					Citation::updateCitationCache($list[$row]['rek_pid'], $citation);
