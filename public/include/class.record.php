@@ -1689,7 +1689,11 @@ class Record
             $provCode = Controlled_Vocab::getID($provHERDCcode);
             $record->addSearchKeyValueList(array("HERDC code"), array($provCode), true, $history);
 
-          // Institutional status
+            // HERDC status
+            $provisional = Controlled_Vocab::getID('Provisional Code');
+            $record->addSearchKeyValueList(array("HERDC Status"), array($provisional), true, $history);
+
+            // Institutional status
             $unknown = Controlled_Vocab::getID('Unknown');
             $record->addSearchKeyValueList(array("Institutional Status"), array($unknown), true, $history);
         }
