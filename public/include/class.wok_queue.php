@@ -430,29 +430,6 @@ class WokQueue extends Queue
         }
         $record = new RecordObject($pid);
         $record->setBGP($this->_bgp);
-        foreach ($aut_ids as $author_id) {
-          $matchResults = $record->matchAuthor($author_id, TRUE, TRUE); // TODO: enable this when required
-            // If this record is in the APP_HERDC_TRIAL_COLLECTION list and it has been claimed by a new author,
-            // then change the eSpace followup flag to 'followup' and change the email to indicate this
-          $isMemberOf = Record::getSearchKeyIndexValue($pid, "isMemberOf", false);
-          $herdc_trial_collection = explode(',', preg_replace("/[' ]/", '', APP_HERDC_TRIAL_COLLECTION));
-
-            if ($matchResults[1] == "Inserted") {
-              if (count(array_intersect($herdc_trial_collection, $isMemberOf)) > 0) {
-                $search_keys = array("Follow up Flags");
-                $values = array(Controlled_Vocab::getID("Follow-up"));
-                $record->addSearchKeyValueList($search_keys, $values, true, " was added due to RID author ID matching");
-                $autDetails = Author::getDetails($author_id);
-                $publishedDate = Record::getSearchKeyIndexValue($pid, "Date", true);
-                $publishedDate = strftime("%Y", strtotime($publishedDate));
-                $subject = "ResearcherID Completed HERDC author change :: ".$pid." :: ".$publishedDate." :: ". ($autDetails['aut_org_username'] ?: $autDetails['aut_student_username']);
-                $body = "Automatically assigned this pid ".$pid." to followup flag - followup because it is in the HERDC PRE-AUDIT COLLECTION ".APP_HERDC_TRIAL_COLLECTION." for successful author match for RID download of author ".
-                    $autDetails['aut_display_name']." with username ".($autDetails['aut_org_username'] ?: $autDetails['aut_student_username']);
-                $userEmail = "";
-                Eventum::lodgeJob($subject, $body, APP_EMAIL_SYSTEM_FROM_ADDRESS);
-              }
-          }
-        }
         $record->setIndexMatchingFields();
       }
       $this->deleteAutIds($ut);

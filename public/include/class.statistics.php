@@ -539,10 +539,8 @@ class Statistics
 				" . APP_TABLE_PREFIX . "record_search_key r1
 				SET rek_file_downloads = (
 				SELECT COUNT(*) FROM " . APP_TABLE_PREFIX . "statistics_all
-				WHERE stl_dsid <> '' AND stl_dsid IS NOT NULL AND stl_pid = r1.rek_pid AND stl_counter_bad = FALSE),
-				rek_views = (
-				SELECT COUNT(*) FROM " . APP_TABLE_PREFIX . "statistics_all
-				WHERE (stl_dsid = '' OR stl_dsid IS NULL) AND stl_pid = r1.rek_pid AND stl_counter_bad = FALSE)";
+				WHERE stl_dsid <> '' AND stl_dsid IS NOT NULL AND stl_pid = r1.rek_pid AND stl_counter_bad = FALSE)
+        ";
 		try {
 			$db->query($stmt);
 		}
@@ -1143,22 +1141,23 @@ class Statistics
 
 		if (count($stats) == 0) { return false; }
 		foreach ($stats as $pid => $val) {
-			if (is_numeric($val['views'])) {
-				if ($val['views'] > 0) {
-					$stmt = "UPDATE
-							" . APP_TABLE_PREFIX . "record_search_key r1
-							SET rek_views = rek_views + ".$val['views']."
-							WHERE r1.rek_pid = ".$db->quote($pid);
-
-					try {
-						$db->query($stmt);
-					}
-					catch(Exception $ex) {
-						$log->err($ex);
-						return -1; //abort
-					}
-				}
-			}
+//decommissioned the views search key, at least for now
+//			if (is_numeric($val['views'])) {
+//				if ($val['views'] > 0) {
+//					$stmt = "UPDATE
+//							" . APP_TABLE_PREFIX . "record_search_key r1
+//							SET rek_views = rek_views + ".$val['views']."
+//							WHERE r1.rek_pid = ".$db->quote($pid);
+//
+//					try {
+//						$db->query($stmt);
+//					}
+//					catch(Exception $ex) {
+//						$log->err($ex);
+//						return -1; //abort
+//					}
+//				}
+//			}
 			if (is_numeric($val['downloads'])) {
 				if ($val['downloads'] > 0) {
 					$stmt = "UPDATE
@@ -1188,10 +1187,7 @@ class Statistics
 				" . APP_TABLE_PREFIX . "record_search_key r1
 				SET rek_file_downloads = (
 						SELECT COUNT(*) FROM " . APP_TABLE_PREFIX . "statistics_all
-						WHERE stl_dsid <> '' AND stl_dsid IS NOT NULL AND stl_pid = ".$db->quote($pid)." AND stl_counter_bad = FALSE),
-					rek_views = (
-						SELECT COUNT(*) FROM " . APP_TABLE_PREFIX . "statistics_all
-						WHERE (stl_dsid = '' OR stl_dsid IS NULL) AND stl_pid = ".$db->quote($pid)." AND stl_counter_bad = FALSE)
+						WHERE stl_dsid <> '' AND stl_dsid IS NOT NULL AND stl_pid = ".$db->quote($pid)." AND stl_counter_bad = FALSE)
 				WHERE rek_pid = ".$db->quote($pid);
 
 		try {

@@ -21,7 +21,6 @@ abstract class RecordImport
     protected $_isiLoc = null;
     protected $_pubmedId = null;
     protected $_scopusId = null;
-    protected $_embaseId = null;
     protected $_wokId = null;
     protected $_wokCitationCount = null;
     protected $_scopusCitationCount = null;
@@ -1044,7 +1043,6 @@ abstract class RecordImport
             $mods['identifier_wok_doc_type'] = $this->_wokDocTypeCode;
             $mods['identifier_scopus'] = $this->_scopusId;
             $mods['identifier_pubmed'] = $this->_pubmedId;
-            $mods['identifier_embase'] = $this->_embaseId;
             $mods['language'] = $this->_languageCode;
             $mods['genre'] = $this->_xdisTitle;
             $mods['genre_type'] = $this->_xdisSubtype;
@@ -1152,7 +1150,6 @@ abstract class RecordImport
             "WoK Doc Type" => $this->_wokDocTypeCode,
             "Scopus Doc Type" => $this->_scopusDocTypeCode,
             "Pubmed Id" => $this->_pubmedId,
-            "Embase Id" => $this->_embaseId,
             "Scopus Id" => $this->_scopusId,
             "ISI LOC" => $this->_isiLoc,
             "Publisher" => $this->_publisher,
@@ -1215,7 +1212,6 @@ abstract class RecordImport
         $sekData['Author']          = $this->_authors;
         $sekData['ISI LOC']         = $this->_isiLoc;
         $sekData['Scopus ID']         = $this->_scopusId;
-        $sekData['Embase ID']         = $this->_embaseId;
         $sekData['Pubmed ID']         = $this->_pubmedId;
         $sekData['Keywords']        = $this->_keywords;
         $sekData['ISBN']            = $this->_isbn;
