@@ -50,7 +50,7 @@ class BackgroundProcess_Reindex_Recent_Pids_Into_Solr extends BackgroundProcess
     $log = FezLog::get();
     $db = DB_API::get();
 
-    $date = date('Y-m', strtotime('-5 months'));
+    $date = date('Y-m', strtotime('-2 days'));
 
     $stmt = "INSERT INTO " . APP_TABLE_PREFIX . "fulltext_queue (ftq_pid, ftq_op) SELECT rek_pid, 'I' FROM fez_record_search_key
              LEFT JOIN " . APP_TABLE_PREFIX . "fulltext_queue ON rek_pid = ftq_pid
