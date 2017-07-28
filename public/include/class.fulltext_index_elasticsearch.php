@@ -380,7 +380,6 @@ class FulltextIndex_ElasticSearch extends FulltextIndex
 
           // resolve result
           $docs[$i]['relevance'] = $doc['_score'];
-          $docs[$i]['rek_views'] = $doc['_source']['views'];
           $i++;
         }
       }
