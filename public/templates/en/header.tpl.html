@@ -10,6 +10,7 @@
 
 <title>{if $extra_title != ""}{$extra_title} - {elseif $list_heading != ""}{$list_heading} - {/if}{$application_title}</title>
 {if $meta_description}<meta name="Description" content="{$meta_description}"/>{/if}
+{if $app_analytics_verification}<meta name="google-site-verification" content="{$app_analytics_verification}"/>{/if}
 
 {*This is to find javascript errors and put them into a variable for testing *}
 <script type="text/javascript">
