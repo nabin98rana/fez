@@ -31,7 +31,12 @@ class Sitemap {
   private $aws = null;
 
   public function __construct ($compress = true) {
-    $this->baseUrl = 'http://'.APP_HOSTNAME.'/';
+    $app_protocol = "http://";
+    if (APP_HTTPS == "ON") {
+        $app_protocol = "https://";
+    }
+
+    $this->baseUrl = $app_protocol.APP_HOSTNAME.'/';
     $this->path = APP_PATH . "sitemap" . DIRECTORY_SEPARATOR;
     if (defined('AWS_S3_ENABLED') && AWS_S3_ENABLED == 'true') {
       $this->aws = new AWS(AWS_S3_CACHE_BUCKET);
