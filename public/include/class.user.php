@@ -1309,12 +1309,12 @@ class User
         $userdetails['email'] = $account['mail'];
         $userdetails['displayname'] = $account['name'];
         $home_idp_suffix = 'uq.edu.au';
-        if (in_array($account['type'], array(3,17,18,33,34))) {
+        if (in_array('IS_UQ_STAFF_PLACEMENT', $account['class'])) {
             $_SESSION[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-UnscopedAffiliation'] = 'staff';
             $_SESSION[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-PrimaryAffiliation'] = 'staff';
             $_SESSION[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-ScopedAffiliation'] = 'staff@' . $home_idp_suffix;
         }
-        if (in_array($account['type'], array(1,2,11,21,22))) {
+        if (in_array('IS_UQ_STUDENT_PLACEMENT', $account['class'])) {
             $_SESSION[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-UnscopedAffiliation'] = 'student';
             $_SESSION[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-PrimaryAffiliation'] = 'student';
             $_SESSION[APP_SHIB_ATTRIBUTES_SESSION]['Shib-EP-ScopedAffiliation'] = 'student@' . $home_idp_suffix;
