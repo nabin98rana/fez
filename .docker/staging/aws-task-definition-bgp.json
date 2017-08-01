@@ -40,7 +40,7 @@
         },
         {
           "sourceVolume": "var_log",
-          "containerPath": "/var/log"
+          "containerPath": "/var/log/espacestage"
         }
       ],
       "essential": true,
