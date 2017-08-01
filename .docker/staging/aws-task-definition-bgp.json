@@ -35,10 +35,6 @@
       ],
       "mountPoints": [
         {
-          "sourceVolume": "tmp",
-          "containerPath": "/tmp"
-        },
-        {
           "sourceVolume": "var_log",
           "containerPath": "/var/log/espacestage"
         }
@@ -54,10 +50,6 @@
     }
   ],
   "volumes": [
-    {
-      "name": "tmp",
-      "host": {}
-    },
     {
       "name": "var_log",
       "host": {}
