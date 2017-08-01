@@ -62,6 +62,16 @@
           "value": "<WEBCRON_TOKEN>"
         }
       ],
+      "mountPoints": [
+        {
+          "sourceVolume": "tmp",
+          "containerPath": "/tmp"
+        },
+        {
+          "sourceVolume": "var_log",
+          "containerPath": "/var/log/espacestage"
+        }
+      ],
       "essential": true,
       "logConfiguration": {
           "logDriver": "syslog",
@@ -72,5 +82,14 @@
       }
     }
   ],
-  "volumes": []
+  "volumes": [
+    {
+      "name": "tmp",
+      "host": {}
+    },
+    {
+      "name": "var_log",
+      "host": {}
+    }
+  ]
 }
