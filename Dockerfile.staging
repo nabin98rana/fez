@@ -27,6 +27,7 @@ RUN chmod +x .docker/staging/bootstrap.sh
 
 VOLUME /var/app/current
 VOLUME /var/cache
+VOLUME /var/log/espacestage
 VOLUME /etc/nginx/conf.d
 VOLUME /etc/nginx/rules
 
