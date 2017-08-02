@@ -27,6 +27,7 @@ RUN chmod +x .docker/production/bootstrap.sh
 
 VOLUME /var/app/current
 VOLUME /var/cache
+VOLUME /var/log/espaceproduction
 VOLUME /etc/nginx/conf.d
 VOLUME /etc/nginx/rules
 
